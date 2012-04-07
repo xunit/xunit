@@ -1,0 +1,54 @@
+﻿<project schemaVersion="1.6.0.7">
+    <assemblies>
+        <assembly assemblyPath=".\xunit\bin\Release\xunit.dll" xmlCommentsPath=".\xunit\bin\Release\xunit.xml" commentsOnly="False" />
+        <assembly assemblyPath=".\xunit.extensions\bin\Release\xunit.extensions.dll" xmlCommentsPath=".\xunit.extensions\bin\Release\xunit.extensions.xml" commentsOnly="False" />
+        <assembly assemblyPath=".\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" xmlCommentsPath=".\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" commentsOnly="False" />
+    </assemblies>
+    <namespaceSummaries>
+        <namespaceSummaryItem name="" isDocumented="False" />
+        <namespaceSummaryItem name="Xunit" isDocumented="True">The classes in this namespace are the core client classes for xUnit.net.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Xunit.Extensions" isDocumented="True">The classes in this namespace are extensions for xUnit.net.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Xunit.Sdk" isDocumented="True">The classes in this namespace are intended to be used by people who are extending xUnit.net.</namespaceSummaryItem>
+    </namespaceSummaries>
+    <ProjectSummary>This is the documentation for xUnit.net.</ProjectSummary>
+    <MissingTags>Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter</MissingTags>
+    <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Protected</VisibleItems>
+    <HtmlHelp1xCompilerPath path="" />
+    <HtmlHelp2xCompilerPath path="" />
+    <OutputPath>.\Help\</OutputPath>
+    <SandcastlePath path="" />
+    <WorkingPath path="" />
+    <CleanIntermediates>True</CleanIntermediates>
+    <KeepLogFile>True</KeepLogFile>
+    <BuildLogFile path="" />
+    <HelpFileFormat>HtmlHelp1x</HelpFileFormat>
+    <CppCommentsFixup>False</CppCommentsFixup>
+    <FrameworkVersion>2.0.50727</FrameworkVersion>
+    <IndentHtml>False</IndentHtml>
+    <Preliminary>False</Preliminary>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <RootNamespaceTitle />
+    <HelpTitle>xUnit.net - Unit Testing for .NET</HelpTitle>
+    <HtmlHelpName>xunit</HtmlHelpName>
+    <Language>en-US</Language>
+    <CopyrightHref />
+    <CopyrightText>Copyright (C) 2007-12 Microsoft Corporation</CopyrightText>
+    <FeedbackEMailAddress />
+    <FeedbackEMailLinkText />
+    <HeaderText />
+    <FooterText />
+    <ProjectLinkType>Local</ProjectLinkType>
+    <SdkLinkType>Msdn</SdkLinkType>
+    <SdkLinkTarget>Blank</SdkLinkTarget>
+    <PresentationStyle>Prototype</PresentationStyle>
+    <NamingMethod>Guid</NamingMethod>
+    <SyntaxFilters>CSharp, VisualBasic</SyntaxFilters>
+    <ShowFeedbackControl>False</ShowFeedbackControl>
+    <BinaryTOC>True</BinaryTOC>
+    <IncludeFavorites>True</IncludeFavorites>
+    <CollectionTocStyle>Hierarchical</CollectionTocStyle>
+    <IncludeStopWordList>True</IncludeStopWordList>
+    <PlugInNamespaces>ms.vsipcc+, ms.vsexpresscc+</PlugInNamespaces>
+    <HelpFileVersion>1.0.0.0</HelpFileVersion>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
+</project>

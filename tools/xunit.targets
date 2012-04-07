@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ToolsPath>$(MSBuildThisFileDirectory)</ToolsPath>
+
+        <!-- Define default configuration (so building from command line is consistent) -->
+        <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+
+        <!-- Enable NuGet package restore for all projects -->
+        <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(ToolsPath)..</SolutionDir>
+        <RestorePackages Condition=" '$(RestorePackages)' == '' ">true</RestorePackages>
+
+        <!-- Use CustomAfterMicrosoftCommonTargets property (defined in Microsoft.Common.targets) to
+             inject post-Common targets files without requiring the inclusion -->
+        <CustomAfterMicrosoftCommonTargets>$(ToolsPath)xunit.nuget.targets</CustomAfterMicrosoftCommonTargets>
+    </PropertyGroup>
+</Project>

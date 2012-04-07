@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="FxCop rules for xUnit.net" Description="Rules for running FxCop against xunit.dll and xunit.extensions.dll" ToolsVersion="10.0">
+  <IncludeAll Action="Warning" />
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    <Rule Id="CA1002" Action="None" />
+    <Rule Id="CA1031" Action="None" />
+    <Rule Id="CA1033" Action="None" />
+    <Rule Id="CA1034" Action="None" />
+    <Rule Id="CA1059" Action="None" />
+    <Rule Id="CA1303" Action="None" />
+    <Rule Id="CA1305" Action="None" />
+    <Rule Id="CA1307" Action="None" />
+    <Rule Id="CA1702" Action="None" />
+    <Rule Id="CA1707" Action="None" />
+    <Rule Id="CA1720" Action="None" />
+    <Rule Id="CA1813" Action="None" />
+    <Rule Id="CA1819" Action="None" />
+  </Rules>
+</RuleSet>

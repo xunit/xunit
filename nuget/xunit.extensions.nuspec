@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+    <metadata>
+        <id>xunit.extensions</id>
+        <version>1.9.0.0</version>
+        <title>xUnit.net: Extensions</title>
+        <authors>James Newkirk, Brad Wilson</authors>
+        <description>Extensions for the xUnit.net framework, including data theories (data-driven tests) and several extension attributes.</description>
+        <language>en-US</language>
+        <projectUrl>http://xunit.codeplex.com</projectUrl>
+        <iconUrl>https://hg01.codeplex.com/xunit/raw-file/default/xunit-nuget-logo.png</iconUrl>
+        <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <dependencies>
+            <dependency id="xunit" version="1.9.0.0" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\src\xunit.extensions\bin\Release\xunit.extensions.dll" target="lib\net20\xunit.extensions.dll" />
+        <file src="..\src\xunit.extensions\bin\Release\xunit.extensions.xml" target="lib\net20\xunit.extensions.xml" />
+    </files>
+</package>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
+    <Identifier Id="xunit.runner.visualstudio.Microsoft.623f78dd-6d4b-48f3-a2c7-4bbb381bb146">
+        <Name>xUnit.net runner for Visual Studio</Name>
+        <Author>Microsoft Corporation</Author>
+        <Version>1.9.0.0</Version>
+        <Description xml:space="preserve">xUnit.net runner for Visual Studio</Description>
+        <Locale>1033</Locale>
+        <MoreInfoUrl>http://xunit.codeplex.com/</MoreInfoUrl>
+        <License>License.txt</License>
+        <Icon>Application.ico</Icon>
+        <SupportedProducts>
+            <VisualStudio Version="11.0">
+                <Edition>Ultimate</Edition>
+                <Edition>Premium</Edition>
+                <Edition>Pro</Edition>
+            </VisualStudio>
+        </SupportedProducts>
+        <SupportedFrameworkRuntimeEdition MinVersion="4.0" MaxVersion="4.5" />
+    </Identifier>
+    <References />
+    <Content>
+        <CustomExtension Type="UnitTestExtension">xunit.runner.visualstudio.dll</CustomExtension>
+    </Content>
+</Vsix>

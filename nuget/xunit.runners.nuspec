@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>xunit.runners</id>
+        <version>1.9.0.0</version>
+        <title>xUnit.net: Runners</title>
+        <authors>James Newkirk, Brad Wilson</authors>
+        <description>Runners for the xUnit.net framework, including Console, GUI, and MSBuild.</description>
+        <language>en-US</language>
+        <projectUrl>http://xunit.codeplex.com</projectUrl>
+        <iconUrl>http://download.codeplex.com/Download?ProjectName=xunit&amp;DownloadId=365445</iconUrl>
+        <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    </metadata>
+    <files>
+        <file src="..\src\xunit.console\HTML.xslt" target="tools\HTML.xslt" />
+        <file src="..\src\xunit.console\NUnitXml.xslt" target="tools\NUnitXml.xslt" />
+        <file src="..\src\xunit.console\bin\Release\xunit.console.exe" target="tools\xunit.console.exe" />
+        <file src="..\src\xunit.console\bin\Release\xunit.console.exe.config" target="tools\xunit.console.exe.config" />
+        <file src="..\src\xunit.console\bin\Release.x86\xunit.console.x86.exe" target="tools\xunit.console.x86.exe" />
+        <file src="..\src\xunit.console\bin\Release.x86\xunit.console.x86.exe.config" target="tools\xunit.console.x86.exe.config" />
+        <file src="..\src\xunit.console\bin\Release.clr4\xunit.console.clr4.exe" target="tools\xunit.console.clr4.exe" />
+        <file src="..\src\xunit.console\bin\Release.clr4\xunit.console.clr4.exe.config" target="tools\xunit.console.clr4.exe.config" />
+        <file src="..\src\xunit.console\bin\Release.clr4.x86\xunit.console.clr4.x86.exe" target="tools\xunit.console.clr4.x86.exe" />
+        <file src="..\src\xunit.console\bin\Release.clr4.x86\xunit.console.clr4.x86.exe.config" target="tools\xunit.console.clr4.x86.exe.config" />
+        <file src="..\src\xunit.gui\bin\Release\xunit.gui.exe" target="tools\xunit.gui.exe" />
+        <file src="..\src\xunit.gui\bin\Release.x86\xunit.gui.x86.exe" target="tools\xunit.gui.x86.exe" />
+        <file src="..\src\xunit.gui\bin\Release.clr4\xunit.gui.clr4.exe" target="tools\xunit.gui.clr4.exe" />
+        <file src="..\src\xunit.gui\bin\Release.clr4.x86\xunit.gui.clr4.x86.exe" target="tools\xunit.gui.clr4.x86.exe" />
+        <file src="..\src\xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll" target="tools\xunit.runner.msbuild.dll" />
+        <file src="..\src\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="tools\xunit.runner.utility.dll" />
+        <file src="..\src\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="tools\xunit.runner.utility.xml" />
+    </files>
+</package>

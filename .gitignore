@@ -1,0 +1,17 @@
+[Bb]in
+[Oo]bj
+packages
+
+*.suo
+*.user
+*.[Cc]ache
+*[Rr]esharper*
+*.html
+*.xml
+*.zip
+*.suo
+*.user
+*.cache
+*.nupkg
+*.exe
+*.dll

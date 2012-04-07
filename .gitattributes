@@ -1,0 +1,28 @@
+*.ico binary
+*.snk binary
+*.xls binary
+
+*.bat text
+*.config text
+*.cs text diff=csharp 
+*.csproj text merge=union 
+*.manifest text
+*.msbuild text
+*.nuspec text
+*.resx text merge=union
+*.ruleset text
+*.settings text
+*.shfb text
+*.targets text
+*.tdnet text
+*.txt text
+*.vb text
+*.vbproj text merge=union 
+*.vsixmanifest text
+*.vstemplate text
+*.xml text
+*.xsl text
+*.xslt text
+*.xunit text
+
+*.sln text eol=crlf merge=union 
