@@ -145,7 +145,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testMethod">The method under test</param>
         /// <returns>The test commands for the given test method</returns>
-        public IEnumerable<ITestCommand> EnumerateTestCommands(IMethodInfo testMethod)
+        public virtual IEnumerable<ITestCommand> EnumerateTestCommands(IMethodInfo testMethod)
         {
             string skipReason = MethodUtility.GetSkipReason(testMethod);
 

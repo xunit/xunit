@@ -4,7 +4,7 @@ using System.Xml;
 using TestUtility;
 using Xunit;
 
-public class ExecutorCurrentDirectoryAcceptanceTests : AcceptanceTest
+public class ExecutorCurrentDirectoryAcceptanceTests : AcceptanceTestInNewAppDomain
 {
     [Fact]
     public void CurrentDirectoryWhenRunningTestsIsTestAssemblyPath()

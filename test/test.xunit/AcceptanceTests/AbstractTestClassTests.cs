@@ -2,7 +2,7 @@
 using TestUtility;
 using Xunit;
 
-public class AbstractTestClassTests : AcceptanceTest
+public class AbstractTestClassTests : AcceptanceTestInNewAppDomain
 {
     [Fact]
     public void TestsFromAbstractBaseClassesShouldBeExecuted()

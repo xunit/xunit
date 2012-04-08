@@ -24,25 +24,25 @@ public class ExecutorWrapperTests
         }
     }
 
-    public class AppDomainBehavior : AcceptanceTest
+    public class AppDomainBehavior : AcceptanceTestInNewAppDomain
     {
         [Fact]
         public void ShouldNotBeExcutingInTheSameAppDomain()
         {
-            string codeTemplate =
-                @"
-                    using System;
-                    using System.Diagnostics;
-                    using Xunit;
+            string codeTemplate = @"
+                using System;
+                using System.Diagnostics;
+                using Xunit;
 
-                    public class AppDomainTest
+                public class AppDomainTest
+                {{
+                    [Fact]
+                    public void TestDomainName()
                     {{
-                        [Fact]
-                        public void TestDomainName()
-                        {{
-                            Assert.False({0} == AppDomain.CurrentDomain.Id);
-                        }}
-                    }}";
+                        Assert.False({0} == AppDomain.CurrentDomain.Id);
+                    }}
+                }}
+            ";
 
             string code = String.Format(codeTemplate, AppDomain.CurrentDomain.Id);
 
@@ -58,20 +58,21 @@ public class ExecutorWrapperTests
         public void CanCancelBetweenTestMethodRuns()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
+                public class TestClass
+                {
+                    [Fact]
+                    public void TestMethod1()
                     {
-                        [Fact]
-                        public void TestMethod1()
-                        {
-                        }
+                    }
 
-                        [Fact]
-                        public void TestMethod2()
-                        {
-                        }
-                    }";
+                    [Fact]
+                    public void TestMethod2()
+                    {
+                    }
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -108,56 +109,12 @@ public class ExecutorWrapperTests
             {
                 assembly.Compile(code);
 
-                using (ExecutorWrapper wrapper = new ExecutorWrapper(assembly.FileName, null, false))
-                    Assert.Equal(assembly.FileName, wrapper.AssemblyFilename);
-            }
-        }
-
-        [Fact]
-        public void SuccessfulConstructionCanReturnConfigFilename()
-        {
-            string code = @"
-                    using Xunit;
-
-                    public class TestClass
-                    {
-                        [Fact]
-                        public void TestMethod()
-                        {
-                        }
-                    }";
-
-            using (MockAssembly assembly = new MockAssembly())
-            {
-                assembly.Compile(code);
-
                 using (ExecutorWrapper wrapper = new ExecutorWrapper(assembly.FileName, @"C:\Foo\bar.config", false))
+                {
+                    Assert.Equal(assembly.FileName, wrapper.AssemblyFilename);
                     Assert.Equal(@"C:\Foo\bar.config", wrapper.ConfigFilename);
-            }
-        }
-
-        [Fact]
-        public void SuccessfulConstructionCanReturnXunitDllVersion()
-        {
-            string code = @"
-                    using Xunit;
-
-                    public class TestClass
-                    {
-                        [Fact]
-                        public void TestMethod()
-                        {
-                        }
-                    }";
-
-            AssemblyName xunitName = XunitAssemblyName;
-
-            using (MockAssembly assembly = new MockAssembly())
-            {
-                assembly.Compile(code);
-
-                using (ExecutorWrapper wrapper = new ExecutorWrapper(assembly.FileName, null, false))
-                    Assert.Equal(xunitName.Version.ToString(), wrapper.XunitVersion);
+                    Assert.Equal(XunitAssemblyName.Version.ToString(), wrapper.XunitVersion);
+                }
             }
         }
 
@@ -206,7 +163,7 @@ public class ExecutorWrapperTests
         }
     }
 
-    public class DefaultConfigFileBehavior : AcceptanceTest, IDisposable
+    public class DefaultConfigFileBehavior : AcceptanceTestInNewAppDomain, IDisposable
     {
         static readonly string assemblyFileName = Path.GetRandomFileName();
         static readonly string configFile = assemblyFileName + ".dll.config";
@@ -233,21 +190,20 @@ public class ExecutorWrapperTests
         [Fact]
         public void ValueFromUserSpecifiedConfigFile()
         {
-            string code =
-                @"
-                    using System;
-                    using System.Configuration;
-                    using Xunit;
+            string code = @"
+                using System;
+                using System.Configuration;
+                using Xunit;
 
-                    public class MockTestClass
+                public class MockTestClass
+                {
+                    [Fact]
+                    public void CheckConfigurationFileEntry()
                     {
-                        [Fact]
-                        public void CheckConfigurationFileEntry()
-                        {
-                            Assert.Equal(ConfigurationSettings.AppSettings[""ConfigurationValue""], ""42"");
-                        }
+                        Assert.Equal(ConfigurationSettings.AppSettings[""ConfigurationValue""], ""42"");
                     }
-                ";
+                }
+            ";
 
             XmlNode assemblyNode;
 
@@ -262,7 +218,7 @@ public class ExecutorWrapperTests
         }
     }
 
-    public class InvalidConfigurationFileBehavior : AcceptanceTest, IDisposable
+    public class InvalidConfigurationFileBehavior : AcceptanceTestInNewAppDomain, IDisposable
     {
         static readonly string assemblyFileName = Path.GetRandomFileName();
         static readonly string configFile = assemblyFileName + ".dll.config";
@@ -286,20 +242,19 @@ public class ExecutorWrapperTests
         [Fact]
         public void ConfigurationExceptionShouldBeThrown()
         {
-            string code =
-                @"
-                    using System;
-                    using System.Configuration;
-                    using Xunit;
+            string code = @"
+                using System;
+                using System.Configuration;
+                using Xunit;
 
-                    public class MockTestClass
+                public class MockTestClass
+                {
+                    [Fact]
+                    public void TestMethod()
                     {
-                        [Fact]
-                        public void TestMethod()
-                        {
-                        }
                     }
-                ";
+                }
+            ";
 
             XmlNode assemblyNode;
 
@@ -354,51 +309,50 @@ public class ExecutorWrapperTests
         [Fact]
         public void AcceptanceTest()
         {
-            string code =
-                @"
-                    using System;
-                    using Xunit;
+            string code = @"
+                using System;
+                using Xunit;
 
-                    namespace Namespace1
+                namespace Namespace1
+                {
+                    public class Class1
                     {
-                        public class Class1
+                        [Fact]
+                        [Trait(""Name!"", ""Value!"")]
+                        public void Passing()
+                        {
+                            Assert.Equal(2, 2);
+                        }
+
+                        [Fact]
+                        public void Failing()
+                        {
+                            Assert.Equal(2, 3);
+                        }
+
+                        [Fact(Skip=""Skipping"")]
+                        public void Skipped() {}
+
+                        [Fact(Name=""Custom Test Name"")]
+                        public void CustomName() {}
+                    }
+                }
+
+                namespace Namespace2
+                {
+                    public class OuterClass
+                    {
+                        public class Class2
                         {
                             [Fact]
-                            [Trait(""Name!"", ""Value!"")]
                             public void Passing()
                             {
                                 Assert.Equal(2, 2);
                             }
-
-                            [Fact]
-                            public void Failing()
-                            {
-                                Assert.Equal(2, 3);
-                            }
-
-                            [Fact(Skip=""Skipping"")]
-                            public void Skipped() {}
-
-                            [Fact(Name=""Custom Test Name"")]
-                            public void CustomName() {}
                         }
                     }
-
-                    namespace Namespace2
-                    {
-                        public class OuterClass
-                        {
-                            public class Class2
-                            {
-                                [Fact]
-                                public void Passing()
-                                {
-                                    Assert.Equal(2, 2);
-                                }
-                            }
-                        }
-                    }
-                ";
+                }
+            ";
 
             XmlNode assemblyNode = null;
             string filename = null;
@@ -453,9 +407,10 @@ public class ExecutorWrapperTests
         public void AssemblyWithNoTests()
         {
             string code = @"
-                    public class JustAPlainOldClass
-                    {
-                    }";
+                public class JustAPlainOldClass
+                {
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -470,21 +425,22 @@ public class ExecutorWrapperTests
         public void AssemblyWithMultipleTestsAndMultipleClasses()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class JustAPlainOldClass
+                public class JustAPlainOldClass
+                {
+                    public class Class1
                     {
-                        public class Class1
-                        {
-                            [Fact] public void Test1() {}
-                            [Fact] public void Test2() {}
-                        }
+                        [Fact] public void Test1() {}
+                        [Fact] public void Test2() {}
+                    }
 
-                        public class Class2
-                        {
-                            [Fact] public void Test3() {}
-                        }
-                    }";
+                    public class Class2
+                    {
+                        [Fact] public void Test3() {}
+                    }
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -502,15 +458,16 @@ public class ExecutorWrapperTests
         public void AcceptanceTest()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
+                public class TestClass
+                {
+                    [Fact]
+                    public void TestMethod()
                     {
-                        [Fact]
-                        public void TestMethod()
-                        {
-                        }
-                    }";
+                    }
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -532,11 +489,12 @@ public class ExecutorWrapperTests
         public void AssemblyWithNoTests()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class PlainOldDotNetClass
-                    {
-                    }";
+                public class PlainOldDotNetClass
+                {
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -559,15 +517,16 @@ public class ExecutorWrapperTests
         public void AcceptanceTest()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
+                public class TestClass
+                {
+                    [Fact]
+                    public void TestMethod()
                     {
-                        [Fact]
-                        public void TestMethod()
-                        {
-                        }
-                    }";
+                    }
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -589,11 +548,12 @@ public class ExecutorWrapperTests
         public void ClassWhichHasNoTests()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class PlainOldDotNetClass
-                    {
-                    }";
+                public class PlainOldDotNetClass
+                {
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -613,11 +573,12 @@ public class ExecutorWrapperTests
         public void InvalidClassName()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                    }";
+                public class TestClass
+                {
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -635,15 +596,16 @@ public class ExecutorWrapperTests
         public void AcceptanceTest()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
+                public class TestClass
+                {
+                    [Fact]
+                    public void TestMethod()
                     {
-                        [Fact]
-                        public void TestMethod()
-                        {
-                        }
-                    }";
+                    }
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -665,19 +627,20 @@ public class ExecutorWrapperTests
         public void NonTestMethodInClassWithTestMethod()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
+                public class TestClass
+                {
+                    public void NonTestMethod()
                     {
-                        public void NonTestMethod()
-                        {
-                        }
+                    }
 
-                        [Fact]
-                        public void TestMethod()
-                        {
-                        }
-                    }";
+                    [Fact]
+                    public void TestMethod()
+                    {
+                    }
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -697,11 +660,12 @@ public class ExecutorWrapperTests
         public void InvalidClassName()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                    }";
+                public class TestClass
+                {
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -716,11 +680,12 @@ public class ExecutorWrapperTests
         public void InvalidMethodName()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                    }";
+                public class TestClass
+                {
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -735,13 +700,14 @@ public class ExecutorWrapperTests
         public void AmbiguousMethodName()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                        public void DummyMethod() {}
-                        public void DummyMethod(string s) {}
-                    }";
+                public class TestClass
+                {
+                    public void DummyMethod() {}
+                    public void DummyMethod(string s) {}
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -759,14 +725,15 @@ public class ExecutorWrapperTests
         public void AcceptanceTest()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                        [Fact] public void TestMethod1() {}
-                        [Fact] public void TestMethod2() {}
-                        [Fact] public void TestMethod3() {}
-                    }";
+                public class TestClass
+                {
+                    [Fact] public void TestMethod1() {}
+                    [Fact] public void TestMethod2() {}
+                    [Fact] public void TestMethod3() {}
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -793,14 +760,15 @@ public class ExecutorWrapperTests
         public void CallbackIncludesStartMessages()
         {
             const string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                        [Fact] public void TestMethod1() {}
-                        [Fact] public void TestMethod2() {}
-                        [Fact] public void TestMethod3() {}
-                    }";
+                public class TestClass
+                {
+                    [Fact] public void TestMethod1() {}
+                    [Fact] public void TestMethod2() {}
+                    [Fact] public void TestMethod3() {}
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -827,15 +795,16 @@ public class ExecutorWrapperTests
         public void TestMethodWithNonTestMethod()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                        [Fact] public void TestMethod1() {}
-                        [Fact] public void TestMethod2() {}
-                        [Fact] public void TestMethod3() {}
-                        public void NonTestMethod() {}
-                    }";
+                public class TestClass
+                {
+                    [Fact] public void TestMethod1() {}
+                    [Fact] public void TestMethod2() {}
+                    [Fact] public void TestMethod3() {}
+                    public void NonTestMethod() {}
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -858,11 +827,12 @@ public class ExecutorWrapperTests
         public void InvalidClassName()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                    }";
+                public class TestClass
+                {
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -880,12 +850,13 @@ public class ExecutorWrapperTests
         public void InvalidMethodName()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                        public void DummyMethod() {}
-                    }";
+                public class TestClass
+                {
+                    public void DummyMethod() {}
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -903,14 +874,15 @@ public class ExecutorWrapperTests
         public void AmbiguousMethodName()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                        public void DummyMethod() {}
-                        public void DummyMethod(string s) {}
-                        public void DummyMethod2() {}
-                    }";
+                public class TestClass
+                {
+                    public void DummyMethod() {}
+                    public void DummyMethod(string s) {}
+                    public void DummyMethod2() {}
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -928,12 +900,13 @@ public class ExecutorWrapperTests
         public void NonPublicTestMethod()
         {
             string code = @"
-                    using Xunit;
+                using Xunit;
 
-                    public class TestClass
-                    {
-                        [Fact] void NonPublicTestMethod() {}
-                    }";
+                public class TestClass
+                {
+                    [Fact] void NonPublicTestMethod() {}
+                }
+            ";
 
             using (MockAssembly assembly = new MockAssembly())
             {
@@ -953,7 +926,7 @@ public class ExecutorWrapperTests
         }
     }
 
-    public class SpecfiedConfigFileBehavior : AcceptanceTest, IDisposable
+    public class SpecfiedConfigFileBehavior : AcceptanceTestInNewAppDomain, IDisposable
     {
         readonly string configFile;
 
@@ -962,13 +935,13 @@ public class ExecutorWrapperTests
             configFile = Path.Combine(MockAssembly.BasePath, Path.GetRandomFileName());
 
             string config =
-                @"<?xml version=""1.0"" encoding=""utf-8"" ?>
-                        <configuration>
-                            <appSettings>
-                                <add key=""ConfigurationValue"" value=""42"" />
-                            </appSettings>
-                        </configuration>
-                    ";
+@"<?xml version=""1.0"" encoding=""utf-8"" ?>
+<configuration>
+    <appSettings>
+        <add key=""ConfigurationValue"" value=""42"" />
+    </appSettings>
+</configuration>
+";
 
             File.WriteAllText(configFile, config);
         }
@@ -982,21 +955,20 @@ public class ExecutorWrapperTests
         [Fact]
         public void ValueFromUserSpecifiedConfigFile()
         {
-            string code =
-                @"
-                    using System;
-                    using System.Configuration;
-                    using Xunit;
+            string code = @"
+                using System;
+                using System.Configuration;
+                using Xunit;
 
-                    public class MockTestClass
+                public class MockTestClass
+                {
+                    [Fact]
+                    public void CheckConfigurationFileEntry()
                     {
-                        [Fact]
-                        public void CheckConfigurationFileEntry()
-                        {
-                            Assert.Equal(ConfigurationSettings.AppSettings[""ConfigurationValue""], ""42"");
-                        }
+                        Assert.Equal(ConfigurationSettings.AppSettings[""ConfigurationValue""], ""42"");
                     }
-                ";
+                }
+            ";
 
             XmlNode assemblyNode = Execute(code, configFile);
 

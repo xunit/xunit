@@ -1,28 +1,24 @@
 ﻿using System;
-using System.Xml;
+using System.Linq;
 using TestUtility;
 using Xunit;
+using Xunit.Sdk;
 
 public class FactMethodWithArgumentsTests : AcceptanceTest
 {
     [Fact]
     public void FactMethodsCannotHaveArguments()
     {
-        string code = @"
-            using System;
-            using Xunit;
+        MethodResult result = RunClass(typeof(ClassUnderTest)).Single();
 
-            public class MockTestClass
-            {
-                [Fact] public void FactWithParameters(int x) { }
-            }
-        ";
+        FailedResult failedResult = Assert.IsType<FailedResult>(result);
+        Assert.Equal(typeof(InvalidOperationException).FullName, failedResult.ExceptionType);
+        Assert.Equal("System.InvalidOperationException : Fact method FactMethodWithArgumentsTests+ClassUnderTest.FactWithParameters cannot have parameters", failedResult.Message);
+    }
 
-        XmlNode assemblyNode = Execute(code);
-
-        XmlNode testNode = ResultXmlUtility.AssertResult(assemblyNode, "Fail", "MockTestClass.FactWithParameters");
-        XmlNode failureNode = testNode.SelectSingleNode("failure");
-        ResultXmlUtility.AssertAttribute(failureNode, "exception-type", typeof(InvalidOperationException).FullName);
-        Assert.Equal("System.InvalidOperationException : Fact method MockTestClass.FactWithParameters cannot have parameters", failureNode.SelectSingleNode("message").InnerText);
+    class ClassUnderTest
+    {
+        [Fact]
+        public void FactWithParameters(int x) { }
     }
 }

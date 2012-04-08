@@ -1,55 +1,20 @@
-using System.IO;
-using System.Xml;
-using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Xunit.Sdk;
 
 namespace TestUtility
 {
-    [Trait("Type", "Acceptance")]
-    public abstract class AcceptanceTest
+    public class AcceptanceTest
     {
-        public XmlNode Execute(string code)
+        protected IEnumerable<MethodResult> RunClass(Type typeUnderTest)
         {
-            return Execute(code, null);
-        }
+            ITestClassCommand testClassCommand = new TestClassCommand(typeUnderTest);
 
-        public XmlNode Execute(string code, string configFile, params string[] references)
-        {
-            using (MockAssembly mockAssembly = new MockAssembly())
-            {
-                mockAssembly.Compile(code, references);
-                return mockAssembly.Run(configFile);
-            }
-        }
+            ClassResult classResult = TestClassCommandRunner.Execute(testClassCommand, testClassCommand.EnumerateTestMethods().ToList(),
+                                                                     startCallback: null, resultCallback: null);
 
-        public XmlNode ExecuteWithCustomAssemblyName(string code, string assemblyName)
-        {
-            using (MockAssembly mockAssembly = new MockAssembly(assemblyName))
-            {
-                string fullAssemblyName = Path.GetFullPath(assemblyName);
-                string assemblyPath = Path.GetDirectoryName(fullAssemblyName);
-                string xunitCopyFilename = Path.Combine(assemblyPath, "xunit.dll");
-                File.Copy(mockAssembly.XunitDllFilename, xunitCopyFilename, true);
-
-                try
-                {
-                    mockAssembly.Compile(code, null);
-                    return mockAssembly.Run(null);
-                }
-                finally
-                {
-                    try
-                    {
-                        if (xunitCopyFilename != null && File.Exists(xunitCopyFilename))
-                            File.Delete(xunitCopyFilename);
-                    }
-                    catch { } // Throws on Mono because of a lack of shadow copying
-                }
-            }
-        }
-
-        public XmlNode ExecuteWithReferences(string code, params string[] references)
-        {
-            return Execute(code, null, references);
+            return classResult.Results.OfType<MethodResult>();
         }
     }
 }

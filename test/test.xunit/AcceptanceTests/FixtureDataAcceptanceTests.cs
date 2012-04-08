@@ -1,54 +1,47 @@
-﻿using System.Xml;
+﻿using System.Linq;
 using TestUtility;
 using Xunit;
+using Xunit.Sdk;
 
 public class FixtureDataAcceptanceTests : AcceptanceTest
 {
     [Fact]
     public void ClassWithFixtureAndSkippedFactDoesNotSetFixtureData()
     {
-        string code = @"
-                using Xunit;
+        MethodResult result = RunClass(typeof(FixtureWithAllSkips)).Single();
 
-                public class MyFacts : IUseFixture<object>
-                {
-                    public void SetFixture(object data)
-                    {
-                        Assert.True(false);
-                    }
+        // If it ran the fixture, then we would get a class failure
+        Assert.IsType<SkipResult>(result);
+    }
 
-                    [Fact(Skip=""Skip Me!"")]
-                    public void SkippedTest() {}
-                }
-            ";
+    class FixtureWithAllSkips : IUseFixture<object>
+    {
+        public void SetFixture(object data)
+        {
+            Assert.True(false);
+        }
 
-        XmlNode assemblyNode = Execute(code);
-
-        XmlNode result = ResultXmlUtility.GetResult(assemblyNode);
-        ResultXmlUtility.AssertAttribute(result, "result", "Skip");
+        [Fact(Skip = "Skip Me!")]
+        public void SkippedTest() { }
     }
 
     [Fact]
     public void ClassWithFixtureAndStaticFactDoesNotSetFixtureData()
     {
-        string code = @"
-                using Xunit;
+        MethodResult result = RunClass(typeof(FixtureWithAllStatics)).Single();
 
-                public class MyFacts : IUseFixture<object>
-                {
-                    public void SetFixture(object data)
-                    {
-                        Assert.True(false);
-                    }
+        // If it ran the fixture, then we would get a class failure
+        Assert.IsType<PassedResult>(result);
+    }
 
-                    [Fact]
-                    public static void StaticPassingTest() {}
-                }
-            ";
+    class FixtureWithAllStatics : IUseFixture<object>
+    {
+        public void SetFixture(object data)
+        {
+            Assert.True(false);
+        }
 
-        XmlNode assemblyNode = Execute(code);
-
-        XmlNode result = ResultXmlUtility.GetResult(assemblyNode);
-        ResultXmlUtility.AssertAttribute(result, "result", "Pass");
+        [Fact]
+        public static void StaticPassingTest() { }
     }
 }

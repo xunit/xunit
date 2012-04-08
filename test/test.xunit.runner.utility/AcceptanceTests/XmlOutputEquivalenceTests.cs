@@ -2,10 +2,10 @@
 using TestUtility;
 using Xunit;
 
-public class XmlOutputEquivalenceTests : AcceptanceTest
+public class XmlOutputEquivalenceTests : AcceptanceTestInNewAppDomain
 {
     [Fact]
-    public void TestsFromAbstractBaseClassesShouldBeExecuted()
+    public void XmlFromExecutorAndMateIsEquivalent()
     {
         string code = @"
             using Xunit;

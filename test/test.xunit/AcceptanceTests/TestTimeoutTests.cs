@@ -1,36 +1,29 @@
 using System;
-using System.Xml;
+using System.Linq;
+using System.Threading;
 using TestUtility;
 using Xunit;
+using Xunit.Sdk;
 
 public class TestTimeoutFixture : AcceptanceTest
 {
     [Fact]
     public void TestHasTimeoutAndExceeds()
     {
-        string code =
-            @"
-                using System;
-                using System.Threading;
-                using Xunit;
+        MethodResult result = RunClass(typeof(ClassUnderTest)).Single();
 
-                public class Stub
-                {
-                    [Fact(Timeout = 50)]
-                    public void TestShouldTimeout()
-                    {
-                        Thread.Sleep(120); 
-                        Assert.Equal(2, 2);
-                    }
-                }
-            ";
+        FailedResult failedResult = Assert.IsType<FailedResult>(result);
+        Assert.InRange(failedResult.ExecutionTime, 0.049, 0.051);
+        Assert.Equal("Test execution time exceeded: 50ms", failedResult.Message);
+    }
 
-        XmlNode assemblyNode = Execute(code);
-
-        XmlNode testNode = ResultXmlUtility.AssertResult(assemblyNode, "Fail", "Stub.TestShouldTimeout");
-        var time = Decimal.Parse(testNode.Attributes["time"].Value);
-        Assert.InRange(time, 0.049M, 0.051M);
-        XmlNode messageNode = testNode.SelectSingleNode("failure/message");
-        Assert.Equal("Test execution time exceeded: 50ms", messageNode.InnerText);
+    class ClassUnderTest
+    {
+        [Fact(Timeout = 50)]
+        public void TestShouldTimeout()
+        {
+            Thread.Sleep(120);
+            Assert.Equal(2, 2);
+        }
     }
 }

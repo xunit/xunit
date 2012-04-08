@@ -139,6 +139,29 @@ public class TestClassCommandTests
 
             public void SetFixture(InvalidTestClassWithSelfFixture data) { }
         }
+
+        public class MultipleMethods : IUseFixture<object>
+        {
+            public static object fixtureData = null;
+
+            public void SetFixture(object data)
+            {
+                if (fixtureData == null)
+                    fixtureData = data;
+                else
+                    Assert.Same(fixtureData, data);
+            }
+
+            [Fact]
+            public void Test1()
+            {
+            }
+
+            [Fact]
+            public void Test2()
+            {
+            }
+        }
     }
 
     public class Classes

@@ -67,12 +67,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AcceptanceTest.cs" />
+    <Compile Include="AcceptanceTestInNewAppDomain.cs" />
     <Compile Include="MockAssembly.cs" />
     <Compile Include="ResultXmlUtility.cs" />
     <Compile Include="SerializationUtility.cs" />
     <Compile Include="StubExecutorWrapper.cs" />
     <Compile Include="StubTestRunner.cs" />
     <Compile Include="StubTransformer.cs" />
+    <Compile Include="TestTimingAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj">

@@ -74,6 +74,11 @@
   <ItemGroup>
     <Compile Include="AssumeIdentity\AssumeIdentityAttributeAcceptanceTests.cs" />
     <Compile Include="AssumeIdentity\AssumeIdentityAttributeFacts.cs" />
+    <Compile Include="DataTheories\AcceptanceTests\ClassDataAcceptanceTests.cs" />
+    <Compile Include="DataTheories\AcceptanceTests\ExcelDataAcceptanceTests.cs" />
+    <Compile Include="DataTheories\AcceptanceTests\InlineDataAcceptanceTests.cs" />
+    <Compile Include="DataTheories\AcceptanceTests\PropertyDataAcceptanceTests.cs" />
+    <Compile Include="DataTheories\AcceptanceTests\TheoryAcceptanceTests.cs" />
     <Compile Include="DataTheories\DataAdapterDataAttributeTests.cs" />
     <Compile Include="DataTheories\GenericTheoryTests.cs" />
     <Compile Include="DataTheories\TheoryAttributeTests.cs" />
@@ -82,10 +87,9 @@
     <Compile Include="FreezeClock\FreezeClockAttributeAcceptanceTests.cs" />
     <Compile Include="FreezeClock\FreezeClockAttributeFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DataTheories\TheoryAcceptanceTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DataTheories\AcceptanceTestData.xls">
+    <None Include="DataTheories\AcceptanceTests\AcceptanceTestData.xls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="DataTheories\UnitTestData.xls">

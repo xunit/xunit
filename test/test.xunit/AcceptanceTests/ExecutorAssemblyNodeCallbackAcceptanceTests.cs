@@ -2,7 +2,7 @@
 using TestUtility;
 using Xunit;
 
-public class ExecutorAssemblyNodeCallbackAcceptanceTests : AcceptanceTest
+public class ExecutorAssemblyNodeCallbackAcceptanceTests : AcceptanceTestInNewAppDomain
 {
     [Fact]
     public void AssemblyFilenameInXmlMatchesOriginallyPassedNameToExecutor()

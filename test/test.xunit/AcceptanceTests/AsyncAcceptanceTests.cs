@@ -1,4 +1,6 @@
-﻿using System.Xml;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using TestUtility;
 using Xunit;
 using Xunit.Sdk;
@@ -8,33 +10,26 @@ public class AsyncAcceptanceTests : AcceptanceTest
     [Fact]
     public void Async40AcceptanceTest()
     {
-        string code = @"
-            using System;
-            using System.Threading;
-            using System.Threading.Tasks;
-            using Xunit;
+        IEnumerable<MethodResult> results = RunClass(typeof(Async40AcceptanceTestClass));
 
-            public class TestClass
+        MethodResult result = Assert.Single(results);
+        FailedResult failedResult = Assert.IsType<FailedResult>(result);
+        Assert.Equal(typeof(TrueException).FullName, failedResult.ExceptionType);
+    }
+
+    class Async40AcceptanceTestClass
+    {
+        [Fact]
+        public Task MethodUnderTest()
+        {
+            return Task.Factory.StartNew(() =>
             {
-                [Fact]
-                public Task TestMethod()
-                {
-                    return Task.Factory.StartNew(() =>
-                    {
-                        Thread.Sleep(1);
-                    })
-                    .ContinueWith(_ =>
-                    {
-                        Assert.True(false);
-                    });
-                }
-            }
-        ";
-
-        XmlNode assemblyNode = Execute(code);
-
-        XmlNode testNode = ResultXmlUtility.AssertResult(assemblyNode, "Fail", "TestClass.TestMethod");
-        XmlNode failureNode = testNode.SelectSingleNode("failure");
-        ResultXmlUtility.AssertAttribute(failureNode, "exception-type", typeof(TrueException).FullName);
+                Thread.Sleep(1);
+            })
+            .ContinueWith(_ =>
+            {
+                Assert.True(false);
+            });
+        }
     }
 }

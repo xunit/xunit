@@ -2,7 +2,7 @@
 using TestUtility;
 using Xunit;
 
-public class ConfigFileAcceptanceTests : AcceptanceTest
+public class ConfigFileAcceptanceTests : AcceptanceTestInNewAppDomain
 {
     [Fact]
     public void LackOfConfigurationFileBugInCLR4()  // http://xunit.codeplex.com/workitem/9696
