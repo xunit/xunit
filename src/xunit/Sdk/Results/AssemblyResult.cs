@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Reflection;
 using System.Xml;
 
 namespace Xunit.Sdk
@@ -11,6 +10,9 @@ namespace Xunit.Sdk
     [Serializable]
     public class AssemblyResult : CompositeResult
     {
+        static string environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
+        static string testFramework = String.Format("xUnit.net {0}", typeof(AssemblyResult).Assembly.GetName().Version);
+
         /// <summary>
         /// Creates a new instance of the <see cref="AssemblyResult"/> class.
         /// </summary>
@@ -93,8 +95,8 @@ namespace Xunit.Sdk
             XmlUtility.AddAttribute(assemblyNode, "passed", PassCount);
             XmlUtility.AddAttribute(assemblyNode, "failed", FailCount);
             XmlUtility.AddAttribute(assemblyNode, "skipped", SkipCount);
-            XmlUtility.AddAttribute(assemblyNode, "environment", String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version));
-            XmlUtility.AddAttribute(assemblyNode, "test-framework", String.Format("xUnit.net {0}", Assembly.GetExecutingAssembly().GetName().Version));
+            XmlUtility.AddAttribute(assemblyNode, "environment", environment);
+            XmlUtility.AddAttribute(assemblyNode, "test-framework", testFramework);
 
             return assemblyNode;
         }
