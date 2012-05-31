@@ -55,7 +55,7 @@ namespace Xunit.Runner.VisualStudio
             return displayName == fullyQualifiedMethodName ? shortMethodName : displayName;
         }
 
-        static TestCase GetTestCase(string source, XmlNode methodNode)
+        static TestCase GetTestCase(DiaSessionWrapper diaSession, string source, XmlNode methodNode)
         {
             string typeName = methodNode.Attributes["type"].Value;
             string methodName = methodNode.Attributes["method"].Value;
@@ -67,24 +67,23 @@ namespace Xunit.Runner.VisualStudio
                 DisplayName = GetDisplayName(displayName, methodName, fullyQualifiedName),
             };
 
-            try
+            DiaNavigationData navigationData = diaSession.GetNavigationData(typeName, methodName);
+            if (navigationData != null)
             {
-                using (DiaSession diaSession = new DiaSession(source))
-                {
-                    DiaNavigationData navigationData = diaSession.GetNavigationData(typeName, methodName);
-                    testCase.CodeFilePath = navigationData.FileName;
-                    testCase.LineNumber = navigationData.MinLineNumber;
-                }
+                testCase.CodeFilePath = navigationData.FileName;
+                testCase.LineNumber = navigationData.MinLineNumber;
             }
-            catch { } // DiaSession throws if the PDB file is missing or corrupt
 
             return testCase;
         }
 
         static IEnumerable<TestCase> GetTestCases(ExecutorWrapper executor)
         {
-            foreach (XmlNode methodNode in executor.EnumerateTests().SelectNodes("//method"))
-                yield return GetTestCase(executor.AssemblyFilename, methodNode);
+            string source = executor.AssemblyFilename;
+
+            using (DiaSessionWrapper diaSession = new DiaSessionWrapper(source))
+                foreach (XmlNode methodNode in executor.EnumerateTests().SelectNodes("//method"))
+                    yield return GetTestCase(diaSession, source, methodNode);
         }
 
         static bool IsXunitTestAssembly(string assemblyFileName)
