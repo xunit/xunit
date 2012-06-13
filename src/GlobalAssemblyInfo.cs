@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("xUnit.net Testing Framework")]
 [assembly: AssemblyCopyright("Copyright (C) Microsoft Corporation")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("1.9.0.0")]
+[assembly: AssemblyVersion("1.9.1.0")]
 
 [assembly: SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "xunit")]
 [assembly: SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Xunit", Scope = "namespace", Target = "Xunit")]

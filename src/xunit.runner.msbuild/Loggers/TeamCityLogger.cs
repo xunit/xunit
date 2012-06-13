@@ -77,6 +77,9 @@ namespace Xunit.Runner.MSBuild
 
         static string Escape(string value)
         {
+            if (value == null)
+                return String.Empty;
+
             return value.Replace("|", "||")
                         .Replace("'", "|'")
                         .Replace("\r", "|r")
