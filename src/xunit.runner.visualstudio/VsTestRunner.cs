@@ -60,7 +60,7 @@ namespace Xunit.Runner.VisualStudio
             string typeName = methodNode.Attributes["type"].Value;
             string methodName = methodNode.Attributes["method"].Value;
             string displayName = methodNode.Attributes["name"].Value;
-            string fullyQualifiedName = typeName + "." + methodName;
+            string fullyQualifiedName = String.Format("{0}.{1}", typeName, methodName);
 
             TestCase testCase = new TestCase(fullyQualifiedName, uri, source)
             {
@@ -102,7 +102,7 @@ namespace Xunit.Runner.VisualStudio
 
             foreach (string source in sources)
                 if (VsTestRunner.IsXunitTestAssembly(source))
-                    RunTestsInAssembly(source, runContext, frameworkHandle);
+                    RunTestsInAssembly(source, frameworkHandle);
         }
 
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
@@ -115,10 +115,10 @@ namespace Xunit.Runner.VisualStudio
 
             foreach (var testCaseGroup in tests.GroupBy(tc => tc.Source))
                 if (VsTestRunner.IsXunitTestAssembly(testCaseGroup.Key))
-                    RunTestsInAssembly(testCaseGroup.Key, runContext, frameworkHandle, testCaseGroup);
+                    RunTestsInAssembly(testCaseGroup.Key, frameworkHandle, testCaseGroup);
         }
 
-        void RunTestsInAssembly(string assemblyFileName, IRunContext ctxt, ITestExecutionRecorder recorder, IEnumerable<TestCase> testCases = null)
+        void RunTestsInAssembly(string assemblyFileName, ITestExecutionRecorder recorder, IEnumerable<TestCase> testCases = null)
         {
             cancelled = false;
 
@@ -205,7 +205,7 @@ namespace Xunit.Runner.VisualStudio
 
             private static string GetFullyQualifiedName(string type, string method)
             {
-                return type + "." + method;
+                return String.Format("{0}.{1}", type, method);
             }
 
             private TestCase GetTestCase(string type, string method)
@@ -241,6 +241,10 @@ namespace Xunit.Runner.VisualStudio
                     Duration = TimeSpan.FromSeconds(duration),
                     Outcome = outcome,
                 };
+
+                // Work around VS considering a test "not run" when the duration is 0
+                if (result.Duration.TotalMilliseconds == 0)
+                    result.Duration = TimeSpan.FromMilliseconds(1);
 
                 if (!String.IsNullOrEmpty(output))
                     result.Messages.Add(new TestResultMessage(TestResultMessage.StandardOutCategory, output));
