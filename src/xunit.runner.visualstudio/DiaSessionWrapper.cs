@@ -15,6 +15,9 @@ namespace Xunit.Runner.VisualStudio
         public DiaSessionWrapper(string assemblyFilename)
         {
             this.assemblyFilename = assemblyFilename;
+
+            if (Environment.GetEnvironmentVariable("XUNIT_SKIP_DIA") != null)
+                sessionHasErrors = true;
         }
 
         public DiaNavigationData GetNavigationData(string typeName, string methodName)
