@@ -1,6 +1,7 @@
 [Bb]in
 [Oo]bj
 packages
+help
 
 *.suo
 *.user

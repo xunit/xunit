@@ -1,8 +1,8 @@
 ﻿<project schemaVersion="1.6.0.7">
     <assemblies>
-        <assembly assemblyPath=".\xunit\bin\Release\xunit.dll" xmlCommentsPath=".\xunit\bin\Release\xunit.xml" commentsOnly="False" />
-        <assembly assemblyPath=".\xunit.extensions\bin\Release\xunit.extensions.dll" xmlCommentsPath=".\xunit.extensions\bin\Release\xunit.extensions.xml" commentsOnly="False" />
-        <assembly assemblyPath=".\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" xmlCommentsPath=".\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" commentsOnly="False" />
+        <assembly assemblyPath="..\src\xunit\bin\Release\xunit.dll" xmlCommentsPath="..\src\xunit\bin\Release\xunit.xml" commentsOnly="False" />
+        <assembly assemblyPath="..\src\xunit.extensions\bin\Release\xunit.extensions.dll" xmlCommentsPath="..\src\xunit.extensions\bin\Release\xunit.extensions.xml" commentsOnly="False" />
+        <assembly assemblyPath="..\src\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" xmlCommentsPath="..\src\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" commentsOnly="False" />
     </assemblies>
     <namespaceSummaries>
         <namespaceSummaryItem name="" isDocumented="False" />
@@ -15,7 +15,7 @@
     <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Protected</VisibleItems>
     <HtmlHelp1xCompilerPath path="" />
     <HtmlHelp2xCompilerPath path="" />
-    <OutputPath>.\Help\</OutputPath>
+    <OutputPath>.\</OutputPath>
     <SandcastlePath path="" />
     <WorkingPath path="" />
     <CleanIntermediates>True</CleanIntermediates>
