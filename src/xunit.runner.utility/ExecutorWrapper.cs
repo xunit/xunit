@@ -98,7 +98,6 @@ namespace Xunit
                     MakeIntCallbackHandler = () => new IntCallbackHandlerWithIMessageSink();
                     MakeXmlNodeCallbackHandler = (callback, lastNodeName) => new XmlNodeCallbackHandlerWithIMessageSink(callback, lastNodeName);
                 }
-
             }
             catch (TargetInvocationException ex)
             {

@@ -100,6 +100,8 @@ namespace Xunit.Runner.VisualStudio
 
             RemotingUtility.CleanUpRegisteredChannels();
 
+            cancelled = false;
+
             foreach (string source in sources)
                 if (VsTestRunner.IsXunitTestAssembly(source))
                     RunTestsInAssembly(source, frameworkHandle);
@@ -113,6 +115,8 @@ namespace Xunit.Runner.VisualStudio
 
             RemotingUtility.CleanUpRegisteredChannels();
 
+            cancelled = false;
+
             foreach (var testCaseGroup in tests.GroupBy(tc => tc.Source))
                 if (VsTestRunner.IsXunitTestAssembly(testCaseGroup.Key))
                     RunTestsInAssembly(testCaseGroup.Key, frameworkHandle, testCaseGroup);
@@ -120,7 +124,8 @@ namespace Xunit.Runner.VisualStudio
 
         void RunTestsInAssembly(string assemblyFileName, ITestExecutionRecorder recorder, IEnumerable<TestCase> testCases = null)
         {
-            cancelled = false;
+            if (cancelled)
+                return;
 
             using (var executor = new ExecutorWrapper(assemblyFileName, configFilename: null, shadowCopy: true))
             {
@@ -132,7 +137,11 @@ namespace Xunit.Runner.VisualStudio
 
                 foreach (var testClass in testCases.Select(tc => new TypeAndMethod(tc.FullyQualifiedName))
                                                    .GroupBy(tam => tam.Type))
+                {
                     runner.RunTests(testClass.Key, testClass.Select(tam => tam.Method).ToList());
+                    if (cancelled)
+                        return;
+                }
             }
         }
 
