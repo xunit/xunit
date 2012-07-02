@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Xml;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -98,13 +99,25 @@ namespace Xunit.Runner.VisualStudio
             Guard.ArgumentNotNull("runContext", runContext);
             Guard.ArgumentNotNull("frameworkHandle", frameworkHandle);
 
-            RemotingUtility.CleanUpRegisteredChannels();
+            var cleanupList = new List<ExecutorWrapper>();
 
-            cancelled = false;
+            try
+            {
+                RemotingUtility.CleanUpRegisteredChannels();
 
-            foreach (string source in sources)
-                if (VsTestRunner.IsXunitTestAssembly(source))
-                    RunTestsInAssembly(source, frameworkHandle);
+                cancelled = false;
+
+                foreach (string source in sources)
+                    if (VsTestRunner.IsXunitTestAssembly(source))
+                        RunTestsInAssembly(cleanupList, source, frameworkHandle);
+            }
+            finally
+            {
+                Thread.Sleep(1000);
+
+                foreach (var executorWrapper in cleanupList)
+                    executorWrapper.Dispose();
+            }
         }
 
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
@@ -113,35 +126,47 @@ namespace Xunit.Runner.VisualStudio
             Guard.ArgumentNotNull("runContext", runContext);
             Guard.ArgumentNotNull("frameworkHandle", frameworkHandle);
 
-            RemotingUtility.CleanUpRegisteredChannels();
+            var cleanupList = new List<ExecutorWrapper>();
 
-            cancelled = false;
+            try
+            {
+                RemotingUtility.CleanUpRegisteredChannels();
 
-            foreach (var testCaseGroup in tests.GroupBy(tc => tc.Source))
-                if (VsTestRunner.IsXunitTestAssembly(testCaseGroup.Key))
-                    RunTestsInAssembly(testCaseGroup.Key, frameworkHandle, testCaseGroup);
+                cancelled = false;
+
+                foreach (var testCaseGroup in tests.GroupBy(tc => tc.Source))
+                    if (VsTestRunner.IsXunitTestAssembly(testCaseGroup.Key))
+                        RunTestsInAssembly(cleanupList, testCaseGroup.Key, frameworkHandle, testCaseGroup);
+            }
+            finally
+            {
+                Thread.Sleep(1000);
+
+                foreach (var executorWrapper in cleanupList)
+                    executorWrapper.Dispose();
+            }
         }
 
-        void RunTestsInAssembly(string assemblyFileName, ITestExecutionRecorder recorder, IEnumerable<TestCase> testCases = null)
+        void RunTestsInAssembly(List<ExecutorWrapper> cleanupList, string assemblyFileName, ITestExecutionRecorder recorder, IEnumerable<TestCase> testCases = null)
         {
             if (cancelled)
                 return;
 
-            using (var executor = new ExecutorWrapper(assemblyFileName, configFilename: null, shadowCopy: true))
+            var executor = new ExecutorWrapper(assemblyFileName, configFilename: null, shadowCopy: true);
+            cleanupList.Add(executor);
+
+            if (testCases == null)
+                testCases = VsTestRunner.GetTestCases(executor).ToArray();
+
+            var logger = new VsRunnerLogger(recorder, testCases, () => cancelled);
+            var runner = new TestRunner(executor, logger);
+
+            foreach (var testClass in testCases.Select(tc => new TypeAndMethod(tc.FullyQualifiedName))
+                                               .GroupBy(tam => tam.Type))
             {
-                if (testCases == null)
-                    testCases = VsTestRunner.GetTestCases(executor).ToArray();
-
-                var logger = new VsRunnerLogger(recorder, testCases, () => cancelled);
-                var runner = new TestRunner(executor, logger);
-
-                foreach (var testClass in testCases.Select(tc => new TypeAndMethod(tc.FullyQualifiedName))
-                                                   .GroupBy(tam => tam.Type))
-                {
-                    runner.RunTests(testClass.Key, testClass.Select(tam => tam.Method).ToList());
-                    if (cancelled)
-                        return;
-                }
+                runner.RunTests(testClass.Key, testClass.Select(tam => tam.Method).ToList());
+                if (cancelled)
+                    return;
             }
         }
 
