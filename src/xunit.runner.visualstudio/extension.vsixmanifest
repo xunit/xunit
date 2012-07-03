@@ -3,7 +3,7 @@
     <Identifier Id="xunit.runner.visualstudio.Microsoft.623f78dd-6d4b-48f3-a2c7-4bbb381bb146">
         <Name>xUnit.net runner for Visual Studio 2012</Name>
         <Author>Microsoft Corporation</Author>
-        <Version>0.9.1</Version>
+        <Version>0.9.2</Version>
         <Description xml:space="preserve">xUnit.net runner for Visual Studio 2012</Description>
         <Locale>1033</Locale>
         <MoreInfoUrl>http://xunit.codeplex.com/</MoreInfoUrl>
