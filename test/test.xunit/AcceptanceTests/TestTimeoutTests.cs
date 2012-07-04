@@ -1,3 +1,4 @@
+using System;
 using System.Xml;
 using TestUtility;
 using Xunit;
@@ -27,6 +28,8 @@ public class TestTimeoutFixture : AcceptanceTest
         XmlNode assemblyNode = Execute(code);
 
         XmlNode testNode = ResultXmlUtility.AssertResult(assemblyNode, "Fail", "Stub.TestShouldTimeout");
+        var time = Decimal.Parse(testNode.Attributes["time"].Value);
+        Assert.Equal(50M, time);
         XmlNode messageNode = testNode.SelectSingleNode("failure/message");
         Assert.Equal("Test execution time exceeded: 50ms", messageNode.InnerText);
     }

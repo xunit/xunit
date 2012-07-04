@@ -41,7 +41,7 @@ namespace Xunit.Sdk
             MethodResult methodResult;
 
             if (!asyncResult.AsyncWaitHandle.WaitOne(Timeout, false))
-                methodResult = new FailedResult(testMethod, new TimeoutException(Timeout), DisplayName);
+                methodResult = new FailedResult(testMethod, new TimeoutException(Timeout), DisplayName) { ExecutionTime = Timeout };
             else
                 methodResult = timedMethod.EndInvoke(asyncResult);
 
