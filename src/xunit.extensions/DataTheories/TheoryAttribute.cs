@@ -43,9 +43,7 @@ namespace Xunit.Extensions
                 if (results.Count == 0)
                     results.Add(new LambdaTestCommand(method, () =>
                     {
-                        throw new InvalidOperationException(string.Format("No data found for {0}.{1}",
-                                                                          method.TypeName,
-                                                                          method.Name));
+                        throw new InvalidOperationException(String.Format("No data found for {0}.{1}", method.TypeName, method.Name));
                     }));
             }
             catch (Exception ex)
@@ -53,10 +51,10 @@ namespace Xunit.Extensions
                 results.Clear();
                 results.Add(new LambdaTestCommand(method, () =>
                 {
-                    throw new InvalidOperationException(string.Format("An exception was thrown while getting data for theory {0}.{1}:\r\n{2}",
-                                                                      method.TypeName,
-                                                                      method.Name,
-                                                                      ex));
+                    throw new InvalidOperationException(
+                        String.Format("An exception was thrown while getting data for theory {0}.{1}:\r\n{2}",
+                                      method.TypeName, method.Name, ex)
+                    );
                 }));
             }
 

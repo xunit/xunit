@@ -161,9 +161,9 @@ namespace Xunit.Sdk
                 XmlNode failureNode = XmlUtility.AddElement(classNode, "failure");
                 XmlUtility.AddAttribute(failureNode, "exception-type", ExceptionType);
                 XmlNode messageNode = XmlUtility.AddElement(failureNode, "message");
-                messageNode.InnerText = Message;
+                XmlUtility.SetInnerText(messageNode, Message);
                 XmlNode stackTraceNode = XmlUtility.AddElement(failureNode, "stack-trace");
-                stackTraceNode.InnerText = StackTrace;
+                XmlUtility.SetInnerText(stackTraceNode, StackTrace);
             }
 
             foreach (ITestResult testResult in Results)

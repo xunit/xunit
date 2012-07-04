@@ -57,7 +57,7 @@ namespace Xunit.Sdk
 
             XmlNode reasonNode = XmlUtility.AddElement(testNode, "reason");
             XmlNode messageNode = XmlUtility.AddElement(reasonNode, "message");
-            messageNode.InnerText = Reason;
+            XmlUtility.SetInnerText(messageNode, Reason);
 
             return testNode;
         }

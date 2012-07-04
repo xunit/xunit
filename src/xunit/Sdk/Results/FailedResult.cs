@@ -75,12 +75,12 @@ namespace Xunit.Sdk
             XmlUtility.AddAttribute(failureNode, "exception-type", ExceptionType);
 
             XmlNode messageNode = XmlUtility.AddElement(failureNode, "message");
-            messageNode.InnerText = Message;
+            XmlUtility.SetInnerText(messageNode, Message);
 
             if (!string.IsNullOrEmpty(StackTrace))
             {
                 XmlNode stackTraceNode = XmlUtility.AddElement(failureNode, "stack-trace");
-                stackTraceNode.InnerText = StackTrace;
+                XmlUtility.SetInnerText(stackTraceNode, StackTrace);
             }
 
             return testNode;

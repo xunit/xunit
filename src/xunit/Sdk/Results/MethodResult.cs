@@ -99,7 +99,7 @@ namespace Xunit.Sdk
             if (!String.IsNullOrEmpty(Output))
             {
                 XmlNode node = XmlUtility.AddElement(testNode, "output");
-                node.InnerText = Output;
+                XmlUtility.SetInnerText(node, Output);
             }
 
             return testNode;

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace Xunit.Sdk
@@ -8,6 +9,8 @@ namespace Xunit.Sdk
     /// </summary>
     public static class XmlUtility
     {
+        static Regex escapeRegex = new Regex("&#x(?<char>[0-9A-Fa-f]+);", RegexOptions.Compiled);
+
         /// <summary>
         /// Adds an attribute to an XML node.
         /// </summary>
@@ -19,7 +22,7 @@ namespace Xunit.Sdk
         public static void AddAttribute(XmlNode node, string name, object value)
         {
             XmlAttribute attr = node.OwnerDocument.CreateAttribute(name);
-            attr.Value = value.ToString();
+            attr.Value = Escape(node.OwnerDocument, value.ToString());
             node.Attributes.Append(attr);
         }
 
@@ -35,6 +38,26 @@ namespace Xunit.Sdk
             XmlNode element = parentNode.OwnerDocument.CreateElement(name);
             parentNode.AppendChild(element);
             return element;
+        }
+
+        static string Escape(XmlDocument doc, string value)
+        {
+            XmlNode element = doc.CreateElement("unused");
+            SetInnerText(element, value);
+            return element.InnerText;
+        }
+
+        /// <summary>
+        /// Sets the inner text of the XML node, properly escaping it as necessary.
+        /// </summary>
+        /// <param name="element">The element whose inner text will be set.</param>
+        /// <param name="value">The inner text to be escaped and then set.</param>
+        public static void SetInnerText(XmlNode element, string value)
+        {
+            // Let .NET set the the inner text value, which will escape it (often improperly),
+            // then read the value back out in escaped form via InnerXml and fix up the escaping.
+            element.InnerText = value;
+            element.InnerXml = escapeRegex.Replace(element.InnerXml, "\\x${char}");
         }
     }
 }

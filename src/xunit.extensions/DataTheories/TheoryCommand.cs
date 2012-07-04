@@ -111,8 +111,6 @@ namespace Xunit.Extensions
             string stringParameter = parameterValue as string;
             if (stringParameter != null)
             {
-                stringParameter = stringParameter.Replace("\0", "\\0");
-
                 if (stringParameter.Length > 50)
                     return "\"" + stringParameter.Substring(0, 50) + "\"...";
 

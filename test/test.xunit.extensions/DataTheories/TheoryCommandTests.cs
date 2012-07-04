@@ -144,14 +144,12 @@ public class TheoryCommandTests
     }
 
     [Fact]
-    public void StringDataWithEmbeddedNullCreatesValidXml()  // CodePlex issue #9755, &#x0 is not valid XML, so we replace it with \0
+    public void StringDataWithEmbeddedNullCreatesValidXml()  // CodePlex issue #9755
     {
-        string expectedDisplayName = @"TheoryCommandTests+DummyWithAttributes.StringMethod(s: ""\0"")";
-        string expectedXml = @"<start name=""TheoryCommandTests+DummyWithAttributes.StringMethod(s: &quot;\0&quot;)"" type=""TheoryCommandTests+DummyWithAttributes"" method=""StringMethod"" />";
+        string expectedXml = @"<start name=""TheoryCommandTests+DummyWithAttributes.StringMethod(s: &quot;\x0\xFFFF&quot;)"" type=""TheoryCommandTests+DummyWithAttributes"" method=""StringMethod"" />";
 
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(DummyWithAttributes).GetMethod("StringMethod")), new object[] { "\0" });
+        TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(DummyWithAttributes).GetMethod("StringMethod")), new object[] { "\0\xffff" });
 
-        Assert.Equal(expectedDisplayName, command.DisplayName);
         Assert.Equal(expectedXml, command.ToStartXml().OuterXml);
     }
 
