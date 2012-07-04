@@ -47,7 +47,7 @@ namespace Xunit.Extensions
         public override IEnumerable<object[]> GetData(MethodInfo methodUnderTest, Type[] parameterTypes)
         {
             Type type = PropertyType ?? methodUnderTest.DeclaringType;
-            PropertyInfo propInfo = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static);
+            PropertyInfo propInfo = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
             if (propInfo == null)
                 throw new ArgumentException(string.Format("Could not find public static property {0} on {1}", propertyName, type.FullName));
 

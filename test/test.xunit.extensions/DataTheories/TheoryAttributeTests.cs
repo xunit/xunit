@@ -42,7 +42,6 @@ public class TheoryAttributeTests
             Directory.SetCurrentDirectory(currentDirectory);
         }
     }
-
     [Fact]
     public void TestDataFromProperty()
     {
@@ -55,6 +54,20 @@ public class TheoryAttributeTests
         TheoryCommand theoryCommand = Assert.IsType<TheoryCommand>(command);
         object parameter = Assert.Single(theoryCommand.Parameters);
         Assert.Equal(2, parameter);
+    }
+
+    [Fact]
+    public void TestDataFromPropertyOnBaseClass()
+    {
+        MethodInfo method = typeof(TestMethodCommandClass).GetMethod("TestViaPropertyOnBaseClass");
+        TheoryAttribute attr = (TheoryAttribute)(method.GetCustomAttributes(typeof(TheoryAttribute), false))[0];
+
+        List<ITestCommand> commands = new List<ITestCommand>(attr.CreateTestCommands(Reflector.Wrap(method)));
+
+        ITestCommand command = Assert.Single(commands);
+        TheoryCommand theoryCommand = Assert.IsType<TheoryCommand>(command);
+        object parameter = Assert.Single(theoryCommand.Parameters);
+        Assert.Equal(4, parameter);
     }
 
     [Fact]
@@ -116,7 +129,15 @@ public class TheoryAttributeTests
         // TODO: Would like to see @"TheoryAttributeTests+TestMethodCommandClass.GenericTest<List<String>>(value: List<String> { ""a"", ""b"", ""c"" })"
     }
 
-    internal class TestMethodCommandClass
+    internal class TestMethodCommandClassBaseClass
+    {
+        public static IEnumerable<object[]> BasePropertyData
+        {
+            get { yield return new object[] { 4 }; }
+        }
+    }
+
+    internal class TestMethodCommandClass : TestMethodCommandClassBaseClass
     {
         public static IEnumerable<object[]> GenericData
         {
@@ -141,6 +162,9 @@ public class TheoryAttributeTests
 
         [Theory, PropertyData("TheoryDataProperty")]
         public void TestViaProperty(int x) { }
+
+        [Theory, PropertyData("BasePropertyData")]
+        public void TestViaPropertyOnBaseClass(int x) { }
 
         [Theory, PropertyData("TheoryDataProperty", PropertyType = typeof(ExternalData))]
         public void TestViaOtherTypeProperty(int x) { }
