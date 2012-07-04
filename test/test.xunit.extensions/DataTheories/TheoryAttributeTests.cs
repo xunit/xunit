@@ -58,6 +58,20 @@ public class TheoryAttributeTests
     }
 
     [Fact]
+    public void TestDataFromOtherTypeProperty()
+    {
+        MethodInfo method = typeof(TestMethodCommandClass).GetMethod("TestViaOtherTypeProperty");
+        TheoryAttribute attr = (TheoryAttribute)(method.GetCustomAttributes(typeof(TheoryAttribute), false))[0];
+
+        List<ITestCommand> commands = new List<ITestCommand>(attr.CreateTestCommands(Reflector.Wrap(method)));
+
+        ITestCommand command = Assert.Single(commands);
+        TheoryCommand theoryCommand = Assert.IsType<TheoryCommand>(command);
+        object parameter = Assert.Single(theoryCommand.Parameters);
+        Assert.Equal(3, parameter);
+    }
+
+    [Fact]
     public void TestDataFromXls()
     {
         if (IntPtr.Size == 8)  // Test always fails in 64-bit; no JET engine
@@ -128,10 +142,21 @@ public class TheoryAttributeTests
         [Theory, PropertyData("TheoryDataProperty")]
         public void TestViaProperty(int x) { }
 
+        [Theory, PropertyData("TheoryDataProperty", PropertyType = typeof(ExternalData))]
+        public void TestViaOtherTypeProperty(int x) { }
+
         [Theory, ExcelData(@"DataTheories\UnitTestData.xls", "SELECT x, y, z FROM Data")]
         public void TestViaXls(double x, string y, string z) { }
 
         [Theory, PropertyData("GenericData")]
         public void GenericTest<T>(T value) { }
+
+        class ExternalData
+        {
+            public static IEnumerable<object[]> TheoryDataProperty
+            {
+                get { yield return new object[] { 3 }; }
+            }
+        }
     }
 }

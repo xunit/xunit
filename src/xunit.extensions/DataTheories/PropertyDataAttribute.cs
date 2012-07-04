@@ -32,6 +32,12 @@ namespace Xunit.Extensions
         }
 
         /// <summary>
+        /// Gets or sets the type to retrieve the property data from. If not set, then the property will be
+        /// retrieved from the unit test class.
+        /// </summary>
+        public Type PropertyType { get; set; }
+
+        /// <summary>
         /// Returns the data to be used to test the theory.
         /// </summary>
         /// <param name="methodUnderTest">The method that is being tested</param>
@@ -40,10 +46,10 @@ namespace Xunit.Extensions
         [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This is validated elsewhere.")]
         public override IEnumerable<object[]> GetData(MethodInfo methodUnderTest, Type[] parameterTypes)
         {
-            Type typeUnderTest = methodUnderTest.DeclaringType;
-            PropertyInfo propInfo = typeUnderTest.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static);
+            Type type = PropertyType ?? methodUnderTest.DeclaringType;
+            PropertyInfo propInfo = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static);
             if (propInfo == null)
-                throw new ArgumentException(string.Format("Could not find public static property {0} on {1}", propertyName, typeUnderTest.FullName));
+                throw new ArgumentException(string.Format("Could not find public static property {0} on {1}", propertyName, type.FullName));
 
             object obj = propInfo.GetValue(null, null);
             if (obj == null)
@@ -51,7 +57,7 @@ namespace Xunit.Extensions
 
             IEnumerable<object[]> dataItems = obj as IEnumerable<object[]>;
             if (dataItems == null)
-                throw new ArgumentException(string.Format("Property {0} on {1} did not return IEnumerable<object[]>", propertyName, typeUnderTest.FullName));
+                throw new ArgumentException(string.Format("Property {0} on {1} did not return IEnumerable<object[]>", propertyName, type.FullName));
 
             return dataItems;
         }
