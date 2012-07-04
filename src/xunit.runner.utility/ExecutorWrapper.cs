@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
 using System.Security;
 using System.Security.Permissions;
@@ -85,18 +86,22 @@ namespace Xunit
 
                 Version xunitVersion = new Version(XunitVersion);
 
-                if (xunitVersion.Major == 1 && xunitVersion.Minor < 6)
+                // Prefer the ASP.NET callback, as it's less troublesome (and faster)
+                if (typeICallbackEventHandler != null)
                 {
-                    if (typeICallbackEventHandler == null)
-                        throw new InvalidOperationException("Attempted to run assembly linked to xUnit.net older than 1.6. This requires the full server version of .NET, which does not appear to be installed.");
-
                     MakeIntCallbackHandler = () => (IntCallbackHandler)intCallbackHandlerCtor.Invoke(new object[0]);
                     MakeXmlNodeCallbackHandler = (callback, lastNodeName) => (XmlNodeCallbackHandler)xmlNodeCallbackHandlerCtor.Invoke(new object[] { callback, lastNodeName });
                 }
-                else
+                // Fallback to the slightly more evil coopting of remoting when we know xunit.dll can do it (1.6+)
+                else if (xunitVersion.Major > 1 || xunitVersion.Minor >= 6)
                 {
                     MakeIntCallbackHandler = () => new IntCallbackHandlerWithIMessageSink();
                     MakeXmlNodeCallbackHandler = (callback, lastNodeName) => new XmlNodeCallbackHandlerWithIMessageSink(callback, lastNodeName);
+                }
+                // No ASP.NET, xUnit.net < 1.6, we have to bail and demand the full .NET profile
+                else
+                {
+                    throw new InvalidOperationException("Attempted to run assembly linked to xUnit.net older than 1.6. This requires the full server version of .NET, which does not appear to be installed.");
                 }
             }
             catch (TargetInvocationException ex)
@@ -304,6 +309,10 @@ namespace Xunit
             /// <summary/>
             IMessage IMessageSink.SyncProcessMessage(IMessage msg)
             {
+                var methodCall = msg as IMethodCallMessage;
+                if (methodCall != null)
+                    return RemotingServices.ExecuteMessage(this, methodCall);
+
                 object value = msg.Properties["data"];
                 Result = Convert.ToInt32(value);
                 return new OutgoingMessage(true);
@@ -391,6 +400,10 @@ namespace Xunit
             /// <summary/>
             IMessage IMessageSink.SyncProcessMessage(IMessage msg)
             {
+                var methodCall = msg as IMethodCallMessage;
+                if (methodCall != null)
+                    return RemotingServices.ExecuteMessage(this, methodCall);
+
                 bool @continue = true;
                 string value = msg.Properties["data"] as string;
 
