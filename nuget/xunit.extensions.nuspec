@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>xunit.extensions</id>
-        <version>1.9.1-beta</version>
+        <version>1.9.1</version>
         <title>xUnit.net: Extensions</title>
         <authors>James Newkirk, Brad Wilson</authors>
         <description>Extensions for the xUnit.net framework, including data theories (data-driven tests) and several extension attributes.</description>
@@ -12,7 +12,7 @@
         <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <dependencies>
-            <dependency id="xunit" version="[1.9.1-beta]" />
+            <dependency id="xunit" version="[1.9.1]" />
         </dependencies>
     </metadata>
     <files>

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>xunit.runners</id>
-        <version>1.9.1-beta</version>
+        <version>1.9.1</version>
         <title>xUnit.net: Runners</title>
         <authors>James Newkirk, Brad Wilson</authors>
         <description>Runners for the xUnit.net framework, including Console, GUI, and MSBuild.</description>
