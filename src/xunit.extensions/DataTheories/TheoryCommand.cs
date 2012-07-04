@@ -108,6 +108,9 @@ namespace Xunit.Extensions
             if (parameterValue == null)
                 return "null";
 
+            if (parameterValue is char)
+                return "'" + parameterValue + "'";
+
             string stringParameter = parameterValue as string;
             if (stringParameter != null)
             {

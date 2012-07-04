@@ -58,9 +58,9 @@ public class TheoryCommandTests
     {
         MethodInfo methodInfo = typeof(DummyWithAttributes).GetMethod("TheoryMethod");
 
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42, 24.5, "Hello!" });
+        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42, 24.5, "Hello!", 'c' });
 
-        Assert.Equal("My display name(x: 42, y: 24.5, ???: \"Hello!\")", command.DisplayName);
+        Assert.Equal("My display name(x: 42, y: 24.5, ???: \"Hello!\", ???: 'c')", command.DisplayName);
     }
 
     [Fact]
