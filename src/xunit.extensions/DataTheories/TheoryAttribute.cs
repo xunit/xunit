@@ -53,9 +53,10 @@ namespace Xunit.Extensions
                 results.Clear();
                 results.Add(new LambdaTestCommand(method, () =>
                 {
-                    throw new InvalidOperationException(string.Format("An exception was thrown while getting data for theory {0}.{1}:\r\n" + ex.ToString(),
+                    throw new InvalidOperationException(string.Format("An exception was thrown while getting data for theory {0}.{1}:\r\n{2}",
                                                                       method.TypeName,
-                                                                      method.Name));
+                                                                      method.Name,
+                                                                      ex));
                 }));
             }
 
