@@ -15,7 +15,7 @@ namespace Xunit.Sdk
         /// Creates a new instance of the <see cref="PropertyChangedException"/> class. Call this constructor
         /// when no exception was thrown.
         /// </summary>
-        /// <param name="propertyName">The name of the property that was expected.</param>
+        /// <param name="propertyName">The name of the property that was expected to be changed.</param>
         public PropertyChangedException(string propertyName)
             : base(String.Format("Assert.PropertyChanged failure: Property {0} was not set", propertyName)) { }
 
