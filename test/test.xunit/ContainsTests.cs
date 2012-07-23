@@ -89,9 +89,9 @@ public class ContainsTests
             var ex = Record.Exception(() => Assert.Contains("WORLD", "Hello, world!"));
 
             Assert.IsType<ContainsException>(ex);
-            Assert.Equal(@"Assert.Contains() failure:
-Not found: WORLD
-In value:  Hello, world!", ex.Message);
+            Assert.Equal("Assert.Contains() failure:" + Environment.NewLine +
+                         "Not found: WORLD" + Environment.NewLine +
+                         "In value:  Hello, world!", ex.Message);
         }
 
         [Fact]

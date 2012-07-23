@@ -102,11 +102,9 @@ public class ExceptionAndOutputCaptureCommandTests
         [Fact]
         public void ConsoleOutAndErrorAndTraceIsCapturedAndPlacedInMethodResult()
         {
-            const string expected =
-    @"Standard Output
-Standard Error
-Trace
-";
+            string expected = "Standard Output" + Environment.NewLine +
+                              "Standard Error" + Environment.NewLine +
+                              "Trace" + Environment.NewLine;
 
             StubCommand cmd = new StubCommand();
             var outputCmd = new ExceptionAndOutputCaptureCommand(cmd, null);

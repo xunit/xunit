@@ -134,10 +134,9 @@ public class MultiValueDictionaryTests
 
         dictionary.ForEach((key, value) => result += key + ": " + value + "\r\n");
 
-        Assert.Equal(@"Key1: Value1
-Key2: Value2
-Key2: Value1
-Key3: Value7
-", result);
+        Assert.Equal("Key1: Value1\r\n" +
+                     "Key2: Value2\r\n" +
+                     "Key2: Value1\r\n" +
+                     "Key3: Value7\r\n", result);
     }
 }

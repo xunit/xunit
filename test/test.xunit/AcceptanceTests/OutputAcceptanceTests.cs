@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System;
+using System.Xml;
 using TestUtility;
 using Xunit;
 
@@ -7,11 +8,9 @@ public class OutputAcceptanceTests : AcceptanceTest
     [Fact]
     public void StdOutput()
     {
-        const string expected =
-@"Line 1 to Standard Output
-Line 2 to Standard Error
-Line 3 to Standard Output
-";
+        string expected = "Line 1 to Standard Output" + Environment.NewLine +
+                          "Line 2 to Standard Error" + Environment.NewLine +
+                          "Line 3 to Standard Output" + Environment.NewLine;
 
         string code =
             @"
@@ -39,11 +38,9 @@ Line 3 to Standard Output
     [Fact]
     public void TraceOutput()
     {
-        const string expected =
-@"Line 1 to Standard Output
-Line 2 to Trace
-Line 3 to Standard Output
-";
+        string expected = "Line 1 to Standard Output" + Environment.NewLine +
+                          "Line 2 to Trace" + Environment.NewLine +
+                          "Line 3 to Standard Output" + Environment.NewLine;
 
         string code =
             @"
@@ -74,9 +71,7 @@ Line 3 to Standard Output
     [Fact]
     public void OutputIsPresentEvenIfTestFails()
     {
-        const string expected =
-@"Line 1 to Standard Output
-";
+        string expected = "Line 1 to Standard Output" + Environment.NewLine;
 
         string code =
             @"

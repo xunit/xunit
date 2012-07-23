@@ -121,12 +121,11 @@ public class XunitProjectTests
         [Fact]
         public void AssemblyFilenameOnly()
         {
-            string xml = @"
-<xunit>
-    <assemblies>
-        <assembly filename='C:\AssemblyFilename' />
-    </assemblies>
-</xunit>";
+            string xml = @"<xunit>" + Environment.NewLine +
+                         @"    <assemblies>" + Environment.NewLine +
+                         @"        <assembly filename='C:\AssemblyFilename' />" + Environment.NewLine +
+                         @"    </assemblies>" + Environment.NewLine +
+                         @"</xunit>";
 
             using (TempFile tempFile = new TempFile(xml))
             {
@@ -144,14 +143,13 @@ public class XunitProjectTests
         [Fact]
         public void FilenamesAreRelativeToTheProjectLocation()
         {
-            string xml = @"
-<xunit>
-    <assemblies>
-        <assembly filename='AssemblyFilename' config-filename='ConfigFilename'>
-            <output type='xml' filename='XmlFilename' />
-        </assembly>
-    </assemblies>
-</xunit>";
+            string xml = @"<xunit>" + Environment.NewLine +
+                         @"    <assemblies>" + Environment.NewLine +
+                         @"        <assembly filename='AssemblyFilename' config-filename='ConfigFilename'>" + Environment.NewLine +
+                         @"            <output type='xml' filename='XmlFilename' />" + Environment.NewLine +
+                         @"        </assembly>" + Environment.NewLine +
+                         @"    </assemblies>" + Environment.NewLine +
+                         @"</xunit>";
 
             XunitProject project;
             string directory;
@@ -172,21 +170,20 @@ public class XunitProjectTests
         [Fact]
         public void LoadAcceptanceTest()
         {
-            string xml = @"
-<xunit>
-    <assemblies>
-        <assembly filename='C:\AssemblyFilename' config-filename='C:\ConfigFilename' shadow-copy='false'>
-            <output type='xml' filename='C:\XmlFilename' />
-            <output type='nunit' filename='C:\NunitFilename' />
-            <output type='html' filename='C:\HtmlFilename' />
-        </assembly>
-        <assembly filename='C:\AssemblyFilename2' config-filename='C:\ConfigFilename2' shadow-copy='true'>
-            <output type='xml' filename='C:\XmlFilename2' />
-            <output type='nunit' filename='C:\NunitFilename2' />
-            <output type='html' filename='C:\HtmlFilename2' />
-        </assembly>
-    </assemblies>
-</xunit>";
+            string xml = @"<xunit>" + Environment.NewLine +
+                         @"    <assemblies>" + Environment.NewLine +
+                         @"        <assembly filename='C:\AssemblyFilename' config-filename='C:\ConfigFilename' shadow-copy='false'>" + Environment.NewLine +
+                         @"            <output type='xml' filename='C:\XmlFilename' />" + Environment.NewLine +
+                         @"            <output type='nunit' filename='C:\NunitFilename' />" + Environment.NewLine +
+                         @"            <output type='html' filename='C:\HtmlFilename' />" + Environment.NewLine +
+                         @"        </assembly>" + Environment.NewLine +
+                         @"        <assembly filename='C:\AssemblyFilename2' config-filename='C:\ConfigFilename2' shadow-copy='true'>" + Environment.NewLine +
+                         @"            <output type='xml' filename='C:\XmlFilename2' />" + Environment.NewLine +
+                         @"            <output type='nunit' filename='C:\NunitFilename2' />" + Environment.NewLine +
+                         @"            <output type='html' filename='C:\HtmlFilename2' />" + Environment.NewLine +
+                         @"        </assembly>" + Environment.NewLine +
+                         @"    </assemblies>" + Environment.NewLine +
+                         @"</xunit>";
 
             XunitProject project;
 
@@ -263,12 +260,12 @@ public class XunitProjectTests
         [Fact]
         public void AssemblyFilenameOnly()
         {
-            string expectedXml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<xunit>
-  <assemblies>
-    <assembly filename=""C:\AssemblyFilename"" shadow-copy=""true"" />
-  </assemblies>
-</xunit>";
+            string expectedXml = @"<?xml version=""1.0"" encoding=""utf-8""?>" + Environment.NewLine +
+                                 @"<xunit>" + Environment.NewLine +
+                                 @"  <assemblies>" + Environment.NewLine +
+                                 @"    <assembly filename=""C:\AssemblyFilename"" shadow-copy=""true"" />" + Environment.NewLine +
+                                 @"  </assemblies>" + Environment.NewLine +
+                                 @"</xunit>";
 
             using (TempFile tempFile = new TempFile())
             {
@@ -288,12 +285,12 @@ public class XunitProjectTests
         [Fact]
         public void FilenamesAreRelativeToTheProjectLocation()
         {
-            string expectedXml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<xunit>
-  <assemblies>
-    <assembly filename=""C:\AssemblyFilename"" config-filename=""ConfigFilename"" shadow-copy=""true"" />
-  </assemblies>
-</xunit>";
+            string expectedXml = @"<?xml version=""1.0"" encoding=""utf-8""?>" + Environment.NewLine +
+                                 @"<xunit>" + Environment.NewLine +
+                                 @"  <assemblies>" + Environment.NewLine +
+                                 @"    <assembly filename=""C:\AssemblyFilename"" config-filename=""ConfigFilename"" shadow-copy=""true"" />" + Environment.NewLine +
+                                 @"  </assemblies>" + Environment.NewLine +
+                                 @"</xunit>";
 
             using (TempFile tempFile = new TempFile())
             {
@@ -315,19 +312,19 @@ public class XunitProjectTests
         [Fact]
         public void SaveAcceptanceTest()
         {
-            string expectedXml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<xunit>
-  <assemblies>
-    <assembly filename=""C:\AssemblyFilename"" config-filename=""C:\ConfigFilename"" shadow-copy=""true"">
-      <output type=""xml"" filename=""C:\XmlFilename"" />
-      <output type=""html"" filename=""C:\HtmlFilename"" />
-    </assembly>
-    <assembly filename=""C:\AssemblyFilename2"" config-filename=""C:\ConfigFilename2"" shadow-copy=""false"">
-      <output type=""xml"" filename=""C:\XmlFilename2"" />
-      <output type=""html"" filename=""C:\HtmlFilename2"" />
-    </assembly>
-  </assemblies>
-</xunit>";
+            string expectedXml = @"<?xml version=""1.0"" encoding=""utf-8""?>" + Environment.NewLine +
+                                 @"<xunit>" + Environment.NewLine +
+                                 @"  <assemblies>" + Environment.NewLine +
+                                 @"    <assembly filename=""C:\AssemblyFilename"" config-filename=""C:\ConfigFilename"" shadow-copy=""true"">" + Environment.NewLine +
+                                 @"      <output type=""xml"" filename=""C:\XmlFilename"" />" + Environment.NewLine +
+                                 @"      <output type=""html"" filename=""C:\HtmlFilename"" />" + Environment.NewLine +
+                                 @"    </assembly>" + Environment.NewLine +
+                                 @"    <assembly filename=""C:\AssemblyFilename2"" config-filename=""C:\ConfigFilename2"" shadow-copy=""false"">" + Environment.NewLine +
+                                 @"      <output type=""xml"" filename=""C:\XmlFilename2"" />" + Environment.NewLine +
+                                 @"      <output type=""html"" filename=""C:\HtmlFilename2"" />" + Environment.NewLine +
+                                 @"    </assembly>" + Environment.NewLine +
+                                 @"  </assemblies>" + Environment.NewLine +
+                                 @"</xunit>";
 
             using (TempFile tempFile = new TempFile())
             {
