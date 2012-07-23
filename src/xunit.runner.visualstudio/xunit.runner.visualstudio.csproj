@@ -12,6 +12,8 @@
     <RootNamespace>Xunit.Runner.VisualStudio</RootNamespace>
     <AssemblyName>xunit.runner.visualstudio</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -76,15 +78,8 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  -->
   <Target Name="AfterBuild">
-    <ItemGroup>
-      <ZipItems Include="$(OutputPath)*.dll;$(OutputPath)*.vsixmanifest;$(OutputPath)[Content_Types].xml;$(OutputPath)*.txt;$(OutputPath)*.ico" />
-    </ItemGroup>
-    <Delete Files="$(OutputPath)xunit.runner.visualstudio.vsix" />
-    <Delete Files="$(OutputPath)xunit.runner.visualstudio.vsix.zip" />
-    <Zip ZipFileName="$(OutputPath)xunit.runner.visualstudio.vsix.zip" Files="@(ZipItems)" StripPath="true" />
-    <Copy SourceFiles="$(OutputPath)xunit.runner.visualstudio.vsix.zip" DestinationFiles="$(OutputPath)xunit.runner.visualstudio.vsix" />
-    <Delete Files="$(OutputPath)xunit.runner.visualstudio.vsix.zip" />
   </Target>
+  -->
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

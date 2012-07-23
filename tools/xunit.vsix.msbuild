@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="BuildVsix" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <UsingTask
+        AssemblyFile="..\packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
+        TaskName="CodePlex.MSBuildTasks.Zip" />
+
+    <Target Name="BuildVsix">
+        <ItemGroup>
+            <ZipItems
+                Include="$(OutputPath)*.dll;$(OutputPath)*.vsixmanifest;$(OutputPath)[Content_Types].xml;$(OutputPath)*.txt;$(OutputPath)*.ico"
+                Exclude="$(OutputPath)Microsoft*.dll" />
+        </ItemGroup>
+
+        <Delete Files="$(OutputPath)xunit.runner.visualstudio.vsix" />
+        <Delete Files="$(OutputPath)xunit.runner.visualstudio.vsix.zip" />
+
+        <Zip ZipFileName="$(OutputPath)xunit.runner.visualstudio.vsix.zip" Files="@(ZipItems)" StripPath="true" />
+        <Copy SourceFiles="$(OutputPath)xunit.runner.visualstudio.vsix.zip" DestinationFiles="$(OutputPath)xunit.runner.visualstudio.vsix" />
+        <Delete Files="$(OutputPath)xunit.runner.visualstudio.vsix.zip" />
+    </Target>
+</Project>

@@ -5,13 +5,5 @@
 
         <!-- Define default configuration (so building from command line is consistent) -->
         <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-
-        <!-- Enable NuGet package restore for all projects -->
-        <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(ToolsPath)..</SolutionDir>
-        <RestorePackages Condition=" '$(RestorePackages)' == '' ">true</RestorePackages>
-
-        <!-- Use CustomAfterMicrosoftCommonTargets property (defined in Microsoft.Common.targets) to
-             inject post-Common targets files without requiring the inclusion -->
-        <CustomAfterMicrosoftCommonTargets>$(ToolsPath)xunit.nuget.targets</CustomAfterMicrosoftCommonTargets>
     </PropertyGroup>
 </Project>
