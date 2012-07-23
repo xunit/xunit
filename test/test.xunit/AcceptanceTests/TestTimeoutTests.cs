@@ -29,7 +29,7 @@ public class TestTimeoutFixture : AcceptanceTest
 
         XmlNode testNode = ResultXmlUtility.AssertResult(assemblyNode, "Fail", "Stub.TestShouldTimeout");
         var time = Decimal.Parse(testNode.Attributes["time"].Value);
-        Assert.Equal(50M, time);
+        Assert.InRange(time, 0.049M, 0.051M);
         XmlNode messageNode = testNode.SelectSingleNode("failure/message");
         Assert.Equal("Test execution time exceeded: 50ms", messageNode.InnerText);
     }
