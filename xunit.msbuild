@@ -31,7 +31,7 @@
 
     <!-- Build server targets -->
 
-    <Target Name="TeamCity" DependsOnTargets="Clean;SetVersionNumber;Test;Packages;Zip" />
+    <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test;Packages;Zip" />
 
     <!-- Individiual targets -->
 
@@ -54,6 +54,13 @@
             Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
         <Delete Files="@(CleanFileList)"/>
         <RemoveDir Directories="@(CleanFolderList)" ContinueOnError="true"/>
+    </Target>
+
+    <Target Name="RestorePackages">
+        <Message Text="Restoring NuGet packages..." />
+        <MSBuild
+            Projects="tools\xunit.nuget.targets"
+            Targets="RestorePackages" />
     </Target>
 
     <Target Name="Build">
@@ -224,10 +231,6 @@
             Replacement='AssemblyVersion("$1.$(BuildNumber)")'
             Files='src\GlobalAssemblyInfo.cs'/>
         <RegexReplace
-            Pattern='assemblyIdentity version="(\d+\.\d+\.\d+)\.\d+"'
-            Replacement='assemblyIdentity version="$1.$(BuildNumber)"'
-            Files='src\xunit.installer\App.manifest'/>
-        <RegexReplace
             Pattern='&lt;Version&gt;(\d+\.\d+\.\d+)\.\d+&lt;/Version&gt;'
             Replacement='&lt;Version&gt;$1.$(BuildNumber)&lt;/Version&gt;'
             Files='src\xunit.runner.visualstudio\extension.vsixmanifest'/>
@@ -261,7 +264,6 @@
             <ZipFileList Include="src\xunit.gui\bin\$(Configuration).clr4.x86\xunit.gui.clr4.x86.exe"/>
             <ZipFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.??l"/>
             <ZipFileList Include="src\xunit.extensions\bin\$(Configuration)\xunit.extensions.??l"/>
-            <ZipFileList Include="src\xunit.installer\bin\$(Configuration)\xunit.installer.exe"/>
             <ZipFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.dll"/>
             <ZipFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"/>
         </ItemGroup>
@@ -283,7 +285,6 @@
             <ZipPdbFileList Include="src\xunit.gui\bin\$(Configuration).clr4.x86\xunit.gui.clr4.x86.pdb"/>
             <ZipPdbFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.pdb"/>
             <ZipPdbFileList Include="src\xunit.extensions\bin\$(Configuration)\xunit.extensions.pdb"/>
-            <ZipPdbFileList Include="src\xunit.installer\bin\$(Configuration)\xunit.installer.pdb"/>
             <ZipPdbFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.pdb"/>
             <ZipPdbFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.pdb"/>
         </ItemGroup>
