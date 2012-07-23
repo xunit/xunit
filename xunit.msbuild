@@ -38,7 +38,7 @@
     <Target Name="Clean">
         <ItemGroup>
             <CleanFileList
-                Include="xunit-build-*.zip;xunit-symbols-*.zip;*.html;*.xml;*.nupkg;tools\NuGet.exe"/>
+                Include="xunit-build-*.zip;xunit-symbols-*.zip;*.html;*.xml;*.nupkg;.nuget\NuGet.exe"/>
             <!-- TODO: Clean up Packages folder -->
             <CleanFolderList Include="xunit.console\bin\$(Configuration).x86"/>
             <CleanFolderList Include="xunit.console\bin\$(Configuration).clr4"/>
@@ -245,7 +245,7 @@
     </Target>
 
     <Target Name='Packages'>
-        <Exec Command='tools\NuGet.exe pack %(NuSpecFiles.Identity) -NoPackageAnalysis' />
+        <Exec Command='.nuget\NuGet.exe pack %(NuSpecFiles.Identity) -NoPackageAnalysis' />
     </Target>
 
     <Target Name="Zip">
