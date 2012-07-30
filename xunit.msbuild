@@ -231,16 +231,12 @@
             Replacement='AssemblyVersion("$1.$(BuildNumber)")'
             Files='src\GlobalAssemblyInfo.cs'/>
         <RegexReplace
-            Pattern='&lt;Version&gt;(\d+\.\d+\.\d+)\.\d+&lt;/Version&gt;'
-            Replacement='&lt;Version&gt;$1.$(BuildNumber)&lt;/Version&gt;'
-            Files='src\xunit.runner.visualstudio\extension.vsixmanifest'/>
-        <RegexReplace
-            Pattern='&lt;version&gt;(\d+\.\d+\.\d+)\.\d+&lt;/version&gt;'
-            Replacement='&lt;version&gt;$1.$(BuildNumber)&lt;/version&gt;'
+            Pattern='&lt;version&gt;(\d+\.\d+\.\d+)&lt;'
+            Replacement='&lt;version&gt;$1-build-$(BuildNumber)&lt;'
             Files='@(NuspecFiles)'/>
         <RegexReplace
-            Pattern='version=&quot;(\d+\.\d+\.\d+)\.\d+&quot;'
-            Replacement='version=&quot;$1.$(BuildNumber)&quot;'
+            Pattern='version=&quot;\[(\d+\.\d+\.\d+)\]&quot;'
+            Replacement='version=&quot;[$1-build-$(BuildNumber)]&quot;'
             Files='@(NuspecFiles)'/>
     </Target>
 
