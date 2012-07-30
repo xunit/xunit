@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
+using System.Security;
 
 namespace Xunit.Sdk
 {
@@ -54,12 +56,13 @@ namespace Xunit.Sdk
                 this.messageSink = messageSink;
             }
 
+            [SecuritySafeCritical]
             public override void Notify(string value)
             {
                 OutgoingMessage message = new OutgoingMessage(value);
                 IMessage response = messageSink.SyncProcessMessage(message);
                 if (response != null && response.Properties.Contains("data"))
-                    shouldContinue = Convert.ToBoolean(response.Properties["data"]);
+                    shouldContinue = Convert.ToBoolean(response.Properties["data"], CultureInfo.InvariantCulture);
             }
 
             public override bool ShouldContinue()
@@ -78,6 +81,7 @@ namespace Xunit.Sdk
 
                 IDictionary IMessage.Properties
                 {
+                    [SecurityCritical]
                     get { return values; }
                 }
             }

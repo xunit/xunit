@@ -1,5 +1,4 @@
-﻿
-namespace Xunit
+﻿namespace Xunit
 {
     /// <summary>
     /// Represents a set of filters for an <see cref="XunitProject"/>.

@@ -29,6 +29,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testClass">The instance of the test class</param>
         /// <returns>Returns information about the test run</returns>
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         [SuppressMessage("Microsoft.Usage", "CA2219:DoNotRaiseExceptionsInExceptionClauses", Justification = "We do actually verify this. Promise!")]
         public override MethodResult Execute(object testClass)
         {

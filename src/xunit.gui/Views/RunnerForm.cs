@@ -1000,7 +1000,7 @@ namespace Xunit.Gui
             else
                 progress.Value = progress.Maximum;
 
-            statusLabel.Text = string.Format("Total tests: {0}, Failures: {1}, Skipped: {2}, Time: {3} seconds",
+            statusLabel.Text = String.Format("Total tests: {0}, Failures: {1}, Skipped: {2}, Time: {3} seconds",
                                              testsTotal, testsFailed, testsSkipped, testsDuration.ToString("0.000"));
 
             if (isCloseRequested)

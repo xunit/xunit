@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -14,23 +15,6 @@ namespace Xunit
     [SuppressMessage("Microsoft.Design", "CA1053:StaticHolderTypesShouldNotHaveConstructors", Justification = "This is not marked as static because we want people to be able to derive from it")]
     public class Assert
     {
-        /// <summary>
-        /// Used by the PropertyChanged.
-        /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "This would be a breaking change.")]
-        public delegate void PropertyChangedDelegate();
-
-        /// <summary>
-        /// Used by the Throws and DoesNotThrow methods.
-        /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "This would be a breaking change.")]
-        public delegate void ThrowsDelegate();
-
-        /// <summary>
-        /// Used by the Throws and DoesNotThrow methods.
-        /// </summary>
-        public delegate object ThrowsDelegateWithReturn();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Assert"/> class.
         /// </summary>
@@ -56,9 +40,10 @@ namespace Xunit
         /// <param name="collection">The collection to be inspected</param>
         /// <param name="comparer">The comparer used to equate objects in the collection with the expected object</param>
         /// <exception cref="ContainsException">Thrown when the object is not present in the collection</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "If you pass null here, you deserve the NullReferenceException.")]
         public static void Contains<T>(T expected, IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
+            Guard.ArgumentNotNull("comparer", comparer);
+
             if (collection != null)
                 foreach (T item in collection)
                     if (comparer.Equals(expected, item))
@@ -111,9 +96,10 @@ namespace Xunit
         /// <param name="collection">The collection to be inspected</param>
         /// <param name="comparer">The comparer used to equate objects in the collection with the expected object</param>
         /// <exception cref="DoesNotContainException">Thrown when the object is present inside the container</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "If you pass null here, you deserve the NullReferenceException.")]
         public static void DoesNotContain<T>(T expected, IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
+            Guard.ArgumentNotNull("comparer", comparer);
+
             if (collection != null)
                 foreach (T item in collection)
                     if (comparer.Equals(expected, item))
@@ -148,7 +134,19 @@ namespace Xunit
         /// Verifies that a block of code does not throw any exceptions.
         /// </summary>
         /// <param name="testCode">A delegate to the code to be tested</param>
-        public static void DoesNotThrow(ThrowsDelegate testCode)
+        public static void DoesNotThrow(Action testCode)
+        {
+            Exception ex = Record.Exception(testCode);
+
+            if (ex != null)
+                throw new DoesNotThrowException(ex);
+        }
+
+        /// <summary>
+        /// Verifies that a block of code does not throw any exceptions.
+        /// </summary>
+        /// <param name="testCode">A delegate to the code to be tested</param>
+        public static void DoesNotThrow(Func<object> testCode)
         {
             Exception ex = Record.Exception(testCode);
 
@@ -162,7 +160,6 @@ namespace Xunit
         /// <param name="collection">The collection to be inspected</param>
         /// <exception cref="ArgumentNullException">Thrown when the collection is null</exception>
         /// <exception cref="EmptyException">Thrown when the collection is not empty</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
         [SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "object", Justification = "No can do")]
         public static void Empty(IEnumerable collection)
         {
@@ -194,9 +191,10 @@ namespace Xunit
         /// <param name="actual">The value to be compared against</param>
         /// <param name="comparer">The comparer used to compare the two objects</param>
         /// <exception cref="EqualException">Thrown when the objects are not equal</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "If you pass null here, you deserve the NullReferenceException.")]
         public static void Equal<T>(T expected, T actual, IEqualityComparer<T> comparer)
         {
+            Guard.ArgumentNotNull("comparer", comparer);
+
             if (!comparer.Equals(expected, actual))
                 throw new EqualException(expected, actual);
         }
@@ -216,8 +214,8 @@ namespace Xunit
 
             if (!GetEqualityComparer<double>().Equals(expectedRounded, actualRounded))
                 throw new EqualException(
-                    String.Format("{0} (rounded from {1})", expectedRounded, expected),
-                    String.Format("{0} (rounded from {1})", actualRounded, actual),
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual),
                     skipPositionCheck: true
                 );
         }
@@ -237,8 +235,8 @@ namespace Xunit
 
             if (!GetEqualityComparer<decimal>().Equals(expectedRounded, actualRounded))
                 throw new EqualException(
-                    String.Format("{0} (rounded from {1})", expectedRounded, expected),
-                    String.Format("{0} (rounded from {1})", actualRounded, actual),
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual),
                     skipPositionCheck: true
                 );
         }
@@ -331,9 +329,10 @@ namespace Xunit
         /// <param name="high">The (inclusive) high value of the range</param>
         /// <param name="comparer">The comparer used to evaluate the value's range</param>
         /// <exception cref="InRangeException">Thrown when the value is not in the given range</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "3", Justification = "If you pass null here, you deserve the NullReferenceException.")]
         public static void InRange<T>(T actual, T low, T high, IComparer<T> comparer)
         {
+            Guard.ArgumentNotNull("comparer", comparer);
+
             if (comparer.Compare(low, actual) > 0 || comparer.Compare(actual, high) > 0)
                 throw new InRangeException(actual, low, high);
         }
@@ -357,9 +356,10 @@ namespace Xunit
         /// <param name="expectedType">The type the object should be</param>
         /// <param name="object">The object to be evaluated</param>
         /// <exception cref="IsAssignableFromException">Thrown when the object is not the given type</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "If you pass null here, you deserve the NullReferenceException.")]
         public static void IsAssignableFrom(Type expectedType, object @object)
         {
+            Guard.ArgumentNotNull("expectedType", expectedType);
+
             if (@object == null || !expectedType.IsAssignableFrom(@object.GetType()))
                 throw new IsAssignableFromException(expectedType, @object);
         }
@@ -382,9 +382,10 @@ namespace Xunit
         /// <param name="expectedType">The type the object should not be</param>
         /// <param name="object">The object to be evaluated</param>
         /// <exception cref="IsNotTypeException">Thrown when the object is the given type</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "If you pass null here, you deserve the NullReferenceException.")]
         public static void IsNotType(Type expectedType, object @object)
         {
+            Guard.ArgumentNotNull("expectedType", expectedType);
+
             if (@object != null && expectedType.Equals(@object.GetType()))
                 throw new IsNotTypeException(expectedType, @object);
         }
@@ -408,9 +409,10 @@ namespace Xunit
         /// <param name="expectedType">The type the object should be</param>
         /// <param name="object">The object to be evaluated</param>
         /// <exception cref="IsTypeException">Thrown when the object is not the given type</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "If you pass null here, you deserve the NullReferenceException.")]
         public static void IsType(Type expectedType, object @object)
         {
+            Guard.ArgumentNotNull("expectedType", expectedType);
+
             if (@object == null || !expectedType.Equals(@object.GetType()))
                 throw new IsTypeException(expectedType, @object);
         }
@@ -421,7 +423,6 @@ namespace Xunit
         /// <param name="collection">The collection to be inspected</param>
         /// <exception cref="ArgumentNullException">Thrown when a null collection is passed</exception>
         /// <exception cref="NotEmptyException">Thrown when the collection is empty</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
         [SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "object", Justification = "No can do")]
         public static void NotEmpty(IEnumerable collection)
         {
@@ -455,9 +456,10 @@ namespace Xunit
         /// <param name="actual">The actual object</param>
         /// <param name="comparer">The comparer used to examine the objects</param>
         /// <exception cref="NotEqualException">Thrown when the objects are equal</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "If you pass null here, you deserve the NullReferenceException.")]
         public static void NotEqual<T>(T expected, T actual, IEqualityComparer<T> comparer)
         {
+            Guard.ArgumentNotNull("comparer", comparer);
+
             if (comparer.Equals(expected, actual))
                 throw new NotEqualException();
         }
@@ -509,9 +511,10 @@ namespace Xunit
         /// <param name="high">The (inclusive) high value of the range</param>
         /// <param name="comparer">The comparer used to evaluate the value's range</param>
         /// <exception cref="NotInRangeException">Thrown when the value is in the given range</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "3", Justification = "If you pass null here, you deserve the NullReferenceException.")]
         public static void NotInRange<T>(T actual, T low, T high, IComparer<T> comparer)
         {
+            Guard.ArgumentNotNull("comparer", comparer);
+
             if (comparer.Compare(low, actual) <= 0 && comparer.Compare(actual, high) <= 0)
                 throw new NotInRangeException(actual, low, high);
         }
@@ -558,9 +561,7 @@ namespace Xunit
         /// <param name="propertyName">The property name for which the notification should be raised</param>
         /// <param name="testCode">The test code which should cause the notification to be raised</param>
         /// <exception cref="PropertyChangedException">Thrown when the notification is not raised</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "Protected with the Guard class")]
-        public static void PropertyChanged(INotifyPropertyChanged @object, string propertyName, PropertyChangedDelegate testCode)
+        public static void PropertyChanged(INotifyPropertyChanged @object, string propertyName, Action testCode)
         {
             Guard.ArgumentNotNull("object", @object);
             Guard.ArgumentNotNull("testCode", testCode);
@@ -607,7 +608,6 @@ namespace Xunit
         /// <returns>The single item in the collection.</returns>
         /// <exception cref="SingleException">Thrown when the collection does not contain
         /// exactly one element.</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
         public static object Single(IEnumerable collection)
         {
             Guard.ArgumentNotNull("collection", collection);
@@ -637,7 +637,6 @@ namespace Xunit
         /// <returns>The single item in the collection.</returns>
         /// <exception cref="SingleException">Thrown when the collection does not contain
         /// exactly one element.</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
         public static void Single(IEnumerable collection, object expected)
         {
             Guard.ArgumentNotNull("collection", collection);
@@ -678,8 +677,6 @@ namespace Xunit
         /// <returns>The single item in the filtered collection.</returns>
         /// <exception cref="SingleException">Thrown when the filtered collection does
         /// not contain exactly one element.</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "Protected with the Guard class")]
         public static T Single<T>(IEnumerable<T> collection, Predicate<T> predicate)
         {
             Guard.ArgumentNotNull("collection", collection);
@@ -708,7 +705,7 @@ namespace Xunit
         /// <param name="testCode">A delegate to the code to be tested</param>
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        public static T Throws<T>(ThrowsDelegate testCode)
+        public static T Throws<T>(Action testCode)
             where T : Exception
         {
             return (T)Throws(typeof(T), testCode);
@@ -722,7 +719,7 @@ namespace Xunit
         /// <param name="testCode">A delegate to the code to be tested</param>
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        public static T Throws<T>(ThrowsDelegateWithReturn testCode)
+        public static T Throws<T>(Func<object> testCode)
             where T : Exception
         {
             return (T)Throws(typeof(T), testCode);
@@ -735,9 +732,10 @@ namespace Xunit
         /// <param name="testCode">A delegate to the code to be tested</param>
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "If you pass null here, you deserve the NullReferenceException.")]
-        public static Exception Throws(Type exceptionType, ThrowsDelegate testCode)
+        public static Exception Throws(Type exceptionType, Action testCode)
         {
+            Guard.ArgumentNotNull("exceptionType", exceptionType);
+
             Exception exception = Record.Exception(testCode);
 
             if (exception == null)
@@ -757,9 +755,10 @@ namespace Xunit
         /// <param name="testCode">A delegate to the code to be tested</param>
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "If you pass null here, you deserve the NullReferenceException.")]
-        public static Exception Throws(Type exceptionType, ThrowsDelegateWithReturn testCode)
+        public static Exception Throws(Type exceptionType, Func<object> testCode)
         {
+            Guard.ArgumentNotNull("exceptionType", exceptionType);
+
             Exception exception = Record.Exception(testCode);
 
             if (exception == null)

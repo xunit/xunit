@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Xml;
-using Xunit.Sdk;
 
 namespace Xunit
 {
@@ -33,6 +33,7 @@ namespace Xunit
         /// <summary>
         /// Gets the assembly filename.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "Filename", Justification = "This would be a breaking change.")]
         public string AssemblyFilename
         {
             get { return ExecutorWrapper.AssemblyFilename; }
@@ -41,6 +42,7 @@ namespace Xunit
         /// <summary>
         /// Gets the config filename.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "Filename", Justification = "This would be a breaking change.")]
         public string ConfigFilename
         {
             get { return ExecutorWrapper.ConfigFilename; }
@@ -122,8 +124,8 @@ namespace Xunit
             XmlNode assemblyNode = doc.ChildNodes[0];
 
             AddAttribute(assemblyNode, "name", ExecutorWrapper.AssemblyFilename);
-            AddAttribute(assemblyNode, "run-date", DateTime.Now.ToString("yyyy-MM-dd"));
-            AddAttribute(assemblyNode, "run-time", DateTime.Now.ToString("HH:mm:ss"));
+            AddAttribute(assemblyNode, "run-date", DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            AddAttribute(assemblyNode, "run-time", DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture));
             if (ExecutorWrapper.ConfigFilename != null)
                 AddAttribute(assemblyNode, "configFile", ExecutorWrapper.ConfigFilename);
 
@@ -164,8 +166,8 @@ namespace Xunit
             AddAttribute(assemblyNode, "passed", passed);
             AddAttribute(assemblyNode, "failed", failed);
             AddAttribute(assemblyNode, "skipped", skipped);
-            AddAttribute(assemblyNode, "environment", String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version));
-            AddAttribute(assemblyNode, "test-framework", String.Format("xUnit.net {0}", ExecutorWrapper.XunitVersion));
+            AddAttribute(assemblyNode, "environment", String.Format(CultureInfo.InvariantCulture, "{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version));
+            AddAttribute(assemblyNode, "test-framework", String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", ExecutorWrapper.XunitVersion));
 
             return assemblyNode.OuterXml.Replace(" />", ">") + result + "</assembly>";
         }
@@ -213,6 +215,9 @@ namespace Xunit
 
             public bool TestFinished(TestMethod testMethod)
             {
+                if (testMethod == null)
+                    return false;
+
                 ++Total;
 
                 var lastRunResult = testMethod.RunResults[testMethod.RunResults.Count - 1];

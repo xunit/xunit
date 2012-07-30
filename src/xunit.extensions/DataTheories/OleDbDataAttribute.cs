@@ -10,6 +10,7 @@ namespace Xunit.Extensions
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "Db", Justification = "That is the correct casing.")]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class OleDbDataAttribute : DataAdapterDataAttribute
     {
         readonly string connectionString;

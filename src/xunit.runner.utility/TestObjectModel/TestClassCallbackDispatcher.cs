@@ -23,13 +23,13 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public void AssemblyFinished(string assemblyFilename, int total, int failed, int skipped, double time)
+        public void AssemblyFinished(string assemblyFileName, int total, int failed, int skipped, double time)
         {
             callback.AssemblyFinished(testClass.TestAssembly, total, failed, skipped, time);
         }
 
         /// <inheritdoc/>
-        public void AssemblyStart(string assemblyFilename, string configFilename, string xUnitVersion)
+        public void AssemblyStart(string assemblyFileName, string configFileName, string xunitVersion)
         {
             callback.AssemblyStart(testClass.TestAssembly);
         }
@@ -42,7 +42,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public void ExceptionThrown(string assemblyFilename, Exception exception)
+        public void ExceptionThrown(string assemblyFileName, Exception exception)
         {
             callback.ExceptionThrown(testClass.TestAssembly, exception);
         }

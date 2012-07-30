@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace Xunit.Sdk
@@ -16,7 +17,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="count">The numbers of items in the collection.</param>
         public SingleException(int count)
-            : base(String.Format("The collection contained {0} elements instead of 1.", count)) { }
+            : base(String.Format(CultureInfo.CurrentCulture, "The collection contained {0} elements instead of 1.", count)) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SingleException"/> class.
@@ -24,7 +25,7 @@ namespace Xunit.Sdk
         /// <param name="count">The numbers of items in the collection.</param>
         /// <param name="expected">The object expected to be in the collection.</param>
         public SingleException(int count, object expected)
-            : base(String.Format("The collection contained {0} instances of '{1}' instead of 1.", count, expected)) { }
+            : base(String.Format(CultureInfo.CurrentCulture, "The collection contained {0} instances of '{1}' instead of 1.", count, expected)) { }
 
         /// <inheritdoc/>
         protected SingleException(SerializationInfo info, StreamingContext context)

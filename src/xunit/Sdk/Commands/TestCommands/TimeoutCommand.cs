@@ -35,7 +35,7 @@ namespace Xunit.Sdk
         /// <returns>Returns information about the test run</returns>
         public override MethodResult Execute(object testClass)
         {
-            WorkerThreadHandler timedMethod = () => { return InnerCommand.Execute(testClass); };
+            Func<MethodResult> timedMethod = () => { return InnerCommand.Execute(testClass); };
 
             IAsyncResult asyncResult = timedMethod.BeginInvoke(null, null);
             MethodResult methodResult;
@@ -47,7 +47,5 @@ namespace Xunit.Sdk
 
             return methodResult;
         }
-
-        delegate MethodResult WorkerThreadHandler();
     }
 }

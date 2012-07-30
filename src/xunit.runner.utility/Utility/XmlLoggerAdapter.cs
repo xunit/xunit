@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Xml;
 
@@ -16,8 +17,12 @@ namespace Xunit
         /// <param name="node">The node to be logged.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>Returns true if the user wishes to continue running tests; returns false otherwise.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         public static bool LogNode(XmlNode node, IRunnerLogger logger)
         {
+            Guard.ArgumentNotNull("node", node);
+            Guard.ArgumentNotNull("logger", logger);
+
             switch (node.Name)
             {
                 case "assembly":
@@ -42,20 +47,16 @@ namespace Xunit
         /// </summary>
         /// <param name="assemblyNode">The assembly node.</param>
         /// <param name="logger">The logger.</param>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         public static void LogAssemblyNode(XmlNode assemblyNode, IRunnerLogger logger)
         {
-            int total = 0;
-            int failed = 0;
-            int skipped = 0;
-            double time = 0D;
+            Guard.ArgumentNotNull("assemblyNode", assemblyNode);
+            Guard.ArgumentNotNull("logger", logger);
 
-            if (assemblyNode != null)
-            {
-                total = Int32.Parse(assemblyNode.Attributes["total"].Value, CultureInfo.InvariantCulture);
-                failed = Int32.Parse(assemblyNode.Attributes["failed"].Value, CultureInfo.InvariantCulture);
-                skipped = Int32.Parse(assemblyNode.Attributes["skipped"].Value, CultureInfo.InvariantCulture);
-                time = Double.Parse(assemblyNode.Attributes["time"].Value, CultureInfo.InvariantCulture);
-            }
+            int total = Int32.Parse(assemblyNode.Attributes["total"].Value, CultureInfo.InvariantCulture);
+            int failed = Int32.Parse(assemblyNode.Attributes["failed"].Value, CultureInfo.InvariantCulture);
+            int skipped = Int32.Parse(assemblyNode.Attributes["skipped"].Value, CultureInfo.InvariantCulture);
+            double time = Double.Parse(assemblyNode.Attributes["time"].Value, CultureInfo.InvariantCulture);
 
             logger.AssemblyFinished(assemblyNode.Attributes["name"].Value, total, failed, skipped, time);
         }
@@ -68,8 +69,12 @@ namespace Xunit
         /// <param name="classNode">The class node.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>Returns true if the user wishes to continue running tests; returns false otherwise.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         public static bool LogClassNode(XmlNode classNode, IRunnerLogger logger)
         {
+            Guard.ArgumentNotNull("classNode", classNode);
+            Guard.ArgumentNotNull("logger", logger);
+
             if (classNode.SelectSingleNode("failure") != null)
             {
                 string exceptionType = null;
@@ -96,8 +101,12 @@ namespace Xunit
         /// <param name="startNode">The start node.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>Returns true if the user wishes to continue running tests; returns false otherwise.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         public static bool LogStartNode(XmlNode startNode, IRunnerLogger logger)
         {
+            Guard.ArgumentNotNull("startNode", startNode);
+            Guard.ArgumentNotNull("logger", logger);
+
             return logger.TestStart(startNode.Attributes["name"].Value,
                                     startNode.Attributes["type"].Value,
                                     startNode.Attributes["method"].Value);
@@ -111,8 +120,12 @@ namespace Xunit
         /// <param name="testNode">The test node.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>Returns true if the user wishes to continue running tests; returns false otherwise.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         public static bool LogTestNode(XmlNode testNode, IRunnerLogger logger)
         {
+            Guard.ArgumentNotNull("testNode", testNode);
+            Guard.ArgumentNotNull("logger", logger);
+
             string name = testNode.Attributes["name"].Value;
             string type = testNode.Attributes["type"].Value;
             string method = testNode.Attributes["method"].Value;

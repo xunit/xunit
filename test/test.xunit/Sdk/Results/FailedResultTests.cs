@@ -52,7 +52,7 @@ public class FailedResultTests
 
         result.ExecutionTime = 1.2;
 
-        string expectedMessage = string.Format("{0} : {1}{2}---- {3} : {4}",
+        string expectedMessage = String.Format("{0} : {1}{2}---- {3} : {4}",
                                                thrownException.GetType().FullName,
                                                thrownException.Message,
                                                Environment.NewLine,
@@ -62,7 +62,7 @@ public class FailedResultTests
         Assert.Equal(expectedMessage, result.Message);
 
         string expectedStackTrace =
-            string.Format("{0}{1}----- Inner Stack Trace -----{1}{2}",
+            String.Format("{0}{1}----- Inner Stack Trace -----{1}{2}",
                           thrownException.StackTrace,
                           Environment.NewLine,
                           innerException.StackTrace);

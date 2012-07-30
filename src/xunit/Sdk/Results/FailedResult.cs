@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 
 namespace Xunit.Sdk
@@ -17,10 +16,11 @@ namespace Xunit.Sdk
         /// <param name="exception">The exception throw by the test</param>
         /// <param name="displayName">The display name for the test. If null, the fully qualified
         /// type name is used.</param>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "This parameter is verified elsewhere.")]
         public FailedResult(IMethodInfo method, Exception exception, string displayName)
             : base(method, displayName)
         {
+            Guard.ArgumentNotNull("exception", exception);
+
             ExceptionType = exception.GetType().FullName;
             Message = ExceptionUtility.GetMessage(exception);
             StackTrace = ExceptionUtility.GetStackTrace(exception);

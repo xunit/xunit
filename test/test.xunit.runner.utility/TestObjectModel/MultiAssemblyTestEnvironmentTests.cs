@@ -341,8 +341,8 @@ public class MultiAssemblyTestEnvironmentTests
             var result = new TestableMultiAssemblyTestEnvironment();
             result.Assembly1 = assembly1;
             result.Assembly2 = assembly2;
-            result.testAssemblies.Add(assembly1.Object);
-            result.testAssemblies.Add(assembly2.Object);
+            result.TestAssemblies.Add(assembly1.Object);
+            result.TestAssemblies.Add(assembly2.Object);
 
             return result;
         }

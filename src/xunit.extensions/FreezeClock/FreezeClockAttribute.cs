@@ -10,6 +10,7 @@ namespace Xunit.Extensions
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     [SuppressMessage("Microsoft.Design", "CA1019:DefineAccessorsForAttributeArguments", Justification = "The values are available indirectly on the base class.")]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class FreezeClockAttribute : BeforeAfterTestAttribute
     {
         readonly DateTime frozenDateTime;

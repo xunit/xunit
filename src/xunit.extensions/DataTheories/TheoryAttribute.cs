@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using Xunit.Sdk;
 
@@ -12,6 +14,7 @@ namespace Xunit.Extensions
     /// multiple times (once with each data row).
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class TheoryAttribute : FactAttribute
     {
         /// <summary>
@@ -20,6 +23,7 @@ namespace Xunit.Extensions
         /// </summary>
         /// <param name="method">The method under test</param>
         /// <returns>An enumerator through the desired test method invocations</returns>
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         protected override IEnumerable<ITestCommand> EnumerateTestCommands(IMethodInfo method)
         {
             List<ITestCommand> results = new List<ITestCommand>();
@@ -43,7 +47,7 @@ namespace Xunit.Extensions
                 if (results.Count == 0)
                     results.Add(new LambdaTestCommand(method, () =>
                     {
-                        throw new InvalidOperationException(String.Format("No data found for {0}.{1}", method.TypeName, method.Name));
+                        throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, "No data found for {0}.{1}", method.TypeName, method.Name));
                     }));
             }
             catch (Exception ex)
@@ -52,7 +56,8 @@ namespace Xunit.Extensions
                 results.Add(new LambdaTestCommand(method, () =>
                 {
                     throw new InvalidOperationException(
-                        String.Format("An exception was thrown while getting data for theory {0}.{1}:\r\n{2}",
+                        String.Format(CultureInfo.CurrentCulture,
+                                      "An exception was thrown while getting data for theory {0}.{1}:\r\n{2}",
                                       method.TypeName, method.Name, ex)
                     );
                 }));
@@ -117,9 +122,9 @@ namespace Xunit.Extensions
 
         class LambdaTestCommand : TestCommand
         {
-            readonly Assert.ThrowsDelegate lambda;
+            readonly Action lambda;
 
-            public LambdaTestCommand(IMethodInfo method, Assert.ThrowsDelegate lambda)
+            public LambdaTestCommand(IMethodInfo method, Action lambda)
                 : base(method, null, 0)
             {
                 this.lambda = lambda;
@@ -130,6 +135,7 @@ namespace Xunit.Extensions
                 get { return false; }
             }
 
+            [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
             public override MethodResult Execute(object testClass)
             {
                 try

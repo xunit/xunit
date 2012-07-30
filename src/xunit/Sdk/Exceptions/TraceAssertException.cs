@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
+using System.Security;
 
 namespace Xunit.Sdk
 {
@@ -78,6 +79,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
+        [SecurityCritical]
         [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

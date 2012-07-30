@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
-using Xunit.Sdk;
 
 namespace Xunit
 {
@@ -68,17 +68,18 @@ namespace Xunit
         /// <summary>
         /// Runs the specified test methods.
         /// </summary>
-        /// <param name="testMethods">The test methods to run.</param>
+        /// <param name="testMethodsToRun">The test methods to run.</param>
         /// <param name="callback">The run status information callback.</param>
         /// <returns>Returns the result as XML.</returns>
-        public virtual string Run(IEnumerable<TestMethod> testMethods, ITestMethodRunnerCallback callback)
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "ToRun", Justification = "To and Run are both words.")]
+        public virtual string Run(IEnumerable<TestMethod> testMethodsToRun, ITestMethodRunnerCallback callback)
         {
-            Guard.ArgumentNotNullOrEmpty("testMethods", testMethods);
+            Guard.ArgumentNotNullOrEmpty("testMethods", testMethodsToRun);
             Guard.ArgumentNotNull("callback", callback);
 
             List<string> methodNames = new List<string>();
 
-            foreach (TestMethod testMethod in testMethods)
+            foreach (TestMethod testMethod in testMethodsToRun)
             {
                 if (testMethod.TestClass != this)
                     throw new ArgumentException("All test methods must belong to this test class");
@@ -96,6 +97,7 @@ namespace Xunit
         /// </summary>
         /// <param name="methods">The test methods to run</param>
         /// <param name="callback">The run status information callback.</param>
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         protected virtual string RunTests(List<string> methods, ITestMethodRunnerCallback callback)
         {
             IRunnerLogger logger = new TestClassCallbackDispatcher(this, callback);

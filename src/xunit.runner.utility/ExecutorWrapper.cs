@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Remoting;
@@ -18,13 +20,10 @@ namespace Xunit
     /// </summary>
     public class ExecutorWrapper : IExecutorWrapper
     {
-        delegate IntCallbackHandler IntCallbackHandlerFactory();
-        delegate XmlNodeCallbackHandler XmlNodeCallbackHandlerFactory(Predicate<XmlNode> callback, string lastNodeName);
+        readonly Func<IntCallbackHandler> IntCallbackHandlerFactory;
+        readonly Func<Predicate<XmlNode>, string, XmlNodeCallbackHandler> XmlNodeCallbackHandlerFactory;
 
-        readonly IntCallbackHandlerFactory MakeIntCallbackHandler;
-        readonly XmlNodeCallbackHandlerFactory MakeXmlNodeCallbackHandler;
-
-        static Type typeICallbackEventHandler;
+        static Type typeICallbackEventHandler = Type.GetType("System.Web.UI.ICallbackEventHandler, System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
         static ConstructorInfo intCallbackHandlerCtor;
         static ConstructorInfo xmlNodeCallbackHandlerCtor;
 
@@ -37,10 +36,9 @@ namespace Xunit
         /// <summary>
         /// Initializes the <see cref="ExecutorWrapper"/> class.
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "This code is conditional and cannot be moved inline.")]
         static ExecutorWrapper()
         {
-            typeICallbackEventHandler = Type.GetType("System.Web.UI.ICallbackEventHandler, System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", false);
-
             if (typeICallbackEventHandler != null)
             {
                 Type intCallbackHandlerType = DynamicTypeGenerator.GenerateType("IntCallbackEventHandler", typeof(IntCallbackHandlerWithICallbackEventHandler), typeICallbackEventHandler);
@@ -54,29 +52,29 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecutorWrapper"/> class.
         /// </summary>
-        /// <param name="assemblyFilename">The assembly filename.</param>
-        /// <param name="configFilename">The config filename. If null, the default config filename will be used.</param>
+        /// <param name="assemblyFileName">The assembly filename.</param>
+        /// <param name="configFileName">The config filename. If null, the default config filename will be used.</param>
         /// <param name="shadowCopy">Set to true to enable shadow copying; false, otherwise.</param>
-        public ExecutorWrapper(string assemblyFilename, string configFilename, bool shadowCopy)
+        public ExecutorWrapper(string assemblyFileName, string configFileName, bool shadowCopy)
         {
-            assemblyFilename = Path.GetFullPath(assemblyFilename);
-            if (!File.Exists(assemblyFilename))
-                throw new ArgumentException("Could not find file: " + assemblyFilename);
+            assemblyFileName = Path.GetFullPath(assemblyFileName);
+            if (!File.Exists(assemblyFileName))
+                throw new ArgumentException("Could not find file: " + assemblyFileName);
 
-            if (configFilename == null)
-                configFilename = GetDefaultConfigFile(assemblyFilename);
+            if (configFileName == null)
+                configFileName = GetDefaultConfigFile(assemblyFileName);
 
-            if (configFilename != null)
-                configFilename = Path.GetFullPath(configFilename);
+            if (configFileName != null)
+                configFileName = Path.GetFullPath(configFileName);
 
-            AssemblyFilename = assemblyFilename;
-            ConfigFilename = configFilename;
+            AssemblyFilename = assemblyFileName;
+            ConfigFilename = configFileName;
 
-            appDomain = CreateAppDomain(assemblyFilename, configFilename, shadowCopy);
+            appDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy);
 
             try
             {
-                string xunitAssemblyFilename = Path.Combine(Path.GetDirectoryName(assemblyFilename), "xunit.dll");
+                string xunitAssemblyFilename = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
 
                 if (!File.Exists(xunitAssemblyFilename))
                     throw new ArgumentException("Could not find file: " + xunitAssemblyFilename);
@@ -89,14 +87,14 @@ namespace Xunit
                 // Prefer the ASP.NET callback, as it's less troublesome (and faster)
                 if (typeICallbackEventHandler != null)
                 {
-                    MakeIntCallbackHandler = () => (IntCallbackHandler)intCallbackHandlerCtor.Invoke(new object[0]);
-                    MakeXmlNodeCallbackHandler = (callback, lastNodeName) => (XmlNodeCallbackHandler)xmlNodeCallbackHandlerCtor.Invoke(new object[] { callback, lastNodeName });
+                    IntCallbackHandlerFactory = () => (IntCallbackHandler)intCallbackHandlerCtor.Invoke(new object[0]);
+                    XmlNodeCallbackHandlerFactory = (callback, lastNodeName) => (XmlNodeCallbackHandler)xmlNodeCallbackHandlerCtor.Invoke(new object[] { callback, lastNodeName });
                 }
                 // Fallback to the slightly more evil coopting of remoting when we know xunit.dll can do it (1.6+)
                 else if (xunitVersion.Major > 1 || xunitVersion.Minor >= 6)
                 {
-                    MakeIntCallbackHandler = () => new IntCallbackHandlerWithIMessageSink();
-                    MakeXmlNodeCallbackHandler = (callback, lastNodeName) => new XmlNodeCallbackHandlerWithIMessageSink(callback, lastNodeName);
+                    IntCallbackHandlerFactory = () => new IntCallbackHandlerWithIMessageSink();
+                    XmlNodeCallbackHandlerFactory = (callback, lastNodeName) => new XmlNodeCallbackHandlerWithIMessageSink(callback, lastNodeName);
                 }
                 // No ASP.NET, xUnit.net < 1.6, we have to bail and demand the full .NET profile
                 else
@@ -172,6 +170,7 @@ namespace Xunit
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Suppressing exceptions in Dispose is a common pattern")]
         public void Dispose()
         {
             if (appDomain != null)
@@ -192,7 +191,7 @@ namespace Xunit
         /// <inheritdoc/>
         public XmlNode EnumerateTests()
         {
-            var handler = MakeXmlNodeCallbackHandler(null, null);
+            var handler = XmlNodeCallbackHandlerFactory(null, null);
 
             CreateObject("Xunit.Sdk.Executor+EnumerateTests", executor, handler);
 
@@ -202,7 +201,7 @@ namespace Xunit
         /// <inheritdoc/>
         public int GetAssemblyTestCount()
         {
-            var handler = MakeIntCallbackHandler();
+            var handler = IntCallbackHandlerFactory();
 
             CreateObject("Xunit.Sdk.Executor+AssemblyTestCount", executor, handler);
 
@@ -222,7 +221,7 @@ namespace Xunit
         /// <inheritdoc/>
         public XmlNode RunAssembly(Predicate<XmlNode> callback)
         {
-            var handler = MakeXmlNodeCallbackHandler(callback, "assembly");
+            var handler = XmlNodeCallbackHandlerFactory(callback, "assembly");
 
             CreateObject("Xunit.Sdk.Executor+RunAssembly", executor, handler);
 
@@ -234,7 +233,7 @@ namespace Xunit
         /// <inheritdoc/>
         public XmlNode RunClass(string type, Predicate<XmlNode> callback)
         {
-            var handler = MakeXmlNodeCallbackHandler(callback, "class");
+            var handler = XmlNodeCallbackHandlerFactory(callback, "class");
 
             CreateObject("Xunit.Sdk.Executor+RunClass", executor, type, handler);
 
@@ -246,7 +245,7 @@ namespace Xunit
         /// <inheritdoc/>
         public XmlNode RunTest(string type, string method, Predicate<XmlNode> callback)
         {
-            var handler = MakeXmlNodeCallbackHandler(callback, "class");
+            var handler = XmlNodeCallbackHandlerFactory(callback, "class");
 
             CreateObject("Xunit.Sdk.Executor+RunTest", executor, type, method, handler);
 
@@ -258,7 +257,7 @@ namespace Xunit
         /// <inheritdoc/>
         public XmlNode RunTests(string type, List<string> methods, Predicate<XmlNode> callback)
         {
-            var handler = MakeXmlNodeCallbackHandler(callback, "class");
+            var handler = XmlNodeCallbackHandlerFactory(callback, "class");
 
             CreateObject("Xunit.Sdk.Executor+RunTests", executor, type, methods, handler);
 
@@ -277,12 +276,14 @@ namespace Xunit
         /// <summary>
         /// THIS CLASS IS FOR INTERNAL USE ONLY.
         /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
         public abstract class IntCallbackHandler : MarshalByRefObject
         {
             /// <summary/>
             public int Result { get; protected set; }
 
             /// <summary/>
+            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
             public override object InitializeLifetimeService()
             {
                 return null;
@@ -292,29 +293,33 @@ namespace Xunit
         /// <summary>
         /// THIS CLASS IS FOR INTERNAL USE ONLY.
         /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
         public class IntCallbackHandlerWithIMessageSink : IntCallbackHandler, IMessageSink
         {
             /// <summary/>
-            IMessageCtrl IMessageSink.AsyncProcessMessage(IMessage msg, IMessageSink replySink)
+            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            public IMessageCtrl AsyncProcessMessage(IMessage msg, IMessageSink replySink)
             {
                 throw new NotImplementedException();
             }
 
             /// <summary/>
-            IMessageSink IMessageSink.NextSink
+            public IMessageSink NextSink
             {
-                get { throw new NotImplementedException(); }
+                [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+                get { return null; }
             }
 
             /// <summary/>
-            IMessage IMessageSink.SyncProcessMessage(IMessage msg)
+            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            public IMessage SyncProcessMessage(IMessage msg)
             {
                 var methodCall = msg as IMethodCallMessage;
-                if (methodCall != null)
+                if (msg == null || methodCall != null)
                     return RemotingServices.ExecuteMessage(this, methodCall);
 
                 object value = msg.Properties["data"];
-                Result = Convert.ToInt32(value);
+                Result = Convert.ToInt32(value, CultureInfo.InvariantCulture);
                 return new OutgoingMessage(true);
             }
         }
@@ -322,21 +327,27 @@ namespace Xunit
         /// <summary>
         /// THIS CLASS IS FOR INTERNAL USE ONLY.
         /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
+        [SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "This class is a handler for ICallbackEventHandler, which makes its name appropriate.")]
         public class IntCallbackHandlerWithICallbackEventHandler : IntCallbackHandler
         {
             /// <summary/>
+            [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This method matches ICallbackEventHandler by convention rather than explicitly.")]
+            [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This method matches ICallbackEventHandler by convention rather than explicitly.")]
             public string GetCallbackResult()
             {
                 throw new NotImplementedException();
             }
 
             /// <summary/>
+            [SuppressMessage("Microsoft.Design", "CA1030:UseEventsWhereAppropriate", Justification = "This method matches ICallbackEventHandler by convention rather than explicitly.")]
             public void RaiseCallbackEvent(string eventArgument)
             {
-                Result = Convert.ToInt32(eventArgument);
+                Result = Convert.ToInt32(eventArgument, CultureInfo.InvariantCulture);
             }
 
             /// <summary/>
+            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
             public override Object InitializeLifetimeService()
             {
                 return null;
@@ -346,16 +357,18 @@ namespace Xunit
         /// <summary>
         /// THIS CLASS IS FOR INTERNAL USE ONLY.
         /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
         public abstract class XmlNodeCallbackHandler : MarshalByRefObject
         {
             /// <summary/>
-            protected readonly Predicate<XmlNode> callback;
+            protected Predicate<XmlNode> Callback { get; private set; }
 
             /// <summary/>
-            protected readonly string lastNodeName;
-
-            /// <summary/>
+            [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
             public XmlNode LastNode { get; protected set; }
+
+            /// <summary/>
+            protected string LastNodeName { get; private set; }
 
             /// <summary/>
             public ManualResetEvent LastNodeArrived { get; protected set; }
@@ -363,13 +376,14 @@ namespace Xunit
             /// <summary/>
             protected XmlNodeCallbackHandler(Predicate<XmlNode> callback, string lastNodeName)
             {
-                this.callback = callback;
-                this.lastNodeName = lastNodeName;
+                Callback = callback;
+                LastNodeName = lastNodeName;
 
                 LastNodeArrived = new ManualResetEvent(false);
             }
 
             /// <summary/>
+            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
             public override object InitializeLifetimeService()
             {
                 return null;
@@ -379,6 +393,7 @@ namespace Xunit
         /// <summary>
         /// THIS CLASS IS FOR INTERNAL USE ONLY.
         /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
         public class XmlNodeCallbackHandlerWithIMessageSink : XmlNodeCallbackHandler, IMessageSink
         {
             /// <summary/>
@@ -386,22 +401,25 @@ namespace Xunit
                 : base(callback, lastNodeName) { }
 
             /// <summary/>
-            IMessageCtrl IMessageSink.AsyncProcessMessage(IMessage msg, IMessageSink replySink)
+            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            public IMessageCtrl AsyncProcessMessage(IMessage msg, IMessageSink replySink)
             {
                 throw new NotImplementedException();
             }
 
             /// <summary/>
-            IMessageSink IMessageSink.NextSink
+            public IMessageSink NextSink
             {
-                get { throw new NotImplementedException(); }
+                [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+                get { return null; }
             }
 
             /// <summary/>
-            IMessage IMessageSink.SyncProcessMessage(IMessage msg)
+            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            public IMessage SyncProcessMessage(IMessage msg)
             {
                 var methodCall = msg as IMethodCallMessage;
-                if (methodCall != null)
+                if (msg == null || methodCall != null)
                     return RemotingServices.ExecuteMessage(this, methodCall);
 
                 bool @continue = true;
@@ -413,10 +431,10 @@ namespace Xunit
                     doc.LoadXml(value);
                     LastNode = doc.ChildNodes[0];
 
-                    if (callback != null)
-                        @continue = callback(LastNode);
+                    if (Callback != null)
+                        @continue = Callback(LastNode);
 
-                    if (lastNodeName != null && LastNode.Name == lastNodeName)
+                    if (LastNodeName != null && LastNode.Name == LastNodeName)
                         LastNodeArrived.Set();
                 }
 
@@ -427,6 +445,8 @@ namespace Xunit
         /// <summary>
         /// THIS CLASS IS FOR INTERNAL USE ONLY.
         /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
+        [SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "This class is a handler for ICallbackEventHandler, which makes its name appropriate.")]
         public class XmlNodeCallbackHandlerWithICallbackEventHandler : XmlNodeCallbackHandler
         {
             bool @continue = true;
@@ -436,6 +456,7 @@ namespace Xunit
                 : base(callback, lastNodeName) { }
 
             /// <summary/>
+            [SuppressMessage("Microsoft.Design", "CA1030:UseEventsWhereAppropriate", Justification = "This method matches ICallbackEventHandler by convention rather than explicitly.")]
             public void RaiseCallbackEvent(string result)
             {
                 if (result != null)
@@ -444,15 +465,16 @@ namespace Xunit
                     doc.LoadXml(result);
                     LastNode = doc.ChildNodes[0];
 
-                    if (callback != null)
-                        @continue = callback(LastNode);
+                    if (Callback != null)
+                        @continue = Callback(LastNode);
 
-                    if (lastNodeName != null && LastNode.Name == lastNodeName)
+                    if (LastNodeName != null && LastNode.Name == LastNodeName)
                         LastNodeArrived.Set();
                 }
             }
 
             /// <summary/>
+            [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This method matches ICallbackEventHandler by convention rather than explicitly.")]
             public string GetCallbackResult()
             {
                 return @continue.ToString();
@@ -462,6 +484,7 @@ namespace Xunit
         /// <summary>
         /// THIS CLASS IS FOR INTERNAL USE ONLY.
         /// </summary>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
         public class OutgoingMessage : MarshalByRefObject, IMessage
         {
             Hashtable values = new Hashtable();
@@ -473,13 +496,16 @@ namespace Xunit
             }
 
             /// <summary/>
+            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
             public override object InitializeLifetimeService()
             {
                 return null;
             }
 
-            IDictionary IMessage.Properties
+            /// <summary/>
+            public IDictionary Properties
             {
+                [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
                 get { return values; }
             }
         }

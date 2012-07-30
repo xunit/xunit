@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Xunit.Sdk;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit
 {
@@ -8,20 +8,29 @@ namespace Xunit
     /// Represents the ability to load and unload test assemblies, as well as enumerate
     /// the test assemblies, the test methods, and run tests.
     /// </summary>
+    [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Multi", Justification = "This is an acceptable short name for 'multiple'.")]
     public class MultiAssemblyTestEnvironment : ITestMethodEnumerator, IDisposable
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="MultiAssemblyTestEnvironment" /> class.
+        /// </summary>
+        public MultiAssemblyTestEnvironment()
+        {
+            TestAssemblies = new List<TestAssembly>();
+        }
+
+        /// <summary>
         /// The test assemblies loaded into the environment.
         /// </summary>
-        protected List<TestAssembly> testAssemblies = new List<TestAssembly>();
+        protected IList<TestAssembly> TestAssemblies { get; private set; }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            foreach (var testAssembly in testAssemblies)
+            foreach (var testAssembly in TestAssemblies)
                 testAssembly.Dispose();
 
-            testAssemblies.Clear();
+            TestAssemblies.Clear();
         }
 
         /// <summary>
@@ -29,7 +38,7 @@ namespace Xunit
         /// </summary>
         public IEnumerable<TestAssembly> EnumerateTestAssemblies()
         {
-            return testAssemblies;
+            return TestAssemblies;
         }
 
         /// <inheritdoc/>
@@ -43,7 +52,7 @@ namespace Xunit
         {
             Guard.ArgumentNotNull("filter", filter);
 
-            foreach (TestAssembly testAssembly in testAssemblies)
+            foreach (TestAssembly testAssembly in TestAssemblies)
                 foreach (TestMethod method in testAssembly.EnumerateTestMethods(filter))
                     yield return method;
         }
@@ -55,7 +64,7 @@ namespace Xunit
         {
             var results = new MultiValueDictionary<string, string>();
 
-            foreach (TestAssembly testAssembly in testAssemblies)
+            foreach (TestAssembly testAssembly in TestAssemblies)
                 foreach (TestClass testClass in testAssembly.EnumerateClasses())
                     foreach (TestMethod testMethod in testClass.EnumerateTestMethods())
                         testMethod.Traits.ForEach((name, value) => results.AddValue(name, value));
@@ -66,39 +75,40 @@ namespace Xunit
         /// <summary>
         /// Loads the specified assembly, using the default configuration file.
         /// </summary>
-        /// <param name="assemblyFilename">The assembly filename.</param>
+        /// <param name="assemblyFileName">The assembly filename.</param>
         /// <returns>The <see cref="TestAssembly"/> which represents the newly
         /// loaded test assembly.</returns>
-        public TestAssembly Load(string assemblyFilename)
+        public TestAssembly Load(string assemblyFileName)
         {
-            return Load(assemblyFilename, null, true);
+            return Load(assemblyFileName, null, true);
         }
 
         /// <summary>
         /// Loads the specified assembly using the specified configuration file.
         /// </summary>
-        /// <param name="assemblyFilename">The assembly filename.</param>
-        /// <param name="configFilename">The config filename.</param>
+        /// <param name="assemblyFileName">The assembly filename.</param>
+        /// <param name="configFileName">The config filename.</param>
         /// <returns>The <see cref="TestAssembly"/> which represents the newly
         /// loaded test assembly.</returns>
-        public TestAssembly Load(string assemblyFilename, string configFilename)
+        public TestAssembly Load(string assemblyFileName, string configFileName)
         {
-            return Load(assemblyFilename, configFilename, true);
+            return Load(assemblyFileName, configFileName, true);
         }
 
         /// <summary>
         /// Loads the specified assembly using the specified configuration file.
         /// </summary>
-        /// <param name="assemblyFilename">The assembly filename.</param>
-        /// <param name="configFilename">The config filename.</param>
+        /// <param name="assemblyFileName">The assembly filename.</param>
+        /// <param name="configFileName">The config filename.</param>
         /// <param name="shadowCopy">Whether the DLLs should be shadow copied.</param>
         /// <returns>The <see cref="TestAssembly"/> which represents the newly
         /// loaded test assembly.</returns>
-        public TestAssembly Load(string assemblyFilename, string configFilename, bool shadowCopy)
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "This is encapsulated in (and disposed by) TestAssembly.")]
+        public TestAssembly Load(string assemblyFileName, string configFileName, bool shadowCopy)
         {
-            Guard.ArgumentNotNull("assemblyFilename", assemblyFilename);
+            Guard.ArgumentNotNull("assemblyFilename", assemblyFileName);
 
-            return Load(new ExecutorWrapper(assemblyFilename, configFilename, shadowCopy));
+            return Load(new ExecutorWrapper(assemblyFileName, configFileName, shadowCopy));
         }
 
         /// <summary>
@@ -114,7 +124,7 @@ namespace Xunit
 
             TestAssembly testAssembly = TestAssemblyBuilder.Build(executorWrapper);
 
-            testAssemblies.Add(testAssembly);
+            TestAssemblies.Add(testAssembly);
 
             return testAssembly;
         }
@@ -132,7 +142,7 @@ namespace Xunit
 
             var sortedMethods = new Dictionary<TestAssembly, List<TestMethod>>();
 
-            foreach (TestAssembly testAssembly in testAssemblies)
+            foreach (TestAssembly testAssembly in TestAssemblies)
                 sortedMethods[testAssembly] = new List<TestMethod>();
 
             foreach (TestMethod testMethod in testMethods)
@@ -164,9 +174,9 @@ namespace Xunit
         public void Unload(TestAssembly assembly)
         {
             Guard.ArgumentNotNull("assembly", assembly);
-            Guard.ArgumentValid("assembly", "Assembly not loaded in this environment", testAssemblies.Contains(assembly));
+            Guard.ArgumentValid("assembly", "Assembly not loaded in this environment", TestAssemblies.Contains(assembly));
 
-            testAssemblies.Remove(assembly);
+            TestAssemblies.Remove(assembly);
             assembly.Dispose();
         }
     }

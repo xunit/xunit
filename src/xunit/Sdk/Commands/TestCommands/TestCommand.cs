@@ -22,9 +22,10 @@ namespace Xunit.Sdk
         /// <param name="method">The method under test.</param>
         /// <param name="displayName">The display name of the test.</param>
         /// <param name="timeout">The timeout, in milliseconds.</param>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         protected TestCommand(IMethodInfo method, string displayName, int timeout)
         {
+            Guard.ArgumentNotNull("method", method);
+
             testMethod = method;
             MethodName = method.Name;
             TypeName = method.TypeName;

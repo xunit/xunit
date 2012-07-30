@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 
 namespace Xunit
@@ -33,6 +34,8 @@ namespace Xunit
         /// <inheritdoc/>
         public virtual TestRunnerResult RunAssembly(IEnumerable<IResultXmlTransform> transforms)
         {
+            Guard.ArgumentNotNull("transforms", transforms);
+
             XmlNode assemblyNode = null;
             logger.AssemblyStart(wrapper.AssemblyFilename, wrapper.ConfigFilename, wrapper.XunitVersion);
 
@@ -85,7 +88,8 @@ namespace Xunit
             });
         }
 
-        TestRunnerResult CatchExceptions(TestRunnerDelegate func)
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
+        TestRunnerResult CatchExceptions(Func<TestRunnerResult> func)
         {
             try
             {
@@ -110,7 +114,5 @@ namespace Xunit
 
             return TestRunnerResult.Failed;
         }
-
-        delegate TestRunnerResult TestRunnerDelegate();
     }
 }

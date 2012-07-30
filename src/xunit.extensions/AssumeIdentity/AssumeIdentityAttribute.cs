@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
@@ -10,6 +11,7 @@ namespace Xunit.Extensions
     /// <see cref="Thread.CurrentPrincipal"/> with another role.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class AssumeIdentityAttribute : BeforeAfterTestAttribute
     {
         readonly string name;

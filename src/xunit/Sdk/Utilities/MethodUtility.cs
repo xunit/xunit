@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit.Sdk
 {
@@ -13,9 +12,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="method">The method to be inspected</param>
         /// <returns>The display name</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static string GetDisplayName(IMethodInfo method)
         {
+            Guard.ArgumentNotNull("method", method);
+
             foreach (IAttributeInfo attribute in method.GetCustomAttributes(typeof(FactAttribute)))
                 return attribute.GetPropertyValue<string>("Name");
 
@@ -27,9 +27,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="method">The method to be inspected</param>
         /// <returns>The skip reason</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static string GetSkipReason(IMethodInfo method)
         {
+            Guard.ArgumentNotNull("method", method);
+
             foreach (IAttributeInfo attribute in method.GetCustomAttributes(typeof(FactAttribute)))
                 return attribute.GetPropertyValue<string>("Skip");
 
@@ -41,9 +42,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="method">The method to be inspected</param>
         /// <returns>The <see cref="ITestCommand"/> objects for the test method</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static IEnumerable<ITestCommand> GetTestCommands(IMethodInfo method)
         {
+            Guard.ArgumentNotNull("method", method);
+
             foreach (IAttributeInfo attribute in method.GetCustomAttributes(typeof(FactAttribute)))
                 foreach (ITestCommand command in attribute.GetInstance<FactAttribute>().CreateTestCommands(method))
                     yield return command;
@@ -54,9 +56,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="method">The method to be inspected</param>
         /// <returns>The timeout, in milliseconds</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static int GetTimeoutParameter(IMethodInfo method)
         {
+            Guard.ArgumentNotNull("method", method);
+
             foreach (IAttributeInfo attribute in method.GetCustomAttributes(typeof(FactAttribute)))
                 return attribute.GetPropertyValue<int>("Timeout");
 
@@ -68,9 +71,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="method">The method to be inspected</param>
         /// <returns>A dictionary of the traits</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static MultiValueDictionary<string, string> GetTraits(IMethodInfo method)
         {
+            Guard.ArgumentNotNull("method", method);
+
             var traits = new MultiValueDictionary<string, string>();
 
             foreach (IAttributeInfo attribute in method.GetCustomAttributes(typeof(TraitAttribute)))
@@ -102,9 +106,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="method">The method to be inspected</param>
         /// <returns>True if the method has traits; false, otherwise</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static bool HasTraits(IMethodInfo method)
         {
+            Guard.ArgumentNotNull("method", method);
+
             return method.HasAttribute(typeof(TraitAttribute))
                 || method.Class.HasAttribute(typeof(TraitAttribute));
         }
@@ -128,9 +133,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="method">The method to be inspected</param>
         /// <returns>True if the method is a test method; false, otherwise</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static bool IsTest(IMethodInfo method)
         {
+            Guard.ArgumentNotNull("method", method);
+
             return !method.IsAbstract &&
                     method.HasAttribute(typeof(FactAttribute));
         }

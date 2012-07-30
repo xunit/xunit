@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 
 namespace Xunit
@@ -13,11 +14,13 @@ namespace Xunit
         /// <summary>
         /// Gets the full pathname to the assembly under test.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "Filename", Justification = "This would be a breaking change.")]
         string AssemblyFilename { get; }
 
         /// <summary>
         /// Gets the full pathname to the configuration file.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "Filename", Justification = "This would be a breaking change.")]
         string ConfigFilename { get; }
 
         /// <summary>
@@ -29,6 +32,7 @@ namespace Xunit
         /// Enumerates the tests in an assembly.
         /// </summary>
         /// <returns>The fully-formed assembly node of the XML</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         XmlNode EnumerateTests();
 
         /// <summary>
@@ -36,6 +40,7 @@ namespace Xunit
         /// </summary>
         /// <returns>Returns the number of tests, if known; returns -1 if not known. May not represent
         /// an exact count, but should be a best effort guess by the framework.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "This is not a property because it potentially performs significant work.")]
         int GetAssemblyTestCount();
 
         /// <summary>
@@ -46,6 +51,7 @@ namespace Xunit
         /// Test runs can be cancelled by returning false to the callback. If null, there are
         /// no status callbacks (and cancellation isn't possible).</param>
         /// <returns>Returns the fully-formed assembly node for the assembly that was just run.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         XmlNode RunAssembly(Predicate<XmlNode> callback);
 
         /// <summary>
@@ -57,6 +63,7 @@ namespace Xunit
         /// Test runs can be cancelled by returning false to the callback. If null, there are
         /// no status callbacks (and cancellation isn't possible).</param>
         /// <returns>Returns the fully-formed class node for the class that was just run.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         XmlNode RunClass(string type, Predicate<XmlNode> callback);
 
         /// <summary>
@@ -69,6 +76,7 @@ namespace Xunit
         /// Test runs can be cancelled by returning false to the callback. If null, there are
         /// no status callbacks (and cancellation isn't possible).</param>
         /// <returns>Returns the fully-formed class node for the class of the test that was just run.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         XmlNode RunTest(string type, string method, Predicate<XmlNode> callback);
 
         /// <summary>
@@ -81,6 +89,7 @@ namespace Xunit
         /// Test runs can be cancelled by returning false to the callback. If null, there are
         /// no status callbacks (and cancellation isn't possible).</param>
         /// <returns>Returns the fully-formed class node for the class of the tests that were just run.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         XmlNode RunTests(string type, List<string> methods, Predicate<XmlNode> callback);
     }
 }

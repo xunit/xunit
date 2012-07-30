@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace Xunit.Sdk
@@ -16,7 +17,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="timeout">The timeout value, in milliseconds</param>
         public TimeoutException(long timeout)
-            : base(string.Format("Test execution time exceeded: {0}ms", timeout)) { }
+            : base(String.Format(CultureInfo.CurrentCulture, "Test execution time exceeded: {0}ms", timeout)) { }
 
         /// <inheritdoc/>
         protected TimeoutException(SerializationInfo info, StreamingContext context)

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Xunit.Sdk;
 
 namespace Xunit
 {
@@ -14,9 +15,11 @@ namespace Xunit
         /// </summary>
         /// <param name="code">The code which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
-        public static Exception Exception(Assert.ThrowsDelegate code)
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
+        public static Exception Exception(Action code)
         {
+            Guard.ArgumentNotNull("code", code);
+
             try
             {
                 code();
@@ -34,9 +37,11 @@ namespace Xunit
         /// </summary>
         /// <param name="code">The code which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
-        public static Exception Exception(Assert.ThrowsDelegateWithReturn code)
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
+        public static Exception Exception(Func<object> code)
         {
+            Guard.ArgumentNotNull("code", code);
+
             try
             {
                 code();

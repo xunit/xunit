@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace TestUtility
         public override void After(MethodInfo methodUnderTest)
         {
             sw.Stop();
-            Trace.WriteLine(string.Format("Time spent in execution: {0}ms", sw.ElapsedMilliseconds));
+            Trace.WriteLine(String.Format("Time spent in execution: {0}ms", sw.ElapsedMilliseconds));
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit
 {
@@ -19,11 +20,13 @@ namespace Xunit
         /// <summary>
         /// Gets or sets the assembly filename.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "Filename", Justification = "This would be a breaking change.")]
         public string AssemblyFilename { get; set; }
 
         /// <summary>
         /// Gets or sets the config filename.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "Filename", Justification = "This would be a breaking change.")]
         public string ConfigFilename { get; set; }
 
         /// <summary>
@@ -44,6 +47,6 @@ namespace Xunit
         /// The xUnit.net GUI runner does not support this field. The MSBuild
         /// runner only supports output of type 'xml', 'html', and 'nunit'.
         /// </remarks>
-        public Dictionary<string, string> Output { get; set; }
+        public Dictionary<string, string> Output { get; private set; }
     }
 }

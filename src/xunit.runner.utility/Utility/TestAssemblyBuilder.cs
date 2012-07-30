@@ -19,6 +19,8 @@ namespace Xunit
         /// <returns>The fully populated object model</returns>
         public static TestAssembly Build(IExecutorWrapper executorWrapper)
         {
+            Guard.ArgumentNotNull("executorWrapper", executorWrapper);
+
             List<TestClass> classes = new List<TestClass>();
 
             foreach (XmlNode classNode in executorWrapper.EnumerateTests().SelectNodes("//class"))

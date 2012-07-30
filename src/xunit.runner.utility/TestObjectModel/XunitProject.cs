@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Xml;
 
@@ -11,7 +12,7 @@ namespace Xunit
     public class XunitProject
     {
         List<XunitProjectAssembly> assemblies;
-        string filename;
+        string fileName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitProject"/> class.
@@ -33,10 +34,11 @@ namespace Xunit
         /// <summary>
         /// Gets or set the filename of the project.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "Filename", Justification = "This would be a breaking change.")]
         public string Filename
         {
-            get { return filename; }
-            set { filename = Path.GetFullPath(value); }
+            get { return fileName; }
+            set { fileName = Path.GetFullPath(value); }
         }
 
         /// <summary>
@@ -74,21 +76,21 @@ namespace Xunit
         /// <summary>
         /// Loads an xUnit.net Test Project file from disk.
         /// </summary>
-        /// <param name="filename">The test project filename</param>
-        public static XunitProject Load(string filename)
+        /// <param name="fileName">The test project filename</param>
+        public static XunitProject Load(string fileName)
         {
-            filename = Path.GetFullPath(filename);
-            string directory = Path.GetDirectoryName(filename);
+            fileName = Path.GetFullPath(fileName);
+            string directory = Path.GetDirectoryName(fileName);
             XmlDocument doc = new XmlDocument();
-            XunitProject result = new XunitProject { Filename = filename };
+            XunitProject result = new XunitProject { Filename = fileName };
 
             try
             {
-                doc.Load(filename);
+                doc.Load(fileName);
             }
             catch (XmlException)
             {
-                throw new ArgumentException("The xUnit.net project file appears to be malformed.", "filename");
+                throw new ArgumentException("The xUnit.net project file appears to be malformed.", "fileName");
             }
 
             foreach (XmlNode assemblyNode in doc.SelectNodes("xunit/assemblies/assembly"))
@@ -111,7 +113,7 @@ namespace Xunit
             }
 
             if (result.assemblies.Count == 0)
-                throw new ArgumentException("The xUnit.net project file has no assemblies.", "filename");
+                throw new ArgumentException("The xUnit.net project file has no assemblies.", "fileName");
 
             return result;
         }
@@ -141,14 +143,15 @@ namespace Xunit
         /// Saves the xUnit.net Test Project file to disk using the provided filename.
         /// The projects filename is updated to match this new name.
         /// </summary>
-        /// <param name="filename">The test project filename</param>
-        public void SaveAs(string filename)
+        /// <param name="outputFileName">The test project filename</param>
+        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase", Justification = "This is not normalization, it's an explicitly chosen output format.")]
+        public void SaveAs(string outputFileName)
         {
             if (assemblies.Count == 0)
                 throw new InvalidOperationException("Cannot save an empty project");
 
-            filename = Path.GetFullPath(filename);
-            string directory = Path.GetDirectoryName(filename);
+            outputFileName = Path.GetFullPath(outputFileName);
+            string directory = Path.GetDirectoryName(outputFileName);
             XmlDocument doc = new XmlDocument();
             doc.LoadXml("<?xml version='1.0' encoding='utf-8'?><xunit><assemblies/></xunit>");
             XmlNode assembliesNode = doc.SelectSingleNode("xunit/assemblies");
@@ -189,8 +192,8 @@ namespace Xunit
                 assembliesNode.AppendChild(assemblyNode);
             }
 
-            doc.Save(filename);
-            Filename = filename;
+            doc.Save(outputFileName);
+            Filename = outputFileName;
             IsDirty = false;
         }
     }

@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Runtime.Serialization;
+using System.Security;
 
 namespace Xunit.Sdk
 {
@@ -13,9 +15,7 @@ namespace Xunit.Sdk
     [Serializable]
     public class AssertActualExpectedException : AssertException
     {
-        readonly string actual;
         readonly string differencePosition = "";
-        readonly string expected;
 
         /// <summary>
         /// Creates a new instance of the <see href="AssertActualExpectedException"/> class.
@@ -65,16 +65,16 @@ namespace Xunit.Sdk
                 }
             }
 
-            this.actual = actual == null ? null : ConvertToString(actual);
-            this.expected = expected == null ? null : ConvertToString(expected);
+            Actual = actual == null ? null : ConvertToString(actual);
+            Expected = expected == null ? null : ConvertToString(expected);
 
             if (actual != null &&
                 expected != null &&
                 actual.ToString() == expected.ToString() &&
                 actual.GetType() != expected.GetType())
             {
-                this.actual += String.Format(" ({0})", actual.GetType().FullName);
-                this.expected += String.Format(" ({0})", expected.GetType().FullName);
+                Actual += String.Format(CultureInfo.CurrentCulture, " ({0})", actual.GetType().FullName);
+                Expected += String.Format(CultureInfo.CurrentCulture, " ({0})", expected.GetType().FullName);
             }
         }
 
@@ -82,26 +82,20 @@ namespace Xunit.Sdk
         protected AssertActualExpectedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            actual = info.GetString("Actual");
+            Actual = info.GetString("Actual");
             differencePosition = info.GetString("DifferencePosition");
-            expected = info.GetString("Expected");
+            Expected = info.GetString("Expected");
         }
 
         /// <summary>
         /// Gets the actual value.
         /// </summary>
-        public string Actual
-        {
-            get { return actual; }
-        }
+        public string Actual { get; private set; }
 
         /// <summary>
         /// Gets the expected value.
         /// </summary>
-        public string Expected
-        {
-            get { return expected; }
-        }
+        public string Expected { get; private set; }
 
         /// <summary>
         /// Gets a message that describes the current exception. Includes the expected and actual values.
@@ -112,7 +106,8 @@ namespace Xunit.Sdk
         {
             get
             {
-                return string.Format("{0}{4}{1}Expected: {2}{4}Actual:   {3}",
+                return String.Format(CultureInfo.CurrentCulture,
+                                     "{0}{4}{1}Expected: {2}{4}Actual:   {3}",
                                      base.Message,
                                      differencePosition,
                                      FormatMultiLine(Expected ?? "(null)"),
@@ -177,14 +172,14 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
+        [SecurityCritical]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             Guard.ArgumentNotNull("info", info);
 
-            info.AddValue("Actual", actual);
+            info.AddValue("Actual", Actual);
             info.AddValue("DifferencePosition", differencePosition);
-            info.AddValue("Expected", expected);
+            info.AddValue("Expected", Expected);
 
             base.GetObjectData(info, context);
         }

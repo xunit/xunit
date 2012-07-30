@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Xunit.Extensions
@@ -9,6 +10,7 @@ namespace Xunit.Extensions
     /// which must implement IEnumerable&lt;object[]&gt;.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class ClassDataAttribute : DataAttribute
     {
         readonly Type @class;

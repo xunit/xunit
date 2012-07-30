@@ -13,8 +13,7 @@ namespace Xunit
             AssemblyBuilder dynamicAssembly =
                 AppDomain.CurrentDomain.DefineDynamicAssembly(
                     new AssemblyName("xunit.runner.utility.{Dynamic}"),
-                    AssemblyBuilderAccess.Run,
-                    new CustomAttributeBuilder[0]
+                    AssemblyBuilderAccess.Run
                 );
 
             ModuleBuilder dynamicModule = dynamicAssembly.DefineDynamicModule("xunit.runner.utility.{Dynamic}.dll");

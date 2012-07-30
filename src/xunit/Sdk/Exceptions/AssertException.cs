@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
+using System.Security;
 
 namespace Xunit.Sdk
 {
@@ -77,12 +77,12 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="stackFrame">The stack frame to be filtered.</param>
         /// <returns>Return true to exclude the line from the stack frame; false, otherwise.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
         protected virtual bool ExcludeStackFrame(string stackFrame)
         {
             Guard.ArgumentNotNull("stackFrame", stackFrame);
 
-            return stackFrame.StartsWith("at Xunit.Assert.") || stackFrame.StartsWith("at Xunit.Sdk.");
+            return stackFrame.StartsWith("at Xunit.Assert.", StringComparison.Ordinal)
+                || stackFrame.StartsWith("at Xunit.Sdk.", StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -108,10 +108,11 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "The only legitimate caller is the .NET Framework")]
+        [SecurityCritical]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            Guard.ArgumentNotNull("info", info);
+
             info.AddValue("CustomStackTrace", stackTrace);
             info.AddValue("UserMessage", UserMessage);
 

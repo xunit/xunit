@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 
 namespace Xunit.Sdk
@@ -31,6 +33,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         public override MethodResult Execute(object testClass)
         {
             MethodResult result = null;
@@ -38,7 +41,7 @@ namespace Xunit.Sdk
             TextWriter oldOut = Console.Out;
             TextWriter oldError = Console.Error;
 
-            using (StringWriter outputWriter = new StringWriter())
+            using (StringWriter outputWriter = new StringWriter(CultureInfo.CurrentCulture))
             {
                 try
                 {

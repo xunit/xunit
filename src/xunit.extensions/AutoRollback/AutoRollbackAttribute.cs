@@ -12,6 +12,7 @@ namespace Xunit.Extensions
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     [SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "This class has its own disposability pattern.")]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class AutoRollbackAttribute : BeforeAfterTestAttribute
     {
         IsolationLevel isolationLevel = IsolationLevel.Unspecified;

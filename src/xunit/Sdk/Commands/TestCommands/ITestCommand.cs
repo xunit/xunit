@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 
 namespace Xunit.Sdk
@@ -39,6 +40,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <returns>Return the <see cref="XmlNode"/> of the start node, or null if the test
         /// is known that it will not be running.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         XmlNode ToStartXml();
     }
 }

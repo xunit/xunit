@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit
 {
@@ -6,6 +7,7 @@ namespace Xunit
     /// Attribute used to decorate a test method with arbitrary name/value pairs ("traits").
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class TraitAttribute : Attribute
     {
         readonly string name;

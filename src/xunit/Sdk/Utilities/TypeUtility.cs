@@ -29,9 +29,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="type">The type to be inspected</param>
         /// <returns>The type of the test class runner, if present; null, otherwise</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static ITypeInfo GetRunWith(ITypeInfo type)
         {
+            Guard.ArgumentNotNull("type", type);
+
             foreach (IAttributeInfo attributeInfo in type.GetCustomAttributes(typeof(RunWithAttribute)))
             {
                 RunWithAttribute attribute = attributeInfo.GetInstance<RunWithAttribute>();
@@ -63,9 +64,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="type">The type to be inspected</param>
         /// <returns>True if the test class has a run with attribute; false, otherwise</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static bool HasRunWith(ITypeInfo type)
         {
+            Guard.ArgumentNotNull("type", type);
+
             return type.HasAttribute(typeof(RunWithAttribute));
         }
 
@@ -74,9 +76,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="type">The type to be inspected</param>
         /// <returns>True if the type implements <see cref="ITestClassCommand"/>; false, otherwise</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static bool ImplementsITestClassCommand(ITypeInfo type)
         {
+            Guard.ArgumentNotNull("type", type);
+
             return (type.HasInterface(typeof(ITestClassCommand)));
         }
 
@@ -87,9 +90,10 @@ namespace Xunit.Sdk
         /// <returns>
         /// 	<c>true</c> if the specified type is abstract; otherwise, <c>false</c>.
         /// </returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static bool IsAbstract(ITypeInfo type)
         {
+            Guard.ArgumentNotNull("type", type);
+
             return type.IsAbstract;
         }
 
@@ -100,9 +104,10 @@ namespace Xunit.Sdk
         /// <returns>
         /// 	<c>true</c> if the specified type is static; otherwise, <c>false</c>.
         /// </returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static bool IsStatic(ITypeInfo type)
         {
+            Guard.ArgumentNotNull("type", type);
+
             return type.IsAbstract && type.IsSealed;
         }
 

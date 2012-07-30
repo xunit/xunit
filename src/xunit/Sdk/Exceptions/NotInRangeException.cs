@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Runtime.Serialization;
+using System.Security;
 
 namespace Xunit.Sdk
 {
@@ -70,12 +72,14 @@ namespace Xunit.Sdk
         {
             get
             {
-                return string.Format("{0}\r\nRange:  ({1} - {2})\r\nActual: {3}",
+                return String.Format(CultureInfo.CurrentCulture,
+                                     "{0}\r\nRange:  ({1} - {2})\r\nActual: {3}",
                                      base.Message, Low, High, Actual ?? "(null)");
             }
         }
 
         /// <inheritdoc/>
+        [SecurityCritical]
         [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

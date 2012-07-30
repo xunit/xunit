@@ -9,7 +9,6 @@ using System.Xml;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using Xunit.Sdk;
 using VsTestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 
 namespace Xunit.Runner.VisualStudio
@@ -44,7 +43,7 @@ namespace Xunit.Runner.VisualStudio
                 try
                 {
                     if (IsXunitTestAssembly(source))
-                        using (ExecutorWrapper executor = new ExecutorWrapper(source, configFilename: null, shadowCopy: true))
+                        using (ExecutorWrapper executor = new ExecutorWrapper(source, configFileName: null, shadowCopy: true))
                             foreach (TestCase testCase in GetTestCases(executor))
                                 discoverySink.SendTestCase(testCase);
                 }
@@ -192,7 +191,7 @@ namespace Xunit.Runner.VisualStudio
             if (cancelled)
                 return;
 
-            var executor = new ExecutorWrapper(assemblyFileName, configFilename: null, shadowCopy: true);
+            var executor = new ExecutorWrapper(assemblyFileName, configFileName: null, shadowCopy: true);
             cleanupList.Add(executor);
 
             if (testCases == null)

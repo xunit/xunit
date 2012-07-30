@@ -25,10 +25,11 @@ namespace Xunit.Extensions
         /// <param name="testMethod">The method under test</param>
         /// <param name="parameters">The parameters to be passed to the test method</param>
         /// <param name="genericTypes">The generic types that were used to resolved the generic method.</param>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "An immediate NullReferenceException is fine.")]
         public TheoryCommand(IMethodInfo testMethod, object[] parameters, Type[] genericTypes)
             : base(testMethod, MethodUtility.GetDisplayName(testMethod), MethodUtility.GetTimeoutParameter(testMethod))
         {
+            Guard.ArgumentNotNull("testMethod", testMethod);
+
             int idx;
 
             Parameters = parameters ?? new object[0];
@@ -39,7 +40,7 @@ namespace Xunit.Extensions
                 for (idx = 0; idx < genericTypes.Length; idx++)
                     typeNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
 
-                DisplayName = String.Format("{0}<{1}>", DisplayName, string.Join(", ", typeNames));
+                DisplayName = String.Format(CultureInfo.CurrentCulture, "{0}<{1}>", DisplayName, string.Join(", ", typeNames));
             }
 
             ParameterInfo[] parameterInfos = testMethod.MethodInfo.GetParameters();
@@ -51,12 +52,13 @@ namespace Xunit.Extensions
             for (; idx < parameterInfos.Length; idx++)  // Fill-in any missing parameters with "???"
                 displayValues[idx] = parameterInfos[idx].Name + ": ???";
 
-            DisplayName = String.Format("{0}({1})", DisplayName, string.Join(", ", displayValues));
+            DisplayName = String.Format(CultureInfo.CurrentCulture, "{0}({1})", DisplayName, string.Join(", ", displayValues));
         }
 
         /// <summary>
         /// Gets the parameter values that are passed to the test method.
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This would be a breaking change.")]
         public object[] Parameters { get; protected set; }
 
         static string ConvertToSimpleTypeName(Type type)
@@ -83,7 +85,7 @@ namespace Xunit.Extensions
             {
                 ParameterInfo[] parameterInfos = testMethod.MethodInfo.GetParameters();
                 if (parameterInfos.Length != Parameters.Length)
-                    throw new InvalidOperationException(string.Format("Expected {0} parameters, got {1} parameters", parameterInfos.Length, Parameters.Length));
+                    throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, "Expected {0} parameters, got {1} parameters", parameterInfos.Length, Parameters.Length));
 
                 testMethod.Invoke(testClass, Parameters);
             }
@@ -120,7 +122,7 @@ namespace Xunit.Extensions
                 return "\"" + stringParameter + "\"";
             }
 
-            return Convert.ToString(parameterValue, CultureInfo.InvariantCulture);
+            return Convert.ToString(parameterValue, CultureInfo.CurrentCulture);
         }
 
         static string ParameterToDisplayValue(string parameterName, object parameterValue)

@@ -7,8 +7,6 @@ namespace Xunit.ConsoleClient
 {
     public class CommandLine
     {
-        public delegate bool FileExists(string fileName);
-
         Stack<string> arguments = new Stack<string>();
         string executablePath;
 
@@ -76,7 +74,7 @@ namespace Xunit.ConsoleClient
             return Parse(fileName => File.Exists(fileName));
         }
 
-        protected XunitProject Parse(FileExists fileExists)
+        protected XunitProject Parse(Predicate<string> fileExists)
         {
             Dictionary<string, string> transforms = new Dictionary<string, string>();
             bool passedProjectFile = false;

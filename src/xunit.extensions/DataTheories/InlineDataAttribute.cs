@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Xunit.Extensions
@@ -8,6 +9,7 @@ namespace Xunit.Extensions
     /// Provides a data source for a data theory, with the data coming from inline values.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class InlineDataAttribute : DataAttribute
     {
         readonly object[] dataValues;
@@ -24,6 +26,7 @@ namespace Xunit.Extensions
         /// <summary>
         /// Gets the data values.
         /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This would be a breaking change.")]
         public object[] DataValues
         {
             get { return dataValues; }

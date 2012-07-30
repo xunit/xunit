@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 
 namespace Xunit.Sdk
@@ -17,6 +18,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="parentNode">The parent node.</param>
         /// <returns>The newly created XML node.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         XmlNode ToXml(XmlNode parentNode);
     }
 }

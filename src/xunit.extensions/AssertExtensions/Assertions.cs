@@ -44,6 +44,7 @@ namespace Xunit.Extensions
         /// <param name="expectedSubstring">The sub-string expected to be in the string</param>
         /// <param name="actualString">The string to be inspected</param>
         /// <exception cref="ContainsException">Thrown when the sub-string is not present inside the string</exception>
+        [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison", MessageId = "Xunit.Assert.Contains(System.String,System.String)", Justification = "This is a forwarding call and intended to exactly mimic the original API.")]
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This class is intended as an extensibility point, so static methods counteract that extensibility.")]
         public void Contains(string expectedSubstring, string actualString)
         {
@@ -96,6 +97,7 @@ namespace Xunit.Extensions
         /// <param name="expectedSubstring">The sub-string which is expected not to be in the string</param>
         /// <param name="actualString">The string to be inspected</param>
         /// <exception cref="DoesNotContainException">Thrown when the sub-string is present inside the string</exception>
+        [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison", MessageId = "Xunit.Assert.DoesNotContain(System.String,System.String)", Justification = "This is a forwarding call and intended to exactly mimic the original API.")]
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This class is intended as an extensibility point, so static methods counteract that extensibility.")]
         public void DoesNotContain(string expectedSubstring, string actualString)
         {
@@ -120,7 +122,17 @@ namespace Xunit.Extensions
         /// </summary>
         /// <param name="testCode">A delegate to the code to be tested</param>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This class is intended as an extensibility point, so static methods counteract that extensibility.")]
-        public void DoesNotThrow(Assert.ThrowsDelegate testCode)
+        public void DoesNotThrow(Action testCode)
+        {
+            Assert.DoesNotThrow(testCode);
+        }
+
+        /// <summary>
+        /// Verifies that a block of code does not throw any exceptions.
+        /// </summary>
+        /// <param name="testCode">A delegate to the code to be tested</param>
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This class is intended as an extensibility point, so static methods counteract that extensibility.")]
+        public void DoesNotThrow(Func<object> testCode)
         {
             Assert.DoesNotThrow(testCode);
         }
@@ -470,7 +482,7 @@ namespace Xunit.Extensions
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This class is intended as an extensibility point, so static methods counteract that extensibility.")]
-        public T Throws<T>(Assert.ThrowsDelegate testCode)
+        public T Throws<T>(Action testCode)
             where T : Exception
         {
             return Assert.Throws<T>(testCode);
@@ -485,7 +497,7 @@ namespace Xunit.Extensions
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This class is intended as an extensibility point, so static methods counteract that extensibility.")]
-        public T Throws<T>(Assert.ThrowsDelegateWithReturn testCode)
+        public T Throws<T>(Func<object> testCode)
             where T : Exception
         {
             return Assert.Throws<T>(testCode);
@@ -499,7 +511,7 @@ namespace Xunit.Extensions
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This class is intended as an extensibility point, so static methods counteract that extensibility.")]
-        public Exception Throws(Type exceptionType, Assert.ThrowsDelegate testCode)
+        public Exception Throws(Type exceptionType, Action testCode)
         {
             return Assert.Throws(exceptionType, testCode);
         }
@@ -513,7 +525,7 @@ namespace Xunit.Extensions
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This class is intended as an extensibility point, so static methods counteract that extensibility.")]
-        public Exception Throws(Type exceptionType, Assert.ThrowsDelegateWithReturn testCode)
+        public Exception Throws(Type exceptionType, Func<object> testCode)
         {
             return Assert.Throws(exceptionType, testCode);
         }

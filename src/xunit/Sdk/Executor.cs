@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Security.Permissions;
+using System.Security;
 using System.Threading;
 using System.Xml;
 
@@ -17,31 +18,33 @@ namespace Xunit.Sdk
     public class Executor : MarshalByRefObject
     {
         readonly Assembly assembly;
-        readonly string assemblyFilename;
+        readonly string assemblyFileName;
 
         /// <summary/>
-        public Executor(string assemblyFilename)
+        public Executor(string assemblyFileName)
         {
-            this.assemblyFilename = Path.GetFullPath(assemblyFilename);
-            assembly = Assembly.Load(AssemblyName.GetAssemblyName(this.assemblyFilename));
+            this.assemblyFileName = Path.GetFullPath(assemblyFileName);
+            assembly = Assembly.Load(AssemblyName.GetAssemblyName(this.assemblyFileName));
         }
 
         /// <summary/>
-        [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+        [SecurityCritical]
         public override Object InitializeLifetimeService()
         {
             return null;
         }
 
         /// <summary/>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
         public class AssemblyTestCount : MarshalByRefObject
         {
             /// <summary/>
-            [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
             [SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "method", Justification = "No can do.")]
-            public AssemblyTestCount(Executor executor, object _handler)
+            public AssemblyTestCount(Executor executor, object handler)
             {
-                ExecutorCallback handler = ExecutorCallback.Wrap(_handler);
+                Guard.ArgumentNotNull("executor", executor);
+
+                ExecutorCallback callback = ExecutorCallback.Wrap(handler);
                 int result = 0;
 
                 foreach (Type type in executor.assembly.GetExportedTypes())
@@ -53,11 +56,11 @@ namespace Xunit.Sdk
                             result++;
                 }
 
-                handler.Notify(result.ToString());
+                callback.Notify(result.ToString(CultureInfo.InvariantCulture));
             }
 
             /// <summary/>
-            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            [SecurityCritical]
             public override Object InitializeLifetimeService()
             {
                 return null;
@@ -65,19 +68,21 @@ namespace Xunit.Sdk
         }
 
         /// <summary/>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
         public class EnumerateTests : MarshalByRefObject
         {
             /// <summary/>
-            [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
-            public EnumerateTests(Executor executor, object _handler)
+            public EnumerateTests(Executor executor, object handler)
             {
-                ExecutorCallback handler = ExecutorCallback.Wrap(_handler);
+                Guard.ArgumentNotNull("executor", executor);
+
+                ExecutorCallback callback = ExecutorCallback.Wrap(handler);
 
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml("<dummy/>");
 
                 XmlNode assemblyNode = XmlUtility.AddElement(doc.ChildNodes[0], "assembly");
-                XmlUtility.AddAttribute(assemblyNode, "name", executor.assemblyFilename);
+                XmlUtility.AddAttribute(assemblyNode, "name", executor.assemblyFileName);
 
                 foreach (Type type in executor.assembly.GetExportedTypes())
                 {
@@ -123,11 +128,11 @@ namespace Xunit.Sdk
                     }
                 }
 
-                handler.Notify(assemblyNode.OuterXml);
+                callback.Notify(assemblyNode.OuterXml);
             }
 
             /// <summary/>
-            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            [SecurityCritical]
             public override Object InitializeLifetimeService()
             {
                 return null;
@@ -135,18 +140,19 @@ namespace Xunit.Sdk
         }
 
         /// <summary/>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
         public class RunAssembly : MarshalByRefObject
         {
             /// <summary/>
-            public RunAssembly(Executor executor, object _handler)
+            public RunAssembly(Executor executor, object handler)
             {
-                ExecutorCallback handler = ExecutorCallback.Wrap(_handler);
+                ExecutorCallback callback = ExecutorCallback.Wrap(handler);
 
                 executor.RunOnSTAThreadWithPreservedWorkingDirectory(() =>
                     {
                         bool @continue = true;
                         AssemblyResult results =
-                            new AssemblyResult(executor.assemblyFilename,
+                            new AssemblyResult(executor.assemblyFileName,
                                                AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
 
                         foreach (Type type in executor.assembly.GetExportedTypes())
@@ -158,8 +164,8 @@ namespace Xunit.Sdk
                                 ClassResult classResult =
                                     TestClassCommandRunner.Execute(testClassCommand,
                                                                    null,
-                                                                   command => @continue = OnTestStart(command, handler),
-                                                                   result => @continue = OnTestResult(result, handler));
+                                                                   command => @continue = OnTestStart(command, callback),
+                                                                   result => @continue = OnTestResult(result, callback));
 
                                 results.Add(classResult);
                             }
@@ -168,12 +174,12 @@ namespace Xunit.Sdk
                                 break;
                         }
 
-                        OnTestResult(results, handler);
+                        OnTestResult(results, callback);
                     });
             }
 
             /// <summary/>
-            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            [SecurityCritical]
             public override Object InitializeLifetimeService()
             {
                 return null;
@@ -181,17 +187,18 @@ namespace Xunit.Sdk
         }
 
         /// <summary/>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
         public class RunClass : MarshalByRefObject
         {
             /// <summary/>
             [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "Xunit.Sdk.Executor+RunTests", Justification = "All important work is done in the constructor.")]
-            public RunClass(Executor executor, string _type, object _handler)
+            public RunClass(Executor executor, string type, object handler)
             {
-                new RunTests(executor, _type, new List<string>(), _handler);
+                new RunTests(executor, type, new List<string>(), handler);
             }
 
             /// <summary/>
-            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            [SecurityCritical]
             public override Object InitializeLifetimeService()
             {
                 return null;
@@ -199,22 +206,21 @@ namespace Xunit.Sdk
         }
 
         /// <summary/>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
         public class RunTest : MarshalByRefObject
         {
             /// <summary/>
             [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "Xunit.Sdk.Executor+RunTests", Justification = "All important work is done in the constructor.")]
-            public RunTest(Executor executor, string _type, string _method, object _handler)
+            public RunTest(Executor executor, string type, string method, object handler)
             {
-                Guard.ArgumentNotNull("_type", _type);
-                Guard.ArgumentNotNull("_method", _method);
+                Guard.ArgumentNotNull("type", type);
+                Guard.ArgumentNotNull("method", method);
 
-                List<string> _methods = new List<string>();
-                _methods.Add(_method);
-                new RunTests(executor, _type, _methods, _handler);
+                new RunTests(executor, type, new List<string> { method }, handler);
             }
 
             /// <summary/>
-            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            [SecurityCritical]
             public override Object InitializeLifetimeService()
             {
                 return null;
@@ -222,55 +228,55 @@ namespace Xunit.Sdk
         }
 
         /// <summary/>
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
         public class RunTests : MarshalByRefObject
         {
             /// <summary/>
-            [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
-            [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "2", Justification = "This parameter is verified elsewhere.")]
-            public RunTests(Executor executor, string _type, List<string> _methods, object _handler)
+            public RunTests(Executor executor, string type, List<string> methods, object handler)
             {
-                Guard.ArgumentNotNull("_type", _type);
-                Guard.ArgumentNotNull("_methods", _methods);
+                Guard.ArgumentNotNull("executor", executor);
+                Guard.ArgumentNotNull("type", type);
+                Guard.ArgumentNotNull("methods", methods);
 
-                ExecutorCallback handler = ExecutorCallback.Wrap(_handler);
-                Type realType = executor.assembly.GetType(_type);
-                Guard.ArgumentValid("_type", "Type " + _type + " could not be found", realType != null);
+                ExecutorCallback callback = ExecutorCallback.Wrap(handler);
+                Type realType = executor.assembly.GetType(type);
+                Guard.ArgumentValid("type", "Type " + type + " could not be found", realType != null);
 
-                ITypeInfo type = Reflector.Wrap(realType);
-                ITestClassCommand testClassCommand = TestClassCommandFactory.Make(type);
+                ITypeInfo typeInfo = Reflector.Wrap(realType);
+                ITestClassCommand testClassCommand = TestClassCommandFactory.Make(typeInfo);
 
-                List<IMethodInfo> methods = new List<IMethodInfo>();
+                List<IMethodInfo> methodInfos = new List<IMethodInfo>();
 
-                foreach (string _method in _methods)
+                foreach (string method in methods)
                 {
                     try
                     {
-                        IMethodInfo method = type.GetMethod(_method);
-                        Guard.ArgumentValid("_methods", "Could not find method " + _method + " in type " + _type, method != null);
-                        methods.Add(method);
+                        IMethodInfo methodInfo = typeInfo.GetMethod(method);
+                        Guard.ArgumentValid("methods", "Could not find method " + method + " in type " + type, methodInfo != null);
+                        methodInfos.Add(methodInfo);
                     }
                     catch (AmbiguousMatchException)
                     {
-                        throw new ArgumentException("Ambiguous method named " + _method + " in type " + _type);
+                        throw new ArgumentException("Ambiguous method named " + method + " in type " + type);
                     }
                 }
 
                 if (testClassCommand == null)
                 {
-                    ClassResult result = new ClassResult(type.Type);
-                    OnTestResult(result, handler);
+                    ClassResult result = new ClassResult(typeInfo.Type);
+                    OnTestResult(result, callback);
                     return;
                 }
 
                 executor.RunOnSTAThreadWithPreservedWorkingDirectory(() =>
                     TestClassCommandRunner.Execute(testClassCommand,
-                                                   methods,
-                                                   command => OnTestStart(command, handler),
-                                                   result => OnTestResult(result, handler)));
+                                                   methodInfos,
+                                                   command => OnTestStart(command, callback),
+                                                   result => OnTestResult(result, callback)));
             }
 
             /// <summary/>
-            [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+            [SecurityCritical]
             public override Object InitializeLifetimeService()
             {
                 return null;
@@ -313,7 +319,7 @@ namespace Xunit.Sdk
 
             try
             {
-                Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyFilename));
+                Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyFileName));
                 ((ThreadStart)threadStart)();
             }
             finally

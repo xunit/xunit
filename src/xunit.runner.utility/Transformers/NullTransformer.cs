@@ -11,10 +11,10 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="NullTransformer"/> class.
         /// </summary>
-        /// <param name="filename">The output filename.</param>
-        public NullTransformer(string filename)
+        /// <param name="fileName">The output filename.</param>
+        public NullTransformer(string fileName)
         {
-            OutputFilename = filename;
+            OutputFilename = fileName;
         }
 
         /// <inheritdoc/>

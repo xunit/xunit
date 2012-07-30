@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Xml;
 using System.Xml.XPath;
 using System.Xml.Xsl;
@@ -16,31 +17,33 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="XslStreamTransformer"/> class.
         /// </summary>
-        /// <param name="xslFilename">The XSL filename.</param>
-        /// <param name="outputFilename">The output filename.</param>
-        public XslStreamTransformer(string xslFilename, string outputFilename)
+        /// <param name="xslFileName">The XSL filename.</param>
+        /// <param name="outputFileName">The output filename.</param>
+        public XslStreamTransformer(string xslFileName, string outputFileName)
         {
-            XslFilename = xslFilename;
-            OutputFilename = outputFilename;
+            XslFilename = xslFileName;
+            OutputFilename = outputFileName;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XslStreamTransformer"/> class.
         /// </summary>
         /// <param name="xslStream">The stream with the XSL stylesheet.</param>
-        /// <param name="outputFilename">The output filename.</param>
-        public XslStreamTransformer(Stream xslStream, string outputFilename)
+        /// <param name="outputFileName">The output filename.</param>
+        public XslStreamTransformer(Stream xslStream, string outputFileName)
         {
             XslStream = xslStream;
-            OutputFilename = outputFilename;
+            OutputFilename = outputFileName;
         }
 
         /// <inheritdoc/>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "Filename", Justification = "This would be a breaking change.")]
         public string OutputFilename { get; private set; }
 
         /// <summary>
         /// Gets or sets the XSL filename.
         /// </summary>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "Filename", Justification = "This would be a breaking change.")]
         public string XslFilename { get; private set; }
 
         /// <summary>
@@ -63,11 +66,12 @@ namespace Xunit
         /// <inheritdoc/>
         public void Transform(string xml)
         {
-            using (StreamReader reader = new StreamReader(XslStream))
+            using (StringReader xmlReader = new StringReader(xml))
+            using (StreamReader streamReader = new StreamReader(XslStream))
             {
-                XPathDocument doc = new XPathDocument(new StringReader(xml));
+                XPathDocument doc = new XPathDocument(xmlReader);
                 XslCompiledTransform xslTransform = new XslCompiledTransform();
-                XmlTextReader transformReader = new XmlTextReader(reader);
+                XmlTextReader transformReader = new XmlTextReader(streamReader);
                 xslTransform.Load(transformReader);
 
                 using (FileStream outStream = new FileStream(OutputFilename, FileMode.Create))

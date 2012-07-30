@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit
 {
@@ -7,6 +8,7 @@ namespace Xunit
     /// The test runner must implement the <see cref="Xunit.Sdk.ITestClassCommand"/> interface.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class RunWithAttribute : Attribute
     {
         /// <summary>

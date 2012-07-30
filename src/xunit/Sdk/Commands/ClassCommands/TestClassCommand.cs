@@ -68,9 +68,10 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testsLeftToRun">The tests remaining to be run</param>
         /// <returns>The index of the test that should be run</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public int ChooseNextTest(ICollection<IMethodInfo> testsLeftToRun)
         {
+            Guard.ArgumentNotNull("testsLeftToRun", testsLeftToRun);
+
             return randomizer.Next(testsLeftToRun.Count);
         }
 
@@ -78,6 +79,7 @@ namespace Xunit.Sdk
         /// Execute actions to be run after all the test methods of this test class are run.
         /// </summary>
         /// <returns>Returns the <see cref="Exception"/> thrown during execution, if any; null, otherwise</returns>
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         public Exception ClassFinish()
         {
             foreach (object fixtureData in fixtures.Values)
@@ -99,6 +101,7 @@ namespace Xunit.Sdk
         /// Execute actions to be run before any of the test methods of this test class are run.
         /// </summary>
         /// <returns>Returns the <see cref="Exception"/> thrown during execution, if any; null, otherwise</returns>
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         public Exception ClassStart()
         {
             try

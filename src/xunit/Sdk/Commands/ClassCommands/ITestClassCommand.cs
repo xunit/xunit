@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit.Sdk
 {
@@ -25,6 +26,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testsLeftToRun">The tests remaining to be run</param>
         /// <returns>The index of the test that should be run</returns>
+        [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "ToRun", Justification = "To and Run are both words.")]
         int ChooseNextTest(ICollection<IMethodInfo> testsLeftToRun);
 
         /// <summary>

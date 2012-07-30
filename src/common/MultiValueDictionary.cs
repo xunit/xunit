@@ -1,15 +1,20 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
+#if XUNIT_RUNNER_UTILITY
+namespace Xunit
+#else
 namespace Xunit.Sdk
+#endif
 {
     /// <summary>
     /// A dictionary which contains multiple unique values for each key.
     /// </summary>
     /// <typeparam name="TKey">The type of the key.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Multi", Justification = "This is a reasonable shortening of 'multiple'.")]
+    [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Multi", Justification = "Multi is an acceptable short name for 'multiple'.")]
     [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "This is a dictionary, not a collection.")]
     [SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "This is a dictionary.")]
     public class MultiValueDictionary<TKey, TValue> : IEnumerable<TKey>
@@ -83,16 +88,13 @@ namespace Xunit.Sdk
             return items.Contains(value);
         }
 
-        /// <summary/>
-        [SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "This would be a breaking change.")]
-        public delegate void ForEachDelegate(TKey key, TValue value);
-
         /// <summary>
         /// Calls the delegate once for each key/value pair in the dictionary.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
-        public void ForEach(ForEachDelegate code)
+        public void ForEach(Action<TKey, TValue> code)
         {
+            Guard.ArgumentNotNull("code", code);
+
             foreach (TKey key in Keys)
                 foreach (TValue value in this[key])
                     code(key, value);
@@ -127,10 +129,11 @@ namespace Xunit.Sdk
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return dictionary.Keys.GetEnumerator();
+            return GetEnumerator();
         }
 
-        IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator()
+        /// <inheritdoc/>
+        public IEnumerator<TKey> GetEnumerator()
         {
             return dictionary.Keys.GetEnumerator();
         }

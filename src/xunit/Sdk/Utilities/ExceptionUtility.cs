@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Xunit.Sdk
@@ -58,7 +57,7 @@ namespace Xunit.Sdk
 
             if (result != null)
             {
-                int idx = result.IndexOf(RETHROW_MARKER);
+                int idx = result.IndexOf(RETHROW_MARKER, StringComparison.Ordinal);
                 if (idx >= 0)
                     result = result.Substring(0, idx);
             }
@@ -79,9 +78,10 @@ namespace Xunit.Sdk
         /// For more information on this technique, see
         /// http://www.dotnetjunkies.com/WebLog/chris.taylor/archive/2004/03/03/8353.aspx
         /// </remarks>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static void RethrowWithNoStackTraceLoss(Exception ex)
         {
+            Guard.ArgumentNotNull("ex", ex);
+
             FieldInfo remoteStackTraceString =
                 typeof(Exception).GetField("_remoteStackTraceString", BindingFlags.Instance | BindingFlags.NonPublic) ??
                 typeof(Exception).GetField("remote_stack_trace", BindingFlags.Instance | BindingFlags.NonPublic);

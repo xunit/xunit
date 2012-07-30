@@ -5,5 +5,8 @@
 
         <!-- Define default configuration (so building from command line is consistent) -->
         <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+
+        <!-- Default code analysis rule set should be "none" -->
+        <CodeAnalysisRuleSet>..\..\src\xunit.empty.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
 </Project>

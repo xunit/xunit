@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
+using Xunit.Sdk;
 
 namespace Xunit.Extensions
 {
@@ -10,6 +12,7 @@ namespace Xunit.Extensions
     /// The property must return IEnumerable&lt;object[]&gt; with the test data.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class PropertyDataAttribute : DataAttribute
     {
         readonly string propertyName;
@@ -43,13 +46,14 @@ namespace Xunit.Extensions
         /// <param name="methodUnderTest">The method that is being tested</param>
         /// <param name="parameterTypes">The types of the parameters for the test method</param>
         /// <returns>The theory data, in table form</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This is validated elsewhere.")]
         public override IEnumerable<object[]> GetData(MethodInfo methodUnderTest, Type[] parameterTypes)
         {
+            Guard.ArgumentNotNull("methodUnderTest", methodUnderTest);
+
             Type type = PropertyType ?? methodUnderTest.DeclaringType;
             PropertyInfo propInfo = type.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
             if (propInfo == null)
-                throw new ArgumentException(string.Format("Could not find public static property {0} on {1}", propertyName, type.FullName));
+                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Could not find public static property {0} on {1}", propertyName, type.FullName));
 
             object obj = propInfo.GetValue(null, null);
             if (obj == null)
@@ -57,7 +61,7 @@ namespace Xunit.Extensions
 
             IEnumerable<object[]> dataItems = obj as IEnumerable<object[]>;
             if (dataItems == null)
-                throw new ArgumentException(string.Format("Property {0} on {1} did not return IEnumerable<object[]>", propertyName, type.FullName));
+                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Property {0} on {1} did not return IEnumerable<object[]>", propertyName, type.FullName));
 
             return dataItems;
         }

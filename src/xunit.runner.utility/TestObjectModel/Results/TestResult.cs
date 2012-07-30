@@ -10,7 +10,7 @@
         /// </summary>
         /// <param name="duration">The duration the test took to run. For skipped tests, should be 0.0.</param>
         /// <param name="displayName">The display name of the test result.</param>
-        public TestResult(double duration, string displayName)
+        protected TestResult(double duration, string displayName)
         {
             Duration = duration;
             DisplayName = displayName;

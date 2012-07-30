@@ -17,12 +17,13 @@ namespace Xunit.Sdk
         /// <param name="startCallback">The start run callback</param>
         /// <param name="resultCallback">The end run result callback</param>
         /// <returns>A <see cref="ClassResult"/> with the results of the test run</returns>
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "This parameter is verified elsewhere.")]
         public static ClassResult Execute(ITestClassCommand testClassCommand,
                                           List<IMethodInfo> methods,
                                           Predicate<ITestCommand> startCallback,
                                           Predicate<ITestResult> resultCallback)
         {
+            Guard.ArgumentNotNull("testClassCommand", testClassCommand);
+
             if (methods == null)
                 methods = new List<IMethodInfo>();
 

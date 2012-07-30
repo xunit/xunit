@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace Xunit.Sdk
@@ -16,7 +17,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="expected">The expected object value</param>
         public DoesNotContainException(object expected)
-            : base(string.Format("Assert.DoesNotContain() failure: Found: {0}", expected)) { }
+            : base(String.Format(CultureInfo.CurrentCulture, "Assert.DoesNotContain() failure: Found: {0}", expected)) { }
 
         /// <inheritdoc/>
         protected DoesNotContainException(SerializationInfo info, StreamingContext context)

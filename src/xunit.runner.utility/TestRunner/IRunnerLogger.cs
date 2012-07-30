@@ -10,20 +10,20 @@ namespace Xunit
         /// <summary>
         /// Called when the assembly has finished running.
         /// </summary>
-        /// <param name="assemblyFilename">The assembly filename.</param>
+        /// <param name="assemblyFileName">The assembly filename.</param>
         /// <param name="total">The total number of tests run.</param>
         /// <param name="failed">The number of failed tests.</param>
         /// <param name="skipped">The number of skipped tests.</param>
         /// <param name="time">The time taken to run, in seconds.</param>
-        void AssemblyFinished(string assemblyFilename, int total, int failed, int skipped, double time);
+        void AssemblyFinished(string assemblyFileName, int total, int failed, int skipped, double time);
 
         /// <summary>
         /// Called when the assembly has started running.
         /// </summary>
-        /// <param name="assemblyFilename">The assembly filename.</param>
-        /// <param name="configFilename">The configuration filename, if given; null, otherwise.</param>
-        /// <param name="xUnitVersion">The version of xunit.dll.</param>
-        void AssemblyStart(string assemblyFilename, string configFilename, string xUnitVersion);
+        /// <param name="assemblyFileName">The assembly filename.</param>
+        /// <param name="configFileName">The configuration filename, if given; null, otherwise.</param>
+        /// <param name="xunitVersion">The version of xunit.dll.</param>
+        void AssemblyStart(string assemblyFileName, string configFileName, string xunitVersion);
 
         /// <summary>
         /// Called when a class failure is encountered (i.e., when a fixture from
@@ -39,9 +39,9 @@ namespace Xunit
         /// <summary>
         /// Called when an exception is thrown (i.e., a catastrophic failure of the testing system).
         /// </summary>
-        /// <param name="assemblyFilename">The assembly filename.</param>
+        /// <param name="assemblyFileName">The assembly filename.</param>
         /// <param name="exception">The exception that was thrown.</param>
-        void ExceptionThrown(string assemblyFilename, Exception exception);
+        void ExceptionThrown(string assemblyFileName, Exception exception);
 
         /// <summary>
         /// Called when a test fails.

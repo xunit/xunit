@@ -22,7 +22,7 @@ namespace Xunit.ConsoleClient
             if (!silent)
                 Console.Write("\r");
 
-            Console.WriteLine("{0} total, {1} failed, {2} skipped, took {3} seconds", total, failed, skipped, time.ToString("0.000", CultureInfo.InvariantCulture));
+            Console.WriteLine("{0} total, {1} failed, {2} skipped, took {3} seconds", total, failed, skipped, time.ToString("0.000", CultureInfo.CurrentCulture));
         }
 
         public override bool ClassFailed(TestClass testClass, string exceptionType, string message, string stackTrace)
