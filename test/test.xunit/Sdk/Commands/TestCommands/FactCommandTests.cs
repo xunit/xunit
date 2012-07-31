@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Moq;
 using Xunit;
 using Xunit.Sdk;
 

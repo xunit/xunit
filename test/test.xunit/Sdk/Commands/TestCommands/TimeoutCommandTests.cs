@@ -1,5 +1,4 @@
 using System.Threading;
-using System.Xml;
 using Moq;
 using Xunit;
 using Xunit.Sdk;
