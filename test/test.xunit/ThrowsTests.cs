@@ -5,60 +5,6 @@ using Xunit.Sdk;
 
 public class ThrowsTests
 {
-    public class DoesNotThrowNoReturnValue
-    {
-        [Fact]
-        public void CodeDoesNotThrow()
-        {
-            bool methodCalled = false;
-
-            Assert.DoesNotThrow(() => methodCalled = true);
-
-            Assert.True(methodCalled);
-        }
-
-        [Fact]
-        public void CodeThrows()
-        {
-            var ex = Record.Exception(() => Assert.DoesNotThrow(() => ThrowingMethod()));
-
-            Assert.IsType<DoesNotThrowException>(ex);
-            Assert.Contains("NotImplementedException", ex.Message);
-        }
-
-        void ThrowingMethod()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class DoesNotThrowWithReturnValue
-    {
-        [Fact]
-        public void CodeDoesNotThrow()
-        {
-            bool methodCalled = false;
-
-            Assert.DoesNotThrow(() => { methodCalled = true; return 0; });
-
-            Assert.True(methodCalled);
-        }
-
-        [Fact]
-        public void CodeThrows()
-        {
-            var ex = Record.Exception(() => Assert.DoesNotThrow(() => ThrowingMethod()));
-
-            Assert.IsType<DoesNotThrowException>(ex);
-            Assert.Contains("NotImplementedException", ex.Message);
-        }
-
-        int ThrowingMethod()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public class ThrowsGenericNoReturnValue
     {
         [Fact]
