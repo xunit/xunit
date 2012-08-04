@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
 
@@ -123,6 +124,64 @@ public class ThrowsTests
         }
     }
 
+    public class ThrowsGenericTask
+    {
+        [Fact]
+        public void ExpectExceptionButCodeDoesNotThrow()
+        {
+            try
+            {
+                Assert.Throws<ArgumentException>(Task.Factory.StartNew(() => { }));
+            }
+            catch (AssertActualExpectedException exception)
+            {
+                Assert.Equal("(No exception was thrown)", exception.Actual);
+            }
+        }
+
+        [Fact]
+        public void ExpectExceptionButCodeThrowsDerivedException()
+        {
+            try
+            {
+                Assert.Throws<Exception>(Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
+            }
+            catch (AssertException exception)
+            {
+                Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
+            }
+        }
+
+        [Fact]
+        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        {
+            try
+            {
+                Assert.Throws<InvalidCastException>(Task.Factory.StartNew(ThrowingMethod));
+            }
+            catch (AssertActualExpectedException exception)
+            {
+                Assert.Contains("ThrowsGenericTask.ThrowingMethod", exception.StackTrace);
+                Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        static void ThrowingMethod()
+        {
+            throw new ArgumentException();
+        }
+
+        [Fact]
+        public void GotExpectedException()
+        {
+            ArgumentException ex =
+                Assert.Throws<ArgumentException>(Task.Factory.StartNew(() => { throw new ArgumentException(); }));
+
+            Assert.NotNull(ex);
+        }
+    }
+
     public class ThrowsNonGenericNoReturnValue
     {
         [Fact]
@@ -204,6 +263,45 @@ public class ThrowsTests
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidOperationException>(ex);
+        }
+    }
+
+    public class ThrowsNonGenericTask
+    {
+        [Fact]
+        public void ExpectExceptionButCodeDoesNotThrow()
+        {
+            try
+            {
+                Assert.Throws(typeof(ArgumentException), Task.Factory.StartNew(() => { }));
+            }
+            catch (AssertActualExpectedException exception)
+            {
+                Assert.Equal("(No exception was thrown)", exception.Actual);
+            }
+        }
+
+        [Fact]
+        public void ExpectExceptionButCodeThrowsDerivedException()
+        {
+            try
+            {
+                Assert.Throws(typeof(Exception), Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
+            }
+            catch (AssertException exception)
+            {
+                Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
+            }
+        }
+
+        [Fact]
+        public void GotExpectedException()
+        {
+            Exception ex =
+                Assert.Throws(typeof(ArgumentException), Task.Factory.StartNew(() => { throw new ArgumentException(); }));
+
+            Assert.NotNull(ex);
+            Assert.IsType<ArgumentException>(ex);
         }
     }
 

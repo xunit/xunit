@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 public class RecordTests
@@ -18,6 +19,26 @@ public class RecordTests
         public void NoException()
         {
             Exception ex = Record.Exception(delegate { });
+
+            Assert.Null(ex);
+        }
+    }
+
+    public class MethodsReturningTask
+    {
+        [Fact]
+        public void Exception()
+        {
+            Exception ex = Record.Exception(Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
+
+            Assert.NotNull(ex);
+            Assert.IsType<InvalidOperationException>(ex);
+        }
+
+        [Fact]
+        public void NoException()
+        {
+            Exception ex = Record.Exception(Task.Factory.StartNew(() => { }));
 
             Assert.Null(ex);
         }

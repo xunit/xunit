@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
 
@@ -33,6 +34,33 @@ public class DoesNotThrowTests
         public void CodeThrows()
         {
             var ex = Record.Exception(() => Assert.DoesNotThrow(() => ThrowingMethod()));
+
+            Assert.IsType<DoesNotThrowException>(ex);
+            Assert.Contains("NotImplementedException", ex.Message);
+        }
+
+        void ThrowingMethod()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DoesNotThrowTask
+    {
+        [Fact]
+        public void CodeDoesNotThrow()
+        {
+            bool methodCalled = false;
+
+            Assert.DoesNotThrow(Task.Factory.StartNew(() => methodCalled = true));
+
+            Assert.True(methodCalled);
+        }
+
+        [Fact]
+        public void CodeThrows()
+        {
+            var ex = Record.Exception(() => Assert.DoesNotThrow(Task.Factory.StartNew(ThrowingMethod)));
 
             Assert.IsType<DoesNotThrowException>(ex);
             Assert.Contains("NotImplementedException", ex.Message);

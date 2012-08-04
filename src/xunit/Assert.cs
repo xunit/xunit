@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Threading.Tasks;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -137,6 +138,18 @@ namespace Xunit
         public static void DoesNotThrow(Action testCode)
         {
             Exception ex = Record.Exception(testCode);
+
+            if (ex != null)
+                throw new DoesNotThrowException(ex);
+        }
+
+        /// <summary>
+        /// Verifies that a block of code does not throw any exceptions.
+        /// </summary>
+        /// <param name="testTask">A Task of the code to be tested</param>
+        public static void DoesNotThrow(Task testTask)
+        {
+            Exception ex = Record.Exception(testTask);
 
             if (ex != null)
                 throw new DoesNotThrowException(ex);
@@ -713,6 +726,19 @@ namespace Xunit
 
         /// <summary>
         /// Verifies that the exact exception is thrown (and not a derived exception type).
+        /// </summary>
+        /// <typeparam name="T">The type of the exception expected to be thrown</typeparam>
+        /// <param name="testTask">A Task of the code to be tested</param>
+        /// <returns>The exception that was thrown, when successful</returns>
+        /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
+        public static T Throws<T>(Task testTask)
+            where T : Exception
+        {
+            return (T)Throws(typeof(T), () => testTask.GetAwaiter().GetResult());
+        }
+
+        /// <summary>
+        /// Verifies that the exact exception is thrown (and not a derived exception type).
         /// Generally used to test property accessors.
         /// </summary>
         /// <typeparam name="T">The type of the exception expected to be thrown</typeparam>
@@ -723,6 +749,18 @@ namespace Xunit
             where T : Exception
         {
             return (T)Throws(typeof(T), testCode);
+        }
+
+        /// <summary>
+        /// Verifies that the exact exception is thrown (and not a derived exception type).
+        /// </summary>
+        /// <param name="exceptionType">The type of the exception expected to be thrown</param>
+        /// <param name="testTask">A Task of the code to be tested</param>
+        /// <returns>The exception that was thrown, when successful</returns>
+        /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
+        public static Exception Throws(Type exceptionType, Task testTask)
+        {
+            return Throws(exceptionType, () => testTask.GetAwaiter().GetResult());
         }
 
         /// <summary>
