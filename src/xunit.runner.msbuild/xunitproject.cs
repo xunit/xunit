@@ -7,8 +7,10 @@ using Microsoft.Build.Utilities;
 
 namespace Xunit.Runner.MSBuild
 {
-    public class xunitproject : Task
+    public class xunitproject : Task, ICancelableTask
     {
+        bool cancel;
+
         public xunitproject()
         {
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
@@ -24,6 +26,11 @@ namespace Xunit.Runner.MSBuild
 
         public bool Verbose { get; set; }
 
+        public void Cancel()
+        {
+            cancel = true;
+        }
+
         public override bool Execute()
         {
             RemotingUtility.CleanUpRegisteredChannels();
@@ -35,14 +42,17 @@ namespace Xunit.Runner.MSBuild
                 string projectFilename = ProjectFile.GetMetadata("FullPath");
                 XunitProject project = XunitProject.Load(projectFilename);
                 IRunnerLogger logger =
-                    TeamCity ? (IRunnerLogger)new TeamCityLogger(Log) :
-                    Verbose ? new VerboseLogger(Log) :
-                    new StandardLogger(Log);
+                    TeamCity ? (IRunnerLogger)new TeamCityLogger(Log, () => cancel) :
+                    Verbose ? new VerboseLogger(Log, () => cancel) :
+                    new StandardLogger(Log, () => cancel);
 
                 Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
 
                 foreach (XunitProjectAssembly assembly in project.Assemblies)
                 {
+                    if (cancel)
+                        break;
+
                     using (Stream htmlStream = ResourceStream("HTML.xslt"))
                     using (Stream nunitStream = ResourceStream("NUnitXml.xslt"))
                     using (ExecutorWrapper wrapper = new ExecutorWrapper(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy))

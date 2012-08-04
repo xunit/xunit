@@ -6,14 +6,16 @@ namespace Xunit.Runner.MSBuild
 {
     public class StandardLogger : IRunnerLogger
     {
+        protected readonly Func<bool> cancelled;
         protected readonly TaskLoggingHelper log;
         public int Total = 0;
         public int Failed = 0;
         public int Skipped = 0;
         public double Time = 0.0;
 
-        public StandardLogger(TaskLoggingHelper log)
+        public StandardLogger(TaskLoggingHelper log, Func<bool> cancelled)
         {
+            this.cancelled = cancelled;
             this.log = log;
         }
 
@@ -40,7 +42,7 @@ namespace Xunit.Runner.MSBuild
         {
             log.LogError("[CLASS] {0}: {1}", className, Escape(message));
             log.LogError(Escape(stackTrace));
-            return true;
+            return !cancelled();
         }
 
         public void ExceptionThrown(string assemblyFilename, Exception exception)
@@ -58,7 +60,7 @@ namespace Xunit.Runner.MSBuild
 
         public bool TestFinished(string name, string type, string method)
         {
-            return true;
+            return !cancelled();
         }
 
         public virtual void TestPassed(string name, string type, string method, double duration, string output)
@@ -74,7 +76,7 @@ namespace Xunit.Runner.MSBuild
 
         public virtual bool TestStart(string name, string type, string method)
         {
-            return true;
+            return !cancelled();
         }
 
         static string Escape(string value)

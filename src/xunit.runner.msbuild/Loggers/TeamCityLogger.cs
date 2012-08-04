@@ -7,10 +7,12 @@ namespace Xunit.Runner.MSBuild
 {
     public class TeamCityLogger : IRunnerLogger
     {
+        readonly Func<bool> cancelled;
         readonly TaskLoggingHelper log;
 
-        public TeamCityLogger(TaskLoggingHelper log)
+        public TeamCityLogger(TaskLoggingHelper log, Func<bool> cancelled)
         {
+            this.cancelled = cancelled;
             this.log = log;
         }
 
@@ -30,7 +32,7 @@ namespace Xunit.Runner.MSBuild
                            Escape(className),
                            Escape(message),
                            Escape(stackTrace));
-            return true;
+            return !cancelled();
         }
 
         public void ExceptionThrown(string assemblyFilename, Exception exception)
@@ -51,7 +53,7 @@ namespace Xunit.Runner.MSBuild
 
         public bool TestFinished(string name, string type, string method)
         {
-            return true;
+            return !cancelled();
         }
 
         public void TestPassed(string name, string type, string method, double duration, string output)
@@ -72,7 +74,7 @@ namespace Xunit.Runner.MSBuild
         public bool TestStart(string name, string type, string method)
         {
             log.LogMessage(MessageImportance.High, "##teamcity[testStarted name='{0}']", Escape(name));
-            return true;
+            return !cancelled();
         }
 
         static string Escape(string value)

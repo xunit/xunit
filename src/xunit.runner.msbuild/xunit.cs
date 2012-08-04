@@ -6,8 +6,10 @@ using Microsoft.Build.Utilities;
 
 namespace Xunit.Runner.MSBuild
 {
-    public class xunit : Task
+    public class xunit : Task, ICancelableTask
     {
+        bool cancel;
+
         public xunit()
         {
             ShadowCopy = true;
@@ -35,6 +37,11 @@ namespace Xunit.Runner.MSBuild
 
         public ITaskItem Xml { get; set; }
 
+        public void Cancel()
+        {
+            cancel = true;
+        }
+
         public override bool Execute()
         {
             RemotingUtility.CleanUpRegisteredChannels();
@@ -55,9 +62,9 @@ namespace Xunit.Runner.MSBuild
             Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
 
             IRunnerLogger logger =
-                TeamCity ? (IRunnerLogger)new TeamCityLogger(Log) :
-                 Verbose ? new VerboseLogger(Log) :
-                           new StandardLogger(Log);
+                TeamCity ? (IRunnerLogger)new TeamCityLogger(Log, () => cancel) :
+                 Verbose ? new VerboseLogger(Log, () => cancel) :
+                           new StandardLogger(Log, () => cancel);
 
             if (Assembly != null)
             {
@@ -68,6 +75,9 @@ namespace Xunit.Runner.MSBuild
             {
                 foreach (ITaskItem assembly in Assemblies)
                 {
+                    if (cancel)
+                        break;
+
                     string assemblyFilename = assembly.GetMetadata("FullPath");
                     string configFilename = assembly.GetMetadata("ConfigFile");
                     if (configFilename.Length == 0)

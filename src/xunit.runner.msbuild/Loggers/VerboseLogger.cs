@@ -1,10 +1,11 @@
-﻿using Microsoft.Build.Utilities;
+﻿using System;
+using Microsoft.Build.Utilities;
 
 namespace Xunit.Runner.MSBuild
 {
     public class VerboseLogger : StandardLogger
     {
-        public VerboseLogger(TaskLoggingHelper log) : base(log) { }
+        public VerboseLogger(TaskLoggingHelper log, Func<bool> cancelled) : base(log, cancelled) { }
 
         public override void TestPassed(string name, string type, string method, double duration, string output)
         {
