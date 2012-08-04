@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Xunit.Sdk
 {
@@ -71,11 +71,6 @@ namespace Xunit.Sdk
 
         class ReflectionMethodInfo : IMethodInfo
         {
-            static Type aggregateExceptionType = Type.GetType("System.AggregateException, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
-            static PropertyInfo aggregateExceptionInnerExceptions;
-            static Type taskType = Type.GetType("System.Threading.Tasks.Task, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
-            static MethodInfo taskWaitMethod;
-
             readonly MethodInfo method;
 
             public ReflectionMethodInfo(MethodInfo method)
@@ -136,20 +131,15 @@ namespace Xunit.Sdk
 
             public void Invoke(object testClass, params object[] parameters)
             {
-                if (taskType != null && taskWaitMethod == null)
-                {
-                    taskWaitMethod = taskType.GetMethod("Wait", new Type[0]);
-                    aggregateExceptionInnerExceptions = aggregateExceptionType.GetProperty("InnerExceptions");
-                }
-
                 try
                 {
                     try
                     {
                         object result = method.Invoke(testClass, parameters);
 
-                        if (taskType != null && result != null && taskType.IsAssignableFrom(result.GetType()))
-                            taskWaitMethod.Invoke(result, null);
+                        Task task = result as Task;
+                        if (task != null)
+                            task.GetAwaiter().GetResult();
                     }
                     catch (TargetParameterCountException)
                     {
@@ -160,15 +150,9 @@ namespace Xunit.Sdk
                         ExceptionUtility.RethrowWithNoStackTraceLoss(ex.InnerException);
                     }
                 }
-                catch (Exception ex)
+                catch (AggregateException aggEx)
                 {
-                    if (aggregateExceptionType != null && aggregateExceptionType.IsAssignableFrom(ex.GetType()))
-                    {
-                        ReadOnlyCollection<Exception> exceptions = (ReadOnlyCollection<Exception>)aggregateExceptionInnerExceptions.GetValue(ex, null);
-                        ExceptionUtility.RethrowWithNoStackTraceLoss(exceptions[0]);
-                    }
-
-                    throw;
+                    ExceptionUtility.RethrowWithNoStackTraceLoss(aggEx.InnerExceptions[0]);
                 }
             }
 
