@@ -119,7 +119,11 @@ namespace Xunit.ConsoleClient
                     var methods = new List<TestMethod>(testAssembly.EnumerateTestMethods(project.Filters.Filter));
                     if (methods.Count == 0)
                     {
-                        Console.WriteLine("Skipping assembly (no tests match the specified filter).");
+                        if (project.Filters.IsFiltered)
+                            Console.WriteLine("Skipping assembly (no tests match the specified filter).");
+                        else
+                            Console.WriteLine("The assembly has no tests.");
+
                         continue;
                     }
 

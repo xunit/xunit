@@ -25,6 +25,18 @@
         public MultiValueDictionary<string, string> IncludedTraits { get; private set; }
 
         /// <summary>
+        /// Gets a value indicating whether there are any active filters.
+        /// </summary>
+        public bool IsFiltered
+        {
+            get
+            {
+                return ExcludedTraits.Count > 0 ||
+                       IncludedTraits.Count > 0;
+            }
+        }
+
+        /// <summary>
         /// Filters the given method using the defined filter values.
         /// </summary>
         /// <param name="method">The methods to filter.</param>

@@ -89,6 +89,41 @@ public class XunitFiltersTests
 
     }
 
+    public class IsFilteredTests
+    {
+        [Fact]
+        public void EmptyFilterListReturnsFalse()
+        {
+            var filters = new XunitFilters();
+
+            bool isFiltered = filters.IsFiltered;
+
+            Assert.False(isFiltered);
+        }
+
+        [Fact]
+        public void FilterListWithExcludedTraitsReturnsTrue()
+        {
+            var filters = new XunitFilters();
+            filters.ExcludedTraits.AddValue("foo", "bar");
+
+            bool isFiltered = filters.IsFiltered;
+
+            Assert.True(isFiltered);
+        }
+
+        [Fact]
+        public void FilterListWithIncludedTraitsReturnsTrue()
+        {
+            var filters = new XunitFilters();
+            filters.IncludedTraits.AddValue("foo", "bar");
+
+            bool isFiltered = filters.IsFiltered;
+
+            Assert.True(isFiltered);
+        }
+    }
+
     private static MultiValueDictionary<string, string> MakeTraits(string name, string value)
     {
         var result = new MultiValueDictionary<string, string>();
