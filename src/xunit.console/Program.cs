@@ -17,7 +17,7 @@ namespace Xunit.ConsoleClient
             if (args.Length == 0 || args[0] == "/?")
             {
                 PrintUsage();
-                return -1;
+                return 1;
             }
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -42,13 +42,13 @@ namespace Xunit.ConsoleClient
             {
                 Console.WriteLine();
                 Console.WriteLine("error: {0}", ex.Message);
-                return -1;
+                return 1;
             }
             catch (BadImageFormatException ex)
             {
                 Console.WriteLine();
                 Console.WriteLine("{0}", ex.Message);
-                return -1;
+                return 1;
             }
         }
 
