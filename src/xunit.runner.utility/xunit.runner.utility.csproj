@@ -67,6 +67,7 @@
     </Compile>
     <Compile Include="ExecutorWrapper.cs" />
     <Compile Include="IExecutorWrapper.cs" />
+    <Compile Include="Extensions\AssemblyExtensions.cs" />
     <Compile Include="TestObjectModel\ITestMethodRunnerCallback.cs" />
     <Compile Include="TestObjectModel\MultiAssemblyTestEnvironment.cs" />
     <Compile Include="TestObjectModel\Results\TestFailedResult.cs" />
@@ -113,6 +114,12 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">
+      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
+      <Name>xunit.abstractions</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
