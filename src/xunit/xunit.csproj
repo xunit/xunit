@@ -51,9 +51,7 @@
     </Compile>
     <Compile Include="Assert.cs" />
     <Compile Include="Sdk2\Reflector.cs" />
-    <Compile Include="Sdk2\Frameworks\IClassTestCase.cs" />
     <Compile Include="Sdk2\Frameworks\IFailedTestCaseResult.cs" />
-    <Compile Include="Sdk2\Frameworks\IMethodTestCase.cs" />
     <Compile Include="Sdk2\Frameworks\IPassedTestCaseResult.cs" />
     <Compile Include="Sdk2\Frameworks\ISkippedTestCaseResult.cs" />
     <Compile Include="Sdk2\Frameworks\ITestCaseResult.cs" />

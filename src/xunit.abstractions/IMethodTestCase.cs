@@ -1,6 +1,4 @@
-using Xunit.Abstractions;
-
-namespace Xunit.Sdk2
+namespace Xunit.Abstractions
 {
     /// <summary>
     /// Represents a test case which is associated with a method.
