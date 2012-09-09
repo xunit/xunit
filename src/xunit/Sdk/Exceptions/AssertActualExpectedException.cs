@@ -15,8 +15,6 @@ namespace Xunit.Sdk
     [Serializable]
     public class AssertActualExpectedException : AssertException
     {
-        readonly string differencePosition = "";
-
         /// <summary>
         /// Creates a new instance of the <see href="AssertActualExpectedException"/> class.
         /// </summary>
@@ -24,53 +22,14 @@ namespace Xunit.Sdk
         /// <param name="actual">The actual value</param>
         /// <param name="userMessage">The user message to be shown</param>
         public AssertActualExpectedException(object expected, object actual, string userMessage)
-            : this(expected, actual, userMessage, false) { }
-
-        /// <summary>
-        /// Creates a new instance of the <see href="AssertActualExpectedException"/> class.
-        /// </summary>
-        /// <param name="expected">The expected value</param>
-        /// <param name="actual">The actual value</param>
-        /// <param name="userMessage">The user message to be shown</param>
-        /// <param name="skipPositionCheck">Set to true to skip the check for difference position</param>
-        public AssertActualExpectedException(object expected, object actual, string userMessage, bool skipPositionCheck)
             : base(userMessage)
         {
-            if (!skipPositionCheck)
-            {
-                IEnumerable enumerableActual = actual as IEnumerable;
-                IEnumerable enumerableExpected = expected as IEnumerable;
-
-                if (enumerableActual != null && enumerableExpected != null)
-                {
-                    IEnumerator enumeratorActual = enumerableActual.GetEnumerator();
-                    IEnumerator enumeratorExpected = enumerableExpected.GetEnumerator();
-                    int position = 0;
-
-                    while (true)
-                    {
-                        bool actualHasNext = enumeratorActual.MoveNext();
-                        bool expectedHasNext = enumeratorExpected.MoveNext();
-
-                        if (!actualHasNext || !expectedHasNext)
-                            break;
-
-                        if (!Equals(enumeratorActual.Current, enumeratorExpected.Current))
-                            break;
-
-                        position++;
-                    }
-
-                    differencePosition = "Position: First difference is at position " + position + Environment.NewLine;
-                }
-            }
-
             Actual = actual == null ? null : ConvertToString(actual);
             Expected = expected == null ? null : ConvertToString(expected);
 
             if (actual != null &&
                 expected != null &&
-                actual.ToString() == expected.ToString() &&
+                Actual == Expected &&
                 actual.GetType() != expected.GetType())
             {
                 Actual += String.Format(CultureInfo.CurrentCulture, " ({0})", actual.GetType().FullName);
@@ -83,7 +42,6 @@ namespace Xunit.Sdk
             : base(info, context)
         {
             Actual = info.GetString("Actual");
-            differencePosition = info.GetString("DifferencePosition");
             Expected = info.GetString("Expected");
         }
 
@@ -107,16 +65,15 @@ namespace Xunit.Sdk
             get
             {
                 return String.Format(CultureInfo.CurrentCulture,
-                                     "{0}{4}{1}Expected: {2}{4}Actual:   {3}",
+                                     "{0}{3}Expected: {1}{3}Actual:   {2}",
                                      base.Message,
-                                     differencePosition,
-                                     FormatMultiLine(Expected ?? "(null)"),
-                                     FormatMultiLine(Actual ?? "(null)"),
+                                     Expected ?? "(null)",
+                                     Actual ?? "(null)",
                                      Environment.NewLine);
             }
         }
 
-        private static string ConvertToSimpleTypeName(Type type)
+        static string ConvertToSimpleTypeName(Type type)
         {
             if (!type.IsGenericType)
                 return type.Name;
@@ -166,11 +123,6 @@ namespace Xunit.Sdk
             return ConvertToSimpleTypeName(value.GetType()) + " { " + String.Join(", ", valueStrings.ToArray()) + " }";
         }
 
-        static string FormatMultiLine(string value)
-        {
-            return value.Replace(Environment.NewLine, Environment.NewLine + "          ");
-        }
-
         /// <inheritdoc/>
         [SecurityCritical]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -178,7 +130,6 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("info", info);
 
             info.AddValue("Actual", Actual);
-            info.AddValue("DifferencePosition", differencePosition);
             info.AddValue("Expected", Expected);
 
             base.GetObjectData(info, context);

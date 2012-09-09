@@ -18,7 +18,7 @@ namespace Xunit.Sdk
         /// <param name="actual">The actual object reference</param>
         public SameException(object expected,
                              object actual)
-            : base(expected, actual, "Assert.Same() Failure", true) { }
+            : base(expected, actual, "Assert.Same() Failure") { }
 
         /// <inheritdoc/>
         protected SameException(SerializationInfo info, StreamingContext context)

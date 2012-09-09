@@ -22,8 +22,7 @@ namespace Xunit.Sdk
         public DoesNotThrowException(Exception actual)
             : base("(No exception)",
                    actual.GetType().FullName + (actual.Message == null ? "" : ": " + actual.Message),
-                   "Assert.DoesNotThrow() failure",
-                   true)
+                   "Assert.DoesNotThrow() failure")
         {
             stackTrace = actual.StackTrace;
         }

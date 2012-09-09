@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Xunit;
+using Xunit.Extensions;
 using Xunit.Sdk;
 
 public class EqualTests
@@ -58,38 +58,12 @@ public class EqualTests
         }
 
         [Fact]
-        public void EnumerableInequivalence()
-        {
-            int[] expected = new[] { 1, 2, 3, 4, 5 };
-            List<int> actual = new List<int>(new[] { 1, 2, 3, 4, 6 });
-
-            EqualException ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
-
-            Assert.Contains("First difference is at position 4\r\n", ex.Message);
-        }
-
-        [Fact]
         public void EnumerableEquivalenceWithSuccessfulComparer()
         {
             int[] expected = new[] { 1, 2, 3, 4, 5 };
             List<int> actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
 
             Assert.Equal(expected, actual, new IntComparer(true));
-        }
-
-        [Fact]
-        public void EnumerableEquivalenceWithFailedComparer()
-        {
-            int[] expected = new[] { 1, 2, 3, 4, 5 };
-            List<int> actual = new List<int>(new int[] { 1, 2, 3, 4, 5 });
-
-            EqualException ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual, new IntComparer(false)));
-
-            // TODO: When we fix up the assert exception messages, we should allow the enumerator who
-            // did the comparisons to tell us exactly where the error was, rather than determining the
-            // inequivalence after the fact.
-
-            // Assert.Contains("First difference is at position 0\r\n", ex.Message);
         }
 
         class IntComparer : IEqualityComparer<int>
@@ -506,50 +480,50 @@ public class EqualTests
 
     public class StringTests
     {
-        [Fact]
-        public void EqualsFail()
+        [Theory]
+        // Null values
+        [InlineData(null, null, false, false, false)]
+        // Identical values
+        [InlineData("foo", "foo", false, false, false)]
+        // Case differences
+        [InlineData("foo", "FoO", true, false, false)]
+        // Line ending differences
+        [InlineData("foo \r\n bar", "foo \r bar", false, true, false)]
+        [InlineData("foo \r\n bar", "foo \n bar", false, true, false)]
+        [InlineData("foo \n bar", "foo \r bar", false, true, false)]
+        // Whitespace differences
+        [InlineData(" ", "\t", false, false, true)]
+        [InlineData(" \t", "\t ", false, false, true)]
+        [InlineData("    ", "\t", false, false, true)]
+        public void SuccessCases(string value1, string value2, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences)
         {
-            Assert.Throws<EqualException>(() => Assert.Equal("expected", "actual"));
+            // Run them in both directions, as the values should be interchangeable when they're equal
+            Assert.Equal(value1, value2, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
+            Assert.Equal(value2, value1, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences);
         }
 
-        [Fact]
-        public void EqualsString()
+        [Theory]
+        // Null values
+        [InlineData(null, "", false, false, false, -1, -1)]
+        [InlineData("", null, false, false, false, -1, -1)]
+        // Non-identical values
+        [InlineData("foo", "foo!", false, false, false, 3, 3)]
+        [InlineData("foo", "foo\0", false, false, false, 3, 3)]
+        // Case differences
+        [InlineData("foo bar", "foo   Bar", false, true, true, 4, 6)]
+        // Line ending differences
+        [InlineData("foo \nbar", "FoO  \rbar", true, false, true, 4, 5)]
+        // Whitespace differences
+        [InlineData("foo\n bar", "FoO\r\n  bar", true, true, false, 5, 6)]
+        public void FailureCases(string expected, string actual, bool ignoreCase, bool ignoreLineEndingDifferences, bool ignoreWhiteSpaceDifferences, int expectedIndex, int actualIndex)
         {
-            string testString = "Test String";
-            string expected = testString;
-            string actual = testString;
+            Exception ex = Record.Exception(
+                () => Assert.Equal(expected, actual, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences)
+            );
 
-            Assert.True(actual == expected);
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public void EqualStringWithTrailingNull()
-        {
-            Exception ex = Record.Exception(() => Assert.Equal("foo", "foo\0"));
-
-            Assert.IsType<EqualException>(ex);
-        }
-
-        [Fact]
-        public void EqualsStringIgnoreCase()
-        {
-            string expected = "TestString";
-            string actual = "testString";
-
-            Assert.False(actual == expected);
-            Assert.NotEqual(expected, actual);
-            Assert.Equal(expected, actual, StringComparer.CurrentCultureIgnoreCase);
-        }
-
-        [Fact]
-        public void String()
-        {
-            string s1 = "test";
-            string s2 = new StringBuilder(s1).ToString();
-
-            Assert.True(s1.Equals(s2));
-            Assert.Equal(s2, s1);
+            EqualException eqEx = Assert.IsType<EqualException>(ex);
+            Assert.Equal(expectedIndex, eqEx.ExpectedIndex);
+            Assert.Equal(actualIndex, eqEx.ActualIndex);
         }
     }
 

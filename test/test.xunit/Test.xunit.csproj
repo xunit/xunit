@@ -84,6 +84,7 @@
     <Compile Include="AcceptanceTests\FixtureDataAcceptanceTests.cs" />
     <Compile Include="AcceptanceTests\SkipAcceptanceTests.cs" />
     <Compile Include="Sdk\Exceptions\DoesNotThrowExceptionTests.cs" />
+    <Compile Include="Sdk\Exceptions\EqualExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\ExceptionRequirementTests.cs" />
     <Compile Include="FactAttributeTests.cs" />
     <Compile Include="AcceptanceTests\TestTimeoutTests.cs" />

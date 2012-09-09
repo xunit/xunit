@@ -228,8 +228,7 @@ namespace Xunit
             if (!GetEqualityComparer<double>().Equals(expectedRounded, actualRounded))
                 throw new EqualException(
                     String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual),
-                    skipPositionCheck: true
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
                 );
         }
 
@@ -249,8 +248,7 @@ namespace Xunit
             if (!GetEqualityComparer<decimal>().Equals(expectedRounded, actualRounded))
                 throw new EqualException(
                     String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual),
-                    skipPositionCheck: true
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
                 );
         }
 
@@ -277,6 +275,88 @@ namespace Xunit
         public static void Equal<T>(IEnumerable<T> expected, IEnumerable<T> actual, IEqualityComparer<T> comparer)
         {
             Equal<IEnumerable<T>>(expected, actual, GetEqualityComparer<IEnumerable<T>>(true, new AssertEqualityComparerAdapter<T>(comparer)));
+        }
+
+        /// <summary>
+        /// Verifies that two strings are equal.
+        /// </summary>
+        /// <param name="expected">The expected string value.</param>
+        /// <param name="actual">The actual string value.</param>
+        /// <exception cref="EqualException">Thrown when the strings are not equivalent.</exception>
+        public static void Equal(string expected, string actual)
+        {
+            Equal(expected, actual, ignoreCase: false, ignoreLineEndingDifferences: false, ignoreWhiteSpaceDifferences: false);
+        }
+
+        /// <summary>
+        /// Verifies that two strings are equivalent.
+        /// </summary>
+        /// <param name="expected">The expected string value.</param>
+        /// <param name="actual">The actual string value.</param>
+        /// <param name="ignoreCase">If set to <c>true</c>, ignores cases differences. The invariant culture is used.</param>
+        /// <param name="ignoreLineEndingDifferences">If set to <c>true</c>, treats \r\n, \r, and \n as equivalent.</param>
+        /// <param name="ignoreWhiteSpaceDifferences">If set to <c>true</c>, treats spaces and tabs (in any non-zero quantity) as equivalent.</param>
+        /// <exception cref="EqualException">Thrown when the strings are not equivalent.</exception>
+        public static void Equal(string expected, string actual, bool ignoreCase = false, bool ignoreLineEndingDifferences = false, bool ignoreWhiteSpaceDifferences = false)
+        {
+            // Start out assuming the one of the values is null
+            int expectedIndex = -1;
+            int actualIndex = -1;
+            int expectedLength = 0;
+            int actualLength = 0;
+
+            if (expected == null)
+            {
+                if (actual == null)
+                    return;
+            }
+            else if (actual != null)
+            {
+                // Walk the string, keeping separate indices since we can skip variable amounts of
+                // data based on ignoreLineEndingDifferences and ignoreWhiteSpaceDifferences.
+                expectedIndex = 0;
+                actualIndex = 0;
+                expectedLength = expected.Length;
+                actualLength = actual.Length;
+
+                while (expectedIndex < expectedLength && actualIndex < actualLength)
+                {
+                    char expectedChar = expected[expectedIndex];
+                    char actualChar = actual[actualIndex];
+
+                    if (ignoreLineEndingDifferences && IsLineEnding(expectedChar) && IsLineEnding(actualChar))
+                    {
+                        expectedIndex = SkipLineEnding(expected, expectedIndex);
+                        actualIndex = SkipLineEnding(actual, actualIndex);
+                    }
+                    else if (ignoreWhiteSpaceDifferences && IsWhiteSpace(expectedChar) && IsWhiteSpace(actualChar))
+                    {
+                        expectedIndex = SkipWhitespace(expected, expectedIndex);
+                        actualIndex = SkipWhitespace(actual, actualIndex);
+                    }
+                    else
+                    {
+                        if (ignoreCase)
+                        {
+                            expectedChar = Char.ToUpperInvariant(expectedChar);
+                            actualChar = Char.ToUpperInvariant(actualChar);
+                        }
+
+                        if (expectedChar != actualChar)
+                        {
+                            break;
+                        }
+
+                        expectedIndex++;
+                        actualIndex++;
+                    }
+                }
+            }
+
+            if (expectedIndex < expectedLength || actualIndex < actualLength)
+            {
+                throw new EqualException(expected, actual, expectedIndex, actualIndex);
+            }
         }
 
         /// <summary>Do not call this method.</summary>
@@ -828,6 +908,49 @@ namespace Xunit
         {
             if (!condition)
                 throw new TrueException(userMessage);
+        }
+
+        static bool IsLineEnding(char c)
+        {
+            return c == '\r' || c == '\n';
+        }
+
+        static bool IsWhiteSpace(char c)
+        {
+            return c == ' ' || c == '\t';
+        }
+
+        static int SkipLineEnding(string value, int index)
+        {
+            if (value[index] == '\r')
+            {
+                ++index;
+            }
+            if (index < value.Length && value[index] == '\n')
+            {
+                ++index;
+            }
+
+            return index;
+        }
+
+        static int SkipWhitespace(string value, int index)
+        {
+            while (index < value.Length)
+            {
+                switch (value[index])
+                {
+                    case ' ':
+                    case '\t':
+                        index++;
+                        break;
+
+                    default:
+                        return index;
+                }
+            }
+
+            return index;
         }
 
         class AssertEqualityComparerAdapter<T> : IEqualityComparer
