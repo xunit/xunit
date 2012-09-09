@@ -1,4 +1,4 @@
-﻿namespace Xunit.Sdk2
+﻿namespace Xunit.Sdk
 {
     public interface ISkippedTestCaseResult : ITestCaseResult
     {

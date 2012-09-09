@@ -50,12 +50,6 @@
       <Link>Sdk\Utilities\MultiValueDictionary.cs</Link>
     </Compile>
     <Compile Include="Assert.cs" />
-    <Compile Include="Sdk2\Reflector.cs" />
-    <Compile Include="Sdk2\Frameworks\IFailedTestCaseResult.cs" />
-    <Compile Include="Sdk2\Frameworks\IPassedTestCaseResult.cs" />
-    <Compile Include="Sdk2\Frameworks\ISkippedTestCaseResult.cs" />
-    <Compile Include="Sdk2\Frameworks\ITestCaseResult.cs" />
-    <Compile Include="Sdk2\Frameworks\ITestFramework.cs" />
     <Compile Include="Sdk\Commands\TestCommands\ExceptionAndOutputCaptureCommand.cs" />
     <Compile Include="Sdk\Commands\TestCommands\FactCommand.cs" />
     <Compile Include="Sdk\Exceptions\AssertActualExpectedException.cs" />
@@ -161,12 +155,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">
-      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
-      <Name>xunit.abstractions</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

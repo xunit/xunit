@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace Xunit.Abstractions
 {
     /// <summary>
@@ -7,6 +10,19 @@ namespace Xunit.Abstractions
     /// </summary>
     public interface IAttributeInfo
     {
+        /// <summary>
+        /// Gets the arguments passed to the constructor.
+        /// </summary>
+        /// <returns>The constructor arguments, in order</returns>
+        IEnumerable<object> GetConstructorArguments();
+
+        /// <summary>
+        /// Gets all the custom attributes for the given assembly.
+        /// </summary>
+        /// <param name="attributeType">The type of the attribute</param>
+        /// <returns>The matching attributes that decorate the assembly</returns>
+        IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType);
+
         /// <summary>
         /// Gets an initialized property value of the attribute.
         /// </summary>

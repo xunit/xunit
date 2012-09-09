@@ -11,6 +11,11 @@ namespace Xunit.Abstractions
     public interface ITypeInfo
     {
         /// <summary>
+        /// Gets the assembly this type is located in.
+        /// </summary>
+        IAssemblyInfo Assembly { get; }
+
+        /// <summary>
         /// Gets the base type of the given type.
         /// </summary>
         ITypeInfo BaseType { get; }

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
 
-namespace Xunit.Sdk2
+namespace Xunit.Sdk
 {
     public interface ITestFramework
     {
-        IObservable<ITestCase> Find(IAssemblyInfo assembly, CancellationToken token);
-        IObservable<ITestCase> Find(IAssemblyInfo assembly, ITypeInfo type, CancellationToken token);
-        IObservable<ITestCase> Find(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, CancellationToken token);
-        IObservable<ITestCaseResult> Run(IEnumerable<ITestCase> testMethods, CancellationToken token);
+        IEnumerable<ITestCase> Find(IAssemblyInfo assembly);
+        IEnumerable<ITestCase> Find(ITypeInfo type);
+
+        IObservable<ITestCaseResult> Run(IEnumerable<ITestCase> testMethods, CancellationToken token = default(CancellationToken));
 
         // Not just an observable of results, we also need to think about running
         // events, like "started", "finished", "here's some output", etc.
