@@ -99,7 +99,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AcceptanceTestInNewAppDomain.cs" />
+    <Compile Include="MockAssembly.cs" />
     <Compile Include="MockAssemblyInfo.cs" />
+    <Compile Include="MockFactAttribute.cs" />
+    <Compile Include="MockMethodInfo.cs" />
+    <Compile Include="MockParameterInfo.cs" />
+    <Compile Include="MockTypeInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

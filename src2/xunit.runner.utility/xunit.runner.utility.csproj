@@ -4,19 +4,21 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{53012549-D81B-4E40-B626-67C19265AA6F}</ProjectGuid>
+    <ProjectGuid>{EFC3F529-3686-416B-9C67-36EC914C776A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xunit.Abstractions</RootNamespace>
-    <AssemblyName>xunit.abstractions</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <RootNamespace>Xunit</RootNamespace>
+    <AssemblyName>xunit.runner.utility</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Signing.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\xunit.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,46 +26,38 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DocumentationFile>
-    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>bin\Release\xunit.abstractions.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="IParameterInfo.cs" />
-    <Compile Include="IReflectionParameterInfo.cs" />
-    <Compile Include="ITestObserver.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="IAssemblyInfo.cs" />
-    <Compile Include="IAttributeInfo.cs" />
-    <Compile Include="IClassTestCase.cs" />
-    <Compile Include="IMethodInfo.cs" />
-    <Compile Include="IMethodTestCase.cs" />
-    <Compile Include="IReflectionAssemblyInfo.cs" />
-    <Compile Include="IReflectionAttributeInfo.cs" />
-    <Compile Include="IReflectionMethodInfo.cs" />
-    <Compile Include="IReflectionTypeInfo.cs" />
-    <Compile Include="ITestCase.cs" />
-    <Compile Include="ITestCollection.cs" />
-    <Compile Include="ITypeInfo.cs" />
+    <Compile Include="Executor2Wrapper.cs" />
+    <Compile Include="IExecutor2Wrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml" />
+    <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">
+      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
+      <Name>xunit.abstractions</Name>
+    </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -42,5 +42,11 @@ namespace Xunit.Abstractions
         /// <param name="attributeType">The type of the attribute</param>
         /// <returns>The matching attributes that decorate the method</returns>
         IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType);
+
+        /// <summary>
+        /// Gets information about the parameters to the method.
+        /// </summary>
+        /// <returns>The method's parameters.</returns>
+        IEnumerable<IParameterInfo> GetParameters();
     }
 }

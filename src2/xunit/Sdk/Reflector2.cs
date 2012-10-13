@@ -42,6 +42,16 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Converts a <see cref="ParameterInfo"/> into an <see cref="IParameterInfo"/> using reflection.
+        /// </summary>
+        /// <param name="parameter">THe parameter to wrap</param>
+        /// <returns>The wrapper</returns>
+        public static IReflectionParameterInfo Wrap(ParameterInfo parameter)
+        {
+            return new ReflectionParameterInfo(parameter);
+        }
+
+        /// <summary>
         /// Converts a <see cref="Type"/> into an <see cref="ITypeInfo"/> using reflection.
         /// </summary>
         /// <param name="type">The type to wrap</param>
@@ -195,6 +205,28 @@ namespace Xunit.Sdk
             {
                 return MethodInfo.ToString();
             }
+
+
+            public IEnumerable<IParameterInfo> GetParameters()
+            {
+                return MethodInfo.GetParameters()
+                                 .Select(Wrap);
+            }
+        }
+
+        class ReflectionParameterInfo : IReflectionParameterInfo
+        {
+            public ReflectionParameterInfo(ParameterInfo parameterInfo)
+            {
+                ParameterInfo = parameterInfo;
+            }
+
+            public string Name
+            {
+                get { return ParameterInfo.Name; }
+            }
+
+            public ParameterInfo ParameterInfo { get; private set; }
         }
 
         class ReflectionTypeInfo : IReflectionTypeInfo

@@ -15,6 +15,12 @@ namespace Xunit.Abstractions
         string DisplayName { get; }
 
         /// <summary>
+        /// Gets the display text for the reason a test is being skipped; if the test
+        /// is not skipped, returns null.
+        /// </summary>
+        string SkipReason { get; }
+
+        /// <summary>
         /// Gets the test collection this test case belongs to.
         /// </summary>
         ITestCollection TestCollection { get; }

@@ -2,27 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    public class XunitTestCase : IMethodTestCase
+    public class XunitTestCase : MarshalByRefObject, IMethodTestCase
     {
-        public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IEnumerable<object> arguments = null)
+        public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
         {
             Arguments = arguments ?? Enumerable.Empty<object>();
             Assembly = assembly;
             Class = type;
             Method = method;
-            DisplayName = type.Name + "." + method.Name;
+            DisplayName = factAttribute.GetPropertyValue<string>("DisplayName") ?? type.Name + "." + method.Name;
+            SkipReason = factAttribute.GetPropertyValue<string>("Skip");
 
             if (arguments != null)
             {
                 var Parameters = arguments.ToArray();
 
-                IReflectionMethodInfo testMethod = (IReflectionMethodInfo)method;
-                ParameterInfo[] parameterInfos = testMethod.MethodInfo.GetParameters();
+                IParameterInfo[] parameterInfos = method.GetParameters().ToArray();
                 string[] displayValues = new string[Math.Max(Parameters.Length, parameterInfos.Length)];
                 int idx;
 
@@ -30,7 +29,7 @@ namespace Xunit.Sdk
                     displayValues[idx] = ParameterToDisplayValue(GetParameterName(parameterInfos, idx), Parameters[idx]);
 
                 for (; idx < parameterInfos.Length; idx++)  // Fill-in any missing parameters with "???"
-                    displayValues[idx] = parameterInfos[idx].Name + ": ???";
+                    displayValues[idx] = GetParameterName(parameterInfos, idx) + ": ???";
 
                 DisplayName = String.Format(CultureInfo.CurrentCulture, "{0}({1})", DisplayName, string.Join(", ", displayValues));
             }
@@ -45,6 +44,8 @@ namespace Xunit.Sdk
         public string DisplayName { get; private set; }
 
         public IMethodInfo Method { get; private set; }
+
+        public string SkipReason { get; private set; }
 
         public ITestCollection TestCollection { get; private set; }
 
@@ -67,7 +68,7 @@ namespace Xunit.Sdk
             return baseTypeName.Substring(0, backTickIdx) + "<" + String.Join(", ", simpleNames) + ">";
         }
 
-        static string GetParameterName(ParameterInfo[] parameters, int index)
+        static string GetParameterName(IParameterInfo[] parameters, int index)
         {
             if (index >= parameters.Length)
                 return "???";

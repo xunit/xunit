@@ -7,7 +7,7 @@ namespace Xunit.Sdk
     {
         public IEnumerable<XunitTestCase> Discover(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute)
         {
-            yield return new XunitTestCase(assembly, testClass, testMethod);
+            yield return new XunitTestCase(assembly, testClass, testMethod, factAttribute);
         }
     }
 }
