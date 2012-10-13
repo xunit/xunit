@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -132,7 +133,7 @@ public class Executor2WrapperTests
         }
 
         [Fact]
-        public void AcceptanceTest()
+        public void FactAcceptanceTest()
         {
             string code = @"
                 using System;
@@ -143,8 +144,8 @@ public class Executor2WrapperTests
                     public class Class1
                     {
                         [Fact2]
-                        //[Trait(""Name!"", ""Value!"")]
-                        public void Passing() { }
+                        [Trait(""Name!"", ""Value!"")]
+                        public void Trait() { }
 
                         [Fact2(Skip=""Skipping"")]
                         public void Skipped() { }
@@ -161,62 +162,64 @@ public class Executor2WrapperTests
                         public class Class2
                         {
                             [Fact2]
-                            public void Passing() { }
+                            public void TestMethod() { }
                         }
                     }
                 }
             ";
 
-            using (MockAssembly assembly = new MockAssembly(code))
+            using (var assembly = new MockAssembly(code))
             {
                 string filename = assembly.FileName;
 
-                using (var wrapper = new Executor2Wrapper(assembly.FileName, null, false))
+                using (var wrapper = new Executor2Wrapper(filename, null, false))
                 {
                     ITestCase[] testCases = wrapper.EnumerateTests().ToArray();
 
                     Assert.Equal(4, testCases.Length);
 
-                    Assert.Single(testCases, tc => tc.DisplayName == "Namespace1.Class1.Passing");
-                    // TODO: Test for traits
+                    ITestCase traitTest = Assert.Single(testCases, tc => tc.DisplayName == "Namespace1.Class1.Trait");
+                    KeyValuePair<string, string> kvp = Assert.Single(traitTest.Traits);
+                    Assert.Equal("Name!", kvp.Key);
+                    Assert.Equal("Value!", kvp.Value);
 
                     ITestCase skipped = Assert.Single(testCases, tc => tc.DisplayName == "Namespace1.Class1.Skipped");
-                    //Assert.Equal("Skipping", skipped.SkipReason);
+                    Assert.Equal("Skipping", skipped.SkipReason);
 
                     Assert.Single(testCases, tc => tc.DisplayName == "Custom Test Name");
-                    Assert.Single(testCases, tc => tc.DisplayName == "Namespace2.OuterClass+Class2.Passing");
+                    Assert.Single(testCases, tc => tc.DisplayName == "Namespace2.OuterClass+Class2.TestMethod");
                 }
             }
+        }
 
-            //Assert.Equal("Namespace1.Class1", class1Node.Attributes["name"].Value);
+        [Fact]
+        public void TheoryWithInlineData()
+        {
+            string code = @"
+                using System;
+                using Xunit;
 
-            //XmlNodeList class1MethodNodes = class1Node.SelectNodes("method");
-            //Assert.Equal(class1MethodNodes.Count, 4);
-            //XmlNode passingNode = class1Node.SelectSingleNode(@"//method[@method=""Passing""]");
-            //Assert.NotNull(passingNode);
-            //Assert.Equal("Namespace1.Class1.Passing", passingNode.Attributes["name"].Value);
-            //XmlNodeList traitsNodes = passingNode.SelectNodes("traits/trait");
-            //XmlNode traitNode = (XmlNode)Assert.Single(traitsNodes);
-            //Assert.Equal("Name!", traitNode.Attributes["name"].Value);
-            //Assert.Equal("Value!", traitNode.Attributes["value"].Value);
+                public class TestClass
+                {
+                    [Theory]
+                    [InlineData]
+                    [InlineData(42)]
+                    [InlineData(42, 21.12)]
+                    public void TestMethod(int x) { }
+                }
+            ";
 
-            //Assert.NotNull(class1Node.SelectSingleNode(@"//method[@method=""Failing""]"));
+            using (var assembly = new MockAssembly(code))
+            using (var wrapper = new Executor2Wrapper(assembly.FileName, null, false))
+            {
+                string[] testCaseNames = wrapper.EnumerateTests().Select(tc => tc.DisplayName).ToArray();
 
-            //XmlNode skipNode = class1Node.SelectSingleNode(@"//method[@method=""Skipped""]");
-            //Assert.NotNull(skipNode);
-            //Assert.Equal("Skipping", skipNode.Attributes["skip"].Value);
+                Assert.Equal(3, testCaseNames.Length);
 
-            //XmlNode customNameNode = class1Node.SelectSingleNode(@"//method[@method=""CustomName""]");
-            //Assert.NotNull(customNameNode);
-            //Assert.Equal("Custom Test Name", customNameNode.Attributes["name"].Value);
-
-            //XmlNode class2Node = classNodes[1];
-            //Assert.Equal("Namespace2.OuterClass+Class2", class2Node.Attributes["name"].Value);
-
-            //XmlNodeList class2MethodNodes = class2Node.SelectNodes("method");
-            //Assert.Equal(class2MethodNodes.Count, 1);
-            //Assert.Equal("Namespace2.OuterClass+Class2", class2MethodNodes[0].Attributes["type"].Value);
-            //Assert.Equal("Passing", class2MethodNodes[0].Attributes["method"].Value);
+                Assert.Contains("TestClass.TestMethod(x: ???)", testCaseNames);
+                Assert.Contains("TestClass.TestMethod(x: 42)", testCaseNames);
+                Assert.Contains("TestClass.TestMethod(x: 42, ???: 21.12)", testCaseNames);
+            }
         }
     }
 }

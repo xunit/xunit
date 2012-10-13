@@ -105,6 +105,7 @@
     <Compile Include="MockFactAttribute.cs" />
     <Compile Include="MockMethodInfo.cs" />
     <Compile Include="MockParameterInfo.cs" />
+    <Compile Include="MockTraitAttribute.cs" />
     <Compile Include="MockTypeInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

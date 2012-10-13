@@ -33,6 +33,11 @@ namespace Xunit.Sdk
 
                 DisplayName = String.Format(CultureInfo.CurrentCulture, "{0}({1})", DisplayName, string.Join(", ", displayValues));
             }
+
+            Traits = new Dictionary<string, string>();
+
+            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute)))
+                Traits.Add(traitAttribute.GetPropertyValue<string>("Name"), traitAttribute.GetPropertyValue<string>("Value"));
         }
 
         public IEnumerable<object> Arguments { get; private set; }
