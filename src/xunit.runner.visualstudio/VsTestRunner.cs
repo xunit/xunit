@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Xml;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -20,9 +22,10 @@ namespace Xunit.Runner.VisualStudio
     {
         public const string ExecutorUri = "executor://xunit.codeplex.com/VsTestRunner";
 
-        private static Uri uri = new Uri(ExecutorUri);
+        static Action<TestCase, string, string> addTraitThunk = GetAddTraitThunk();
+        static Uri uri = new Uri(ExecutorUri);
 
-        private bool cancelled;
+        bool cancelled;
 
         public void Cancel()
         {
@@ -56,6 +59,35 @@ namespace Xunit.Runner.VisualStudio
             return displayName == fullyQualifiedMethodName ? shortMethodName : displayName;
         }
 
+        static Action<TestCase, string, string> GetAddTraitThunk()
+        {
+            try
+            {
+                Type testCaseType = typeof(TestCase);
+                Type stringType = typeof(string);
+                PropertyInfo property = testCaseType.GetProperty("Traits");
+
+                if (property == null)
+                    return null;
+
+                MethodInfo method = property.PropertyType.GetMethod("Add", new[] { typeof(string), typeof(string) });
+                if (method == null)
+                    return null;
+
+                var thisParam = Expression.Parameter(testCaseType, "this");
+                var nameParam = Expression.Parameter(stringType, "name");
+                var valueParam = Expression.Parameter(stringType, "value");
+                var instance = Expression.Property(thisParam, property);
+                var body = Expression.Call(instance, method, new[] { nameParam, valueParam });
+
+                return Expression.Lambda<Action<TestCase, string, string>>(body, thisParam, nameParam, valueParam).Compile();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         static TestCase GetTestCase(DiaSessionWrapper diaSession, string source, XmlNode methodNode)
         {
             string typeName = methodNode.Attributes["type"].Value;
@@ -67,6 +99,14 @@ namespace Xunit.Runner.VisualStudio
             {
                 DisplayName = GetDisplayName(displayName, methodName, fullyQualifiedName),
             };
+
+            if (addTraitThunk != null)
+                foreach (XmlNode traitNode in methodNode.SelectNodes("traits/trait"))
+                {
+                    string value = traitNode.Attributes["name"].Value;
+                    string value2 = traitNode.Attributes["value"].Value;
+                    addTraitThunk(testCase, value, value2);
+                }
 
             DiaNavigationData navigationData = diaSession.GetNavigationData(typeName, methodName);
             if (navigationData != null)
