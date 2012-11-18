@@ -147,31 +147,6 @@ namespace Xunit
             return results;
         }
 
-        class TestObserver<T> : MarshalByRefObject, ITestObserver<T>
-        {
-            public Action Completed { get; set; }
-            public Action<Exception> Error { get; set; }
-            public Action<T> Next { get; set; }
-
-            public void OnCompleted()
-            {
-                if (Completed != null)
-                    Completed();
-            }
-
-            public void OnError(Exception error)
-            {
-                if (Error != null)
-                    Error(error);
-            }
-
-            public void OnNext(T value)
-            {
-                if (Next != null)
-                    Next(value);
-            }
-        }
-
         ///// <inheritdoc/>
         //public int GetAssemblyTestCount()
         //{
@@ -251,17 +226,10 @@ namespace Xunit
         ///// THIS CLASS IS FOR INTERNAL USE ONLY.
         ///// </summary>
         //[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
-        //public abstract class IntCallbackHandler : MarshalByRefObject
+        //public abstract class IntCallbackHandler : LongLivedMarshalByRefObject
         //{
         //    /// <summary/>
         //    public int Result { get; protected set; }
-
-        //    /// <summary/>
-        //    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
-        //    public override object InitializeLifetimeService()
-        //    {
-        //        return null;
-        //    }
         //}
 
         ///// <summary>
@@ -332,7 +300,7 @@ namespace Xunit
         ///// THIS CLASS IS FOR INTERNAL USE ONLY.
         ///// </summary>
         //[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
-        //public abstract class XmlNodeCallbackHandler : MarshalByRefObject
+        //public abstract class XmlNodeCallbackHandler : LongLivedMarshalByRefObject
         //{
         //    /// <summary/>
         //    protected Predicate<XmlNode> Callback { get; private set; }
@@ -354,13 +322,6 @@ namespace Xunit
         //        LastNodeName = lastNodeName;
 
         //        LastNodeArrived = new ManualResetEvent(false);
-        //    }
-
-        //    /// <summary/>
-        //    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
-        //    public override object InitializeLifetimeService()
-        //    {
-        //        return null;
         //    }
         //}
 
@@ -459,7 +420,7 @@ namespace Xunit
         ///// THIS CLASS IS FOR INTERNAL USE ONLY.
         ///// </summary>
         //[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This class is public by necessity, but actually marked as 'for internal use only'")]
-        //public class OutgoingMessage : MarshalByRefObject, IMessage
+        //public class OutgoingMessage : LongLivedMarshalByRefObject, IMessage
         //{
         //    Hashtable values = new Hashtable();
 
@@ -467,13 +428,6 @@ namespace Xunit
         //    public OutgoingMessage(object value)
         //    {
         //        values["data"] = value;
-        //    }
-
-        //    /// <summary/>
-        //    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
-        //    public override object InitializeLifetimeService()
-        //    {
-        //        return null;
         //    }
 
         //    /// <summary/>

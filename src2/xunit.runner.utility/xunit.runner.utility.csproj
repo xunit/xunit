@@ -49,6 +49,7 @@
     <Compile Include="Executor2Wrapper.cs" />
     <Compile Include="IExecutor2Wrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestObserver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">

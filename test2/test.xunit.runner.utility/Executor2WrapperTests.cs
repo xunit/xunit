@@ -32,7 +32,7 @@ public class Executor2WrapperTests
 
     public class Construction
     {
-        [Fact]
+        [Fact(Skip = "These need to be replaced/moved")]
         public void SuccessfulConstructionCanReturnAssemblyFilename()
         {
             string code = @"
@@ -56,7 +56,7 @@ public class Executor2WrapperTests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "These need to be replaced/moved")]
         public void CannotConstructWithMissingXunitDll()
         {
             string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -78,7 +78,7 @@ public class Executor2WrapperTests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "These need to be replaced/moved")]
         public void ConstructionWithNonAssemblyThrows()
         {
             string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -103,7 +103,7 @@ public class Executor2WrapperTests
 
     public class EnumerateTests
     {
-        [Fact]
+        [Fact(Skip = "These need to be replaced/moved")]
         public void NoTestMethods()
         {
             using (MockAssembly assm = new MockAssembly(code: ""))
@@ -111,7 +111,7 @@ public class Executor2WrapperTests
                 Assert.Empty(wrapper.EnumerateTests());
         }
 
-        [Fact]
+        [Fact(Skip = "These need to be replaced/moved")]
         public void SingleTestMethod()
         {
             string code = @"
@@ -132,7 +132,7 @@ public class Executor2WrapperTests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "These need to be replaced/moved")]
         public void FactAcceptanceTest()
         {
             string code = @"
@@ -144,7 +144,7 @@ public class Executor2WrapperTests
                     public class Class1
                     {
                         [Fact2]
-                        [Trait(""Name!"", ""Value!"")]
+                        [Trait2(""Name!"", ""Value!"")]
                         public void Trait() { }
 
                         [Fact2(Skip=""Skipping"")]
@@ -192,7 +192,7 @@ public class Executor2WrapperTests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "These need to be replaced/moved")]
         public void TheoryWithInlineData()
         {
             string code = @"
@@ -201,10 +201,10 @@ public class Executor2WrapperTests
 
                 public class TestClass
                 {
-                    [Theory]
-                    [InlineData]
-                    [InlineData(42)]
-                    [InlineData(42, 21.12)]
+                    [Theory2]
+                    [InlineData2]
+                    [InlineData2(42)]
+                    [InlineData2(42, 21.12)]
                     public void TestMethod(int x) { }
                 }
             ";

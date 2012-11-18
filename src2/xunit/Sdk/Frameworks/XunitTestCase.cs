@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    public class XunitTestCase : MarshalByRefObject, IMethodTestCase
+    public class XunitTestCase : LongLivedMarshalByRefObject, IMethodTestCase
     {
         public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
         {
@@ -36,7 +36,7 @@ namespace Xunit.Sdk
 
             Traits = new Dictionary<string, string>();
 
-            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute)))
+            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(Trait2Attribute)))
                 Traits.Add(traitAttribute.GetPropertyValue<string>("Name"), traitAttribute.GetPropertyValue<string>("Value"));
         }
 

@@ -2,6 +2,7 @@
 
 namespace Xunit.Abstractions
 {
+    // TODO: Delete me (in favor of IMessageSink)
     public interface ITestObserver<in T>
     {
         void OnCompleted();

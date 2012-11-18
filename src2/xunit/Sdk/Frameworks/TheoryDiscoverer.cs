@@ -8,7 +8,7 @@ namespace Xunit.Sdk
     {
         public IEnumerable<XunitTestCase> Discover(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute)
         {
-            foreach (IAttributeInfo inlineDataAttribute in testMethod.GetCustomAttributes(typeof(InlineDataAttribute)))
+            foreach (IAttributeInfo inlineDataAttribute in testMethod.GetCustomAttributes(typeof(InlineData2Attribute)))
                 yield return new XunitTestCase(assembly, testClass, testMethod, factAttribute, (IEnumerable<object>)(inlineDataAttribute.GetConstructorArguments().Single()));
         }
     }

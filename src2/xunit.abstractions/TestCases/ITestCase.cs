@@ -2,6 +2,11 @@ using System.Collections.Generic;
 
 namespace Xunit.Abstractions
 {
+    /// <summary>
+    /// Represents a single test case in the system. This test case usually represents a single test, but in
+    /// the case of dynamically generated data for data driven tests, the test case may actually return
+    /// multiple results when run.
+    /// </summary>
     public interface ITestCase
     {
         /// <summary>

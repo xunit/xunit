@@ -8,14 +8,14 @@ namespace Xunit
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
     [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
-    public class TraitAttribute : Attribute
+    public class Trait2Attribute : Attribute
     {
         /// <summary>
         /// Creates a new instance of the <see cref="TraitAttribute"/> class.
         /// </summary>
         /// <param name="name">The trait name</param>
         /// <param name="value">The trait value</param>
-        public TraitAttribute(string name, string value)
+        public Trait2Attribute(string name, string value)
         {
             Name = name;
             Value = value;

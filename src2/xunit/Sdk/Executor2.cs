@@ -3,79 +3,90 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
-using System.Security;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+
     /// <summary>
-    /// Internal class used for version-resilient test runners. DO NOT CALL DIRECTLY.
-    /// Version-resilient runners should link against xunit.runner.utility.dll and use
-    /// ExecutorWrapper instead.
+    /// This is an internal class, and is not intended to be called from end-user code.
     /// </summary>
-    public class Executor2 : MarshalByRefObject
+    public class Executor2 : LongLivedMarshalByRefObject, IDisposable
     {
-        readonly Assembly assembly;
-        readonly string assemblyFileName;
+        /// <summary/>
+        public Executor2(string assemblyFileName, IMessageSink messageSink)
+            : this(assemblyFileName, new MessageBus(messageSink), new AssemblyLoader()) { }
 
         /// <summary/>
-        public Executor2(string assemblyFileName)
+        public Executor2(string assemblyFileName, IMessageBus messageBus, IAssemblyLoader loader)
         {
-            this.assemblyFileName = Path.GetFullPath(assemblyFileName);
-            assembly = Assembly.Load(AssemblyName.GetAssemblyName(this.assemblyFileName));
+            MessageBus = messageBus;
+            AssemblyFileName = Path.GetFullPath(assemblyFileName);
+            Assembly = loader.Load(AssemblyFileName);
         }
 
-        /// <summary/>
-        [SecurityCritical]
-        public override Object InitializeLifetimeService()
+        public Assembly Assembly { get; private set; }
+
+        public string AssemblyFileName { get; private set; }
+
+        private IMessageBus MessageBus { get; set; }
+
+        public void Dispose()
         {
-            return null;
+            MessageBus.Dispose();
         }
 
         /// <summary/>
         [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
-        public class EnumerateTests : MarshalByRefObject
+        public class EnumerateTests : LongLivedMarshalByRefObject
         {
             /// <summary/>
-            public EnumerateTests(Executor2 executor, ITestObserver<ITestCase> callback)
+            public EnumerateTests(Executor2 executor)
+                : this(executor, GetFrameworks()) { }
+
+            /// <summary/>
+            public EnumerateTests(Executor2 executor, IEnumerable<ITestFramework> testFrameworks)
             {
                 Guard.ArgumentNotNull("executor", executor);
 
                 try
                 {
-                    foreach (ITestFramework framework in GetFrameworks())
+                    foreach (ITestFramework testFramework in testFrameworks)
                     {
-                        IAssemblyInfo assembly = Reflector2.Wrap(executor.assembly);
+                        IAssemblyInfo assembly = Reflector2.Wrap(executor.Assembly);
 
-                        foreach (ITestCase testCase in framework.Find(assembly))
-                            callback.OnNext(testCase);
+                        foreach (ITestCase testCase in testFramework.Find(assembly))
+                            executor.MessageBus.QueueMessage(new TestCaseDiscoveryMessage { TestCase = testCase });
                     }
-
-                    callback.OnCompleted();
                 }
                 catch (Exception ex)
                 {
-                    callback.OnError(ex);
+                    executor.MessageBus.QueueMessage(new ErrorMessage { Error = ex });
                 }
+
+                executor.MessageBus.QueueMessage(new DiscoveryCompleteMessage());
             }
 
-            private IEnumerable<ITestFramework> GetFrameworks()
+            private static IEnumerable<ITestFramework> GetFrameworks()
             {
                 // TODO: Need to support framework discovery here
                 yield return new XunitTestFramework();
             }
+        }
 
-            /// <summary/>
-            [SecurityCritical]
-            public override Object InitializeLifetimeService()
+        public class RunTests : LongLivedMarshalByRefObject
+        {
+            //IObservable<ITestCaseResult> Run(IEnumerable<ITestCase> testMethods, CancellationToken token = default(CancellationToken));
+            public RunTests(Executor2 executor, IEnumerable<ITestCase> testMethods, CancellationToken token)
             {
-                return null;
+
             }
         }
 
         ///// <summary/>
         //[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
-        //public class RunAssembly : MarshalByRefObject
+        //public class RunAssembly : LongLivedMarshalByRefObject
         //{
         //    /// <summary/>
         //    public RunAssembly(Executor executor, object handler)
@@ -111,18 +122,11 @@ namespace Xunit.Sdk
         //            OnTestResult(results, callback);
         //        });
         //    }
-
-        //    /// <summary/>
-        //    [SecurityCritical]
-        //    public override Object InitializeLifetimeService()
-        //    {
-        //        return null;
-        //    }
         //}
 
         ///// <summary/>
         //[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
-        //public class RunClass : MarshalByRefObject
+        //public class RunClass : LongLivedMarshalByRefObject
         //{
         //    /// <summary/>
         //    [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "Xunit.Sdk.Executor+RunTests", Justification = "All important work is done in the constructor.")]
@@ -130,18 +134,11 @@ namespace Xunit.Sdk
         //    {
         //        new RunTests(executor, type, new List<string>(), handler);
         //    }
-
-        //    /// <summary/>
-        //    [SecurityCritical]
-        //    public override Object InitializeLifetimeService()
-        //    {
-        //        return null;
-        //    }
         //}
 
         ///// <summary/>
         //[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
-        //public class RunTest : MarshalByRefObject
+        //public class RunTest : LongLivedMarshalByRefObject
         //{
         //    /// <summary/>
         //    [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId = "Xunit.Sdk.Executor+RunTests", Justification = "All important work is done in the constructor.")]
@@ -152,18 +149,11 @@ namespace Xunit.Sdk
 
         //        new RunTests(executor, type, new List<string> { method }, handler);
         //    }
-
-        //    /// <summary/>
-        //    [SecurityCritical]
-        //    public override Object InitializeLifetimeService()
-        //    {
-        //        return null;
-        //    }
         //}
 
         ///// <summary/>
         //[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "This type is not intended to be directly consumed.")]
-        //public class RunTests : MarshalByRefObject
+        //public class RunTests : LongLivedMarshalByRefObject
         //{
         //    /// <summary/>
         //    public RunTests(Executor executor, string type, List<string> methods, object handler)
@@ -207,13 +197,6 @@ namespace Xunit.Sdk
         //                                           methodInfos,
         //                                           command => OnTestStart(command, callback),
         //                                           result => OnTestResult(result, callback)));
-        //    }
-
-        //    /// <summary/>
-        //    [SecurityCritical]
-        //    public override Object InitializeLifetimeService()
-        //    {
-        //        return null;
         //    }
         //}
 

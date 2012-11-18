@@ -42,22 +42,27 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="IParameterInfo.cs" />
-    <Compile Include="IReflectionParameterInfo.cs" />
+    <Compile Include="Messages\IErrorMessage.cs" />
+    <Compile Include="Reflection\IParameterInfo.cs" />
+    <Compile Include="Reflection\IReflectionParameterInfo.cs" />
+    <Compile Include="Messages\IDiscoveryCompleteMessage.cs" />
+    <Compile Include="Messages\IMessageSink.cs" />
+    <Compile Include="Messages\ITestCaseDiscoveryMessage.cs" />
+    <Compile Include="Messages\ITestMessage.cs" />
     <Compile Include="ITestObserver.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="IAssemblyInfo.cs" />
-    <Compile Include="IAttributeInfo.cs" />
-    <Compile Include="IClassTestCase.cs" />
-    <Compile Include="IMethodInfo.cs" />
-    <Compile Include="IMethodTestCase.cs" />
-    <Compile Include="IReflectionAssemblyInfo.cs" />
-    <Compile Include="IReflectionAttributeInfo.cs" />
-    <Compile Include="IReflectionMethodInfo.cs" />
-    <Compile Include="IReflectionTypeInfo.cs" />
-    <Compile Include="ITestCase.cs" />
-    <Compile Include="ITestCollection.cs" />
-    <Compile Include="ITypeInfo.cs" />
+    <Compile Include="Reflection\IAssemblyInfo.cs" />
+    <Compile Include="Reflection\IAttributeInfo.cs" />
+    <Compile Include="TestCases\IClassTestCase.cs" />
+    <Compile Include="Reflection\IMethodInfo.cs" />
+    <Compile Include="TestCases\IMethodTestCase.cs" />
+    <Compile Include="Reflection\IReflectionAssemblyInfo.cs" />
+    <Compile Include="Reflection\IReflectionAttributeInfo.cs" />
+    <Compile Include="Reflection\IReflectionMethodInfo.cs" />
+    <Compile Include="Reflection\IReflectionTypeInfo.cs" />
+    <Compile Include="TestCases\ITestCase.cs" />
+    <Compile Include="TestCases\ITestCollection.cs" />
+    <Compile Include="Reflection\ITypeInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

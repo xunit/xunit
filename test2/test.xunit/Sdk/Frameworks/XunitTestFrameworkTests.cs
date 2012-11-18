@@ -159,9 +159,9 @@ public class XunitTestFrameworkTests
 
         class TheoryWithInlineData
         {
-            [Theory]
-            [InlineData("Hello world")]
-            [InlineData(42)]
+            [Theory2]
+            [InlineData2("Hello world")]
+            [InlineData2(42)]
             public void TheoryMethod(object value) { }
         }
 
