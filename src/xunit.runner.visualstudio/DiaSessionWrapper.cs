@@ -1,4 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
+using System.Security;
+using System.Security.Permissions;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace Xunit.Runner.VisualStudio
@@ -8,7 +12,9 @@ namespace Xunit.Runner.VisualStudio
     // that the PDB file is missing or corrupt).
     public class DiaSessionWrapper : IDisposable
     {
+        AppDomain appDomain;
         string assemblyFilename;
+        DiaSessionWrapperHelper helper;
         DiaSession session;
         bool sessionHasErrors;
 
@@ -18,6 +24,45 @@ namespace Xunit.Runner.VisualStudio
 
             if (Environment.GetEnvironmentVariable("XUNIT_SKIP_DIA") != null)
                 sessionHasErrors = true;
+            else
+            {
+                try
+                {
+                    AppDomainSetup setup = new AppDomainSetup
+                    {
+                        ApplicationBase = Path.GetDirectoryName(new Uri(typeof(DiaSessionWrapperHelper).Assembly.CodeBase).LocalPath),
+                        ApplicationName = Guid.NewGuid().ToString(),
+                        LoaderOptimization = LoaderOptimization.MultiDomainHost,
+                        ShadowCopyFiles = "true",
+                    };
+
+                    setup.ShadowCopyDirectories = setup.ApplicationBase;
+                    setup.CachePath = Path.Combine(Path.GetTempPath(), setup.ApplicationName);
+
+                    appDomain = AppDomain.CreateDomain(setup.ApplicationName, null, setup, new PermissionSet(PermissionState.Unrestricted));
+
+                    helper = (DiaSessionWrapperHelper)appDomain.CreateInstanceAndUnwrap(
+                        assemblyName: typeof(DiaSessionWrapperHelper).Assembly.FullName,
+                        typeName: typeof(DiaSessionWrapperHelper).FullName,
+                        ignoreCase: false,
+                        bindingAttr: 0,
+                        binder: null,
+                        args: new[] { assemblyFilename },
+                        culture: null,
+                        activationAttributes: null,
+                        securityAttributes: null
+                    );
+                }
+                catch
+                {
+                    sessionHasErrors = true;
+                }
+            }
+        }
+
+        private MethodInfo GetMethod(string typeName, string methodName)
+        {
+            return null;
         }
 
         public DiaNavigationData GetNavigationData(string typeName, string methodName)
@@ -25,10 +70,10 @@ namespace Xunit.Runner.VisualStudio
             if (!sessionHasErrors)
                 try
                 {
+                    helper.Normalize(ref typeName, ref methodName);
+
                     if (session == null)
-                    {
                         session = new DiaSession(assemblyFilename);
-                    }
 
                     return session.GetNavigationData(typeName, methodName);
                 }
@@ -44,6 +89,59 @@ namespace Xunit.Runner.VisualStudio
         {
             if (session != null)
                 session.Dispose();
+
+            if (appDomain != null)
+                AppDomain.Unload(appDomain);
+        }
+    }
+
+    class DiaSessionWrapperHelper : MarshalByRefObject
+    {
+        Assembly assembly;
+
+        public DiaSessionWrapperHelper(string assemblyFileName)
+        {
+            try
+            {
+                assembly = Assembly.LoadFile(assemblyFileName);
+            }
+            catch { }
+        }
+
+        public void Normalize(ref string typeName, ref string methodName)
+        {
+            try
+            {
+                if (assembly == null)
+                    return;
+
+                Type type = assembly.GetType(typeName);
+                if (type != null)
+                {
+                    MethodInfo method = type.GetMethod(methodName);
+                    if (method != null)
+                    {
+                        // DiaSession only ever wants you to ask for the declaring type
+                        typeName = method.DeclaringType.FullName;
+
+                        // Find the compiler-geneated async engine if the test method is async
+                        string asyncTypeName = String.Format("{0}+<{1}>d__0", typeName, methodName);
+                        Type asyncType = assembly.GetType(asyncTypeName);
+                        if (asyncType != null)
+                        {
+                            typeName = asyncTypeName;
+                            methodName = "MoveNext";
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        [SecurityCritical]
+        public override object InitializeLifetimeService()
+        {
+            return null;
         }
     }
 }
