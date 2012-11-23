@@ -7,8 +7,8 @@ namespace Xunit.Sdk
 {
     public interface ITestFramework
     {
-        IEnumerable<ITestCase> Find(IAssemblyInfo assembly);
-        IEnumerable<ITestCase> Find(ITypeInfo type);
+        IEnumerable<ITestCase> Find(IAssemblyInfo assembly, bool includeSourceInformation);
+        IEnumerable<ITestCase> Find(ITypeInfo type, bool includeSourceInformation);
 
         IObservable<ITestCaseResult> Run(IEnumerable<ITestCase> testMethods, CancellationToken token = default(CancellationToken));
 

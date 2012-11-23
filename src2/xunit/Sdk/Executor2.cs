@@ -42,11 +42,11 @@ namespace Xunit.Sdk
         public class EnumerateTests : LongLivedMarshalByRefObject
         {
             /// <summary/>
-            public EnumerateTests(Executor2 executor)
-                : this(executor, GetFrameworks()) { }
+            public EnumerateTests(Executor2 executor, bool includeSourceInformation)
+                : this(executor, includeSourceInformation, GetFrameworks()) { }
 
             /// <summary/>
-            public EnumerateTests(Executor2 executor, IEnumerable<ITestFramework> testFrameworks)
+            public EnumerateTests(Executor2 executor, bool includeSourceInformation, IEnumerable<ITestFramework> testFrameworks)
             {
                 Guard.ArgumentNotNull("executor", executor);
 
@@ -56,7 +56,7 @@ namespace Xunit.Sdk
                     {
                         IAssemblyInfo assembly = Reflector2.Wrap(executor.Assembly);
 
-                        foreach (ITestCase testCase in testFramework.Find(assembly))
+                        foreach (ITestCase testCase in testFramework.Find(assembly, includeSourceInformation))
                             executor.MessageBus.QueueMessage(new TestCaseDiscoveryMessage { TestCase = testCase });
                     }
                 }

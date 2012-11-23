@@ -52,6 +52,10 @@ namespace Xunit.Sdk
 
         public string SkipReason { get; private set; }
 
+        public int? SourceFileLine { get; internal set; }
+
+        public string SourceFileName { get; internal set; }
+
         public ITestCollection TestCollection { get; private set; }
 
         public IDictionary<string, string> Traits { get; private set; }

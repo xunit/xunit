@@ -17,7 +17,7 @@ public class XunitTestFrameworkTests
             var framework = new XunitTestFramework();
 
             // REVIEW: Should we add Assert.ThrowsArgumentNull and friends?
-            var ex = Record.Exception(() => framework.Find(assembly: null));
+            var ex = Record.Exception(() => framework.Find(assembly: null, includeSourceInformation: false));
 
             var aex = Assert.IsType<ArgumentNullException>(ex);
             Assert.Equal("assembly", aex.ParamName);
@@ -29,7 +29,7 @@ public class XunitTestFrameworkTests
             var framework = new XunitTestFramework();
             var mockAssembly = new MockAssemblyInfo();
 
-            IEnumerable<ITestCase> results = framework.Find(mockAssembly.Object);
+            IEnumerable<ITestCase> results = framework.Find(mockAssembly.Object, includeSourceInformation: false);
 
             Assert.Empty(results);
         }
@@ -40,7 +40,7 @@ public class XunitTestFrameworkTests
             var framework = new XunitTestFramework();
             var mockAssembly = new MockAssemblyInfo();
 
-            framework.Find(mockAssembly.Object);
+            framework.Find(mockAssembly.Object, includeSourceInformation: false);
 
             mockAssembly.Verify(a => a.GetTypes(/*includePrivateTypes*/ false), Times.Once());
         }
@@ -53,10 +53,40 @@ public class XunitTestFrameworkTests
             var intTypeInfo = Reflector2.Wrap(typeof(int));
             var mockAssembly = new MockAssemblyInfo(types: new[] { objectTypeInfo, intTypeInfo });
 
-            mockFramework.Object.Find(mockAssembly.Object).ToList();
+            mockFramework.Object.Find(mockAssembly.Object, includeSourceInformation: false).ToList();
 
-            mockFramework.Verify(f => f.FindImpl(objectTypeInfo), Times.Once());
-            mockFramework.Verify(f => f.FindImpl(intTypeInfo), Times.Once());
+            mockFramework.Verify(f => f.FindImpl(objectTypeInfo, false), Times.Once());
+            mockFramework.Verify(f => f.FindImpl(intTypeInfo, false), Times.Once());
+        }
+
+        [Fact]
+        public void DoesNotCallSourceProviderWhenNotAskedFor()
+        {
+            var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
+            var mockFramework = new Mock<TestableXunitTestFramework>(sourceProvider.Object) { CallBase = true };
+            var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
+            var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
+
+            var testCase = mockFramework.Object.Find(mockAssembly.Object, includeSourceInformation: false).Single();
+
+            sourceProvider.Verify(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()), Times.Never());
+        }
+
+        [Fact]
+        public void CallsSourceProviderWhenTypesAreFoundInAssembly()
+        {
+            var sourceProvider = new Mock<ISourceInformationProvider>();
+            sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
+                          .Returns(Tuple.Create<string, int?>("Source File", 42));
+            var mockFramework = new Mock<TestableXunitTestFramework>(sourceProvider.Object) { CallBase = true };
+            var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
+            var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
+
+            var testCase = mockFramework.Object.Find(mockAssembly.Object, includeSourceInformation: true).Single();
+
+            Assert.Equal("XunitTestFrameworkTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
+            Assert.Equal("Source File", testCase.SourceFileName);
+            Assert.Equal(42, testCase.SourceFileLine);
         }
     }
 
@@ -68,7 +98,7 @@ public class XunitTestFrameworkTests
             var framework = new XunitTestFramework();
 
             // REVIEW: Should we add Assert.ThrowsArgumentNull and friends?
-            var ex = Record.Exception(() => framework.Find(type: null));
+            var ex = Record.Exception(() => framework.Find(type: null, includeSourceInformation: false));
 
             var aex = Assert.IsType<ArgumentNullException>(ex);
             Assert.Equal("type", aex.ParamName);
@@ -80,7 +110,7 @@ public class XunitTestFrameworkTests
             var framework = new XunitTestFramework();
             var type = new Mock<ITypeInfo>();
 
-            framework.Find(type.Object).ToList();
+            framework.Find(type.Object, includeSourceInformation: false).ToList();
 
             type.Verify(t => t.GetMethods(/*includePrivateMethods*/ true), Times.Once());
         }
@@ -91,9 +121,37 @@ public class XunitTestFrameworkTests
             var mockFramework = new Mock<TestableXunitTestFramework> { CallBase = true };
             var objectTypeInfo = Reflector2.Wrap(typeof(object));
 
-            mockFramework.Object.Find(objectTypeInfo).ToList();
+            mockFramework.Object.Find(objectTypeInfo, includeSourceInformation: false).ToList();
 
-            mockFramework.Verify(f => f.FindImpl(objectTypeInfo), Times.Once());
+            mockFramework.Verify(f => f.FindImpl(objectTypeInfo, false), Times.Once());
+        }
+
+        [Fact]
+        public void DoesNotCallSourceProviderWhenNotAskedFor()
+        {
+            var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
+            var mockFramework = new Mock<TestableXunitTestFramework>(sourceProvider.Object) { CallBase = true };
+            var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
+
+            var testCase = mockFramework.Object.Find(typeInfo, includeSourceInformation: false).Single();
+
+            sourceProvider.Verify(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()), Times.Never());
+        }
+
+        [Fact]
+        public void CallsSourceProviderWhenTypesAreFoundInAssembly()
+        {
+            var sourceProvider = new Mock<ISourceInformationProvider>();
+            sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
+                          .Returns(Tuple.Create<string, int?>("Source File", 42));
+            var mockFramework = new Mock<TestableXunitTestFramework>(sourceProvider.Object) { CallBase = true };
+            var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
+
+            var testCase = mockFramework.Object.Find(typeInfo, includeSourceInformation: true).Single();
+
+            Assert.Equal("XunitTestFrameworkTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
+            Assert.Equal("Source File", testCase.SourceFileName);
+            Assert.Equal(42, testCase.SourceFileLine);
         }
     }
 
@@ -179,16 +237,27 @@ public class XunitTestFrameworkTests
         }
     }
 
+    class ClassWithSingleTest
+    {
+        [Fact2]
+        public void TestMethod() { }
+    }
+
     public class TestableXunitTestFramework : XunitTestFramework
     {
-        public virtual IEnumerable<ITestCase> FindImpl(ITypeInfo type)
+        public TestableXunitTestFramework() { }
+
+        public TestableXunitTestFramework(ISourceInformationProvider sourceProvider)
+            : base(sourceProvider) { }
+
+        public virtual IEnumerable<ITestCase> FindImpl(ITypeInfo type, bool includeSourceInformation = false)
         {
-            return base.FindImpl(new MockAssemblyInfo(types: new[] { type }).Object, type);
+            return base.FindImpl(new MockAssemblyInfo(types: new[] { type }).Object, type, includeSourceInformation);
         }
 
-        protected override IEnumerable<ITestCase> FindImpl(IAssemblyInfo assembly, ITypeInfo type)
+        protected override IEnumerable<ITestCase> FindImpl(IAssemblyInfo assembly, ITypeInfo type, bool includeSourceInformation)
         {
-            return FindImpl(type);
+            return FindImpl(type, includeSourceInformation);
         }
     }
 }

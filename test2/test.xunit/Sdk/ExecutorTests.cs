@@ -56,12 +56,24 @@ public class ExecutorTests
     public class EnumerateTests
     {
         [Fact]
+        public void CallsTestFrameworkWithCorrectParameters()
+        {
+            var executor = TestableExecutor.Create();
+            var framework = new MockTestFramework();
+
+            new Executor2.EnumerateTests(executor, includeSourceInformation: true, testFrameworks: new[] { framework.Object });
+
+            executor.AssemblyLoader.Verify(al => al.Load(executor.AssemblyFileName));
+            framework.Verify(f => f.Find(It.IsAny<IAssemblyInfo>(), true));
+        }
+
+        [Fact]
         public void NoTestMethods()
         {
             var executor = TestableExecutor.Create();
             var framework = new MockTestFramework();
 
-            new Executor2.EnumerateTests(executor, new[] { framework.Object });
+            new Executor2.EnumerateTests(executor, includeSourceInformation: false, testFrameworks: new[] { framework.Object });
 
             CollectionAssert.Collection(executor.Messages,
                 message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
@@ -75,7 +87,7 @@ public class ExecutorTests
             var testCase = new Mock<ITestCase>();
             var framework = new MockTestFramework(testCase.Object);
 
-            new Executor2.EnumerateTests(executor, new[] { framework.Object });
+            new Executor2.EnumerateTests(executor, includeSourceInformation: false, testFrameworks: new[] { framework.Object });
 
             CollectionAssert.Collection(executor.Messages,
                 message => Assert.Same(testCase.Object, ((ITestCaseDiscoveryMessage)message).TestCase),
@@ -92,7 +104,7 @@ public class ExecutorTests
             var testCase2 = new Mock<ITestCase>();
             var framework2 = new MockTestFramework(testCase2.Object);
 
-            new Executor2.EnumerateTests(executor, new[] { framework1.Object, framework2.Object });
+            new Executor2.EnumerateTests(executor, includeSourceInformation: false, testFrameworks: new[] { framework1.Object, framework2.Object });
 
             CollectionAssert.Collection(executor.Messages,
                 message => Assert.Same(testCase1.Object, ((ITestCaseDiscoveryMessage)message).TestCase),
@@ -111,7 +123,7 @@ public class ExecutorTests
             var testCase2 = new Mock<ITestCase>();
             var framework2 = new MockTestFramework(testCase2.Object);
 
-            new Executor2.EnumerateTests(executor, new[] { framework1.Object, framework2.Object });
+            new Executor2.EnumerateTests(executor, includeSourceInformation: false, testFrameworks: new[] { framework1.Object, framework2.Object });
 
             CollectionAssert.Collection(executor.Messages,
                 message => Assert.Same(testCase1.Object, ((ITestCaseDiscoveryMessage)message).TestCase),
@@ -176,13 +188,13 @@ public class ExecutorTests
     {
         public MockTestFramework(params ITestCase[] testCases)
         {
-            this.Setup(f => f.Find(It.IsAny<IAssemblyInfo>()))
+            this.Setup(f => f.Find(It.IsAny<IAssemblyInfo>(), It.IsAny<bool>()))
                 .Returns(testCases);
         }
 
         public MockTestFramework(IEnumerable<ITestCase> testCases)
         {
-            this.Setup(f => f.Find(It.IsAny<IAssemblyInfo>()))
+            this.Setup(f => f.Find(It.IsAny<IAssemblyInfo>(), It.IsAny<bool>()))
                 .Returns(testCases);
         }
     }
