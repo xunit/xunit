@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Security;
-using System.Windows.Forms;
 
 namespace Xunit.Runner.VisualStudio
 {
@@ -48,10 +47,7 @@ namespace Xunit.Runner.VisualStudio
                     }
                 };
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+            catch { }
         }
 
         static Type GetStateMachineType_NoOp(MethodInfo method)
@@ -153,10 +149,7 @@ namespace Xunit.Runner.VisualStudio
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+            catch { }
         }
 
         [SecurityCritical]
