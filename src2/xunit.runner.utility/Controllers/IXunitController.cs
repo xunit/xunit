@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace Xunit
 {
-    public interface IExecutor2Wrapper : IDisposable
+    public interface IXunitController : IDisposable
     {
         /// <summary>
         /// Gets the full pathname to the assembly under test.

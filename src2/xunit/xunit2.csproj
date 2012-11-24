@@ -58,7 +58,6 @@
     <Compile Include="Sdk\Guard.cs" />
     <Compile Include="Sdk\IAssemblyLoader.cs" />
     <Compile Include="Sdk\IMessageBus.cs" />
-    <Compile Include="Sdk\LongLivedMarshalByRefObject.cs" />
     <Compile Include="Sdk\MessageBus.cs" />
     <Compile Include="Sdk\Messages\DiscoveryCompleteMessage.cs" />
     <Compile Include="Sdk\Messages\ErrorMessage.cs" />

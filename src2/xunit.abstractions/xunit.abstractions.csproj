@@ -42,6 +42,7 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="LongLivedMarshalByRefObject.cs" />
     <Compile Include="Messages\IErrorMessage.cs" />
     <Compile Include="Reflection\IParameterInfo.cs" />
     <Compile Include="Reflection\IReflectionParameterInfo.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Reflection\IAssemblyInfo.cs" />
     <Compile Include="Reflection\IAttributeInfo.cs" />
+    <Compile Include="StackHelper.cs" />
     <Compile Include="TestCases\IClassTestCase.cs" />
     <Compile Include="Reflection\IMethodInfo.cs" />
     <Compile Include="TestCases\IMethodTestCase.cs" />
