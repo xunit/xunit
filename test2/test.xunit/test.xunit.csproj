@@ -80,7 +80,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollectionAssert.cs" />
+    <Compile Include="Asserts\CollectionAssert.cs" />
+    <Compile Include="Asserts\ExceptionAssert.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sdk\ExecutorTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />

@@ -1,40 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    public class XunitTestFramework : ITestFramework
+    // REVIEW: If all test frameworks must be MBRO, maybe we should use a base class instead of/in addition to an interface
+    public class XunitTestFramework : LongLivedMarshalByRefObject, ITestFramework
     {
+        IAssemblyInfo assemblyInfo;
         ISourceInformationProvider sourceProvider;
 
-        public XunitTestFramework()
-            : this(new VisualStudioSourceInformationProvider()) { }
-
-        public XunitTestFramework(ISourceInformationProvider sourceProvider)
+        public XunitTestFramework(string assemblyFileName)
         {
-            this.sourceProvider = sourceProvider;
+            var assembly = Assembly.LoadFile(assemblyFileName);
+            assemblyInfo = Reflector2.Wrap(assembly);
+            sourceProvider = new VisualStudioSourceInformationProvider();
         }
 
-        public IEnumerable<ITestCase> Find(IAssemblyInfo assembly, bool includeSourceInformation)
+        /// <summary>
+        /// This constructor is for unit testing purposes only. Do not use in production code.
+        /// </summary>
+        public XunitTestFramework(IAssemblyInfo assemblyInfo, ISourceInformationProvider sourceProvider = null)
         {
-            if (assembly == null)
-                throw new ArgumentNullException("assembly");
-
-            return assembly.GetTypes(includePrivateTypes: false).SelectMany(type => FindImpl(assembly, type, includeSourceInformation));
+            this.assemblyInfo = assemblyInfo;
+            this.sourceProvider = sourceProvider ?? new VisualStudioSourceInformationProvider();
         }
 
-        public IEnumerable<ITestCase> Find(ITypeInfo type, bool includeSourceInformation)
+        public void Find(bool includeSourceInformation, IMessageSink messageSink)
         {
-            if (type == null)
-                throw new ArgumentNullException("type");
+            Guard.ArgumentNotNull("messageSink", messageSink);
 
-            return FindImpl(type.Assembly, type, includeSourceInformation);
+            foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
+                FindImpl(type, includeSourceInformation, messageSink);
+
+            messageSink.OnMessage(new DiscoveryCompleteMessage());
         }
 
-        protected virtual IEnumerable<ITestCase> FindImpl(IAssemblyInfo assembly, ITypeInfo type, bool includeSourceInformation)
+        public void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        {
+            Guard.ArgumentNotNull("type", type);
+            Guard.ArgumentNotNull("messageSink", messageSink);
+
+            FindImpl(type, includeSourceInformation, messageSink);
+
+            messageSink.OnMessage(new DiscoveryCompleteMessage());
+        }
+
+        protected virtual void FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
             foreach (IMethodInfo method in type.GetMethods(includePrivateMethods: true))
             {
@@ -47,14 +61,14 @@ namespace Xunit.Sdk
                         Type discovererType = discovererAttribute.GetPropertyValue<Type>("DiscovererType");
                         IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
 
-                        foreach (XunitTestCase testCase in discoverer.Discover(assembly, type, method, factAttribute))
-                            yield return UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation);
+                        foreach (XunitTestCase testCase in discoverer.Discover(assemblyInfo, type, method, factAttribute))
+                            messageSink.OnMessage(new TestCaseDiscoveryMessage { TestCase = UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation) });
                     }
                 }
             }
         }
 
-        public IObservable<ITestCaseResult> Run(IEnumerable<ITestCase> testMethods, CancellationToken token = default(CancellationToken))
+        public void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
         {
             throw new NotImplementedException();
         }

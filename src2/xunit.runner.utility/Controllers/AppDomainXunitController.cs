@@ -12,8 +12,7 @@ namespace Xunit
     {
         protected AppDomainXunitController(string assemblyFileName, string configFileName, bool shadowCopy, string testFrameworkFileName)
         {
-            if (!File.Exists(testFrameworkFileName))
-                throw new ArgumentException("Could not find file: " + testFrameworkFileName, "testFrameworkFileName");
+            Guard.ArgumentValid("testFrameworkFileName", "Could not find file: " + testFrameworkFileName, File.Exists(testFrameworkFileName));
 
             AssemblyFileName = assemblyFileName;
             ConfigFileName = configFileName;
@@ -34,8 +33,6 @@ namespace Xunit
             get { return XunitAssemblyName.Version.ToString(); }
         }
 
-        public abstract IEnumerable<ITestCase> EnumerateTests();
-
         static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy)
         {
             AppDomainSetup setup = new AppDomainSetup();
@@ -54,16 +51,16 @@ namespace Xunit
             return AppDomain.CreateDomain(setup.ApplicationName, null, setup, new PermissionSet(PermissionState.Unrestricted));
         }
 
-        protected object CreateObject(string typeName, params object[] args)
+        protected TObject CreateObject<TObject>(string typeName, params object[] args)
         {
             try
             {
-                return AppDomain.CreateInstanceAndUnwrap(XunitAssemblyName.FullName, typeName, false, 0, null, args, null, null);
+                return (TObject)AppDomain.CreateInstanceAndUnwrap(XunitAssemblyName.FullName, typeName, false, 0, null, args, null, null);
             }
             catch (TargetInvocationException ex)
             {
                 ex.InnerException.RethrowWithNoStackTraceLoss();
-                return null;
+                return default(TObject);
             }
         }
 
@@ -83,5 +80,11 @@ namespace Xunit
                 catch { }
             }
         }
+
+        public abstract void Find(bool includeSourceInformation, IMessageSink messageSink);
+
+        public abstract void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink);
+
+        public abstract void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink);
     }
 }

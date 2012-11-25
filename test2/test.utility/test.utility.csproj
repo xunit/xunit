@@ -107,6 +107,7 @@
     <Compile Include="MockParameterInfo.cs" />
     <Compile Include="MockTraitAttribute.cs" />
     <Compile Include="MockTypeInfo.cs" />
+    <Compile Include="SpyMessageSink.cs" />
     <Compile Include="TempFile.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

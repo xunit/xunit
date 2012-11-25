@@ -62,7 +62,17 @@ public class AppDomainXunitControllerTests
             get { return base.AppDomain; }
         }
 
-        public override IEnumerable<ITestCase> EnumerateTests()
+        public override void Find(bool includeSourceInformation, IMessageSink messageSink)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
         {
             throw new NotImplementedException();
         }

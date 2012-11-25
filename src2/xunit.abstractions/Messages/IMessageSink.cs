@@ -2,6 +2,9 @@
 
 namespace Xunit.Abstractions
 {
+    /// <summary>
+    /// Represents an endpoint for the reception of test messages.
+    /// </summary>
     public interface IMessageSink : IDisposable
     {
         /// <summary>

@@ -1,6 +1,4 @@
-using Xunit.Abstractions;
-
-namespace Xunit.Sdk
+namespace Xunit.Abstractions
 {
     public interface ITestCaseResult
     {

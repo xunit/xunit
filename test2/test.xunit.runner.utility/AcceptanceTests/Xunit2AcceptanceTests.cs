@@ -24,7 +24,15 @@ public class Xunit2AcceptanceTests
         {
             using (var assm = new MockAssembly(code: ""))
             using (var controller = new XunitFrontController(assm.FileName, null, true))
-                Assert.Empty(controller.EnumerateTests());
+            {
+                var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+
+                controller.Find(includeSourceInformation: false, messageSink: sink);
+
+                sink.Finished.WaitOne();
+
+                Assert.False(sink.Messages.Any(msg => msg is ITestCaseDiscoveryMessage));
+            }
         }
 
         [Fact]
@@ -43,7 +51,13 @@ public class Xunit2AcceptanceTests
             using (var assm = new MockAssembly(code))
             using (var controller = new XunitFrontController(assm.FileName, null, true))
             {
-                ITestCase testCase = Assert.Single(controller.EnumerateTests());
+                var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+
+                controller.Find(includeSourceInformation: false, messageSink: sink);
+
+                sink.Finished.WaitOne();
+
+                ITestCase testCase = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Single().TestCase;
                 Assert.Equal("Foo.Bar", testCase.DisplayName);
             }
         }
@@ -54,7 +68,7 @@ public class Xunit2AcceptanceTests
             string code = @"
                 using System;
                 using Xunit;
-        
+                
                 namespace Namespace1
                 {
                     public class Class1
@@ -62,15 +76,15 @@ public class Xunit2AcceptanceTests
                         [Fact2]
                         [Trait2(""Name!"", ""Value!"")]
                         public void Trait() { }
-        
+                
                         [Fact2(Skip=""Skipping"")]
                         public void Skipped() { }
-        
+                
                         [Fact2(DisplayName=""Custom Test Name"")]
                         public void CustomName() { }
                     }
                 }
-        
+                
                 namespace Namespace2
                 {
                     public class OuterClass
@@ -87,7 +101,12 @@ public class Xunit2AcceptanceTests
             using (var assembly = new MockAssembly(code))
             using (var controller = new XunitFrontController(assembly.FileName, null, true))
             {
-                ITestCase[] testCases = controller.EnumerateTests().ToArray();
+                var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+
+                controller.Find(includeSourceInformation: false, messageSink: sink);
+
+                sink.Finished.WaitOne();
+                ITestCase[] testCases = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase).ToArray();
 
                 Assert.Equal(4, testCases.Length);
 
@@ -110,7 +129,7 @@ public class Xunit2AcceptanceTests
             string code = @"
                 using System;
                 using Xunit;
-        
+                
                 public class TestClass
                 {
                     [Theory2]
@@ -124,7 +143,12 @@ public class Xunit2AcceptanceTests
             using (var assembly = new MockAssembly(code))
             using (var controller = new XunitFrontController(assembly.FileName, null, true))
             {
-                string[] testCaseNames = controller.EnumerateTests().Select(tc => tc.DisplayName).ToArray();
+                var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
+
+                controller.Find(includeSourceInformation: false, messageSink: sink);
+
+                sink.Finished.WaitOne();
+                string[] testCaseNames = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase.DisplayName).ToArray();
 
                 Assert.Equal(3, testCaseNames.Length);
 

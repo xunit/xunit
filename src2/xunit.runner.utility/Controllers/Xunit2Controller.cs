@@ -2,23 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit
 {
-    public class Xunit2Controller : AppDomainXunitController, IMessageSink
+    public class Xunit2Controller : AppDomainXunitController
     {
         static readonly IXunitControllerFactory factory = new Xunit2ControllerFactory();
 
-        readonly object executor;
+        readonly ITestFramework testFramework;
 
         public Xunit2Controller(string assemblyFileName, string configFileName, bool shadowCopy)
             : base(assemblyFileName, configFileName, shadowCopy, Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit2.dll"))
         {
             try
             {
-                executor = CreateObject("Xunit.Sdk.Executor2", AssemblyFileName, this);
+                // TODO: Detect test framework
+
+                // TODO: CreateObject() assumes that the type in question lives in the xunit2.dll assembly
+                testFramework = CreateObject<ITestFramework>("Xunit.Sdk.XunitTestFramework", assemblyFileName);
             }
             catch (TargetInvocationException ex)
             {
@@ -32,42 +34,24 @@ namespace Xunit
             }
         }
 
-        event Action<ITestMessage> MessageArrived;
-
         public static IXunitControllerFactory Factory
         {
             get { return factory; }
         }
 
-        public override IEnumerable<ITestCase> EnumerateTests()
+        public override void Find(bool includeSourceInformation, IMessageSink messageSink)
         {
-            List<ITestCase> results = new List<ITestCase>();
-            ManualResetEvent finished = new ManualResetEvent(initialState: false);
-            Action<ITestMessage> handler = null;
+            testFramework.Find(includeSourceInformation, messageSink);
+        }
 
-            handler = msg =>
-            {
-                var discoveryMessage = msg as ITestCaseDiscoveryMessage;
-                if (discoveryMessage != null)
-                {
-                    results.Add(discoveryMessage.TestCase);
-                    return;
-                }
+        public override void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        {
+            testFramework.Find(type, includeSourceInformation, messageSink);
+        }
 
-                var completeMessage = msg as IDiscoveryCompleteMessage;
-                if (completeMessage != null)
-                {
-                    MessageArrived -= handler;
-                    finished.Set();
-                }
-            };
-
-            MessageArrived += handler;
-
-            CreateObject("Xunit.Sdk.Executor2+EnumerateTests", executor, /*includeSourceInformation*/ false);
-
-            finished.WaitOne();
-            return results;
+        public override void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
+        {
+            testFramework.Run(testMethods, messageSink);
         }
 
         class Xunit2ControllerFactory : IXunitControllerFactory
@@ -76,12 +60,6 @@ namespace Xunit
             {
                 return new Xunit2Controller(assemblyFileName, configFileName, shadowCopy);
             }
-        }
-
-        public void OnMessage(ITestMessage message)
-        {
-            if (MessageArrived != null)
-                MessageArrived(message);
         }
     }
 }

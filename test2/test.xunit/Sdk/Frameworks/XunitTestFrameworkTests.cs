@@ -9,51 +9,60 @@ using ITypeInfo = Xunit.Abstractions.ITypeInfo;
 
 public class XunitTestFrameworkTests
 {
+    public class Construction
+    {
+        [Fact]
+        public void GuardClause()
+        {
+            // TODO: Guard clause for assembly in ctor
+        }
+    }
+
     public class FindByAssembly
     {
         [Fact]
         public void GuardClause()
         {
-            var framework = new XunitTestFramework();
+            var framework = TestableXunitTestFramework.Create();
+            var sink = new Mock<IMessageSink>();
 
-            // REVIEW: Should we add Assert.ThrowsArgumentNull and friends?
-            var ex = Record.Exception(() => framework.Find(assembly: null, includeSourceInformation: false));
-
-            var aex = Assert.IsType<ArgumentNullException>(ex);
-            Assert.Equal("assembly", aex.ParamName);
+            ExceptionAssert.ThrowsArgumentNull(
+                () => framework.Find(includeSourceInformation: false, messageSink: null),
+                "messageSink"
+            );
         }
 
         [Fact]
         public void AssemblyWithNoTypes_ReturnsNoTestCases()
         {
-            var framework = new XunitTestFramework();
-            var mockAssembly = new MockAssemblyInfo();
+            var framework = TestableXunitTestFramework.Create();
 
-            IEnumerable<ITestCase> results = framework.Find(mockAssembly.Object, includeSourceInformation: false);
+            framework.Find();
 
-            Assert.Empty(results);
+            CollectionAssert.Collection(framework.Messages,
+                message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
+            );
         }
 
         [Fact]
         public void RequestsOnlyPublicTypesFromAssembly()
         {
-            var framework = new XunitTestFramework();
-            var mockAssembly = new MockAssemblyInfo();
+            var framework = TestableXunitTestFramework.Create();
 
-            framework.Find(mockAssembly.Object, includeSourceInformation: false);
+            framework.Find();
 
-            mockAssembly.Verify(a => a.GetTypes(/*includePrivateTypes*/ false), Times.Once());
+            framework.Assembly.Verify(a => a.GetTypes(/*includePrivateTypes*/ false), Times.Once());
         }
 
         [Fact]
         public void CallsFindImplWhenTypesAreFoundInAssembly()
         {
-            var mockFramework = new Mock<TestableXunitTestFramework> { CallBase = true };
             var objectTypeInfo = Reflector2.Wrap(typeof(object));
             var intTypeInfo = Reflector2.Wrap(typeof(int));
             var mockAssembly = new MockAssemblyInfo(types: new[] { objectTypeInfo, intTypeInfo });
+            var mockFramework = new Mock<TestableXunitTestFramework>(mockAssembly) { CallBase = true };
 
-            mockFramework.Object.Find(mockAssembly.Object, includeSourceInformation: false).ToList();
+            mockFramework.Object.Find();
 
             mockFramework.Verify(f => f.FindImpl(objectTypeInfo, false), Times.Once());
             mockFramework.Verify(f => f.FindImpl(intTypeInfo, false), Times.Once());
@@ -63,11 +72,11 @@ public class XunitTestFrameworkTests
         public void DoesNotCallSourceProviderWhenNotAskedFor()
         {
             var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
-            var mockFramework = new Mock<TestableXunitTestFramework>(sourceProvider.Object) { CallBase = true };
             var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
+            var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider.Object);
 
-            var testCase = mockFramework.Object.Find(mockAssembly.Object, includeSourceInformation: false).Single();
+            framework.Find();
 
             sourceProvider.Verify(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()), Times.Never());
         }
@@ -78,39 +87,51 @@ public class XunitTestFrameworkTests
             var sourceProvider = new Mock<ISourceInformationProvider>();
             sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
-            var mockFramework = new Mock<TestableXunitTestFramework>(sourceProvider.Object) { CallBase = true };
             var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
+            var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider.Object);
 
-            var testCase = mockFramework.Object.Find(mockAssembly.Object, includeSourceInformation: true).Single();
+            framework.Find(includeSourceInformation: true);
 
-            Assert.Equal("XunitTestFrameworkTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
-            Assert.Equal("Source File", testCase.SourceFileName);
-            Assert.Equal(42, testCase.SourceFileLine);
+            CollectionAssert.Collection(framework.Messages,
+                message =>
+                {
+                    var discoveryMessage = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(message);
+                    Assert.Equal("XunitTestFrameworkTests+ClassWithSingleTest.TestMethod", discoveryMessage.TestCase.DisplayName);
+                    Assert.Equal("Source File", discoveryMessage.TestCase.SourceFileName);
+                    Assert.Equal(42, discoveryMessage.TestCase.SourceFileLine);
+                },
+                message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
+            );
         }
     }
 
     public class FindByType
     {
         [Fact]
-        public void GuardClause()
+        public void GuardClauses()
         {
-            var framework = new XunitTestFramework();
+            var framework = TestableXunitTestFramework.Create();
+            var type = new Mock<ITypeInfo>();
+            var sink = new Mock<IMessageSink>();
 
-            // REVIEW: Should we add Assert.ThrowsArgumentNull and friends?
-            var ex = Record.Exception(() => framework.Find(type: null, includeSourceInformation: false));
-
-            var aex = Assert.IsType<ArgumentNullException>(ex);
-            Assert.Equal("type", aex.ParamName);
+            ExceptionAssert.ThrowsArgumentNull(
+                () => framework.Find(type: null, includeSourceInformation: false, messageSink: sink.Object),
+                "type"
+            );
+            ExceptionAssert.ThrowsArgumentNull(
+                () => framework.Find(type: type.Object, includeSourceInformation: false, messageSink: null),
+                "messageSink"
+            );
         }
 
         [Fact]
         public void RequestsPublicAndPrivateMethodsFromType()
         {
-            var framework = new XunitTestFramework();
+            var framework = TestableXunitTestFramework.Create();
             var type = new Mock<ITypeInfo>();
 
-            framework.Find(type.Object, includeSourceInformation: false).ToList();
+            framework.Find(type.Object);
 
             type.Verify(t => t.GetMethods(/*includePrivateMethods*/ true), Times.Once());
         }
@@ -121,7 +142,7 @@ public class XunitTestFrameworkTests
             var mockFramework = new Mock<TestableXunitTestFramework> { CallBase = true };
             var objectTypeInfo = Reflector2.Wrap(typeof(object));
 
-            mockFramework.Object.Find(objectTypeInfo, includeSourceInformation: false).ToList();
+            mockFramework.Object.Find(objectTypeInfo);
 
             mockFramework.Verify(f => f.FindImpl(objectTypeInfo, false), Times.Once());
         }
@@ -130,10 +151,10 @@ public class XunitTestFrameworkTests
         public void DoesNotCallSourceProviderWhenNotAskedFor()
         {
             var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
-            var mockFramework = new Mock<TestableXunitTestFramework>(sourceProvider.Object) { CallBase = true };
+            var framework = TestableXunitTestFramework.Create(sourceProvider.Object);
             var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
 
-            var testCase = mockFramework.Object.Find(typeInfo, includeSourceInformation: false).Single();
+            framework.Find(typeInfo);
 
             sourceProvider.Verify(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()), Times.Never());
         }
@@ -144,14 +165,21 @@ public class XunitTestFrameworkTests
             var sourceProvider = new Mock<ISourceInformationProvider>();
             sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
-            var mockFramework = new Mock<TestableXunitTestFramework>(sourceProvider.Object) { CallBase = true };
+            var framework = TestableXunitTestFramework.Create(sourceProvider.Object);
             var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
 
-            var testCase = mockFramework.Object.Find(typeInfo, includeSourceInformation: true).Single();
+            framework.Find(typeInfo, includeSourceInformation: true);
 
-            Assert.Equal("XunitTestFrameworkTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
-            Assert.Equal("Source File", testCase.SourceFileName);
-            Assert.Equal(42, testCase.SourceFileLine);
+            CollectionAssert.Collection(framework.Messages,
+                message =>
+                {
+                    var discoveryMessage = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(message);
+                    Assert.Equal("XunitTestFrameworkTests+ClassWithSingleTest.TestMethod", discoveryMessage.TestCase.DisplayName);
+                    Assert.Equal("Source File", discoveryMessage.TestCase.SourceFileName);
+                    Assert.Equal(42, discoveryMessage.TestCase.SourceFileLine);
+                },
+                message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
+            );
         }
     }
 
@@ -165,12 +193,12 @@ public class XunitTestFrameworkTests
         [Fact]
         public void ClassWithNoTests_ReturnsNoTestCases()
         {
-            var framework = new TestableXunitTestFramework();
+            var framework = TestableXunitTestFramework.Create();
             var type = Reflector2.Wrap(typeof(ClassWithNoTests));
 
-            IEnumerable<ITestCase> results = framework.FindImpl(type);
+            framework.FindImpl(type);
 
-            Assert.Empty(results);
+            Assert.Empty(framework.Messages);
         }
 
         class ClassWithOneFact
@@ -182,13 +210,13 @@ public class XunitTestFrameworkTests
         [Fact]
         public void AssemblyWithFact_ReturnsOneTestCaseOfTypeXunitTestCase()
         {
-            var framework = new TestableXunitTestFramework();
+            var framework = TestableXunitTestFramework.Create();
             var type = Reflector2.Wrap(typeof(ClassWithOneFact));
 
-            IEnumerable<ITestCase> results = framework.FindImpl(type);
+            framework.FindImpl(type);
 
-            ITestCase testCase = Assert.Single(results);
-            Assert.IsType<XunitTestCase>(testCase);
+            var discoveryMessage = (ITestCaseDiscoveryMessage)Assert.Single(framework.Messages, msg => msg is ITestCaseDiscoveryMessage);
+            Assert.IsType<XunitTestCase>(discoveryMessage.TestCase);
         }
 
         class ClassWithMixOfFactsAndNonFacts
@@ -205,11 +233,16 @@ public class XunitTestFrameworkTests
         [Fact]
         public void AssemblyWithMixOfFactsAndNonTests_ReturnsTestCasesOnlyForFacts()
         {
-            var framework = new TestableXunitTestFramework();
+            var framework = TestableXunitTestFramework.Create();
             var type = Reflector2.Wrap(typeof(ClassWithMixOfFactsAndNonFacts));
 
-            IEnumerable<IMethodTestCase> results = framework.FindImpl(type).Cast<IMethodTestCase>();
+            framework.FindImpl(type);
 
+            var results = framework.Messages
+                                   .OfType<ITestCaseDiscoveryMessage>()
+                                   .Select(msg => msg.TestCase)
+                                   .Cast<IMethodTestCase>()
+                                   .ToArray();
             Assert.Equal(2, results.Count());
             Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
             Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod2");
@@ -226,11 +259,16 @@ public class XunitTestFrameworkTests
         [Fact]
         public void AssemblyWithTheoryWithInlineData_ReturnsOneTestCasePerDataRecord()
         {
-            var framework = new TestableXunitTestFramework();
+            var framework = TestableXunitTestFramework.Create();
             var type = Reflector2.Wrap(typeof(TheoryWithInlineData));
 
-            IEnumerable<IMethodTestCase> results = framework.FindImpl(type).Cast<IMethodTestCase>();
+            framework.FindImpl(type);
 
+            var results = framework.Messages
+                                   .OfType<ITestCaseDiscoveryMessage>()
+                                   .Select(msg => msg.TestCase)
+                                   .Cast<IMethodTestCase>()
+                                   .ToArray();
             Assert.Equal(2, results.Count());
             Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
             Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: 42)");
@@ -243,21 +281,67 @@ public class XunitTestFrameworkTests
         public void TestMethod() { }
     }
 
-    public class TestableXunitTestFramework : XunitTestFramework
+    public class TestableXunitTestFramework : XunitTestFramework, IMessageSink
     {
-        public TestableXunitTestFramework() { }
+        protected TestableXunitTestFramework()
+            : base(new MockAssemblyInfo().Object) { }
 
-        public TestableXunitTestFramework(ISourceInformationProvider sourceProvider)
-            : base(sourceProvider) { }
-
-        public virtual IEnumerable<ITestCase> FindImpl(ITypeInfo type, bool includeSourceInformation = false)
+        protected TestableXunitTestFramework(MockAssemblyInfo assembly)
+            : base(assembly.Object)
         {
-            return base.FindImpl(new MockAssemblyInfo(types: new[] { type }).Object, type, includeSourceInformation);
+            Assembly = assembly;
         }
 
-        protected override IEnumerable<ITestCase> FindImpl(IAssemblyInfo assembly, ITypeInfo type, bool includeSourceInformation)
+        TestableXunitTestFramework(MockAssemblyInfo assembly, ISourceInformationProvider sourceProvider)
+            : base(assembly.Object, sourceProvider)
         {
-            return FindImpl(type, includeSourceInformation);
+            Assembly = assembly;
         }
+
+        public MockAssemblyInfo Assembly { get; private set; }
+
+        public List<ITestMessage> Messages = new List<ITestMessage>();
+
+        public static TestableXunitTestFramework Create()
+        {
+            return new TestableXunitTestFramework(new MockAssemblyInfo());
+        }
+
+        public static TestableXunitTestFramework Create(ISourceInformationProvider sourceProvider)
+        {
+            return new TestableXunitTestFramework(new MockAssemblyInfo(), sourceProvider);
+        }
+
+        public static TestableXunitTestFramework Create(MockAssemblyInfo assembly, ISourceInformationProvider sourceProvider)
+        {
+            return new TestableXunitTestFramework(assembly, sourceProvider);
+        }
+
+        public void Find(bool includeSourceInformation = false)
+        {
+            base.Find(includeSourceInformation, this);
+        }
+
+        public void Find(ITypeInfo type, bool includeSourceInformation = false)
+        {
+            base.Find(type, includeSourceInformation, this);
+        }
+
+        public virtual void FindImpl(ITypeInfo type, bool includeSourceInformation = false)
+        {
+            base.FindImpl(type, includeSourceInformation, this);
+        }
+
+        protected override void FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        {
+            FindImpl(type, includeSourceInformation);
+        }
+
+        public void OnMessage(ITestMessage message)
+        {
+            Messages.Add(message);
+        }
+
+        public void Dispose() { }
     }
 }

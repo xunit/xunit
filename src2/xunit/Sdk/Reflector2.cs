@@ -137,8 +137,7 @@ namespace Xunit.Sdk
             public TValue GetPropertyValue<TValue>(string propertyName)
             {
                 PropertyInfo propInfo = Attribute.GetType().GetProperty(propertyName);
-                if (propInfo == null)
-                    throw new ArgumentException("Could not find property " + propertyName + " on instance of " + Attribute.GetType().FullName, "propertyName");
+                Guard.ArgumentValid("propertyName", "Could not find property " + propertyName + " on instance of " + Attribute.GetType().FullName, propInfo != null);
 
                 return (TValue)propInfo.GetValue(Attribute, new object[0]);
             }

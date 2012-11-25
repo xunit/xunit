@@ -15,12 +15,10 @@ namespace Xunit
 
         public XunitFrontController(string assemblyFileName, string configFileName, bool shadowCopy, params IXunitControllerFactory[] factories)
         {
-            if (assemblyFileName == null)
-                throw new ArgumentNullException("assemblyFileName");
+            Guard.ArgumentNotNull("assemblyFileName", assemblyFileName);
 
             assemblyFileName = Path.GetFullPath(assemblyFileName);
-            if (!File.Exists(assemblyFileName))
-                throw new ArgumentException("Could not find file: " + assemblyFileName, "assemblyFileName");
+            Guard.ArgumentValid("assemblyFileName", "Could not find file: " + assemblyFileName, File.Exists(assemblyFileName));
 
             if (configFileName == null)
                 configFileName = GetDefaultConfigFile(assemblyFileName);
@@ -35,46 +33,41 @@ namespace Xunit
                 throw new InvalidOperationException("Could not locate a controller for your unit tests. Are you missing xunit.dll or xunit2.dll?");
         }
 
-        /// <summary>
-        /// Gets the full pathname to the assembly under test.
-        /// </summary>
+        /// <inheritdoc/>
         public string AssemblyFileName
         {
             get { return controller.AssemblyFileName; }
         }
 
-        /// <summary>
-        /// Gets the full pathname to the configuration file.
-        /// </summary>
+        /// <inheritdoc/>
         public string ConfigFileName
         {
             get { return controller.ConfigFileName; }
         }
 
-        /// <summary>
-        /// Gets the version of xunit.dll used by the test assembly.
-        /// </summary>
+        /// <inheritdoc/>
         public string XunitVersion
         {
             get { return controller.XunitVersion; }
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (controller != null)
                 controller.Dispose();
         }
 
-        /// <summary>
-        /// Enumerates the tests in an assembly.
-        /// </summary>
-        /// <returns>The list of test cases in the test assembly.</returns>
-        public IEnumerable<ITestCase> EnumerateTests()
+        /// <inheritdoc/>
+        public void Find(bool includeSourceInformation, IMessageSink messageSink)
         {
-            return controller.EnumerateTests();
+            controller.Find(includeSourceInformation, messageSink);
+        }
+
+        /// <inheritdoc/>
+        public void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        {
+            controller.Find(type, includeSourceInformation, messageSink);
         }
 
         static string GetDefaultConfigFile(string assemblyFile)
@@ -85,6 +78,12 @@ namespace Xunit
                 return configFilename;
 
             return null;
+        }
+
+        /// <inheritdoc/>
+        public void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
+        {
+            controller.Run(testMethods, messageSink);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Xunit.Sdk
+namespace Xunit.Abstractions
 {
     public interface IFailedTestCaseResult : ITestCaseResult
     {

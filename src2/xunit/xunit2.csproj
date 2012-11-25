@@ -47,7 +47,6 @@
     <Compile Include="Fact2Attribute.cs" />
     <Compile Include="InlineData2Attribute.cs" />
     <Compile Include="Sdk\AssemblyLoader.cs" />
-    <Compile Include="Sdk\Executor2.cs" />
     <Compile Include="Sdk\Frameworks\FactDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\ISourceInformationProvider.cs" />
     <Compile Include="Sdk\Frameworks\IXunitDiscoverer.cs" />
@@ -61,13 +60,10 @@
     <Compile Include="Sdk\MessageBus.cs" />
     <Compile Include="Sdk\Messages\DiscoveryCompleteMessage.cs" />
     <Compile Include="Sdk\Messages\ErrorMessage.cs" />
+    <Compile Include="Sdk\Messages\TestAssemblyFinished.cs" />
+    <Compile Include="Sdk\Messages\TestAssemblyStarting.cs" />
     <Compile Include="Sdk\Messages\TestCaseDiscoveryMessage.cs" />
     <Compile Include="Sdk\Reflector2.cs" />
-    <Compile Include="Sdk\Frameworks\IFailedTestCaseResult.cs" />
-    <Compile Include="Sdk\Frameworks\IPassedTestCaseResult.cs" />
-    <Compile Include="Sdk\Frameworks\ISkippedTestCaseResult.cs" />
-    <Compile Include="Sdk\Frameworks\ITestCaseResult.cs" />
-    <Compile Include="Sdk\Frameworks\ITestFramework.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Theory2Attribute.cs" />
     <Compile Include="Trait2Attribute.cs" />
