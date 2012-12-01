@@ -32,7 +32,7 @@ public class AppDomainXunitControllerTests
                 Assert.Equal(Path.GetDirectoryName(assemblyFileName), appDomainSetup.ApplicationBase);
                 Assert.Equal(configFile.FileName, appDomainSetup.ConfigurationFile);
                 Assert.Null(appDomainSetup.ShadowCopyFiles);
-                Assert.True(controller.XunitVersion.StartsWith("2."));
+                Assert.Equal(2, controller.XunitVersion.Major);
             }
         }
 

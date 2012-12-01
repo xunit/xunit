@@ -18,6 +18,6 @@ namespace Xunit
         /// <summary>
         /// Gets the version of xunit.dll used by the test assembly.
         /// </summary>
-        string XunitVersion { get; }
+        Version XunitVersion { get; }
     }
 }

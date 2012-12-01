@@ -28,9 +28,9 @@ namespace Xunit
 
         protected AssemblyName XunitAssemblyName { get; private set; }
 
-        public string XunitVersion
+        public Version XunitVersion
         {
-            get { return XunitAssemblyName.Version.ToString(); }
+            get { return XunitAssemblyName.Version; }
         }
 
         static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy)

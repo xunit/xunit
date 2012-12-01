@@ -46,7 +46,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public string XunitVersion
+        public Version XunitVersion
         {
             get { return controller.XunitVersion; }
         }
