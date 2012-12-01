@@ -12,9 +12,10 @@ public class XunitTestFrameworkTests
     public class Construction
     {
         [Fact]
-        public void GuardClause()
+        public void GuardClauses()
         {
-            // TODO: Guard clause for assembly in ctor
+            ExceptionAssert.ThrowsArgumentNull(() => new XunitTestFramework(assemblyFileName: null), "assemblyFileName");
+            ExceptionAssert.ThrowsArgument(() => new XunitTestFramework(assemblyFileName: ""), "assemblyFileName");
         }
     }
 
@@ -74,7 +75,7 @@ public class XunitTestFrameworkTests
             var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
             var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
-            var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider.Object);
+            var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider);
 
             framework.Find();
 
@@ -89,7 +90,7 @@ public class XunitTestFrameworkTests
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
             var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
-            var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider.Object);
+            var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider);
 
             framework.Find(includeSourceInformation: true);
 
@@ -151,7 +152,7 @@ public class XunitTestFrameworkTests
         public void DoesNotCallSourceProviderWhenNotAskedFor()
         {
             var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
-            var framework = TestableXunitTestFramework.Create(sourceProvider.Object);
+            var framework = TestableXunitTestFramework.Create(sourceProvider: sourceProvider);
             var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
 
             framework.Find(typeInfo);
@@ -165,7 +166,7 @@ public class XunitTestFrameworkTests
             var sourceProvider = new Mock<ISourceInformationProvider>();
             sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
-            var framework = TestableXunitTestFramework.Create(sourceProvider.Object);
+            var framework = TestableXunitTestFramework.Create(sourceProvider: sourceProvider);
             var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
 
             framework.Find(typeInfo, includeSourceInformation: true);
@@ -275,6 +276,132 @@ public class XunitTestFrameworkTests
         }
     }
 
+    public class Run
+    {
+        // TODO: Guard clauses
+
+        [Fact]
+        public void NoTests()
+        {
+            var framework = TestableXunitTestFramework.Create();
+
+            framework.Run();
+
+            CollectionAssert.Collection(framework.Messages,
+                message =>
+                {
+                    var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);
+                    Assert.Same(framework.Assembly.Object, starting.Assembly);
+                },
+                message =>
+                {
+                    var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
+                    Assert.Equal(0, finished.TestsRun);
+                    Assert.Equal(0, finished.TestsFailed);
+                    Assert.Equal(0, finished.TestsSkipped);
+                    Assert.Equal(0M, finished.ExecutionTime);
+
+                    Assert.Same(framework.Assembly.Object, finished.Assembly);
+                }
+            );
+        }
+
+        [Fact]
+        public void OneTestMethod_EndToEnd()
+        {
+            var fact = new MockFactAttribute();
+            var method = new MockMethodInfo(attributes: new[] { fact });
+            var type = new MockTypeInfo(methods: new[] { method });
+            var assemblyInfo = new MockAssemblyInfo(types: new[] { type.Object });
+            var framework = TestableXunitTestFramework.Create(assemblyInfo);
+            var testCase = new XunitTestCase(assemblyInfo.Object, type.Object, method, fact);
+
+            framework.Run(testCase);
+
+            CollectionAssert.Collection(framework.Messages,
+                message =>
+                {
+                    var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);
+                    Assert.Same(framework.Assembly.Object, starting.Assembly);
+                },
+                message =>
+                {
+                    var collectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
+                    Assert.Same(framework.Assembly.Object, collectionStarting.Assembly);
+                    // TODO: How do we represent collections?
+                },
+                message =>
+                {
+                    var classStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
+                    Assert.Same(framework.Assembly.Object, classStarting.Assembly);
+                    Assert.Equal(type.Object.Name, classStarting.ClassName);
+                },
+                message =>
+                {
+                    var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
+                    Assert.Same(testCase, testCaseStarting.TestCase);
+                },
+                message =>
+                {
+                    var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
+                    Assert.Same(testCase, testStarting.TestCase);
+                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.DisplayName); // TODO: Differentiated names?
+                },
+                message =>
+                {
+                    var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
+                    Assert.Same(testCase, testPassed.TestCase);
+                    Assert.Equal(testPassed.TestCase.DisplayName, testPassed.DisplayName);
+                },
+                message =>
+                {
+                    var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
+                    Assert.Same(testCase, testFinished.TestCase);
+                    Assert.Equal(testFinished.TestCase.DisplayName, testFinished.DisplayName);
+                },
+                message =>
+                {
+                    var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+                    Assert.Same(testCase, testCaseFinished.TestCase);
+                    Assert.Same(framework.Assembly.Object, testCaseFinished.Assembly);
+                    Assert.Equal(1, testCaseFinished.TestsRun);
+                    Assert.Equal(0, testCaseFinished.TestsFailed);
+                    Assert.Equal(0, testCaseFinished.TestsSkipped);
+                    Assert.Equal(0M, testCaseFinished.ExecutionTime); // TODO: Measure time?
+                },
+                message =>
+                {
+                    var classFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
+                    Assert.Same(framework.Assembly.Object, classFinished.Assembly);
+                    Assert.Equal(type.Object.Name, classFinished.ClassName);
+                    Assert.Equal(1, classFinished.TestsRun);
+                    Assert.Equal(0, classFinished.TestsFailed);
+                    Assert.Equal(0, classFinished.TestsSkipped);
+                    Assert.Equal(0M, classFinished.ExecutionTime); // TODO: Measure time?
+                },
+                message =>
+                {
+                    var collectionFinished = Assert.IsAssignableFrom<ITestCollectionFinished>(message);
+                    Assert.Same(framework.Assembly.Object, collectionFinished.Assembly);
+                    Assert.Equal(1, collectionFinished.TestsRun);
+                    Assert.Equal(0, collectionFinished.TestsFailed);
+                    Assert.Equal(0, collectionFinished.TestsSkipped);
+                    Assert.Equal(0M, collectionFinished.ExecutionTime); // TODO: Measure time?
+                    // TODO: How do we represent collections?
+                },
+                message =>
+                {
+                    var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
+                    Assert.Same(framework.Assembly.Object, finished.Assembly);
+                    Assert.Equal(1, finished.TestsRun);
+                    Assert.Equal(0, finished.TestsFailed);
+                    Assert.Equal(0, finished.TestsSkipped);
+                    Assert.Equal(0M, finished.ExecutionTime); // TODO: Measure time?
+                }
+            );
+        }
+    }
+
     class ClassWithSingleTest
     {
         [Fact2]
@@ -292,29 +419,23 @@ public class XunitTestFrameworkTests
             Assembly = assembly;
         }
 
-        TestableXunitTestFramework(MockAssemblyInfo assembly, ISourceInformationProvider sourceProvider)
-            : base(assembly.Object, sourceProvider)
+        TestableXunitTestFramework(MockAssemblyInfo assembly, Mock<ISourceInformationProvider> sourceProvider)
+            : base(assembly.Object, sourceProvider.Object)
         {
             Assembly = assembly;
+            SourceProvider = sourceProvider;
         }
 
         public MockAssemblyInfo Assembly { get; private set; }
 
         public List<ITestMessage> Messages = new List<ITestMessage>();
 
-        public static TestableXunitTestFramework Create()
-        {
-            return new TestableXunitTestFramework(new MockAssemblyInfo());
-        }
+        public Mock<ISourceInformationProvider> SourceProvider { get; private set; }
 
-        public static TestableXunitTestFramework Create(ISourceInformationProvider sourceProvider)
+        public static TestableXunitTestFramework Create(MockAssemblyInfo assembly = null, Mock<ISourceInformationProvider> sourceProvider = null)
         {
-            return new TestableXunitTestFramework(new MockAssemblyInfo(), sourceProvider);
-        }
-
-        public static TestableXunitTestFramework Create(MockAssemblyInfo assembly, ISourceInformationProvider sourceProvider)
-        {
-            return new TestableXunitTestFramework(assembly, sourceProvider);
+            return new TestableXunitTestFramework(assembly ?? new MockAssemblyInfo(),
+                                                  sourceProvider ?? new Mock<ISourceInformationProvider>());
         }
 
         public void Find(bool includeSourceInformation = false)
@@ -340,6 +461,11 @@ public class XunitTestFrameworkTests
         public void OnMessage(ITestMessage message)
         {
             Messages.Add(message);
+        }
+
+        public void Run(params ITestCase[] testMethods)
+        {
+            base.Run(testMethods, this);
         }
 
         public void Dispose() { }

@@ -1,11 +1,10 @@
-﻿using Moq;
-using Xunit.Abstractions;
+﻿using Xunit;
 
-public class MockTraitAttribute : Mock<IAttributeInfo>
+public class MockTraitAttribute : CustomAttributeData<Trait2Attribute>
 {
     public MockTraitAttribute(string name, string value)
     {
-        Setup(a => a.GetPropertyValue<string>("Name")).Returns(name);
-        Setup(a => a.GetPropertyValue<string>("Value")).Returns(value);
+        AddConstructorArgument(name);
+        AddConstructorArgument(value);
     }
 }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Xunit.Abstractions.Messages
+﻿namespace Xunit.Abstractions
 {
-    class ITestCaseStarting
+    public interface ITestCaseStarting : ITestMessage
     {
+        ITestCase TestCase { get; }
     }
 }

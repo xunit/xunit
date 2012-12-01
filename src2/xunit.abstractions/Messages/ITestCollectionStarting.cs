@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Xunit.Abstractions.Messages
+﻿namespace Xunit.Abstractions
 {
-    class ITestCollectionStarting
+    public interface ITestCollectionStarting : ITestMessage
     {
+        IAssemblyInfo Assembly { get; }
+        // TODO: How do we represent the collection?
     }
 }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Xunit.Abstractions.Messages
+﻿namespace Xunit.Abstractions
 {
-    class ITestCollectionFinished
+    public interface ITestCollectionFinished : IFinishedMessage
     {
+        // TODO: How do we represent a collection?
     }
 }

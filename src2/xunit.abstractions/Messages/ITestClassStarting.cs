@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Xunit.Abstractions.Messages
+﻿namespace Xunit.Abstractions
 {
-    class ITestClassStarting
+    public interface ITestClassStarting : ITestMessage
     {
+        IAssemblyInfo Assembly { get; }
+        string ClassName { get; }
     }
 }

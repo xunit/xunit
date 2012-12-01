@@ -49,6 +49,7 @@
     <Compile Include="Frameworks\ITestFramework.cs" />
     <Compile Include="LongLivedMarshalByRefObject.cs" />
     <Compile Include="Messages\IErrorMessage.cs" />
+    <Compile Include="Messages\IFinishedMessage.cs" />
     <Compile Include="Messages\ITestAssemblyFinished.cs" />
     <Compile Include="Messages\ITestAssemblyStarting.cs" />
     <Compile Include="Messages\ITestCaseFinished.cs" />
@@ -57,6 +58,9 @@
     <Compile Include="Messages\ITestClassStarting.cs" />
     <Compile Include="Messages\ITestCollectionFinished.cs" />
     <Compile Include="Messages\ITestCollectionStarting.cs" />
+    <Compile Include="Messages\ITestFinished.cs" />
+    <Compile Include="Messages\ITestPassed.cs" />
+    <Compile Include="Messages\ITestStarting.cs" />
     <Compile Include="Reflection\IParameterInfo.cs" />
     <Compile Include="Reflection\IReflectionParameterInfo.cs" />
     <Compile Include="Messages\IDiscoveryCompleteMessage.cs" />

@@ -102,6 +102,7 @@
     <Compile Include="AcceptanceTestInNewAppDomain.cs" />
     <Compile Include="MockAssembly.cs" />
     <Compile Include="MockAssemblyInfo.cs" />
+    <Compile Include="CustomAttributeData.cs" />
     <Compile Include="MockFactAttribute.cs" />
     <Compile Include="MockMethodInfo.cs" />
     <Compile Include="MockParameterInfo.cs" />

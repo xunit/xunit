@@ -60,6 +60,15 @@
     <Compile Include="Sdk\MessageBus.cs" />
     <Compile Include="Sdk\Messages\DiscoveryCompleteMessage.cs" />
     <Compile Include="Sdk\Messages\ErrorMessage.cs" />
+    <Compile Include="Sdk\Messages\TestCaseFinished.cs" />
+    <Compile Include="Sdk\Messages\TestCaseStarting.cs" />
+    <Compile Include="Sdk\Messages\TestClassFinished.cs" />
+    <Compile Include="Sdk\Messages\TestClassStarting.cs" />
+    <Compile Include="Sdk\Messages\TestCollectionFinished.cs" />
+    <Compile Include="Sdk\Messages\TestCollectionStarting.cs" />
+    <Compile Include="Sdk\Messages\TestFinished.cs" />
+    <Compile Include="Sdk\Messages\TestPassed.cs" />
+    <Compile Include="Sdk\Messages\TestStarting.cs" />
     <Compile Include="Sdk\Messages\TestAssemblyFinished.cs" />
     <Compile Include="Sdk\Messages\TestAssemblyStarting.cs" />
     <Compile Include="Sdk\Messages\TestCaseDiscoveryMessage.cs" />

@@ -14,6 +14,8 @@ namespace Xunit.Sdk
 
         public XunitTestFramework(string assemblyFileName)
         {
+            Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
+
             var assembly = Assembly.LoadFile(assemblyFileName);
             assemblyInfo = Reflector2.Wrap(assembly);
             sourceProvider = new VisualStudioSourceInformationProvider();
@@ -70,7 +72,26 @@ namespace Xunit.Sdk
 
         public void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
         {
-            throw new NotImplementedException();
+            messageSink.OnMessage(new TestAssemblyStarting { Assembly = assemblyInfo });
+
+            int totalRun = 0;
+
+            foreach (XunitTestCase testCase in testMethods)
+            {
+                ++totalRun;
+
+                messageSink.OnMessage(new TestCollectionStarting { Assembly = assemblyInfo });
+                messageSink.OnMessage(new TestClassStarting { Assembly = assemblyInfo, ClassName = testCase.Class.Name });
+                messageSink.OnMessage(new TestCaseStarting { TestCase = testCase });
+                messageSink.OnMessage(new TestStarting { TestCase = testCase, DisplayName = testCase.DisplayName });
+                messageSink.OnMessage(new TestPassed { TestCase = testCase, DisplayName = testCase.DisplayName });
+                messageSink.OnMessage(new TestFinished { TestCase = testCase, DisplayName = testCase.DisplayName });
+                messageSink.OnMessage(new TestCaseFinished { Assembly = assemblyInfo, TestCase = testCase, TestsRun = totalRun });
+                messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = testCase.Class.Name, TestsRun = totalRun });
+                messageSink.OnMessage(new TestCollectionFinished { Assembly = assemblyInfo, TestsRun = totalRun });
+            }
+
+            messageSink.OnMessage(new TestAssemblyFinished { Assembly = assemblyInfo, TestsRun = totalRun });
         }
 
         private ITestCase UpdateTestCaseWithSourceInfo(XunitTestCase testCase, bool includeSourceInformation)

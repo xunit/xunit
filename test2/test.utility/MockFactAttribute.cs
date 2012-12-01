@@ -1,14 +1,11 @@
-using System.Linq;
-using Moq;
-using Xunit.Abstractions;
+using Xunit;
 
-public class MockFactAttribute : Mock<IAttributeInfo>
+public class MockFactAttribute : CustomAttributeData<Fact2Attribute>
 {
     public MockFactAttribute(string displayName = null, string skip = null, int timeout = 0)
     {
-        Setup(a => a.GetConstructorArguments()).Returns(Enumerable.Empty<object>());
-        Setup(a => a.GetPropertyValue<string>("DisplayName")).Returns(displayName);
-        Setup(a => a.GetPropertyValue<string>("Skip")).Returns(skip);
-        Setup(a => a.GetPropertyValue<int>("Timeout")).Returns(timeout);
+        AddNamedArgument("DisplayName", displayName);
+        AddNamedArgument("Skip", skip);
+        AddNamedArgument("Timeout", timeout);
     }
 }
