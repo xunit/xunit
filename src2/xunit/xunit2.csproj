@@ -58,6 +58,10 @@
     <Compile Include="Sdk\IAssemblyLoader.cs" />
     <Compile Include="Sdk\IMessageBus.cs" />
     <Compile Include="Sdk\MessageBus.cs" />
+    <Compile Include="Sdk\Messages\DelegatingMessageSink.cs" />
+    <Compile Include="Sdk\Messages\TestFailed.cs" />
+    <Compile Include="Sdk\Messages\TestResultMessage.cs" />
+    <Compile Include="Sdk\Messages\TestSkipped.cs" />
     <Compile Include="Sdk\Messages\DiscoveryCompleteMessage.cs" />
     <Compile Include="Sdk\Messages\ErrorMessage.cs" />
     <Compile Include="Sdk\Messages\TestCaseFinished.cs" />

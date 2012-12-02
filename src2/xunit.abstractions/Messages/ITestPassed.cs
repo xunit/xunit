@@ -1,12 +1,6 @@
 ﻿namespace Xunit.Abstractions
 {
-    public interface ITestPassed : ITestMessage
+    public interface ITestPassed : ITestResultMessage
     {
-        ITestCase TestCase { get; }
-
-        /// <summary>
-        /// Gets the display name of the test.
-        /// </summary>
-        string DisplayName { get; }
     }
 }

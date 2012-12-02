@@ -2,9 +2,10 @@
 
 namespace Xunit.Sdk
 {
-    public class TestFinished : ITestFinished
+    public class TestFinished : LongLivedMarshalByRefObject, ITestFinished
     {
-        public ITestCase TestCase { get; set; }
         public string DisplayName { get; set; }
+        public decimal ExecutionTime { get; set; }
+        public ITestCase TestCase { get; set; }
     }
 }

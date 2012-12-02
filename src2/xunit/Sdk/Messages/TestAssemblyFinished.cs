@@ -2,7 +2,7 @@
 
 namespace Xunit.Sdk
 {
-    public class TestAssemblyFinished : ITestAssemblyFinished
+    public class TestAssemblyFinished : LongLivedMarshalByRefObject, ITestAssemblyFinished
     {
         public IAssemblyInfo Assembly { get; set; }
         public decimal ExecutionTime { get; set; }

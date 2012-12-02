@@ -1,9 +1,9 @@
 ﻿namespace Xunit.Abstractions
 {
-    public interface ITestFinished : ITestMessage
+    public interface ITestSkipped : ITestResultMessage
     {
         string DisplayName { get; }
-        decimal ExecutionTime { get; }
+        string Reason { get; }
         ITestCase TestCase { get; }
     }
 }

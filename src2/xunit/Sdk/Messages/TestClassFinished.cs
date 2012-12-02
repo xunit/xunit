@@ -2,7 +2,7 @@
 
 namespace Xunit.Sdk
 {
-    public class TestClassFinished : ITestClassFinished
+    public class TestClassFinished : LongLivedMarshalByRefObject, ITestClassFinished
     {
         public IAssemblyInfo Assembly { get; set; }
         public string ClassName { get; set; }

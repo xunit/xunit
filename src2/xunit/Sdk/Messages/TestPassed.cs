@@ -2,9 +2,7 @@
 
 namespace Xunit.Sdk
 {
-    public class TestPassed : ITestPassed
+    public class TestPassed : TestResultMessage, ITestPassed
     {
-        public ITestCase TestCase { get; set; }
-        public string DisplayName { get; set; }
     }
 }

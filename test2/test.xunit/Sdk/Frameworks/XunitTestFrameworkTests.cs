@@ -5,6 +5,8 @@ using Moq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using IAttributeInfo = Xunit.Abstractions.IAttributeInfo;
+using IMethodInfo = Xunit.Abstractions.IMethodInfo;
 using ITypeInfo = Xunit.Abstractions.ITypeInfo;
 
 public class XunitTestFrameworkTests
@@ -279,133 +281,20 @@ public class XunitTestFrameworkTests
     public class Run
     {
         // TODO: Guard clauses
-
-        [Fact]
-        public void NoTests()
-        {
-            var framework = TestableXunitTestFramework.Create();
-
-            framework.Run();
-
-            CollectionAssert.Collection(framework.Messages,
-                message =>
-                {
-                    var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);
-                    Assert.Same(framework.Assembly.Object, starting.Assembly);
-                },
-                message =>
-                {
-                    var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
-                    Assert.Equal(0, finished.TestsRun);
-                    Assert.Equal(0, finished.TestsFailed);
-                    Assert.Equal(0, finished.TestsSkipped);
-                    Assert.Equal(0M, finished.ExecutionTime);
-
-                    Assert.Same(framework.Assembly.Object, finished.Assembly);
-                }
-            );
-        }
-
-        [Fact]
-        public void OneTestMethod_EndToEnd()
-        {
-            var fact = new MockFactAttribute();
-            var method = new MockMethodInfo(attributes: new[] { fact });
-            var type = new MockTypeInfo(methods: new[] { method });
-            var assemblyInfo = new MockAssemblyInfo(types: new[] { type.Object });
-            var framework = TestableXunitTestFramework.Create(assemblyInfo);
-            var testCase = new XunitTestCase(assemblyInfo.Object, type.Object, method, fact);
-
-            framework.Run(testCase);
-
-            CollectionAssert.Collection(framework.Messages,
-                message =>
-                {
-                    var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);
-                    Assert.Same(framework.Assembly.Object, starting.Assembly);
-                },
-                message =>
-                {
-                    var collectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
-                    Assert.Same(framework.Assembly.Object, collectionStarting.Assembly);
-                    // TODO: How do we represent collections?
-                },
-                message =>
-                {
-                    var classStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
-                    Assert.Same(framework.Assembly.Object, classStarting.Assembly);
-                    Assert.Equal(type.Object.Name, classStarting.ClassName);
-                },
-                message =>
-                {
-                    var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
-                    Assert.Same(testCase, testCaseStarting.TestCase);
-                },
-                message =>
-                {
-                    var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
-                    Assert.Same(testCase, testStarting.TestCase);
-                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.DisplayName); // TODO: Differentiated names?
-                },
-                message =>
-                {
-                    var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
-                    Assert.Same(testCase, testPassed.TestCase);
-                    Assert.Equal(testPassed.TestCase.DisplayName, testPassed.DisplayName);
-                },
-                message =>
-                {
-                    var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
-                    Assert.Same(testCase, testFinished.TestCase);
-                    Assert.Equal(testFinished.TestCase.DisplayName, testFinished.DisplayName);
-                },
-                message =>
-                {
-                    var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
-                    Assert.Same(testCase, testCaseFinished.TestCase);
-                    Assert.Same(framework.Assembly.Object, testCaseFinished.Assembly);
-                    Assert.Equal(1, testCaseFinished.TestsRun);
-                    Assert.Equal(0, testCaseFinished.TestsFailed);
-                    Assert.Equal(0, testCaseFinished.TestsSkipped);
-                    Assert.Equal(0M, testCaseFinished.ExecutionTime); // TODO: Measure time?
-                },
-                message =>
-                {
-                    var classFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
-                    Assert.Same(framework.Assembly.Object, classFinished.Assembly);
-                    Assert.Equal(type.Object.Name, classFinished.ClassName);
-                    Assert.Equal(1, classFinished.TestsRun);
-                    Assert.Equal(0, classFinished.TestsFailed);
-                    Assert.Equal(0, classFinished.TestsSkipped);
-                    Assert.Equal(0M, classFinished.ExecutionTime); // TODO: Measure time?
-                },
-                message =>
-                {
-                    var collectionFinished = Assert.IsAssignableFrom<ITestCollectionFinished>(message);
-                    Assert.Same(framework.Assembly.Object, collectionFinished.Assembly);
-                    Assert.Equal(1, collectionFinished.TestsRun);
-                    Assert.Equal(0, collectionFinished.TestsFailed);
-                    Assert.Equal(0, collectionFinished.TestsSkipped);
-                    Assert.Equal(0M, collectionFinished.ExecutionTime); // TODO: Measure time?
-                    // TODO: How do we represent collections?
-                },
-                message =>
-                {
-                    var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
-                    Assert.Same(framework.Assembly.Object, finished.Assembly);
-                    Assert.Equal(1, finished.TestsRun);
-                    Assert.Equal(0, finished.TestsFailed);
-                    Assert.Equal(0, finished.TestsSkipped);
-                    Assert.Equal(0M, finished.ExecutionTime); // TODO: Measure time?
-                }
-            );
-        }
     }
 
     class ClassWithSingleTest
     {
         [Fact2]
         public void TestMethod() { }
+    }
+
+    class TestableXunitTestCase : XunitTestCase
+    {
+        public TestableXunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
+            : base(assembly, type, method, factAttribute, arguments) { }
+
+        protected override void RunTests(IMessageSink messageSink) { }
     }
 
     public class TestableXunitTestFramework : XunitTestFramework, IMessageSink

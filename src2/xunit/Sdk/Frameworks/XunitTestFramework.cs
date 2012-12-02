@@ -78,15 +78,15 @@ namespace Xunit.Sdk
 
             foreach (XunitTestCase testCase in testMethods)
             {
-                ++totalRun;
-
                 messageSink.OnMessage(new TestCollectionStarting { Assembly = assemblyInfo });
                 messageSink.OnMessage(new TestClassStarting { Assembly = assemblyInfo, ClassName = testCase.Class.Name });
-                messageSink.OnMessage(new TestCaseStarting { TestCase = testCase });
-                messageSink.OnMessage(new TestStarting { TestCase = testCase, DisplayName = testCase.DisplayName });
-                messageSink.OnMessage(new TestPassed { TestCase = testCase, DisplayName = testCase.DisplayName });
-                messageSink.OnMessage(new TestFinished { TestCase = testCase, DisplayName = testCase.DisplayName });
-                messageSink.OnMessage(new TestCaseFinished { Assembly = assemblyInfo, TestCase = testCase, TestsRun = totalRun });
+
+                var delegatingSink = new DelegatingMessageSink<ITestCaseFinished>(messageSink);
+                testCase.Run(delegatingSink);
+                delegatingSink.Finished.WaitOne();
+
+                totalRun += delegatingSink.FinalMessage.TestsRun;
+
                 messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = testCase.Class.Name, TestsRun = totalRun });
                 messageSink.OnMessage(new TestCollectionFinished { Assembly = assemblyInfo, TestsRun = totalRun });
             }

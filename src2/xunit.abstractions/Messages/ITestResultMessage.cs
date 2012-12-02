@@ -1,6 +1,6 @@
 ﻿namespace Xunit.Abstractions
 {
-    public interface ITestFinished : ITestMessage
+    public interface ITestResultMessage : ITestMessage
     {
         string DisplayName { get; }
         decimal ExecutionTime { get; }

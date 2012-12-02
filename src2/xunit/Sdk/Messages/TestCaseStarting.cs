@@ -2,7 +2,7 @@
 
 namespace Xunit.Sdk
 {
-    public class TestCaseStarting : ITestCaseStarting
+    public class TestCaseStarting : LongLivedMarshalByRefObject, ITestCaseStarting
     {
         public ITestCase TestCase { get; set; }
     }

@@ -2,7 +2,7 @@
 
 namespace Xunit.Sdk
 {
-    public class TestCollectionStarting : ITestCollectionStarting
+    public class TestCollectionStarting : LongLivedMarshalByRefObject, ITestCollectionStarting
     {
         public IAssemblyInfo Assembly { get; set; }
     }

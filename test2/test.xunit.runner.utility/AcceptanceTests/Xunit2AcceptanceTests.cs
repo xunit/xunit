@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using TestUtility;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -22,7 +21,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void NoTestMethods()
         {
-            using (var assm = new MockAssembly(code: ""))
+            using (var assm = new AcceptanceTestAssembly(code: ""))
             using (var controller = new XunitFrontController(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -48,7 +47,7 @@ public class Xunit2AcceptanceTests
                 }
             ";
 
-            using (var assm = new MockAssembly(code))
+            using (var assm = new AcceptanceTestAssembly(code))
             using (var controller = new XunitFrontController(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -98,7 +97,7 @@ public class Xunit2AcceptanceTests
                 }
             ";
 
-            using (var assembly = new MockAssembly(code))
+            using (var assembly = new AcceptanceTestAssembly(code))
             using (var controller = new XunitFrontController(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -140,7 +139,7 @@ public class Xunit2AcceptanceTests
                 }
             ";
 
-            using (var assembly = new MockAssembly(code))
+            using (var assembly = new AcceptanceTestAssembly(code))
             using (var controller = new XunitFrontController(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();

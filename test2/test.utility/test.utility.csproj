@@ -70,6 +70,10 @@
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src2\xunit.runner.utility\xunit.runner.utility.csproj">
+      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
+      <Name>xunit.runner.utility</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src2\xunit\xunit2.csproj">
       <Project>{09EF9917-4B00-4646-8C3F-96EFACC8BF51}</Project>
       <Name>xunit2</Name>
@@ -99,8 +103,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AcceptanceTest.cs" />
     <Compile Include="AcceptanceTestInNewAppDomain.cs" />
-    <Compile Include="MockAssembly.cs" />
+    <Compile Include="AcceptanceTestAssembly.cs" />
     <Compile Include="MockAssemblyInfo.cs" />
     <Compile Include="CustomAttributeData.cs" />
     <Compile Include="MockFactAttribute.cs" />

@@ -61,7 +61,7 @@ namespace Xunit.Sdk
             return new ReflectionTypeInfo(type);
         }
 
-        class ReflectionAssemblyInfo : IReflectionAssemblyInfo
+        class ReflectionAssemblyInfo : LongLivedMarshalByRefObject, IReflectionAssemblyInfo
         {
             public ReflectionAssemblyInfo(Assembly assembly)
             {
@@ -74,7 +74,8 @@ namespace Xunit.Sdk
             {
                 return CustomAttributeData.GetCustomAttributes(Assembly)
                                           .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-                                          .Select(Wrap);
+                                          .Select(Wrap)
+                                          .ToList();
             }
 
             public IEnumerable<ITypeInfo> GetTypes(bool includePrivateTypes)
@@ -97,7 +98,7 @@ namespace Xunit.Sdk
             }
         }
 
-        class ReflectionAttributeInfo : IReflectionAttributeInfo
+        class ReflectionAttributeInfo : LongLivedMarshalByRefObject, IReflectionAttributeInfo
         {
             public ReflectionAttributeInfo(CustomAttributeData attribute)
             {
@@ -131,7 +132,8 @@ namespace Xunit.Sdk
             {
                 return CustomAttributeData.GetCustomAttributes(AttributeData.AttributeType)
                                           .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-                                          .Select(Wrap);
+                                          .Select(Wrap)
+                                          .ToList();
             }
 
             public TValue GetPropertyValue<TValue>(string propertyName)
@@ -159,7 +161,7 @@ namespace Xunit.Sdk
             }
         }
 
-        class ReflectionMethodInfo : IReflectionMethodInfo
+        class ReflectionMethodInfo : LongLivedMarshalByRefObject, IReflectionMethodInfo
         {
             public ReflectionMethodInfo(MethodInfo method)
             {
@@ -197,7 +199,8 @@ namespace Xunit.Sdk
             {
                 return CustomAttributeData.GetCustomAttributes(MethodInfo)
                                           .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-                                          .Select(Wrap);
+                                          .Select(Wrap)
+                                          .ToList();
             }
 
             public override string ToString()
@@ -209,11 +212,12 @@ namespace Xunit.Sdk
             public IEnumerable<IParameterInfo> GetParameters()
             {
                 return MethodInfo.GetParameters()
-                                 .Select(Wrap);
+                                 .Select(Wrap)
+                                 .ToList();
             }
         }
 
-        class ReflectionParameterInfo : IReflectionParameterInfo
+        class ReflectionParameterInfo : LongLivedMarshalByRefObject, IReflectionParameterInfo
         {
             public ReflectionParameterInfo(ParameterInfo parameterInfo)
             {
@@ -228,7 +232,7 @@ namespace Xunit.Sdk
             public ParameterInfo ParameterInfo { get; private set; }
         }
 
-        class ReflectionTypeInfo : IReflectionTypeInfo
+        class ReflectionTypeInfo : LongLivedMarshalByRefObject, IReflectionTypeInfo
         {
             const BindingFlags publicBindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
             const BindingFlags nonPublicBindingFlags = BindingFlags.NonPublic | publicBindingFlags;
@@ -250,7 +254,7 @@ namespace Xunit.Sdk
 
             public IEnumerable<ITypeInfo> Interfaces
             {
-                get { return Type.GetInterfaces().Select(Wrap); }
+                get { return Type.GetInterfaces().Select(Wrap).ToList(); }
             }
 
             public bool IsAbstract
@@ -274,12 +278,15 @@ namespace Xunit.Sdk
             {
                 return CustomAttributeData.GetCustomAttributes(Type)
                                           .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-                                          .Select(Wrap);
+                                          .Select(Wrap)
+                                          .ToList();
             }
 
             public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
             {
-                return Type.GetMethods(includePrivateMethods ? nonPublicBindingFlags : publicBindingFlags).Select(Wrap);
+                return Type.GetMethods(includePrivateMethods ? nonPublicBindingFlags : publicBindingFlags)
+                           .Select(Wrap)
+                           .ToList();
             }
 
             public override string ToString()

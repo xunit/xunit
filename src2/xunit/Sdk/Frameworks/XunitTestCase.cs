@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -108,6 +109,78 @@ namespace Xunit.Sdk
         static string ParameterToDisplayValue(string parameterName, object parameterValue)
         {
             return parameterName + ": " + ParameterToDisplayValue(parameterValue);
+        }
+
+        public virtual void Run(IMessageSink messageSink)
+        {
+            int totalFailed = 0;
+            int totalRun = 0;
+            int totalSkipped = 0;
+            decimal executionTime = 0M;
+
+            messageSink.OnMessage(new TestCaseStarting { TestCase = this });
+
+            var delegatingSink = new DelegatingMessageSink(messageSink, msg =>
+            {
+                if (msg is ITestFinished)
+                {
+                    totalRun++;
+                    executionTime += ((ITestFinished)msg).ExecutionTime;
+                }
+                else if (msg is ITestFailed)
+                    totalFailed++;
+                else if (msg is ITestSkipped)
+                    totalSkipped++;
+            });
+
+            RunTests(delegatingSink);
+
+            messageSink.OnMessage(new TestCaseFinished
+            {
+                Assembly = Assembly,
+                ExecutionTime = executionTime,
+                TestCase = this,
+                TestsRun = totalRun,
+                TestsFailed = totalFailed,
+                TestsSkipped = totalSkipped
+            });
+        }
+
+        /// <summary>
+        /// Run the tests in the test case.
+        /// </summary>
+        /// <param name="messageSink">The message sink to send results to.</param>
+        protected virtual void RunTests(IMessageSink messageSink)
+        {
+            messageSink.OnMessage(new TestStarting { TestCase = this, DisplayName = DisplayName });
+
+            try
+            {
+                object testClass = Activator.CreateInstance(((IReflectionTypeInfo)Method.Type).Type);
+
+                if (!String.IsNullOrEmpty(SkipReason))
+                    messageSink.OnMessage(new TestSkipped { TestCase = this, DisplayName = DisplayName, Reason = SkipReason });
+                else
+                {
+                    ((IReflectionMethodInfo)Method).MethodInfo.Invoke(testClass, new object[0]);
+
+                    messageSink.OnMessage(new TestPassed { TestCase = this, DisplayName = DisplayName });
+                }
+            }
+            catch (Exception ex)
+            {
+                while (true)
+                {
+                    TargetInvocationException tiex = ex as TargetInvocationException;
+                    if (tiex == null)
+                        break;
+                    ex = tiex.InnerException;
+                }
+
+                messageSink.OnMessage(new TestFailed { TestCase = this, DisplayName = DisplayName, Exception = ex });
+            }
+
+            messageSink.OnMessage(new TestFinished { TestCase = this, DisplayName = DisplayName });
         }
     }
 }
