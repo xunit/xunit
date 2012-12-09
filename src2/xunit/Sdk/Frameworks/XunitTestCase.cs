@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -152,32 +151,56 @@ namespace Xunit.Sdk
         /// <param name="messageSink">The message sink to send results to.</param>
         protected virtual void RunTests(IMessageSink messageSink)
         {
+            List<Exception> exceptions = new List<Exception>();
+
             messageSink.OnMessage(new TestStarting { TestCase = this, DisplayName = DisplayName });
 
             try
             {
                 object testClass = Activator.CreateInstance(((IReflectionTypeInfo)Method.Type).Type);
 
-                if (!String.IsNullOrEmpty(SkipReason))
-                    messageSink.OnMessage(new TestSkipped { TestCase = this, DisplayName = DisplayName, Reason = SkipReason });
-                else
+                try
                 {
-                    ((IReflectionMethodInfo)Method).MethodInfo.Invoke(testClass, new object[0]);
-
-                    messageSink.OnMessage(new TestPassed { TestCase = this, DisplayName = DisplayName });
+                    if (!String.IsNullOrEmpty(SkipReason))
+                        messageSink.OnMessage(new TestSkipped { TestCase = this, DisplayName = DisplayName, Reason = SkipReason });
+                    else
+                        ((IReflectionMethodInfo)Method).MethodInfo.Invoke(testClass, new object[0]);
                 }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex.Unwrap());
+                }
+
+                try
+                {
+                    IDisposable disposable = testClass as IDisposable;
+                    if (disposable != null)
+                        disposable.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex.Unwrap());
+                }
+
             }
             catch (Exception ex)
             {
-                while (true)
-                {
-                    TargetInvocationException tiex = ex as TargetInvocationException;
-                    if (tiex == null)
-                        break;
-                    ex = tiex.InnerException;
-                }
+                exceptions.Add(ex.Unwrap());
+            }
 
-                messageSink.OnMessage(new TestFailed { TestCase = this, DisplayName = DisplayName, Exception = ex });
+            switch (exceptions.Count)
+            {
+                case 0:
+                    messageSink.OnMessage(new TestPassed { TestCase = this, DisplayName = DisplayName });
+                    break;
+
+                case 1:
+                    messageSink.OnMessage(new TestFailed { TestCase = this, DisplayName = DisplayName, Exception = exceptions[0] });
+                    break;
+
+                default:
+                    messageSink.OnMessage(new TestFailed { TestCase = this, DisplayName = DisplayName, Exception = new AggregateException(exceptions) });
+                    break;
             }
 
             messageSink.OnMessage(new TestFinished { TestCase = this, DisplayName = DisplayName });

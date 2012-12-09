@@ -44,6 +44,7 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Fact2Attribute.cs" />
     <Compile Include="InlineData2Attribute.cs" />
     <Compile Include="Sdk\AssemblyLoader.cs" />

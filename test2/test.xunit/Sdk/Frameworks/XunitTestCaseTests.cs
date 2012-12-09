@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -213,6 +215,180 @@ public class XunitTestCaseTests
             var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(sink.Messages.Last());
             Assert.Equal(3.5M, testCaseFinished.ExecutionTime);
         }
+
+        [Fact]
+        public void ConstructorAndDisposeAreCalled()
+        {
+            ConstructionDisposeSpy.Messages.Clear();
+            var testCase = TestableXunitTestCase.Create(typeof(ConstructionDisposeSpy), "TestMethod");
+
+            testCase.Run(new SpyMessageSink<ITestCaseFinished>());
+
+            CollectionAssert.Collection(ConstructionDisposeSpy.Messages,
+                message => Assert.Equal("Constructor", message),
+                message => Assert.Equal("Test Method", message),
+                message => Assert.Equal("Dispose", message)
+            );
+        }
+
+        class ConstructionDisposeSpy : IDisposable
+        {
+            public static List<string> Messages = new List<string>();
+
+            public ConstructionDisposeSpy()
+            {
+                Messages.Add("Constructor");
+            }
+
+            public void Dispose()
+            {
+                Messages.Add("Dispose");
+            }
+
+            [Fact2]
+            public void TestMethod()
+            {
+                Messages.Add("Test Method");
+            }
+        }
+
+        [Fact]
+        public void ThrowingConstructorCausesTestFailure()
+        {
+            var testCase = TestableXunitTestCase.Create(typeof(ThrowingConstructor), "TestMethod");
+            var sink = new SpyMessageSink<ITestCaseFinished>();
+
+            testCase.Run(sink);
+
+            CollectionAssert.Collection(sink.Messages,
+                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+                message => Assert.IsAssignableFrom<ITestStarting>(message),
+                message =>
+                {
+                    ITestFailed failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
+                    Assert.IsType<ArgumentException>(failedMessage.Exception);
+                },
+                message => Assert.IsAssignableFrom<ITestFinished>(message),
+                message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
+            );
+        }
+
+        class ThrowingConstructor
+        {
+            public ThrowingConstructor()
+            {
+                throw new ArgumentException();
+            }
+
+            [Fact]
+            public void TestMethod()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [Fact]
+        public void ThrowingTestMethodCausesTestFailure()
+        {
+            var testCase = TestableXunitTestCase.Create(typeof(ThrowingTestMethod), "TestMethod");
+            var sink = new SpyMessageSink<ITestCaseFinished>();
+
+            testCase.Run(sink);
+
+            CollectionAssert.Collection(sink.Messages,
+                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+                message => Assert.IsAssignableFrom<ITestStarting>(message),
+                message =>
+                {
+                    ITestFailed failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
+                    Assert.IsType<NotImplementedException>(failedMessage.Exception);
+                },
+                message => Assert.IsAssignableFrom<ITestFinished>(message),
+                message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
+            );
+        }
+
+        class ThrowingTestMethod
+        {
+            [Fact]
+            public void TestMethod()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [Fact]
+        public void ThrowingDisposeCausesTestFailure()
+        {
+            var testCase = TestableXunitTestCase.Create(typeof(ThrowingDispose), "TestMethod");
+            var sink = new SpyMessageSink<ITestCaseFinished>();
+
+            testCase.Run(sink);
+
+            CollectionAssert.Collection(sink.Messages,
+                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+                message => Assert.IsAssignableFrom<ITestStarting>(message),
+                message =>
+                {
+                    ITestFailed failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
+                    Assert.IsType<ArgumentNullException>(failedMessage.Exception);
+                },
+                message => Assert.IsAssignableFrom<ITestFinished>(message),
+                message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
+            );
+        }
+
+        class ThrowingDispose : IDisposable
+        {
+            [Fact]
+            public void TestMethod()
+            {
+            }
+
+            public void Dispose()
+            {
+                throw new ArgumentNullException();
+            }
+        }
+
+        [Fact]
+        public void ThrowingTestMethodAndThrowingDisposeCausesAggregateException()
+        {
+            var testCase = TestableXunitTestCase.Create(typeof(ThrowingTestAndDispose), "TestMethod");
+            var sink = new SpyMessageSink<ITestCaseFinished>();
+
+            testCase.Run(sink);
+
+            CollectionAssert.Collection(sink.Messages,
+                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+                message => Assert.IsAssignableFrom<ITestStarting>(message),
+                message =>
+                {
+                    ITestFailed failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
+                    AggregateException aggEx = Assert.IsType<AggregateException>(failedMessage.Exception);
+                    CollectionAssert.Collection(aggEx.InnerExceptions,
+                        ex => Assert.IsType<NotImplementedException>(ex),
+                        ex => Assert.IsType<ArgumentNullException>(ex)
+                    );
+                },
+                message => Assert.IsAssignableFrom<ITestFinished>(message),
+                message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
+            );
+        }
+
+        class ThrowingTestAndDispose : IDisposable
+        {
+            [Fact]
+            public void TestMethod()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Dispose()
+            {
+                throw new ArgumentNullException();
+            }
+        }
     }
 
     class SpyMessage : ITestMessage { }
@@ -224,7 +400,7 @@ public class XunitTestCaseTests
         TestableXunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, Action<IMessageSink> callback = null)
             : base(assembly, type, method, factAttribute)
         {
-            this.callback = callback ?? (sink => sink.OnMessage(new SpyMessage()));
+            this.callback = callback;
         }
 
         public static TestableXunitTestCase Create(Action<IMessageSink> callback = null)
@@ -234,12 +410,25 @@ public class XunitTestCaseTests
             var type = new MockTypeInfo(methods: new[] { method });
             var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
 
-            return new TestableXunitTestCase(assmInfo.Object, type.Object, method, fact, callback);
+            return new TestableXunitTestCase(assmInfo.Object, type.Object, method, fact, callback ?? (sink => sink.OnMessage(new SpyMessage())));
+        }
+
+        public static TestableXunitTestCase Create(Type typeUnderTest, string methodName)
+        {
+            var methodUnderTest = typeUnderTest.GetMethod(methodName);
+            var assembly = Reflector2.Wrap(typeUnderTest.Assembly);
+            var type = Reflector2.Wrap(typeUnderTest);
+            var method = Reflector2.Wrap(methodUnderTest);
+            var fact = Reflector2.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest).Single());
+            return new TestableXunitTestCase(assembly, type, method, fact);
         }
 
         protected override void RunTests(IMessageSink messageSink)
         {
-            callback(messageSink);
+            if (callback != null)
+                callback(messageSink);
+            else
+                base.RunTests(messageSink);
         }
     }
 }
