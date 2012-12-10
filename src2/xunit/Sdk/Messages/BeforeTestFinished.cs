@@ -2,8 +2,9 @@
 
 namespace Xunit.Sdk
 {
-    public class TestStarting : LongLivedMarshalByRefObject, ITestStarting
+    public class BeforeTestFinished : LongLivedMarshalByRefObject, IBeforeTestFinished
     {
+        public string AttributeName { get; set; }
         public ITestCase TestCase { get; set; }
         public string TestDisplayName { get; set; }
     }

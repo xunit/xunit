@@ -50,17 +50,37 @@ public class Xunit2AcceptanceTests
                 message =>
                 {
                     var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
-                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.DisplayName);
+                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
+                },
+                message =>
+                {
+                    var testStarting = Assert.IsAssignableFrom<ITestClassConstructionStarting>(message);
+                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
+                },
+                message =>
+                {
+                    var testStarting = Assert.IsAssignableFrom<ITestClassConstructionFinished>(message);
+                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
+                },
+                message =>
+                {
+                    var testStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
+                },
+                message =>
+                {
+                    var testStarting = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
                 },
                 message =>
                 {
                     var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
-                    Assert.Equal(testPassed.TestCase.DisplayName, testPassed.DisplayName);
+                    Assert.Equal(testPassed.TestCase.DisplayName, testPassed.TestDisplayName);
                 },
                 message =>
                 {
                     var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
-                    Assert.Equal(testFinished.TestCase.DisplayName, testFinished.DisplayName);
+                    Assert.Equal(testFinished.TestCase.DisplayName, testFinished.TestDisplayName);
                 },
                 message =>
                 {
@@ -108,7 +128,7 @@ public class Xunit2AcceptanceTests
             List<ITestSkipped> results = Run<ITestSkipped>(typeof(SingleSkippedTestClass));
 
             var skippedMessage = Assert.Single(results);
-            Assert.Equal("Xunit2AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.DisplayName);
+            Assert.Equal("Xunit2AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.TestDisplayName);
             Assert.Equal("This is a skipped test", skippedMessage.Reason);
         }
     }
@@ -121,7 +141,8 @@ public class Xunit2AcceptanceTests
             List<ITestFailed> results = Run<ITestFailed>(typeof(SingleFailingTestClass));
 
             var failedMessage = Assert.Single(results);
-            Assert.IsType<TrueException>(failedMessage.Exception);
+            System.Exception failedMessageException = failedMessage.Exception;
+            Assert.IsType<TrueException>(failedMessageException);
         }
     }
 

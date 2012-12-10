@@ -29,8 +29,6 @@ namespace Xunit.Sdk
     public class DelegatingMessageSink<TFinalMessage> : DelegatingMessageSink
         where TFinalMessage : class, ITestMessage
     {
-        IMessageSink innerSink;
-
         public DelegatingMessageSink(IMessageSink innerSink, Action<ITestMessage> callback = null)
             : base(innerSink, callback)
         {

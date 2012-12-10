@@ -13,5 +13,7 @@ public class CollectionAssert
 
         for (int idx = 0; idx < elements.Length; idx++)
             elementInspectors[idx](elements[idx]);
+
+        // REVIEW: Should this print out the contents of the collection when it fails?
     }
 }

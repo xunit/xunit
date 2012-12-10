@@ -50,6 +50,21 @@ namespace Xunit.Sdk
 
         public IMethodInfo Method { get; private set; }
 
+        protected IReflectionAssemblyInfo ReflectionAssembly
+        {
+            get { return (IReflectionAssemblyInfo)Assembly; }
+        }
+
+        protected IReflectionTypeInfo ReflectionClass
+        {
+            get { return (IReflectionTypeInfo)Class; }
+        }
+
+        protected IReflectionMethodInfo ReflectionMethod
+        {
+            get { return (IReflectionMethodInfo)Method; }
+        }
+
         public string SkipReason { get; private set; }
 
         public int? SourceFileLine { get; internal set; }
@@ -151,59 +166,127 @@ namespace Xunit.Sdk
         /// <param name="messageSink">The message sink to send results to.</param>
         protected virtual void RunTests(IMessageSink messageSink)
         {
+            messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName });
+
+            if (!String.IsNullOrEmpty(SkipReason))
+                messageSink.OnMessage(new TestSkipped { TestCase = this, TestDisplayName = DisplayName, Reason = SkipReason });
+            else
+            {
+                var aggregator = new ExceptionAggregator();
+                var beforeAttributesRun = new List<BeforeAfterTest2Attribute>();
+
+                aggregator.Run(() =>
+                {
+                    object testClass = null;
+
+                    if (!ReflectionMethod.IsStatic)
+                    {
+                        messageSink.OnMessage(new TestClassConstructionStarting { TestCase = this, TestDisplayName = DisplayName });
+
+                        try
+                        {
+                            testClass = Activator.CreateInstance(((IReflectionTypeInfo)Method.Type).Type);
+                        }
+                        finally
+                        {
+                            messageSink.OnMessage(new TestClassConstructionFinished { TestCase = this, TestDisplayName = DisplayName });
+                        }
+                    }
+
+                    IEnumerable<BeforeAfterTest2Attribute> beforeAfterAttributes =
+                        Class.GetCustomAttributes(typeof(BeforeAfterTest2Attribute))
+                             .Cast<IReflectionAttributeInfo>()
+                             .Select(rai => rai.Attribute)
+                             .Cast<BeforeAfterTest2Attribute>()
+                             .Concat(Method.GetCustomAttributes(typeof(BeforeAfterTest2Attribute))
+                                           .Cast<IReflectionAttributeInfo>()
+                                           .Select(rai => rai.Attribute)
+                                           .Cast<BeforeAfterTest2Attribute>());
+
+                    aggregator.Run(() =>
+                    {
+                        foreach (var beforeAfterAttribute in beforeAfterAttributes)
+                        {
+                            messageSink.OnMessage(new BeforeTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
+
+                            try
+                            {
+                                beforeAfterAttribute.Before(ReflectionMethod.MethodInfo);
+                                beforeAttributesRun.Add(beforeAfterAttribute);
+                            }
+                            finally
+                            {
+                                messageSink.OnMessage(new BeforeTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
+                            }
+                        }
+
+                        messageSink.OnMessage(new TestMethodStarting { TestCase = this, TestDisplayName = DisplayName });
+                        aggregator.Run(() => ReflectionMethod.MethodInfo.Invoke(testClass, new object[0]));
+                        messageSink.OnMessage(new TestMethodFinished { TestCase = this, TestDisplayName = DisplayName });
+                    });
+
+                    beforeAttributesRun.Reverse();
+
+                    foreach (var beforeAfterAttribute in beforeAttributesRun)
+                    {
+                        messageSink.OnMessage(new AfterTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
+                        aggregator.Run(() => beforeAfterAttribute.After(ReflectionMethod.MethodInfo));
+                        messageSink.OnMessage(new AfterTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
+                    }
+
+                    aggregator.Run(() =>
+                    {
+                        IDisposable disposable = testClass as IDisposable;
+                        if (disposable != null)
+                        {
+                            messageSink.OnMessage(new TestClassDisposeStarting { TestCase = this, TestDisplayName = DisplayName });
+
+                            try
+                            {
+                                disposable.Dispose();
+                            }
+                            finally
+                            {
+                                messageSink.OnMessage(new TestClassDisposeFinished { TestCase = this, TestDisplayName = DisplayName });
+                            }
+                        }
+                    });
+                });
+
+                Exception ex = aggregator.ToException();
+                if (ex == null)
+                    messageSink.OnMessage(new TestPassed { TestCase = this, TestDisplayName = DisplayName });
+                else
+                    messageSink.OnMessage(new TestFailed { TestCase = this, TestDisplayName = DisplayName, Exception = ex });
+            }
+
+            messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName });
+        }
+
+        class ExceptionAggregator
+        {
             List<Exception> exceptions = new List<Exception>();
 
-            messageSink.OnMessage(new TestStarting { TestCase = this, DisplayName = DisplayName });
-
-            try
+            public void Run(Action code)
             {
-                object testClass = Activator.CreateInstance(((IReflectionTypeInfo)Method.Type).Type);
-
                 try
                 {
-                    if (!String.IsNullOrEmpty(SkipReason))
-                        messageSink.OnMessage(new TestSkipped { TestCase = this, DisplayName = DisplayName, Reason = SkipReason });
-                    else
-                        ((IReflectionMethodInfo)Method).MethodInfo.Invoke(testClass, new object[0]);
+                    code();
                 }
                 catch (Exception ex)
                 {
                     exceptions.Add(ex.Unwrap());
                 }
-
-                try
-                {
-                    IDisposable disposable = testClass as IDisposable;
-                    if (disposable != null)
-                        disposable.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    exceptions.Add(ex.Unwrap());
-                }
-
             }
-            catch (Exception ex)
+
+            public Exception ToException()
             {
-                exceptions.Add(ex.Unwrap());
+                if (exceptions.Count == 0)
+                    return null;
+                if (exceptions.Count == 1)
+                    return exceptions[0];
+                return new AggregateException(exceptions);
             }
-
-            switch (exceptions.Count)
-            {
-                case 0:
-                    messageSink.OnMessage(new TestPassed { TestCase = this, DisplayName = DisplayName });
-                    break;
-
-                case 1:
-                    messageSink.OnMessage(new TestFailed { TestCase = this, DisplayName = DisplayName, Exception = exceptions[0] });
-                    break;
-
-                default:
-                    messageSink.OnMessage(new TestFailed { TestCase = this, DisplayName = DisplayName, Exception = new AggregateException(exceptions) });
-                    break;
-            }
-
-            messageSink.OnMessage(new TestFinished { TestCase = this, DisplayName = DisplayName });
         }
     }
 }

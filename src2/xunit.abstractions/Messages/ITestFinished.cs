@@ -2,8 +2,8 @@
 {
     public interface ITestFinished : ITestMessage
     {
-        string DisplayName { get; }
         decimal ExecutionTime { get; }
         ITestCase TestCase { get; }
+        string TestDisplayName { get; }
     }
 }

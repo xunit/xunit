@@ -2,7 +2,7 @@
 
 namespace Xunit.Sdk
 {
-    public class TestStarting : LongLivedMarshalByRefObject, ITestStarting
+    public class TestMethodFinished : LongLivedMarshalByRefObject, ITestMethodFinished
     {
         public ITestCase TestCase { get; set; }
         public string TestDisplayName { get; set; }

@@ -1,10 +1,9 @@
 ﻿namespace Xunit.Abstractions
 {
-    public interface ITestStarting : ITestMessage
+    public interface IBeforeTestFinished : ITestMessage
     {
+        string AttributeName { get; }
         ITestCase TestCase { get; }
         string TestDisplayName { get; }
-
-        // TODO: How do we differentiate a test?
     }
 }

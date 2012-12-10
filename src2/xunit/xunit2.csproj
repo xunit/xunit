@@ -44,6 +44,7 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="BeforeAfterTestAttribute.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Fact2Attribute.cs" />
     <Compile Include="InlineData2Attribute.cs" />
@@ -59,8 +60,18 @@
     <Compile Include="Sdk\IAssemblyLoader.cs" />
     <Compile Include="Sdk\IMessageBus.cs" />
     <Compile Include="Sdk\MessageBus.cs" />
+    <Compile Include="Sdk\Messages\BeforeTestFinished.cs" />
+    <Compile Include="Sdk\Messages\BeforeTestStarting.cs" />
+    <Compile Include="Sdk\Messages\AfterTestFinished.cs" />
+    <Compile Include="Sdk\Messages\AfterTestStarting.cs" />
     <Compile Include="Sdk\Messages\DelegatingMessageSink.cs" />
+    <Compile Include="Sdk\Messages\TestClassConstructionFinished.cs" />
+    <Compile Include="Sdk\Messages\TestClassConstructionStarting.cs" />
+    <Compile Include="Sdk\Messages\TestClassDisposeFinished.cs" />
+    <Compile Include="Sdk\Messages\TestClassDisposeStarting.cs" />
     <Compile Include="Sdk\Messages\TestFailed.cs" />
+    <Compile Include="Sdk\Messages\TestMethodFinished.cs" />
+    <Compile Include="Sdk\Messages\TestMethodStarting.cs" />
     <Compile Include="Sdk\Messages\TestResultMessage.cs" />
     <Compile Include="Sdk\Messages\TestSkipped.cs" />
     <Compile Include="Sdk\Messages\DiscoveryCompleteMessage.cs" />

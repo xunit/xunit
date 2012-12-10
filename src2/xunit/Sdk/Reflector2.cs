@@ -74,6 +74,7 @@ namespace Xunit.Sdk
             {
                 return CustomAttributeData.GetCustomAttributes(Assembly)
                                           .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
+                                          .OrderBy(attr => attr.AttributeType.Name)
                                           .Select(Wrap)
                                           .ToList();
             }
@@ -132,6 +133,7 @@ namespace Xunit.Sdk
             {
                 return CustomAttributeData.GetCustomAttributes(AttributeData.AttributeType)
                                           .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
+                                          .OrderBy(attr => attr.AttributeType.Name)
                                           .Select(Wrap)
                                           .ToList();
             }
@@ -199,6 +201,7 @@ namespace Xunit.Sdk
             {
                 return CustomAttributeData.GetCustomAttributes(MethodInfo)
                                           .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
+                                          .OrderBy(attr => attr.AttributeType.Name)
                                           .Select(Wrap)
                                           .ToList();
             }
@@ -278,6 +281,7 @@ namespace Xunit.Sdk
             {
                 return CustomAttributeData.GetCustomAttributes(Type)
                                           .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
+                                          .OrderBy(attr => attr.AttributeType.Name)
                                           .Select(Wrap)
                                           .ToList();
             }

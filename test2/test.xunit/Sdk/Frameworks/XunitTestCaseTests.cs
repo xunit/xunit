@@ -215,192 +215,695 @@ public class XunitTestCaseTests
             var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(sink.Messages.Last());
             Assert.Equal(3.5M, testCaseFinished.ExecutionTime);
         }
+    }
 
-        [Fact]
-        public void ConstructorAndDisposeAreCalled()
+    // TODO: We will want end-to-end versions, including deep inspection of the message values
+    // For now, we'll just make sure we're getting the right *kind* of messages back.
+
+    public class RunTests
+    {
+        public class StaticTestMethods
         {
-            ConstructionDisposeSpy.Messages.Clear();
-            var testCase = TestableXunitTestCase.Create(typeof(ConstructionDisposeSpy), "TestMethod");
-
-            testCase.Run(new SpyMessageSink<ITestCaseFinished>());
-
-            CollectionAssert.Collection(ConstructionDisposeSpy.Messages,
-                message => Assert.Equal("Constructor", message),
-                message => Assert.Equal("Test Method", message),
-                message => Assert.Equal("Dispose", message)
-            );
-        }
-
-        class ConstructionDisposeSpy : IDisposable
-        {
-            public static List<string> Messages = new List<string>();
-
-            public ConstructionDisposeSpy()
+            [Fact]
+            public void Skipped()
             {
-                Messages.Add("Constructor");
-            }
+                var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "SkippedMethod");
 
-            public void Dispose()
-            {
-                Messages.Add("Dispose");
-            }
+                testCase.RunTests();
 
-            [Fact2]
-            public void TestMethod()
-            {
-                Messages.Add("Test Method");
-            }
-        }
-
-        [Fact]
-        public void ThrowingConstructorCausesTestFailure()
-        {
-            var testCase = TestableXunitTestCase.Create(typeof(ThrowingConstructor), "TestMethod");
-            var sink = new SpyMessageSink<ITestCaseFinished>();
-
-            testCase.Run(sink);
-
-            CollectionAssert.Collection(sink.Messages,
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message =>
-                {
-                    ITestFailed failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
-                    Assert.IsType<ArgumentException>(failedMessage.Exception);
-                },
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
-            );
-        }
-
-        class ThrowingConstructor
-        {
-            public ThrowingConstructor()
-            {
-                throw new ArgumentException();
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestSkipped>(message),
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
             }
 
             [Fact]
-            public void TestMethod()
+            public void NonSkipped()
             {
-                throw new NotImplementedException();
+                var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "NonSkippedMethod");
+
+                testCase.RunTests();
+
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestPassed>(message),
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            class ClassUnderTest
+            {
+                [Fact2]
+                public static void NonSkippedMethod() { }
+
+                [Fact2(Skip = "Please don't run me")]
+                public static void SkippedMethod()
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
 
-        [Fact]
-        public void ThrowingTestMethodCausesTestFailure()
-        {
-            var testCase = TestableXunitTestCase.Create(typeof(ThrowingTestMethod), "TestMethod");
-            var sink = new SpyMessageSink<ITestCaseFinished>();
-
-            testCase.Run(sink);
-
-            CollectionAssert.Collection(sink.Messages,
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message =>
-                {
-                    ITestFailed failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
-                    Assert.IsType<NotImplementedException>(failedMessage.Exception);
-                },
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
-            );
-        }
-
-        class ThrowingTestMethod
+        public class ConstructorWithoutDispose
         {
             [Fact]
-            public void TestMethod()
+            public void Skipped()
             {
-                throw new NotImplementedException();
+                var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "SkippedMethod");
+
+                testCase.RunTests();
+
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestSkipped>(message),
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            [Fact]
+            public void NonSkipped()
+            {
+                var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "NonSkippedMethod");
+
+                testCase.RunTests();
+
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestPassed>(message),
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            class ClassUnderTest
+            {
+                [Fact2]
+                public void NonSkippedMethod() { }
+
+                [Fact2(Skip = "Please don't run me")]
+                public void SkippedMethod()
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            [Fact]
+            public void ThrowingConstructor()
+            {
+                var testCase = TestableXunitTestCase.Create(typeof(ThrowingCtorClassUnderTest), "NonSkippedMethod");
+
+                testCase.RunTests();
+
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                    message =>
+                    {
+                        ITestFailed failed = Assert.IsAssignableFrom<ITestFailed>(message);
+                        Assert.IsType<DivideByZeroException>(failed.Exception);
+                    },
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            class ThrowingCtorClassUnderTest
+            {
+                public ThrowingCtorClassUnderTest()
+                {
+                    throw new DivideByZeroException();
+                }
+
+                [Fact2]
+                public void NonSkippedMethod()
+                {
+                    throw new InvalidFilterCriteriaException();
+                }
             }
         }
 
-        [Fact]
-        public void ThrowingDisposeCausesTestFailure()
-        {
-            var testCase = TestableXunitTestCase.Create(typeof(ThrowingDispose), "TestMethod");
-            var sink = new SpyMessageSink<ITestCaseFinished>();
-
-            testCase.Run(sink);
-
-            CollectionAssert.Collection(sink.Messages,
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message =>
-                {
-                    ITestFailed failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
-                    Assert.IsType<ArgumentNullException>(failedMessage.Exception);
-                },
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
-            );
-        }
-
-        class ThrowingDispose : IDisposable
+        public class ConstructorWithDispose
         {
             [Fact]
-            public void TestMethod()
+            public void Skipped()
             {
+                var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "SkippedMethod");
+
+                testCase.RunTests();
+
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestSkipped>(message),
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
             }
 
-            public void Dispose()
+            [Fact]
+            public void NonSkipped()
             {
-                throw new ArgumentNullException();
+                var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "NonSkippedMethod");
+
+                testCase.RunTests();
+
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestPassed>(message),
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            class ClassUnderTest : IDisposable
+            {
+                [Fact2]
+                public void NonSkippedMethod() { }
+
+                [Fact2(Skip = "Please don't run me")]
+                public void SkippedMethod()
+                {
+                    throw new NotImplementedException();
+                }
+
+                public void Dispose() { }
+            }
+
+            [Fact]
+            public void ThrowingConstructor()
+            {
+                var testCase = TestableXunitTestCase.Create(typeof(ThrowingCtorClassUnderTest), "NonSkippedMethod");
+
+                testCase.RunTests();
+
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                    message =>
+                    {
+                        ITestFailed failed = Assert.IsAssignableFrom<ITestFailed>(message);
+                        Assert.IsType<DivideByZeroException>(failed.Exception);
+                    },
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            class ThrowingCtorClassUnderTest : IDisposable
+            {
+                public ThrowingCtorClassUnderTest()
+                {
+                    throw new DivideByZeroException();
+                }
+
+                [Fact2]
+                public void NonSkippedMethod()
+                {
+                    throw new InvalidFilterCriteriaException();
+                }
+
+                public void Dispose()
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            [Fact]
+            public void ThrowingDispose_SuccessfulTest()
+            {
+                var testCase = TestableXunitTestCase.Create(typeof(ThrowingDisposeClassUnderTest), "PassingTest");
+
+                testCase.RunTests();
+
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
+                    message =>
+                    {
+                        ITestFailed failed = Assert.IsAssignableFrom<ITestFailed>(message);
+                        Assert.IsType<NotImplementedException>(failed.Exception);
+                    },
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            [Fact]
+            public void ThrowingDispose_FailingTest()
+            {
+                var testCase = TestableXunitTestCase.Create(typeof(ThrowingDisposeClassUnderTest), "FailingTest");
+
+                testCase.RunTests();
+
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
+                    message =>
+                    {
+                        ITestFailed failed = Assert.IsAssignableFrom<ITestFailed>(message);
+                        var aggEx = Assert.IsType<AggregateException>(failed.Exception);
+                        CollectionAssert.Collection(aggEx.InnerExceptions,
+                            ex => Assert.IsType<InvalidFilterCriteriaException>(ex),
+                            ex => Assert.IsType<NotImplementedException>(ex)
+                        );
+                    },
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            class ThrowingDisposeClassUnderTest : IDisposable
+            {
+                [Fact2]
+                public void PassingTest() { }
+
+                [Fact2]
+                public void FailingTest()
+                {
+                    throw new InvalidFilterCriteriaException();
+                }
+
+                public void Dispose()
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
 
-        [Fact]
-        public void ThrowingTestMethodAndThrowingDisposeCausesAggregateException()
+        public class BeforeAfter_OnTestMethod
         {
-            var testCase = TestableXunitTestCase.Create(typeof(ThrowingTestAndDispose), "TestMethod");
-            var sink = new SpyMessageSink<ITestCaseFinished>();
+            [Fact]
+            public void Skipped()
+            {
+                var testCase = TestableXunitTestCase.Create(typeof(SkippedClassUnderTest), "SkippedMethod");
 
-            testCase.Run(sink);
+                testCase.RunTests();
 
-            CollectionAssert.Collection(sink.Messages,
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message =>
+                CollectionAssert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestSkipped>(message),
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            class SkippedClassUnderTest
+            {
+                [SpyBeforeAfterTest]
+                [Fact2(Skip = "Please don't run me")]
+                public void SkippedMethod()
                 {
-                    ITestFailed failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
-                    AggregateException aggEx = Assert.IsType<AggregateException>(failedMessage.Exception);
-                    CollectionAssert.Collection(aggEx.InnerExceptions,
-                        ex => Assert.IsType<NotImplementedException>(ex),
-                        ex => Assert.IsType<ArgumentNullException>(ex)
+                    throw new NotImplementedException();
+                }
+            }
+
+            public class SingleBeforeAfterAttribute
+            {
+                [Fact]
+                public void Success()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "PassingTestMethod");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
+                        message => Assert.IsAssignableFrom<ITestPassed>(message),
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
                     );
-                },
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
-            );
-        }
+                }
 
-        class ThrowingTestAndDispose : IDisposable
-        {
-            [Fact]
-            public void TestMethod()
-            {
-                throw new NotImplementedException();
+                [Fact]
+                public void BeforeThrows()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInBefore");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                        message =>
+                        {
+                            var failed = Assert.IsAssignableFrom<ITestFailed>(message);
+                            Assert.IsType<SpyBeforeAfterTest.BeforeException>(failed.Exception);
+                        },
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                [Fact]
+                public void AfterThrows()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInAfter");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
+                        message =>
+                        {
+                            var failed = Assert.IsAssignableFrom<ITestFailed>(message);
+                            Assert.IsType<SpyBeforeAfterTest.AfterException>(failed.Exception);
+                        },
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                [Fact]
+                public void AfterAndTestMethodThrows()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInAfterAndTest");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
+                        message =>
+                        {
+                            var failed = Assert.IsAssignableFrom<ITestFailed>(message);
+                            var aggEx = Assert.IsType<AggregateException>(failed.Exception);
+                            CollectionAssert.Collection(aggEx.InnerExceptions,
+                                ex => Assert.IsType<NotImplementedException>(ex),
+                                ex => Assert.IsType<SpyBeforeAfterTest.AfterException>(ex)
+                            );
+                        },
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                class ClassUnderTest
+                {
+                    [Fact2]
+                    [SpyBeforeAfterTest]
+                    public void PassingTestMethod() { }
+
+                    [Fact2]
+                    [SpyBeforeAfterTest(ThrowInBefore = true)]
+                    public void ThrowInBefore()
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    [Fact2]
+                    [SpyBeforeAfterTest(ThrowInAfter = true)]
+                    public void ThrowInAfter()
+                    {
+                    }
+
+                    [Fact2]
+                    [SpyBeforeAfterTest(ThrowInAfter = true)]
+                    public void ThrowInAfterAndTest()
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
             }
 
-            public void Dispose()
+            public class MultipleBeforeAfterAttributes
             {
-                throw new ArgumentNullException();
+                [Fact]
+                public void Success()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "PassingTestMethod");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
+                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
+                        message => Assert.IsAssignableFrom<ITestPassed>(message),
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                [Fact]
+                public void EarlyFailurePreventsLaterBeforeAfter()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInBefore");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
+                        message => Assert.IsAssignableFrom<ITestFailed>(message),
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                [Fact]
+                public void EarlyAfterFailureDoesNotPreventLaterAfterRun()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInAfter");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
+                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
+                        message =>
+                        {
+                            var failed = Assert.IsAssignableFrom<ITestFailed>(message);
+                            Assert.IsType<SpyBeforeAfterTest.AfterException>(failed.Exception);
+                        },
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                class ClassUnderTest
+                {
+                    [Fact2]
+                    [DummyBeforeAfterTest]
+                    [SpyBeforeAfterTest]
+                    public void PassingTestMethod() { }
+
+                    [Fact2]
+                    [DummyBeforeAfterTest(ThrowInBefore = true)]
+                    [SpyBeforeAfterTest]
+                    public void ThrowInBefore()
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    [Fact2]
+                    [DummyBeforeAfterTest]
+                    [SpyBeforeAfterTest(ThrowInAfter = true)]
+                    public void ThrowInAfter()
+                    {
+                    }
+                }
+            }
+        }
+
+        public class BeforeAfter_OnTestClass
+        {
+            public class Skipped
+            {
+                [Fact]
+                public void SkippedMethod()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "SkippedMethod");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestSkipped>(message),
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                [Fact]
+                public void NonSkippedMethod()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "NonSkippedMethod");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
+                        message => Assert.IsAssignableFrom<ITestPassed>(message),
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                [Fact]
+                public void BeforeAfterOnBothClassAndMethod()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "MethodWithBeforeAfter");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+                        message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
+                        message => Assert.IsAssignableFrom<ITestPassed>(message),
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                [Fact]
+                public void ClassBeforeAfterRunsBeforeMethodBeforeAfter()
+                {
+                    var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "MethodWithDummyBeforeAfter");
+
+                    testCase.RunTests();
+
+                    CollectionAssert.Collection(testCase.Messages,
+                        message => Assert.IsAssignableFrom<ITestStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
+                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
+                        message => Assert.IsAssignableFrom<ITestPassed>(message),
+                        message => Assert.IsAssignableFrom<ITestFinished>(message)
+                    );
+                }
+
+                [SpyBeforeAfterTest]
+                class ClassUnderTest
+                {
+                    [Fact2(Skip = "Please don't run me")]
+                    public void SkippedMethod()
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    [Fact2]
+                    public void NonSkippedMethod()
+                    {
+                    }
+
+                    [Fact2]
+                    [SpyBeforeAfterTest]
+                    public void MethodWithBeforeAfter()
+                    {
+                    }
+
+                    [Fact2]
+                    [DummyBeforeAfterTest]
+                    public void MethodWithDummyBeforeAfter()
+                    {
+                    }
+                }
             }
         }
     }
+
+    class DummyBeforeAfterTest : SpyBeforeAfterTest { }
 
     class SpyMessage : ITestMessage { }
 
     public class TestableXunitTestCase : XunitTestCase
     {
         Action<IMessageSink> callback;
+        SpyMessageSink<ITestMessage> sink = new SpyMessageSink<ITestMessage>();
 
         TestableXunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, Action<IMessageSink> callback = null)
             : base(assembly, type, method, factAttribute)
         {
             this.callback = callback;
+        }
+
+        public List<ITestMessage> Messages
+        {
+            get { return sink.Messages; }
         }
 
         public static TestableXunitTestCase Create(Action<IMessageSink> callback = null)
@@ -419,8 +922,14 @@ public class XunitTestCaseTests
             var assembly = Reflector2.Wrap(typeUnderTest.Assembly);
             var type = Reflector2.Wrap(typeUnderTest);
             var method = Reflector2.Wrap(methodUnderTest);
-            var fact = Reflector2.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest).Single());
+            var fact = Reflector2.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest)
+                                                          .Single(cad => cad.AttributeType == typeof(Fact2Attribute)));
             return new TestableXunitTestCase(assembly, type, method, fact);
+        }
+
+        public void RunTests()
+        {
+            RunTests(sink);
         }
 
         protected override void RunTests(IMessageSink messageSink)

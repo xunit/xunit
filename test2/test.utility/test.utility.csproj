@@ -103,6 +103,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SpyBeforeAfterTest.cs" />
     <Compile Include="AcceptanceTest.cs" />
     <Compile Include="AcceptanceTestInNewAppDomain.cs" />
     <Compile Include="AcceptanceTestAssembly.cs" />
