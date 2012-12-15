@@ -6,7 +6,7 @@ using System.Security;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// Exception thrown when code unexpectedly throws an exception.
+    /// Exception thrown when Assert.DoesNotThrow fails.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     [Serializable]
@@ -22,7 +22,7 @@ namespace Xunit.Sdk
         public DoesNotThrowException(Exception actual)
             : base("(No exception)",
                    actual.GetType().FullName + (actual.Message == null ? "" : ": " + actual.Message),
-                   "Assert.DoesNotThrow() failure")
+                   "Assert.DoesNotThrow() Failure")
         {
             stackTrace = actual.StackTrace;
         }

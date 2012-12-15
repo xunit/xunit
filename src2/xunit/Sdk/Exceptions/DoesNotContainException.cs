@@ -17,7 +17,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="expected">The expected object value</param>
         public DoesNotContainException(object expected)
-            : base(String.Format(CultureInfo.CurrentCulture, "Assert.DoesNotContain() failure: Found: {0}", expected)) { }
+            : base(String.Format(CultureInfo.CurrentCulture, "Assert.DoesNotContain() Failure: Found: {0}", expected)) { }
 
         /// <inheritdoc/>
         protected DoesNotContainException(SerializationInfo info, StreamingContext context)

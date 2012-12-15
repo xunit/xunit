@@ -22,7 +22,7 @@ public class MessageBusTests
             bus.QueueMessage(msg3.Object);
         }
 
-        CollectionAssert.Collection(spy.Messages,
+        Assert.Collection(spy.Messages,
             message => Assert.Same(msg1.Object, message),
             message => Assert.Same(msg2.Object, message),
             message => Assert.Same(msg3.Object, message)
@@ -77,7 +77,7 @@ public class MessageBusTests
             bus.QueueMessage(msg3.Object);
         }
 
-        CollectionAssert.Collection(messages,
+        Assert.Collection(messages,
             message => Assert.Same(message, msg1.Object),
             message => Assert.Same(message, msg3.Object)
         );

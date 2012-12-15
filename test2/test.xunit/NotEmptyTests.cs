@@ -12,7 +12,7 @@ public class NotEmptyTests
         NotEmptyException ex =
             Assert.Throws<NotEmptyException>(() => Assert.NotEmpty(list));
 
-        Assert.Equal("Assert.NotEmpty() failure", ex.Message);
+        Assert.Equal("Assert.NotEmpty() Failure", ex.Message);
     }
 
     [Fact]

@@ -23,7 +23,7 @@ public class EmptyTests
 
             EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty(list));
 
-            Assert.Equal("Assert.Empty() failure", ex.Message);
+            Assert.Equal("Assert.Empty() Failure", ex.Message);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ public class EmptyTests
         {
             EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty("Foo"));
 
-            Assert.Equal("Assert.Empty() failure", ex.Message);
+            Assert.Equal("Assert.Empty() Failure", ex.Message);
         }
     }
 }

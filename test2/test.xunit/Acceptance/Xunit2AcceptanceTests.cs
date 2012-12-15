@@ -12,7 +12,7 @@ public class Xunit2AcceptanceTests
         {
             List<ITestMessage> results = Run(typeof(NoTestsClass));
 
-            CollectionAssert.Collection(results,
+            Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
                 message =>
                 {
@@ -30,7 +30,7 @@ public class Xunit2AcceptanceTests
         {
             List<ITestMessage> results = Run(typeof(SinglePassingTestClass));
 
-            CollectionAssert.Collection(results,
+            Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
                 message =>
                 {

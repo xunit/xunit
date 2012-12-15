@@ -15,7 +15,7 @@ namespace Xunit.Sdk
         /// Creates a new instance of the <see cref="NotEmptyException"/> class.
         /// </summary>
         public NotEmptyException()
-            : base("Assert.NotEmpty() failure") { }
+            : base("Assert.NotEmpty() Failure") { }
 
         /// <inheritdoc/>
         protected NotEmptyException(SerializationInfo info, StreamingContext context)

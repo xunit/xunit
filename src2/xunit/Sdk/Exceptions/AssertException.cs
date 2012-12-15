@@ -136,5 +136,23 @@ namespace Xunit.Sdk
                 input = input.Substring(idx + Environment.NewLine.Length);
             }
         }
+
+        public override string ToString()
+        {
+            string className = GetType().ToString();
+            string message = this.Message;
+            string result;
+
+            if (message == null || message.Length <= 0)
+                result = className;
+            else
+                result = className + ": " + message;
+
+            string stackTrace = StackTrace;
+            if (stackTrace != null)
+                result = result + Environment.NewLine + stackTrace;
+
+            return result;
+        }
     }
 }

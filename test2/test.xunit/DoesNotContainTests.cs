@@ -32,7 +32,7 @@ public class DoesNotContainTests
             DoesNotContainException ex =
                 Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(42, list));
 
-            Assert.Equal("Assert.DoesNotContain() failure: Found: 42", ex.Message);
+            Assert.Equal("Assert.DoesNotContain() Failure: Found: 42", ex.Message);
         }
 
         [Fact]

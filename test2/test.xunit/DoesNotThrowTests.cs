@@ -13,7 +13,7 @@ public class DoesNotThrowTests
                 () => Assert.DoesNotThrow(
                     () => { throw new NotImplementedException("Exception Message"); }));
 
-        Assert.Equal("Assert.DoesNotThrow() failure", ex.UserMessage);
+        Assert.Equal("Assert.DoesNotThrow() Failure", ex.UserMessage);
         Assert.Equal("(No exception)", ex.Expected);
         Assert.Equal("System.NotImplementedException: Exception Message", ex.Actual);
     }

@@ -17,7 +17,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="expected">The expected object value</param>
         public ContainsException(object expected)
-            : base(String.Format(CultureInfo.CurrentCulture, "Assert.Contains() failure: Not found: {0}", expected)) { }
+            : base(String.Format(CultureInfo.CurrentCulture, "Assert.Contains() Failure: Not found: {0}", expected)) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="ContainsException"/> class.
@@ -25,7 +25,7 @@ namespace Xunit.Sdk
         /// <param name="expected">The expected object value</param>
         /// <param name="actual">The actual value</param>
         public ContainsException(object expected, object actual)
-            : base(String.Format(CultureInfo.CurrentCulture, "Assert.Contains() failure:{2}Not found: {0}{2}In value:  {1}", expected, actual, Environment.NewLine)) { }
+            : base(String.Format(CultureInfo.CurrentCulture, "Assert.Contains() Failure:{2}Not found: {0}{2}In value:  {1}", expected, actual, Environment.NewLine)) { }
 
         /// <inheritdoc/>
         protected ContainsException(SerializationInfo info, StreamingContext context)

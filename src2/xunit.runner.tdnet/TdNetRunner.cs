@@ -98,9 +98,9 @@ namespace Xunit.Runner.TdNet
 
         public TestRunState RunMember(ITestListener testListener, Assembly assembly, MemberInfo member)
         {
-            if (member.MemberType == MemberTypes.TypeInfo)
+            if (member is Type)
                 return RunClassWithInnerTypes(testListener, assembly, (Type)member);
-            if (member.MemberType == MemberTypes.Method)
+            if (member is MethodInfo)
                 return RunMethod(testListener, assembly, (MethodInfo)member);
 
             return TestRunState.NoTests;

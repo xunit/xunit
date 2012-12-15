@@ -15,7 +15,7 @@ namespace Xunit.Sdk
         /// Creates a new instance of the <see cref="EmptyException"/> class.
         /// </summary>
         public EmptyException()
-            : base("Assert.Empty() failure") { }
+            : base("Assert.Empty() Failure") { }
 
         /// <inheritdoc/>
         protected EmptyException(SerializationInfo info, StreamingContext context)

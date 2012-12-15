@@ -74,8 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
-    <Compile Include="Asserts\CollectionAssert.cs" />
-    <Compile Include="Asserts\ExceptionAssert.cs" />
+    <Compile Include="Asserts\CollectionAssertTests.cs" />
     <Compile Include="ContainsTests.cs" />
     <Compile Include="DoesNotContainTests.cs" />
     <Compile Include="DoesNotThrowTests.cs" />

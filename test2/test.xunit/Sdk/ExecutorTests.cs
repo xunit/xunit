@@ -76,7 +76,7 @@
 
 //            new Executor2.EnumerateTests(executor, includeSourceInformation: false);
 
-//            CollectionAssert.Collection(executor.Messages,
+//            Assert.Collection(executor.Messages,
 //                message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
 //            );
 //        }
@@ -90,7 +90,7 @@
 
 //            new Executor2.EnumerateTests(executor, includeSourceInformation: false);
 
-//            CollectionAssert.Collection(executor.Messages,
+//            Assert.Collection(executor.Messages,
 //                message => Assert.Same(testCase.Object, ((ITestCaseDiscoveryMessage)message).TestCase),
 //                message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
 //            );
@@ -106,7 +106,7 @@
 
 //            new Executor2.EnumerateTests(executor, includeSourceInformation: false);
 
-//            CollectionAssert.Collection(executor.Messages,
+//            Assert.Collection(executor.Messages,
 //                message => Assert.Same(testCase.Object, ((ITestCaseDiscoveryMessage)message).TestCase),
 //                message => Assert.Same(thrown, ((IErrorMessage)message).Error),
 //                message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
@@ -130,7 +130,7 @@
 
 //            new Executor2.RunTests(executor, new ITestCase[0], default(CancellationToken));
 
-//            CollectionAssert.Collection(executor.Messages,
+//            Assert.Collection(executor.Messages,
 //                message =>
 //                {
 //                    var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);
@@ -161,7 +161,7 @@
 
 //            new Executor2.RunTests(executor, new ITestCase[0], default(CancellationToken));
 
-//            CollectionAssert.Collection(executor.Messages,
+//            Assert.Collection(executor.Messages,
 //                message =>
 //                {
 //                    var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);

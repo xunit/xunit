@@ -16,8 +16,8 @@ public class XunitTestFrameworkTests
         [Fact]
         public void GuardClauses()
         {
-            ExceptionAssert.ThrowsArgumentNull(() => new XunitTestFramework(assemblyFileName: null), "assemblyFileName");
-            ExceptionAssert.ThrowsArgument(() => new XunitTestFramework(assemblyFileName: ""), "assemblyFileName");
+            Assert.ThrowsArgumentNull(() => new XunitTestFramework(assemblyFileName: null), "assemblyFileName");
+            Assert.ThrowsArgument(() => new XunitTestFramework(assemblyFileName: ""), "assemblyFileName");
         }
     }
 
@@ -29,7 +29,7 @@ public class XunitTestFrameworkTests
             var framework = TestableXunitTestFramework.Create();
             var sink = new Mock<IMessageSink>();
 
-            ExceptionAssert.ThrowsArgumentNull(
+            Assert.ThrowsArgumentNull(
                 () => framework.Find(includeSourceInformation: false, messageSink: null),
                 "messageSink"
             );
@@ -42,7 +42,7 @@ public class XunitTestFrameworkTests
 
             framework.Find();
 
-            CollectionAssert.Collection(framework.Messages,
+            Assert.Collection(framework.Messages,
                 message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
             );
         }
@@ -96,7 +96,7 @@ public class XunitTestFrameworkTests
 
             framework.Find(includeSourceInformation: true);
 
-            CollectionAssert.Collection(framework.Messages,
+            Assert.Collection(framework.Messages,
                 message =>
                 {
                     var discoveryMessage = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(message);
@@ -118,11 +118,11 @@ public class XunitTestFrameworkTests
             var type = new Mock<ITypeInfo>();
             var sink = new Mock<IMessageSink>();
 
-            ExceptionAssert.ThrowsArgumentNull(
+            Assert.ThrowsArgumentNull(
                 () => framework.Find(type: null, includeSourceInformation: false, messageSink: sink.Object),
                 "type"
             );
-            ExceptionAssert.ThrowsArgumentNull(
+            Assert.ThrowsArgumentNull(
                 () => framework.Find(type: type.Object, includeSourceInformation: false, messageSink: null),
                 "messageSink"
             );
@@ -173,7 +173,7 @@ public class XunitTestFrameworkTests
 
             framework.Find(typeInfo, includeSourceInformation: true);
 
-            CollectionAssert.Collection(framework.Messages,
+            Assert.Collection(framework.Messages,
                 message =>
                 {
                     var discoveryMessage = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(message);

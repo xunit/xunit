@@ -38,7 +38,7 @@ public class ContainsTests
 
             ContainsException ex = Assert.Throws<ContainsException>(() => Assert.Contains(42, list));
 
-            Assert.Equal("Assert.Contains() failure: Not found: 42", ex.Message);
+            Assert.Equal("Assert.Contains() Failure: Not found: 42", ex.Message);
         }
 
         [Fact]
@@ -89,7 +89,7 @@ public class ContainsTests
             var ex = Record.Exception(() => Assert.Contains("WORLD", "Hello, world!"));
 
             Assert.IsType<ContainsException>(ex);
-            Assert.Equal("Assert.Contains() failure:" + Environment.NewLine +
+            Assert.Equal("Assert.Contains() Failure:" + Environment.NewLine +
                          "Not found: WORLD" + Environment.NewLine +
                          "In value:  Hello, world!", ex.Message);
         }

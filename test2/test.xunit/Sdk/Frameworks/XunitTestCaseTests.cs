@@ -128,7 +128,7 @@ public class XunitTestCaseTests
             testCase.Run(sink);
             sink.Finished.WaitOne();
 
-            CollectionAssert.Collection(sink.Messages,
+            Assert.Collection(sink.Messages,
                 message =>
                 {
                     var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
@@ -231,7 +231,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestSkipped>(message),
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
@@ -245,7 +245,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                     message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
@@ -276,7 +276,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestSkipped>(message),
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
@@ -290,7 +290,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -320,7 +320,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -357,7 +357,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestSkipped>(message),
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
@@ -371,7 +371,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -405,7 +405,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -444,7 +444,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -468,7 +468,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -480,7 +480,7 @@ public class XunitTestCaseTests
                     {
                         ITestFailed failed = Assert.IsAssignableFrom<ITestFailed>(message);
                         var aggEx = Assert.IsType<AggregateException>(failed.Exception);
-                        CollectionAssert.Collection(aggEx.InnerExceptions,
+                        Assert.Collection(aggEx.InnerExceptions,
                             ex => Assert.IsType<InvalidFilterCriteriaException>(ex),
                             ex => Assert.IsType<NotImplementedException>(ex)
                         );
@@ -516,7 +516,7 @@ public class XunitTestCaseTests
 
                 testCase.RunTests();
 
-                CollectionAssert.Collection(testCase.Messages,
+                Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestSkipped>(message),
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
@@ -542,7 +542,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -564,7 +564,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -586,7 +586,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -612,7 +612,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -626,7 +626,7 @@ public class XunitTestCaseTests
                         {
                             var failed = Assert.IsAssignableFrom<ITestFailed>(message);
                             var aggEx = Assert.IsType<AggregateException>(failed.Exception);
-                            CollectionAssert.Collection(aggEx.InnerExceptions,
+                            Assert.Collection(aggEx.InnerExceptions,
                                 ex => Assert.IsType<NotImplementedException>(ex),
                                 ex => Assert.IsType<SpyBeforeAfterTest.AfterException>(ex)
                             );
@@ -672,7 +672,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -698,7 +698,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -716,7 +716,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -775,7 +775,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestSkipped>(message),
                         message => Assert.IsAssignableFrom<ITestFinished>(message)
@@ -789,7 +789,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -811,7 +811,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
@@ -837,7 +837,7 @@ public class XunitTestCaseTests
 
                     testCase.RunTests();
 
-                    CollectionAssert.Collection(testCase.Messages,
+                    Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
