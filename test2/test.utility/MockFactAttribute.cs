@@ -1,6 +1,6 @@
 using Xunit;
 
-public class MockFactAttribute : CustomAttributeData<Fact2Attribute>
+public class MockFactAttribute : CustomAttributeData<FactAttribute>
 {
     public MockFactAttribute(string displayName = null, string skip = null, int timeout = 0)
     {

@@ -5,7 +5,7 @@ namespace Xunit
 {
     [XunitDiscoverer(DiscovererType = typeof(TheoryDiscoverer))]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class Theory2Attribute : Fact2Attribute
+    public class TheoryAttribute : FactAttribute
     {
     }
 }

@@ -7,7 +7,7 @@ namespace Xunit
     [XunitDiscoverer(DiscovererType = typeof(FactDiscoverer))]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
-    public class Fact2Attribute : Attribute
+    public class FactAttribute : Attribute
     {
         /// <summary>
         /// Gets the name of the test to be used when the test is skipped. Defaults to

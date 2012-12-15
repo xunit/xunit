@@ -71,28 +71,58 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="xunit, Version=1.9.1.1600, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.extensions">
-      <HintPath>..\..\packages\xunit.extensions.1.9.1\lib\net20\xunit.extensions.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
     <Compile Include="Asserts\CollectionAssert.cs" />
     <Compile Include="Asserts\ExceptionAssert.cs" />
+    <Compile Include="ContainsTests.cs" />
+    <Compile Include="DoesNotContainTests.cs" />
+    <Compile Include="DoesNotThrowTests.cs" />
+    <Compile Include="EmptyTests.cs" />
+    <Compile Include="EqualTests.cs" />
+    <Compile Include="FactAttributeTests.cs" />
+    <Compile Include="FalseTests.cs" />
+    <Compile Include="InRangeTests.cs" />
+    <Compile Include="IsAssignableFromTests.cs" />
+    <Compile Include="IsNotTypeTests.cs" />
+    <Compile Include="IsTypeTests.cs" />
+    <Compile Include="NotEmptyTests.cs" />
+    <Compile Include="NotEqualTests.cs" />
+    <Compile Include="NotInRangeTests.cs" />
+    <Compile Include="NotNullTests.cs" />
+    <Compile Include="NotSameTests.cs" />
+    <Compile Include="NullTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyChangedTests.cs" />
+    <Compile Include="RecordTests.cs" />
+    <Compile Include="SameTests.cs" />
+    <Compile Include="Sdk\Exceptions\AssertActualExpectedExceptionTests.cs" />
+    <Compile Include="Sdk\Exceptions\AssertExceptionTests.cs" />
+    <Compile Include="Sdk\Exceptions\DoesNotThrowExceptionTests.cs" />
+    <Compile Include="Sdk\Exceptions\EqualExceptionTests.cs" />
+    <Compile Include="Sdk\Exceptions\ExceptionRequirementTests.cs" />
+    <Compile Include="Sdk\Exceptions\InRangeExceptionTests.cs" />
+    <Compile Include="Sdk\Exceptions\NotInRangeExceptionTests.cs" />
+    <Compile Include="Sdk\Exceptions\ThrowsExceptionTests.cs" />
+    <Compile Include="Sdk\Exceptions\TraceAssertExceptionTests.cs" />
     <Compile Include="Sdk\ExecutorTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkTests.cs" />
     <Compile Include="Sdk\MessageBusTests.cs" />
+    <Compile Include="SerializationTests.cs" />
+    <Compile Include="SingleTests.cs" />
+    <Compile Include="ThrowsTests.cs" />
+    <Compile Include="TrueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src2\xunit.abstractions\xunit.abstractions.csproj">
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src2\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
+      <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
+      <Name>xunit.runner.tdnet</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src2\xunit.runner.utility\xunit.runner.utility.csproj">
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>

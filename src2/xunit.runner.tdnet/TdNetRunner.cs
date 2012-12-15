@@ -10,14 +10,14 @@ namespace Xunit.Runner.TdNet
 {
     public class TdNetRunner : ITdNetTestRunner
     {
-        private static IEnumerable<IMethodTestCase> Discover(IXunitController controller)
+        private static IEnumerable<IMethodTestCase> Discover(IXunitController controller, ITestListener testListener)
         {
-            return Discover(sink => controller.Find(false, sink));
+            return Discover(testListener, sink => controller.Find(false, sink));
         }
 
-        private static IEnumerable<IMethodTestCase> Discover(IXunitController controller, Type type)
+        private static IEnumerable<IMethodTestCase> Discover(IXunitController controller, ITestListener testListener, Type type)
         {
-            return Discover(sink => controller.Find(Reflector2.Wrap(type), false, sink));
+            return Discover(testListener, sink => controller.Find(Reflector2.Wrap(type), false, sink));
         }
 
         protected virtual IXunitController CreateController(string assemblyFileName)
@@ -25,25 +25,41 @@ namespace Xunit.Runner.TdNet
             return new XunitFrontController(assemblyFileName, null, false);
         }
 
-        private static IEnumerable<IMethodTestCase> Discover(Action<IMessageSink> discoveryAction)
+        private static IEnumerable<IMethodTestCase> Discover(ITestListener testListener, Action<IMessageSink> discoveryAction)
         {
-            var collector = new MessageCollector<IDiscoveryCompleteMessage>();
-            discoveryAction(collector);
-            collector.Finished.WaitOne();
+            try
+            {
+                var collector = new MessageCollector<IDiscoveryCompleteMessage>();
+                discoveryAction(collector);
+                collector.Finished.WaitOne();
 
-            var testCases = collector.Messages
-                                     .OfType<ITestCaseDiscoveryMessage>()
-                                     .Select(msg => (IMethodTestCase)msg.TestCase);
-            return testCases;
+                var testCases = collector.Messages
+                                         .OfType<ITestCaseDiscoveryMessage>()
+                                         .Select(msg => (IMethodTestCase)msg.TestCase);
+                return testCases;
+            }
+            catch (Exception ex)
+            {
+                testListener.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
+                return Enumerable.Empty<IMethodTestCase>();
+            }
         }
 
         private static TestRunState Run(IXunitController controller, ITestListener testListener, Assembly assembly, IEnumerable<ITestCase> testCases)
         {
-            var visitor = new ResultVisitor(testListener, assembly);
-            controller.Run(testCases.ToList(), visitor);
-            visitor.Finished.WaitOne();
+            try
+            {
+                var visitor = new ResultVisitor(testListener, assembly);
+                controller.Run(testCases.ToList(), visitor);
+                visitor.Finished.WaitOne();
 
-            return visitor.TestRunState;
+                return visitor.TestRunState;
+            }
+            catch (Exception ex)
+            {
+                testListener.WriteLine("Error during test execution:\r\n" + ex, Category.Error);
+                return TestRunState.Error;
+            }
         }
 
         public TestRunState RunAssembly(ITestListener testListener, Assembly assembly)
@@ -51,12 +67,12 @@ namespace Xunit.Runner.TdNet
             string assemblyFileName = new Uri(assembly.CodeBase).LocalPath;
 
             using (var controller = CreateController(assemblyFileName))
-                return Run(controller, testListener, assembly, Discover(controller));
+                return Run(controller, testListener, assembly, Discover(controller, testListener));
         }
 
         private static TestRunState RunClass(IXunitController controller, ITestListener testListener, Assembly assembly, Type type, TestRunState initialRunState)
         {
-            return Run(controller, testListener, assembly, Discover(controller, type));
+            return Run(controller, testListener, assembly, Discover(controller, testListener, type));
         }
 
         public TestRunState RunClassWithInnerTypes(ITestListener testListener, Assembly assembly, Type type)
@@ -96,7 +112,7 @@ namespace Xunit.Runner.TdNet
 
             using (var controller = CreateController(assemblyFileName))
             {
-                var testCases = Discover(controller).Where(tc => tc.ToMethodInfo() == method);
+                var testCases = Discover(controller, testListener).Where(tc => tc.ToMethodInfo() == method);
 
                 return Run(controller, testListener, assembly, testCases);
             }
@@ -108,7 +124,7 @@ namespace Xunit.Runner.TdNet
 
             using (var controller = CreateController(assemblyFileName))
             {
-                var testCases = Discover(controller).Where(tc => ns == null || tc.ToType().Namespace == ns);
+                var testCases = Discover(controller, testListener).Where(tc => ns == null || tc.ToType().Namespace == ns);
 
                 return Run(controller, testListener, assembly, testCases);
             }

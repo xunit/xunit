@@ -1,4 +1,4 @@
-﻿//using TestDriven.Framework;
-//using Xunit.Runner.TdNet;
+﻿using TestDriven.Framework;
+using Xunit.Runner.TdNet;
 
-//[assembly: CustomTestRunner(typeof(TdNetRunner))]
+[assembly: CustomTestRunner(typeof(TdNetRunner))]

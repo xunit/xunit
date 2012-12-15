@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Xunit;
+using Xunit.Sdk;
 
 public class SpyBeforeAfterTest : BeforeAfterTest2Attribute
 {

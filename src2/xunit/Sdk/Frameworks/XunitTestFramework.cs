@@ -54,7 +54,7 @@ namespace Xunit.Sdk
         {
             foreach (IMethodInfo method in type.GetMethods(includePrivateMethods: true))
             {
-                IAttributeInfo factAttribute = method.GetCustomAttributes(typeof(Fact2Attribute)).FirstOrDefault();
+                IAttributeInfo factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
                 if (factAttribute != null)
                 {
                     IAttributeInfo discovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitDiscovererAttribute)).FirstOrDefault();

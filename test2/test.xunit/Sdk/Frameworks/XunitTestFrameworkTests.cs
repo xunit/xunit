@@ -206,7 +206,7 @@ public class XunitTestFrameworkTests
 
         class ClassWithOneFact
         {
-            [Fact2]
+            [Fact]
             public void TestMethod() { }
         }
 
@@ -224,10 +224,10 @@ public class XunitTestFrameworkTests
 
         class ClassWithMixOfFactsAndNonFacts
         {
-            [Fact2]
+            [Fact]
             public void TestMethod1() { }
 
-            [Fact2]
+            [Fact]
             public void TestMethod2() { }
 
             public void NonTestMethod() { }
@@ -253,9 +253,9 @@ public class XunitTestFrameworkTests
 
         class TheoryWithInlineData
         {
-            [Theory2]
-            [InlineData2("Hello world")]
-            [InlineData2(42)]
+            [Theory]
+            [InlineData("Hello world")]
+            [InlineData(42)]
             public void TheoryMethod(object value) { }
         }
 
@@ -285,7 +285,7 @@ public class XunitTestFrameworkTests
 
     class ClassWithSingleTest
     {
-        [Fact2]
+        [Fact]
         public void TestMethod() { }
     }
 

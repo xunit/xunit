@@ -256,10 +256,10 @@ public class XunitTestCaseTests
 
             class ClassUnderTest
             {
-                [Fact2]
+                [Fact]
                 public static void NonSkippedMethod() { }
 
-                [Fact2(Skip = "Please don't run me")]
+                [Fact(Skip = "Please don't run me")]
                 public static void SkippedMethod()
                 {
                     throw new NotImplementedException();
@@ -303,10 +303,10 @@ public class XunitTestCaseTests
 
             class ClassUnderTest
             {
-                [Fact2]
+                [Fact]
                 public void NonSkippedMethod() { }
 
-                [Fact2(Skip = "Please don't run me")]
+                [Fact(Skip = "Please don't run me")]
                 public void SkippedMethod()
                 {
                     throw new NotImplementedException();
@@ -340,7 +340,7 @@ public class XunitTestCaseTests
                     throw new DivideByZeroException();
                 }
 
-                [Fact2]
+                [Fact]
                 public void NonSkippedMethod()
                 {
                     throw new InvalidFilterCriteriaException();
@@ -386,10 +386,10 @@ public class XunitTestCaseTests
 
             class ClassUnderTest : IDisposable
             {
-                [Fact2]
+                [Fact]
                 public void NonSkippedMethod() { }
 
-                [Fact2(Skip = "Please don't run me")]
+                [Fact(Skip = "Please don't run me")]
                 public void SkippedMethod()
                 {
                     throw new NotImplementedException();
@@ -425,7 +425,7 @@ public class XunitTestCaseTests
                     throw new DivideByZeroException();
                 }
 
-                [Fact2]
+                [Fact]
                 public void NonSkippedMethod()
                 {
                     throw new InvalidFilterCriteriaException();
@@ -491,10 +491,10 @@ public class XunitTestCaseTests
 
             class ThrowingDisposeClassUnderTest : IDisposable
             {
-                [Fact2]
+                [Fact]
                 public void PassingTest() { }
 
-                [Fact2]
+                [Fact]
                 public void FailingTest()
                 {
                     throw new InvalidFilterCriteriaException();
@@ -526,7 +526,7 @@ public class XunitTestCaseTests
             class SkippedClassUnderTest
             {
                 [SpyBeforeAfterTest]
-                [Fact2(Skip = "Please don't run me")]
+                [Fact(Skip = "Please don't run me")]
                 public void SkippedMethod()
                 {
                     throw new NotImplementedException();
@@ -637,24 +637,24 @@ public class XunitTestCaseTests
 
                 class ClassUnderTest
                 {
-                    [Fact2]
+                    [Fact]
                     [SpyBeforeAfterTest]
                     public void PassingTestMethod() { }
 
-                    [Fact2]
+                    [Fact]
                     [SpyBeforeAfterTest(ThrowInBefore = true)]
                     public void ThrowInBefore()
                     {
                         throw new NotImplementedException();
                     }
 
-                    [Fact2]
+                    [Fact]
                     [SpyBeforeAfterTest(ThrowInAfter = true)]
                     public void ThrowInAfter()
                     {
                     }
 
-                    [Fact2]
+                    [Fact]
                     [SpyBeforeAfterTest(ThrowInAfter = true)]
                     public void ThrowInAfterAndTest()
                     {
@@ -741,12 +741,12 @@ public class XunitTestCaseTests
 
                 class ClassUnderTest
                 {
-                    [Fact2]
+                    [Fact]
                     [DummyBeforeAfterTest]
                     [SpyBeforeAfterTest]
                     public void PassingTestMethod() { }
 
-                    [Fact2]
+                    [Fact]
                     [DummyBeforeAfterTest(ThrowInBefore = true)]
                     [SpyBeforeAfterTest]
                     public void ThrowInBefore()
@@ -754,7 +754,7 @@ public class XunitTestCaseTests
                         throw new NotImplementedException();
                     }
 
-                    [Fact2]
+                    [Fact]
                     [DummyBeforeAfterTest]
                     [SpyBeforeAfterTest(ThrowInAfter = true)]
                     public void ThrowInAfter()
@@ -859,24 +859,24 @@ public class XunitTestCaseTests
                 [SpyBeforeAfterTest]
                 class ClassUnderTest
                 {
-                    [Fact2(Skip = "Please don't run me")]
+                    [Fact(Skip = "Please don't run me")]
                     public void SkippedMethod()
                     {
                         throw new NotImplementedException();
                     }
 
-                    [Fact2]
+                    [Fact]
                     public void NonSkippedMethod()
                     {
                     }
 
-                    [Fact2]
+                    [Fact]
                     [SpyBeforeAfterTest]
                     public void MethodWithBeforeAfter()
                     {
                     }
 
-                    [Fact2]
+                    [Fact]
                     [DummyBeforeAfterTest]
                     public void MethodWithDummyBeforeAfter()
                     {
@@ -923,7 +923,7 @@ public class XunitTestCaseTests
             var type = Reflector2.Wrap(typeUnderTest);
             var method = Reflector2.Wrap(methodUnderTest);
             var fact = Reflector2.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest)
-                                                          .Single(cad => cad.AttributeType == typeof(Fact2Attribute)));
+                                                          .Single(cad => cad.AttributeType == typeof(FactAttribute)));
             return new TestableXunitTestCase(assembly, type, method, fact);
         }
 

@@ -150,13 +150,13 @@ public class Xunit2AcceptanceTests
 
     class SinglePassingTestClass
     {
-        [Fact2]
+        [Fact]
         public void TestMethod() { }
     }
 
     class SingleSkippedTestClass
     {
-        [Fact2(Skip = "This is a skipped test")]
+        [Fact(Skip = "This is a skipped test")]
         public void TestMethod()
         {
             Assert.True(false);
@@ -165,7 +165,7 @@ public class Xunit2AcceptanceTests
 
     class SingleFailingTestClass
     {
-        [Fact2]
+        [Fact]
         public void TestMethod()
         {
             Assert.True(false);

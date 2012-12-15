@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Xunit
+namespace Xunit.Sdk
 {
     /// <summary>
     /// Base attribute which indicates a test method interception (allows code to be run before and

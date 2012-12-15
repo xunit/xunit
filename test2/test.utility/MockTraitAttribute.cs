@@ -1,6 +1,6 @@
 ﻿using Xunit;
 
-public class MockTraitAttribute : CustomAttributeData<Trait2Attribute>
+public class MockTraitAttribute : CustomAttributeData<TraitAttribute>
 {
     public MockTraitAttribute(string name, string value)
     {

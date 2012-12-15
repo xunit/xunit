@@ -37,13 +37,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="xunit">
-      <HintPath>..\..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
+    <Reference Include="TestDriven.Framework">
+      <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +55,10 @@
     <ProjectReference Include="..\..\src2\xunit.abstractions\xunit.abstractions.csproj">
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src2\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
+      <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
+      <Name>xunit.runner.tdnet</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src2\xunit.runner.utility\xunit.runner.utility.csproj">
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>

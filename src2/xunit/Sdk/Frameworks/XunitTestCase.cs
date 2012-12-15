@@ -36,7 +36,7 @@ namespace Xunit.Sdk
 
             Traits = new Dictionary<string, string>();
 
-            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(Trait2Attribute)))
+            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute)))
                 Traits.Add(traitAttribute.GetPropertyValue<string>("Name"), traitAttribute.GetPropertyValue<string>("Value"));
         }
 
@@ -221,7 +221,7 @@ namespace Xunit.Sdk
                         }
 
                         messageSink.OnMessage(new TestMethodStarting { TestCase = this, TestDisplayName = DisplayName });
-                        aggregator.Run(() => ReflectionMethod.MethodInfo.Invoke(testClass, new object[0]));
+                        aggregator.Run(() => ReflectionMethod.MethodInfo.Invoke(testClass, Arguments.ToArray()));
                         messageSink.OnMessage(new TestMethodFinished { TestCase = this, TestDisplayName = DisplayName });
                     });
 

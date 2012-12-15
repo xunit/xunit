@@ -42,7 +42,7 @@ public class Xunit2AcceptanceTests
         
                 public class Foo
                 {
-                    [Fact2]
+                    [Fact]
                     public void Bar() { }
                 }
             ";
@@ -72,14 +72,14 @@ public class Xunit2AcceptanceTests
                 {
                     public class Class1
                     {
-                        [Fact2]
-                        [Trait2(""Name!"", ""Value!"")]
+                        [Fact]
+                        [Trait(""Name!"", ""Value!"")]
                         public void Trait() { }
                 
-                        [Fact2(Skip=""Skipping"")]
+                        [Fact(Skip=""Skipping"")]
                         public void Skipped() { }
                 
-                        [Fact2(DisplayName=""Custom Test Name"")]
+                        [Fact(DisplayName=""Custom Test Name"")]
                         public void CustomName() { }
                     }
                 }
@@ -90,7 +90,7 @@ public class Xunit2AcceptanceTests
                     {
                         public class Class2
                         {
-                            [Fact2]
+                            [Fact]
                             public void TestMethod() { }
                         }
                     }
@@ -131,10 +131,10 @@ public class Xunit2AcceptanceTests
                 
                 public class TestClass
                 {
-                    [Theory2]
-                    [InlineData2]
-                    [InlineData2(42)]
-                    [InlineData2(42, 21.12)]
+                    [Theory]
+                    [InlineData]
+                    [InlineData(42)]
+                    [InlineData(42, 21.12)]
                     public void TestMethod(int x) { }
                 }
             ";
