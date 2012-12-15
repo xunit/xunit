@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Xunit.Abstractions;
 
-namespace Xunit.Sdk
+namespace Xunit.Abstractions
 {
     /// <summary>
     /// Wrapper to implement types from xunit.abstractions.dll using reflection.
@@ -73,9 +72,10 @@ namespace Xunit.Sdk
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
             {
                 return CustomAttributeData.GetCustomAttributes(Assembly)
-                                          .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-                                          .OrderBy(attr => attr.AttributeType.Name)
+                                          .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
+                                          .OrderBy(attr => attr.Constructor.ReflectedType.Name)
                                           .Select(Wrap)
+                                          .Cast<IAttributeInfo>()
                                           .ToList();
             }
 
@@ -85,11 +85,11 @@ namespace Xunit.Sdk
 
                 try
                 {
-                    return selector().Select(Wrap);
+                    return selector().Select(Wrap).Cast<ITypeInfo>();
                 }
                 catch (ReflectionTypeLoadException ex)
                 {
-                    return ex.Types.Select(Wrap);
+                    return ex.Types.Select(Wrap).Cast<ITypeInfo>();
                 }
             }
 
@@ -131,10 +131,11 @@ namespace Xunit.Sdk
 
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
             {
-                return CustomAttributeData.GetCustomAttributes(AttributeData.AttributeType)
-                                          .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-                                          .OrderBy(attr => attr.AttributeType.Name)
+                return CustomAttributeData.GetCustomAttributes(AttributeData.Constructor.ReflectedType)
+                                          .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
+                                          .OrderBy(attr => attr.Constructor.ReflectedType.Name)
                                           .Select(Wrap)
+                                          .Cast<IAttributeInfo>()
                                           .ToList();
             }
 
@@ -149,10 +150,10 @@ namespace Xunit.Sdk
             private Attribute Instantiate(CustomAttributeData attributeData)
             {
                 // TODO: Guard type is correct
-                Attribute attribute = (Attribute)Activator.CreateInstance(attributeData.AttributeType, GetConstructorArguments().ToArray());
+                Attribute attribute = (Attribute)Activator.CreateInstance(attributeData.Constructor.ReflectedType, GetConstructorArguments().ToArray());
 
                 foreach (CustomAttributeNamedArgument namedArg in attributeData.NamedArguments)
-                    ((PropertyInfo)namedArg.MemberInfo).SetValue(attribute, namedArg.TypedValue.Value);
+                    ((PropertyInfo)namedArg.MemberInfo).SetValue(attribute, namedArg.TypedValue.Value, index: null);
 
                 return attribute;
             }
@@ -200,9 +201,10 @@ namespace Xunit.Sdk
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
             {
                 return CustomAttributeData.GetCustomAttributes(MethodInfo)
-                                          .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-                                          .OrderBy(attr => attr.AttributeType.Name)
+                                          .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
+                                          .OrderBy(attr => attr.Constructor.ReflectedType.Name)
                                           .Select(Wrap)
+                                          .Cast<IAttributeInfo>()
                                           .ToList();
             }
 
@@ -216,6 +218,7 @@ namespace Xunit.Sdk
             {
                 return MethodInfo.GetParameters()
                                  .Select(Wrap)
+                                 .Cast<IParameterInfo>()
                                  .ToList();
             }
         }
@@ -257,7 +260,7 @@ namespace Xunit.Sdk
 
             public IEnumerable<ITypeInfo> Interfaces
             {
-                get { return Type.GetInterfaces().Select(Wrap).ToList(); }
+                get { return Type.GetInterfaces().Select(Wrap).Cast<ITypeInfo>().ToList(); }
             }
 
             public bool IsAbstract
@@ -280,9 +283,10 @@ namespace Xunit.Sdk
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
             {
                 return CustomAttributeData.GetCustomAttributes(Type)
-                                          .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-                                          .OrderBy(attr => attr.AttributeType.Name)
+                                          .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
+                                          .OrderBy(attr => attr.Constructor.ReflectedType.Name)
                                           .Select(Wrap)
+                                          .Cast<IAttributeInfo>()
                                           .ToList();
             }
 
@@ -290,6 +294,7 @@ namespace Xunit.Sdk
             {
                 return Type.GetMethods(includePrivateMethods ? nonPublicBindingFlags : publicBindingFlags)
                            .Select(Wrap)
+                           .Cast<IMethodInfo>()
                            .ToList();
             }
 
