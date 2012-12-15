@@ -70,7 +70,6 @@
     <Compile Include="Messages\IMessageSink.cs" />
     <Compile Include="Messages\ITestCaseDiscoveryMessage.cs" />
     <Compile Include="Messages\ITestMessage.cs" />
-    <Compile Include="ITestObserver.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Reflection\IAssemblyInfo.cs" />
     <Compile Include="Reflection\IAttributeInfo.cs" />

@@ -56,7 +56,6 @@
     <Compile Include="Controllers\Xunit1Controller.cs" />
     <Compile Include="Controllers\XunitFrontController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestObserver.cs" />
     <Compile Include="Controllers\Xunit2Controller.cs" />
   </ItemGroup>
   <ItemGroup>
