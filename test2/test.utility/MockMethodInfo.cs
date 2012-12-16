@@ -31,7 +31,7 @@ public class MockMethodInfo : IMethodInfo
     {
         foreach (CustomAttributeData attribute in attributes)
             if (attributeType.IsAssignableFrom(attribute.AttributeType))
-                yield return Reflector2.Wrap(attribute);
+                yield return Reflector.Wrap(attribute);
     }
 
     public IEnumerable<IParameterInfo> GetParameters()

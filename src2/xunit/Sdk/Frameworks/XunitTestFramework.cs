@@ -17,7 +17,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
 
             var assembly = Assembly.LoadFile(assemblyFileName);
-            assemblyInfo = Reflector2.Wrap(assembly);
+            assemblyInfo = Reflector.Wrap(assembly);
             sourceProvider = new VisualStudioSourceInformationProvider();
         }
 

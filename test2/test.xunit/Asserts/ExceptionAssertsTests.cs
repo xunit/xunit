@@ -1,12 +1,106 @@
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
 
-public class ThrowsTests
+public class ExceptionAssertsTests
 {
-    public class ThrowsGenericNoReturnValue
+    public class DoesNotThrow_Action
+    {
+        [Fact]
+        public void CorrectExceptionType()
+        {
+            DoesNotThrowException ex =
+                Assert.Throws<DoesNotThrowException>(
+                    () => Assert.DoesNotThrow(
+                        () => { throw new NotImplementedException("Exception Message"); }));
+
+            Assert.Equal("Assert.DoesNotThrow() Failure", ex.UserMessage);
+            Assert.Equal("(No exception)", ex.Expected);
+            Assert.Equal("System.NotImplementedException: Exception Message", ex.Actual);
+        }
+
+        [Fact]
+        public void CodeDoesNotThrow()
+        {
+            bool methodCalled = false;
+
+            Assert.DoesNotThrow(() => methodCalled = true);
+
+            Assert.True(methodCalled);
+        }
+
+        [Fact]
+        public void CodeThrows()
+        {
+            var ex = Record.Exception(() => Assert.DoesNotThrow(() => ThrowingMethod()));
+
+            Assert.IsType<DoesNotThrowException>(ex);
+            Assert.Contains("NotImplementedException", ex.Message);
+        }
+
+        void ThrowingMethod()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DoesNotThrow_Func
+    {
+        [Fact]
+        public void CodeDoesNotThrow()
+        {
+            bool methodCalled = false;
+
+            Assert.DoesNotThrow(() => { methodCalled = true; return 0; });
+
+            Assert.True(methodCalled);
+        }
+
+        [Fact]
+        public void CodeThrows()
+        {
+            var ex = Record.Exception(() => Assert.DoesNotThrow(() => ThrowingMethod()));
+
+            Assert.IsType<DoesNotThrowException>(ex);
+            Assert.Contains("NotImplementedException", ex.Message);
+        }
+
+        int ThrowingMethod()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DoesNotThrow_Task
+    {
+        [Fact]
+        public void CodeDoesNotThrow()
+        {
+            bool methodCalled = false;
+
+            Assert.DoesNotThrow(Task.Factory.StartNew(() => methodCalled = true));
+
+            Assert.True(methodCalled);
+        }
+
+        [Fact]
+        public void CodeThrows()
+        {
+            var ex = Record.Exception(() => Assert.DoesNotThrow(Task.Factory.StartNew(ThrowingMethod)));
+
+            Assert.IsType<DoesNotThrowException>(ex);
+            Assert.Contains("NotImplementedException", ex.Message);
+        }
+
+        void ThrowingMethod()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class Throws_Generic_Action
     {
         [Fact]
         public void ExpectExceptionButCodeDoesNotThrow()
@@ -43,7 +137,7 @@ public class ThrowsTests
             }
             catch (AssertActualExpectedException exception)
             {
-                Assert.Contains("ThrowsGenericNoReturnValue.ThrowingMethod", exception.StackTrace);
+                Assert.Contains("Throws_Generic_Action.ThrowingMethod", exception.StackTrace);
                 Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
             }
         }
@@ -64,7 +158,7 @@ public class ThrowsTests
         }
     }
 
-    public class ThrowsGenericWithReturnValue
+    public class Throws_Generic_Func
     {
         [Fact]
         public void ExpectExceptionButCodeDoesNotThrow()
@@ -124,7 +218,7 @@ public class ThrowsTests
         }
     }
 
-    public class ThrowsGenericTask
+    public class Throws_Generic_Task
     {
         [Fact]
         public void ExpectExceptionButCodeDoesNotThrow()
@@ -161,7 +255,7 @@ public class ThrowsTests
             }
             catch (AssertActualExpectedException exception)
             {
-                Assert.Contains("ThrowsGenericTask.ThrowingMethod", exception.StackTrace);
+                Assert.Contains("Throws_Generic_Task.ThrowingMethod", exception.StackTrace);
                 Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
             }
         }
@@ -182,7 +276,7 @@ public class ThrowsTests
         }
     }
 
-    public class ThrowsNonGenericNoReturnValue
+    public class Throws_NonGeneric_Action
     {
         [Fact]
         public void ExpectExceptionButCodeDoesNotThrow()
@@ -221,7 +315,7 @@ public class ThrowsTests
         }
     }
 
-    public class ThrowsNonGenericWithReturnValue
+    public class Throws_NonGeneric_Func
     {
         [Fact]
         public void ExpectExceptionButCodeDoesNotThrow()
@@ -266,7 +360,7 @@ public class ThrowsTests
         }
     }
 
-    public class ThrowsNonGenericTask
+    public class Throws_NonGeneric_Task
     {
         [Fact]
         public void ExpectExceptionButCodeDoesNotThrow()
@@ -302,6 +396,148 @@ public class ThrowsTests
 
             Assert.NotNull(ex);
             Assert.IsType<ArgumentException>(ex);
+        }
+    }
+
+    public class ThrowsArgument_Action
+    {
+        [Fact]
+        public void ExpectExceptionButCodeDoesNotThrow()
+        {
+            var ex = Record.Exception(
+                () => Assert.ThrowsArgument(
+                    () => { },
+                    "paramName"));
+
+            var throwsEx = Assert.IsType<ThrowsException>(ex);
+            Assert.Equal("(No exception was thrown)", throwsEx.Actual);
+        }
+
+        [Fact]
+        public void ExpectExceptionButCodeThrowsDerivedException()
+        {
+            var ex = Record.Exception(
+                () => Assert.ThrowsArgument(
+                    () => { throw new InvalidOperationException(); },
+                    "paramName"));
+
+            Assert.IsType<ThrowsException>(ex);
+            Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
+                            "Expected: System.ArgumentException" + Environment.NewLine +
+                            "Actual:   System.InvalidOperationException", ex.Message);
+        }
+
+        [Fact]
+        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        {
+            var ex = Record.Exception(
+                () => Assert.ThrowsArgument(
+                    () => ThrowingMethod(),
+                    "paramName"));
+
+            Assert.Contains("ThrowsArgument_Action.ThrowingMethod", ex.StackTrace);
+            Assert.DoesNotContain("Xunit.Assert", ex.StackTrace);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        static void ThrowingMethod()
+        {
+            throw new InvalidCastException();
+        }
+
+        [Fact]
+        public void GotExpectedException()
+        {
+            ArgumentException ex =
+                Assert.ThrowsArgument(
+                    () => { throw new ArgumentException("message", "paramName"); },
+                    "paramName");
+
+            Assert.NotNull(ex);
+        }
+
+        [Fact]
+        public void MismatchedParameterName()
+        {
+            var ex = Record.Exception(
+                () => Assert.ThrowsArgument(
+                    () => { throw new ArgumentException("message", "paramName2"); },
+                    "paramName"));
+
+            var eqEx = Assert.IsType<EqualException>(ex);
+            Assert.Equal("paramName", eqEx.Expected);
+            Assert.Equal("paramName2", eqEx.Actual);
+        }
+    }
+
+    public class ThrowsArgumentNull_Action
+    {
+        [Fact]
+        public void ExpectExceptionButCodeDoesNotThrow()
+        {
+            var ex = Record.Exception(
+                () => Assert.ThrowsArgumentNull(
+                    () => { },
+                    "paramName"));
+
+            var throwsEx = Assert.IsType<ThrowsException>(ex);
+            Assert.Equal("(No exception was thrown)", throwsEx.Actual);
+        }
+
+        [Fact]
+        public void ExpectExceptionButCodeThrowsDerivedException()
+        {
+            var ex = Record.Exception(
+                () => Assert.ThrowsArgumentNull(
+                    () => { throw new InvalidOperationException(); },
+                    "paramName"));
+
+            Assert.IsType<ThrowsException>(ex);
+            Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
+                            "Expected: System.ArgumentNullException" + Environment.NewLine +
+                            "Actual:   System.InvalidOperationException", ex.Message);
+        }
+
+        [Fact]
+        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        {
+            var ex = Record.Exception(
+                () => Assert.ThrowsArgumentNull(
+                    () => ThrowingMethod(),
+                    "paramName"));
+
+            Assert.Contains("ThrowsArgumentNull_Action.ThrowingMethod", ex.StackTrace);
+            Assert.DoesNotContain("Xunit.Assert", ex.StackTrace);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        static void ThrowingMethod()
+        {
+            throw new InvalidCastException();
+        }
+
+        [Fact]
+        public void GotExpectedException()
+        {
+            ArgumentException ex =
+                Assert.ThrowsArgumentNull(
+                    () => { throw new ArgumentNullException("paramName"); },
+                    "paramName");
+
+            Assert.NotNull(ex);
+        }
+
+        [Fact]
+        public void MismatchedParameterName()
+        {
+            var ex = Record.Exception(
+                () => Assert.ThrowsArgumentNull(
+                    () => { throw new ArgumentNullException("paramName2"); },
+                    "paramName"));
+
+            var eqEx = Assert.IsType<EqualException>(ex);
+            Assert.Equal("paramName", eqEx.Expected);
+            Assert.Equal("paramName2", eqEx.Actual);
         }
     }
 

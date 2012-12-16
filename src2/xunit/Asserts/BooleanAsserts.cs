@@ -47,6 +47,5 @@ namespace Xunit
             if (!condition)
                 throw new TrueException(userMessage);
         }
-
     }
 }

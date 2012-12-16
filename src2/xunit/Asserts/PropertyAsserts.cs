@@ -40,6 +40,5 @@ namespace Xunit
                 @object.PropertyChanged -= handler;
             }
         }
-
     }
 }

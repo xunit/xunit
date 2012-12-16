@@ -60,8 +60,8 @@ public class XunitTestFrameworkTests
         [Fact]
         public void CallsFindImplWhenTypesAreFoundInAssembly()
         {
-            var objectTypeInfo = Reflector2.Wrap(typeof(object));
-            var intTypeInfo = Reflector2.Wrap(typeof(int));
+            var objectTypeInfo = Reflector.Wrap(typeof(object));
+            var intTypeInfo = Reflector.Wrap(typeof(int));
             var mockAssembly = new MockAssemblyInfo(types: new[] { objectTypeInfo, intTypeInfo });
             var mockFramework = new Mock<TestableXunitTestFramework>(mockAssembly) { CallBase = true };
 
@@ -75,7 +75,7 @@ public class XunitTestFrameworkTests
         public void DoesNotCallSourceProviderWhenNotAskedFor()
         {
             var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
-            var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
+            var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
             var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider);
 
@@ -90,7 +90,7 @@ public class XunitTestFrameworkTests
             var sourceProvider = new Mock<ISourceInformationProvider>();
             sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
-            var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
+            var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
             var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider);
 
@@ -143,7 +143,7 @@ public class XunitTestFrameworkTests
         public void CallsFindImplWhenMethodsAreFoundOnType()
         {
             var mockFramework = new Mock<TestableXunitTestFramework> { CallBase = true };
-            var objectTypeInfo = Reflector2.Wrap(typeof(object));
+            var objectTypeInfo = Reflector.Wrap(typeof(object));
 
             mockFramework.Object.Find(objectTypeInfo);
 
@@ -155,7 +155,7 @@ public class XunitTestFrameworkTests
         {
             var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
             var framework = TestableXunitTestFramework.Create(sourceProvider: sourceProvider);
-            var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
+            var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
 
             framework.Find(typeInfo);
 
@@ -169,7 +169,7 @@ public class XunitTestFrameworkTests
             sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
             var framework = TestableXunitTestFramework.Create(sourceProvider: sourceProvider);
-            var typeInfo = Reflector2.Wrap(typeof(ClassWithSingleTest));
+            var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
 
             framework.Find(typeInfo, includeSourceInformation: true);
 
@@ -197,7 +197,7 @@ public class XunitTestFrameworkTests
         public void ClassWithNoTests_ReturnsNoTestCases()
         {
             var framework = TestableXunitTestFramework.Create();
-            var type = Reflector2.Wrap(typeof(ClassWithNoTests));
+            var type = Reflector.Wrap(typeof(ClassWithNoTests));
 
             framework.FindImpl(type);
 
@@ -214,7 +214,7 @@ public class XunitTestFrameworkTests
         public void AssemblyWithFact_ReturnsOneTestCaseOfTypeXunitTestCase()
         {
             var framework = TestableXunitTestFramework.Create();
-            var type = Reflector2.Wrap(typeof(ClassWithOneFact));
+            var type = Reflector.Wrap(typeof(ClassWithOneFact));
 
             framework.FindImpl(type);
 
@@ -237,7 +237,7 @@ public class XunitTestFrameworkTests
         public void AssemblyWithMixOfFactsAndNonTests_ReturnsTestCasesOnlyForFacts()
         {
             var framework = TestableXunitTestFramework.Create();
-            var type = Reflector2.Wrap(typeof(ClassWithMixOfFactsAndNonFacts));
+            var type = Reflector.Wrap(typeof(ClassWithMixOfFactsAndNonFacts));
 
             framework.FindImpl(type);
 
@@ -263,7 +263,7 @@ public class XunitTestFrameworkTests
         public void AssemblyWithTheoryWithInlineData_ReturnsOneTestCasePerDataRecord()
         {
             var framework = TestableXunitTestFramework.Create();
-            var type = Reflector2.Wrap(typeof(TheoryWithInlineData));
+            var type = Reflector.Wrap(typeof(TheoryWithInlineData));
 
             framework.FindImpl(type);
 

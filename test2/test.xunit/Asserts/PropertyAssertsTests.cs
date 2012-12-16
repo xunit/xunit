@@ -4,7 +4,7 @@ using Moq;
 using Xunit;
 using Xunit.Sdk;
 
-public class PropertyChangedTests
+public class PropertyAssertsTests
 {
     [Fact]
     public void GuardClauses()

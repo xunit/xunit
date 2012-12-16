@@ -919,10 +919,10 @@ public class XunitTestCaseTests
         public static TestableXunitTestCase Create(Type typeUnderTest, string methodName)
         {
             var methodUnderTest = typeUnderTest.GetMethod(methodName);
-            var assembly = Reflector2.Wrap(typeUnderTest.Assembly);
-            var type = Reflector2.Wrap(typeUnderTest);
-            var method = Reflector2.Wrap(methodUnderTest);
-            var fact = Reflector2.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest)
+            var assembly = Reflector.Wrap(typeUnderTest.Assembly);
+            var type = Reflector.Wrap(typeUnderTest);
+            var method = Reflector.Wrap(methodUnderTest);
+            var fact = Reflector.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest)
                                                           .Single(cad => cad.AttributeType == typeof(FactAttribute)));
             return new TestableXunitTestCase(assembly, type, method, fact);
         }

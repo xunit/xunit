@@ -148,6 +148,5 @@ namespace Xunit
             if (!object.ReferenceEquals(expected, actual))
                 throw new SameException(expected, actual);
         }
-
     }
 }

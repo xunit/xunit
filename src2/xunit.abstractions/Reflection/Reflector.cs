@@ -8,7 +8,7 @@ namespace Xunit.Abstractions
     /// <summary>
     /// Wrapper to implement types from xunit.abstractions.dll using reflection.
     /// </summary>
-    public static class Reflector2
+    public static class Reflector
     {
         /// <summary>
         /// Converts an <see cref="Assembly"/> into an <see cref="IReflectionAssemblyInfo"/>.
@@ -118,7 +118,7 @@ namespace Xunit.Abstractions
                     object value = argument.Value;
                     IEnumerable<CustomAttributeTypedArgument> valueAsEnumeration = value as IEnumerable<CustomAttributeTypedArgument>;
                     if (valueAsEnumeration != null)
-                        value = Convert(valueAsEnumeration);
+                        value = Convert(valueAsEnumeration).ToList();
 
                     yield return value;
                 }
@@ -126,7 +126,7 @@ namespace Xunit.Abstractions
 
             public IEnumerable<object> GetConstructorArguments()
             {
-                return Convert(AttributeData.ConstructorArguments);
+                return Convert(AttributeData.ConstructorArguments).ToList();
             }
 
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)

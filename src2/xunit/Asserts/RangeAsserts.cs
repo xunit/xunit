@@ -65,6 +65,5 @@ namespace Xunit
             if (comparer.Compare(low, actual) <= 0 && comparer.Compare(actual, high) <= 0)
                 throw new NotInRangeException(actual, low, high);
         }
-
     }
 }

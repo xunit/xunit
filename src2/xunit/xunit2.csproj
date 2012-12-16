@@ -47,7 +47,7 @@
     <Compile Include="..\common\Guard.cs">
       <Link>Guard.cs</Link>
     </Compile>
-    <Compile Include="Assert.cs" />
+    <Compile Include="Asserts\Assert.cs" />
     <Compile Include="Asserts\BooleanAsserts.cs" />
     <Compile Include="Asserts\CollectionAsserts.cs" />
     <Compile Include="Asserts\Comparers.cs" />

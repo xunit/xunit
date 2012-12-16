@@ -85,6 +85,5 @@ namespace Xunit
             if (@object == null || !expectedType.Equals(@object.GetType()))
                 throw new IsTypeException(expectedType, @object);
         }
-
     }
 }
