@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Threading;
 using TestDriven.Framework;
 using Xunit.Abstractions;
@@ -7,15 +6,13 @@ namespace Xunit.Runner.TdNet
 {
     public class ResultVisitor : TestMessageVisitor, IMessageSink
     {
-        public ResultVisitor(ITestListener listener, Assembly assembly)
+        public ResultVisitor(ITestListener listener)
         {
             TestListener = listener;
-            Assembly = assembly;
             Finished = new ManualResetEvent(initialState: false);
             TestRunState = TestRunState.NoTests;
         }
 
-        public Assembly Assembly { get; private set; }
         public ManualResetEvent Finished { get; private set; }
         public ITestListener TestListener { get; private set; }
         public TestRunState TestRunState { get; set; }

@@ -49,7 +49,7 @@ namespace Xunit.Runner.TdNet
         {
             try
             {
-                var visitor = new ResultVisitor(testListener, assembly) { TestRunState = initialRunState };
+                var visitor = new ResultVisitor(testListener) { TestRunState = initialRunState };
                 controller.Run(testCases.ToList(), visitor);
                 visitor.Finished.WaitOne();
 

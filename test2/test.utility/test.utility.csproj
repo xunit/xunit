@@ -103,6 +103,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstractions\TestCase.cs" />
+    <Compile Include="Abstractions\TestFailed.cs" />
+    <Compile Include="Abstractions\TestPassed.cs" />
+    <Compile Include="Abstractions\TestSkipped.cs" />
     <Compile Include="SerializationUtility.cs" />
     <Compile Include="SpyBeforeAfterTest.cs" />
     <Compile Include="AcceptanceTest.cs" />
