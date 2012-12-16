@@ -93,7 +93,6 @@
     <Compile Include="Sdk\Exceptions\NotInRangeExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\ThrowsExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\TraceAssertExceptionTests.cs" />
-    <Compile Include="Sdk\ExecutorTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkTests.cs" />
     <Compile Include="Sdk\MessageBusTests.cs" />
