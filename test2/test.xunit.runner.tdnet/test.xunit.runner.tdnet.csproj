@@ -43,8 +43,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TdNetRunnerTests.cs" />
+    <Compile Include="TestMessageVisitorTests.cs" />
+    <Compile Include="MessageCollectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultVisitorTests.cs" />
+    <Compile Include="TestResultMessageExtensionsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src2\xunit.abstractions\xunit.abstractions.csproj">

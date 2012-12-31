@@ -112,7 +112,7 @@ namespace Xunit.Runner.TdNet
 
             using (var controller = CreateController(assemblyFileName))
             {
-                var testCases = Discover(controller, testListener).Where(tc => tc.ToMethodInfo() == method);
+                var testCases = Discover(controller, testListener, method.ReflectedType).Where(tc => tc.ToMethodInfo() == method);
 
                 return Run(controller, testListener, assembly, testCases, TestRunState.NoTests);
             }

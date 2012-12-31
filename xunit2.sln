@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit2", "src2\xunit\xunit2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.utility", "test2\test.utility\test.utility.csproj", "{4FEC8604-E544-43C2-979C-F0815B5770E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit", "test2\test.xunit\test.xunit.csproj", "{C32639C0-50EB-49AB-9681-C3334E5DEAE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit2", "test2\test.xunit2\test.xunit2.csproj", "{C32639C0-50EB-49AB-9681-C3334E5DEAE7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility", "src2\xunit.runner.utility\xunit.runner.utility.csproj", "{EFC3F529-3686-416B-9C67-36EC914C776A}"
 EndProject
