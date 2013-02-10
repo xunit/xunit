@@ -43,6 +43,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MockTdNetRunnerHelper.cs" />
     <Compile Include="TdNetRunnerTests.cs" />
     <Compile Include="TestMessageVisitorTests.cs" />
     <Compile Include="MessageCollectorTests.cs" />

@@ -51,6 +51,8 @@
     <Compile Include="Frameworks\ISkippedTestCaseResult.cs" />
     <Compile Include="Frameworks\ITestCaseResult.cs" />
     <Compile Include="Frameworks\ITestFramework.cs" />
+    <Compile Include="Frameworks\ITestFrameworkDiscoverer.cs" />
+    <Compile Include="Frameworks\ITestFrameworkExecutor.cs" />
     <Compile Include="LongLivedMarshalByRefObject.cs" />
     <Compile Include="Messages\IAfterTestFinished.cs" />
     <Compile Include="Messages\IAfterTestStarting.cs" />

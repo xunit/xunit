@@ -5,6 +5,9 @@ using System.Reflection;
 
 namespace Xunit.Abstractions
 {
+    // REVIEW: This needs to be removed from abstractions! TDnet depends on it now, but it shouldn't be that way.
+    // We could/should add a GetType to IAssemblyInfo and then TDnet wouldn't need it any more.
+
     /// <summary>
     /// Wrapper to implement types from xunit.abstractions.dll using reflection.
     /// </summary>
@@ -68,6 +71,8 @@ namespace Xunit.Abstractions
             }
 
             public Assembly Assembly { get; private set; }
+
+            public string AssemblyPath { get { return new Uri(Assembly.CodeBase).LocalPath; } }
 
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
             {

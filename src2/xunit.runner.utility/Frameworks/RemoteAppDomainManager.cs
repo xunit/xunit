@@ -1,37 +1,36 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
-using Xunit.Abstractions;
 
 namespace Xunit
 {
-    public abstract class AppDomainXunitController : LongLivedMarshalByRefObject, IXunitController
+    internal class RemoteAppDomainManager : IDisposable
     {
-        protected AppDomainXunitController(string assemblyFileName, string configFileName, bool shadowCopy, string testFrameworkFileName)
+        public RemoteAppDomainManager(string assemblyFileName, string configFileName, bool shadowCopy)
         {
-            Guard.ArgumentValid("testFrameworkFileName", "Could not find file: " + testFrameworkFileName, File.Exists(testFrameworkFileName));
+            Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
+
+            assemblyFileName = Path.GetFullPath(assemblyFileName);
+            Guard.ArgumentValid("assemblyFileName", "Could not find file: " + assemblyFileName, File.Exists(assemblyFileName));
+
+            if (configFileName == null)
+                configFileName = GetDefaultConfigFile(assemblyFileName);
+
+            if (configFileName != null)
+                configFileName = Path.GetFullPath(configFileName);
 
             AssemblyFileName = assemblyFileName;
             ConfigFileName = configFileName;
             AppDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy);
-            XunitAssemblyName = AssemblyName.GetAssemblyName(testFrameworkFileName);
         }
 
-        protected AppDomain AppDomain { get; private set; }
+        public AppDomain AppDomain { get; private set; }
 
         public string AssemblyFileName { get; private set; }
 
         public string ConfigFileName { get; private set; }
-
-        protected AssemblyName XunitAssemblyName { get; private set; }
-
-        public Version XunitVersion
-        {
-            get { return XunitAssemblyName.Version; }
-        }
 
         static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy)
         {
@@ -51,11 +50,11 @@ namespace Xunit
             return AppDomain.CreateDomain(setup.ApplicationName, null, setup, new PermissionSet(PermissionState.Unrestricted));
         }
 
-        protected TObject CreateObject<TObject>(string typeName, params object[] args)
+        public TObject CreateObject<TObject>(string assemblyName, string typeName, params object[] args)
         {
             try
             {
-                return (TObject)AppDomain.CreateInstanceAndUnwrap(XunitAssemblyName.FullName, typeName, false, 0, null, args, null, null);
+                return (TObject)AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName, false, 0, null, args, null, null);
             }
             catch (TargetInvocationException ex)
             {
@@ -81,10 +80,14 @@ namespace Xunit
             }
         }
 
-        public abstract void Find(bool includeSourceInformation, IMessageSink messageSink);
+        static string GetDefaultConfigFile(string assemblyFile)
+        {
+            string configFilename = assemblyFile + ".config";
 
-        public abstract void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink);
+            if (File.Exists(configFilename))
+                return configFilename;
 
-        public abstract void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink);
+            return null;
+        }
     }
 }

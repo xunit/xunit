@@ -6,7 +6,7 @@ using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 
-public class Xunit2AcceptanceTests
+public class Xunit2Tests
 {
     static readonly AssemblyName XunitAssemblyName = GetXunitAssemblyName();
 
@@ -22,7 +22,7 @@ public class Xunit2AcceptanceTests
         public void NoTestMethods()
         {
             using (var assm = new AcceptanceTestAssembly(code: ""))
-            using (var controller = new XunitFrontController(assm.FileName, null, true))
+            using (var controller = new Xunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -48,7 +48,7 @@ public class Xunit2AcceptanceTests
             ";
 
             using (var assm = new AcceptanceTestAssembly(code))
-            using (var controller = new XunitFrontController(assm.FileName, null, true))
+            using (var controller = new Xunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -98,7 +98,7 @@ public class Xunit2AcceptanceTests
             ";
 
             using (var assembly = new AcceptanceTestAssembly(code))
-            using (var controller = new XunitFrontController(assembly.FileName, null, true))
+            using (var controller = new Xunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -140,7 +140,7 @@ public class Xunit2AcceptanceTests
             ";
 
             using (var assembly = new AcceptanceTestAssembly(code))
-            using (var controller = new XunitFrontController(assembly.FileName, null, true))
+            using (var controller = new Xunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 

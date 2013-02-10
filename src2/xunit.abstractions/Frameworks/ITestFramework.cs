@@ -1,34 +1,25 @@
-using System.Collections.Generic;
+using System;
 
 namespace Xunit.Abstractions
 {
     /// <summary>
-    /// Represents a test framework. Instances of this interface are created inside the testing app domain
-    /// (not the runner app domain), and thus must always derive from <see cref="LongLivedMarshalByRefObject"/>.
-    /// All operations are asynchronous, and the message sink is how the framework communicates results.
+    /// Represents a test framework. There are two pieces to test frameworks: discovery and
+    /// execution. The two factory methods represent these two pieces.
     /// </summary>
-    public interface ITestFramework
+    public interface ITestFramework : IDisposable
     {
         /// <summary>
-        /// Starts the process of finding all tests in an assembly.
+        /// Get a test discoverer.
         /// </summary>
-        /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
-        /// <param name="messageSink">The message sink to report results back to.</param>
-        void Find(bool includeSourceInformation, IMessageSink messageSink);
+        /// <param name="assembly">The assembly from which to discover the tests.</param>
+        /// <returns>The test discoverer.</returns>
+        ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly);
 
         /// <summary>
-        /// Starts the process of finding all tests in a class.
+        /// Get a test executor.
         /// </summary>
-        /// <param name="type">The class to find tests in.</param>
-        /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
-        /// <param name="messageSink">The message sink to report results back to.</param>
-        void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink);
-
-        /// <summary>
-        /// Starts the process of running tests.
-        /// </summary>
-        /// <param name="testMethods">The test methods to run; if null, all tests in the assembly are run.</param>
-        /// <param name="messageSink">The message sink to report results back to.</param>
-        void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink/*, CancellationToken token = default(CancellationToken)*/);
+        /// <param name="assemblyFileName">The file path of the assembly to run tests from.</param>
+        /// <returns>The test executor.</returns>
+        ITestFrameworkExecutor GetExecutor(string assemblyFileName);
     }
 }

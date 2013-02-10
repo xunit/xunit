@@ -67,6 +67,7 @@
     </Compile>
     <Compile Include="ResultVisitor.cs" />
     <Compile Include="MessageCollector.cs" />
+    <Compile Include="TdNetRunnerHelper.cs" />
     <Compile Include="TestMessageVisitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TdNetLogger.cs" />

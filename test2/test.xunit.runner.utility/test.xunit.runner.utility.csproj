@@ -43,9 +43,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\AppDomainXunitControllerTests.cs" />
-    <Compile Include="Controllers\XunitFrontControllerTests.cs" />
-    <Compile Include="AcceptanceTests\Xunit2AcceptanceTests.cs" />
+    <Compile Include="Frameworks\XunitFrontControllerTests.cs" />
+    <Compile Include="Frameworks\Xunit2Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

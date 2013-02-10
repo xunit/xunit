@@ -3,6 +3,8 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    // REVIEW: Is ITestCase the right abstraction to use for this discovery?
+
     /// <summary>
     /// Represents a provider which gives source line information for a test case. Generally
     /// consumed by an implementation of <see cref="ITestFramework"/> during Find operations.

@@ -7,27 +7,27 @@ using Xunit.Sdk;
 
 public class Xunit2AcceptanceTest : IDisposable
 {
-    protected Xunit2Controller Controller { get; private set; }
+    protected Xunit2 Xunit2 { get; private set; }
 
     public void Dispose()
     {
-        if (Controller != null)
-            Controller.Dispose();
+        if (Xunit2 != null)
+            Xunit2.Dispose();
     }
 
     public List<ITestMessage> Run(Type type)
     {
-        Controller = new Xunit2Controller(new Uri(type.Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
+        Xunit2 = new Xunit2(new Uri(type.Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
         var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-        Controller.Find(Reflector.Wrap(type), includeSourceInformation: false, messageSink: discoverySink);
+        Xunit2.Find(Reflector.Wrap(type), includeSourceInformation: false, messageSink: discoverySink);
         discoverySink.Finished.WaitOne();
 
         var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
 
         var runSink = new SpyMessageSink<ITestAssemblyFinished>();
 
-        Controller.Run(testCases, runSink);
+        Xunit2.Run(testCases, runSink);
         runSink.Finished.WaitOne();
 
         return runSink.Messages.ToList();

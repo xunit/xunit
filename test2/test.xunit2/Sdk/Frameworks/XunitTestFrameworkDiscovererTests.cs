@@ -5,19 +5,16 @@ using Moq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using IAttributeInfo = Xunit.Abstractions.IAttributeInfo;
-using IMethodInfo = Xunit.Abstractions.IMethodInfo;
 using ITypeInfo = Xunit.Abstractions.ITypeInfo;
 
-public class XunitTestFrameworkTests
+public class XunitTestFrameworkDiscovererTests
 {
     public class Construction
     {
         [Fact]
-        public void GuardClauses()
+        public void GuardClause()
         {
-            Assert.ThrowsArgumentNull(() => new XunitTestFramework(assemblyFileName: null), "assemblyFileName");
-            Assert.ThrowsArgument(() => new XunitTestFramework(assemblyFileName: ""), "assemblyFileName");
+            Assert.ThrowsArgumentNull(() => new XunitTestFrameworkDiscoverer(assemblyInfo: null), "assemblyInfo");
         }
     }
 
@@ -26,7 +23,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void GuardClause()
         {
-            var framework = TestableXunitTestFramework.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var sink = new Mock<IMessageSink>();
 
             Assert.ThrowsArgumentNull(
@@ -38,7 +35,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void AssemblyWithNoTypes_ReturnsNoTestCases()
         {
-            var framework = TestableXunitTestFramework.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
 
             framework.Find();
 
@@ -50,7 +47,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void RequestsOnlyPublicTypesFromAssembly()
         {
-            var framework = TestableXunitTestFramework.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
 
             framework.Find();
 
@@ -63,7 +60,7 @@ public class XunitTestFrameworkTests
             var objectTypeInfo = Reflector.Wrap(typeof(object));
             var intTypeInfo = Reflector.Wrap(typeof(int));
             var mockAssembly = new MockAssemblyInfo(types: new[] { objectTypeInfo, intTypeInfo });
-            var mockFramework = new Mock<TestableXunitTestFramework>(mockAssembly) { CallBase = true };
+            var mockFramework = new Mock<TestableXunitTestFrameworkDiscoverer>(mockAssembly) { CallBase = true };
 
             mockFramework.Object.Find();
 
@@ -77,7 +74,7 @@ public class XunitTestFrameworkTests
             var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
-            var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider);
+            var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
 
             framework.Find();
 
@@ -92,7 +89,7 @@ public class XunitTestFrameworkTests
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
-            var framework = TestableXunitTestFramework.Create(mockAssembly, sourceProvider);
+            var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
 
             framework.Find(includeSourceInformation: true);
 
@@ -100,7 +97,7 @@ public class XunitTestFrameworkTests
                 message =>
                 {
                     var discoveryMessage = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(message);
-                    Assert.Equal("XunitTestFrameworkTests+ClassWithSingleTest.TestMethod", discoveryMessage.TestCase.DisplayName);
+                    Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", discoveryMessage.TestCase.DisplayName);
                     Assert.Equal("Source File", discoveryMessage.TestCase.SourceFileName);
                     Assert.Equal(42, discoveryMessage.TestCase.SourceFileLine);
                 },
@@ -114,7 +111,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void GuardClauses()
         {
-            var framework = TestableXunitTestFramework.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = new Mock<ITypeInfo>();
             var sink = new Mock<IMessageSink>();
 
@@ -131,7 +128,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void RequestsPublicAndPrivateMethodsFromType()
         {
-            var framework = TestableXunitTestFramework.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = new Mock<ITypeInfo>();
 
             framework.Find(type.Object);
@@ -142,7 +139,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void CallsFindImplWhenMethodsAreFoundOnType()
         {
-            var mockFramework = new Mock<TestableXunitTestFramework> { CallBase = true };
+            var mockFramework = new Mock<TestableXunitTestFrameworkDiscoverer> { CallBase = true };
             var objectTypeInfo = Reflector.Wrap(typeof(object));
 
             mockFramework.Object.Find(objectTypeInfo);
@@ -154,7 +151,7 @@ public class XunitTestFrameworkTests
         public void DoesNotCallSourceProviderWhenNotAskedFor()
         {
             var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
-            var framework = TestableXunitTestFramework.Create(sourceProvider: sourceProvider);
+            var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
 
             framework.Find(typeInfo);
@@ -168,7 +165,7 @@ public class XunitTestFrameworkTests
             var sourceProvider = new Mock<ISourceInformationProvider>();
             sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
-            var framework = TestableXunitTestFramework.Create(sourceProvider: sourceProvider);
+            var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
 
             framework.Find(typeInfo, includeSourceInformation: true);
@@ -177,7 +174,7 @@ public class XunitTestFrameworkTests
                 message =>
                 {
                     var discoveryMessage = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(message);
-                    Assert.Equal("XunitTestFrameworkTests+ClassWithSingleTest.TestMethod", discoveryMessage.TestCase.DisplayName);
+                    Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", discoveryMessage.TestCase.DisplayName);
                     Assert.Equal("Source File", discoveryMessage.TestCase.SourceFileName);
                     Assert.Equal(42, discoveryMessage.TestCase.SourceFileLine);
                 },
@@ -196,7 +193,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void ClassWithNoTests_ReturnsNoTestCases()
         {
-            var framework = TestableXunitTestFramework.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithNoTests));
 
             framework.FindImpl(type);
@@ -213,7 +210,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void AssemblyWithFact_ReturnsOneTestCaseOfTypeXunitTestCase()
         {
-            var framework = TestableXunitTestFramework.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithOneFact));
 
             framework.FindImpl(type);
@@ -236,7 +233,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void AssemblyWithMixOfFactsAndNonTests_ReturnsTestCasesOnlyForFacts()
         {
-            var framework = TestableXunitTestFramework.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithMixOfFactsAndNonFacts));
 
             framework.FindImpl(type);
@@ -247,8 +244,8 @@ public class XunitTestFrameworkTests
                                    .Cast<IMethodTestCase>()
                                    .ToArray();
             Assert.Equal(2, results.Count());
-            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
-            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod2");
+            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
+            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod2");
         }
 
         class TheoryWithInlineData
@@ -262,7 +259,7 @@ public class XunitTestFrameworkTests
         [Fact]
         public void AssemblyWithTheoryWithInlineData_ReturnsOneTestCasePerDataRecord()
         {
-            var framework = TestableXunitTestFramework.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(TheoryWithInlineData));
 
             framework.FindImpl(type);
@@ -273,14 +270,9 @@ public class XunitTestFrameworkTests
                                    .Cast<IMethodTestCase>()
                                    .ToArray();
             Assert.Equal(2, results.Count());
-            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
-            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: 42)");
+            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
+            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: 42)");
         }
-    }
-
-    public class Run
-    {
-        // TODO: Guard clauses
     }
 
     class ClassWithSingleTest
@@ -289,26 +281,18 @@ public class XunitTestFrameworkTests
         public void TestMethod() { }
     }
 
-    class TestableXunitTestCase : XunitTestCase
+    public class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer, IMessageSink
     {
-        public TestableXunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
-            : base(assembly, type, method, factAttribute, arguments) { }
-
-        protected override void RunTests(IMessageSink messageSink) { }
-    }
-
-    public class TestableXunitTestFramework : XunitTestFramework, IMessageSink
-    {
-        protected TestableXunitTestFramework()
+        protected TestableXunitTestFrameworkDiscoverer()
             : base(new MockAssemblyInfo().Object) { }
 
-        protected TestableXunitTestFramework(MockAssemblyInfo assembly)
+        protected TestableXunitTestFrameworkDiscoverer(MockAssemblyInfo assembly)
             : base(assembly.Object)
         {
             Assembly = assembly;
         }
 
-        TestableXunitTestFramework(MockAssemblyInfo assembly, Mock<ISourceInformationProvider> sourceProvider)
+        TestableXunitTestFrameworkDiscoverer(MockAssemblyInfo assembly, Mock<ISourceInformationProvider> sourceProvider)
             : base(assembly.Object, sourceProvider.Object)
         {
             Assembly = assembly;
@@ -321,10 +305,10 @@ public class XunitTestFrameworkTests
 
         public Mock<ISourceInformationProvider> SourceProvider { get; private set; }
 
-        public static TestableXunitTestFramework Create(MockAssemblyInfo assembly = null, Mock<ISourceInformationProvider> sourceProvider = null)
+        public static TestableXunitTestFrameworkDiscoverer Create(MockAssemblyInfo assembly = null, Mock<ISourceInformationProvider> sourceProvider = null)
         {
-            return new TestableXunitTestFramework(assembly ?? new MockAssemblyInfo(),
-                                                  sourceProvider ?? new Mock<ISourceInformationProvider>());
+            return new TestableXunitTestFrameworkDiscoverer(assembly ?? new MockAssemblyInfo(),
+                                                            sourceProvider ?? new Mock<ISourceInformationProvider>());
         }
 
         public void Find(bool includeSourceInformation = false)
@@ -351,12 +335,5 @@ public class XunitTestFrameworkTests
         {
             Messages.Add(message);
         }
-
-        public void Run(params ITestCase[] testMethods)
-        {
-            base.Run(testMethods, this);
-        }
-
-        public void Dispose() { }
     }
 }
