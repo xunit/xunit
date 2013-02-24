@@ -14,9 +14,9 @@ namespace Xunit.Abstractions
         /// <summary>
         /// Starts the process of finding all tests in a class.
         /// </summary>
-        /// <param name="type">The class to find tests in.</param>
+        /// <param name="typeName">The fully qualified type name to find tests in.</param>
         /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
         /// <param name="messageSink">The message sink to report results back to.</param>
-        void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink);
+        void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink);
     }
 }

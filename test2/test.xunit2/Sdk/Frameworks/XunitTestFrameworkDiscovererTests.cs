@@ -106,21 +106,25 @@ public class XunitTestFrameworkDiscovererTests
         }
     }
 
-    public class FindByType
+    public class FindByTypeName
     {
         [Fact]
         public void GuardClauses()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
-            var type = new Mock<ITypeInfo>();
+            var typeName = typeof(Object).FullName;
             var sink = new Mock<IMessageSink>();
 
             Assert.ThrowsArgumentNull(
-                () => framework.Find(type: null, includeSourceInformation: false, messageSink: sink.Object),
-                "type"
+                () => framework.Find(typeName: null, includeSourceInformation: false, messageSink: sink.Object),
+                "typeName"
+            );
+            Assert.ThrowsArgument(
+                () => framework.Find(typeName: "", includeSourceInformation: false, messageSink: sink.Object),
+                "typeName"
             );
             Assert.ThrowsArgumentNull(
-                () => framework.Find(type: type.Object, includeSourceInformation: false, messageSink: null),
+                () => framework.Find(typeName, includeSourceInformation: false, messageSink: null),
                 "messageSink"
             );
         }
@@ -130,8 +134,9 @@ public class XunitTestFrameworkDiscovererTests
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = new Mock<ITypeInfo>();
+            framework.Assembly.Setup(a => a.GetType("abc")).Returns(type.Object);
 
-            framework.Find(type.Object);
+            framework.Find("abc");
 
             type.Verify(t => t.GetMethods(/*includePrivateMethods*/ true), Times.Once());
         }
@@ -140,11 +145,12 @@ public class XunitTestFrameworkDiscovererTests
         public void CallsFindImplWhenMethodsAreFoundOnType()
         {
             var mockFramework = new Mock<TestableXunitTestFrameworkDiscoverer> { CallBase = true };
-            var objectTypeInfo = Reflector.Wrap(typeof(object));
+            var type = new Mock<ITypeInfo>();
+            mockFramework.Object.Assembly.Setup(a => a.GetType("abc")).Returns(type.Object);
 
-            mockFramework.Object.Find(objectTypeInfo);
+            mockFramework.Object.Find("abc");
 
-            mockFramework.Verify(f => f.FindImpl(objectTypeInfo, false), Times.Once());
+            mockFramework.Verify(f => f.FindImpl(type.Object, false), Times.Once());
         }
 
         [Fact]
@@ -152,9 +158,8 @@ public class XunitTestFrameworkDiscovererTests
         {
             var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
             var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
-            var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
 
-            framework.Find(typeInfo);
+            framework.Find("abc");
 
             sourceProvider.Verify(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()), Times.Never());
         }
@@ -167,8 +172,9 @@ public class XunitTestFrameworkDiscovererTests
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
             var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
+            framework.Assembly.Setup(a => a.GetType("abc")).Returns(typeInfo); 
 
-            framework.Find(typeInfo, includeSourceInformation: true);
+            framework.Find("abc", includeSourceInformation: true);
 
             Assert.Collection(framework.Messages,
                 message =>
@@ -284,7 +290,7 @@ public class XunitTestFrameworkDiscovererTests
     public class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer, IMessageSink
     {
         protected TestableXunitTestFrameworkDiscoverer()
-            : base(new MockAssemblyInfo().Object) { }
+            : this(new MockAssemblyInfo(), new Mock<ISourceInformationProvider>()) { }
 
         protected TestableXunitTestFrameworkDiscoverer(MockAssemblyInfo assembly)
             : base(assembly.Object)
@@ -316,9 +322,9 @@ public class XunitTestFrameworkDiscovererTests
             base.Find(includeSourceInformation, this);
         }
 
-        public void Find(ITypeInfo type, bool includeSourceInformation = false)
+        public void Find(string typeName, bool includeSourceInformation = false)
         {
-            base.Find(type, includeSourceInformation, this);
+            base.Find(typeName, includeSourceInformation, this);
         }
 
         public virtual void FindImpl(ITypeInfo type, bool includeSourceInformation = false)

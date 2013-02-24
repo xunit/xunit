@@ -65,9 +65,9 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
         {
-            discoverer.Find(type, includeSourceInformation, messageSink);
+            discoverer.Find(typeName, includeSourceInformation, messageSink);
         }
 
         private static string GetXunit2AssemblyPath(string assemblyFileName)

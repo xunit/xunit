@@ -31,6 +31,13 @@ namespace Xunit.Abstractions
         IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType);
 
         /// <summary>
+        /// Gets a <see cref="ITypeInfo"/> for the given type.
+        /// </summary>
+        /// <param name="typeName">The fully qualified type name.</param>
+        /// <returns>The <see cref="ITypeInfo"/> if the type exists, or <c>null</c> if not.</returns>
+        ITypeInfo GetType(string typeName);
+
+        /// <summary>
         /// Gets all the types for the assembly.
         /// </summary>
         /// <param name="includePrivateTypes">Set to <c>true</c> to return all types in the assembly,

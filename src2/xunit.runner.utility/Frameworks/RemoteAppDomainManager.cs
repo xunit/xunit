@@ -54,7 +54,8 @@ namespace Xunit
         {
             try
             {
-                return (TObject)AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName, false, 0, null, args, null, null);
+                object unwrappedObject = AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName, false, 0, null, args, null, null, null);
+                return (TObject)unwrappedObject;
             }
             catch (TargetInvocationException ex)
             {

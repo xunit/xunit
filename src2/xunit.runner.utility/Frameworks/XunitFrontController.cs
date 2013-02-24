@@ -30,9 +30,9 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public virtual void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        public virtual void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
         {
-            xunit2.Find(type, includeSourceInformation, messageSink);
+            xunit2.Find(typeName, includeSourceInformation, messageSink);
         }
 
         /// <inheritdoc/>

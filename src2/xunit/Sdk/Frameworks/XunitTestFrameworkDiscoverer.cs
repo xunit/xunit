@@ -29,12 +29,14 @@ namespace Xunit.Sdk
             messageSink.OnMessage(new DiscoveryCompleteMessage());
         }
 
-        public void Find(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
         {
-            Guard.ArgumentNotNull("type", type);
+            Guard.ArgumentNotNullOrEmpty("typeName", typeName);
             Guard.ArgumentNotNull("messageSink", messageSink);
 
-            FindImpl(type, includeSourceInformation, messageSink);
+            ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
+            if (typeInfo != null)
+                FindImpl(typeInfo, includeSourceInformation, messageSink);
 
             messageSink.OnMessage(new DiscoveryCompleteMessage());
         }

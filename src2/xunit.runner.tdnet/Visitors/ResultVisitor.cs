@@ -1,33 +1,18 @@
-using System.Threading;
 using TestDriven.Framework;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.TdNet
 {
-    public class ResultVisitor : TestMessageVisitor, IMessageSink
+    public class ResultVisitor : TestMessageVisitor<ITestAssemblyFinished>
     {
         public ResultVisitor(ITestListener listener)
         {
             TestListener = listener;
-            Finished = new ManualResetEvent(initialState: false);
             TestRunState = TestRunState.NoTests;
         }
 
-        public ManualResetEvent Finished { get; private set; }
         public ITestListener TestListener { get; private set; }
         public TestRunState TestRunState { get; set; }
-
-        public void Dispose() { }
-
-        public void OnMessage(ITestMessage message)
-        {
-            Visit(message);
-        }
-
-        protected override void Visit(ITestAssemblyFinished finished)
-        {
-            Finished.Set();
-        }
 
         protected override void Visit(ITestFailed failed)
         {

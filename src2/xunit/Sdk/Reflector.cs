@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xunit.Abstractions;
 
-namespace Xunit.Abstractions
+namespace Xunit.Sdk
 {
-    // REVIEW: This needs to be removed from abstractions! TDnet depends on it now, but it shouldn't be that way.
-    // We could/should add a GetType to IAssemblyInfo and then TDnet wouldn't need it any more.
-
     /// <summary>
     /// Wrapper to implement types from xunit.abstractions.dll using reflection.
     /// </summary>
@@ -74,6 +72,7 @@ namespace Xunit.Abstractions
 
             public string AssemblyPath { get { return new Uri(Assembly.CodeBase).LocalPath; } }
 
+            /// <inheritdoc/>
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
             {
                 return CustomAttributeData.GetCustomAttributes(Assembly)
@@ -84,6 +83,14 @@ namespace Xunit.Abstractions
                                           .ToList();
             }
 
+            /// <inheritdoc/>
+            public ITypeInfo GetType(string typeName)
+            {
+                Type type = Assembly.GetType(typeName);
+                return type == null ? null : Wrap(type);
+            }
+
+            /// <inheritdoc/>
             public IEnumerable<ITypeInfo> GetTypes(bool includePrivateTypes)
             {
                 Func<Type[]> selector = includePrivateTypes ? (Func<Type[]>)Assembly.GetTypes : Assembly.GetExportedTypes;

@@ -31,21 +31,17 @@ namespace Xunit.Runner.TdNet
 
         private IEnumerable<ITestCase> Discover(Type type)
         {
-            return Discover(sink => frontController.Find(Reflector.Wrap(type), false, sink));
+            return Discover(sink => frontController.Find(type.FullName, false, sink));
         }
 
         private IEnumerable<IMethodTestCase> Discover(Action<IMessageSink> discoveryAction)
         {
             try
             {
-                var collector = new MessageCollector<IDiscoveryCompleteMessage>();
-                discoveryAction(collector);
-                collector.Finished.WaitOne();
-
-                var testCases = collector.Messages
-                                         .OfType<ITestCaseDiscoveryMessage>()
-                                         .Select(msg => (IMethodTestCase)msg.TestCase);
-                return testCases;
+                var visitor = new TestDiscoveryVisitor();
+                discoveryAction(visitor);
+                visitor.Finished.WaitOne();
+                return visitor.TestCases.OfType<IMethodTestCase>().ToList();
             }
             catch (Exception ex)
             {

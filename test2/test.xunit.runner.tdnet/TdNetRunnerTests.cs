@@ -52,10 +52,12 @@ public class TdNetRunnerTests
     {
         class TypeUnderTest
         {
+#pragma warning disable 67,649
             public event Action Event;
             public int Field;
             public int Property { get; set; }
             public void Method() { }
+#pragma warning restore 67,649
         }
 
         [Fact]

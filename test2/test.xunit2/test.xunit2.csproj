@@ -64,9 +64,6 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
     <Reference Include="TestDriven.Framework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=50ecb853f8c6b8d2">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
@@ -107,10 +104,6 @@
     <ProjectReference Include="..\..\src2\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
       <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
       <Name>xunit.runner.tdnet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src2\xunit.runner.utility\xunit.runner.utility.csproj">
-      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
-      <Name>xunit.runner.utility</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src2\xunit\xunit2.csproj">
       <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>

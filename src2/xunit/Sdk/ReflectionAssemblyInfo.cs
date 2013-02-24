@@ -24,6 +24,11 @@ namespace Xunit.Sdk
             return assemblyInfo.GetCustomAttributes(attributeType);
         }
 
+        public ITypeInfo GetType(string typeName)
+        {
+            return assemblyInfo.GetType(typeName);
+        }
+
         public IEnumerable<ITypeInfo> GetTypes(bool includePrivateTypes)
         {
             return assemblyInfo.GetTypes(includePrivateTypes);

@@ -20,7 +20,7 @@ public class Xunit2AcceptanceTest : IDisposable
         Xunit2 = new Xunit2(new Uri(type.Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
         var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-        Xunit2.Find(Reflector.Wrap(type), includeSourceInformation: false, messageSink: discoverySink);
+        Xunit2.Find(type.FullName, includeSourceInformation: false, messageSink: discoverySink);
         discoverySink.Finished.WaitOne();
 
         var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
