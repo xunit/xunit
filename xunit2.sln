@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D013AD79-A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.abstractions", "src2\xunit.abstractions\xunit.abstractions.csproj", "{53012549-D81B-4E40-B626-67C19265AA6F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit2", "src2\xunit\xunit2.csproj", "{09EF9917-4B00-4646-8C3F-96EFACC8BF51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit2", "src2\xunit2\xunit2.csproj", "{09EF9917-4B00-4646-8C3F-96EFACC8BF51}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.utility", "test2\test.utility\test.utility.csproj", "{4FEC8604-E544-43C2-979C-F0815B5770E2}"
 EndProject

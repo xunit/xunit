@@ -64,7 +64,7 @@
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
       <Name>xunit.runner.utility</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src2\xunit\xunit2.csproj">
+    <ProjectReference Include="..\..\src2\xunit2\xunit2.csproj">
       <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
       <Name>xunit2</Name>
     </ProjectReference>
