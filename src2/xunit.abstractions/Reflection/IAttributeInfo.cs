@@ -17,10 +17,10 @@ namespace Xunit.Abstractions
         IEnumerable<object> GetConstructorArguments();
 
         /// <summary>
-        /// Gets all the custom attributes for the given assembly.
+        /// Gets all the custom attributes for the given attribute.
         /// </summary>
-        /// <param name="attributeType">The type of the attribute</param>
-        /// <returns>The matching attributes that decorate the assembly</returns>
+        /// <param name="attributeType">The type of the attribute to find</param>
+        /// <returns>The matching attributes that decorate the attribute</returns>
         IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType);
 
         /// <summary>

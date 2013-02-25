@@ -5,7 +5,7 @@ using Xunit.Sdk;
 
 public class Xunit2AcceptanceTests
 {
-    public class EndToEndMessageInspection : Xunit2AcceptanceTest
+    public class EndToEndMessageInspection : AcceptanceTest
     {
         [Fact]
         public void NoTests()
@@ -120,7 +120,7 @@ public class Xunit2AcceptanceTests
 
     }
 
-    public class SkippedTests : Xunit2AcceptanceTest
+    public class SkippedTests : AcceptanceTest
     {
         [Fact]
         public void SingleSkippedTest()
@@ -133,7 +133,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class FailingTests : Xunit2AcceptanceTest
+    public class FailingTests : AcceptanceTest
     {
         [Fact]
         public void SingleFailingTest()

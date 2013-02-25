@@ -54,6 +54,9 @@
     <Compile Include="Asserts\RangeAsserts.cs" />
     <Compile Include="Asserts\StringAsserts.cs" />
     <Compile Include="Asserts\TypeAsserts.cs" />
+    <Compile Include="Sdk\Frameworks\LambdaTestCase.cs" />
+    <Compile Include="Sdk\InlineDataDiscoverer.cs" />
+    <Compile Include="PropertyDataAttribute.cs" />
     <Compile Include="Record.cs" />
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
@@ -87,7 +90,12 @@
     <Compile Include="Sdk\Exceptions\TimeoutException.cs" />
     <Compile Include="Sdk\Exceptions\TraceAssertException.cs" />
     <Compile Include="Sdk\Exceptions\TrueException.cs" />
+    <Compile Include="Sdk\Frameworks\AttributeBase.cs" />
+    <Compile Include="Sdk\Frameworks\DataAttribute.cs" />
+    <Compile Include="Sdk\Frameworks\DataDiscoverer.cs" />
+    <Compile Include="Sdk\Frameworks\DataDiscovererAttribute.cs" />
     <Compile Include="Sdk\Frameworks\FactDiscoverer.cs" />
+    <Compile Include="Sdk\Frameworks\IDataDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\ISourceInformationProvider.cs" />
     <Compile Include="Sdk\Frameworks\IXunitDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\TheoryDiscoverer.cs" />

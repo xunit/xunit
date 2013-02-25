@@ -61,6 +61,90 @@ namespace Xunit.Sdk
             return new ReflectionTypeInfo(type);
         }
 
+        private static AttributeUsageAttribute GetAttributeUsage(Type attributeType)
+        {
+            return attributeType.GetCustomAttributes(typeof(AttributeUsageAttribute), true)
+                                .Cast<AttributeUsageAttribute>()
+                                .SingleOrDefault()
+                ?? DefaultAttributeUsageAttribute;
+        }
+
+        private static IEnumerable<IAttributeInfo> GetCustomAttributes(Type type, Type attributeType)
+        {
+            return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
+        }
+
+        private static IEnumerable<IAttributeInfo> GetCustomAttributes(Type type, Type attributeType, AttributeUsageAttribute attributeUsage)
+        {
+            IEnumerable<IAttributeInfo> results = Enumerable.Empty<IAttributeInfo>();
+
+            // REVIEW: 2013/02/09: Why would type ever be null?
+            if (type != null)
+            {
+                results = CustomAttributeData.GetCustomAttributes(type)
+                                             .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
+                                             .OrderBy(attr => attr.Constructor.ReflectedType.Name)
+                                             .Select(Wrap)
+                                             .Cast<IAttributeInfo>();
+
+                if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || !results.Any()))
+                    results = results.Concat(GetCustomAttributes(type.BaseType, attributeType, attributeUsage));
+            }
+
+            return results;
+        }
+
+        private static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType)
+        {
+            return GetCustomAttributes(method, attributeType, GetAttributeUsage(attributeType));
+        }
+
+        private static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType, AttributeUsageAttribute attributeUsage)
+        {
+            IEnumerable<IAttributeInfo> results =
+                CustomAttributeData.GetCustomAttributes(method)
+                                   .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
+                                   .OrderBy(attr => attr.Constructor.ReflectedType.Name)
+                                   .Select(Wrap)
+                                   .Cast<IAttributeInfo>()
+                                   .ToList();
+
+            if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || !results.Any()))
+            {
+                // Need to find the parent method, which may not necessarily be on the parent type
+
+                var baseMethod = GetParent(method);
+                if (baseMethod != null)
+                    results = results.Concat(GetCustomAttributes(baseMethod, attributeType, attributeUsage));
+            }
+
+            return results;
+        }
+
+        private static MethodInfo GetParent(MethodInfo m)
+        {
+            if (!m.IsVirtual)
+                return null;
+
+            var baseType = m.DeclaringType.BaseType;
+            if (baseType == null)
+                return null;
+
+            BindingFlags bindingFlags = BindingFlags.Default;
+
+            if (m.IsPublic)
+                bindingFlags |= BindingFlags.Public;
+            else
+                bindingFlags |= BindingFlags.NonPublic;
+
+            if (m.IsStatic)
+                bindingFlags |= BindingFlags.Static | BindingFlags.FlattenHierarchy;
+            else
+                bindingFlags |= BindingFlags.Instance;
+
+            return baseType.GetMethod(m.Name, bindingFlags, null, m.GetParameters().Select(p => p.ParameterType).ToArray(), null);
+        }
+
         class ReflectionAssemblyInfo : LongLivedMarshalByRefObject, IReflectionAssemblyInfo
         {
             public ReflectionAssemblyInfo(Assembly assembly)
@@ -143,12 +227,7 @@ namespace Xunit.Sdk
 
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
             {
-                return CustomAttributeData.GetCustomAttributes(AttributeData.Constructor.ReflectedType)
-                                          .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
-                                          .OrderBy(attr => attr.Constructor.ReflectedType.Name)
-                                          .Select(Wrap)
-                                          .Cast<IAttributeInfo>()
-                                          .ToList();
+                return Reflector.GetCustomAttributes(AttributeData.Constructor.ReflectedType, attributeType).ToList();
             }
 
             public TValue GetPropertyValue<TValue>(string propertyName)
@@ -212,19 +291,13 @@ namespace Xunit.Sdk
 
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
             {
-                return CustomAttributeData.GetCustomAttributes(MethodInfo)
-                                          .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
-                                          .OrderBy(attr => attr.Constructor.ReflectedType.Name)
-                                          .Select(Wrap)
-                                          .Cast<IAttributeInfo>()
-                                          .ToList();
+                return Reflector.GetCustomAttributes(MethodInfo, attributeType).ToList();
             }
 
             public override string ToString()
             {
                 return MethodInfo.ToString();
             }
-
 
             public IEnumerable<IParameterInfo> GetParameters()
             {
@@ -294,12 +367,7 @@ namespace Xunit.Sdk
 
             public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
             {
-                return CustomAttributeData.GetCustomAttributes(Type)
-                                          .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
-                                          .OrderBy(attr => attr.Constructor.ReflectedType.Name)
-                                          .Select(Wrap)
-                                          .Cast<IAttributeInfo>()
-                                          .ToList();
+                return Reflector.GetCustomAttributes(Type, attributeType).ToList();
             }
 
             public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
@@ -315,5 +383,7 @@ namespace Xunit.Sdk
                 return Type.ToString();
             }
         }
+
+        static readonly AttributeUsageAttribute DefaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
     }
 }

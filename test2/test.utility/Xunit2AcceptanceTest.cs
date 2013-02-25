@@ -5,7 +5,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-public class Xunit2AcceptanceTest : IDisposable
+public class AcceptanceTest : IDisposable
 {
     protected Xunit2 Xunit2 { get; private set; }
 

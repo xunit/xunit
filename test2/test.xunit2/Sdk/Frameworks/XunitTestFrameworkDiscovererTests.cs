@@ -172,7 +172,7 @@ public class XunitTestFrameworkDiscovererTests
                           .Returns(Tuple.Create<string, int?>("Source File", 42));
             var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
-            framework.Assembly.Setup(a => a.GetType("abc")).Returns(typeInfo); 
+            framework.Assembly.Setup(a => a.GetType("abc")).Returns(typeInfo);
 
             framework.Find("abc", includeSourceInformation: true);
 
@@ -278,6 +278,41 @@ public class XunitTestFrameworkDiscovererTests
             Assert.Equal(2, results.Count());
             Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
             Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: 42)");
+        }
+
+        class TheoryWithPropertyData
+        {
+            public static IEnumerable<object[]> TheData
+            {
+                get
+                {
+                    yield return new object[] { 42 };
+                    yield return new object[] { 2112 };
+                }
+            }
+
+            [Theory]
+            [PropertyData("TheData")]
+            public void TheoryMethod(int value) { }
+        }
+
+        [Fact(Skip = "Working towards this...")]
+        public void AssemblyWithTheoryWithPropertyData_ReturnsOneTestCasePerDataRecord()
+        {
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
+            var type = Reflector.Wrap(typeof(TheoryWithPropertyData));
+
+            framework.FindImpl(type);
+
+            var results = framework.Messages
+                                   .OfType<ITestCaseDiscoveryMessage>()
+                                   .Select(msg => msg.TestCase)
+                                   .Cast<IMethodTestCase>()
+                                   .Select(tc => tc.DisplayName)
+                                   .ToArray();
+            Assert.Equal(2, results.Count());
+            Assert.Single(results, name => name == "XunitTestFrameworkTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
+            Assert.Single(results, name => name == "XunitTestFrameworkTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 2112)");
         }
     }
 
