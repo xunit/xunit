@@ -82,8 +82,23 @@ namespace Xunit
         {
             Guard.ArgumentNotNull("expectedType", expectedType);
 
-            if (@object == null || !expectedType.Equals(@object.GetType()))
-                throw new IsTypeException(expectedType, @object);
+            if (@object == null)
+                throw new IsTypeException(expectedType.FullName, null);
+
+            Type actualType = @object.GetType();
+            if (expectedType != actualType)
+            {
+                string expectedTypeName = expectedType.FullName;
+                string actualTypeName = actualType.FullName;
+
+                if (expectedTypeName == actualTypeName)
+                {
+                    expectedTypeName += " (" + new Uri(expectedType.Assembly.CodeBase).LocalPath + ")";
+                    actualTypeName += " (" + new Uri(actualType.Assembly.CodeBase).LocalPath + ")";
+                }
+
+                throw new IsTypeException(expectedTypeName, actualTypeName);
+            }
         }
     }
 }

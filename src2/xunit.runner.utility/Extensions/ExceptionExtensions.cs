@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-public static class StackHelper
+public static class ExceptionExtensions
 {
     const string RETHROW_MARKER = "$$RethrowMarker$$";
 

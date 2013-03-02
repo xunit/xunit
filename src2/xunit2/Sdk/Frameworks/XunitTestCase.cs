@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    public class XunitTestCase : LongLivedMarshalByRefObject, IMethodTestCase
+    public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase
     {
         public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
         {

@@ -7,7 +7,7 @@ namespace Xunit.Sdk
 {
     public class TheoryDiscoverer : IXunitDiscoverer
     {
-        public IEnumerable<XunitTestCase> Discover(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute)
+        public IEnumerable<IXunitTestCase> Discover(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute)
         {
             // Special case Skip, because we want a single Skip (not one per data item), and a skipped test may
             // not actually have any data (which is quasi-legal, since it's skipped).

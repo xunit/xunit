@@ -2,7 +2,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    internal class DiscoveryCompleteMessage : LongLivedMarshalByRefObject, IDiscoveryCompleteMessage
+    public class DiscoveryCompleteMessage : LongLivedMarshalByRefObject, IDiscoveryCompleteMessage
     {
     }
 }

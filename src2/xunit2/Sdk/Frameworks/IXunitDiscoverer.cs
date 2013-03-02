@@ -5,6 +5,6 @@ namespace Xunit.Sdk
 {
     public interface IXunitDiscoverer
     {
-        IEnumerable<XunitTestCase> Discover(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute);
+        IEnumerable<IXunitTestCase> Discover(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute);
     }
 }

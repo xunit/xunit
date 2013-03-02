@@ -14,10 +14,10 @@ namespace Xunit.Sdk
         /// <summary>
         /// Creates a new instance of the <see cref="IsTypeException"/> class.
         /// </summary>
-        /// <param name="expected">The expected type</param>
-        /// <param name="actual">The actual object value</param>
-        public IsTypeException(Type expected, object actual)
-            : base(expected, actual == null ? null : actual.GetType(), "Assert.IsType() Failure") { }
+        /// <param name="expectedTypeName">The expected type name</param>
+        /// <param name="actualTypeName">The actual type name</param>
+        public IsTypeException(string expectedTypeName, string actualTypeName)
+            : base(expectedTypeName, actualTypeName, "Assert.IsType() Failure") { }
 
         /// <inheritdoc/>
         protected IsTypeException(SerializationInfo info, StreamingContext context)

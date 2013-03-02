@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Security;
 using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit
 {
-    public abstract class TestMessageVisitor : LongLivedMarshalByRefObject, IMessageSink
+    public abstract class TestMessageVisitor : MarshalByRefObject, IMessageSink
     {
         public virtual void Dispose() { }
 
@@ -97,6 +98,13 @@ namespace Xunit
         protected virtual void Visit(ITestSkipped testSkipped) { }
 
         protected virtual void Visit(ITestStarting testStarting) { }
+
+        /// <summary/>
+        [SecurityCritical]
+        public override Object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 
     public abstract class TestMessageVisitor<TCompleteMessage> : TestMessageVisitor
