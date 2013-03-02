@@ -65,6 +65,9 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\common\TestDiscoveryVisitor.cs">
+      <Link>Visitors\TestDiscoveryVisitor.cs</Link>
+    </Compile>
     <Compile Include="Visitors\ResultVisitor.cs" />
     <Compile Include="TdNetRunnerHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
