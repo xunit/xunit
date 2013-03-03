@@ -48,7 +48,7 @@ public class PreferencesTests
     [PreferencesRollback]
     public void InvalidRegistryDataReturnsNull()
     {
-        using (var xunitKey = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\xUnit.net"))
+        using (var xunitKey = Registry.CurrentUser.CreateSubKey(@"Software\Outercurve Foundation\xUnit.net"))
         using (var displayKey = xunitKey.CreateSubKey("Display"))
         {
             displayKey.SetValue("Maximized", "booyah");

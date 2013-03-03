@@ -2,7 +2,7 @@
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
     <Identifier Id="xunit.runner.visualstudio.Microsoft.623f78dd-6d4b-48f3-a2c7-4bbb381bb146">
         <Name>xUnit.net runner for Visual Studio 2012</Name>
-        <Author>Microsoft Corporation</Author>
+        <Author>Outercurve Foundation</Author>
         <Version>0.9.5.1</Version>
         <Description xml:space="preserve">xUnit.net runner for Visual Studio 2012</Description>
         <Locale>1033</Locale>

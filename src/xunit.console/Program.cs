@@ -12,7 +12,7 @@ namespace Xunit.ConsoleClient
         public static int Main(string[] args)
         {
             Console.WriteLine("xUnit.net console test runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
-            Console.WriteLine("Copyright (C) 2007-11 Microsoft Corporation.");
+            Console.WriteLine("Copyright (C) 2013 Outercurve Foundation.");
 
             if (args.Length == 0 || args[0] == "/?")
             {

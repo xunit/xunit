@@ -7,7 +7,7 @@ namespace Xunit.Gui
 {
     static class Program
     {
-        public const string REGISTRY_KEY_XUNIT = @"Software\Microsoft\xUnit.net";
+        public const string REGISTRY_KEY_XUNIT = @"Software\Outercurve Foundation\xUnit.net";
 
         /// <summary>
         /// The main entry point for the application.

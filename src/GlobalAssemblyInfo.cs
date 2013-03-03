@@ -2,9 +2,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyCompany("Microsoft Corporation")]
+[assembly: AssemblyCompany("Outercurve Foundation")]
 [assembly: AssemblyProduct("xUnit.net Testing Framework")]
-[assembly: AssemblyCopyright("Copyright (C) Microsoft Corporation")]
+[assembly: AssemblyCopyright("Copyright (C) Outercurve Foundation")]
 [assembly: ComVisible(false)]
 [assembly: AssemblyVersion("1.9.1.0")]
 
