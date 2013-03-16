@@ -42,6 +42,7 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Extensions\ReflectionAbstractionExtensions.cs" />
     <Compile Include="Frameworks\IFailedTestCaseResult.cs" />
     <Compile Include="Frameworks\IPassedTestCaseResult.cs" />
     <Compile Include="Frameworks\ISkippedTestCaseResult.cs" />

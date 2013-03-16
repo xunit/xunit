@@ -44,7 +44,7 @@ public class CustomAttributeData<TAttribute> : CustomAttributeData, IAttributeIn
         return constructorArgs.Select(ca => ca.Value);
     }
 
-    public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
+    public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
     {
         return Enumerable.Empty<IAttributeInfo>();
     }

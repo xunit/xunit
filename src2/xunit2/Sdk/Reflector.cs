@@ -69,8 +69,10 @@ namespace Xunit.Sdk
                 ?? DefaultAttributeUsageAttribute;
         }
 
-        private static IEnumerable<IAttributeInfo> GetCustomAttributes(Type type, Type attributeType)
+        private static IEnumerable<IAttributeInfo> GetCustomAttributes(Type type, string assemblyQualifiedAttributeTypeName)
         {
+            Type attributeType = GetType(assemblyQualifiedAttributeTypeName);
+
             return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
         }
 
@@ -94,8 +96,10 @@ namespace Xunit.Sdk
             return results;
         }
 
-        private static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType)
+        private static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, string assemblyQualifiedAttributeTypeName)
         {
+            var attributeType = GetType(assemblyQualifiedAttributeTypeName);
+
             return GetCustomAttributes(method, attributeType, GetAttributeUsage(attributeType));
         }
 
@@ -145,6 +149,22 @@ namespace Xunit.Sdk
             return baseType.GetMethod(m.Name, bindingFlags, null, m.GetParameters().Select(p => p.ParameterType).ToArray(), null);
         }
 
+        private static Type GetType(string assemblyQualifiedAttributeTypeName)
+        {
+            var parts = assemblyQualifiedAttributeTypeName.Split(new[] { ',' }, 2).Select(x => x.Trim()).ToList();
+            if (parts.Count == 0)
+                return null;
+
+            if (parts.Count == 1)
+                return Type.GetType(parts[0]);
+
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == parts[1]);
+            if (assembly == null)
+                return null;
+
+            return assembly.GetType(parts[0]);
+        }
+
         class ReflectionAssemblyInfo : LongLivedMarshalByRefObject, IReflectionAssemblyInfo
         {
             public ReflectionAssemblyInfo(Assembly assembly)
@@ -157,8 +177,11 @@ namespace Xunit.Sdk
             public string AssemblyPath { get { return new Uri(Assembly.CodeBase).LocalPath; } }
 
             /// <inheritdoc/>
-            public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
+            public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
             {
+                Type attributeType = Type.GetType(assemblyQualifiedAttributeTypeName);
+                Guard.ArgumentValid("assemblyQualifiedAttributeTypeName", "Could not locate type name", attributeType != null);
+
                 return CustomAttributeData.GetCustomAttributes(Assembly)
                                           .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
                                           .OrderBy(attr => attr.Constructor.ReflectedType.Name)
@@ -225,9 +248,9 @@ namespace Xunit.Sdk
                 return Convert(AttributeData.ConstructorArguments).ToList();
             }
 
-            public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
+            public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
             {
-                return Reflector.GetCustomAttributes(AttributeData.Constructor.ReflectedType, attributeType).ToList();
+                return Reflector.GetCustomAttributes(AttributeData.Constructor.ReflectedType, assemblyQualifiedAttributeTypeName).ToList();
             }
 
             public TValue GetPropertyValue<TValue>(string propertyName)
@@ -289,9 +312,9 @@ namespace Xunit.Sdk
                 get { return Wrap(MethodInfo.ReflectedType); }
             }
 
-            public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
+            public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
             {
-                return Reflector.GetCustomAttributes(MethodInfo, attributeType).ToList();
+                return Reflector.GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).ToList();
             }
 
             public override string ToString()
@@ -365,9 +388,9 @@ namespace Xunit.Sdk
 
             public Type Type { get; private set; }
 
-            public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
+            public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
             {
-                return Reflector.GetCustomAttributes(Type, attributeType).ToList();
+                return Reflector.GetCustomAttributes(Type, assemblyQualifiedAttributeTypeName).ToList();
             }
 
             public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)

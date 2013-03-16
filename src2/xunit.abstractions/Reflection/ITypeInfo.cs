@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Xunit.Abstractions
@@ -43,9 +42,9 @@ namespace Xunit.Abstractions
         /// <summary>
         /// Gets all the custom attributes for the given type.
         /// </summary>
-        /// <param name="attributeType">The type of the attribute</param>
+        /// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly qualified form</param>
         /// <returns>The matching attributes that decorate the type</returns>
-        IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType);
+        IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
         /// <summary>
         /// Gets all the methods in this type.

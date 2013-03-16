@@ -19,16 +19,19 @@ namespace Xunit.Sdk
 
         public string AssemblyPath { get { return assemblyInfo.AssemblyPath; } }
 
-        public IEnumerable<IAttributeInfo> GetCustomAttributes(Type attributeType)
+        /// <inheritdoc/>
+        public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
-            return assemblyInfo.GetCustomAttributes(attributeType);
+            return assemblyInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName);
         }
 
+        /// <inheritdoc/>
         public ITypeInfo GetType(string typeName)
         {
             return assemblyInfo.GetType(typeName);
         }
 
+        /// <inheritdoc/>
         public IEnumerable<ITypeInfo> GetTypes(bool includePrivateTypes)
         {
             return assemblyInfo.GetTypes(includePrivateTypes);

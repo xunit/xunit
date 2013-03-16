@@ -8,6 +8,6 @@ public class MockTypeInfo : Mock<ITypeInfo>
     {
         Setup(t => t.Name).Returns(typeName);
         Setup(t => t.GetMethods(It.IsAny<bool>())).Returns(methods ?? new IMethodInfo[0]);
-        Setup(t => t.GetCustomAttributes(It.IsAny<Type>())).Returns(attributes ?? new IAttributeInfo[0]);
+        Setup(t => t.GetCustomAttributes(It.IsAny<string>())).Returns(attributes ?? new IAttributeInfo[0]);
     }
 }
