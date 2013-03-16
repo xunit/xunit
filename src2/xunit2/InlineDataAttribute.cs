@@ -18,22 +18,4 @@ namespace Xunit
             throw new InvalidOperationException();
         }
     }
-
-    //public abstract class DataAdapterDataAttribute : DataAttribute
-    //{
-    //    // Discovery: never?
-    //    // GetData: get the data
-    //}
-
-    //public class OleDbDataAttribute : DataAdapterDataAttribute
-    //{
-    //}
-
-    //public class ExcelDataAttribute : OleDbDataAttribute
-    //{
-    //}
-
-    //public class SqlServerDataAttibute : OleDbDataAttribute
-    //{
-    //}
 }

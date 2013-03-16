@@ -292,11 +292,11 @@ public class XunitTestFrameworkDiscovererTests
             }
 
             [Theory]
-            //[PropertyData("TheData")]
+            [PropertyData("TheData")]
             public void TheoryMethod(int value) { }
         }
 
-        [Fact(Skip = "Working towards this...")]
+        [Fact]
         public void AssemblyWithTheoryWithPropertyData_ReturnsOneTestCasePerDataRecord()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
@@ -311,8 +311,8 @@ public class XunitTestFrameworkDiscovererTests
                                    .Select(tc => tc.DisplayName)
                                    .ToArray();
             Assert.Equal(2, results.Count());
-            Assert.Single(results, name => name == "XunitTestFrameworkTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
-            Assert.Single(results, name => name == "XunitTestFrameworkTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 2112)");
+            Assert.Single(results, name => name == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
+            Assert.Single(results, name => name == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 2112)");
         }
     }
 
