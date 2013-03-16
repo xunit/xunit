@@ -11,7 +11,6 @@ namespace Xunit.Sdk
         public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
         {
             Arguments = arguments ?? Enumerable.Empty<object>();
-            Assembly = assembly;
             Class = type;
             Method = method;
             DisplayName = factAttribute.GetPropertyValue<string>("DisplayName") ?? type.Name + "." + method.Name;
@@ -42,18 +41,11 @@ namespace Xunit.Sdk
 
         public IEnumerable<object> Arguments { get; private set; }
 
-        public IAssemblyInfo Assembly { get; private set; }
-
         public ITypeInfo Class { get; private set; }
 
         public string DisplayName { get; private set; }
 
         public IMethodInfo Method { get; private set; }
-
-        protected IReflectionAssemblyInfo ReflectionAssembly
-        {
-            get { return (IReflectionAssemblyInfo)Assembly; }
-        }
 
         protected IReflectionTypeInfo ReflectionClass
         {
@@ -151,7 +143,6 @@ namespace Xunit.Sdk
 
             messageSink.OnMessage(new TestCaseFinished
             {
-                Assembly = Assembly,
                 ExecutionTime = executionTime,
                 TestCase = this,
                 TestsRun = totalRun,

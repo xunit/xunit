@@ -139,7 +139,6 @@ public class XunitTestCaseTests
                 {
                     var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
                     Assert.Same(testCase, testCaseFinished.TestCase);
-                    Assert.Same(testCase.Assembly, testCaseFinished.Assembly);
                     Assert.Equal(0, testCaseFinished.TestsRun);
                     Assert.Equal(0, testCaseFinished.TestsFailed);
                     Assert.Equal(0, testCaseFinished.TestsSkipped);

@@ -10,11 +10,6 @@ namespace Xunit.Abstractions
     public interface ITestCase
     {
         /// <summary>
-        /// Gets the assembly this test case belongs to.
-        /// </summary>
-        IAssemblyInfo Assembly { get; }
-
-        /// <summary>
         /// Gets the display name of the test method.
         /// </summary>
         string DisplayName { get; }
