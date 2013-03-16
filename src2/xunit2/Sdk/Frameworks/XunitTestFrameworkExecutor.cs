@@ -21,6 +21,7 @@ namespace Xunit.Sdk
             messageSink.OnMessage(new TestAssemblyStarting { Assembly = assemblyInfo });
 
             int totalRun = 0;
+            decimal totalTime = 0M;
 
             foreach (XunitTestCase testCase in testMethods)
             {
@@ -32,12 +33,13 @@ namespace Xunit.Sdk
                 delegatingSink.Finished.WaitOne();
 
                 totalRun += delegatingSink.FinalMessage.TestsRun;
+                totalTime += delegatingSink.FinalMessage.ExecutionTime;
 
                 messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = testCase.Class.FullName, TestsRun = totalRun });
                 messageSink.OnMessage(new TestCollectionFinished { Assembly = assemblyInfo, TestsRun = totalRun });
             }
 
-            messageSink.OnMessage(new TestAssemblyFinished { Assembly = assemblyInfo, TestsRun = totalRun });
+            messageSink.OnMessage(new TestAssemblyFinished { Assembly = assemblyInfo, TestsRun = totalRun, ExecutionTime = totalTime });
         }
     }
 }

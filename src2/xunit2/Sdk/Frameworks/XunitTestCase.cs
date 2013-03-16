@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -189,6 +190,7 @@ namespace Xunit.Sdk
         {
             var classUnderTest = Class ?? GetRuntimeClass();
             var methodUnderTest = Method ?? GetRuntimeMethod(classUnderTest);
+            decimal executionTime = 0M;
 
             messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName });
 
@@ -198,6 +200,7 @@ namespace Xunit.Sdk
             {
                 var aggregator = new ExceptionAggregator();
                 var beforeAttributesRun = new List<BeforeAfterTest2Attribute>();
+                var stopwatch = Stopwatch.StartNew();
 
                 aggregator.Run(() =>
                 {
@@ -272,14 +275,17 @@ namespace Xunit.Sdk
                     });
                 });
 
+                stopwatch.Stop();
+
                 Exception ex = aggregator.ToException();
+                executionTime = (decimal)stopwatch.Elapsed.TotalSeconds;
                 if (ex == null)
-                    messageSink.OnMessage(new TestPassed { TestCase = this, TestDisplayName = DisplayName });
+                    messageSink.OnMessage(new TestPassed { TestCase = this, TestDisplayName = DisplayName, ExecutionTime = executionTime });
                 else
-                    messageSink.OnMessage(new TestFailed { TestCase = this, TestDisplayName = DisplayName, Exception = ex });
+                    messageSink.OnMessage(new TestFailed { TestCase = this, TestDisplayName = DisplayName, Exception = ex, ExecutionTime = executionTime });
             }
 
-            messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName });
+            messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName, ExecutionTime = executionTime });
         }
 
         class ExceptionAggregator
