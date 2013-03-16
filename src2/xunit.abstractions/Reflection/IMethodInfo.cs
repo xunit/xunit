@@ -15,6 +15,11 @@ namespace Xunit.Abstractions
         bool IsAbstract { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the method is public.
+        /// </summary>
+        bool IsPublic { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the method is static.
         /// </summary>
         bool IsStatic { get; }

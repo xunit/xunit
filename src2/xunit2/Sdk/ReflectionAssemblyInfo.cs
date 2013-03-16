@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Xunit.Abstractions;
 
@@ -9,32 +8,35 @@ namespace Xunit.Sdk
     // make the reflected wrappers public (+ an overloaded constructor to make this class's ctor).
     public class ReflectionAssemblyInfo : LongLivedMarshalByRefObject, IAssemblyInfo
     {
-        readonly IAssemblyInfo assemblyInfo;
+        readonly IAssemblyInfo inner;
 
         public ReflectionAssemblyInfo(string assemblyFileName)
         {
-            var assembly = Assembly.LoadFile(assemblyFileName);
-            assemblyInfo = Reflector.Wrap(assembly);
+            inner = Reflector.Wrap(Assembly.LoadFile(assemblyFileName));
         }
 
-        public string AssemblyPath { get { return assemblyInfo.AssemblyPath; } }
+        /// <inheritdoc/>
+        public string AssemblyPath { get { return inner.AssemblyPath; } }
+
+        /// <inheritdoc/>
+        public string Name { get { return inner.Name; } }
 
         /// <inheritdoc/>
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
-            return assemblyInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName);
+            return inner.GetCustomAttributes(assemblyQualifiedAttributeTypeName);
         }
 
         /// <inheritdoc/>
         public ITypeInfo GetType(string typeName)
         {
-            return assemblyInfo.GetType(typeName);
+            return inner.GetType(typeName);
         }
 
         /// <inheritdoc/>
         public IEnumerable<ITypeInfo> GetTypes(bool includePrivateTypes)
         {
-            return assemblyInfo.GetTypes(includePrivateTypes);
+            return inner.GetTypes(includePrivateTypes);
         }
     }
 }

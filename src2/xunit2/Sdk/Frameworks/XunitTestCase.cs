@@ -9,14 +9,17 @@ namespace Xunit.Sdk
 {
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase
     {
-        readonly IMethodInfo methodInfo;
-        readonly ITypeInfo typeInfo;
+        readonly IAssemblyInfo assembly;
+        readonly IMethodInfo method;
+        readonly ITypeInfo type;
 
-        public XunitTestCase(ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
+        public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
         {
+            this.assembly = assembly;
+            this.type = type;
+            this.method = method;
+
             Arguments = arguments ?? Enumerable.Empty<object>();
-            typeInfo = type;
-            methodInfo = method;
             DisplayName = factAttribute.GetPropertyValue<string>("DisplayName") ?? type.Name + "." + method.Name;
             SkipReason = factAttribute.GetPropertyValue<string>("Skip");
 
@@ -49,7 +52,7 @@ namespace Xunit.Sdk
         {
             get
             {
-                var reflectionTypeInfo = typeInfo as IReflectionTypeInfo;
+                var reflectionTypeInfo = type as IReflectionTypeInfo;
                 if (reflectionTypeInfo != null)
                     return reflectionTypeInfo.Type;
 
@@ -63,7 +66,7 @@ namespace Xunit.Sdk
         {
             get
             {
-                var reflectionMethodInfo = methodInfo as IReflectionMethodInfo;
+                var reflectionMethodInfo = method as IReflectionMethodInfo;
                 if (reflectionMethodInfo != null)
                     return reflectionMethodInfo.MethodInfo;
 
@@ -108,12 +111,15 @@ namespace Xunit.Sdk
 
         private Type GetRuntimeClass()
         {
-            throw new NotImplementedException();
+            return Reflector.GetType(type.Name, assembly.Name);
         }
 
         private MethodInfo GetRuntimeMethod(Type type)
         {
-            throw new NotImplementedException();
+            if (type == null)
+                return null;
+
+            return type.GetMethod(method.Name, method.GetBindingFlags());
         }
 
         static string ParameterToDisplayValue(object parameterValue)
@@ -212,9 +218,9 @@ namespace Xunit.Sdk
                     }
 
                     IEnumerable<BeforeAfterTest2Attribute> beforeAfterAttributes =
-                        Class.GetCustomAttributes(typeof(BeforeAfterTest2Attribute))
-                              .Concat(Method.GetCustomAttributes(typeof(BeforeAfterTest2Attribute)))
-                              .Cast<BeforeAfterTest2Attribute>();
+                        classUnderTest.GetCustomAttributes(typeof(BeforeAfterTest2Attribute))
+                                      .Concat(methodUnderTest.GetCustomAttributes(typeof(BeforeAfterTest2Attribute)))
+                                      .Cast<BeforeAfterTest2Attribute>();
 
                     aggregator.Run(() =>
                     {

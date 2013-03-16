@@ -1,9 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Xunit.Abstractions;
 
 public static class ReflectionAbstractionExtensions
 {
+    /// <summary>
+    /// Gets the binding flags for finding this method via reflection.
+    /// </summary>
+    /// <param name="methodInfo">The method to get binding flags for.</param>
+    /// <returns>The binding flags.</returns>
+    public static BindingFlags GetBindingFlags(this IMethodInfo methodInfo)
+    {
+        BindingFlags bindingFlags = 0;
+
+        if (methodInfo.IsPublic)
+            bindingFlags |= BindingFlags.Public;
+        else
+            bindingFlags |= BindingFlags.NonPublic;
+
+        if (methodInfo.IsStatic)
+            bindingFlags |= BindingFlags.Static | BindingFlags.FlattenHierarchy;
+        else
+            bindingFlags |= BindingFlags.Instance;
+
+        return bindingFlags;
+    }
+
+    /// <summary>
+    /// Gets the binding flags for finding this method via reflection.
+    /// </summary>
+    /// <param name="methodInfo">The method to get binding flags for.</param>
+    /// <returns>The binding flags.</returns>
+    public static BindingFlags GetBindingFlags(this MethodInfo methodInfo)
+    {
+        BindingFlags bindingFlags = 0;
+
+        if (methodInfo.IsPublic)
+            bindingFlags |= BindingFlags.Public;
+        else
+            bindingFlags |= BindingFlags.NonPublic;
+
+        if (methodInfo.IsStatic)
+            bindingFlags |= BindingFlags.Static | BindingFlags.FlattenHierarchy;
+        else
+            bindingFlags |= BindingFlags.Instance;
+
+        return bindingFlags;
+    }
+
     /// <summary>
     /// Gets all the custom attributes for the given assembly.
     /// </summary>

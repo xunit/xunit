@@ -20,6 +20,8 @@ public class MockMethodInfo : IMethodInfo
 
     public bool IsAbstract { get; set; }
 
+    public bool IsPublic { get; set; }
+
     public bool IsStatic { get; set; }
 
     public string Name { get; set; }

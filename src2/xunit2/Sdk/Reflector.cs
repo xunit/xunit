@@ -134,22 +134,10 @@ namespace Xunit.Sdk
             if (baseType == null)
                 return null;
 
-            BindingFlags bindingFlags = BindingFlags.Default;
-
-            if (m.IsPublic)
-                bindingFlags |= BindingFlags.Public;
-            else
-                bindingFlags |= BindingFlags.NonPublic;
-
-            if (m.IsStatic)
-                bindingFlags |= BindingFlags.Static | BindingFlags.FlattenHierarchy;
-            else
-                bindingFlags |= BindingFlags.Instance;
-
-            return baseType.GetMethod(m.Name, bindingFlags, null, m.GetParameters().Select(p => p.ParameterType).ToArray(), null);
+            return baseType.GetMethod(m.Name, m.GetBindingFlags(), null, m.GetParameters().Select(p => p.ParameterType).ToArray(), null);
         }
 
-        private static Type GetType(string assemblyQualifiedAttributeTypeName)
+        internal static Type GetType(string assemblyQualifiedAttributeTypeName)
         {
             var parts = assemblyQualifiedAttributeTypeName.Split(new[] { ',' }, 2).Select(x => x.Trim()).ToList();
             if (parts.Count == 0)
@@ -158,11 +146,17 @@ namespace Xunit.Sdk
             if (parts.Count == 1)
                 return Type.GetType(parts[0]);
 
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == parts[1]);
+            return GetType(parts[0], parts[1]);
+        }
+
+        internal static Type GetType(string typeName, string assemblyName)
+        {
+            // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);
             if (assembly == null)
                 return null;
 
-            return assembly.GetType(parts[0]);
+            return assembly.GetType(typeName);
         }
 
         class ReflectionAssemblyInfo : LongLivedMarshalByRefObject, IReflectionAssemblyInfo
@@ -175,6 +169,8 @@ namespace Xunit.Sdk
             public Assembly Assembly { get; private set; }
 
             public string AssemblyPath { get { return new Uri(Assembly.CodeBase).LocalPath; } }
+
+            public string Name { get { return Assembly.FullName; } }
 
             /// <inheritdoc/>
             public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
@@ -288,6 +284,11 @@ namespace Xunit.Sdk
             public bool IsAbstract
             {
                 get { return MethodInfo.IsAbstract; }
+            }
+
+            public bool IsPublic
+            {
+                get { return MethodInfo.IsPublic; }
             }
 
             public bool IsStatic

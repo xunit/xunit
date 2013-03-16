@@ -19,7 +19,7 @@ public class XunitTestCaseTests
         var type = new MockTypeInfo(methods: new[] { method });
         var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
 
-        var testCase = new XunitTestCase(type.Object, method, fact);
+        var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact);
 
         Assert.Equal("MockType.MockMethod", testCase.DisplayName);
         Assert.Null(testCase.SkipReason);
@@ -34,7 +34,7 @@ public class XunitTestCaseTests
         var type = new MockTypeInfo(methods: new[] { method });
         var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
 
-        var testCase = new XunitTestCase(type.Object, method, fact);
+        var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact);
 
         Assert.Equal("Skip Reason", testCase.SkipReason);
     }
@@ -49,7 +49,7 @@ public class XunitTestCaseTests
         var type = new MockTypeInfo(methods: new[] { method });
         var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
 
-        var testCase = new XunitTestCase(type.Object, method, fact);
+        var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact);
 
         Assert.Equal("Value1", testCase.Traits["Trait1"]);
         Assert.Equal("Value2", testCase.Traits["Trait2"]);
@@ -65,7 +65,7 @@ public class XunitTestCaseTests
             var type = new MockTypeInfo(methods: new[] { method });
             var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
 
-            var testCase = new XunitTestCase(type.Object, method, fact);
+            var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact);
 
             Assert.Equal("Custom Display Name", testCase.DisplayName);
         }
@@ -82,7 +82,7 @@ public class XunitTestCaseTests
             var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
             var arguments = new object[] { 42, "Hello, world!", 'A' };
 
-            var testCase = new XunitTestCase(type.Object, method, fact, arguments);
+            var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact, arguments);
 
             Assert.Equal("MockType.MockMethod(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
         }
@@ -96,7 +96,7 @@ public class XunitTestCaseTests
             var type = new MockTypeInfo(methods: new[] { method });
             var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
 
-            var testCase = new XunitTestCase(type.Object, method, fact, arguments: new object[0]);
+            var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact, arguments: new object[0]);
 
             Assert.Equal("MockType.MockMethod(p1: ???)", testCase.DisplayName);
         }
@@ -111,7 +111,7 @@ public class XunitTestCaseTests
             var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
             var arguments = new object[] { 42, 21.12 };
 
-            var testCase = new XunitTestCase(type.Object, method, fact, arguments);
+            var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact, arguments);
 
             Assert.Equal("MockType.MockMethod(p1: 42, ???: 21.12)", testCase.DisplayName);
         }
@@ -741,13 +741,13 @@ public class XunitTestCaseTests
                 class ClassUnderTest
                 {
                     [Fact]
-                    [DummyBeforeAfterTest]
                     [SpyBeforeAfterTest]
+                    [DummyBeforeAfterTest]
                     public void PassingTestMethod() { }
 
                     [Fact]
-                    [SpyBeforeAfterTest]
                     [DummyBeforeAfterTest(ThrowInBefore = true)]
+                    [SpyBeforeAfterTest]
                     public void ThrowInBefore()
                     {
                         throw new NotImplementedException();
@@ -883,6 +883,48 @@ public class XunitTestCaseTests
                 }
             }
         }
+
+        public class NonReflectionDiscovery
+        {
+            [Fact]
+            public void CanRunTestThatWasDiscoveredWithoutReflection()
+            {
+                var typeUnderTest = typeof(ClassUnderTest);
+                var methodUnderTest = typeUnderTest.GetMethod("TestMethod");
+                var factAttributeUnderTest = CustomAttributeData.GetCustomAttributes(methodUnderTest).Single(a => a.AttributeType == typeof(FactAttribute));
+
+                var assembly = new AssemblyWrapper(Reflector.Wrap(typeUnderTest.Assembly));
+                var type = new TypeWrapper(Reflector.Wrap(typeUnderTest));
+                var method = new MethodWrapper(Reflector.Wrap(methodUnderTest));
+                var attribute = new AttributeWrapper(Reflector.Wrap(factAttributeUnderTest));
+                var testCase = TestableXunitTestCase.Create(assembly, type, method, attribute);
+
+                testCase.RunTests();
+
+                Assert.Collection(testCase.Messages,
+                    message => Assert.IsAssignableFrom<ITestStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+                    message =>
+                    {
+                        var failed = Assert.IsAssignableFrom<ITestFailed>(message);
+                        Assert.IsType<TrueException>(failed.Exception);
+                    },
+                    message => Assert.IsAssignableFrom<ITestFinished>(message)
+                );
+            }
+
+            class ClassUnderTest
+            {
+                [Fact]
+                public void TestMethod()
+                {
+                    Assert.True(false);
+                }
+            }
+        }
     }
 
     class DummyBeforeAfterTest : SpyBeforeAfterTest { }
@@ -895,7 +937,7 @@ public class XunitTestCaseTests
         SpyMessageSink<ITestMessage> sink = new SpyMessageSink<ITestMessage>();
 
         TestableXunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, Action<IMessageSink> callback = null)
-            : base(type, method, factAttribute)
+            : base(assembly, type, method, factAttribute)
         {
             this.callback = callback;
         }
@@ -913,6 +955,11 @@ public class XunitTestCaseTests
             var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
 
             return new TestableXunitTestCase(assmInfo.Object, type.Object, method, fact, callback ?? (sink => sink.OnMessage(new SpyMessage())));
+        }
+
+        public static TestableXunitTestCase Create(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute)
+        {
+            return new TestableXunitTestCase(assembly, type, method, factAttribute);
         }
 
         public static TestableXunitTestCase Create(Type typeUnderTest, string methodName)

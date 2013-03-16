@@ -23,6 +23,14 @@ namespace Xunit.Abstractions
         string AssemblyPath { get; }
 
         /// <summary>
+        /// Gets the assembly name. May return a fully qualified name for assemblies found via
+        /// reflection (i.e., "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+        /// or may return just assembly name only for assemblies found via source code introspection
+        /// (i.e., "mscorlib").
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// Gets all the custom attributes for the given assembly.
         /// </summary>
         /// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly-qualified form</param>

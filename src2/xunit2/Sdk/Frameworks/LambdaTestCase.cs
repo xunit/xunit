@@ -16,7 +16,7 @@ namespace Xunit.Sdk
         readonly Action lambda;
 
         public LambdaTestCase(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute, Action lambda)
-            : base(testClass, testMethod, factAttribute)
+            : base(assembly, testClass, testMethod, factAttribute)
         {
             this.lambda = lambda;
         }

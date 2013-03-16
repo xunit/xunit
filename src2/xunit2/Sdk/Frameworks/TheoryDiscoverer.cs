@@ -12,7 +12,7 @@ namespace Xunit.Sdk
             // Special case Skip, because we want a single Skip (not one per data item), and a skipped test may
             // not actually have any data (which is quasi-legal, since it's skipped).
             if (factAttribute.GetPropertyValue<string>("Skip") != null)
-                return new[] { new XunitTestCase(testClass, testMethod, factAttribute) };
+                return new[] { new XunitTestCase(assembly, testClass, testMethod, factAttribute) };
 
             try
             {
@@ -28,7 +28,7 @@ namespace Xunit.Sdk
                     // TODO: Handle null! The discoverer may not know how many data items there are at discovery
                     // time, so in that case, we need to send back a special composite test case.
                     foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
-                        results.Add(new XunitTestCase(testClass, testMethod, factAttribute, dataRow));
+                        results.Add(new XunitTestCase(assembly, testClass, testMethod, factAttribute, dataRow));
                 }
 
                 if (results.Count == 0)
