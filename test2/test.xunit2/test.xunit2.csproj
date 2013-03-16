@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
+    <Compile Include="Acceptance\Xunit2TheoryAcceptanceTests.cs" />
     <Compile Include="Asserts\BooleanAssertsTests.cs" />
     <Compile Include="Asserts\CollectionAssertsTests.cs" />
     <Compile Include="Asserts\EqualityAssertsTests.cs" />
@@ -79,7 +80,9 @@
     <Compile Include="Asserts\RangeAssertsTests.cs" />
     <Compile Include="Asserts\StringAssertsTests.cs" />
     <Compile Include="Asserts\TypeAssertsTests.cs" />
+    <Compile Include="InlineDataTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyDataTests.cs" />
     <Compile Include="RecordTests.cs" />
     <Compile Include="Sdk\Exceptions\AssertActualExpectedExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\AssertExceptionTests.cs" />

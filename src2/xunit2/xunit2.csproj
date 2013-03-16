@@ -54,6 +54,8 @@
     <Compile Include="Asserts\RangeAsserts.cs" />
     <Compile Include="Asserts\StringAsserts.cs" />
     <Compile Include="Asserts\TypeAsserts.cs" />
+    <Compile Include="Sdk\Exceptions\AssertCollectionCountException.cs" />
+    <Compile Include="Sdk\Exceptions\NoneException.cs" />
     <Compile Include="Sdk\Frameworks\IXunitTestCase.cs" />
     <Compile Include="Sdk\Frameworks\LambdaTestCase.cs" />
     <Compile Include="Sdk\InlineDataDiscoverer.cs" />

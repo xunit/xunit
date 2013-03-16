@@ -331,6 +331,76 @@ public class CollectionAssertsTests
         }
     }
 
+    public class None_NonGeneric_WithObject
+    {
+        [Fact]
+        public void NullCollectionThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.None(null, null));
+        }
+
+        [Fact]
+        public void ObjectNotPresent()
+        {
+            IEnumerable collection = new[] { "Hello", "World!" };
+
+            Assert.None(collection, "there");
+        }
+
+        [Fact]
+        public void NullNotPresent()
+        {
+            IEnumerable collection = new[] { "Hello", "World!" };
+
+            Assert.None(collection, null);
+        }
+
+        [Fact]
+        public void ObjectPresentThrows()
+        {
+            IEnumerable collection = new[] { "Hello", "World!" };
+
+            Exception ex = Record.Exception(() => Assert.None(collection, "Hello"));
+
+            Assert.IsType<NoneException>(ex);
+            Assert.Equal("The collection contained 1 matching element(s) instead of 0.", ex.Message);
+        }
+    }
+
+    public class None_Generic_WithPredicate
+    {
+        [Fact]
+        public void NullCollectionThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.None<object>(null, _ => true));
+        }
+
+        [Fact]
+        public void NullPredicateThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.None<object>(new object[0], null));
+        }
+
+        [Fact]
+        public void PredicateWhereNoneMatch()
+        {
+            string[] collection = new[] { "Hello", "World!" };
+
+            Assert.None(collection, item => false);
+        }
+
+        [Fact]
+        public void PredicateWithMatch()
+        {
+            string[] collection = new[] { "Hello", "World!" };
+
+            Exception ex = Record.Exception(() => Assert.None(collection, item => item.StartsWith("H")));
+
+            Assert.IsType<NoneException>(ex);
+            Assert.Equal("The collection contained 1 matching element(s) instead of 0.", ex.Message);
+        }
+    }
+
     public class NotEmpty
     {
         [Fact]
@@ -430,7 +500,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 0 elements instead of 1.", ex.Message);
+            Assert.Equal("The collection contained 0 matching element(s) instead of 1.", ex.Message);
         }
 
         [Fact]
@@ -441,7 +511,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 2 elements instead of 1.", ex.Message);
+            Assert.Equal("The collection contained 2 matching element(s) instead of 1.", ex.Message);
         }
 
         [Fact]
@@ -497,7 +567,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, "foo"));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 0 instances of 'foo' instead of 1.", ex.Message);
+            Assert.Equal("The collection contained 0 matching element(s) instead of 1.", ex.Message);
         }
 
         [Fact]
@@ -508,7 +578,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, "Hello"));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 2 instances of 'Hello' instead of 1.", ex.Message);
+            Assert.Equal("The collection contained 2 matching element(s) instead of 1.", ex.Message);
         }
     }
 
@@ -528,7 +598,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 0 elements instead of 1.", ex.Message);
+            Assert.Equal("The collection contained 0 matching element(s) instead of 1.", ex.Message);
         }
 
         [Fact]
@@ -539,7 +609,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 2 elements instead of 1.", ex.Message);
+            Assert.Equal("The collection contained 2 matching element(s) instead of 1.", ex.Message);
         }
 
         [Fact]
@@ -595,7 +665,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, item => false));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 0 elements instead of 1.", ex.Message);
+            Assert.Equal("The collection contained 0 matching element(s) instead of 1.", ex.Message);
         }
 
         [Fact]
@@ -606,7 +676,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, item => true));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 2 elements instead of 1.", ex.Message);
+            Assert.Equal("The collection contained 2 matching element(s) instead of 1.", ex.Message);
         }
     }
 }
