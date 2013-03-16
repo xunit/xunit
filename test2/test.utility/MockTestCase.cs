@@ -3,34 +3,29 @@ using System.Reflection;
 using Moq;
 using Xunit.Abstractions;
 
-public class MockTestCase<TClassUnderTest> : Mock<IMethodTestCase>
+public class MockTestCase<TClassUnderTest> : Mock<ITestCase>
 {
     public MockTestCase(string methodName)
     {
-        TypeUnderTest = typeof(TClassUnderTest);
-        if (TypeUnderTest == null)
+        var typeUnderTest = typeof(TClassUnderTest);
+        if (typeUnderTest == null)
             throw new Exception("You gave me a bum type.");
 
-        MethodInfo = TypeUnderTest.GetMethod(methodName);
-        if (MethodInfo == null)
+        Assembly = typeUnderTest.Assembly;
+
+        var methodInfo = typeUnderTest.GetMethod(methodName);
+        if (methodInfo == null)
             throw new Exception("You gave me a bum method name.");
 
         var testMethod = new Mock<IReflectionMethodInfo>();
-        testMethod.SetupGet(tm => tm.MethodInfo).Returns(MethodInfo);
+        testMethod.SetupGet(tm => tm.MethodInfo).Returns(methodInfo);
 
         var testClass = new Mock<IReflectionTypeInfo>();
-        testClass.SetupGet(tc => tc.Type).Returns(TypeUnderTest);
+        testClass.SetupGet(tc => tc.Type).Returns(typeUnderTest);
 
-        this.SetupGet(tc => tc.Class).Returns(testClass.Object);
-        this.SetupGet(tc => tc.Method).Returns(testMethod.Object);
+        this.SetupGet(tc => tc.Class).Returns(typeUnderTest);
+        this.SetupGet(tc => tc.Method).Returns(methodInfo);
     }
 
-    public Assembly Assembly
-    {
-        get { return TypeUnderTest.Assembly; }
-    }
-
-    public MethodInfo MethodInfo { get; private set; }
-
-    public Type TypeUnderTest { get; private set; }
+    public Assembly Assembly { get; private set; }
 }

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-public class TestCase : IMethodTestCase
+public class TestCase : ITestCase
 {
     public TestCase()
     {
@@ -13,14 +14,14 @@ public class TestCase : IMethodTestCase
     public TestCase(Type type, string methodName)
         : this()
     {
-        Class = Reflector.Wrap(type);
-        Method = Reflector.Wrap(type.GetMethod(methodName));
+        Class = type;
+        Method = type.GetMethod(methodName);
     }
 
     public IAssemblyInfo Assembly { get; set; }
-    public ITypeInfo Class { get; set; }
+    public Type Class { get; set; }
     public string DisplayName { get; set; }
-    public IMethodInfo Method { get; set; }
+    public MethodInfo Method { get; set; }
     public string SkipReason { get; set; }
     public int? SourceFileLine { get; set; }
     public string SourceFileName { get; set; }

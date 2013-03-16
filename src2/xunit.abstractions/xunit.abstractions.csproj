@@ -85,9 +85,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Reflection\IAssemblyInfo.cs" />
     <Compile Include="Reflection\IAttributeInfo.cs" />
-    <Compile Include="TestCases\IClassTestCase.cs" />
     <Compile Include="Reflection\IMethodInfo.cs" />
-    <Compile Include="TestCases\IMethodTestCase.cs" />
     <Compile Include="Reflection\IReflectionAssemblyInfo.cs" />
     <Compile Include="Reflection\IReflectionAttributeInfo.cs" />
     <Compile Include="Reflection\IReflectionMethodInfo.cs" />

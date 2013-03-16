@@ -2,17 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase
     {
-        public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
+        readonly IMethodInfo methodInfo;
+        readonly ITypeInfo typeInfo;
+
+        public XunitTestCase(ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
         {
             Arguments = arguments ?? Enumerable.Empty<object>();
-            Class = type;
-            Method = method;
+            typeInfo = type;
+            methodInfo = method;
             DisplayName = factAttribute.GetPropertyValue<string>("DisplayName") ?? type.Name + "." + method.Name;
             SkipReason = factAttribute.GetPropertyValue<string>("Skip");
 
@@ -35,26 +39,36 @@ namespace Xunit.Sdk
 
             Traits = new Dictionary<string, string>();
 
-            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute)))
+            foreach (IAttributeInfo traitAttribute in method.GetCustomAttributes(typeof(TraitAttribute)))
                 Traits.Add(traitAttribute.GetPropertyValue<string>("Name"), traitAttribute.GetPropertyValue<string>("Value"));
         }
 
         public IEnumerable<object> Arguments { get; private set; }
 
-        public ITypeInfo Class { get; private set; }
+        public Type Class
+        {
+            get
+            {
+                var reflectionTypeInfo = typeInfo as IReflectionTypeInfo;
+                if (reflectionTypeInfo != null)
+                    return reflectionTypeInfo.Type;
+
+                return null;
+            }
+        }
 
         public string DisplayName { get; private set; }
 
-        public IMethodInfo Method { get; private set; }
-
-        protected IReflectionTypeInfo ReflectionClass
+        public MethodInfo Method
         {
-            get { return (IReflectionTypeInfo)Class; }
-        }
+            get
+            {
+                var reflectionMethodInfo = methodInfo as IReflectionMethodInfo;
+                if (reflectionMethodInfo != null)
+                    return reflectionMethodInfo.MethodInfo;
 
-        protected IReflectionMethodInfo ReflectionMethod
-        {
-            get { return (IReflectionMethodInfo)Method; }
+                return null;
+            }
         }
 
         public string SkipReason { get; private set; }
@@ -90,6 +104,16 @@ namespace Xunit.Sdk
                 return "???";
 
             return parameters[index].Name;
+        }
+
+        private Type GetRuntimeClass()
+        {
+            throw new NotImplementedException();
+        }
+
+        private MethodInfo GetRuntimeMethod(Type type)
+        {
+            throw new NotImplementedException();
         }
 
         static string ParameterToDisplayValue(object parameterValue)
@@ -157,6 +181,9 @@ namespace Xunit.Sdk
         /// <param name="messageSink">The message sink to send results to.</param>
         protected virtual void RunTests(IMessageSink messageSink)
         {
+            var classUnderTest = Class ?? GetRuntimeClass();
+            var methodUnderTest = Method ?? GetRuntimeMethod(classUnderTest);
+
             messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName });
 
             if (!String.IsNullOrEmpty(SkipReason))
@@ -170,13 +197,13 @@ namespace Xunit.Sdk
                 {
                     object testClass = null;
 
-                    if (!ReflectionMethod.IsStatic)
+                    if (!methodUnderTest.IsStatic)
                     {
                         messageSink.OnMessage(new TestClassConstructionStarting { TestCase = this, TestDisplayName = DisplayName });
 
                         try
                         {
-                            testClass = Activator.CreateInstance(((IReflectionTypeInfo)Method.Type).Type);
+                            testClass = Activator.CreateInstance(classUnderTest);
                         }
                         finally
                         {
@@ -186,13 +213,8 @@ namespace Xunit.Sdk
 
                     IEnumerable<BeforeAfterTest2Attribute> beforeAfterAttributes =
                         Class.GetCustomAttributes(typeof(BeforeAfterTest2Attribute))
-                             .Cast<IReflectionAttributeInfo>()
-                             .Select(rai => rai.Attribute)
-                             .Cast<BeforeAfterTest2Attribute>()
-                             .Concat(Method.GetCustomAttributes(typeof(BeforeAfterTest2Attribute))
-                                           .Cast<IReflectionAttributeInfo>()
-                                           .Select(rai => rai.Attribute)
-                                           .Cast<BeforeAfterTest2Attribute>());
+                              .Concat(Method.GetCustomAttributes(typeof(BeforeAfterTest2Attribute)))
+                              .Cast<BeforeAfterTest2Attribute>();
 
                     aggregator.Run(() =>
                     {
@@ -202,7 +224,7 @@ namespace Xunit.Sdk
 
                             try
                             {
-                                beforeAfterAttribute.Before(ReflectionMethod.MethodInfo);
+                                beforeAfterAttribute.Before(methodUnderTest);
                                 beforeAttributesRun.Add(beforeAfterAttribute);
                             }
                             finally
@@ -212,7 +234,7 @@ namespace Xunit.Sdk
                         }
 
                         messageSink.OnMessage(new TestMethodStarting { TestCase = this, TestDisplayName = DisplayName });
-                        aggregator.Run(() => ReflectionMethod.MethodInfo.Invoke(testClass, Arguments.ToArray()));
+                        aggregator.Run(() => methodUnderTest.Invoke(testClass, Arguments.ToArray()));
                         messageSink.OnMessage(new TestMethodFinished { TestCase = this, TestDisplayName = DisplayName });
                     });
 
@@ -221,7 +243,7 @@ namespace Xunit.Sdk
                     foreach (var beforeAfterAttribute in beforeAttributesRun)
                     {
                         messageSink.OnMessage(new AfterTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
-                        aggregator.Run(() => beforeAfterAttribute.After(ReflectionMethod.MethodInfo));
+                        aggregator.Run(() => beforeAfterAttribute.After(methodUnderTest));
                         messageSink.OnMessage(new AfterTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
                     }
 

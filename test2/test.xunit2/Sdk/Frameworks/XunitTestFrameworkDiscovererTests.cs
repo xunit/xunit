@@ -247,7 +247,6 @@ public class XunitTestFrameworkDiscovererTests
             var results = framework.Messages
                                    .OfType<ITestCaseDiscoveryMessage>()
                                    .Select(msg => msg.TestCase)
-                                   .Cast<IMethodTestCase>()
                                    .ToArray();
             Assert.Equal(2, results.Count());
             Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
@@ -273,7 +272,6 @@ public class XunitTestFrameworkDiscovererTests
             var results = framework.Messages
                                    .OfType<ITestCaseDiscoveryMessage>()
                                    .Select(msg => msg.TestCase)
-                                   .Cast<IMethodTestCase>()
                                    .ToArray();
             Assert.Equal(2, results.Count());
             Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
@@ -307,7 +305,6 @@ public class XunitTestFrameworkDiscovererTests
             var results = framework.Messages
                                    .OfType<ITestCaseDiscoveryMessage>()
                                    .Select(msg => msg.TestCase)
-                                   .Cast<IMethodTestCase>()
                                    .Select(tc => tc.DisplayName)
                                    .ToArray();
             Assert.Equal(2, results.Count());

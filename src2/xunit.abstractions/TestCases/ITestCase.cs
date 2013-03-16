@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Xunit.Abstractions
 {
@@ -10,9 +12,21 @@ namespace Xunit.Abstractions
     public interface ITestCase
     {
         /// <summary>
+        /// Gets the class that this test case resides in, if known. May return <c>null</c> for tests
+        /// which are discovered without the use of reflection.
+        /// </summary>
+        Type Class { get; }
+
+        /// <summary>
         /// Gets the display name of the test method.
         /// </summary>
         string DisplayName { get; }
+
+        /// <summary>
+        /// Gets the method that this test case resides in, if known. May return <c>null</c> for tests
+        /// which are discovered without the use of reflection.
+        /// </summary>
+        MethodInfo Method { get; }
 
         /// <summary>
         /// Gets the display text for the reason a test is being skipped; if the test

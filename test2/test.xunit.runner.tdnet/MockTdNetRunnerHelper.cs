@@ -10,7 +10,7 @@ public class MockTdNetRunnerHelper : Mock<TdNetRunnerHelper>
 {
     public List<string> Operations = new List<string>();
     public List<ITestCase> TestsRun = new List<ITestCase>();
-    public List<IMethodTestCase> TestsToDiscover = new List<IMethodTestCase> { new Mock<IMethodTestCase>().Object };
+    public List<ITestCase> TestsToDiscover = new List<ITestCase> { new Mock<ITestCase>().Object };
 
     public MockTdNetRunnerHelper()
     {

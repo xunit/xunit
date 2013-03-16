@@ -21,8 +21,8 @@ public class TestResultMessageExtensionsTests
 
         var result = message.ToTdNetTestResult(TestState.Ignored);
 
-        Assert.Same(testCase.TypeUnderTest, result.FixtureType);
-        Assert.Same(testCase.MethodInfo, result.Method);
+        Assert.Same(testCase.Object.Class, result.FixtureType);
+        Assert.Same(testCase.Object.Method, result.Method);
         Assert.Equal("Display Name", result.Name);
         Assert.Equal(TimeSpan.FromTicks(1234500), result.TimeSpan);
         Assert.Equal(1, result.TotalTests);

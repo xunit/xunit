@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    public interface IXunitTestCase : IMethodTestCase
+    public interface IXunitTestCase : ITestCase
     {
         IEnumerable<object> Arguments { get; }
 

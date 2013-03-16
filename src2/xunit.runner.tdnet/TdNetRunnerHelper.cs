@@ -34,19 +34,19 @@ namespace Xunit.Runner.TdNet
             return Discover(sink => frontController.Find(type.FullName, false, sink));
         }
 
-        private IEnumerable<IMethodTestCase> Discover(Action<IMessageSink> discoveryAction)
+        private IEnumerable<ITestCase> Discover(Action<IMessageSink> discoveryAction)
         {
             try
             {
                 var visitor = new TestDiscoveryVisitor();
                 discoveryAction(visitor);
                 visitor.Finished.WaitOne();
-                return visitor.TestCases.OfType<IMethodTestCase>().ToList();
+                return visitor.TestCases.ToList();
             }
             catch (Exception ex)
             {
                 testListener.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
-                return Enumerable.Empty<IMethodTestCase>();
+                return Enumerable.Empty<ITestCase>();
             }
         }
 
