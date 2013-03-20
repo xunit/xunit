@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Security;
@@ -63,49 +62,13 @@ namespace Xunit.Sdk
         /// <returns>A string that describes the contents of the call stack, with the most recent method call appearing first.</returns>
         public override string StackTrace
         {
-            get { return FilterStackTrace(stackTrace ?? base.StackTrace); }
+            get { return stackTrace ?? base.StackTrace; }
         }
 
         /// <summary>
         /// Gets the user message
         /// </summary>
         public string UserMessage { get; protected set; }
-
-        /// <summary>
-        /// Determines whether to exclude a line from the stack frame. By default, this method
-        /// removes all stack frames from methods beginning with Xunit.Assert or Xunit.Sdk.
-        /// </summary>
-        /// <param name="stackFrame">The stack frame to be filtered.</param>
-        /// <returns>Return true to exclude the line from the stack frame; false, otherwise.</returns>
-        protected virtual bool ExcludeStackFrame(string stackFrame)
-        {
-            Guard.ArgumentNotNull("stackFrame", stackFrame);
-
-            return stackFrame.StartsWith("at Xunit.Assert.", StringComparison.Ordinal)
-                || stackFrame.StartsWith("at Xunit.Sdk.", StringComparison.Ordinal);
-        }
-
-        /// <summary>
-        /// Filters the stack trace to remove all lines that occur within the testing framework.
-        /// </summary>
-        /// <param name="stack">The original stack trace</param>
-        /// <returns>The filtered stack trace</returns>
-        protected string FilterStackTrace(string stack)
-        {
-            if (stack == null)
-                return null;
-
-            List<string> results = new List<string>();
-
-            foreach (string line in SplitLines(stack))
-            {
-                string trimmedLine = line.TrimStart();
-                if (!ExcludeStackFrame(trimmedLine))
-                    results.Add(line);
-            }
-
-            return string.Join(Environment.NewLine, results.ToArray());
-        }
 
         /// <inheritdoc/>
         [SecurityCritical]
@@ -117,24 +80,6 @@ namespace Xunit.Sdk
             info.AddValue("UserMessage", UserMessage);
 
             base.GetObjectData(info, context);
-        }
-
-        // Our own custom String.Split because Silverlight/CoreCLR doesn't support the version we were using
-        static IEnumerable<string> SplitLines(string input)
-        {
-            while (true)
-            {
-                int idx = input.IndexOf(Environment.NewLine);
-
-                if (idx < 0)
-                {
-                    yield return input;
-                    break;
-                }
-
-                yield return input.Substring(0, idx);
-                input = input.Substring(idx + Environment.NewLine.Length);
-            }
         }
 
         public override string ToString()

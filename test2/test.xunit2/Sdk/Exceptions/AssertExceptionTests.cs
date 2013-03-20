@@ -23,30 +23,6 @@ public class AssertExceptionTests
     }
 
     [Fact]
-    public void DeveloperCanChooseWhichStackFrameItemsToExclude()
-    {
-        CustomException ex = Assert.Throws<CustomException>(() => { throw new CustomException(); });
-
-        string stackTrace = ex.StackTrace;
-
-        Assert.Empty(stackTrace);  // Everything was filtered out in our exception
-        Assert.Equal(2, ex.StackFrames.Count);
-        Assert.Contains("at AssertExceptionTests.<DeveloperCanChooseWhichStackFrameItemsToExclude>", ex.StackFrames[0]);
-        Assert.Contains("at Xunit.Record.Exception", ex.StackFrames[1]);
-    }
-
-    class CustomException : AssertException
-    {
-        public List<string> StackFrames = new List<string>();
-
-        protected override bool ExcludeStackFrame(string stackFrame)
-        {
-            StackFrames.Add(stackFrame);
-            return true;
-        }
-    }
-
-    [Fact]
     public void SerializesCustomProperties()
     {
         var originalException = new TestableAssertException("User Message", "Stack Trace");

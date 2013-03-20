@@ -89,6 +89,7 @@
     <Compile Include="Sdk\Exceptions\DoesNotThrowExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\EqualExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\ExceptionRequirementTests.cs" />
+    <Compile Include="Sdk\Exceptions\ExceptionUtilityTests.cs" />
     <Compile Include="Sdk\Exceptions\InRangeExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\NotInRangeExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\ThrowsExceptionTests.cs" />

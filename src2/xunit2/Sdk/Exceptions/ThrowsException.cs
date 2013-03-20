@@ -56,7 +56,7 @@ namespace Xunit.Sdk
         /// <returns>A string that describes the contents of the call stack, with the most recent method call appearing first.</returns>
         public override string StackTrace
         {
-            get { return FilterStackTrace(stackTrace ?? base.StackTrace); }
+            get { return stackTrace ?? base.StackTrace; }
         }
 
         /// <inheritdoc/>
