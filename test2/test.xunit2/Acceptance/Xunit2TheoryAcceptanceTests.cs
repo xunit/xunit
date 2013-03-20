@@ -156,7 +156,7 @@ public class Xunit2TheoryAcceptanceTests
                     return false;
 
                 Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithMissingPropertyData.TestViaPropertyData", failed.TestDisplayName);
-                Assert.Contains("An exception was thrown while getting data for theory Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithMissingPropertyData.TestViaPropertyData: System.ArgumentException: Could not find public static property Foo on Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithMissingPropertyData", failed.Exception.Message);
+                Assert.Contains("An exception was thrown while getting data for theory Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithMissingPropertyData.TestViaPropertyData: System.ArgumentException: Could not find public static property Foo on Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithMissingPropertyData", failed.Message);
                 return true;
             });
         }
@@ -180,7 +180,7 @@ public class Xunit2TheoryAcceptanceTests
                     return false;
 
                 Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestViaPropertyData", failed.TestDisplayName);
-                Assert.Contains("An exception was thrown while getting data for theory Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestViaPropertyData: System.ArgumentException: Could not find public static property DataSource on Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData", failed.Exception.Message);
+                Assert.Contains("An exception was thrown while getting data for theory Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestViaPropertyData: System.ArgumentException: Could not find public static property DataSource on Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData", failed.Message);
                 return true;
             });
         }

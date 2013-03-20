@@ -1,9 +1,9 @@
-﻿using System;
-
-namespace Xunit.Abstractions
+﻿namespace Xunit.Abstractions
 {
     public interface ITestFailed : ITestResultMessage
     {
-        Exception Exception { get; }
+        string ExceptionType { get; }
+        string Message { get; }
+        string StackTrace { get; }
     }
 }

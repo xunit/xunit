@@ -276,13 +276,15 @@ namespace Xunit.Sdk
                 });
 
                 stopwatch.Stop();
-
-                Exception ex = aggregator.ToException();
                 executionTime = (decimal)stopwatch.Elapsed.TotalSeconds;
-                if (ex == null)
-                    messageSink.OnMessage(new TestPassed { TestCase = this, TestDisplayName = DisplayName, ExecutionTime = executionTime });
-                else
-                    messageSink.OnMessage(new TestFailed { TestCase = this, TestDisplayName = DisplayName, Exception = ex, ExecutionTime = executionTime });
+
+                var exception = aggregator.ToException();
+                var testResult = exception == null ? (TestResultMessage)new TestPassed() : new TestFailed(exception);
+                testResult.TestCase = this;
+                testResult.TestDisplayName = DisplayName;
+                testResult.ExecutionTime = executionTime;
+
+                messageSink.OnMessage(testResult);
             }
 
             messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName, ExecutionTime = executionTime });

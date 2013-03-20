@@ -32,7 +32,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                messageSink.OnMessage(new TestFailed { TestCase = this, TestDisplayName = DisplayName, Exception = ex });
+                messageSink.OnMessage(new TestFailed(ex) { TestCase = this, TestDisplayName = DisplayName });
             }
 
             messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName });

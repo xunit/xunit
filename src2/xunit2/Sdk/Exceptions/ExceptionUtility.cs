@@ -12,7 +12,7 @@ namespace Xunit.Sdk
         {
             Guard.ArgumentNotNull("stackFrame", stackFrame);
 
-            return stackFrame.Contains("at Xunit.");
+            return stackFrame.StartsWith("at Xunit.", StringComparison.Ordinal);
         }
 
         static string FilterStackTrace(string stack)
@@ -54,12 +54,19 @@ namespace Xunit.Sdk
                 result += " ";
             }
 
-            if (!(ex is AssertException))
+            var aex = ex as AssertException;
+            if (aex == null)
                 result += ex.GetType().FullName + " : ";
 
             result += ex.Message;
 
-            if (ex.InnerException != null)
+            var aggEx = ex as AggregateException;
+            if (aggEx != null)
+            {
+                foreach (var inner in aggEx.InnerExceptions)
+                    result = result + Environment.NewLine + GetMessage(inner, level + 1);
+            }
+            else if (ex.InnerException != null)
                 result = result + Environment.NewLine + GetMessage(ex.InnerException, level + 1);
 
             return result;
@@ -77,7 +84,17 @@ namespace Xunit.Sdk
 
             string result = FilterStackTrace(ex.StackTrace);
 
-            if (ex.InnerException != null)
+            var aggEx = ex as AggregateException;
+            if (aggEx != null)
+            {
+                for (int idx = 0; idx < aggEx.InnerExceptions.Count; ++idx)
+                    result += String.Format("{0}----- Inner Stack Trace #{1} ({2}) -----{0}{3}",
+                                            Environment.NewLine,
+                                            idx + 1,
+                                            aggEx.InnerExceptions[idx].GetType().FullName,
+                                            GetStackTrace(aggEx.InnerExceptions[idx]));
+            }
+            else if (ex.InnerException != null)
                 result += Environment.NewLine +
                           "----- Inner Stack Trace -----" + Environment.NewLine +
                           GetStackTrace(ex.InnerException);

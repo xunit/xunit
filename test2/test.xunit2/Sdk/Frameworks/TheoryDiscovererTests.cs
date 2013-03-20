@@ -14,8 +14,8 @@ public class TheoryDiscovererTests : AcceptanceTest
         var failures = Run<ITestFailed>(typeof(NoDataAttributesClass));
 
         var failure = Assert.Single(failures);
-        Assert.IsType<InvalidOperationException>(failure.Exception);
-        Assert.Equal("No data found for TheoryDiscovererTests+NoDataAttributesClass.TheoryMethod", failure.Exception.Message);
+        Assert.Equal(typeof(InvalidOperationException).FullName, failure.ExceptionType);
+        Assert.Equal("System.InvalidOperationException : No data found for TheoryDiscovererTests+NoDataAttributesClass.TheoryMethod", failure.Message);
     }
 
     class NoDataAttributesClass
@@ -30,8 +30,8 @@ public class TheoryDiscovererTests : AcceptanceTest
         var failures = Run<ITestFailed>(typeof(EmptyTheoryDataClass));
 
         var failure = Assert.Single(failures);
-        Assert.IsType<InvalidOperationException>(failure.Exception);
-        Assert.Equal("No data found for TheoryDiscovererTests+EmptyTheoryDataClass.TheoryMethod", failure.Exception.Message);
+        Assert.Equal(typeof(InvalidOperationException).FullName, failure.ExceptionType);
+        Assert.Equal("System.InvalidOperationException : No data found for TheoryDiscovererTests+EmptyTheoryDataClass.TheoryMethod", failure.Message);
     }
 
     class EmptyTheoryDataAttribute : DataAttribute
@@ -80,7 +80,7 @@ public class TheoryDiscovererTests : AcceptanceTest
 
         var fail = Assert.Single(fails);
         Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", fail.TestDisplayName);
-        Assert.Contains("An exception was thrown while getting data for theory TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", fail.Exception.Message);
+        Assert.Contains("An exception was thrown while getting data for theory TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", fail.Message);
     }
 
     public class ThrowingDataAttribute : DataAttribute

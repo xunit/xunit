@@ -2,6 +2,7 @@
 using Moq;
 using TestDriven.Framework;
 using Xunit;
+using Xunit.Sdk;
 using Xunit.Abstractions;
 using Xunit.Runner.TdNet;
 
@@ -144,12 +145,11 @@ public class ResultVisitorTests
                     .Callback<TestResult>(result => testResult = result)
                     .Verifiable();
             var visitor = new ResultVisitor(listener.Object);
-            var message = new TestFailed
+            var message = new TestFailed(ex)
             {
                 TestCase = new TestCase(typeof(string), "Contains"),
                 TestDisplayName = "Display Name",
                 ExecutionTime = 123.45M,
-                Exception = ex
             };
 
             visitor.OnMessage(message);
@@ -161,8 +161,8 @@ public class ResultVisitorTests
             Assert.Equal(TestState.Failed, testResult.State);
             Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
             Assert.Equal(1, testResult.TotalTests);
-            Assert.Equal(ex.Message, testResult.Message);
-            Assert.Equal(ex.StackTrace, testResult.StackTrace);
+            Assert.Equal(ExceptionUtility.GetMessage(ex), testResult.Message);
+            Assert.Equal(ExceptionUtility.GetStackTrace(ex), testResult.StackTrace);
         }
 
         [Fact]

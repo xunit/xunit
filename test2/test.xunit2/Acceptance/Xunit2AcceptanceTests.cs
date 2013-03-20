@@ -88,7 +88,6 @@ public class Xunit2AcceptanceTests
                     Assert.Equal(1, testCaseFinished.TestsRun);
                     Assert.Equal(0, testCaseFinished.TestsFailed);
                     Assert.Equal(0, testCaseFinished.TestsSkipped);
-                    Assert.Equal(0M, testCaseFinished.ExecutionTime);
                 },
                 message =>
                 {
@@ -96,7 +95,6 @@ public class Xunit2AcceptanceTests
                     Assert.Equal(1, classFinished.TestsRun);
                     Assert.Equal(0, classFinished.TestsFailed);
                     Assert.Equal(0, classFinished.TestsSkipped);
-                    Assert.Equal(0M, classFinished.ExecutionTime);
                 },
                 message =>
                 {
@@ -104,7 +102,6 @@ public class Xunit2AcceptanceTests
                     Assert.Equal(1, collectionFinished.TestsRun);
                     Assert.Equal(0, collectionFinished.TestsFailed);
                     Assert.Equal(0, collectionFinished.TestsSkipped);
-                    Assert.Equal(0M, collectionFinished.ExecutionTime); // TODO: Measure time?
                     // TODO: How do we represent collections?
                 },
                 message =>
@@ -113,7 +110,6 @@ public class Xunit2AcceptanceTests
                     Assert.Equal(1, finished.TestsRun);
                     Assert.Equal(0, finished.TestsFailed);
                     Assert.Equal(0, finished.TestsSkipped);
-                    Assert.Equal(0M, finished.ExecutionTime); // TODO: Measure time?
                 }
             );
         }
@@ -141,8 +137,7 @@ public class Xunit2AcceptanceTests
             List<ITestFailed> results = Run<ITestFailed>(typeof(SingleFailingTestClass));
 
             var failedMessage = Assert.Single(results);
-            System.Exception failedMessageException = failedMessage.Exception;
-            Assert.IsType<TrueException>(failedMessageException);
+            Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionType);
         }
     }
 

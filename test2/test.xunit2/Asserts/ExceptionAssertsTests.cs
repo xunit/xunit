@@ -247,26 +247,6 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
-        {
-            try
-            {
-                Assert.Throws<InvalidCastException>(Task.Factory.StartNew(ThrowingMethod));
-            }
-            catch (AssertActualExpectedException exception)
-            {
-                Assert.Contains("Throws_Generic_Task.ThrowingMethod", exception.StackTrace);
-                Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        static void ThrowingMethod()
-        {
-            throw new ArgumentException();
-        }
-
-        [Fact]
         public void GotExpectedException()
         {
             ArgumentException ex =

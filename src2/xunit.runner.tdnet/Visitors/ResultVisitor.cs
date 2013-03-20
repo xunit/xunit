@@ -20,8 +20,8 @@ namespace Xunit.Runner.TdNet
 
             TestResult testResult = failed.ToTdNetTestResult(TestState.Failed);
 
-            testResult.Message = failed.Exception.Message;
-            testResult.StackTrace = failed.Exception.StackTrace;
+            testResult.Message = failed.Message;
+            testResult.StackTrace = failed.StackTrace;
 
             TestListener.TestFinished(testResult);
 
