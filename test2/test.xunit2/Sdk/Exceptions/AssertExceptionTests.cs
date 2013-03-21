@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Xunit;
 using Xunit.Sdk;
@@ -22,7 +21,7 @@ public class AssertExceptionTests
         Assert.Equal(ex.UserMessage, ex.Message);
     }
 
-    [Fact(Skip = "Serialization is broken...")]
+    [Fact]
     public void SerializesCustomProperties()
     {
         var originalException = new TestableAssertException("User Message", "Stack Trace");

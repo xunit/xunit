@@ -10,7 +10,7 @@ namespace Xunit.Sdk
 
         public XunitTestFrameworkExecutor(string assemblyFileName)
         {
-            var assembly = Assembly.LoadFile(assemblyFileName);
+            var assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
             assemblyInfo = Reflector.Wrap(assembly);
         }
 

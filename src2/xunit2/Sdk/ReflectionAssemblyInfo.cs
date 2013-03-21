@@ -12,7 +12,7 @@ namespace Xunit.Sdk
 
         public ReflectionAssemblyInfo(string assemblyFileName)
         {
-            inner = Reflector.Wrap(Assembly.LoadFile(assemblyFileName));
+            inner = Reflector.Wrap(Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName)));
         }
 
         /// <inheritdoc/>

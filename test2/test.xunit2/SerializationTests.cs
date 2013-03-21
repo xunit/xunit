@@ -8,14 +8,14 @@ public class SerializationTests
     [Serializable]
     class SerializableObject { }
 
-    [Fact(Skip = "Serialization is broken...")]
+    [Fact]
     void CanSerializeAndDeserializeObjectsInATest()
     {
         BinaryFormatter bf = new BinaryFormatter();
 
         using (Stream ms = new MemoryStream())
         {
-            bf.Serialize(ms, new SerializableObject());
+            bf.Serialize(ms, (object)new SerializableObject());
             ms.Position = 0;
             object o = bf.Deserialize(ms);
 

@@ -5,7 +5,7 @@ using Xunit.Sdk;
 
 public class ThrowsExceptionTests
 {
-    [Fact(Skip = "Serialization is broken...")]
+    [Fact]
     public void SerializesCustomProperties()
     {
         var originalException = new TestableThrowsException("Stack Trace");
