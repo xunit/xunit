@@ -6,6 +6,7 @@ public class TestPassed : ITestPassed
     {
         TestCase = new TestCase();
     }
+
     public decimal ExecutionTime { get; set; }
     public ITestCase TestCase { get; set; }
     public string TestDisplayName { get; set; }

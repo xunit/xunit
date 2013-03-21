@@ -33,6 +33,8 @@
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\Release\xunit.runner.utility.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Core" />
@@ -50,6 +52,7 @@
       <Link>Common\Guard.cs</Link>
     </Compile>
     <Compile Include="Frameworks\AppDomainTestFramework.cs" />
+    <Compile Include="Frameworks\IFrontController.cs" />
     <Compile Include="Frameworks\RemoteAppDomainManager.cs" />
     <Compile Include="Frameworks\Xunit1.cs" />
     <Compile Include="Frameworks\XunitFrontController.cs" />
@@ -57,7 +60,6 @@
     <Compile Include="Frameworks\Xunit2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
-    <Compile Include="Extensions\TestCaseExtensions.cs" />
     <Compile Include="Visitors\TestMessageVisitor.cs" />
   </ItemGroup>
   <ItemGroup>

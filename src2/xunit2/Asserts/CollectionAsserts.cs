@@ -175,7 +175,7 @@ namespace Xunit
         /// contain other values.
         /// </summary>
         /// <param name="collection">The collection.</param>
-        /// <param name="expected">The value to find in the collection.</param>
+        /// <param name="predicate">The item matching predicate.</param>
         /// <exception cref="NoneException">Thrown when the collection contains at least one matching element.</exception>
         public static void None<T>(IEnumerable<T> collection, Func<T, bool> predicate)
         {

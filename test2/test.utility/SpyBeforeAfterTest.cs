@@ -2,7 +2,7 @@
 using System.Reflection;
 using Xunit.Sdk;
 
-public class SpyBeforeAfterTest : BeforeAfterTest2Attribute
+public class SpyBeforeAfterTest : BeforeAfterTestAttribute
 {
     public bool ThrowInBefore { get; set; }
     public bool ThrowInAfter { get; set; }

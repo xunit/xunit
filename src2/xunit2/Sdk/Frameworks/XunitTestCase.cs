@@ -199,7 +199,7 @@ namespace Xunit.Sdk
             else
             {
                 var aggregator = new ExceptionAggregator();
-                var beforeAttributesRun = new List<BeforeAfterTest2Attribute>();
+                var beforeAttributesRun = new List<BeforeAfterTestAttribute>();
                 var stopwatch = Stopwatch.StartNew();
 
                 aggregator.Run(() =>
@@ -220,10 +220,10 @@ namespace Xunit.Sdk
                         }
                     }
 
-                    IEnumerable<BeforeAfterTest2Attribute> beforeAfterAttributes =
-                        classUnderTest.GetCustomAttributes(typeof(BeforeAfterTest2Attribute))
-                                      .Concat(methodUnderTest.GetCustomAttributes(typeof(BeforeAfterTest2Attribute)))
-                                      .Cast<BeforeAfterTest2Attribute>();
+                    IEnumerable<BeforeAfterTestAttribute> beforeAfterAttributes =
+                        classUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
+                                      .Concat(methodUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+                                      .Cast<BeforeAfterTestAttribute>();
 
                     aggregator.Run(() =>
                     {

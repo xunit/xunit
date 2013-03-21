@@ -102,6 +102,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PreserveWorkingDirectoryAttribute.cs" />
     <Compile Include="Abstractions\AssemblyWrapper.cs" />
     <Compile Include="Abstractions\AttributeWrapper.cs" />
     <Compile Include="Abstractions\MethodWrapper.cs" />

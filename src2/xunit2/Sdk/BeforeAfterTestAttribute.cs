@@ -8,7 +8,7 @@ namespace Xunit.Sdk
     /// after the test is run).
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public abstract class BeforeAfterTest2Attribute : Attribute
+    public abstract class BeforeAfterTestAttribute : Attribute
     {
         object typeId = new object();
 

@@ -10,8 +10,8 @@ namespace Xunit.Runner.TdNet
         {
             return new TestResult
             {
-                FixtureType = testResult.TestCase.ToType(),
-                Method = testResult.TestCase.ToMethodInfo(),
+                FixtureType = testResult.TestCase.Class,
+                Method = testResult.TestCase.Method,
                 Name = testResult.TestDisplayName,
                 State = testState,
                 TimeSpan = new TimeSpan((long)(10000.0M * testResult.ExecutionTime)),

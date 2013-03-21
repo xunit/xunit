@@ -89,7 +89,7 @@ namespace Xunit.Runner.TdNet
 
         public virtual TestRunState RunMethod(MethodInfo method, TestRunState initialRunState = TestRunState.NoTests)
         {
-            var testCases = Discover(method.ReflectedType).Where(tc => tc.ToMethodInfo() == method);
+            var testCases = Discover(method.ReflectedType).Where(tc => tc.Method == method);
             return Run(testCases, initialRunState);
         }
     }

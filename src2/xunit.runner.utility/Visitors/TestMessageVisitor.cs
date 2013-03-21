@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Xunit
 {
-    public abstract class TestMessageVisitor : MarshalByRefObject, IMessageSink
+    public class TestMessageVisitor : MarshalByRefObject, IMessageSink
     {
         public virtual void Dispose() { }
 
@@ -107,10 +107,10 @@ namespace Xunit
         }
     }
 
-    public abstract class TestMessageVisitor<TCompleteMessage> : TestMessageVisitor
+    public class TestMessageVisitor<TCompleteMessage> : TestMessageVisitor
         where TCompleteMessage : ITestMessage
     {
-        protected TestMessageVisitor()
+        public TestMessageVisitor()
         {
             Finished = new ManualResetEvent(initialState: false);
         }

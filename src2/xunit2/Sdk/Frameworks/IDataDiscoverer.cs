@@ -17,7 +17,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <remarks>
         /// This will be called during
-        /// discovery, at which point the <see cref="methodUnderTest"/> may or may not
+        /// discovery, at which point the <paramref name="testMethod"/> may or may not
         /// be backed by reflection (i.e., implementing <see cref="IReflectionMethodInfo"/>).
         /// If the data is not available because reflection is required, then you may return
         /// null to inform xUnit that the quantity of data is unknown at this point.

@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <UsingTask
         AssemblyFile="packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
@@ -58,15 +58,15 @@
 
     <Target Name="Build" DependsOnTargets="RestorePackages">
         <MSBuild
-            Projects="xunit.sln"
+            Projects="xunit2.sln"
             Targets="Build"
             Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
 
         <!-- Build Visual Studio VSIX -->
-        <MSBuild Projects="tools\xunit.vsix.msbuild" Properties="OutputPath=..\src\xunit.runner.visualstudio\bin\$(Configuration)\" />
+        <!--<MSBuild Projects="tools\xunit.vsix.msbuild" Properties="OutputPath=..\src\xunit.runner.visualstudio\bin\$(Configuration)\" />-->
 
         <!-- Build xunit.console.x86 -->
-        <Copy
+        <!--<Copy
             SourceFiles="src\xunit.console\xunit.console.csproj"
             DestinationFiles="src\xunit.console\xunit.console.x86.csproj"/>
         <RegexReplace
@@ -86,10 +86,10 @@
             Replacement="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console.x86&quot;"
             Files="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe.config" />
         <Delete
-            Files="src\xunit.console\xunit.console.x86.csproj" />
+            Files="src\xunit.console\xunit.console.x86.csproj" />-->
 
         <!-- Build xunit.gui.x86 -->
-        <Copy
+        <!--<Copy
             SourceFiles="src\xunit.gui\xunit.gui.csproj"
             DestinationFiles="src\xunit.gui\xunit.gui.x86.csproj"/>
         <RegexReplace
@@ -105,7 +105,7 @@
             Targets="Build"
             Properties="PlatformTarget=x86;Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
         <Delete
-            Files="src\xunit.gui\xunit.gui.x86.csproj" />
+            Files="src\xunit.gui\xunit.gui.x86.csproj" />-->
     </Target>
 
     <Target Name="Test" DependsOnTargets="Build">

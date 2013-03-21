@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 namespace Xunit
 {
-    public class XunitFrontController : ITestFrameworkDiscoverer, ITestFrameworkExecutor
+    public class XunitFrontController : IFrontController
     {
         readonly Xunit2 xunit2;
 
