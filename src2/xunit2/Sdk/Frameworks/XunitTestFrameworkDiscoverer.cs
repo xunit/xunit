@@ -51,11 +51,18 @@ namespace Xunit.Sdk
                     IAttributeInfo discovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitDiscovererAttribute)).FirstOrDefault();
                     if (discovererAttribute != null)
                     {
-                        Type discovererType = discovererAttribute.GetPropertyValue<Type>("DiscovererType");
-                        IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
+                        var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                        var discovererType = Reflector.GetType(args[0], args[1]);
+                        if (discovererType != null)
+                        {
+                            IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
 
-                        foreach (XunitTestCase testCase in discoverer.Discover(assemblyInfo, type, method, factAttribute))
-                            messageSink.OnMessage(new TestCaseDiscoveryMessage { TestCase = UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation) });
+                            foreach (XunitTestCase testCase in discoverer.Discover(assemblyInfo, type, method, factAttribute))
+                                messageSink.OnMessage(new TestCaseDiscoveryMessage { TestCase = UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation) });
+                        }
+                        // TODO: Figure out a way to report back an error when discovererType is not available
+                        // TODO: What if the discovererType can't be created or cast to IXunitDiscoverer?
+                        // TODO: Performance optimization: cache instances of the discoverer type
                     }
                 }
             }

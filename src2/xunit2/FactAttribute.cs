@@ -4,7 +4,7 @@ using Xunit.Sdk;
 
 namespace Xunit
 {
-    [XunitDiscoverer(DiscovererType = typeof(FactDiscoverer))]
+    [XunitDiscoverer("Xunit.Sdk.FactDiscoverer", "xunit2")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class FactAttribute : Attribute
