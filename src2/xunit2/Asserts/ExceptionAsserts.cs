@@ -21,10 +21,10 @@ namespace Xunit
         /// <summary>
         /// Verifies that a block of code does not throw any exceptions.
         /// </summary>
-        /// <param name="testTask">A Task of the code to be tested</param>
-        public static void DoesNotThrow(Task testTask)
+        /// <param name="testCode">A Task of the code to be tested</param>
+        public static void DoesNotThrow(Func<Task> testCode)
         {
-            Exception ex = Record.Exception(testTask);
+            Exception ex = Record.Exception(testCode);
 
             if (ex != null)
                 throw new DoesNotThrowException(ex);
@@ -59,13 +59,13 @@ namespace Xunit
         /// Verifies that the exact exception is thrown (and not a derived exception type).
         /// </summary>
         /// <typeparam name="T">The type of the exception expected to be thrown</typeparam>
-        /// <param name="testTask">A Task of the code to be tested</param>
+        /// <param name="testCode">A delegate to the async code to be tested</param>
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        public static T Throws<T>(Task testTask)
+        public static T Throws<T>(Func<Task> testCode)
             where T : Exception
         {
-            return (T)Throws(typeof(T), () => testTask.GetAwaiter().GetResult());
+            return (T)Throws(typeof(T), () => testCode().GetAwaiter().GetResult());
         }
 
         /// <summary>
@@ -86,12 +86,12 @@ namespace Xunit
         /// Verifies that the exact exception is thrown (and not a derived exception type).
         /// </summary>
         /// <param name="exceptionType">The type of the exception expected to be thrown</param>
-        /// <param name="testTask">A Task of the code to be tested</param>
+        /// <param name="testCode">A delegate to the async code to be tested</param>
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        public static Exception Throws(Type exceptionType, Task testTask)
+        public static Exception Throws(Type exceptionType, Func<Task> testCode)
         {
-            return Throws(exceptionType, () => testTask.GetAwaiter().GetResult());
+            return Throws(exceptionType, () => testCode().GetAwaiter().GetResult());
         }
 
         /// <summary>

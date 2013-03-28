@@ -13,16 +13,16 @@ namespace Xunit
         /// <summary>
         /// Records any exception which is thrown by the given code.
         /// </summary>
-        /// <param name="code">The code which may thrown an exception.</param>
+        /// <param name="testCode">The code which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
-        public static Exception Exception(Action code)
+        public static Exception Exception(Action testCode)
         {
-            Guard.ArgumentNotNull("code", code);
+            Guard.ArgumentNotNull("testCode", testCode);
 
             try
             {
-                code();
+                testCode();
                 return null;
             }
             catch (Exception ex)
@@ -34,16 +34,16 @@ namespace Xunit
         /// <summary>
         /// Records any exception which is thrown by the given code.
         /// </summary>
-        /// <param name="task">The Task which may thrown an exception.</param>
+        /// <param name="testCode">The async code which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
-        public static Exception Exception(Task task)
+        public static Exception Exception(Func<Task> testCode)
         {
-            Guard.ArgumentNotNull("task", task);
+            Guard.ArgumentNotNull("testCode", testCode);
 
             try
             {
-                task.GetAwaiter().GetResult();
+                testCode().GetAwaiter().GetResult();
                 return null;
             }
             catch (Exception ex)
@@ -56,16 +56,16 @@ namespace Xunit
         /// Records any exception which is thrown by the given code that has
         /// a return value. Generally used for testing property accessors.
         /// </summary>
-        /// <param name="code">The code which may thrown an exception.</param>
+        /// <param name="testCode">The code which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
-        public static Exception Exception(Func<object> code)
+        public static Exception Exception(Func<object> testCode)
         {
-            Guard.ArgumentNotNull("code", code);
+            Guard.ArgumentNotNull("testCode", testCode);
 
             try
             {
-                code();
+                testCode();
                 return null;
             }
             catch (Exception ex)
