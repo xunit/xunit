@@ -24,7 +24,7 @@ namespace Xunit.Runner.MSBuild
             Skipped += assemblyFinished.TestsSkipped;
             Time += assemblyFinished.ExecutionTime;
 
-            return true;
+            return !CancelThunk();
         }
 
         protected override bool Visit(IErrorMessage error)
@@ -32,7 +32,7 @@ namespace Xunit.Runner.MSBuild
             Log.LogError("{0}: {1}", error.ExceptionType, Escape(error.Message));
             Log.LogError(error.StackTrace);
 
-            return true;
+            return !CancelThunk();
         }
 
         protected override bool Visit(ITestFailed testFailed)
@@ -40,21 +40,21 @@ namespace Xunit.Runner.MSBuild
             Log.LogError("{0}: {1}", Escape(testFailed.TestDisplayName), Escape(testFailed.Message));
             Log.LogError(testFailed.StackTrace);
 
-            return true;
+            return !CancelThunk();
         }
 
         protected override bool Visit(ITestPassed testPassed)
         {
             Log.LogMessage("    {0}", Escape(testPassed.TestDisplayName));
 
-            return true;
+            return !CancelThunk();
         }
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
             Log.LogWarning("{0}: {1}", Escape(testSkipped.TestDisplayName), Escape(testSkipped.Reason));
 
-            return true;
+            return !CancelThunk();
         }
 
         static string Escape(string value)

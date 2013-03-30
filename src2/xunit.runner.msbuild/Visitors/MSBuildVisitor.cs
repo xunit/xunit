@@ -9,7 +9,7 @@ namespace Xunit.Runner.MSBuild
         public MSBuildVisitor(TaskLoggingHelper log, Func<bool> cancelThunk)
         {
             Log = log;
-            CancelThunk = cancelThunk;
+            CancelThunk = cancelThunk ?? (() => false);
         }
 
         public readonly Func<bool> CancelThunk;
