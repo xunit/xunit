@@ -182,6 +182,13 @@ namespace Xunit.Sdk
             });
         }
 
+        protected virtual IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
+        {
+            return classUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
+                                 .Concat(methodUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+                                 .Cast<BeforeAfterTestAttribute>();
+        }
+
         /// <summary>
         /// Run the tests in the test case.
         /// </summary>
@@ -221,9 +228,7 @@ namespace Xunit.Sdk
                     }
 
                     IEnumerable<BeforeAfterTestAttribute> beforeAfterAttributes =
-                        classUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
-                                      .Concat(methodUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-                                      .Cast<BeforeAfterTestAttribute>();
+                        GetBeforeAfterAttributes(classUnderTest, methodUnderTest);
 
                     aggregator.Run(() =>
                     {

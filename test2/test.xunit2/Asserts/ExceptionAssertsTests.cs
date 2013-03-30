@@ -80,7 +80,7 @@ public class ExceptionAssertsTests
         {
             bool methodCalled = false;
 
-            Assert.DoesNotThrow(Task.Factory.StartNew(() => methodCalled = true));
+            Assert.DoesNotThrow(() => Task.Factory.StartNew(() => methodCalled = true));
 
             Assert.True(methodCalled);
         }
@@ -88,7 +88,7 @@ public class ExceptionAssertsTests
         [Fact]
         public void CodeThrows()
         {
-            var ex = Record.Exception(() => Assert.DoesNotThrow(Task.Factory.StartNew(ThrowingMethod)));
+            var ex = Record.Exception(() => Assert.DoesNotThrow(() => Task.Factory.StartNew(ThrowingMethod)));
 
             Assert.IsType<DoesNotThrowException>(ex);
             Assert.Contains("NotImplementedException", ex.Message);
@@ -225,7 +225,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Assert.Throws<ArgumentException>(Task.Factory.StartNew(() => { }));
+                Assert.Throws<ArgumentException>(() => Task.Factory.StartNew(() => { }));
             }
             catch (AssertActualExpectedException exception)
             {
@@ -238,7 +238,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Assert.Throws<Exception>(Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
+                Assert.Throws<Exception>(() => Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
             }
             catch (AssertException exception)
             {
@@ -250,7 +250,7 @@ public class ExceptionAssertsTests
         public void GotExpectedException()
         {
             ArgumentException ex =
-                Assert.Throws<ArgumentException>(Task.Factory.StartNew(() => { throw new ArgumentException(); }));
+                Assert.Throws<ArgumentException>(() => Task.Factory.StartNew(() => { throw new ArgumentException(); }));
 
             Assert.NotNull(ex);
         }
@@ -347,7 +347,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Assert.Throws(typeof(ArgumentException), Task.Factory.StartNew(() => { }));
+                Assert.Throws(typeof(ArgumentException), () => Task.Factory.StartNew(() => { }));
             }
             catch (AssertActualExpectedException exception)
             {
@@ -360,7 +360,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Assert.Throws(typeof(Exception), Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
+                Assert.Throws(typeof(Exception), () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
             }
             catch (AssertException exception)
             {
@@ -372,7 +372,7 @@ public class ExceptionAssertsTests
         public void GotExpectedException()
         {
             Exception ex =
-                Assert.Throws(typeof(ArgumentException), Task.Factory.StartNew(() => { throw new ArgumentException(); }));
+                Assert.Throws(typeof(ArgumentException), () => Task.Factory.StartNew(() => { throw new ArgumentException(); }));
 
             Assert.NotNull(ex);
             Assert.IsType<ArgumentException>(ex);

@@ -686,7 +686,7 @@ public class XunitTestCaseTests
                     );
                 }
 
-                [Fact(Skip = "Rewrite this without Assert.Collection. Le sigh...")]
+                [Fact]
                 public void EarlyFailurePreventsLaterBeforeAfter()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInBefore");
@@ -704,7 +704,7 @@ public class XunitTestCaseTests
                     );
                 }
 
-                [Fact(Skip = "Rewrite this without Assert.Collection. Le sigh...")]
+                [Fact]
                 public void EarlyAfterFailureDoesNotPreventLaterAfterRun()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInAfter");
@@ -737,8 +737,8 @@ public class XunitTestCaseTests
                 class ClassUnderTest
                 {
                     [Fact]
-                    [SpyBeforeAfterTest]
                     [DummyBeforeAfterTest]
+                    [SpyBeforeAfterTest]
                     public void PassingTestMethod() { }
 
                     [Fact]
@@ -750,8 +750,8 @@ public class XunitTestCaseTests
                     }
 
                     [Fact]
-                    [SpyBeforeAfterTest(ThrowInAfter = true)]
                     [DummyBeforeAfterTest]
+                    [SpyBeforeAfterTest(ThrowInAfter = true)]
                     public void ThrowInAfter()
                     {
                     }
@@ -836,16 +836,16 @@ public class XunitTestCaseTests
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
-                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
                         message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
                         message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
+                        message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
                         message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                         message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
-                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
+                        message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
                         message => Assert.IsAssignableFrom<ITestPassed>(message),
                         message => Assert.IsAssignableFrom<ITestFinished>(message)
                     );
@@ -967,6 +967,12 @@ public class XunitTestCaseTests
             var fact = Reflector.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest)
                                                           .Single(cad => cad.AttributeType == typeof(FactAttribute)));
             return new TestableXunitTestCase(assembly, type, method, fact);
+        }
+
+        protected override IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
+        {
+            // Order by name so they are discovered in a predictable order, for these tests
+            return base.GetBeforeAfterAttributes(classUnderTest, methodUnderTest).OrderBy(a => a.GetType().Name);
         }
 
         public void RunTests()

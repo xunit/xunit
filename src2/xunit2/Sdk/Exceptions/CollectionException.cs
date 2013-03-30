@@ -12,6 +12,9 @@ namespace Xunit.Sdk
     [Serializable]
     public class CollectionException : AssertException
     {
+        readonly string innerException;
+        readonly string innerStackTrace;
+
         /// <summary>
         /// Creates a new instance of the <see cref="CollectionException"/> class.
         /// </summary>
@@ -20,11 +23,13 @@ namespace Xunit.Sdk
         /// <param name="indexFailurePoint">The index of the position where the first comparison failure occurred.</param>
         /// <param name="innerException">The exception that was thrown during the comparison failure.</param>
         public CollectionException(int expectedCount, int actualCount, int indexFailurePoint = -1, Exception innerException = null)
-            : base("Assert.Collection() Failure", innerException)
+            : base("Assert.Collection() Failure")
         {
             ExpectedCount = expectedCount;
             ActualCount = actualCount;
             IndexFailurePoint = indexFailurePoint;
+            this.innerException = FormatInnerException(innerException);
+            innerStackTrace = innerException == null ? null : innerException.StackTrace;
         }
 
         /// <inheritdoc/>
@@ -34,6 +39,8 @@ namespace Xunit.Sdk
             ActualCount = info.GetInt32("ActualCount");
             ExpectedCount = info.GetInt32("ExpectedCount");
             IndexFailurePoint = info.GetInt32("IndexFailurePoint");
+            innerException = info.GetString("__innerException");
+            innerStackTrace = info.GetString("__innerStackTrace");
         }
 
         /// <summary>
@@ -62,7 +69,7 @@ namespace Xunit.Sdk
                                          "{0}{3}Error during comparison of item at index {1}{3}Inner exception: {2}",
                                          base.Message,
                                          IndexFailurePoint,
-                                         FormatInnerException(),
+                                         innerException,
                                          Environment.NewLine);
 
                 return String.Format(CultureInfo.CurrentCulture,
@@ -78,16 +85,19 @@ namespace Xunit.Sdk
         {
             get
             {
-                if (InnerException == null)
+                if (innerStackTrace == null)
                     return base.StackTrace;
 
-                return InnerException.StackTrace + Environment.NewLine + base.StackTrace;
+                return innerStackTrace + Environment.NewLine + base.StackTrace;
             }
         }
 
-        private string FormatInnerException()
+        static string FormatInnerException(Exception innerException)
         {
-            var lines = InnerException.Message
+            if (innerException == null)
+                return null;
+
+            var lines = innerException.Message
                                       .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                                       .Select((value, idx) => idx > 0 ? "        " + value : value);
 
@@ -103,6 +113,8 @@ namespace Xunit.Sdk
             info.AddValue("ActualCount", ActualCount);
             info.AddValue("ExpectedCount", ExpectedCount);
             info.AddValue("IndexFailurePoint", IndexFailurePoint);
+            info.AddValue("__innerException", innerException);
+            info.AddValue("__innerStackTrace", innerStackTrace);
 
             base.GetObjectData(info, context);
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -12,22 +11,7 @@ namespace Xunit
         /// <param name="testCode">A delegate to the code to be tested</param>
         public static void DoesNotThrow(Action testCode)
         {
-            Exception ex = Record.Exception(testCode);
-
-            if (ex != null)
-                throw new DoesNotThrowException(ex);
-        }
-
-        /// <summary>
-        /// Verifies that a block of code does not throw any exceptions.
-        /// </summary>
-        /// <param name="testCode">A Task of the code to be tested</param>
-        public static void DoesNotThrow(Func<Task> testCode)
-        {
-            Exception ex = Record.Exception(testCode);
-
-            if (ex != null)
-                throw new DoesNotThrowException(ex);
+            DoesNotThrow(Record.Exception(testCode));
         }
 
         /// <summary>
@@ -36,10 +20,13 @@ namespace Xunit
         /// <param name="testCode">A delegate to the code to be tested</param>
         public static void DoesNotThrow(Func<object> testCode)
         {
-            Exception ex = Record.Exception(testCode);
+            DoesNotThrow(Record.Exception(testCode));
+        }
 
-            if (ex != null)
-                throw new DoesNotThrowException(ex);
+        private static void DoesNotThrow(Exception exception)
+        {
+            if (exception != null)
+                throw new DoesNotThrowException(exception);
         }
 
         /// <summary>
@@ -52,20 +39,7 @@ namespace Xunit
         public static T Throws<T>(Action testCode)
             where T : Exception
         {
-            return (T)Throws(typeof(T), testCode);
-        }
-
-        /// <summary>
-        /// Verifies that the exact exception is thrown (and not a derived exception type).
-        /// </summary>
-        /// <typeparam name="T">The type of the exception expected to be thrown</typeparam>
-        /// <param name="testCode">A delegate to the async code to be tested</param>
-        /// <returns>The exception that was thrown, when successful</returns>
-        /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        public static T Throws<T>(Func<Task> testCode)
-            where T : Exception
-        {
-            return (T)Throws(typeof(T), () => testCode().GetAwaiter().GetResult());
+            return (T)Throws(typeof(T), Record.Exception(testCode));
         }
 
         /// <summary>
@@ -79,19 +53,7 @@ namespace Xunit
         public static T Throws<T>(Func<object> testCode)
             where T : Exception
         {
-            return (T)Throws(typeof(T), testCode);
-        }
-
-        /// <summary>
-        /// Verifies that the exact exception is thrown (and not a derived exception type).
-        /// </summary>
-        /// <param name="exceptionType">The type of the exception expected to be thrown</param>
-        /// <param name="testCode">A delegate to the async code to be tested</param>
-        /// <returns>The exception that was thrown, when successful</returns>
-        /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        public static Exception Throws(Type exceptionType, Func<Task> testCode)
-        {
-            return Throws(exceptionType, () => testCode().GetAwaiter().GetResult());
+            return (T)Throws(typeof(T), Record.Exception(testCode));
         }
 
         /// <summary>
@@ -103,17 +65,7 @@ namespace Xunit
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
         public static Exception Throws(Type exceptionType, Action testCode)
         {
-            Guard.ArgumentNotNull("exceptionType", exceptionType);
-
-            Exception exception = Record.Exception(testCode);
-
-            if (exception == null)
-                throw new ThrowsException(exceptionType);
-
-            if (!exceptionType.Equals(exception.GetType()))
-                throw new ThrowsException(exceptionType, exception);
-
-            return exception;
+            return Throws(exceptionType, Record.Exception(testCode));
         }
 
         /// <summary>
@@ -126,9 +78,12 @@ namespace Xunit
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
         public static Exception Throws(Type exceptionType, Func<object> testCode)
         {
-            Guard.ArgumentNotNull("exceptionType", exceptionType);
+            return Throws(exceptionType, Record.Exception(testCode));
+        }
 
-            Exception exception = Record.Exception(testCode);
+        private static Exception Throws(Type exceptionType, Exception exception)
+        {
+            Guard.ArgumentNotNull("exceptionType", exceptionType);
 
             if (exception == null)
                 throw new ThrowsException(exceptionType);

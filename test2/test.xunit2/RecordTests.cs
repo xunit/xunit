@@ -29,7 +29,7 @@ public class RecordTests
         [Fact]
         public void Exception()
         {
-            Exception ex = Record.Exception(Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
+            Exception ex = Record.Exception(() => Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidOperationException>(ex);
@@ -38,7 +38,7 @@ public class RecordTests
         [Fact]
         public void NoException()
         {
-            Exception ex = Record.Exception(Task.Factory.StartNew(() => { }));
+            Exception ex = Record.Exception(() => Task.Factory.StartNew(() => { }));
 
             Assert.Null(ex);
         }

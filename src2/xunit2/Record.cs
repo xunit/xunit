@@ -32,27 +32,6 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Records any exception which is thrown by the given code.
-        /// </summary>
-        /// <param name="testCode">The async code which may thrown an exception.</param>
-        /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
-        public static Exception Exception(Func<Task> testCode)
-        {
-            Guard.ArgumentNotNull("testCode", testCode);
-
-            try
-            {
-                testCode().GetAwaiter().GetResult();
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return ex;
-            }
-        }
-
-        /// <summary>
         /// Records any exception which is thrown by the given code that has
         /// a return value. Generally used for testing property accessors.
         /// </summary>
@@ -65,7 +44,10 @@ namespace Xunit
 
             try
             {
-                testCode();
+                var task = testCode() as Task;
+                if (task != null)
+                    task.GetAwaiter().GetResult();
+
                 return null;
             }
             catch (Exception ex)

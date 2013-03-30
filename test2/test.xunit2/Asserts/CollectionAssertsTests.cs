@@ -66,7 +66,6 @@ public class CollectionAssertsTests
                          "Inner exception: Assert.Equal() Failure" + Environment.NewLine +
                          "        Expected: 2113" + Environment.NewLine +
                          "        Actual:   2112", ex.Message);
-            Assert.IsType<EqualException>(ex.InnerException);
         }
     }
 
