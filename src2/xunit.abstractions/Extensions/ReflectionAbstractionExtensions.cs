@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xunit.Abstractions;
 
+/// <summary>
+/// This class represents utility methods needed to supplememnt the 
+/// reflection capabilities provided by the CLR
+/// </summary>
 public static class ReflectionAbstractionExtensions
 {
     /// <summary>
