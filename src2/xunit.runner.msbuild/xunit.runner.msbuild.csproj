@@ -69,6 +69,7 @@
     <Compile Include="Loggers\VerboseLogger.cs" />
     <Compile Include="Utility\RemotingUtility.cs" />
     <Compile Include="Utility\XmlTestRunner.cs" />
+    <Compile Include="Visitors\MSBuildVisitor.cs" />
     <Compile Include="Visitors\StandardOutputVisitor.cs" />
     <Compile Include="xunit.cs" />
     <Compile Include="xunitproject.cs" />

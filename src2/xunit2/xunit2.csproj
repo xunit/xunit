@@ -93,7 +93,6 @@
     <Compile Include="Sdk\Exceptions\SingleException.cs" />
     <Compile Include="Sdk\Exceptions\ThrowsException.cs" />
     <Compile Include="Sdk\Exceptions\TimeoutException.cs" />
-    <Compile Include="Sdk\Exceptions\TraceAssertException.cs" />
     <Compile Include="Sdk\Exceptions\TrueException.cs" />
     <Compile Include="Sdk\Frameworks\AttributeBase.cs" />
     <Compile Include="Sdk\Frameworks\DataAttribute.cs" />

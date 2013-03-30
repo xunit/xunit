@@ -80,9 +80,7 @@
     <Compile Include="Asserts\RangeAssertsTests.cs" />
     <Compile Include="Asserts\StringAssertsTests.cs" />
     <Compile Include="Asserts\TypeAssertsTests.cs" />
-    <Compile Include="InlineDataTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyDataTests.cs" />
     <Compile Include="RecordTests.cs" />
     <Compile Include="Sdk\Exceptions\AssertActualExpectedExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\AssertExceptionTests.cs" />
@@ -93,7 +91,6 @@
     <Compile Include="Sdk\Exceptions\InRangeExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\NotInRangeExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\ThrowsExceptionTests.cs" />
-    <Compile Include="Sdk\Exceptions\TraceAssertExceptionTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkDiscovererTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkExecutorTests.cs" />

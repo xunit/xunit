@@ -11,6 +11,19 @@ using Xunit.Sdk;
 
 public class xunitTests
 {
+    public class CreateVisitor
+    {
+        [Fact]
+        public void DefaultVisitorIsStandardOutputVisitor()
+        {
+            var xunit = new Testable_xunit();
+
+            var visitor = xunit.CreateVisitor_Public();
+
+            Assert.IsType<StandardOutputVisitor>(visitor);
+        }
+    }
+
     public class Execute
     {
         [Fact, PreserveWorkingDirectory]
@@ -68,22 +81,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void DefaultVisitorIsStandardVisitor()
-        {
-            var assembly = new TaskItem(@"C:\Full\Path\1");
-            var mockXunit = new Mock<Testable_xunit> { CallBase = true };
-            mockXunit.Object.Assemblies = new ITaskItem[] { assembly };
-            mockXunit.Setup(x => x.ExecuteAssembly_Public(It.IsAny<string>(), It.IsAny<string>()))
-                     .Callback(() => Assert.IsType<StandardOutputVisitor>(mockXunit.Object.ExecutingVisitor))
-                     .Verifiable();
-
-            mockXunit.Object.Execute();
-
-            mockXunit.Verify();
-        }
-
-        [Fact]
-        public void ReturnsTrueWhenExitCodeIsZero()
+        public void ReturnsTrueWhenExitCodeIsZeroAndFailCountIsZero()
         {
             var xunit = new Testable_xunit(exitCode: 0);
 
@@ -98,6 +96,18 @@ public class xunitTests
             var xunit = new Testable_xunit(exitCode: 1);
 
             var result = xunit.Execute();
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void ReturnsFalseWhenFailCountIsNonZero()
+        {
+            var visitor = new MSBuildVisitor(null, null) { Failed = 1 };
+            var mockXunit = new Mock<Testable_xunit> { CallBase = true };
+            mockXunit.Setup(x => x.CreateVisitor_Public()).Returns(visitor);
+
+            var result = mockXunit.Object.Execute();
 
             Assert.False(result);
         }
@@ -197,10 +207,10 @@ public class xunitTests
 
     public class Testable_xunit : xunit
     {
-        public TestMessageVisitor<ITestAssemblyFinished> ExecutingVisitor;
         public readonly Mock<IBuildEngine> MockBuildEngine;
         public readonly Mock<IFrontController> MockFrontController;
         public readonly List<ITestCase> DiscoveryTestCases = new List<ITestCase>();
+        public readonly MSBuildVisitor Visitor = new MSBuildVisitor(null, null);
 
         public Testable_xunit() : this(0) { }
 
@@ -236,15 +246,23 @@ public class xunitTests
             return CreateFrontController_Public(assemblyFilename, configFileName);
         }
 
-        public virtual void ExecuteAssembly_Public(string assemblyFilename, string configFileName)
+        public virtual MSBuildVisitor CreateVisitor_Public()
         {
-            base.ExecuteAssembly(assemblyFilename, configFileName, new TestMessageVisitor<ITestAssemblyFinished>());
+            return base.CreateVisitor();
         }
 
-        protected override void ExecuteAssembly(string assemblyFilename, string configFileName, TestMessageVisitor<ITestAssemblyFinished> resultsVisitor)
+        protected override MSBuildVisitor CreateVisitor()
         {
-            ExecutingVisitor = resultsVisitor;
+            return CreateVisitor_Public();
+        }
 
+        public virtual void ExecuteAssembly_Public(string assemblyFilename, string configFileName)
+        {
+            base.ExecuteAssembly(assemblyFilename, configFileName, new MSBuildVisitor(null, null));
+        }
+
+        protected override void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
+        {
             ExecuteAssembly_Public(assemblyFilename, configFileName);
         }
 

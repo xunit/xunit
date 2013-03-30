@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using Xunit.Abstractions;
 
 namespace Xunit.Runner.MSBuild
 {
@@ -45,6 +44,14 @@ namespace Xunit.Runner.MSBuild
             return new XunitFrontController(assemblyFilename, configFileName, ShadowCopy);
         }
 
+        protected virtual MSBuildVisitor CreateVisitor()
+        {
+            //TeamCity ? (IMessageSink)new TeamCityLogger(Log, () => cancel) :
+            //Verbose ? new VerboseLogger(Log, () => cancel) :
+            //          new StandardLogger(Log, () => cancel);
+            return new StandardOutputVisitor(Log, () => cancel);
+        }
+
         public override bool Execute()
         {
             RemotingUtility.CleanUpRegisteredChannels();
@@ -56,10 +63,7 @@ namespace Xunit.Runner.MSBuild
 
                 Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
 
-                TestMessageVisitor<ITestAssemblyFinished> visitor = new StandardOutputVisitor(Log, () => cancel);
-                //TeamCity ? (IMessageSink)new TeamCityLogger(Log, () => cancel) :
-                //Verbose ? new VerboseLogger(Log, () => cancel) :
-                //          new StandardLogger(Log, () => cancel);
+                MSBuildVisitor visitor = CreateVisitor();
 
                 foreach (ITaskItem assembly in Assemblies)
                 {
@@ -74,23 +78,11 @@ namespace Xunit.Runner.MSBuild
                     ExecuteAssembly(assemblyFilename, configFilename, visitor);
                 }
 
-                //assembliesNode.Append("</assemblies>");
-
-                //string fullXml = assembliesNode.ToString();
-
-                //if (Xml != null)
-                //    new NullTransformer(Xml.GetMetadata("FullPath")).Transform(fullXml);
-
-                //if (Html != null)
-                //    using (Stream htmlStream = ResourceStream("HTML.xslt"))
-                //        new XslStreamTransformer(htmlStream, Html.GetMetadata("FullPath")).Transform(fullXml);
-
-                // TODO: How does ExitCode get set?
-                return ExitCode == 0;
+                return ExitCode == 0 && visitor.Failed == 0;
             }
         }
 
-        protected virtual void ExecuteAssembly(string assemblyFilename, string configFileName, TestMessageVisitor<ITestAssemblyFinished> resultsVisitor)
+        protected virtual void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
         {
             try
             {
