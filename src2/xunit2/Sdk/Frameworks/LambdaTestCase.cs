@@ -21,21 +21,32 @@ namespace Xunit.Sdk
             this.lambda = lambda;
         }
 
-        protected override void RunTests(IMessageSink messageSink)
+        protected override bool RunTests(IMessageSink messageSink)
         {
-            messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName });
+            bool cancelled = false;
 
-            try
+            if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName }))
+                cancelled = true;
+            else
             {
-                lambda();
-                messageSink.OnMessage(new TestPassed { TestCase = this, TestDisplayName = DisplayName });
-            }
-            catch (Exception ex)
-            {
-                messageSink.OnMessage(new TestFailed(ex) { TestCase = this, TestDisplayName = DisplayName });
+                try
+                {
+                    lambda();
+
+                    if (!messageSink.OnMessage(new TestPassed { TestCase = this, TestDisplayName = DisplayName }))
+                        cancelled = true;
+                }
+                catch (Exception ex)
+                {
+                    if (!messageSink.OnMessage(new TestFailed(ex) { TestCase = this, TestDisplayName = DisplayName }))
+                        cancelled = true;
+                }
             }
 
-            messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName });
+            if (!messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName }))
+                cancelled = true;
+
+            return cancelled;
         }
     }
 }

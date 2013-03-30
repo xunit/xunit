@@ -148,38 +148,45 @@ namespace Xunit.Sdk
             return parameterName + ": " + ParameterToDisplayValue(parameterValue);
         }
 
-        public virtual void Run(IMessageSink messageSink)
+        public virtual bool Run(IMessageSink messageSink)
         {
+            bool cancelled = false;
             int totalFailed = 0;
             int totalRun = 0;
             int totalSkipped = 0;
             decimal executionTime = 0M;
 
-            messageSink.OnMessage(new TestCaseStarting { TestCase = this });
-
-            var delegatingSink = new DelegatingMessageSink(messageSink, msg =>
+            if (!messageSink.OnMessage(new TestCaseStarting { TestCase = this }))
+                cancelled = true;
+            else
             {
-                if (msg is ITestFinished)
+                var delegatingSink = new DelegatingMessageSink(messageSink, msg =>
                 {
-                    totalRun++;
-                    executionTime += ((ITestFinished)msg).ExecutionTime;
-                }
-                else if (msg is ITestFailed)
-                    totalFailed++;
-                else if (msg is ITestSkipped)
-                    totalSkipped++;
-            });
+                    if (msg is ITestFinished)
+                    {
+                        totalRun++;
+                        executionTime += ((ITestFinished)msg).ExecutionTime;
+                    }
+                    else if (msg is ITestFailed)
+                        totalFailed++;
+                    else if (msg is ITestSkipped)
+                        totalSkipped++;
+                });
 
-            RunTests(delegatingSink);
+                cancelled = RunTests(delegatingSink);
+            }
 
-            messageSink.OnMessage(new TestCaseFinished
+            if (!messageSink.OnMessage(new TestCaseFinished
             {
                 ExecutionTime = executionTime,
                 TestCase = this,
                 TestsRun = totalRun,
                 TestsFailed = totalFailed,
                 TestsSkipped = totalSkipped
-            });
+            }))
+                cancelled = true;
+
+            return cancelled;
         }
 
         protected virtual IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
@@ -193,106 +200,144 @@ namespace Xunit.Sdk
         /// Run the tests in the test case.
         /// </summary>
         /// <param name="messageSink">The message sink to send results to.</param>
-        protected virtual void RunTests(IMessageSink messageSink)
+        protected virtual bool RunTests(IMessageSink messageSink)
         {
+            var cancelled = false;
             var classUnderTest = Class ?? GetRuntimeClass();
             var methodUnderTest = Method ?? GetRuntimeMethod(classUnderTest);
             decimal executionTime = 0M;
 
-            messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName });
-
-            if (!String.IsNullOrEmpty(SkipReason))
-                messageSink.OnMessage(new TestSkipped { TestCase = this, TestDisplayName = DisplayName, Reason = SkipReason });
+            if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName }))
+                cancelled = true;
             else
             {
-                var aggregator = new ExceptionAggregator();
-                var beforeAttributesRun = new List<BeforeAfterTestAttribute>();
-                var stopwatch = Stopwatch.StartNew();
 
-                aggregator.Run(() =>
+                if (!String.IsNullOrEmpty(SkipReason))
                 {
-                    object testClass = null;
-
-                    if (!methodUnderTest.IsStatic)
-                    {
-                        messageSink.OnMessage(new TestClassConstructionStarting { TestCase = this, TestDisplayName = DisplayName });
-
-                        try
-                        {
-                            testClass = Activator.CreateInstance(classUnderTest);
-                        }
-                        finally
-                        {
-                            messageSink.OnMessage(new TestClassConstructionFinished { TestCase = this, TestDisplayName = DisplayName });
-                        }
-                    }
-
-                    IEnumerable<BeforeAfterTestAttribute> beforeAfterAttributes =
-                        GetBeforeAfterAttributes(classUnderTest, methodUnderTest);
+                    if (!messageSink.OnMessage(new TestSkipped { TestCase = this, TestDisplayName = DisplayName, Reason = SkipReason }))
+                        cancelled = true;
+                }
+                else
+                {
+                    var aggregator = new ExceptionAggregator();
+                    var beforeAttributesRun = new Stack<BeforeAfterTestAttribute>();
+                    var stopwatch = Stopwatch.StartNew();
 
                     aggregator.Run(() =>
                     {
-                        foreach (var beforeAfterAttribute in beforeAfterAttributes)
+                        object testClass = null;
+
+                        if (!methodUnderTest.IsStatic)
                         {
-                            messageSink.OnMessage(new BeforeTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
+                            if (!messageSink.OnMessage(new TestClassConstructionStarting { TestCase = this, TestDisplayName = DisplayName }))
+                                cancelled = true;
 
                             try
                             {
-                                beforeAfterAttribute.Before(methodUnderTest);
-                                beforeAttributesRun.Add(beforeAfterAttribute);
+                                if (!cancelled)
+                                    testClass = Activator.CreateInstance(classUnderTest);
                             }
                             finally
                             {
-                                messageSink.OnMessage(new BeforeTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
+                                if (!messageSink.OnMessage(new TestClassConstructionFinished { TestCase = this, TestDisplayName = DisplayName }))
+                                    cancelled = true;
                             }
                         }
 
-                        messageSink.OnMessage(new TestMethodStarting { TestCase = this, TestDisplayName = DisplayName });
-                        aggregator.Run(() => methodUnderTest.Invoke(testClass, Arguments.ToArray()));
-                        messageSink.OnMessage(new TestMethodFinished { TestCase = this, TestDisplayName = DisplayName });
+                        if (!cancelled)
+                        {
+                            IEnumerable<BeforeAfterTestAttribute> beforeAfterAttributes =
+                                GetBeforeAfterAttributes(classUnderTest, methodUnderTest);
+
+                            aggregator.Run(() =>
+                            {
+                                foreach (var beforeAfterAttribute in beforeAfterAttributes)
+                                {
+                                    if (!messageSink.OnMessage(new BeforeTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
+                                        cancelled = true;
+                                    else
+                                    {
+                                        try
+                                        {
+                                            beforeAfterAttribute.Before(methodUnderTest);
+                                            beforeAttributesRun.Push(beforeAfterAttribute);
+                                        }
+                                        finally
+                                        {
+                                            if (!messageSink.OnMessage(new BeforeTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
+                                                cancelled = true;
+                                        }
+                                    }
+
+                                    if (cancelled)
+                                        return;
+                                }
+
+                                if (!messageSink.OnMessage(new TestMethodStarting { TestCase = this, TestDisplayName = DisplayName }))
+                                    cancelled = true;
+
+                                if (!cancelled)
+                                    aggregator.Run(() => methodUnderTest.Invoke(testClass, Arguments.ToArray()));
+
+                                if (!messageSink.OnMessage(new TestMethodFinished { TestCase = this, TestDisplayName = DisplayName }))
+                                    cancelled = true;
+                            });
+
+                            foreach (var beforeAfterAttribute in beforeAttributesRun)
+                            {
+                                if (!messageSink.OnMessage(new AfterTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
+                                    cancelled = true;
+
+                                aggregator.Run(() => beforeAfterAttribute.After(methodUnderTest));
+
+                                if (!messageSink.OnMessage(new AfterTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
+                                    cancelled = true;
+                            }
+                        }
+
+                        aggregator.Run(() =>
+                        {
+                            IDisposable disposable = testClass as IDisposable;
+                            if (disposable != null)
+                            {
+                                if (!messageSink.OnMessage(new TestClassDisposeStarting { TestCase = this, TestDisplayName = DisplayName }))
+                                    cancelled = true;
+
+                                try
+                                {
+                                    disposable.Dispose();
+                                }
+                                finally
+                                {
+                                    if (!messageSink.OnMessage(new TestClassDisposeFinished { TestCase = this, TestDisplayName = DisplayName }))
+                                        cancelled = true;
+                                }
+                            }
+                        });
                     });
 
-                    beforeAttributesRun.Reverse();
+                    stopwatch.Stop();
 
-                    foreach (var beforeAfterAttribute in beforeAttributesRun)
+                    if (!cancelled)
                     {
-                        messageSink.OnMessage(new AfterTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
-                        aggregator.Run(() => beforeAfterAttribute.After(methodUnderTest));
-                        messageSink.OnMessage(new AfterTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name });
+                        executionTime = (decimal)stopwatch.Elapsed.TotalSeconds;
+
+                        var exception = aggregator.ToException();
+                        var testResult = exception == null ? (TestResultMessage)new TestPassed() : new TestFailed(exception);
+                        testResult.TestCase = this;
+                        testResult.TestDisplayName = DisplayName;
+                        testResult.ExecutionTime = executionTime;
+
+                        if (!messageSink.OnMessage(testResult))
+                            cancelled = true;
                     }
-
-                    aggregator.Run(() =>
-                    {
-                        IDisposable disposable = testClass as IDisposable;
-                        if (disposable != null)
-                        {
-                            messageSink.OnMessage(new TestClassDisposeStarting { TestCase = this, TestDisplayName = DisplayName });
-
-                            try
-                            {
-                                disposable.Dispose();
-                            }
-                            finally
-                            {
-                                messageSink.OnMessage(new TestClassDisposeFinished { TestCase = this, TestDisplayName = DisplayName });
-                            }
-                        }
-                    });
-                });
-
-                stopwatch.Stop();
-                executionTime = (decimal)stopwatch.Elapsed.TotalSeconds;
-
-                var exception = aggregator.ToException();
-                var testResult = exception == null ? (TestResultMessage)new TestPassed() : new TestFailed(exception);
-                testResult.TestCase = this;
-                testResult.TestDisplayName = DisplayName;
-                testResult.ExecutionTime = executionTime;
-
-                messageSink.OnMessage(testResult);
+                }
             }
 
-            messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName, ExecutionTime = executionTime });
+            if (!messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName, ExecutionTime = executionTime }))
+                cancelled = true;
+
+            return cancelled;
         }
 
         class ExceptionAggregator

@@ -12,6 +12,6 @@ namespace Xunit.Abstractions
         /// never throw exceptions.
         /// </summary>
         /// <param name="message">The message from the message bus</param>
-        void OnMessage(ITestMessage message);
+        bool OnMessage(ITestMessage message);
     }
 }

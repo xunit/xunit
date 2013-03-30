@@ -359,19 +359,21 @@ public class XunitTestFrameworkDiscovererTests
             base.Find(typeName, includeSourceInformation, this);
         }
 
-        public virtual void FindImpl(ITypeInfo type, bool includeSourceInformation = false)
+        public virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation = false)
         {
-            base.FindImpl(type, includeSourceInformation, this);
+            return base.FindImpl(type, includeSourceInformation, this);
         }
 
-        protected override void FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        protected override bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
-            FindImpl(type, includeSourceInformation);
+            return FindImpl(type, includeSourceInformation);
         }
 
-        public void OnMessage(ITestMessage message)
+        public bool OnMessage(ITestMessage message)
         {
             Messages.Add(message);
+
+            return true;
         }
     }
 }

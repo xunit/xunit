@@ -980,12 +980,13 @@ public class XunitTestCaseTests
             RunTests(sink);
         }
 
-        protected override void RunTests(IMessageSink messageSink)
+        protected override bool RunTests(IMessageSink messageSink)
         {
-            if (callback != null)
-                callback(messageSink);
-            else
-                base.RunTests(messageSink);
+            if (callback == null)
+                return base.RunTests(messageSink);
+
+            callback(messageSink);
+            return true;
         }
     }
 }

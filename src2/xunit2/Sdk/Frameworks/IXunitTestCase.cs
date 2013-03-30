@@ -7,6 +7,6 @@ namespace Xunit.Sdk
     {
         IEnumerable<object> Arguments { get; }
 
-        void Run(IMessageSink messageSink);
+        bool Run(IMessageSink messageSink);
     }
 }

@@ -24,7 +24,8 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("messageSink", messageSink);
 
             foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
-                FindImpl(type, includeSourceInformation, messageSink);
+                if (!FindImpl(type, includeSourceInformation, messageSink))
+                    break;
 
             messageSink.OnMessage(new DiscoveryCompleteMessage());
         }
@@ -41,7 +42,7 @@ namespace Xunit.Sdk
             messageSink.OnMessage(new DiscoveryCompleteMessage());
         }
 
-        protected virtual void FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        protected virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
             foreach (IMethodInfo method in type.GetMethods(includePrivateMethods: true))
             {
@@ -58,7 +59,8 @@ namespace Xunit.Sdk
                             IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
 
                             foreach (XunitTestCase testCase in discoverer.Discover(assemblyInfo, type, method, factAttribute))
-                                messageSink.OnMessage(new TestCaseDiscoveryMessage { TestCase = UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation) });
+                                if (!messageSink.OnMessage(new TestCaseDiscoveryMessage { TestCase = UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation) }))
+                                    return false;
                         }
                         // TODO: Figure out a way to report back an error when discovererType is not available
                         // TODO: What if the discovererType can't be created or cast to IXunitDiscoverer?
@@ -66,6 +68,8 @@ namespace Xunit.Sdk
                     }
                 }
             }
+
+            return true;
         }
 
         private ITestCase UpdateTestCaseWithSourceInfo(XunitTestCase testCase, bool includeSourceInformation)

@@ -15,12 +15,12 @@ namespace Xunit.Sdk
             this.callback = callback;
         }
 
-        public virtual void OnMessage(ITestMessage message)
+        public virtual bool OnMessage(ITestMessage message)
         {
             if (callback != null)
                 callback(message);
 
-            innerSink.OnMessage(message);
+            return innerSink.OnMessage(message);
         }
 
         public void Dispose() { }
@@ -39,9 +39,9 @@ namespace Xunit.Sdk
 
         public ManualResetEvent Finished { get; private set; }
 
-        public override void OnMessage(ITestMessage message)
+        public override bool OnMessage(ITestMessage message)
         {
-            base.OnMessage(message);
+            var result = base.OnMessage(message);
 
             TFinalMessage finalMessage = message as TFinalMessage;
             if (finalMessage != null)
@@ -49,6 +49,8 @@ namespace Xunit.Sdk
                 FinalMessage = finalMessage;
                 Finished.Set();
             }
+
+            return result;
         }
     }
 }

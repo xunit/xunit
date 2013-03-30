@@ -49,7 +49,7 @@ public class TestMessageVisitorTests
 
         // Make a mock of the visitor so we can verify the right method was called
         var mockVisitor = new Mock<TestMessageVisitor> { CallBase = true };
-        mockVisitor.Protected().Setup("Visit", expression).Verifiable();
+        mockVisitor.Protected().Setup<bool>("Visit", expression).Returns(true).Verifiable();
 
         // Call the visitor with the mock
         mockVisitor.Object.OnMessage(mockImplementation);

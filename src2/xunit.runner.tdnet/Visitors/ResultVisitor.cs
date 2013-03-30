@@ -14,7 +14,7 @@ namespace Xunit.Runner.TdNet
         public ITestListener TestListener { get; private set; }
         public TestRunState TestRunState { get; set; }
 
-        protected override void Visit(ITestFailed failed)
+        protected override bool Visit(ITestFailed failed)
         {
             TestRunState = TestRunState.Failure;
 
@@ -26,9 +26,11 @@ namespace Xunit.Runner.TdNet
             TestListener.TestFinished(testResult);
 
             //WriteOutput(name, output);
+
+            return true;
         }
 
-        protected override void Visit(ITestPassed passed)
+        protected override bool Visit(ITestPassed passed)
         {
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
@@ -38,9 +40,11 @@ namespace Xunit.Runner.TdNet
             TestListener.TestFinished(testResult);
 
             //WriteOutput(name, output);
+
+            return true;
         }
 
-        protected override void Visit(ITestSkipped skipped)
+        protected override bool Visit(ITestSkipped skipped)
         {
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
@@ -50,6 +54,8 @@ namespace Xunit.Runner.TdNet
             testResult.Message = skipped.Reason;
 
             TestListener.TestFinished(testResult);
+
+            return true;
         }
     }
 }

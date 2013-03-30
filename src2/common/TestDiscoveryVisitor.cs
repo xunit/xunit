@@ -12,9 +12,11 @@ namespace Xunit
 
         public List<ITestCase> TestCases { get; private set; }
 
-        protected override void Visit(ITestCaseDiscoveryMessage discovery)
+        protected override bool Visit(ITestCaseDiscoveryMessage discovery)
         {
             TestCases.Add(discovery.TestCase);
+
+            return true;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Xunit.Runner.MSBuild
         public StandardOutputVisitor(TaskLoggingHelper log, Func<bool> cancelThunk)
             : base(log, cancelThunk) { }
 
-        protected override void Visit(ITestAssemblyFinished assemblyFinished)
+        protected override bool Visit(ITestAssemblyFinished assemblyFinished)
         {
             Log.LogMessage(MessageImportance.High,
                            "  Tests: {0}, Failures: {1}, Skipped: {2}, Time: {3} seconds",
@@ -23,28 +23,38 @@ namespace Xunit.Runner.MSBuild
             Failed += assemblyFinished.TestsFailed;
             Skipped += assemblyFinished.TestsSkipped;
             Time += assemblyFinished.ExecutionTime;
+
+            return true;
         }
 
-        protected override void Visit(IErrorMessage error)
+        protected override bool Visit(IErrorMessage error)
         {
             Log.LogError("{0}: {1}", error.ExceptionType, Escape(error.Message));
             Log.LogError(error.StackTrace);
+
+            return true;
         }
 
-        protected override void Visit(ITestFailed testFailed)
+        protected override bool Visit(ITestFailed testFailed)
         {
             Log.LogError("{0}: {1}", Escape(testFailed.TestDisplayName), Escape(testFailed.Message));
             Log.LogError(testFailed.StackTrace);
+
+            return true;
         }
 
-        protected override void Visit(ITestPassed testPassed)
+        protected override bool Visit(ITestPassed testPassed)
         {
             Log.LogMessage("    {0}", Escape(testPassed.TestDisplayName));
+
+            return true;
         }
 
-        protected override void Visit(ITestSkipped testSkipped)
+        protected override bool Visit(ITestSkipped testSkipped)
         {
             Log.LogWarning("{0}: {1}", Escape(testSkipped.TestDisplayName), Escape(testSkipped.Reason));
+
+            return true;
         }
 
         static string Escape(string value)
