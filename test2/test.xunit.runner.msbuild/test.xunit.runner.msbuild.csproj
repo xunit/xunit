@@ -45,6 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\SpyLogger.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Visitors\StandardOutputVisitorTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="xunitTests.cs" />
   </ItemGroup>
   <ItemGroup>

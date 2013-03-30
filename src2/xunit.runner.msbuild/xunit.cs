@@ -85,6 +85,7 @@ namespace Xunit.Runner.MSBuild
                 //    using (Stream htmlStream = ResourceStream("HTML.xslt"))
                 //        new XslStreamTransformer(htmlStream, Html.GetMetadata("FullPath")).Transform(fullXml);
 
+                // TODO: How does ExitCode get set?
                 return ExitCode == 0;
             }
         }

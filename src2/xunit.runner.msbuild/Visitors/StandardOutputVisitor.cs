@@ -36,15 +36,26 @@ namespace Xunit.Runner.MSBuild
             Time += assemblyFinished.ExecutionTime;
         }
 
+        protected override void Visit(IErrorMessage error)
+        {
+            log.LogError("{0}: {1}", error.ExceptionType, Escape(error.Message));
+            log.LogError(error.StackTrace);
+        }
+
         protected override void Visit(ITestFailed testFailed)
         {
-            log.LogError("{0}: {1}", testFailed.TestDisplayName, Escape(testFailed.Message));
-            log.LogError(Escape(testFailed.StackTrace));
+            log.LogError("{0}: {1}", Escape(testFailed.TestDisplayName), Escape(testFailed.Message));
+            log.LogError(testFailed.StackTrace);
         }
 
         protected override void Visit(ITestPassed testPassed)
         {
-            log.LogMessage("    {0}", testPassed.TestDisplayName);
+            log.LogMessage("    {0}", Escape(testPassed.TestDisplayName));
+        }
+
+        protected override void Visit(ITestSkipped testSkipped)
+        {
+            log.LogWarning("{0}: {1}", Escape(testSkipped.TestDisplayName), Escape(testSkipped.Reason));
         }
 
         static string Escape(string value)
@@ -52,7 +63,7 @@ namespace Xunit.Runner.MSBuild
             if (value == null)
                 return String.Empty;
 
-            return value.Replace("\r", "\\r").Replace("\n", "\\n");
+            return value.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t");
         }
     }
 }

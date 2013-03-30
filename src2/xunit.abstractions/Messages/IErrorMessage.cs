@@ -8,10 +8,8 @@ namespace Xunit.Abstractions
     /// </summary>
     public interface IErrorMessage : ITestMessage
     {
-        /// <summary>
-        /// The associated exception that caused the error. 
-        /// </summary>
-        /// <returns>An <see cref="Exception" /> associated with the Error</returns> 
-        Exception Error { get; }
+        string ExceptionType { get; }
+        string Message { get; }
+        string StackTrace { get; }
     }
 }
