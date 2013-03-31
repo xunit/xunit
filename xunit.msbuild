@@ -31,7 +31,8 @@
 
     <!-- Build server targets -->
 
-    <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test;Packages;Zip" />
+    <!-- <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test;Packages;Zip" /> -->
+    <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test" />
 
     <!-- Individiual targets -->
 
