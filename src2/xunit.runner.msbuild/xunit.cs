@@ -44,11 +44,15 @@ namespace Xunit.Runner.MSBuild
             return new XunitFrontController(assemblyFilename, configFileName, ShadowCopy);
         }
 
-        protected virtual MSBuildVisitor CreateVisitor()
+        protected virtual MSBuildVisitor CreateVisitor(string assemblyFilename)
         {
+            if (TeamCity)
+                return new TeamCityVisitor(Log, () => cancel, assemblyFilename);
+
             //TeamCity ? (IMessageSink)new TeamCityLogger(Log, () => cancel) :
             //Verbose ? new VerboseLogger(Log, () => cancel) :
             //          new StandardLogger(Log, () => cancel);
+
             return new StandardOutputVisitor(Log, () => cancel);
         }
 
@@ -63,8 +67,6 @@ namespace Xunit.Runner.MSBuild
 
                 Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
 
-                MSBuildVisitor visitor = CreateVisitor();
-
                 foreach (ITaskItem assembly in Assemblies)
                 {
                     if (cancel)
@@ -72,13 +74,16 @@ namespace Xunit.Runner.MSBuild
 
                     string assemblyFilename = assembly.GetMetadata("FullPath");
                     string configFilename = assembly.GetMetadata("ConfigFile");
-                    if (configFilename.Length == 0)
+                    if (configFilename != null && configFilename.Length == 0)
                         configFilename = null;
 
+                    MSBuildVisitor visitor = CreateVisitor(assemblyFilename);
                     ExecuteAssembly(assemblyFilename, configFilename, visitor);
+                    if (visitor.Failed != 0)
+                        ExitCode = 1;
                 }
 
-                return ExitCode == 0 && visitor.Failed == 0;
+                return ExitCode == 0;
             }
         }
 

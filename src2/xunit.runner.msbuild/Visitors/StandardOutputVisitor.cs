@@ -12,17 +12,14 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(ITestAssemblyFinished assemblyFinished)
         {
+            base.Visit(assemblyFinished);
+
             Log.LogMessage(MessageImportance.High,
                            "  Tests: {0}, Failures: {1}, Skipped: {2}, Time: {3} seconds",
                            assemblyFinished.TestsRun,
                            assemblyFinished.TestsFailed,
                            assemblyFinished.TestsSkipped,
                            assemblyFinished.ExecutionTime.ToString("0.000"));
-
-            Total += assemblyFinished.TestsRun;
-            Failed += assemblyFinished.TestsFailed;
-            Skipped += assemblyFinished.TestsSkipped;
-            Time += assemblyFinished.ExecutionTime;
 
             return !CancelThunk();
         }
@@ -55,14 +52,6 @@ namespace Xunit.Runner.MSBuild
             Log.LogWarning("{0}: {1}", Escape(testSkipped.TestDisplayName), Escape(testSkipped.Reason));
 
             return !CancelThunk();
-        }
-
-        static string Escape(string value)
-        {
-            if (value == null)
-                return String.Empty;
-
-            return value.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t");
         }
     }
 }

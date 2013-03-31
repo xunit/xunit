@@ -18,5 +18,23 @@ namespace Xunit.Runner.MSBuild
         public int Skipped;
         public decimal Time;
         public int Total;
+
+        protected override bool Visit(ITestAssemblyFinished assemblyFinished)
+        {
+            Total += assemblyFinished.TestsRun;
+            Failed += assemblyFinished.TestsFailed;
+            Skipped += assemblyFinished.TestsSkipped;
+            Time += assemblyFinished.ExecutionTime;
+
+            return base.Visit(assemblyFinished);
+        }
+
+        protected static string Escape(string value)
+        {
+            if (value == null)
+                return String.Empty;
+
+            return value.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t");
+        }
     }
 }

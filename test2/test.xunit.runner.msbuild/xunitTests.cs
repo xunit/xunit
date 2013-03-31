@@ -18,9 +18,19 @@ public class xunitTests
         {
             var xunit = new Testable_xunit();
 
-            var visitor = xunit.CreateVisitor_Public();
+            var visitor = xunit.CreateVisitor_Public("filename");
 
             Assert.IsType<StandardOutputVisitor>(visitor);
+        }
+
+        [Fact]
+        public void VisitorIsTeamCityVisitorWhenTeamCityIsTrue()
+        {
+            var xunit = new Testable_xunit { TeamCity = true };
+
+            var visitor = xunit.CreateVisitor_Public("filename");
+
+            Assert.IsType<TeamCityVisitor>(visitor);
         }
     }
 
@@ -105,7 +115,8 @@ public class xunitTests
         {
             var visitor = new MSBuildVisitor(null, null) { Failed = 1 };
             var mockXunit = new Mock<Testable_xunit> { CallBase = true };
-            mockXunit.Setup(x => x.CreateVisitor_Public()).Returns(visitor);
+            mockXunit.Setup(x => x.CreateVisitor_Public(It.IsAny<string>())).Returns(visitor);
+            mockXunit.Object.Assemblies = new[] { new Mock<ITaskItem>().Object };
 
             var result = mockXunit.Object.Execute();
 
@@ -246,14 +257,14 @@ public class xunitTests
             return CreateFrontController_Public(assemblyFilename, configFileName);
         }
 
-        public virtual MSBuildVisitor CreateVisitor_Public()
+        public virtual MSBuildVisitor CreateVisitor_Public(string assemblyFileName)
         {
-            return base.CreateVisitor();
+            return base.CreateVisitor(assemblyFileName);
         }
 
-        protected override MSBuildVisitor CreateVisitor()
+        protected override MSBuildVisitor CreateVisitor(string assemblyFileName)
         {
-            return CreateVisitor_Public();
+            return CreateVisitor_Public(assemblyFileName);
         }
 
         public virtual void ExecuteAssembly_Public(string assemblyFilename, string configFileName)
