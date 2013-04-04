@@ -61,7 +61,6 @@
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
       <Link>Visitors\TestDiscoveryVisitor.cs</Link>
     </Compile>
-    <Compile Include="AssemblyHelper.cs" />
     <Compile Include="CombineXunitXml.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Loggers\StandardLogger.cs" />

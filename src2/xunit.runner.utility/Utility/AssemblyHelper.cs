@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace Xunit.Runner.MSBuild
+namespace Xunit
 {
     public static class AssemblyHelper
     {

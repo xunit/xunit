@@ -37,6 +37,7 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -59,7 +60,8 @@
     <Compile Include="Frameworks\Xunit2Discoverer.cs" />
     <Compile Include="Frameworks\Xunit2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Extensions\ExceptionExtensions.cs" />
+    <Compile Include="Utility\AssemblyHelper.cs" />
+    <Compile Include="Utility\ExceptionExtensions.cs" />
     <Compile Include="Visitors\TestMessageVisitor.cs" />
   </ItemGroup>
   <ItemGroup>

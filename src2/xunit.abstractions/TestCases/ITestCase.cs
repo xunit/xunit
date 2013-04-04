@@ -15,7 +15,13 @@ namespace Xunit.Abstractions
         /// Gets the class that this test case resides in, if known. May return <c>null</c> for tests
         /// which are discovered without the use of reflection.
         /// </summary>
+        [Obsolete]
         Type Class { get; }
+
+        /// <summary>
+        /// Gets the fully qualified type name of the class that this test case resides in.
+        /// </summary>
+        string ClassName { get; }
 
         /// <summary>
         /// Gets the display name of the test method.
@@ -26,7 +32,13 @@ namespace Xunit.Abstractions
         /// Gets the method that this test case resides in, if known. May return <c>null</c> for tests
         /// which are discovered without the use of reflection.
         /// </summary>
+        [Obsolete]
         MethodInfo Method { get; }
+
+        /// <summary>
+        /// Gets the name of the method that this test case resides in.
+        /// </summary>
+        string MethodName { get; }
 
         /// <summary>
         /// Gets the display text for the reason a test is being skipped; if the test

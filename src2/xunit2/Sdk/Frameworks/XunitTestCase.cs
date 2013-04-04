@@ -61,6 +61,11 @@ namespace Xunit.Sdk
             }
         }
 
+        public string ClassName
+        {
+            get { return type.Name; }
+        }
+
         public string DisplayName { get; private set; }
 
         public MethodInfo Method
@@ -73,6 +78,11 @@ namespace Xunit.Sdk
 
                 return null;
             }
+        }
+
+        public string MethodName
+        {
+            get { return method.Name; }
         }
 
         public string SkipReason { get; private set; }

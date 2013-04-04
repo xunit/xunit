@@ -20,8 +20,10 @@ public class TestCase : ITestCase
 
     public IAssemblyInfo Assembly { get; set; }
     public Type Class { get; set; }
+    public string ClassName { get; set; }
     public string DisplayName { get; set; }
     public MethodInfo Method { get; set; }
+    public string MethodName { get; set; }
     public string SkipReason { get; set; }
     public int? SourceFileLine { get; set; }
     public string SourceFileName { get; set; }

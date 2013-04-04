@@ -64,7 +64,7 @@
             Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
 
         <!-- Build Visual Studio VSIX -->
-        <!--<MSBuild Projects="tools\xunit.vsix.msbuild" Properties="OutputPath=..\src\xunit.runner.visualstudio\bin\$(Configuration)\" />-->
+        <MSBuild Projects="tools\xunit.vsix.msbuild" Properties="OutputPath=..\src2\xunit.runner.visualstudio\bin\$(Configuration)\" />
 
         <!-- Build xunit.console.x86 -->
         <!--<Copy
