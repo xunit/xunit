@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -10,23 +11,27 @@ namespace Xunit.Sdk
 {
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase
     {
+        readonly static object[] EmptyArray = new object[0];
+        readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
+        readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
+
         readonly IAssemblyInfo assembly;
         readonly IMethodInfo method;
         readonly ITypeInfo type;
 
-        public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, IEnumerable<object> arguments = null)
+        public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments = null)
         {
             this.assembly = assembly;
             this.type = type;
             this.method = method;
 
-            Arguments = arguments ?? Enumerable.Empty<object>();
+            Arguments = arguments ?? EmptyArray;
             DisplayName = factAttribute.GetPropertyValue<string>("DisplayName") ?? type.Name + "." + method.Name;
             SkipReason = factAttribute.GetPropertyValue<string>("Skip");
 
             if (arguments != null)
             {
-                var Parameters = arguments.ToArray();
+                var Parameters = arguments;
 
                 IParameterInfo[] parameterInfos = method.GetParameters().ToArray();
                 string[] displayValues = new string[Math.Max(Parameters.Length, parameterInfos.Length)];
@@ -47,7 +52,7 @@ namespace Xunit.Sdk
                 Traits.Add(traitAttribute.GetPropertyValue<string>("Name"), traitAttribute.GetPropertyValue<string>("Value"));
         }
 
-        public IEnumerable<object> Arguments { get; private set; }
+        public object[] Arguments { get; private set; }
 
         public Type Class
         {
@@ -94,6 +99,25 @@ namespace Xunit.Sdk
         public ITestCollection TestCollection { get; private set; }
 
         public IDictionary<string, string> Traits { get; private set; }
+
+        private object[] ConvertArguments(object[] args, Type[] types)
+        {
+            if (args.Length == types.Length)
+                for (int idx = 0; idx < args.Length; idx++)
+                {
+                    Type type = types[idx];
+                    if (type.IsArray && args[idx] != null && args[idx].GetType() != type)
+                    {
+                        var elementType = type.GetElementType();
+                        var arg = (IEnumerable<object>)args[idx];
+                        var castMethod = EnumerableCast.MakeGenericMethod(elementType);
+                        var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
+                        args[idx] = toArrayMethod.Invoke(null, new object[] { castMethod.Invoke(null, new object[] { arg }) });
+                    }
+                }
+
+            return args;
+        }
 
         static string ConvertToSimpleTypeName(Type type)
         {
@@ -287,7 +311,10 @@ namespace Xunit.Sdk
                                     cancelled = true;
 
                                 if (!cancelled)
-                                    aggregator.Run(() => methodUnderTest.Invoke(testClass, Arguments.ToArray()));
+                                {
+                                    var parameterTypes = methodUnderTest.GetParameters().Select(p => p.ParameterType).ToArray();
+                                    aggregator.Run(() => methodUnderTest.Invoke(testClass, ConvertArguments(Arguments, parameterTypes)));
+                                }
 
                                 if (!messageSink.OnMessage(new TestMethodFinished { TestCase = this, TestDisplayName = DisplayName }))
                                     cancelled = true;

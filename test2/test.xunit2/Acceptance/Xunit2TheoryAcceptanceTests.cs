@@ -75,6 +75,52 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.NotNull(z);
             }
         }
+
+        [Fact]
+        public void SingleNullValuesWork()
+        {
+            var testMessages = Run(typeof(ClassUnderTestForNullValues));
+
+            Assert.Single(testMessages, msg =>
+            {
+                var passing = msg as ITestPassed;
+                if (passing == null)
+                    return false;
+
+                Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForNullValues.TestMethod(value: null)", passing.TestDisplayName);
+                return true;
+            });
+        }
+
+        class ClassUnderTestForNullValues
+        {
+            [Theory]
+            [InlineData(null)]
+            public void TestMethod(string value) { }
+        }
+
+        [Fact]
+        public void ArraysWork()
+        {
+            var testMessages = Run(typeof(ClassUnderTestForArrays));
+
+            Assert.Single(testMessages, msg =>
+            {
+                var passing = msg as ITestPassed;
+                if (passing == null)
+                    return false;
+
+                Assert.Contains("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForArrays.TestMethod", passing.TestDisplayName);
+                return true;
+            });
+        }
+
+        public class ClassUnderTestForArrays
+        {
+            [Theory]
+            [InlineData(new[] { 42, 2112 }, new[] { "SELF", "PARENT1", "PARENT2", "PARENT3" }, null, 10.5, "Hello, world!")]
+            public void TestMethod(int[] v1, string[] v2, float[] v3, double v4, string v5) { }
+        }
     }
 
     public class PropertyDataTests : AcceptanceTest

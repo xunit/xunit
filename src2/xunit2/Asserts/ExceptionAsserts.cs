@@ -95,31 +95,33 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Verified that exactly <see cref="ArgumentException"/> is thrown (and not a derived type),
-        /// with the given parameter name.
+        /// Verifies that the exact exception is thrown (and not a derived exception type), where the exception
+        /// derives from <see cref="ArgumentException"/> and has the given parameter name.
         /// </summary>
-        /// <param name="action">A delegate to the code to be tested</param>
+        /// <param name="testCode">A delegate to the code to be tested</param>
         /// <param name="paramName">The parameter name that is expected to be in the exception</param>
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        public static ArgumentException ThrowsArgument(Action action, string paramName)
+        public static T Throws<T>(Action testCode, string paramName)
+            where T : ArgumentException
         {
-            var ex = Assert.Throws<ArgumentException>(action);
+            var ex = Assert.Throws<T>(testCode);
             Assert.Equal(paramName, ex.ParamName);
             return ex;
         }
 
         /// <summary>
-        /// Verified that exactly <see cref="ArgumentNullException"/> is thrown (and not a derived type),
-        /// with the given parameter name.
+        /// Verifies that the exact exception is thrown (and not a derived exception type), where the exception
+        /// derives from <see cref="ArgumentException"/> and has the given parameter name.
         /// </summary>
         /// <param name="action">A delegate to the code to be tested</param>
         /// <param name="paramName">The parameter name that is expected to be in the exception</param>
         /// <returns>The exception that was thrown, when successful</returns>
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
-        public static ArgumentNullException ThrowsArgumentNull(Action action, string paramName)
+        public static T Throws<T>(Func<object> testCode, string paramName)
+            where T : ArgumentException
         {
-            var ex = Assert.Throws<ArgumentNullException>(action);
+            var ex = Assert.Throws<T>(testCode);
             Assert.Equal(paramName, ex.ParamName);
             return ex;
         }

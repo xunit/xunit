@@ -385,7 +385,7 @@ public class ExceptionAssertsTests
         public void ExpectExceptionButCodeDoesNotThrow()
         {
             var ex = Record.Exception(
-                () => Assert.ThrowsArgument(
+                () => Assert.Throws<ArgumentException>(
                     () => { },
                     "paramName"));
 
@@ -397,7 +397,7 @@ public class ExceptionAssertsTests
         public void ExpectExceptionButCodeThrowsDerivedException()
         {
             var ex = Record.Exception(
-                () => Assert.ThrowsArgument(
+                () => Assert.Throws<ArgumentException>(
                     () => { throw new InvalidOperationException(); },
                     "paramName"));
 
@@ -411,7 +411,7 @@ public class ExceptionAssertsTests
         public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             var ex = Record.Exception(
-                () => Assert.ThrowsArgument(
+                () => Assert.Throws<ArgumentException>(
                     () => ThrowingMethod(),
                     "paramName"));
 
@@ -429,7 +429,7 @@ public class ExceptionAssertsTests
         public void GotExpectedException()
         {
             ArgumentException ex =
-                Assert.ThrowsArgument(
+                Assert.Throws<ArgumentException>(
                     () => { throw new ArgumentException("message", "paramName"); },
                     "paramName");
 
@@ -440,7 +440,7 @@ public class ExceptionAssertsTests
         public void MismatchedParameterName()
         {
             var ex = Record.Exception(
-                () => Assert.ThrowsArgument(
+                () => Assert.Throws<ArgumentException>(
                     () => { throw new ArgumentException("message", "paramName2"); },
                     "paramName"));
 
@@ -456,7 +456,7 @@ public class ExceptionAssertsTests
         public void ExpectExceptionButCodeDoesNotThrow()
         {
             var ex = Record.Exception(
-                () => Assert.ThrowsArgumentNull(
+                () => Assert.Throws<ArgumentNullException>(
                     () => { },
                     "paramName"));
 
@@ -468,7 +468,7 @@ public class ExceptionAssertsTests
         public void ExpectExceptionButCodeThrowsDerivedException()
         {
             var ex = Record.Exception(
-                () => Assert.ThrowsArgumentNull(
+                () => Assert.Throws<ArgumentNullException>(
                     () => { throw new InvalidOperationException(); },
                     "paramName"));
 
@@ -482,7 +482,7 @@ public class ExceptionAssertsTests
         public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             var ex = Record.Exception(
-                () => Assert.ThrowsArgumentNull(
+                () => Assert.Throws<ArgumentNullException>(
                     () => ThrowingMethod(),
                     "paramName"));
 
@@ -500,7 +500,7 @@ public class ExceptionAssertsTests
         public void GotExpectedException()
         {
             ArgumentException ex =
-                Assert.ThrowsArgumentNull(
+                Assert.Throws<ArgumentNullException>(
                     () => { throw new ArgumentNullException("paramName"); },
                     "paramName");
 
@@ -511,7 +511,7 @@ public class ExceptionAssertsTests
         public void MismatchedParameterName()
         {
             var ex = Record.Exception(
-                () => Assert.ThrowsArgumentNull(
+                () => Assert.Throws<ArgumentNullException>(
                     () => { throw new ArgumentNullException("paramName2"); },
                     "paramName"));
 

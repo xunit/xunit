@@ -14,7 +14,7 @@ public class XunitTestFrameworkDiscovererTests
         [Fact]
         public void GuardClause()
         {
-            Assert.ThrowsArgumentNull(() => new XunitTestFrameworkDiscoverer(assemblyInfo: null), "assemblyInfo");
+            Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(assemblyInfo: null), "assemblyInfo");
         }
     }
 
@@ -26,7 +26,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var sink = new Mock<IMessageSink>();
 
-            Assert.ThrowsArgumentNull(
+            Assert.Throws<ArgumentNullException>(
                 () => framework.Find(includeSourceInformation: false, messageSink: null),
                 "messageSink"
             );
@@ -115,15 +115,15 @@ public class XunitTestFrameworkDiscovererTests
             var typeName = typeof(Object).FullName;
             var sink = new Mock<IMessageSink>();
 
-            Assert.ThrowsArgumentNull(
+            Assert.Throws<ArgumentNullException>(
                 () => framework.Find(typeName: null, includeSourceInformation: false, messageSink: sink.Object),
                 "typeName"
             );
-            Assert.ThrowsArgument(
+            Assert.Throws<ArgumentException>(
                 () => framework.Find(typeName: "", includeSourceInformation: false, messageSink: sink.Object),
                 "typeName"
             );
-            Assert.ThrowsArgumentNull(
+            Assert.Throws<ArgumentNullException>(
                 () => framework.Find(typeName, includeSourceInformation: false, messageSink: null),
                 "messageSink"
             );
