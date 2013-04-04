@@ -32,7 +32,7 @@
     <!-- Build server targets -->
 
     <!-- <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test;Packages;Zip" /> -->
-    <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test" />
+    <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test;Packages" />
 
     <!-- Individiual targets -->
 

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>xunit.runners</id>
-        <version>2.0.0-alpha</version>
+        <version>2.0.0-alpha-build0</version>
         <title>xUnit.net: Runners</title>
         <authors>James Newkirk, Brad Wilson</authors>
         <description>Runners for the xUnit.net framework, including Console, GUI, and MSBuild.</description>
@@ -13,16 +13,16 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
     </metadata>
     <files>
-        <file src="..\src\xunit.console\HTML.xslt" target="tools\HTML.xslt" />
+        <!--<file src="..\src\xunit.console\HTML.xslt" target="tools\HTML.xslt" />
         <file src="..\src\xunit.console\NUnitXml.xslt" target="tools\NUnitXml.xslt" />
         <file src="..\src\xunit.console\bin\Release\xunit.console.exe" target="tools\xunit.console.exe" />
         <file src="..\src\xunit.console\bin\Release\xunit.console.exe.config" target="tools\xunit.console.exe.config" />
         <file src="..\src\xunit.console\bin\Release.x86\xunit.console.x86.exe" target="tools\xunit.console.x86.exe" />
         <file src="..\src\xunit.console\bin\Release.x86\xunit.console.x86.exe.config" target="tools\xunit.console.x86.exe.config" />
         <file src="..\src\xunit.gui\bin\Release\xunit.gui.exe" target="tools\xunit.gui.exe" />
-        <file src="..\src\xunit.gui\bin\Release.x86\xunit.gui.x86.exe" target="tools\xunit.gui.x86.exe" />
-        <file src="..\src\xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll" target="tools\xunit.runner.msbuild.dll" />
-        <file src="..\src\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="tools\xunit.runner.utility.dll" />
-        <file src="..\src\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="tools\xunit.runner.utility.xml" />
+        <file src="..\src\xunit.gui\bin\Release.x86\xunit.gui.x86.exe" target="tools\xunit.gui.x86.exe" />-->
+        <file src="..\src2\xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll" target="tools\xunit.runner.msbuild.dll" />
+        <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="tools\xunit.runner.utility.dll" />
+        <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="tools\xunit.runner.utility.xml" />
     </files>
 </package>

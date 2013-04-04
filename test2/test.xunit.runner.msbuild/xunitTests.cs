@@ -16,7 +16,7 @@ public class xunitTests
         [Fact]
         public void DefaultVisitorIsStandardOutputVisitor()
         {
-            var xunit = new Testable_xunit();
+            var xunit = new Testable_xunit { TeamCity = false };
 
             var visitor = xunit.CreateVisitor_Public("filename");
 
