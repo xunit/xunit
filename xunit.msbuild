@@ -23,16 +23,12 @@
         <BuildNumber>$(BUILD_NUMBER)</BuildNumber>
     </PropertyGroup>
     <PropertyGroup Condition="'$(BuildNumber)' == ''">
-        <BuildNumber>$(ccnetlabel)</BuildNumber>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(BuildNumber)' == ''">
         <BuildNumber>0</BuildNumber>
     </PropertyGroup>
 
     <!-- Build server targets -->
 
-    <!-- <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test;Packages;Zip" /> -->
-    <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test;Packages" />
+    <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test;Packages;Zip" />
 
     <!-- Individiual targets -->
 
@@ -126,7 +122,7 @@
         <RegexReplace
             Pattern='AssemblyVersion\("(\d+\.\d+\.\d+)\.\d+"\)'
             Replacement='AssemblyVersion("$1.$(BuildNumber)")'
-            Files='src\common\GlobalAssemblyInfo.cs'/>
+            Files='src2\common\GlobalAssemblyInfo.cs'/>
         <RegexReplace
             Pattern='&lt;version&gt;(\d+\.\d+\.\d+(-[A-Za-z0-9-]+)?)&lt;'
             Replacement='&lt;version&gt;$1-build$(BuildNumber)&lt;'
