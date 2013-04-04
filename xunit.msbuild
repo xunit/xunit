@@ -140,17 +140,17 @@
     <Target Name="Zip">
         <ItemGroup>
             <ZipFileList Include="license.txt"/>
-            <ZipFileList Include="src\xunit\bin\$(Configuration)\xunit.??l"/>
-            <ZipFileList Include="src\xunit\bin\$(Configuration)\xunit.dll.tdnet"/>
-            <ZipFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.exe*"/>
+            <ZipFileList Include="src2\xunit2\bin\$(Configuration)\xunit2.??l"/>
+            <ZipFileList Include="src2\xunit2\bin\$(Configuration)\xunit2.dll.tdnet"/>
+            <ZipFileList Include="src2\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.??l"/>
+            <!--<ZipFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.exe*"/>
             <ZipFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe*"/>
             <ZipFileList Include="src\xunit.console\bin\$(Configuration)\*.xslt"/>
             <ZipFileList Include="src\xunit.gui\bin\$(Configuration)\xunit.gui.exe"/>
-            <ZipFileList Include="src\xunit.gui\bin\$(Configuration).x86\xunit.gui.x86.exe"/>
-            <ZipFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.??l"/>
-            <ZipFileList Include="src\xunit.extensions\bin\$(Configuration)\xunit.extensions.??l"/>
-            <ZipFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.dll"/>
-            <ZipFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"/>
+            <ZipFileList Include="src\xunit.gui\bin\$(Configuration).x86\xunit.gui.x86.exe"/>-->
+            <ZipFileList Include="src2\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.??l"/>
+            <ZipFileList Include="src2\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.dll"/>
+            <ZipFileList Include="src2\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"/>
         </ItemGroup>
         <Delete Files="xunit-build-$(BuildNumber).zip"/>
         <Zip
@@ -159,15 +159,15 @@
             StripPath="true"/>
 
         <ItemGroup>
-            <ZipPdbFileList Include="src\xunit\bin\$(Configuration)\xunit.pdb"/>
-            <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.pdb"/>
+            <ZipPdbFileList Include="src2\xunit2\bin\$(Configuration)\xunit2.pdb"/>
+            <ZipPdbFileList Include="src2\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.pdb"/>
+            <!--<ZipPdbFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.pdb"/>
             <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.pdb"/>
             <ZipPdbFileList Include="src\xunit.gui\bin\$(Configuration)\xunit.gui.pdb"/>
-            <ZipPdbFileList Include="src\xunit.gui\bin\$(Configuration).x86\xunit.gui.x86.pdb"/>
-            <ZipPdbFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.pdb"/>
-            <ZipPdbFileList Include="src\xunit.extensions\bin\$(Configuration)\xunit.extensions.pdb"/>
-            <ZipPdbFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.pdb"/>
-            <ZipPdbFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.pdb"/>
+            <ZipPdbFileList Include="src\xunit.gui\bin\$(Configuration).x86\xunit.gui.x86.pdb"/>-->
+            <ZipPdbFileList Include="src2\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.pdb"/>
+            <ZipPdbFileList Include="src2\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.pdb"/>
+            <ZipPdbFileList Include="src2\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.pdb"/>
         </ItemGroup>
         <Delete Files="xunit-symbols-$(BuildNumber).zip"/>
         <Zip
