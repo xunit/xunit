@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>xunit</id>
-        <version>2.0.0-alpha-build0</version>
+        <version>2.0.0-alpha</version>
         <title>xUnit.net</title>
         <authors>James Newkirk, Brad Wilson</authors>
         <description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.</description>
