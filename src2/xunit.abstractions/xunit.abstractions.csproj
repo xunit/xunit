@@ -39,9 +39,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\common\GlobalAssemblyInfo.cs">
-      <Link>Properties\GlobalAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="Extensions\ReflectionAbstractionExtensions.cs" />
     <Compile Include="Frameworks\IFailedTestCaseResult.cs" />
     <Compile Include="Frameworks\IPassedTestCaseResult.cs" />

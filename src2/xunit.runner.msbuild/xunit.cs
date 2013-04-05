@@ -79,6 +79,8 @@ namespace Xunit.Runner.MSBuild
 
                     MSBuildVisitor visitor = CreateVisitor(assemblyFilename);
                     ExecuteAssembly(assemblyFilename, configFilename, visitor);
+                    visitor.Finished.WaitOne();
+
                     if (visitor.Failed != 0)
                         ExitCode = 1;
                 }

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -44,32 +45,43 @@ namespace Xunit.Sdk
 
         protected virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
-            foreach (IMethodInfo method in type.GetMethods(includePrivateMethods: true))
-            {
-                IAttributeInfo factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
-                if (factAttribute != null)
-                {
-                    IAttributeInfo discovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitDiscovererAttribute)).FirstOrDefault();
-                    if (discovererAttribute != null)
-                    {
-                        var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        var discovererType = Reflector.GetType(args[0], args[1]);
-                        if (discovererType != null)
-                        {
-                            IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
+            string currentDirectory = Directory.GetCurrentDirectory();
 
-                            foreach (XunitTestCase testCase in discoverer.Discover(assemblyInfo, type, method, factAttribute))
-                                if (!messageSink.OnMessage(new TestCaseDiscoveryMessage { TestCase = UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation) }))
-                                    return false;
+            try
+            {
+                Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
+
+                foreach (IMethodInfo method in type.GetMethods(includePrivateMethods: true))
+                {
+                    IAttributeInfo factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
+                    if (factAttribute != null)
+                    {
+                        IAttributeInfo discovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitDiscovererAttribute)).FirstOrDefault();
+                        if (discovererAttribute != null)
+                        {
+                            var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                            var discovererType = Reflector.GetType(args[0], args[1]);
+                            if (discovererType != null)
+                            {
+                                IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
+
+                                foreach (XunitTestCase testCase in discoverer.Discover(assemblyInfo, type, method, factAttribute))
+                                    if (!messageSink.OnMessage(new TestCaseDiscoveryMessage { TestCase = UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation) }))
+                                        return false;
+                            }
+                            // TODO: Figure out a way to report back an error when discovererType is not available
+                            // TODO: What if the discovererType can't be created or cast to IXunitDiscoverer?
+                            // TODO: Performance optimization: cache instances of the discoverer type
                         }
-                        // TODO: Figure out a way to report back an error when discovererType is not available
-                        // TODO: What if the discovererType can't be created or cast to IXunitDiscoverer?
-                        // TODO: Performance optimization: cache instances of the discoverer type
                     }
                 }
-            }
 
-            return true;
+                return true;
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(currentDirectory);
+            }
         }
 
         private ITestCase UpdateTestCaseWithSourceInfo(XunitTestCase testCase, bool includeSourceInformation)

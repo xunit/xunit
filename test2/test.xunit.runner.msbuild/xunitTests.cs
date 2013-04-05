@@ -78,12 +78,15 @@ public class xunitTests
         [Fact]
         public void CallsExecuteAssemblyOnceForEachAssembly()
         {
+            var visitor = new MSBuildVisitor(null, null);
+            visitor.Finished.Set();
             var assm1 = new TaskItem(@"C:\Full\Path\1");
             var assm2 = new TaskItem(@"C:\Full\Path\2", new Dictionary<string, string> { { "ConfigFile", @"C:\Config\File" } });
             var mockXunit = new Mock<Testable_xunit> { CallBase = true };
             mockXunit.Object.Assemblies = new ITaskItem[] { assm1, assm2 };
             mockXunit.Setup(x => x.ExecuteAssembly_Public(@"C:\Full\Path\1", null)).Verifiable();
             mockXunit.Setup(x => x.ExecuteAssembly_Public(@"C:\Full\Path\2", @"C:\Config\File")).Verifiable();
+            mockXunit.Setup(x => x.CreateVisitor_Public(It.IsAny<string>())).Returns(visitor);
 
             mockXunit.Object.Execute();
 
@@ -114,6 +117,7 @@ public class xunitTests
         public void ReturnsFalseWhenFailCountIsNonZero()
         {
             var visitor = new MSBuildVisitor(null, null) { Failed = 1 };
+            visitor.Finished.Set();
             var mockXunit = new Mock<Testable_xunit> { CallBase = true };
             mockXunit.Setup(x => x.CreateVisitor_Public(It.IsAny<string>())).Returns(visitor);
             mockXunit.Object.Assemblies = new[] { new Mock<ITaskItem>().Object };
@@ -221,7 +225,6 @@ public class xunitTests
         public readonly Mock<IBuildEngine> MockBuildEngine;
         public readonly Mock<IFrontController> MockFrontController;
         public readonly List<ITestCase> DiscoveryTestCases = new List<ITestCase>();
-        public readonly MSBuildVisitor Visitor = new MSBuildVisitor(null, null);
 
         public Testable_xunit() : this(0) { }
 

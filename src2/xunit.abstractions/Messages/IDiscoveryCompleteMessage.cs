@@ -1,4 +1,5 @@
-﻿namespace Xunit.Abstractions
+﻿
+namespace Xunit.Abstractions
 {
     /// <summary>
     /// The IDiscoveryCompleteMessage is a marker interface indicating 
@@ -6,5 +7,6 @@
     /// assembly. 
     /// </summary>
     public interface IDiscoveryCompleteMessage : ITestMessage
-    {}
+    {
+    }
 }
