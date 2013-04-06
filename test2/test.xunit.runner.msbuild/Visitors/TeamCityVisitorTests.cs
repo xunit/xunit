@@ -168,6 +168,7 @@ public class TeamCityVisitorTests
         {
             var mockMessage = new Mock<ITestFailed>();
             mockMessage.Setup(tf => tf.TestDisplayName).Returns("This is my display name \t\r\n");
+            mockMessage.Setup(tf => tf.ExecutionTime).Returns(1.2345M);
             mockMessage.Setup(tf => tf.Message).Returns("This is my message \t\r\n");
             mockMessage.Setup(tf => tf.StackTrace).Returns("Line 1\r\nLine 2\r\nLine 3");
             testFailed = mockMessage.Object;
@@ -181,7 +182,10 @@ public class TeamCityVisitorTests
 
             visitor.OnMessage(testFailed);
 
-            Assert.Single(logger.Messages, "MESSAGE[High]: ##teamcity[testFailed name='This is my display name \t|r|n' details='This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3']");
+            Assert.Collection(logger.Messages,
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFailed name='This is my display name \t|r|n' details='This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3']", msg),
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234']", msg)
+            );
         }
 
         [Fact]
@@ -207,15 +211,16 @@ public class TeamCityVisitorTests
         }
     }
 
-    public class OnMessage_TestFinished
+    public class OnMessage_TestPassed
     {
-        ITestFinished testFinished;
+        ITestPassed testPassed;
 
-        public OnMessage_TestFinished()
+        public OnMessage_TestPassed()
         {
-            var mockMessage = new Mock<ITestFinished>();
+            var mockMessage = new Mock<ITestPassed>();
             mockMessage.Setup(tp => tp.TestDisplayName).Returns("This is my display name \t\r\n");
-            testFinished = mockMessage.Object;
+            mockMessage.Setup(tp => tp.ExecutionTime).Returns(1.2345M);
+            testPassed = mockMessage.Object;
         }
 
         [Fact]
@@ -224,9 +229,11 @@ public class TeamCityVisitorTests
             var logger = SpyLogger.Create();
             var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll");
 
-            visitor.OnMessage(testFinished);
+            visitor.OnMessage(testPassed);
 
-            Assert.Single(logger.Messages, "MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='0']");
+            Assert.Collection(logger.Messages,
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234']", msg)
+            );
         }
 
         [Fact]
@@ -235,7 +242,7 @@ public class TeamCityVisitorTests
             var logger = SpyLogger.Create();
             var visitor = new TeamCityVisitor(logger, () => true, @"C:\Foo\Bar.dll");
 
-            var result = visitor.OnMessage(testFinished);
+            var result = visitor.OnMessage(testPassed);
 
             Assert.False(result);
         }
@@ -246,7 +253,7 @@ public class TeamCityVisitorTests
             var logger = SpyLogger.Create();
             var visitor = new TeamCityVisitor(logger, () => false, @"C:\Foo\Bar.dll");
 
-            var result = visitor.OnMessage(testFinished);
+            var result = visitor.OnMessage(testPassed);
 
             Assert.True(result);
         }
@@ -272,7 +279,10 @@ public class TeamCityVisitorTests
 
             visitor.OnMessage(testSkipped);
 
-            Assert.Single(logger.Messages, "MESSAGE[High]: ##teamcity[testIgnored name='This is my display name \t|r|n' message='This is my skip reason \t|r|n']");
+            Assert.Collection(logger.Messages,
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testIgnored name='This is my display name \t|r|n' message='This is my skip reason \t|r|n']", msg),
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='0']", msg)
+            );
         }
 
         [Fact]

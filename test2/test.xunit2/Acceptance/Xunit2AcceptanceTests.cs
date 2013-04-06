@@ -67,14 +67,14 @@ public class Xunit2AcceptanceTests
                 message =>
                 {
                     var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-                    Assert.Equal<object>("?", testMethodStarting.ClassName);
-                    Assert.Equal<object>("?", testMethodStarting.MethodName);
+                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodStarting.ClassName);
+                    Assert.Equal("TestMethod", testMethodStarting.MethodName);
                 },
                 message =>
                 {
                     var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-                    Assert.Equal<object>("?", testMethodFinished.ClassName);
-                    Assert.Equal<object>("?", testMethodFinished.MethodName);
+                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodFinished.ClassName);
+                    Assert.Equal("TestMethod", testMethodFinished.MethodName);
                 },
                 message =>
                 {

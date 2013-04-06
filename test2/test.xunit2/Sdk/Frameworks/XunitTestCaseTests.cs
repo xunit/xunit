@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Moq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -148,12 +149,14 @@ public class XunitTestCaseTests
         }
 
         [Fact]
-        public void CountsTestsFinished()
+        public void CountsTestResultMessages()
         {
             var testCase = TestableXunitTestCase.Create(msgSink =>
             {
-                msgSink.OnMessage(new TestFinished());
-                msgSink.OnMessage(new TestFinished());
+                msgSink.OnMessage(new Mock<ITestResultMessage>().Object);
+                msgSink.OnMessage(new Mock<ITestPassed>().Object);
+                msgSink.OnMessage(new Mock<ITestFailed>().Object);
+                msgSink.OnMessage(new Mock<ITestSkipped>().Object);
             });
             var sink = new SpyMessageSink<ITestCaseFinished>();
 
@@ -161,7 +164,7 @@ public class XunitTestCaseTests
             sink.Finished.WaitOne();
 
             var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(sink.Messages.Last());
-            Assert.Equal(2, testCaseFinished.TestsRun);
+            Assert.Equal(4, testCaseFinished.TestsRun);
         }
 
         [Fact]
@@ -203,8 +206,8 @@ public class XunitTestCaseTests
         {
             var testCase = TestableXunitTestCase.Create(msgSink =>
             {
-                msgSink.OnMessage(new TestFinished { ExecutionTime = 1.2M });
-                msgSink.OnMessage(new TestFinished { ExecutionTime = 2.3M });
+                msgSink.OnMessage(new TestPassed { ExecutionTime = 1.2M });
+                msgSink.OnMessage(new TestFailed { ExecutionTime = 2.3M });
             });
             var sink = new SpyMessageSink<ITestCaseFinished>();
 
