@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,17 +32,17 @@ namespace Xunit.Sdk
             {
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 
-                if (messageSink.OnMessage(new TestAssemblyStarting { Assembly = assemblyInfo }))
+                if (messageSink.OnMessage(new TestAssemblyStarting()))
                 {
                     var classGroups = testMethods.Cast<XunitTestCase>().GroupBy(tc => tc.Class).ToList();
 
                     if (classGroups.Count > 0)
                     {
-                        if (messageSink.OnMessage(new TestCollectionStarting { Assembly = assemblyInfo }))
+                        if (messageSink.OnMessage(new TestCollectionStarting()))
                         {
                             foreach (var group in classGroups)
                             {
-                                if (messageSink.OnMessage(new TestClassStarting { Assembly = assemblyInfo, ClassName = group.Key.FullName }))
+                                if (messageSink.OnMessage(new TestClassStarting { ClassName = group.Key.FullName }))
                                 {
                                     foreach (XunitTestCase testCase in group)
                                     {

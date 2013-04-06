@@ -1,30 +1,29 @@
-﻿
-namespace Xunit.Abstractions
+﻿namespace Xunit.Abstractions
 {
     /// <summary>
-    /// The IFinishedMessage is a base interface for the various types of 
-    /// completion that can occur during the execution process. The possible 
-    /// scope could be a test case, assembly, etc.  
+    /// This is the base message for various types of completion that can occur during the
+    /// various phases of execution process (e.g.,  test case, test class, test collection,
+    /// and assembly).
     /// </summary>
     public interface IFinishedMessage : ITestMessage
     {
         /// <summary>
-        /// The execution time is milli-seconds for this execution
+        /// The execution time (in seconds) for this execution.
         /// </summary>
         decimal ExecutionTime { get; }
 
         /// <summary>
-        /// The number of tests that failed execution
+        /// The number of failing tests.
         /// </summary>
         int TestsFailed { get; }
 
         /// <summary>
-        /// The number of tests that were run during execution
+        /// The total number of tests run.
         /// </summary>
         int TestsRun { get; }
 
         /// <summary>
-        /// The number of tests skipped during execution
+        /// The number of skipped tests.
         /// </summary>
         int TestsSkipped { get; }
     }

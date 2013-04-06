@@ -1,9 +1,8 @@
 ﻿namespace Xunit.Abstractions
 {
     /// <summary>
-    /// c. When 
-    /// this message is received all the tests that were being run for this 
-    /// assembly are completed.
+    /// This message indicates that the execution process has been completed for
+    /// the requested assembly.
     /// </summary>
     public interface ITestAssemblyFinished : IFinishedMessage
     {

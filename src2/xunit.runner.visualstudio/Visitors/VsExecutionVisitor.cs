@@ -16,10 +16,10 @@ namespace Xunit.Runner.VisualStudio
         readonly ITestExecutionRecorder recorder;
         readonly Dictionary<ITestCase, TestCase> testCases;
 
-        public VsExecutionVisitor(ITestExecutionRecorder recorder, IEnumerable<TestCase> testCases, Func<bool> cancelledThunk)
+        public VsExecutionVisitor(string source, ITestExecutionRecorder recorder, IEnumerable<TestCase> testCases, Func<bool> cancelledThunk)
         {
             this.recorder = recorder;
-            this.testCases = testCases.ToDictionary(tc => tc.GetPropertyValue<ITestCase>(VsTestRunner.TestCaseTestProperty, null));
+            this.testCases = testCases.ToDictionary(tc => TestCaseMapper.Find(source, tc));
             this.cancelledThunk = cancelledThunk;
         }
 

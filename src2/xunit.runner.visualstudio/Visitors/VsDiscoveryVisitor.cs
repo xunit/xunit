@@ -44,7 +44,7 @@ namespace Xunit.Runner.VisualStudio
                 DisplayName = xunitTestCase.DisplayName
             };
 
-            result.SetPropertyValue(VsTestRunner.TestCaseTestProperty, xunitTestCase);
+            TestCaseMapper.Set(source, result, xunitTestCase);
 
             if (addTraitThunk != null)
                 foreach (var trait in xunitTestCase.Traits)

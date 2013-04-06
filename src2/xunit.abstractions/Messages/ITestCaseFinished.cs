@@ -1,14 +1,12 @@
 ﻿namespace Xunit.Abstractions
 {
     /// <summary>
-    /// Represents the test case scope of <see cref="IFinishedMessage"/>. When 
-    /// this message is received all the tests that were being run for this 
-    /// test case are completed.
+    /// This message indicates that a test case has finished executing.
     /// </summary>
     public interface ITestCaseFinished : IFinishedMessage
     {
         /// <summary>
-        /// The TestCase that has been completed
+        /// The test case that has finished executing.
         /// </summary>
         ITestCase TestCase { get; }
     }

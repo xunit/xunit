@@ -24,8 +24,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Debug\xunit.abstractions.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,10 +39,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\ReflectionAbstractionExtensions.cs" />
-    <Compile Include="Frameworks\IFailedTestCaseResult.cs" />
-    <Compile Include="Frameworks\IPassedTestCaseResult.cs" />
-    <Compile Include="Frameworks\ISkippedTestCaseResult.cs" />
-    <Compile Include="Frameworks\ITestCaseResult.cs" />
     <Compile Include="Frameworks\ITestFramework.cs" />
     <Compile Include="Frameworks\ITestFrameworkDiscoverer.cs" />
     <Compile Include="Frameworks\ITestFrameworkExecutor.cs" />

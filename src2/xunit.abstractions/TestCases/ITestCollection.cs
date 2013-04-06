@@ -7,6 +7,9 @@ namespace Xunit.Abstractions
     /// </summary>
     public interface ITestCollection
     {
+        /// <summary>
+        /// The display name of the test collection.
+        /// </summary>
         string DisplayName { get; }
     }
 }

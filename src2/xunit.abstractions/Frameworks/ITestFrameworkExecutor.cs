@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Xunit.Abstractions
 {
+    /// <summary>
+    /// Represents an implementation of the execution part of a test framework.
+    /// </summary>
     public interface ITestFrameworkExecutor : IDisposable
     {
         /// <summary>

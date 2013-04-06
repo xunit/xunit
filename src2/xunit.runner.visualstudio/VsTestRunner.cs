@@ -18,8 +18,6 @@ namespace Xunit.Runner.VisualStudio
     {
         bool cancelled;
 
-        public static TestProperty TestCaseTestProperty = RegisterTestCaseTestProperty();
-
         public void Cancel()
         {
             cancelled = true;
@@ -47,6 +45,7 @@ namespace Xunit.Runner.VisualStudio
                                 using (var xunit2 = new Xunit2(source, configFileName: null, shadowCopy: true))
                                 using (var sink = new VsDiscoveryVisitor(source, discoverySink, () => cancelled))
                                 {
+                                    TestCaseMapper.Clear(source);
                                     xunit2.Find(includeSourceInformation: true, messageSink: sink);
                                     sink.Finished.WaitOne();
                                 }
@@ -75,14 +74,7 @@ namespace Xunit.Runner.VisualStudio
 
         private static TestProperty RegisterTestCaseTestProperty()
         {
-            try
-            {
-                return TestProperty.Register("XunitTestCase", "XunitTestCase", typeof(ITestCase), typeof(VsTestRunner));
-            }
-            catch
-            {
-                return null;
-            }
+            return TestProperty.Register("XunitTestCase", "XunitTestCase", typeof(ITestCase), typeof(VsTestRunner));
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
@@ -157,9 +149,9 @@ namespace Xunit.Runner.VisualStudio
                 }
             }
 
-            using (var executionVisitor = new VsExecutionVisitor(recorder, testCases, () => cancelled))
+            using (var executionVisitor = new VsExecutionVisitor(assemblyFileName, recorder, testCases, () => cancelled))
             {
-                xunit2.Run(testCases.Select(tc => tc.GetPropertyValue<ITestCase>(TestCaseTestProperty, null)), executionVisitor);
+                xunit2.Run(testCases.Select(tc => TestCaseMapper.Find(assemblyFileName, tc)).ToList(), executionVisitor);
                 executionVisitor.Finished.WaitOne();
             }
         }

@@ -24,7 +24,7 @@ namespace Xunit.Abstractions
         string ClassName { get; }
 
         /// <summary>
-        /// Gets the display name of the test method.
+        /// Gets the display name of the test case.
         /// </summary>
         string DisplayName { get; }
 
@@ -64,8 +64,8 @@ namespace Xunit.Abstractions
         /// <summary>
         /// Gets the trait values associated with this test case. If
         /// there are none, or the framework does not support traits,
-        /// this should return an empty dictionary (not null). This
-        /// dictionary should be treated as read-only.
+        /// this should return an empty dictionary (not <c>null</c>). This
+        /// dictionary must be treated as read-only.
         /// </summary>
         IDictionary<string, string> Traits { get; }
     }

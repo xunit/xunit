@@ -49,6 +49,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Utility\RemotingUtility.cs" />
+    <Compile Include="Utility\TestCaseMapper.cs" />
     <Compile Include="Visitors\VsDiscoveryVisitor.cs" />
     <Compile Include="Visitors\VsExecutionVisitor.cs" />
     <Compile Include="VsTestRunner.cs" />

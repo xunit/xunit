@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -196,14 +195,14 @@ namespace Xunit.Sdk
             {
                 var delegatingSink = new DelegatingMessageSink(messageSink, msg =>
                 {
-                    if (msg is ITestFinished)
+                    if (msg is ITestResultMessage)
                     {
                         totalRun++;
-                        executionTime += ((ITestFinished)msg).ExecutionTime;
+                        executionTime += ((ITestResultMessage)msg).ExecutionTime;
                     }
-                    else if (msg is ITestFailed)
+                    if (msg is ITestFailed)
                         totalFailed++;
-                    else if (msg is ITestSkipped)
+                    if (msg is ITestSkipped)
                         totalSkipped++;
                 });
 
@@ -280,8 +279,7 @@ namespace Xunit.Sdk
 
                         if (!cancelled)
                         {
-                            IEnumerable<BeforeAfterTestAttribute> beforeAfterAttributes =
-                                GetBeforeAfterAttributes(classUnderTest, methodUnderTest);
+                            var beforeAfterAttributes = GetBeforeAfterAttributes(classUnderTest, methodUnderTest);
 
                             aggregator.Run(() =>
                             {
@@ -307,7 +305,9 @@ namespace Xunit.Sdk
                                         return;
                                 }
 
-                                if (!messageSink.OnMessage(new TestMethodStarting { TestCase = this, TestDisplayName = DisplayName }))
+                                // REVIEW: This seems like the wrong level... test method should be at a higher scope that individual
+                                // test method actions (like construction, before/after, etc.)
+                                if (!messageSink.OnMessage(new TestMethodStarting { ClassName = ClassName, MethodName = MethodName }))
                                     cancelled = true;
 
                                 if (!cancelled)
@@ -316,7 +316,7 @@ namespace Xunit.Sdk
                                     aggregator.Run(() => methodUnderTest.Invoke(testClass, ConvertArguments(Arguments, parameterTypes)));
                                 }
 
-                                if (!messageSink.OnMessage(new TestMethodFinished { TestCase = this, TestDisplayName = DisplayName }))
+                                if (!messageSink.OnMessage(new TestMethodFinished { ClassName = ClassName, MethodName = MethodName }))
                                     cancelled = true;
                             });
 

@@ -51,28 +51,30 @@ public class Xunit2AcceptanceTests
                 },
                 message =>
                 {
-                    var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
-                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
+                    var starting = Assert.IsAssignableFrom<ITestStarting>(message);
+                    Assert.Equal(starting.TestCase.DisplayName, starting.TestDisplayName);
                 },
                 message =>
                 {
-                    var testStarting = Assert.IsAssignableFrom<ITestClassConstructionStarting>(message);
-                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
+                    var classConstructionStarting = Assert.IsAssignableFrom<ITestClassConstructionStarting>(message);
+                    Assert.Equal(classConstructionStarting.TestCase.DisplayName, classConstructionStarting.TestDisplayName);
                 },
                 message =>
                 {
-                    var testStarting = Assert.IsAssignableFrom<ITestClassConstructionFinished>(message);
-                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
+                    var classConstructionFinished = Assert.IsAssignableFrom<ITestClassConstructionFinished>(message);
+                    Assert.Equal(classConstructionFinished.TestCase.DisplayName, classConstructionFinished.TestDisplayName);
                 },
                 message =>
                 {
-                    var testStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
+                    var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+                    Assert.Equal<object>("?", testMethodStarting.ClassName);
+                    Assert.Equal<object>("?", testMethodStarting.MethodName);
                 },
                 message =>
                 {
-                    var testStarting = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-                    Assert.Equal(testStarting.TestCase.DisplayName, testStarting.TestDisplayName);
+                    var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+                    Assert.Equal<object>("?", testMethodFinished.ClassName);
+                    Assert.Equal<object>("?", testMethodFinished.MethodName);
                 },
                 message =>
                 {

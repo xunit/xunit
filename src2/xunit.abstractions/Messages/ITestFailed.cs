@@ -1,12 +1,12 @@
 ﻿namespace Xunit.Abstractions
 {
     /// <summary>
-    /// This message when sent indicates a test has failed.
+    /// This message indicates that a test has failed.
     /// </summary>
     public interface ITestFailed : ITestResultMessage
     {
         /// <summary>
-        /// The CLR type name of the exception.
+        /// The fully-qualified type name of the exception.
         /// </summary>
         string ExceptionType { get; }
 

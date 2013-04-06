@@ -1,13 +1,12 @@
 ﻿namespace Xunit.Abstractions
 {
     /// <summary>
-    /// This message when sent indicates that an error has occured in the 
-    /// execution process. 
+    /// This message indicates that an error has occurred in the execution process. 
     /// </summary>
     public interface IErrorMessage : ITestMessage
     {
         /// <summary>
-        /// The CLR type name of the exception.
+        /// The fully-qualified type name of the exception.
         /// </summary>
         string ExceptionType { get; }
 

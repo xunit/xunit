@@ -2,6 +2,9 @@ using System;
 
 namespace Xunit.Abstractions
 {
+    /// <summary>
+    /// Represents an implementation of the discovery part of a test framework.
+    /// </summary>
     public interface ITestFrameworkDiscoverer : IDisposable
     {
         /// <summary>

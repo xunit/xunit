@@ -16,6 +16,13 @@ namespace Xunit.Runner.MSBuild
             this.assemblyFileName = Path.GetFullPath(assemblyFileName);
         }
 
+        private void LogFinish(ITestResultMessage testResult)
+        {
+            Log.LogMessage(MessageImportance.High, "##teamcity[testFinished name='{0}' duration='{1}']",
+                           TeamCityEscape(testResult.TestDisplayName),
+                           (int)(testResult.ExecutionTime * 1000M));
+        }
+
         protected override bool Visit(IErrorMessage error)
         {
             Log.LogError("{0}: {1}", error.ExceptionType, Escape(error.Message));
@@ -46,15 +53,14 @@ namespace Xunit.Runner.MSBuild
                            TeamCityEscape(testFailed.TestDisplayName),
                            TeamCityEscape(testFailed.Message),
                            TeamCityEscape(testFailed.StackTrace));
+            LogFinish(testFailed);
 
             return !CancelThunk();
         }
 
-        protected override bool Visit(ITestFinished testFinished)
+        protected override bool Visit(ITestPassed testPassed)
         {
-            Log.LogMessage(MessageImportance.High, "##teamcity[testFinished name='{0}' duration='{1}']",
-                           TeamCityEscape(testFinished.TestDisplayName),
-                           (int)(testFinished.ExecutionTime * 1000M));
+            LogFinish(testPassed);
 
             return !CancelThunk();
         }
@@ -64,6 +70,7 @@ namespace Xunit.Runner.MSBuild
             Log.LogMessage(MessageImportance.High, "##teamcity[testIgnored name='{0}' message='{1}']",
                            TeamCityEscape(testSkipped.TestDisplayName),
                            TeamCityEscape(testSkipped.Reason));
+            LogFinish(testSkipped);
 
             return !CancelThunk();
         }

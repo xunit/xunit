@@ -4,7 +4,7 @@ using System.Reflection;
 using Xunit.Abstractions;
 
 /// <summary>
-/// This class represents utility methods needed to supplememnt the 
+/// This class represents utility methods needed to supplement the
 /// reflection capabilities provided by the CLR
 /// </summary>
 public static class ReflectionAbstractionExtensions
@@ -56,6 +56,7 @@ public static class ReflectionAbstractionExtensions
     /// <summary>
     /// Gets all the custom attributes for the given assembly.
     /// </summary>
+    /// <param name="assemblyInfo">The assembly</param>
     /// <param name="attributeType">The type of the attribute</param>
     /// <returns>The matching attributes that decorate the assembly</returns>
     public static IEnumerable<IAttributeInfo> GetCustomAttributes(this IAssemblyInfo assemblyInfo, Type attributeType)
@@ -66,6 +67,7 @@ public static class ReflectionAbstractionExtensions
     /// <summary>
     /// Gets all the custom attributes for the given attribute.
     /// </summary>
+    /// <param name="attributeInfo">The attribute</param>
     /// <param name="attributeType">The type of the attribute to find</param>
     /// <returns>The matching attributes that decorate the attribute</returns>
     public static IEnumerable<IAttributeInfo> GetCustomAttributes(this IAttributeInfo attributeInfo, Type attributeType)
@@ -76,6 +78,7 @@ public static class ReflectionAbstractionExtensions
     /// <summary>
     /// Gets all the custom attributes for the method that are of the given type.
     /// </summary>
+    /// <param name="methodInfo">The method</param>
     /// <param name="attributeType">The type of the attribute</param>
     /// <returns>The matching attributes that decorate the method</returns>
     public static IEnumerable<IAttributeInfo> GetCustomAttributes(this IMethodInfo methodInfo, Type attributeType)
@@ -86,6 +89,7 @@ public static class ReflectionAbstractionExtensions
     /// <summary>
     /// Gets all the custom attributes for the given type.
     /// </summary>
+    /// <param name="typeInfo">The type</param>
     /// <param name="attributeType">The type of the attribute</param>
     /// <returns>The matching attributes that decorate the type</returns>
     public static IEnumerable<IAttributeInfo> GetCustomAttributes(this ITypeInfo typeInfo, Type attributeType)

@@ -1,13 +1,12 @@
 ﻿namespace Xunit.Abstractions
 {
     /// <summary>
-    /// The ITestCaseDiscoveryMessage is sent during the Discovery process 
-    /// to indicate that a new test case has been found. 
+    /// This message indicates that a test case had been found during the discovery process.
     /// </summary>
     public interface ITestCaseDiscoveryMessage : ITestMessage
     {
         /// <summary>
-        /// The test case that has been found
+        /// The test case that was discovered.
         /// </summary>
         ITestCase TestCase { get; }
     }
