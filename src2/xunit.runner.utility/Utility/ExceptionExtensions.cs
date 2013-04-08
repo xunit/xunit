@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Reflection;
 
+/// <summary>
+/// Extension methods for <see cref="Exception"/>.
+/// </summary>
 public static class ExceptionExtensions
 {
     const string RETHROW_MARKER = "$$RethrowMarker$$";

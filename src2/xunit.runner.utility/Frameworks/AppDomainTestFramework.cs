@@ -15,6 +15,16 @@ namespace Xunit
         readonly ITestFramework testFramework;
         readonly AssemblyName testFrameworkAssemblyName;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppDomainTestFramework"/> class.
+        /// </summary>
+        /// <param name="assemblyFileName">The test assembly.</param>
+        /// <param name="testFrameworkFileName">The file path of the test framework assembly (i.e., xunit2.dll).</param>
+        /// <param name="testFrameworkTypeName">The fully qualified type name of the implementation of <see cref="ITestFramework"/>
+        /// in the test framework assembly.</param>
+        /// <param name="configFileName">The test assembly configuration file.</param>
+        /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
+        /// tests to be discovered and run without locking assembly files on disk.</param>
         public AppDomainTestFramework(string assemblyFileName, string testFrameworkFileName, string testFrameworkTypeName, string configFileName = null, bool shadowCopy = true)
         {
             Guard.ArgumentNotNullOrEmpty("testFrameworkFileName", testFrameworkFileName);
@@ -30,11 +40,19 @@ namespace Xunit
             testFramework = appDomain.CreateObject<ITestFramework>(testFrameworkAssemblyName.FullName, "Xunit.Sdk.XunitTestFramework");
         }
 
+        /// <summary>
+        /// Creates an object (from the test framework assembly) in the remote app domain.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to cast to.</typeparam>
+        /// <param name="typeName">The fully qualified type name to create.</param>
+        /// <param name="args">The arguments for the type's constructor.</param>
+        /// <returns>An instance of the created object, cast to <typeparamref name="T"/>.</returns>
         public T CreateRemoteObject<T>(string typeName, params object[] args)
         {
             return appDomain.CreateObject<T>(testFrameworkAssemblyName.FullName, typeName, args);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (testFramework != null)
@@ -44,11 +62,13 @@ namespace Xunit
                 appDomain.Dispose();
         }
 
+        /// <inheritdoc/>
         public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly)
         {
             return testFramework.GetDiscoverer(assembly);
         }
 
+        /// <inheritdoc/>
         public ITestFrameworkExecutor GetExecutor(string assemblyFileName)
         {
             return testFramework.GetExecutor(assemblyFileName);

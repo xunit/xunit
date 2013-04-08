@@ -12,6 +12,7 @@ namespace Xunit
     public class Xunit2Discoverer : ITestFrameworkDiscoverer
     {
         readonly ITestFrameworkDiscoverer discoverer;
+        readonly AppDomainTestFramework framework;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class. The location
@@ -40,16 +41,22 @@ namespace Xunit
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
             Guard.ArgumentValid("xunit2AssemblyPath", "File not found: " + xunit2AssemblyPath, File.Exists(xunit2AssemblyPath));
 
-            Framework = new AppDomainTestFramework(assemblyFileName, xunit2AssemblyPath, "Xunit.Sdk.XunitTestFramework");
+            framework = new AppDomainTestFramework(assemblyFileName, xunit2AssemblyPath, "Xunit.Sdk.XunitTestFramework");
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
             if (assemblyInfo == null)
-                assemblyInfo = Framework.CreateRemoteObject<IAssemblyInfo>("Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
+                assemblyInfo = framework.CreateRemoteObject<IAssemblyInfo>("Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
 
             discoverer = Framework.GetDiscoverer(assemblyInfo);
         }
 
-        public AppDomainTestFramework Framework { get; private set; }
+        /// <summary>
+        /// Returns the test framework from the remote app domain.
+        /// </summary>
+        public ITestFramework Framework
+        {
+            get { return framework; }
+        }
 
         /// <inheritdoc/>
         public virtual void Dispose()
