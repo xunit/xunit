@@ -6,18 +6,28 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// The implementation of <see cref="ITestFrameworkExecutor"/> that supports execution
+    /// of unit tests linked against xunit2.dll.
+    /// </summary>
     public class XunitTestFrameworkExecutor : LongLivedMarshalByRefObject, ITestFrameworkExecutor
     {
         IAssemblyInfo assemblyInfo;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
+        /// </summary>
+        /// <param name="assemblyFileName">Path of the test assembly.</param>
         public XunitTestFrameworkExecutor(string assemblyFileName)
         {
             var assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
             assemblyInfo = Reflector.Wrap(assembly);
         }
 
+        /// <inheritdoc/>
         public void Dispose() { }
 
+        /// <inheritdoc/>
         public void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
         {
             bool cancelled = false;

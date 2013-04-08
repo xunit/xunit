@@ -4,6 +4,11 @@ using Xunit.Sdk;
 
 namespace Xunit
 {
+    /// <summary>
+    /// Attribute that is applied to a method to indicate that it is a fact that should be run
+    /// by the test runner. It can also be extended to support a customized definition of a
+    /// test method.
+    /// </summary>
     [XunitDiscoverer("Xunit.Sdk.FactDiscoverer", "xunit2")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]

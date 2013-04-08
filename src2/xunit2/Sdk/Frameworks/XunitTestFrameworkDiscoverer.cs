@@ -5,11 +5,20 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// The implementation of <see cref="ITestFrameworkDiscoverer"/> that supports discovery
+    /// of unit tests linked against xunit2.dll.
+    /// </summary>
     public class XunitTestFrameworkDiscoverer : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer
     {
         IAssemblyInfo assemblyInfo;
         ISourceInformationProvider sourceProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
+        /// </summary>
+        /// <param name="assemblyInfo">The test assembly.</param>
+        /// <param name="sourceProvider">The source information provider.</param>
         public XunitTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo, ISourceInformationProvider sourceProvider = null)
         {
             Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
@@ -18,8 +27,10 @@ namespace Xunit.Sdk
             this.sourceProvider = sourceProvider ?? new VisualStudioSourceInformationProvider();
         }
 
+        /// <inheritdoc/>
         public void Dispose() { }
 
+        /// <inheritdoc/>
         public void Find(bool includeSourceInformation, IMessageSink messageSink)
         {
             Guard.ArgumentNotNull("messageSink", messageSink);
@@ -31,6 +42,7 @@ namespace Xunit.Sdk
             messageSink.OnMessage(new DiscoveryCompleteMessage());
         }
 
+        /// <inheritdoc/>
         public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
         {
             Guard.ArgumentNotNullOrEmpty("typeName", typeName);
@@ -43,6 +55,13 @@ namespace Xunit.Sdk
             messageSink.OnMessage(new DiscoveryCompleteMessage());
         }
 
+        /// <summary>
+        /// Core implementation to discover unit tests in a given test class.
+        /// </summary>
+        /// <param name="type">The test class.</param>
+        /// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
+        /// <param name="messageSink">The message sink to send discovery messages to.</param>
+        /// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
         protected virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
             string currentDirectory = Directory.GetCurrentDirectory();

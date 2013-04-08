@@ -15,12 +15,21 @@ namespace Xunit.Sdk
     {
         readonly Action lambda;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LambdaTestCase"/> class.
+        /// </summary>
+        /// <param name="assembly">The test assembly.</param>
+        /// <param name="testClass">The test class.</param>
+        /// <param name="testMethod">The test method.</param>
+        /// <param name="factAttribute">The instance of <see cref="FactAttribute"/>.</param>
+        /// <param name="lambda">The code to run for the test.</param>
         public LambdaTestCase(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute, Action lambda)
             : base(assembly, testClass, testMethod, factAttribute)
         {
             this.lambda = lambda;
         }
 
+        /// <inheritdoc/>
         protected override bool RunTests(IMessageSink messageSink)
         {
             bool cancelled = false;

@@ -2,6 +2,10 @@
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// An attribute used to decorate classes which derive from <see cref="FactAttribute"/>,
+    /// to indicate how test cases should be discovered.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public sealed class XunitDiscovererAttribute : Attribute
     {

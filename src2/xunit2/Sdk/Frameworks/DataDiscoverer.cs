@@ -3,8 +3,14 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// Default implementation of <see cref="IDataDiscoverer"/>. Uses reflection to find the
+    /// data associated with <see cref="DataAttribute"/>; may return <c>null</c> when called
+    /// without reflection-based abstraction implementations.
+    /// </summary>
     public class DataDiscoverer : IDataDiscoverer
     {
+        /// <inheritdoc/>
         public IEnumerable<object[]> GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod)
         {
             var reflectionDataAttribute = dataAttribute as IReflectionAttributeInfo;

@@ -81,6 +81,7 @@ namespace Xunit.Sdk
             }
         }
 
+        /// <inheritdoc/>
         public override string StackTrace
         {
             get

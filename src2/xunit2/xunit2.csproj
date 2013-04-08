@@ -25,6 +25,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\xunit2.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -55,6 +56,7 @@
     <Compile Include="Asserts\RangeAsserts.cs" />
     <Compile Include="Asserts\StringAsserts.cs" />
     <Compile Include="Asserts\TypeAsserts.cs" />
+    <Compile Include="Sdk\ExceptionAggregator.cs" />
     <Compile Include="Sdk\Exceptions\AssertCollectionCountException.cs" />
     <Compile Include="Sdk\Exceptions\ExceptionUtility.cs" />
     <Compile Include="Sdk\Exceptions\NoneException.cs" />
@@ -141,8 +143,12 @@
     <Compile Include="Sdk\Messages\TestAssemblyStarting.cs" />
     <Compile Include="Sdk\Messages\TestCaseDiscoveryMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sdk\ReflectionAssemblyInfo.cs" />
-    <Compile Include="Sdk\Reflector.cs" />
+    <Compile Include="Sdk\Reflection\ReflectionTypeInfo.cs" />
+    <Compile Include="Sdk\Reflection\ReflectionParameterInfo.cs" />
+    <Compile Include="Sdk\Reflection\ReflectionMethodInfo.cs" />
+    <Compile Include="Sdk\Reflection\ReflectionAssemblyInfo.cs" />
+    <Compile Include="Sdk\Reflection\ReflectionAttributeInfo.cs" />
+    <Compile Include="Sdk\Reflection\Reflector.cs" />
     <Compile Include="TheoryAttribute.cs" />
     <Compile Include="TraitAttribute.cs" />
   </ItemGroup>

@@ -5,8 +5,13 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// Implementation of <see cref="IXunitDiscoverer"/> that supports finding test cases
+    /// on methods decorated with <see cref="TheoryAttribute"/>.
+    /// </summary>
     public class TheoryDiscoverer : IXunitDiscoverer
     {
+        /// <inheritdoc/>
         public IEnumerable<IXunitTestCase> Discover(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute)
         {
             // Special case Skip, because we want a single Skip (not one per data item), and a skipped test may
@@ -22,7 +27,8 @@ namespace Xunit.Sdk
                 foreach (var dataAttribute in dataAttributes)
                 {
                     var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
-                    Type discovererType = discovererAttribute.GetPropertyValue<Type>("DiscovererType");
+                    var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                    var discovererType = Reflector.GetType(args[0], args[1]);
                     IDataDiscoverer discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
 
                     // TODO: Handle null! The discoverer may not know how many data items there are at discovery

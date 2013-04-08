@@ -16,6 +16,7 @@ namespace Xunit.Sdk
         readonly AutoResetEvent reporterWorkEvent = new AutoResetEvent(initialState: false);
         volatile bool shutdownRequested;
 
+        /// <summary/>
         public MessageBus(IMessageSink messageSink)
         {
             this.messageSink = messageSink;
@@ -24,6 +25,7 @@ namespace Xunit.Sdk
             reporterThread.Start();
         }
 
+        /// <summary/>
         public void Dispose()
         {
             shutdownRequested = true;
@@ -34,13 +36,14 @@ namespace Xunit.Sdk
             reporterWorkEvent.Dispose();
         }
 
+        /// <summary/>
         public void QueueMessage(ITestMessage message)
         {
             reporterQueue.Enqueue(message);
             reporterWorkEvent.Set();
         }
 
-        private void ReporterWorker()
+        void ReporterWorker()
         {
             while (!shutdownRequested)
             {

@@ -2,6 +2,9 @@
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// Default implementation of <see cref="ITestMethodStarting"/>.
+    /// </summary>
     public class TestMethodStarting : LongLivedMarshalByRefObject, ITestMethodStarting
     {
         /// <inheritdoc/>

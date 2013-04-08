@@ -7,6 +7,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class AssemblyLoader : IAssemblyLoader
     {
+        /// <inheritdoc/>
         public Assembly Load(string assemblyFileName)
         {
             return Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));

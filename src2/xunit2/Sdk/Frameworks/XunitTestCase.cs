@@ -8,6 +8,10 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// Default implementation of <see cref="IXunitTestCase"/> that supports tests decorated with
+    /// both <see cref="FactAttribute"/> and <see cref="TheoryAttribute"/>.
+    /// </summary>
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase
     {
         readonly static object[] EmptyArray = new object[0];
@@ -18,6 +22,14 @@ namespace Xunit.Sdk
         readonly IMethodInfo method;
         readonly ITypeInfo type;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitTestCase"/> class.
+        /// </summary>
+        /// <param name="assembly">The test assembly.</param>
+        /// <param name="type">The test class.</param>
+        /// <param name="method">The test method.</param>
+        /// <param name="factAttribute">The instance of the <see cref="FactAttribute"/>.</param>
+        /// <param name="arguments">The arguments for the test method.</param>
         public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments = null)
         {
             this.assembly = assembly;
@@ -30,14 +42,12 @@ namespace Xunit.Sdk
 
             if (arguments != null)
             {
-                var Parameters = arguments;
-
                 IParameterInfo[] parameterInfos = method.GetParameters().ToArray();
-                string[] displayValues = new string[Math.Max(Parameters.Length, parameterInfos.Length)];
+                string[] displayValues = new string[Math.Max(arguments.Length, parameterInfos.Length)];
                 int idx;
 
-                for (idx = 0; idx < Parameters.Length; idx++)
-                    displayValues[idx] = ParameterToDisplayValue(GetParameterName(parameterInfos, idx), Parameters[idx]);
+                for (idx = 0; idx < arguments.Length; idx++)
+                    displayValues[idx] = ParameterToDisplayValue(GetParameterName(parameterInfos, idx), arguments[idx]);
 
                 for (; idx < parameterInfos.Length; idx++)  // Fill-in any missing parameters with "???"
                     displayValues[idx] = GetParameterName(parameterInfos, idx) + ": ???";
@@ -51,8 +61,10 @@ namespace Xunit.Sdk
                 Traits.Add(traitAttribute.GetPropertyValue<string>("Name"), traitAttribute.GetPropertyValue<string>("Value"));
         }
 
+        /// <inheritdoc/>
         public object[] Arguments { get; private set; }
 
+        /// <inheritdoc/>
         public Type Class
         {
             get
@@ -65,13 +77,16 @@ namespace Xunit.Sdk
             }
         }
 
+        /// <inheritdoc/>
         public string ClassName
         {
             get { return type.Name; }
         }
 
+        /// <inheritdoc/>
         public string DisplayName { get; private set; }
 
+        /// <inheritdoc/>
         public MethodInfo Method
         {
             get
@@ -84,22 +99,28 @@ namespace Xunit.Sdk
             }
         }
 
+        /// <inheritdoc/>
         public string MethodName
         {
             get { return method.Name; }
         }
 
+        /// <inheritdoc/>
         public string SkipReason { get; private set; }
 
+        /// <inheritdoc/>
         public int? SourceFileLine { get; internal set; }
 
+        /// <inheritdoc/>
         public string SourceFileName { get; internal set; }
 
+        /// <inheritdoc/>
         public ITestCollection TestCollection { get; private set; }
 
+        /// <inheritdoc/>
         public IDictionary<string, string> Traits { get; private set; }
 
-        private object[] ConvertArguments(object[] args, Type[] types)
+        object[] ConvertArguments(object[] args, Type[] types)
         {
             if (args.Length == types.Length)
                 for (int idx = 0; idx < args.Length; idx++)
@@ -143,12 +164,12 @@ namespace Xunit.Sdk
             return parameters[index].Name;
         }
 
-        private Type GetRuntimeClass()
+        Type GetRuntimeClass()
         {
             return Reflector.GetType(type.Name, assembly.Name);
         }
 
-        private MethodInfo GetRuntimeMethod(Type type)
+        MethodInfo GetRuntimeMethod(Type type)
         {
             if (type == null)
                 return null;
@@ -181,16 +202,17 @@ namespace Xunit.Sdk
             return parameterName + ": " + ParameterToDisplayValue(parameterValue);
         }
 
+        /// <inheritdoc/>
         public virtual bool Run(IMessageSink messageSink)
         {
-            bool cancelled = false;
+            bool canceled = false;
             int totalFailed = 0;
             int totalRun = 0;
             int totalSkipped = 0;
             decimal executionTime = 0M;
 
             if (!messageSink.OnMessage(new TestCaseStarting { TestCase = this }))
-                cancelled = true;
+                canceled = true;
             else
             {
                 var delegatingSink = new DelegatingMessageSink(messageSink, msg =>
@@ -206,7 +228,7 @@ namespace Xunit.Sdk
                         totalSkipped++;
                 });
 
-                cancelled = RunTests(delegatingSink);
+                canceled = RunTests(delegatingSink);
             }
 
             if (!messageSink.OnMessage(new TestCaseFinished
@@ -217,11 +239,17 @@ namespace Xunit.Sdk
                 TestsFailed = totalFailed,
                 TestsSkipped = totalSkipped
             }))
-                cancelled = true;
+                canceled = true;
 
-            return cancelled;
+            return canceled;
         }
 
+        /// <summary>
+        /// Gets the <see cref="BeforeAfterTestAttribute"/> instances for a test method.
+        /// </summary>
+        /// <param name="classUnderTest">The class under test.</param>
+        /// <param name="methodUnderTest">The method under test.</param>
+        /// <returns>The list of <see cref="BeforeAfterTestAttribute"/> instances.</returns>
         protected virtual IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
         {
             return classUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
@@ -235,20 +263,20 @@ namespace Xunit.Sdk
         /// <param name="messageSink">The message sink to send results to.</param>
         protected virtual bool RunTests(IMessageSink messageSink)
         {
-            var cancelled = false;
+            var canceled = false;
             var classUnderTest = Class ?? GetRuntimeClass();
             var methodUnderTest = Method ?? GetRuntimeMethod(classUnderTest);
             decimal executionTime = 0M;
 
             if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName }))
-                cancelled = true;
+                canceled = true;
             else
             {
 
                 if (!String.IsNullOrEmpty(SkipReason))
                 {
                     if (!messageSink.OnMessage(new TestSkipped { TestCase = this, TestDisplayName = DisplayName, Reason = SkipReason }))
-                        cancelled = true;
+                        canceled = true;
                 }
                 else
                 {
@@ -263,21 +291,21 @@ namespace Xunit.Sdk
                         if (!methodUnderTest.IsStatic)
                         {
                             if (!messageSink.OnMessage(new TestClassConstructionStarting { TestCase = this, TestDisplayName = DisplayName }))
-                                cancelled = true;
+                                canceled = true;
 
                             try
                             {
-                                if (!cancelled)
+                                if (!canceled)
                                     testClass = Activator.CreateInstance(classUnderTest);
                             }
                             finally
                             {
                                 if (!messageSink.OnMessage(new TestClassConstructionFinished { TestCase = this, TestDisplayName = DisplayName }))
-                                    cancelled = true;
+                                    canceled = true;
                             }
                         }
 
-                        if (!cancelled)
+                        if (!canceled)
                         {
                             var beforeAfterAttributes = GetBeforeAfterAttributes(classUnderTest, methodUnderTest);
 
@@ -286,7 +314,7 @@ namespace Xunit.Sdk
                                 foreach (var beforeAfterAttribute in beforeAfterAttributes)
                                 {
                                     if (!messageSink.OnMessage(new BeforeTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
-                                        cancelled = true;
+                                        canceled = true;
                                     else
                                     {
                                         try
@@ -297,38 +325,38 @@ namespace Xunit.Sdk
                                         finally
                                         {
                                             if (!messageSink.OnMessage(new BeforeTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
-                                                cancelled = true;
+                                                canceled = true;
                                         }
                                     }
 
-                                    if (cancelled)
+                                    if (canceled)
                                         return;
                                 }
 
                                 // REVIEW: This seems like the wrong level... test method should be at a higher scope that individual
                                 // test method actions (like construction, before/after, etc.)
                                 if (!messageSink.OnMessage(new TestMethodStarting { ClassName = ClassName, MethodName = MethodName }))
-                                    cancelled = true;
+                                    canceled = true;
 
-                                if (!cancelled)
+                                if (!canceled)
                                 {
                                     var parameterTypes = methodUnderTest.GetParameters().Select(p => p.ParameterType).ToArray();
                                     aggregator.Run(() => methodUnderTest.Invoke(testClass, ConvertArguments(Arguments, parameterTypes)));
                                 }
 
                                 if (!messageSink.OnMessage(new TestMethodFinished { ClassName = ClassName, MethodName = MethodName }))
-                                    cancelled = true;
+                                    canceled = true;
                             });
 
                             foreach (var beforeAfterAttribute in beforeAttributesRun)
                             {
                                 if (!messageSink.OnMessage(new AfterTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
-                                    cancelled = true;
+                                    canceled = true;
 
                                 aggregator.Run(() => beforeAfterAttribute.After(methodUnderTest));
 
                                 if (!messageSink.OnMessage(new AfterTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
-                                    cancelled = true;
+                                    canceled = true;
                             }
                         }
 
@@ -338,7 +366,7 @@ namespace Xunit.Sdk
                             if (disposable != null)
                             {
                                 if (!messageSink.OnMessage(new TestClassDisposeStarting { TestCase = this, TestDisplayName = DisplayName }))
-                                    cancelled = true;
+                                    canceled = true;
 
                                 try
                                 {
@@ -347,7 +375,7 @@ namespace Xunit.Sdk
                                 finally
                                 {
                                     if (!messageSink.OnMessage(new TestClassDisposeFinished { TestCase = this, TestDisplayName = DisplayName }))
-                                        cancelled = true;
+                                        canceled = true;
                                 }
                             }
                         });
@@ -355,7 +383,7 @@ namespace Xunit.Sdk
 
                     stopwatch.Stop();
 
-                    if (!cancelled)
+                    if (!canceled)
                     {
                         executionTime = (decimal)stopwatch.Elapsed.TotalSeconds;
 
@@ -366,41 +394,15 @@ namespace Xunit.Sdk
                         testResult.ExecutionTime = executionTime;
 
                         if (!messageSink.OnMessage(testResult))
-                            cancelled = true;
+                            canceled = true;
                     }
                 }
             }
 
             if (!messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName, ExecutionTime = executionTime }))
-                cancelled = true;
+                canceled = true;
 
-            return cancelled;
-        }
-
-        class ExceptionAggregator
-        {
-            List<Exception> exceptions = new List<Exception>();
-
-            public void Run(Action code)
-            {
-                try
-                {
-                    code();
-                }
-                catch (Exception ex)
-                {
-                    exceptions.Add(ex.Unwrap());
-                }
-            }
-
-            public Exception ToException()
-            {
-                if (exceptions.Count == 0)
-                    return null;
-                if (exceptions.Count == 1)
-                    return exceptions[0];
-                return new AggregateException(exceptions);
-            }
+            return canceled;
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Security;
+using System.Security.Permissions;
 
 namespace Xunit.Sdk
 {
@@ -82,6 +83,7 @@ namespace Xunit.Sdk
             base.GetObjectData(info, context);
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             string className = GetType().ToString();

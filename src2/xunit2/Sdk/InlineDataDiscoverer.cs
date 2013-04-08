@@ -4,8 +4,13 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// Implementation of <see cref="IDataDiscoverer"/> used to discover the data
+    /// provided by <see cref="InlineDataAttribute"/>.
+    /// </summary>
     public class InlineDataDiscoverer : IDataDiscoverer
     {
+        /// <inheritdoc/>
         public IEnumerable<object[]> GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod)
         {
             // The data from GetConstructorArguments does not maintain its original form (in particular, collections
