@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -341,7 +342,13 @@ namespace Xunit.Sdk
                                 if (!canceled)
                                 {
                                     var parameterTypes = methodUnderTest.GetParameters().Select(p => p.ParameterType).ToArray();
-                                    aggregator.Run(() => methodUnderTest.Invoke(testClass, ConvertArguments(Arguments, parameterTypes)));
+                                    aggregator.Run(() =>
+                                    {
+                                        var result = methodUnderTest.Invoke(testClass, ConvertArguments(Arguments, parameterTypes));
+                                        var task = result as Task;
+                                        if (task != null)
+                                            task.GetAwaiter().GetResult();
+                                    });
                                 }
 
                                 if (!messageSink.OnMessage(new TestMethodFinished { ClassName = ClassName, MethodName = MethodName }))

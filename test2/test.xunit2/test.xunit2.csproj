@@ -70,6 +70,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Acceptance\AsyncAcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2TheoryAcceptanceTests.cs" />
     <Compile Include="Asserts\BooleanAssertsTests.cs" />
