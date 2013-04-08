@@ -21,8 +21,10 @@
         <file src="..\src2\xunit2\bin\Release\xunit2.dll.tdnet" target="lib\net45\xunit2.dll.tdnet" />
         <file src="..\src2\xunit2\bin\Release\xunit2.xml" target="lib\net45\xunit2.xml" />
         <file src="..\src2\xunit.abstractions\bin\Release\xunit.abstractions.dll" target="lib\net45\xunit.abstractions.dll" />
+        <file src="..\src2\xunit.abstractions\bin\Release\xunit.abstractions.xml" target="lib\net45\xunit.abstractions.xml" />
         <file src="..\src2\xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll" target="lib\net45\xunit.runner.msbuild.dll" />
         <file src="..\src2\xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll" target="lib\net45\xunit.runner.tdnet.dll" />
         <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="lib\net45\xunit.runner.utility.dll" />
+        <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="lib\net45\xunit.runner.utility.xml" />
     </files>
 </package>
