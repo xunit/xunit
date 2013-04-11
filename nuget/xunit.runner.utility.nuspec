@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+    <metadata>
+        <id>xunit.runner.utility</id>
+        <version>2.0.0-alpha</version>
+        <title>xUnit.net Runner Utility</title>
+        <authors>James Newkirk, Brad Wilson</authors>
+        <description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.</description>
+        <language>en-US</language>
+        <projectUrl>http://xunit.codeplex.com</projectUrl>
+        <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=659452</iconUrl>
+        <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <dependencies>
+            <dependency id="xunit.abstractions" version="[2.0.0-alpha,2.1)" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="lib\net45\xunit.runner.utility.dll" />
+        <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="lib\net45\xunit.runner.utility.xml" />
+    </files>
+</package>

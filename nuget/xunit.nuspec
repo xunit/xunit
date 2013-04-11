@@ -8,21 +8,20 @@
         <description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.</description>
         <language>en-US</language>
         <projectUrl>http://xunit.codeplex.com</projectUrl>
-        <iconUrl>http://download.codeplex.com/Download?ProjectName=xunit&amp;DownloadId=365445</iconUrl>
+        <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=659452</iconUrl>
         <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <references>
             <reference file="xunit2.dll" />
-            <reference file="xunit.abstractions.dll" />
         </references>
+        <dependencies>
+            <dependency id="xunit.abstractions" version="[2.0.0-alpha,2.1)" />
+        </dependencies>
     </metadata>
     <files>
         <file src="..\src2\xunit2\bin\Release\xunit2.dll" target="lib\net45\xunit2.dll" />
         <file src="..\src2\xunit2\bin\Release\xunit2.dll.tdnet" target="lib\net45\xunit2.dll.tdnet" />
         <file src="..\src2\xunit2\bin\Release\xunit2.xml" target="lib\net45\xunit2.xml" />
-        <file src="..\src2\xunit.abstractions\bin\Release\xunit.abstractions.dll" target="lib\net45\xunit.abstractions.dll" />
-        <file src="..\src2\xunit.abstractions\bin\Release\xunit.abstractions.xml" target="lib\net45\xunit.abstractions.xml" />
-        <file src="..\src2\xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll" target="lib\net45\xunit.runner.msbuild.dll" />
         <file src="..\src2\xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll" target="lib\net45\xunit.runner.tdnet.dll" />
         <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="lib\net45\xunit.runner.utility.dll" />
         <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="lib\net45\xunit.runner.utility.xml" />
