@@ -1,7 +1,7 @@
 ﻿using System;
 using NSubstitute.Core;
 
-public static class NSubExtensions
+public static class NSubstituteExtensions
 {
     public static WhenCalledAny<T> WhenAny<T>(this T substitute, Action<T> substituteCall) where T : class
     {
