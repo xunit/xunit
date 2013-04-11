@@ -38,8 +38,8 @@ namespace Xunit.Sdk
             this.method = method;
 
             Arguments = arguments ?? EmptyArray;
-            DisplayName = factAttribute.GetPropertyValue<string>("DisplayName") ?? type.Name + "." + method.Name;
-            SkipReason = factAttribute.GetPropertyValue<string>("Skip");
+            DisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? type.Name + "." + method.Name;
+            SkipReason = factAttribute.GetNamedArgument<string>("Skip");
 
             if (arguments != null)
             {
@@ -59,7 +59,10 @@ namespace Xunit.Sdk
             Traits = new Dictionary<string, string>();
 
             foreach (IAttributeInfo traitAttribute in method.GetCustomAttributes(typeof(TraitAttribute)))
-                Traits.Add(traitAttribute.GetPropertyValue<string>("Name"), traitAttribute.GetPropertyValue<string>("Value"));
+            {
+                var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
+                Traits.Add((string)ctorArgs[0], (string)ctorArgs[1]);
+            }
         }
 
         /// <inheritdoc/>

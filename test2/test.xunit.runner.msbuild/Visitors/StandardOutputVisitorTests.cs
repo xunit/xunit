@@ -1,4 +1,4 @@
-﻿using Moq;
+﻿using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.MSBuild;
@@ -11,11 +11,10 @@ public class StandardOutputVisitorTests
 
         public OnMessage_ErrorMessage()
         {
-            var mockMessage = new Mock<IErrorMessage>();
-            mockMessage.Setup(em => em.ExceptionType).Returns("ExceptionType");
-            mockMessage.Setup(em => em.Message).Returns("This is my message \t\r\n");
-            mockMessage.Setup(em => em.StackTrace).Returns("Line 1\r\nLine 2\r\nLine 3");
-            errorMessage = mockMessage.Object;
+            errorMessage = Substitute.For<IErrorMessage>();
+            errorMessage.ExceptionType.Returns("ExceptionType");
+            errorMessage.Message.Returns("This is my message \t\r\n");
+            errorMessage.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
         }
 
         [Fact]
@@ -60,12 +59,11 @@ public class StandardOutputVisitorTests
 
         public OnMessage_TestAssemblyFinished()
         {
-            var mockMessage = new Mock<ITestAssemblyFinished>();
-            mockMessage.Setup(af => af.TestsRun).Returns(2112);
-            mockMessage.Setup(af => af.TestsFailed).Returns(42);
-            mockMessage.Setup(af => af.TestsSkipped).Returns(6);
-            mockMessage.Setup(af => af.ExecutionTime).Returns(123.4567M);
-            assemblyFinished = mockMessage.Object;
+            assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+            assemblyFinished.TestsRun.Returns(2112);
+            assemblyFinished.TestsFailed.Returns(42);
+            assemblyFinished.TestsSkipped.Returns(6);
+            assemblyFinished.ExecutionTime.Returns(123.4567M);
         }
 
         [Fact]
@@ -122,11 +120,10 @@ public class StandardOutputVisitorTests
 
         public OnMessage_TestFailed()
         {
-            var mockMessage = new Mock<ITestFailed>();
-            mockMessage.Setup(tf => tf.TestDisplayName).Returns("This is my display name \t\r\n");
-            mockMessage.Setup(tf => tf.Message).Returns("This is my message \t\r\n");
-            mockMessage.Setup(tf => tf.StackTrace).Returns("Line 1\r\nLine 2\r\nLine 3");
-            testFailed = mockMessage.Object;
+            testFailed = Substitute.For<ITestFailed>();
+            testFailed.TestDisplayName.Returns("This is my display name \t\r\n");
+            testFailed.Message.Returns("This is my message \t\r\n");
+            testFailed.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
         }
 
         [Fact]
@@ -171,9 +168,8 @@ public class StandardOutputVisitorTests
 
         public OnMessage_TestPassed()
         {
-            var mockMessage = new Mock<ITestPassed>();
-            mockMessage.Setup(tp => tp.TestDisplayName).Returns("This is my display name \t\r\n");
-            testPassed = mockMessage.Object;
+            testPassed = Substitute.For<ITestPassed>();
+            testPassed.TestDisplayName.Returns("This is my display name \t\r\n");
         }
 
         [Fact]
@@ -216,10 +212,9 @@ public class StandardOutputVisitorTests
 
         public OnMessage_TestSkipped()
         {
-            var mockMessage = new Mock<ITestSkipped>();
-            mockMessage.Setup(ts => ts.TestDisplayName).Returns("This is my display name \t\r\n");
-            mockMessage.Setup(ts => ts.Reason).Returns("This is my skip reason \t\r\n");
-            testSkipped = mockMessage.Object;
+            testSkipped = Substitute.For<ITestSkipped>();
+            testSkipped.TestDisplayName.Returns("This is my display name \t\r\n");
+            testSkipped.Reason.Returns("This is my skip reason \t\r\n");
         }
 
         [Fact]

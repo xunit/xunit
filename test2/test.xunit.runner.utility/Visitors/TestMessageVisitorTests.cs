@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Reflection;
-using Moq;
-using Moq.Protected;
+using System.Linq;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -36,32 +35,22 @@ public class TestMessageVisitorTests
     [InlineData(typeof(ITestStarting))]
     public void ProcessesVisitorTypes(Type type)
     {
-        // Make a mock of the interface in question
-        var mockType = typeof(Mock<>).MakeGenericType(type);
-        var ctor = mockType.GetConstructor(new Type[0]);
-        var mock = (Mock)ctor.Invoke(new object[0]);
-        var mockImplementation = (ITestMessage)mock.Object;
+        var forMethodGeneric = typeof(Substitute).GetMethods().Single(m => m.Name == "For" && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1);
+        var forMethod = forMethodGeneric.MakeGenericMethod(type);
+        var substitute = (ITestMessage)forMethod.Invoke(null, new object[] { new object[0] });
+        var visitor = new SpyTestMessageVisitor();
 
-        // Make the expression for the method we expect to be called
-        var isAny = typeof(ItExpr).GetMethod("IsAny", BindingFlags.Static | BindingFlags.Public)
-                                  .MakeGenericMethod(new[] { type });
-        var expression = isAny.Invoke(null, new object[0]);
+        visitor.OnMessage(substitute);
 
-        // Make a mock of the visitor so we can verify the right method was called
-        var mockVisitor = new Mock<TestMessageVisitor> { CallBase = true };
-        mockVisitor.Protected().Setup<bool>("Visit", expression).Returns(true).Verifiable();
-
-        // Call the visitor with the mock
-        mockVisitor.Object.OnMessage(mockImplementation);
-
-        // Assert
-        mockVisitor.Verify();
+        Assert.Collection(visitor.Calls,
+            msg => Assert.Equal(type.Name, msg)
+        );
     }
 
     [Fact]
     public void FinishedEventNotSignaledByDefault()
     {
-        var visitor = new Mock<TestMessageVisitor<ITestMessage>> { CallBase = true }.Object;
+        var visitor = new TestMessageVisitor<ITestMessage>();
 
         Assert.False(visitor.Finished.WaitOne(0));
     }
@@ -69,9 +58,9 @@ public class TestMessageVisitorTests
     [Fact]
     public void SignalsEventWhenMessageOfSpecifiedTypeIsSeen()
     {
-        var visitor = new Mock<TestMessageVisitor<IDiscoveryCompleteMessage>> { CallBase = true }.Object;
-        var message1 = new Mock<ITestMessage>().Object;
-        var message2 = new Mock<IDiscoveryCompleteMessage>().Object;
+        var visitor = new TestMessageVisitor<IDiscoveryCompleteMessage>();
+        var message1 = Substitute.For<ITestMessage>();
+        var message2 = Substitute.For<IDiscoveryCompleteMessage>();
 
         visitor.OnMessage(message1);
         Assert.False(visitor.Finished.WaitOne(0));

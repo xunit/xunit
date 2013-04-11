@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using Moq;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.MSBuild;
@@ -18,7 +18,7 @@ public class xunitTests
         {
             var xunit = new Testable_xunit { TeamCity = false };
 
-            var visitor = xunit.CreateVisitor_Public("filename");
+            var visitor = xunit._CreateVisitor("filename");
 
             Assert.IsType<StandardOutputVisitor>(visitor);
         }
@@ -28,7 +28,7 @@ public class xunitTests
         {
             var xunit = new Testable_xunit { TeamCity = true };
 
-            var visitor = xunit.CreateVisitor_Public("filename");
+            var visitor = xunit._CreateVisitor("filename");
 
             Assert.IsType<TeamCityVisitor>(visitor);
         }
@@ -65,7 +65,7 @@ public class xunitTests
 
             xunit.Execute();
 
-            xunit.MockBuildEngine.Verify(b => b.LogMessageEvent(It.Is<BuildMessageEventArgs>(bmea => ValidateWelcomeBanner(bmea))));
+            xunit.BuildEngine.Received().LogMessageEvent(Arg.Is<BuildMessageEventArgs>(bmea => ValidateWelcomeBanner(bmea)));
         }
 
         private bool ValidateWelcomeBanner(BuildMessageEventArgs eventArgs)
@@ -82,15 +82,15 @@ public class xunitTests
             visitor.Finished.Set();
             var assm1 = new TaskItem(@"C:\Full\Path\1");
             var assm2 = new TaskItem(@"C:\Full\Path\2", new Dictionary<string, string> { { "ConfigFile", @"C:\Config\File" } });
-            var mockXunit = new Mock<Testable_xunit> { CallBase = true };
-            mockXunit.Object.Assemblies = new ITaskItem[] { assm1, assm2 };
-            mockXunit.Setup(x => x.ExecuteAssembly_Public(@"C:\Full\Path\1", null)).Verifiable();
-            mockXunit.Setup(x => x.ExecuteAssembly_Public(@"C:\Full\Path\2", @"C:\Config\File")).Verifiable();
-            mockXunit.Setup(x => x.CreateVisitor_Public(It.IsAny<string>())).Returns(visitor);
+            var xunit = new Testable_xunit { CreateVisitor_Result = visitor };
+            xunit.Assemblies = new ITaskItem[] { assm1, assm2 };
 
-            mockXunit.Object.Execute();
+            xunit.Execute();
 
-            mockXunit.Verify();
+            Assert.Collection(xunit.ExecuteAssembly_Calls,
+                call => Assert.Equal(@"C:\Full\Path\1, (null)", call),
+                call => Assert.Equal(@"C:\Full\Path\2, C:\Config\File", call)
+            );
         }
 
         [Fact]
@@ -118,11 +118,9 @@ public class xunitTests
         {
             var visitor = new MSBuildVisitor(null, null) { Failed = 1 };
             visitor.Finished.Set();
-            var mockXunit = new Mock<Testable_xunit> { CallBase = true };
-            mockXunit.Setup(x => x.CreateVisitor_Public(It.IsAny<string>())).Returns(visitor);
-            mockXunit.Object.Assemblies = new[] { new Mock<ITaskItem>().Object };
+            var xunit = new Testable_xunit { CreateVisitor_Result = visitor, Assemblies = new[] { Substitute.For<ITaskItem>() } };
 
-            var result = mockXunit.Object.Execute();
+            var result = xunit.Execute();
 
             Assert.False(result);
         }
@@ -131,14 +129,12 @@ public class xunitTests
         public void StopsExecutingAssemblyWhenCanceled()
         {
             var assembly = new TaskItem(@"C:\Full\Path\1");
-            var mockXunit = new Mock<Testable_xunit> { CallBase = true };
-            mockXunit.Object.Assemblies = new ITaskItem[] { assembly };
-            mockXunit.Setup(x => x.ExecuteAssembly_Public(It.IsAny<string>(), It.IsAny<string>()));
-            mockXunit.Object.Cancel();
+            var xunit = new Testable_xunit { Assemblies = new ITaskItem[] { assembly } };
+            xunit.Cancel();
 
-            mockXunit.Object.Execute();
+            xunit.Execute();
 
-            mockXunit.Verify(x => x.ExecuteAssembly_Public(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
+            Assert.Empty(xunit.ExecuteAssembly_Calls);
         }
     }
 
@@ -149,9 +145,9 @@ public class xunitTests
         {
             var xunit = new Testable_xunit();
 
-            xunit.ExecuteAssembly_Public("assemblyFilename", "configFilename");
+            xunit._ExecuteAssembly("assemblyFilename", "configFilename");
 
-            xunit.MockBuildEngine.Verify(b => b.LogMessageEvent(It.Is<BuildMessageEventArgs>(bmea => ValidateAssemblyBanner(bmea))));
+            xunit.BuildEngine.Received().LogMessageEvent(Arg.Is<BuildMessageEventArgs>(bmea => ValidateAssemblyBanner(bmea)));
         }
 
         private bool ValidateAssemblyBanner(BuildMessageEventArgs eventArgs)
@@ -166,9 +162,9 @@ public class xunitTests
         {
             var xunit = new Testable_xunit();
 
-            xunit.ExecuteAssembly_Public("assemblyFilename", "configFilename");
+            xunit._ExecuteAssembly("assemblyFilename", "configFilename");
 
-            xunit.MockFrontController.Verify(c => c.Dispose());
+            xunit.FrontController.Received().Dispose();
         }
 
         [Fact]
@@ -176,9 +172,9 @@ public class xunitTests
         {
             var xunit = new Testable_xunit();
 
-            xunit.ExecuteAssembly_Public("assemblyFilename", "configFilename");
+            xunit._ExecuteAssembly("assemblyFilename", "configFilename");
 
-            xunit.MockFrontController.Verify(fc => fc.Find(false, It.IsAny<IMessageSink>()));
+            xunit.FrontController.Received().Find(false, Arg.Any<IMessageSink>());
         }
 
         [Fact]
@@ -186,14 +182,14 @@ public class xunitTests
         {
             var xunit = new Testable_xunit();
             var runTestCases = new List<ITestCase>();
-            xunit.MockFrontController.Setup(fc => fc.Run(It.IsAny<IEnumerable<ITestCase>>(), It.IsAny<IMessageSink>()))
-                                     .Callback<IEnumerable<ITestCase>, IMessageSink>((testCases, sink) =>
-                                     {
-                                         runTestCases.AddRange(testCases);
-                                         sink.OnMessage(new TestAssemblyFinished());
-                                     });
+            xunit.FrontController.WhenAny(fc => fc.Run(null, null))
+                                 .Do(callInfo =>
+                                 {
+                                     runTestCases.AddRange((IEnumerable<ITestCase>)callInfo[0]);
+                                     ((IMessageSink)callInfo[1]).OnMessage(new TestAssemblyFinished());
+                                 });
 
-            xunit.ExecuteAssembly_Public("assemblyFilename", "configFilename");
+            xunit._ExecuteAssembly("assemblyFilename", "configFilename");
 
             Assert.Equal(xunit.DiscoveryTestCases, runTestCases);
         }
@@ -202,15 +198,13 @@ public class xunitTests
         public void ErrorsDuringExecutionAreLogged()
         {
             var exception = new DivideByZeroException();
-            var xunit = new Mock<Testable_xunit> { CallBase = true };
+            var xunit = new Testable_xunit { CreateFrontController_Exception = exception };
             var messages = new List<string>();
-            xunit.Setup(fc => fc.CreateFrontController_Public(It.IsAny<string>(), It.IsAny<string>()))
-                 .Throws(exception);
 
-            xunit.Object.ExecuteAssembly_Public("assemblyFilename", "configFilename");
+            xunit._ExecuteAssembly("assemblyFilename", "configFilename");
 
-            xunit.Object.MockBuildEngine.Verify(b => b.LogErrorEvent(It.Is<BuildErrorEventArgs>(beea => CaptureErrorMessage(beea, messages))));
-            Assert.Equal<object>("System.DivideByZeroException: Attempted to divide by zero.", messages[0]);
+            xunit.BuildEngine.Received().LogErrorEvent(Arg.Is<BuildErrorEventArgs>(beea => CaptureErrorMessage(beea, messages)));
+            Assert.Equal("System.DivideByZeroException: Attempted to divide by zero.", messages[0]);
         }
 
         private bool CaptureErrorMessage(BuildErrorEventArgs eventArgs, List<string> messages)
@@ -222,65 +216,70 @@ public class xunitTests
 
     public class Testable_xunit : xunit
     {
-        public readonly Mock<IBuildEngine> MockBuildEngine;
-        public readonly Mock<IFrontController> MockFrontController;
+        public Exception CreateFrontController_Exception;
+        public MSBuildVisitor CreateVisitor_Result;
+        public readonly List<string> ExecuteAssembly_Calls = new List<string>();
+        public readonly IFrontController FrontController;
         public readonly List<ITestCase> DiscoveryTestCases = new List<ITestCase>();
 
         public Testable_xunit() : this(0) { }
 
         public Testable_xunit(int exitCode)
         {
-            MockBuildEngine = new Mock<IBuildEngine>();
-            MockBuildEngine.As<IBuildEngine2>();
-            MockBuildEngine.As<IBuildEngine3>();
-            MockBuildEngine.As<IBuildEngine4>();
+            BuildEngine = Substitute.For<IBuildEngine>();
 
-            MockFrontController = new Mock<IFrontController>();
-            MockFrontController.Setup(fc => fc.Find(It.IsAny<bool>(), It.IsAny<IMessageSink>()))
-                               .Callback<bool, IMessageSink>(ReturnDiscoveryMessages);
-            MockFrontController.Setup(fc => fc.Find(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<IMessageSink>()))
-                               .Callback<string, bool, IMessageSink>((_, __, sink) => ReturnDiscoveryMessages(__, sink));
-            MockFrontController.Setup(fc => fc.Run(It.IsAny<IEnumerable<ITestCase>>(), It.IsAny<IMessageSink>()))
-                               .Callback<IEnumerable<ITestCase>, IMessageSink>((_, sink) => sink.OnMessage(new TestAssemblyFinished()));
-
-            BuildEngine = MockBuildEngine.Object;
+            FrontController = Substitute.For<IFrontController>();
+            FrontController.WhenAny(fc => fc.Find(false, null))
+                           .Do<bool, IMessageSink>((_, sink) => ReturnDiscoveryMessages(sink));
+            FrontController.WhenAny(fc => fc.Find("", false, null))
+                           .Do<string, bool, IMessageSink>((_, __, sink) => ReturnDiscoveryMessages(sink));
+            FrontController.WhenAny(fc => fc.Run(null, null))
+                           .Do<object, IMessageSink>((_, sink) => sink.OnMessage(new TestAssemblyFinished()));
 
             Assemblies = new ITaskItem[0];
 
             ExitCode = exitCode;
         }
 
-        public virtual IFrontController CreateFrontController_Public(string assemblyFilename, string configFileName)
+        public IFrontController _CreateFrontController(string assemblyFilename, string configFileName)
         {
-            return MockFrontController.Object;
+            return FrontController;
         }
 
         protected override IFrontController CreateFrontController(string assemblyFilename, string configFileName)
         {
-            return CreateFrontController_Public(assemblyFilename, configFileName);
+            if (CreateFrontController_Exception != null)
+                throw CreateFrontController_Exception;
+
+            return _CreateFrontController(assemblyFilename, configFileName);
         }
 
-        public virtual MSBuildVisitor CreateVisitor_Public(string assemblyFileName)
+        public MSBuildVisitor _CreateVisitor(string assemblyFileName)
         {
+            if (CreateVisitor_Result != null)
+                return CreateVisitor_Result;
+
             return base.CreateVisitor(assemblyFileName);
         }
 
         protected override MSBuildVisitor CreateVisitor(string assemblyFileName)
         {
-            return CreateVisitor_Public(assemblyFileName);
+            return _CreateVisitor(assemblyFileName);
         }
 
-        public virtual void ExecuteAssembly_Public(string assemblyFilename, string configFileName)
+        public void _ExecuteAssembly(string assemblyFilename, string configFileName)
         {
             base.ExecuteAssembly(assemblyFilename, configFileName, new MSBuildVisitor(null, null));
         }
 
         protected override void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
         {
-            ExecuteAssembly_Public(assemblyFilename, configFileName);
+            ExecuteAssembly_Calls.Add(String.Format("{0}, {1}", assemblyFilename ?? "(null)", configFileName ?? "(null)"));
+
+            base.ExecuteAssembly(assemblyFilename, configFileName, new MSBuildVisitor(null, null));
         }
 
-        private void ReturnDiscoveryMessages(bool _, IMessageSink sink)
+        private void ReturnDiscoveryMessages(IMessageSink sink)
         {
             foreach (var testCase in DiscoveryTestCases)
                 sink.OnMessage(new TestCaseDiscoveryMessage { TestCase = testCase });

@@ -1,4 +1,4 @@
-﻿using Moq;
+﻿using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -8,14 +8,14 @@ public class TestDiscoveryVisitorTests
     public void CollectsTestCases()
     {
         var visitor = new TestDiscoveryVisitor();
-        var testCase1 = new Mock<ITestCase>().Object;
-        var testCase2 = new Mock<ITestCase>().Object;
-        var testCase3 = new Mock<ITestCase>().Object;
+        var testCase1 = Substitute.For<ITestCase>();
+        var testCase2 = Substitute.For<ITestCase>();
+        var testCase3 = Substitute.For<ITestCase>();
 
         visitor.OnMessage(new DiscoveryMessage(testCase1));
         visitor.OnMessage(new DiscoveryMessage(testCase2));
         visitor.OnMessage(new DiscoveryMessage(testCase3));
-        visitor.OnMessage(new Mock<ITestMessage>().Object); // Ignored
+        visitor.OnMessage(Substitute.For<ITestMessage>()); // Ignored
 
         Assert.Collection(visitor.TestCases,
             msg => Assert.Same(testCase1, msg),

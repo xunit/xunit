@@ -23,11 +23,11 @@ namespace Xunit.Abstractions
         IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
         /// <summary>
-        /// Gets an initialized property value of the attribute.
+        /// Gets a named-argument initialized value of the attribute.
         /// </summary>
-        /// <typeparam name="TValue">The type of the property</typeparam>
-        /// <param name="propertyName">The name of the property</param>
-        /// <returns>The property value</returns>
-        TValue GetPropertyValue<TValue>(string propertyName);
+        /// <typeparam name="TValue">The type of the argument</typeparam>
+        /// <param name="argumentName">The name of the argument</param>
+        /// <returns>The argument value</returns>
+        TValue GetNamedArgument<TValue>(string argumentName);
     }
 }

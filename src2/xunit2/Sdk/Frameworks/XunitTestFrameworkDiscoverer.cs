@@ -68,7 +68,7 @@ namespace Xunit.Sdk
 
             try
             {
-                if (assemblyInfo.AssemblyPath != null)
+                if (!String.IsNullOrEmpty(assemblyInfo.AssemblyPath))
                     Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 
                 foreach (IMethodInfo method in type.GetMethods(includePrivateMethods: true))

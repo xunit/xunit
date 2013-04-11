@@ -56,8 +56,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Moq, Version=4.0.10827.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    <Reference Include="NSubstitute">
+      <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -102,6 +102,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NSubstituteExtensions.cs" />
     <Compile Include="PreserveWorkingDirectoryAttribute.cs" />
     <Compile Include="Abstractions\AssemblyWrapper.cs" />
     <Compile Include="Abstractions\AttributeWrapper.cs" />
@@ -111,21 +112,12 @@
     <Compile Include="Abstractions\TestPassed.cs" />
     <Compile Include="Abstractions\TestSkipped.cs" />
     <Compile Include="Abstractions\TypeWrapper.cs" />
-    <Compile Include="MockTestCase.cs" />
-    <Compile Include="MockXunitController.cs" />
     <Compile Include="SerializationUtility.cs" />
     <Compile Include="SpyBeforeAfterTest.cs" />
     <Compile Include="TheoryData.cs" />
     <Compile Include="Xunit2AcceptanceTest.cs" />
-    <Compile Include="AcceptanceTestInNewAppDomain.cs" />
     <Compile Include="AcceptanceTestAssembly.cs" />
-    <Compile Include="MockAssemblyInfo.cs" />
-    <Compile Include="CustomAttributeData.cs" />
-    <Compile Include="MockFactAttribute.cs" />
-    <Compile Include="MockMethodInfo.cs" />
-    <Compile Include="MockParameterInfo.cs" />
-    <Compile Include="MockTraitAttribute.cs" />
-    <Compile Include="MockTypeInfo.cs" />
+    <Compile Include="Mocks.cs" />
     <Compile Include="SpyMessageSink.cs" />
     <Compile Include="TempFile.cs" />
   </ItemGroup>

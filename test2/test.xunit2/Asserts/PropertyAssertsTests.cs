@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using Moq;
+using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 
@@ -12,7 +12,7 @@ public class PropertyAssertsTests
         var ex1 = Assert.Throws<ArgumentNullException>(() => Assert.PropertyChanged(null, "propertyName", delegate { }));
         Assert.Equal("object", ex1.ParamName);
 
-        var ex2 = Assert.Throws<ArgumentNullException>(() => Assert.PropertyChanged(new Mock<INotifyPropertyChanged>().Object, "propertyName", null));
+        var ex2 = Assert.Throws<ArgumentNullException>(() => Assert.PropertyChanged(Substitute.For<INotifyPropertyChanged>(), "propertyName", null));
         Assert.Equal("testCode", ex2.ParamName);
     }
 

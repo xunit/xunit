@@ -1,21 +1,21 @@
 ﻿using System;
-using Moq;
 using TestDriven.Framework;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.Abstractions;
 using Xunit.Runner.TdNet;
+using NSubstitute;
 
 public class ResultVisitorTests
 {
     [Fact]
     public void SignalsFinishedEventUponReceiptOfITestAssemblyFinished()
     {
-        var listener = new Mock<ITestListener>();
-        var visitor = new ResultVisitor(listener.Object);
-        var message = new Mock<ITestAssemblyFinished>();
+        var listener = Substitute.For<ITestListener>();
+        var visitor = new ResultVisitor(listener);
+        var message = Substitute.For<ITestAssemblyFinished>();
 
-        visitor.OnMessage(message.Object);
+        visitor.OnMessage(message);
 
         Assert.True(visitor.Finished.WaitOne(0));
     }
@@ -25,8 +25,8 @@ public class ResultVisitorTests
         [Fact]
         public void DefaultRunStateIsNoTests()
         {
-            var listener = new Mock<ITestListener>();
-            var visitor = new ResultVisitor(listener.Object);
+            var listener = Substitute.For<ITestListener>();
+            var visitor = new ResultVisitor(listener);
 
             Assert.Equal(TestRunState.NoTests, visitor.TestRunState);
         }
@@ -37,8 +37,8 @@ public class ResultVisitorTests
         [InlineData(TestRunState.Success)]
         public void FailureSetsStateToFailed(TestRunState initialState)
         {
-            var listener = new Mock<ITestListener>();
-            var visitor = new ResultVisitor(listener.Object) { TestRunState = initialState };
+            var listener = Substitute.For<ITestListener>();
+            var visitor = new ResultVisitor(listener) { TestRunState = initialState };
 
             visitor.OnMessage(new TestFailed());
 
@@ -48,8 +48,8 @@ public class ResultVisitorTests
         [Fact]
         public void Success_MovesToSuccess()
         {
-            var listener = new Mock<ITestListener>();
-            var visitor = new ResultVisitor(listener.Object) { TestRunState = TestRunState.NoTests };
+            var listener = Substitute.For<ITestListener>();
+            var visitor = new ResultVisitor(listener) { TestRunState = TestRunState.NoTests };
 
             visitor.OnMessage(new TestPassed());
 
@@ -62,8 +62,8 @@ public class ResultVisitorTests
         [InlineData(TestRunState.Success)]
         public void Success_StaysInCurrentState(TestRunState initialState)
         {
-            var listener = new Mock<ITestListener>();
-            var visitor = new ResultVisitor(listener.Object) { TestRunState = initialState };
+            var listener = Substitute.For<ITestListener>();
+            var visitor = new ResultVisitor(listener) { TestRunState = initialState };
 
             visitor.OnMessage(new TestPassed());
 
@@ -73,8 +73,8 @@ public class ResultVisitorTests
         [Fact]
         public void Skip_MovesToSuccess()
         {
-            var listener = new Mock<ITestListener>();
-            var visitor = new ResultVisitor(listener.Object) { TestRunState = TestRunState.NoTests };
+            var listener = Substitute.For<ITestListener>();
+            var visitor = new ResultVisitor(listener) { TestRunState = TestRunState.NoTests };
 
             visitor.OnMessage(new TestSkipped());
 
@@ -87,8 +87,8 @@ public class ResultVisitorTests
         [InlineData(TestRunState.Success)]
         public void Skip_StaysInCurrentState(TestRunState initialState)
         {
-            var listener = new Mock<ITestListener>();
-            var visitor = new ResultVisitor(listener.Object) { TestRunState = initialState };
+            var listener = Substitute.For<ITestListener>();
+            var visitor = new ResultVisitor(listener) { TestRunState = initialState };
 
             visitor.OnMessage(new TestSkipped());
 
@@ -102,11 +102,10 @@ public class ResultVisitorTests
         public void ConvertsITestPassed()
         {
             TestResult testResult = null;
-            var listener = new Mock<ITestListener>();
-            listener.Setup(l => l.TestFinished(It.IsAny<TestResult>()))
-                    .Callback<TestResult>(result => testResult = result)
-                    .Verifiable();
-            var visitor = new ResultVisitor(listener.Object);
+            var listener = Substitute.For<ITestListener>();
+            listener.WhenAny(l => l.TestFinished(null))
+                    .Do<TestResult>(result => testResult = result);
+            var visitor = new ResultVisitor(listener);
             var message = new TestPassed
             {
                 TestCase = new TestCase(typeof(string), "Contains"),
@@ -116,7 +115,7 @@ public class ResultVisitorTests
 
             visitor.OnMessage(message);
 
-            listener.Verify();
+            Assert.NotNull(testResult);
             Assert.Same(typeof(string), testResult.FixtureType);
             Assert.Equal("Contains", testResult.Method.Name);
             Assert.Equal("Display Name", testResult.Name);
@@ -140,11 +139,10 @@ public class ResultVisitorTests
             }
 
             TestResult testResult = null;
-            var listener = new Mock<ITestListener>();
-            listener.Setup(l => l.TestFinished(It.IsAny<TestResult>()))
-                    .Callback<TestResult>(result => testResult = result)
-                    .Verifiable();
-            var visitor = new ResultVisitor(listener.Object);
+            var listener = Substitute.For<ITestListener>();
+            listener.WhenAny(l => l.TestFinished(null))
+                    .Do<TestResult>(result => testResult = result);
+            var visitor = new ResultVisitor(listener);
             var message = new TestFailed(ex)
             {
                 TestCase = new TestCase(typeof(string), "Contains"),
@@ -154,7 +152,7 @@ public class ResultVisitorTests
 
             visitor.OnMessage(message);
 
-            listener.Verify();
+            Assert.NotNull(testResult);
             Assert.Same(typeof(string), testResult.FixtureType);
             Assert.Equal("Contains", testResult.Method.Name);
             Assert.Equal("Display Name", testResult.Name);
@@ -169,11 +167,10 @@ public class ResultVisitorTests
         public void ConvertsITestSkipped()
         {
             TestResult testResult = null;
-            var listener = new Mock<ITestListener>();
-            listener.Setup(l => l.TestFinished(It.IsAny<TestResult>()))
-                    .Callback<TestResult>(result => testResult = result)
-                    .Verifiable();
-            var visitor = new ResultVisitor(listener.Object);
+            var listener = Substitute.For<ITestListener>();
+            listener.WhenAny(l => l.TestFinished(null))
+                    .Do<TestResult>(result => testResult = result);
+            var visitor = new ResultVisitor(listener);
             var message = new TestSkipped
             {
                 TestCase = new TestCase(typeof(string), "Contains"),
@@ -184,7 +181,7 @@ public class ResultVisitorTests
 
             visitor.OnMessage(message);
 
-            listener.Verify();
+            Assert.NotNull(testResult);
             Assert.Same(typeof(string), testResult.FixtureType);
             Assert.Equal("Contains", testResult.Method.Name);
             Assert.Equal("Display Name", testResult.Name);

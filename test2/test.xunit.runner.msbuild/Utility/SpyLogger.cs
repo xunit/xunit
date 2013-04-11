@@ -2,26 +2,26 @@
 using System.Collections.Generic;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using Moq;
+using NSubstitute;
 
 public class SpyLogger : TaskLoggingHelper
 {
     public List<string> Messages = new List<string>();
 
-    private SpyLogger(Mock<IBuildEngine> buildEngine, string taskName)
-        : base(buildEngine.Object, taskName)
+    private SpyLogger(IBuildEngine buildEngine, string taskName)
+        : base(buildEngine, taskName)
     {
-        buildEngine.Setup(e => e.LogMessageEvent(It.IsAny<BuildMessageEventArgs>()))
-                   .Callback<BuildMessageEventArgs>(Log);
-        buildEngine.Setup(e => e.LogWarningEvent(It.IsAny<BuildWarningEventArgs>()))
-                   .Callback<BuildWarningEventArgs>(Log);
-        buildEngine.Setup(e => e.LogErrorEvent(It.IsAny<BuildErrorEventArgs>()))
-                   .Callback<BuildErrorEventArgs>(Log);
+        buildEngine.WhenAny(e => e.LogMessageEvent(null))
+                   .Do<BuildMessageEventArgs>(Log);
+        buildEngine.WhenAny(e => e.LogWarningEvent(null))
+                   .Do<BuildWarningEventArgs>(Log);
+        buildEngine.WhenAny(e => e.LogErrorEvent(null))
+                   .Do<BuildErrorEventArgs>(Log);
     }
 
     public static SpyLogger Create(string taskName = "MyTask")
     {
-        return new SpyLogger(new Mock<IBuildEngine>(), taskName);
+        return new SpyLogger(Substitute.For<IBuildEngine>(), taskName);
     }
 
     private void Log(BuildMessageEventArgs eventArgs)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Moq;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -24,7 +24,6 @@ public class XunitTestFrameworkDiscovererTests
         public void GuardClause()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
-            var sink = new Mock<IMessageSink>();
 
             Assert.Throws<ArgumentNullException>(
                 () => framework.Find(includeSourceInformation: false, messageSink: null),
@@ -51,7 +50,7 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.Find();
 
-            framework.Assembly.Verify(a => a.GetTypes(/*includePrivateTypes*/ false), Times.Once());
+            framework.Assembly.Received(1).GetTypes(/*includePrivateTypes*/ false);
         }
 
         [Fact]
@@ -59,36 +58,37 @@ public class XunitTestFrameworkDiscovererTests
         {
             var objectTypeInfo = Reflector.Wrap(typeof(object));
             var intTypeInfo = Reflector.Wrap(typeof(int));
-            var mockAssembly = new MockAssemblyInfo(types: new[] { objectTypeInfo, intTypeInfo });
-            var mockFramework = new Mock<TestableXunitTestFrameworkDiscoverer>(mockAssembly) { CallBase = true };
+            var assembly = Mocks.AssemblyInfo(types: new[] { objectTypeInfo, intTypeInfo });
+            var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>(assembly);
+            framework.FindImpl(null).ReturnsForAnyArgs(true);
 
-            mockFramework.Object.Find();
+            framework.Find();
 
-            mockFramework.Verify(f => f.FindImpl(objectTypeInfo, false), Times.Once());
-            mockFramework.Verify(f => f.FindImpl(intTypeInfo, false), Times.Once());
+            framework.Received(1).FindImpl(objectTypeInfo, false);
+            framework.Received(1).FindImpl(intTypeInfo, false);
         }
 
         [Fact]
         public void DoesNotCallSourceProviderWhenNotAskedFor()
         {
-            var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
+            var sourceProvider = Substitute.For<ISourceInformationProvider>();
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
-            var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
+            var mockAssembly = Mocks.AssemblyInfo(types: new[] { typeInfo });
             var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
 
             framework.Find();
 
-            sourceProvider.Verify(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()), Times.Never());
+            sourceProvider.Received(0).GetSourceInformation(Arg.Any<ITestCase>());
         }
 
         [Fact]
         public void CallsSourceProviderWhenTypesAreFoundInAssembly()
         {
-            var sourceProvider = new Mock<ISourceInformationProvider>();
-            sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
-                          .Returns(Tuple.Create<string, int?>("Source File", 42));
+            var sourceProvider = Substitute.For<ISourceInformationProvider>();
+            sourceProvider.GetSourceInformation(null)
+                          .ReturnsForAnyArgs(Tuple.Create<string, int?>("Source File", 42));
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
-            var mockAssembly = new MockAssemblyInfo(types: new[] { typeInfo });
+            var mockAssembly = Mocks.AssemblyInfo(types: new[] { typeInfo });
             var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
 
             framework.Find(includeSourceInformation: true);
@@ -113,14 +113,14 @@ public class XunitTestFrameworkDiscovererTests
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var typeName = typeof(Object).FullName;
-            var sink = new Mock<IMessageSink>();
+            var sink = Substitute.For<IMessageSink>();
 
             Assert.Throws<ArgumentNullException>(
-                () => framework.Find(typeName: null, includeSourceInformation: false, messageSink: sink.Object),
+                () => framework.Find(typeName: null, includeSourceInformation: false, messageSink: sink),
                 "typeName"
             );
             Assert.Throws<ArgumentException>(
-                () => framework.Find(typeName: "", includeSourceInformation: false, messageSink: sink.Object),
+                () => framework.Find(typeName: "", includeSourceInformation: false, messageSink: sink),
                 "typeName"
             );
             Assert.Throws<ArgumentNullException>(
@@ -133,46 +133,46 @@ public class XunitTestFrameworkDiscovererTests
         public void RequestsPublicAndPrivateMethodsFromType()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
-            var type = new Mock<ITypeInfo>();
-            framework.Assembly.Setup(a => a.GetType("abc")).Returns(type.Object);
+            var type = Substitute.For<ITypeInfo>();
+            framework.Assembly.GetType("abc").Returns(type);
 
             framework.Find("abc");
 
-            type.Verify(t => t.GetMethods(/*includePrivateMethods*/ true), Times.Once());
+            type.Received(1).GetMethods(includePrivateMethods: true);
         }
 
         [Fact]
         public void CallsFindImplWhenMethodsAreFoundOnType()
         {
-            var mockFramework = new Mock<TestableXunitTestFrameworkDiscoverer> { CallBase = true };
-            var type = new Mock<ITypeInfo>();
-            mockFramework.Object.Assembly.Setup(a => a.GetType("abc")).Returns(type.Object);
+            var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>();
+            var type = Substitute.For<ITypeInfo>();
+            framework.Assembly.GetType("abc").Returns(type);
 
-            mockFramework.Object.Find("abc");
+            framework.Find("abc");
 
-            mockFramework.Verify(f => f.FindImpl(type.Object, false), Times.Once());
+            framework.Received(1).FindImpl(type, false);
         }
 
         [Fact]
         public void DoesNotCallSourceProviderWhenNotAskedFor()
         {
-            var sourceProvider = new Mock<ISourceInformationProvider>(MockBehavior.Strict);
+            var sourceProvider = Substitute.For<ISourceInformationProvider>();
             var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
 
             framework.Find("abc");
 
-            sourceProvider.Verify(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()), Times.Never());
+            sourceProvider.Received(0).GetSourceInformation(Arg.Any<ITestCase>());
         }
 
         [Fact]
         public void CallsSourceProviderWhenTypesAreFoundInAssembly()
         {
-            var sourceProvider = new Mock<ISourceInformationProvider>();
-            sourceProvider.Setup(sp => sp.GetSourceInformation(It.IsAny<ITestCase>()))
-                          .Returns(Tuple.Create<string, int?>("Source File", 42));
+            var sourceProvider = Substitute.For<ISourceInformationProvider>();
+            sourceProvider.GetSourceInformation(null)
+                          .ReturnsForAnyArgs(Tuple.Create<string, int?>("Source File", 42));
             var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
-            framework.Assembly.Setup(a => a.GetType("abc")).Returns(typeInfo);
+            framework.Assembly.GetType("abc").Returns(typeInfo);
 
             framework.Find("abc", includeSourceInformation: true);
 
@@ -322,31 +322,28 @@ public class XunitTestFrameworkDiscovererTests
     public class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer, IMessageSink
     {
         protected TestableXunitTestFrameworkDiscoverer()
-            : this(new MockAssemblyInfo(), new Mock<ISourceInformationProvider>()) { }
+            : this(Mocks.AssemblyInfo(), Substitute.For<ISourceInformationProvider>()) { }
 
-        protected TestableXunitTestFrameworkDiscoverer(MockAssemblyInfo assembly)
-            : base(assembly.Object)
+        protected TestableXunitTestFrameworkDiscoverer(IAssemblyInfo assembly)
+            : base(assembly)
         {
             Assembly = assembly;
         }
 
-        TestableXunitTestFrameworkDiscoverer(MockAssemblyInfo assembly, Mock<ISourceInformationProvider> sourceProvider)
-            : base(assembly.Object, sourceProvider.Object)
+        TestableXunitTestFrameworkDiscoverer(IAssemblyInfo assembly, ISourceInformationProvider sourceProvider)
+            : base(assembly, sourceProvider)
         {
             Assembly = assembly;
-            SourceProvider = sourceProvider;
         }
 
-        public MockAssemblyInfo Assembly { get; private set; }
+        public IAssemblyInfo Assembly { get; private set; }
 
         public List<ITestMessage> Messages = new List<ITestMessage>();
 
-        public Mock<ISourceInformationProvider> SourceProvider { get; private set; }
-
-        public static TestableXunitTestFrameworkDiscoverer Create(MockAssemblyInfo assembly = null, Mock<ISourceInformationProvider> sourceProvider = null)
+        public static TestableXunitTestFrameworkDiscoverer Create(IAssemblyInfo assembly = null, ISourceInformationProvider sourceProvider = null)
         {
-            return new TestableXunitTestFrameworkDiscoverer(assembly ?? new MockAssemblyInfo(),
-                                                            sourceProvider ?? new Mock<ISourceInformationProvider>());
+            return new TestableXunitTestFrameworkDiscoverer(assembly ?? Mocks.AssemblyInfo(),
+                                                            sourceProvider ?? Substitute.For<ISourceInformationProvider>());
         }
 
         public void Find(bool includeSourceInformation = false)
@@ -364,7 +361,7 @@ public class XunitTestFrameworkDiscovererTests
             return base.FindImpl(type, includeSourceInformation, this);
         }
 
-        protected override bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        protected sealed override bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
             return FindImpl(type, includeSourceInformation);
         }

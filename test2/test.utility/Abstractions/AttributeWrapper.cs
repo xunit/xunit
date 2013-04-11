@@ -23,8 +23,8 @@ public class AttributeWrapper : IAttributeInfo
         return inner.GetCustomAttributes(assemblyQualifiedAttributeTypeName);
     }
 
-    public TValue GetPropertyValue<TValue>(string propertyName)
+    public TValue GetNamedArgument<TValue>(string propertyName)
     {
-        return inner.GetPropertyValue<TValue>(propertyName);
+        return inner.GetNamedArgument<TValue>(propertyName);
     }
 }

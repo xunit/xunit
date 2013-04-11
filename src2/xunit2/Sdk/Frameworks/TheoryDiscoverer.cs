@@ -16,7 +16,7 @@ namespace Xunit.Sdk
         {
             // Special case Skip, because we want a single Skip (not one per data item), and a skipped test may
             // not actually have any data (which is quasi-legal, since it's skipped).
-            if (factAttribute.GetPropertyValue<string>("Skip") != null)
+            if (factAttribute.GetNamedArgument<string>("Skip") != null)
                 return new[] { new XunitTestCase(assembly, testClass, testMethod, factAttribute) };
 
             try

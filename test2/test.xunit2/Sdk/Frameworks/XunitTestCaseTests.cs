@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Moq;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -16,12 +15,12 @@ public class XunitTestCaseTests
     [Fact]
     public void DefaultFactAttribute()
     {
-        var fact = new MockFactAttribute();
-        var method = new MockMethodInfo();
-        var type = new MockTypeInfo(methods: new[] { method });
-        var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
+        var fact = Mocks.FactAttribute();
+        var method = Mocks.MethodInfo();
+        var type = Mocks.TypeInfo(methods: new[] { method });
+        var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
 
-        var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact);
+        var testCase = new XunitTestCase(assmInfo, type, method, fact);
 
         Assert.Equal("MockType.MockMethod", testCase.DisplayName);
         Assert.Null(testCase.SkipReason);
@@ -31,12 +30,12 @@ public class XunitTestCaseTests
     [Fact]
     public void SkipReason()
     {
-        var fact = new MockFactAttribute(skip: "Skip Reason");
-        var method = new MockMethodInfo();
-        var type = new MockTypeInfo(methods: new[] { method });
-        var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
+        var fact = Mocks.FactAttribute(skip: "Skip Reason");
+        var method = Mocks.MethodInfo();
+        var type = Mocks.TypeInfo(methods: new[] { method });
+        var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
 
-        var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact);
+        var testCase = new XunitTestCase(assmInfo, type, method, fact);
 
         Assert.Equal("Skip Reason", testCase.SkipReason);
     }
@@ -44,14 +43,14 @@ public class XunitTestCaseTests
     [Fact]
     public void Traits()
     {
-        var fact = new MockFactAttribute();
-        var trait1 = new MockTraitAttribute("Trait1", "Value1");
-        var trait2 = new MockTraitAttribute("Trait2", "Value2");
-        var method = new MockMethodInfo(attributes: new[] { trait1, trait2 });
-        var type = new MockTypeInfo(methods: new[] { method });
-        var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
+        var fact = Mocks.FactAttribute();
+        var trait1 = Mocks.TraitAttribute("Trait1", "Value1");
+        var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
+        var method = Mocks.MethodInfo(attributes: new[] { trait1, trait2 });
+        var type = Mocks.TypeInfo(methods: new[] { method });
+        var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
 
-        var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact);
+        var testCase = new XunitTestCase(assmInfo, type, method, fact);
 
         Assert.Equal("Value1", testCase.Traits["Trait1"]);
         Assert.Equal("Value2", testCase.Traits["Trait2"]);
@@ -62,12 +61,12 @@ public class XunitTestCaseTests
         [Fact]
         public void CustomDisplayName()
         {
-            var fact = new MockFactAttribute(displayName: "Custom Display Name");
-            var method = new MockMethodInfo();
-            var type = new MockTypeInfo(methods: new[] { method });
-            var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
+            var fact = Mocks.FactAttribute(displayName: "Custom Display Name");
+            var method = Mocks.MethodInfo();
+            var type = Mocks.TypeInfo(methods: new[] { method });
+            var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
 
-            var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact);
+            var testCase = new XunitTestCase(assmInfo, type, method, fact);
 
             Assert.Equal("Custom Display Name", testCase.DisplayName);
         }
@@ -75,16 +74,16 @@ public class XunitTestCaseTests
         [Fact]
         public void CorrectNumberOfTestArguments()
         {
-            var fact = new MockFactAttribute();
-            var param1 = new MockParameterInfo("p1");
-            var param2 = new MockParameterInfo("p2");
-            var param3 = new MockParameterInfo("p3");
-            var method = new MockMethodInfo(parameters: new[] { param1.Object, param2.Object, param3.Object });
-            var type = new MockTypeInfo(methods: new[] { method });
-            var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
+            var fact = Mocks.FactAttribute();
+            var param1 = Mocks.ParameterInfo("p1");
+            var param2 = Mocks.ParameterInfo("p2");
+            var param3 = Mocks.ParameterInfo("p3");
+            var method = Mocks.MethodInfo(parameters: new[] { param1, param2, param3 });
+            var type = Mocks.TypeInfo(methods: new[] { method });
+            var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
             var arguments = new object[] { 42, "Hello, world!", 'A' };
 
-            var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact, arguments);
+            var testCase = new XunitTestCase(assmInfo, type, method, fact, arguments);
 
             Assert.Equal("MockType.MockMethod(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
         }
@@ -92,13 +91,13 @@ public class XunitTestCaseTests
         [Fact]
         public void NotEnoughTestArguments()
         {
-            var fact = new MockFactAttribute();
-            var param = new MockParameterInfo("p1");
-            var method = new MockMethodInfo(parameters: new[] { param.Object });
-            var type = new MockTypeInfo(methods: new[] { method });
-            var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
+            var fact = Mocks.FactAttribute();
+            var param = Mocks.ParameterInfo("p1");
+            var method = Mocks.MethodInfo(parameters: new[] { param });
+            var type = Mocks.TypeInfo(methods: new[] { method });
+            var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
 
-            var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact, arguments: new object[0]);
+            var testCase = new XunitTestCase(assmInfo, type, method, fact, arguments: new object[0]);
 
             Assert.Equal("MockType.MockMethod(p1: ???)", testCase.DisplayName);
         }
@@ -106,14 +105,14 @@ public class XunitTestCaseTests
         [Fact]
         public void TooManyTestArguments()
         {
-            var fact = new MockFactAttribute();
-            var param = new MockParameterInfo("p1");
-            var method = new MockMethodInfo(parameters: new[] { param.Object });
-            var type = new MockTypeInfo(methods: new[] { method });
-            var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
+            var fact = Mocks.FactAttribute();
+            var param = Mocks.ParameterInfo("p1");
+            var method = Mocks.MethodInfo(parameters: new[] { param });
+            var type = Mocks.TypeInfo(methods: new[] { method });
+            var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
             var arguments = new object[] { 42, 21.12 };
 
-            var testCase = new XunitTestCase(assmInfo.Object, type.Object, method, fact, arguments);
+            var testCase = new XunitTestCase(assmInfo, type, method, fact, arguments);
 
             Assert.Equal("MockType.MockMethod(p1: 42, ???: 21.12)", testCase.DisplayName);
         }
@@ -154,10 +153,10 @@ public class XunitTestCaseTests
         {
             var testCase = TestableXunitTestCase.Create(msgSink =>
             {
-                msgSink.OnMessage(new Mock<ITestResultMessage>().Object);
-                msgSink.OnMessage(new Mock<ITestPassed>().Object);
-                msgSink.OnMessage(new Mock<ITestFailed>().Object);
-                msgSink.OnMessage(new Mock<ITestSkipped>().Object);
+                msgSink.OnMessage(Substitute.For<ITestResultMessage>());
+                msgSink.OnMessage(Substitute.For<ITestPassed>());
+                msgSink.OnMessage(Substitute.For<ITestFailed>());
+                msgSink.OnMessage(Substitute.For<ITestSkipped>());
             });
             var sink = new SpyMessageSink<ITestCaseFinished>();
 
@@ -949,12 +948,12 @@ public class XunitTestCaseTests
 
         public static TestableXunitTestCase Create(Action<IMessageSink> callback = null)
         {
-            var fact = new MockFactAttribute();
-            var method = new MockMethodInfo();
-            var type = new MockTypeInfo(methods: new[] { method });
-            var assmInfo = new MockAssemblyInfo(types: new[] { type.Object });
+            var fact = Mocks.FactAttribute();
+            var method = Mocks.MethodInfo();
+            var type = Mocks.TypeInfo(methods: new[] { method });
+            var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
 
-            return new TestableXunitTestCase(assmInfo.Object, type.Object, method, fact, callback ?? (sink => sink.OnMessage(new SpyMessage())));
+            return new TestableXunitTestCase(assmInfo, type, method, fact, callback ?? (sink => sink.OnMessage(new SpyMessage())));
         }
 
         public static TestableXunitTestCase Create(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute)

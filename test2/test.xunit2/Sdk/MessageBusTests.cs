@@ -1,53 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
-using Moq;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 public class MessageBusTests
 {
+    IMessageSink SpySink(List<ITestMessage> messages = null)
+    {
+        var result = Substitute.For<IMessageSink>();
+
+        result.OnMessage(null).ReturnsForAnyArgs(
+            callInfo =>
+            {
+                if (messages != null)
+                    messages.Add((ITestMessage)callInfo[0]);
+
+                return true;
+            });
+
+        return result;
+    }
+
     [Fact]
     public void QueuedMessageShowUpInMessageSink()
     {
-        var spy = new SpyMessageSink();
-        var msg1 = new Mock<ITestMessage>();
-        var msg2 = new Mock<ITestMessage>();
-        var msg3 = new Mock<ITestMessage>();
+        var messages = new List<ITestMessage>();
+        var sink = SpySink(messages);
+        var msg1 = Substitute.For<ITestMessage>();
+        var msg2 = Substitute.For<ITestMessage>();
+        var msg3 = Substitute.For<ITestMessage>();
 
-        using (var bus = new MessageBus(spy.Object))
+        using (var bus = new MessageBus(sink))
         {
-            bus.QueueMessage(msg1.Object);
-            bus.QueueMessage(msg2.Object);
-            bus.QueueMessage(msg3.Object);
+            bus.QueueMessage(msg1);
+            bus.QueueMessage(msg2);
+            bus.QueueMessage(msg3);
         }
 
-        Assert.Collection(spy.Messages,
-            message => Assert.Same(msg1.Object, message),
-            message => Assert.Same(msg2.Object, message),
-            message => Assert.Same(msg3.Object, message)
+        Assert.Collection(messages,
+            message => Assert.Same(msg1, message),
+            message => Assert.Same(msg2, message),
+            message => Assert.Same(msg3, message)
         );
     }
 
     [Fact]
     public void DisposingMessageBusDisposesMessageSink()
     {
-        var spy = new SpyMessageSink();
+        var sink = SpySink();
 
-        using (var bus = new MessageBus(spy.Object)) { }
+        new MessageBus(sink).Dispose();
 
-        spy.Verify(s => s.Dispose());
+        sink.Received(1).Dispose();
     }
 
     [Fact]
     public void TryingToQueueMessageAfterDisposingThrows()
     {
-        var spy = new SpyMessageSink();
-        var bus = new MessageBus(spy.Object);
+        var bus = new MessageBus(SpySink());
         bus.Dispose();
 
         var exception = Record.Exception(
-            () => bus.QueueMessage(new Mock<ITestMessage>().Object)
+            () => bus.QueueMessage(Substitute.For<ITestMessage>())
         );
 
         Assert.IsType<ObjectDisposedException>(exception);
@@ -56,43 +72,33 @@ public class MessageBusTests
     [Fact]
     public void WhenSinkThrowsMessagesContinueToBeDelivered()
     {
-        var spy = new Mock<IMessageSink>();
-        var msg1 = new Mock<ITestMessage>();
-        var msg2 = new Mock<ITestMessage>();
-        var msg3 = new Mock<ITestMessage>();
+        var sink = Substitute.For<IMessageSink>();
+        var msg1 = Substitute.For<ITestMessage>();
+        var msg2 = Substitute.For<ITestMessage>();
+        var msg3 = Substitute.For<ITestMessage>();
         var messages = new List<ITestMessage>();
-        spy.Setup(s => s.OnMessage(It.IsAny<ITestMessage>()))
-           .Callback<ITestMessage>(msg =>
-           {
-               if (msg == msg2.Object)
-                   throw new Exception("whee!");
-               else
-                   messages.Add(msg);
-           });
+        sink.OnMessage(Arg.Any<ITestMessage>())
+            .Returns(callInfo =>
+            {
+                var msg = (ITestMessage)callInfo[0];
+                if (msg == msg2)
+                    throw new Exception("whee!");
+                else
+                    messages.Add(msg);
 
-        using (var bus = new MessageBus(spy.Object))
+                return false;
+            });
+
+        using (var bus = new MessageBus(sink))
         {
-            bus.QueueMessage(msg1.Object);
-            bus.QueueMessage(msg2.Object);
-            bus.QueueMessage(msg3.Object);
+            bus.QueueMessage(msg1);
+            bus.QueueMessage(msg2);
+            bus.QueueMessage(msg3);
         }
 
         Assert.Collection(messages,
-            message => Assert.Same(message, msg1.Object),
-            message => Assert.Same(message, msg3.Object)
+            message => Assert.Same(message, msg1),
+            message => Assert.Same(message, msg3)
         );
-    }
-
-    class CompletionMessage : ITestMessage { }
-
-    class SpyMessageSink : Mock<IMessageSink>
-    {
-        public List<ITestMessage> Messages = new List<ITestMessage>();
-
-        public SpyMessageSink()
-        {
-            this.Setup(sink => sink.OnMessage(It.IsAny<ITestMessage>()))
-                .Callback<ITestMessage>(Messages.Add);
-        }
     }
 }

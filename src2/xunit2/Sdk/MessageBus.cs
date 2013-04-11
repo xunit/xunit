@@ -25,6 +25,16 @@ namespace Xunit.Sdk
             reporterThread.Start();
         }
 
+        private void DispatchMessages()
+        {
+            ITestMessage message;
+            while (reporterQueue.TryDequeue(out message))
+                try
+                {
+                    messageSink.OnMessage(message);
+                }
+                catch (Exception) { }
+        }
         /// <summary/>
         public void Dispose()
         {
@@ -48,19 +58,12 @@ namespace Xunit.Sdk
             while (!shutdownRequested)
             {
                 reporterWorkEvent.WaitOne();
-
-                ITestMessage message;
-
-                while (reporterQueue.TryDequeue(out message))
-                    try
-                    {
-                        messageSink.OnMessage(message);
-                    }
-                    catch (Exception) { }
+                DispatchMessages();
             }
 
             try
             {
+                DispatchMessages();
                 messageSink.Dispose();
             }
             catch (Exception) { }

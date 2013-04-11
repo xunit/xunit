@@ -90,7 +90,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public TValue GetPropertyValue<TValue>(string propertyName)
+        public TValue GetNamedArgument<TValue>(string propertyName)
         {
             PropertyInfo propInfo = Attribute.GetType().GetProperty(propertyName);
             Guard.ArgumentValid("propertyName", "Could not find property " + propertyName + " on instance of " + Attribute.GetType().FullName, propInfo != null);
