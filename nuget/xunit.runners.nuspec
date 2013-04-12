@@ -8,7 +8,7 @@
         <description>Runners for the xUnit.net framework, including Console, GUI, and MSBuild.</description>
         <language>en-US</language>
         <projectUrl>http://xunit.codeplex.com</projectUrl>
-        <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=659452</iconUrl>
+        <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>
         <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
     </metadata>
