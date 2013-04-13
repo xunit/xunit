@@ -249,8 +249,6 @@ public class XunitTestCaseTests
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                     message => Assert.IsAssignableFrom<ITestPassed>(message),
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
                 );
@@ -296,8 +294,6 @@ public class XunitTestCaseTests
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                     message => Assert.IsAssignableFrom<ITestPassed>(message),
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
                 );
@@ -377,8 +373,6 @@ public class XunitTestCaseTests
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                     message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                     message => Assert.IsAssignableFrom<ITestPassed>(message),
@@ -450,8 +444,6 @@ public class XunitTestCaseTests
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                     message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                     message =>
@@ -474,8 +466,6 @@ public class XunitTestCaseTests
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                     message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                     message =>
@@ -548,8 +538,6 @@ public class XunitTestCaseTests
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                         message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                         message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                         message => Assert.IsAssignableFrom<ITestPassed>(message),
@@ -592,8 +580,6 @@ public class XunitTestCaseTests
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                         message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                         message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                         message =>
@@ -618,8 +604,6 @@ public class XunitTestCaseTests
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                         message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                         message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                         message =>
@@ -678,8 +662,6 @@ public class XunitTestCaseTests
                         message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
-                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
                         message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
@@ -722,8 +704,6 @@ public class XunitTestCaseTests
                         message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
-                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
                         message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
@@ -793,8 +773,6 @@ public class XunitTestCaseTests
                         message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                         message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                         message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                         message => Assert.IsAssignableFrom<ITestPassed>(message),
@@ -817,8 +795,6 @@ public class XunitTestCaseTests
                         message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                         message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                         message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                         message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                         message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
@@ -843,8 +819,6 @@ public class XunitTestCaseTests
                         message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestStarting>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IBeforeTestFinished>(message).AttributeName),
-                        message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                        message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
                         message => Assert.Equal("SpyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestFinished>(message).AttributeName),
                         message => Assert.Equal("DummyBeforeAfterTest", Assert.IsAssignableFrom<IAfterTestStarting>(message).AttributeName),
@@ -904,8 +878,6 @@ public class XunitTestCaseTests
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                     message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                    message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                     message =>
                     {
                         var failed = Assert.IsAssignableFrom<ITestFailed>(message);

@@ -62,6 +62,7 @@
     <Compile Include="Sdk\Exceptions\NoneException.cs" />
     <Compile Include="Sdk\Frameworks\IXunitTestCase.cs" />
     <Compile Include="Sdk\Frameworks\LambdaTestCase.cs" />
+    <Compile Include="Sdk\Frameworks\XunitTheoryTestCase.cs" />
     <Compile Include="Sdk\InlineDataDiscoverer.cs" />
     <Compile Include="PropertyDataAttribute.cs" />
     <Compile Include="Record.cs" />

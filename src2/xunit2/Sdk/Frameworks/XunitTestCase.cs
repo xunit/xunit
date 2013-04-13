@@ -116,7 +116,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IDictionary<string, string> Traits { get; private set; }
 
-        object[] ConvertArguments(object[] args, Type[] types)
+        protected object[] ConvertArguments(object[] args, Type[] types)
         {
             if (args.Length == types.Length)
                 for (int idx = 0; idx < args.Length; idx++)
@@ -152,6 +152,19 @@ namespace Xunit.Sdk
             return baseTypeName.Substring(0, backTickIdx) + "<" + String.Join(", ", simpleNames) + ">";
         }
 
+        /// <summary>
+        /// Gets the <see cref="BeforeAfterTestAttribute"/> instances for a test method.
+        /// </summary>
+        /// <param name="classUnderTest">The class under test.</param>
+        /// <param name="methodUnderTest">The method under test.</param>
+        /// <returns>The list of <see cref="BeforeAfterTestAttribute"/> instances.</returns>
+        protected virtual IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
+        {
+            return classUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
+                                 .Concat(methodUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+                                 .Cast<BeforeAfterTestAttribute>();
+        }
+
         static string GetParameterName(IParameterInfo[] parameters, int index)
         {
             if (index >= parameters.Length)
@@ -160,12 +173,12 @@ namespace Xunit.Sdk
             return parameters[index].Name;
         }
 
-        Type GetRuntimeClass()
+        protected Type GetRuntimeClass()
         {
             return Reflector.GetType(type.Name, assembly.Name);
         }
 
-        MethodInfo GetRuntimeMethod(Type type)
+        protected MethodInfo GetRuntimeMethod(Type type)
         {
             if (type == null)
                 return null;
@@ -241,19 +254,6 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets the <see cref="BeforeAfterTestAttribute"/> instances for a test method.
-        /// </summary>
-        /// <param name="classUnderTest">The class under test.</param>
-        /// <param name="methodUnderTest">The method under test.</param>
-        /// <returns>The list of <see cref="BeforeAfterTestAttribute"/> instances.</returns>
-        protected virtual IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
-        {
-            return classUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
-                                 .Concat(methodUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-                                 .Cast<BeforeAfterTestAttribute>();
-        }
-
-        /// <summary>
         /// Run the tests in the test case.
         /// </summary>
         /// <param name="messageSink">The message sink to send results to.</param>
@@ -268,7 +268,6 @@ namespace Xunit.Sdk
                 canceled = true;
             else
             {
-
                 if (!String.IsNullOrEmpty(SkipReason))
                 {
                     if (!messageSink.OnMessage(new TestSkipped { TestCase = this, TestDisplayName = DisplayName, Reason = SkipReason }))
@@ -329,11 +328,6 @@ namespace Xunit.Sdk
                                         return;
                                 }
 
-                                // REVIEW: This seems like the wrong level... test method should be at a higher scope that individual
-                                // test method actions (like construction, before/after, etc.)
-                                if (!messageSink.OnMessage(new TestMethodStarting { ClassName = ClassName, MethodName = MethodName }))
-                                    canceled = true;
-
                                 if (!canceled)
                                 {
                                     var parameterTypes = methodUnderTest.GetParameters().Select(p => p.ParameterType).ToArray();
@@ -345,9 +339,6 @@ namespace Xunit.Sdk
                                             task.GetAwaiter().GetResult();
                                     });
                                 }
-
-                                if (!messageSink.OnMessage(new TestMethodFinished { ClassName = ClassName, MethodName = MethodName }))
-                                    canceled = true;
                             });
 
                             foreach (var beforeAfterAttribute in beforeAttributesRun)

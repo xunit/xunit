@@ -95,6 +95,7 @@
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkDiscovererTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkExecutorTests.cs" />
+    <Compile Include="Sdk\Frameworks\XunitTheoryTestCaseTests.cs" />
     <Compile Include="Sdk\MessageBusTests.cs" />
     <Compile Include="Sdk\Frameworks\TheoryDiscovererTests.cs" />
     <Compile Include="SerializationTests.cs" />

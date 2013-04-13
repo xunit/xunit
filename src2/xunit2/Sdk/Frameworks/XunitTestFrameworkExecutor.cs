@@ -52,31 +52,50 @@ namespace Xunit.Sdk
                         {
                             foreach (var group in classGroups)
                             {
-                                if (messageSink.OnMessage(new TestClassStarting { ClassName = group.Key.Name }))
+                                if (!messageSink.OnMessage(new TestClassStarting { ClassName = group.Key.Name }))
+                                    cancelled = true;
+                                else
                                 {
-                                    foreach (XunitTestCase testCase in group)
+                                    var methodGroups = group.GroupBy(tc => tc.Method);
+
+                                    foreach (var method in methodGroups)
                                     {
-                                        var delegatingSink = new DelegatingMessageSink<ITestCaseFinished>(messageSink);
+                                        if (!messageSink.OnMessage(new TestMethodStarting { ClassName = group.Key.Name, MethodName = method.Key.Name }))
+                                            cancelled = true;
+                                        else
+                                        {
+                                            foreach (XunitTestCase testCase in method)
+                                            {
+                                                var delegatingSink = new DelegatingMessageSink<ITestCaseFinished>(messageSink);
 
-                                        // REVIEW: testCase.Run() returning bool implies synchronous behavior, which will probably
-                                        // not be true once we start supporting parallelization. This could be achieved by always
-                                        // using a delegating sink (like above) and watching for cancellation there, then checking
-                                        // for the cancellation result in the delegating sink after work is finished.
+                                                // REVIEW: testCase.Run() returning bool implies synchronous behavior, which will probably
+                                                // not be true once we start supporting parallelization. This could be achieved by always
+                                                // using a delegating sink (like above) and watching for cancellation there, then checking
+                                                // for the cancellation result in the delegating sink after work is finished.
 
-                                        cancelled = testCase.Run(delegatingSink);
-                                        delegatingSink.Finished.WaitOne();
+                                                cancelled = testCase.Run(delegatingSink);
+                                                delegatingSink.Finished.WaitOne();
 
-                                        totalRun += delegatingSink.FinalMessage.TestsRun;
-                                        totalFailed += delegatingSink.FinalMessage.TestsFailed;
-                                        totalSkipped += delegatingSink.FinalMessage.TestsSkipped;
-                                        totalTime += delegatingSink.FinalMessage.ExecutionTime;
+                                                totalRun += delegatingSink.FinalMessage.TestsRun;
+                                                totalFailed += delegatingSink.FinalMessage.TestsFailed;
+                                                totalSkipped += delegatingSink.FinalMessage.TestsSkipped;
+                                                totalTime += delegatingSink.FinalMessage.ExecutionTime;
+
+                                                if (cancelled)
+                                                    break;
+                                            }
+                                        }
+
+                                        if (!messageSink.OnMessage(new TestMethodFinished { ClassName = group.Key.Name, MethodName = method.Key.Name }))
+                                            cancelled = true;
 
                                         if (cancelled)
                                             break;
                                     }
                                 }
 
-                                messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = group.Key.Name, TestsRun = totalRun });
+                                if (!messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = group.Key.Name, TestsRun = totalRun }))
+                                    cancelled = true;
 
                                 if (cancelled)
                                     break;

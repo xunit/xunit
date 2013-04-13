@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using System.Linq;
 
 public class Xunit2AcceptanceTests
 {
@@ -46,6 +45,12 @@ public class Xunit2AcceptanceTests
                 },
                 message =>
                 {
+                    var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodStarting.ClassName);
+                    Assert.Equal("TestMethod", testMethodStarting.MethodName);
+                },
+                message =>
+                {
                     var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
                     Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass.TestMethod", testCaseStarting.TestCase.DisplayName);
                 },
@@ -66,18 +71,6 @@ public class Xunit2AcceptanceTests
                 },
                 message =>
                 {
-                    var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodStarting.ClassName);
-                    Assert.Equal("TestMethod", testMethodStarting.MethodName);
-                },
-                message =>
-                {
-                    var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodFinished.ClassName);
-                    Assert.Equal("TestMethod", testMethodFinished.MethodName);
-                },
-                message =>
-                {
                     var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
                     Assert.Equal(testPassed.TestCase.DisplayName, testPassed.TestDisplayName);
                 },
@@ -92,6 +85,12 @@ public class Xunit2AcceptanceTests
                     Assert.Equal(1, testCaseFinished.TestsRun);
                     Assert.Equal(0, testCaseFinished.TestsFailed);
                     Assert.Equal(0, testCaseFinished.TestsSkipped);
+                },
+                message =>
+                {
+                    var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodFinished.ClassName);
+                    Assert.Equal("TestMethod", testMethodFinished.MethodName);
                 },
                 message =>
                 {
@@ -178,20 +177,20 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -210,20 +209,20 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -242,6 +241,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
@@ -254,6 +254,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -272,6 +273,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
@@ -281,6 +283,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -310,14 +313,13 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
@@ -325,6 +327,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestPassed>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -343,8 +346,10 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -363,6 +368,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
@@ -371,6 +377,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -389,12 +396,14 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -413,20 +422,20 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -445,20 +454,20 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -477,14 +486,13 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
@@ -492,16 +500,16 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestPassed>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 // TestMethod2
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
@@ -509,6 +517,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestPassed>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -525,6 +534,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
+
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
                 message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
@@ -542,14 +552,13 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
@@ -557,16 +566,16 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestPassed>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 // TestMethod2
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
@@ -574,6 +583,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestPassed>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -605,14 +615,13 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
@@ -620,6 +629,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestFailed>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -638,14 +648,13 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
@@ -653,6 +662,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestPassed>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -671,20 +681,21 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
+                message => Assert.IsAssignableFrom<ITestPassed>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -703,20 +714,8 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -735,14 +734,13 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
                 message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
                 message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
                 message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
                 message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
@@ -750,6 +748,7 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestPassed>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -768,11 +767,13 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestSkipped>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
@@ -791,10 +792,12 @@ public class Xunit2AcceptanceTests
                 message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
                 // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
                 message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
                 message => Assert.IsAssignableFrom<ITestStarting>(message),
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
                 message => Assert.IsAssignableFrom<ITestClassFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
