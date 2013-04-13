@@ -86,7 +86,7 @@ namespace Xunit.Runner.VisualStudio
         private VsTestResult MakeVsTestResult(ITestResultMessage testResult, TestOutcome outcome)
         {
             TestCase testCase = testCases[testResult.TestCase];
-            string fullyQualifiedName = GetFullyQualifiedName(testResult.TestCase.ClassName, testResult.TestCase.MethodName);
+            string fullyQualifiedName = GetFullyQualifiedName(testResult.TestCase.Class.Name, testResult.TestCase.Method.Name);
 
             VsTestResult result = new VsTestResult(testCase)
             {

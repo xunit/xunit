@@ -16,12 +16,6 @@ namespace Xunit.Abstractions
         ITypeInfo Class { get; }
 
         /// <summary>
-        /// Gets the fully qualified type name of the class that this test case resides in.
-        /// </summary>
-        [Obsolete]
-        string ClassName { get; }
-
-        /// <summary>
         /// Gets the display name of the test case.
         /// </summary>
         string DisplayName { get; }
@@ -31,12 +25,6 @@ namespace Xunit.Abstractions
         /// </summary>
         IMethodInfo Method { get; }
         
-        /// <summary>
-        /// Gets the name of the method that this test case resides in.
-        /// </summary>
-        [Obsolete]
-        string MethodName { get; }
-
         /// <summary>
         /// Gets the display text for the reason a test is being skipped; if the test
         /// is not skipped, returns null.

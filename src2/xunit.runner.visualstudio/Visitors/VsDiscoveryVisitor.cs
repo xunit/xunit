@@ -36,8 +36,8 @@ namespace Xunit.Runner.VisualStudio
 
         public static TestCase CreateVsTestCase(string source, ITestCase xunitTestCase, DiaSessionWrapper diaSession = null)
         {
-            string typeName = xunitTestCase.ClassName;
-            string methodName = xunitTestCase.MethodName;
+            string typeName = xunitTestCase.Class.Name;
+            string methodName = xunitTestCase.Method.Name;
 
             var result = new TestCase(String.Format("{0}.{1}", typeName, methodName), uri, source)
             {

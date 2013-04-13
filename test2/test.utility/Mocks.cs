@@ -81,9 +81,7 @@ public static class Mocks
 
         var result = Substitute.For<ITestCase>();
         result.Class.Returns(Reflector.Wrap(typeUnderTest));
-        result.ClassName.Returns(typeUnderTest.FullName);
         result.Method.Returns(Reflector.Wrap(methodInfo));
-        result.MethodName.Returns(methodName);
         return result;
     }
 
