@@ -5,7 +5,7 @@
         <version>2.0.0-alpha</version>
         <title>xUnit.net Abstractions</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.</description>
+        <description>Common abstractions used to exchange information between xUnit.net and version-independent runners.</description>
         <language>en-US</language>
         <projectUrl>http://xunit.codeplex.com</projectUrl>
         <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>

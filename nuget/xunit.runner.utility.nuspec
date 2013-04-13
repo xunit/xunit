@@ -5,7 +5,7 @@
         <version>2.0.0-alpha</version>
         <title>xUnit.net Runner Utility</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.</description>
+        <description>Library to use when writing a version-independent runner for xUnit.net</description>
         <language>en-US</language>
         <projectUrl>http://xunit.codeplex.com</projectUrl>
         <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>

@@ -20,8 +20,8 @@ public static class NSubstituteExtensions
         var method = ExtractMethodInfo(expr);
 
         var call = router.ReceivedCalls()
-            .Where(c => c.GetMethodInfo() == method)
-            .ElementAtOrDefault(callNumber);
+                         .Where(c => c.GetMethodInfo() == method)
+                         .ElementAtOrDefault(callNumber);
 
         if (call == null)
             throw new Exception("Cannot find matching call.");
@@ -44,9 +44,7 @@ public static class NSubstituteExtensions
     static MethodInfo ExtractMethodInfo<T>(Expression<Action<T>> expr)
     {
         if (expr.Body.NodeType == ExpressionType.Call)
-        {
             return ((MethodCallExpression)expr.Body).Method;
-        }
 
         throw new Exception("Cannot find method.");
     }

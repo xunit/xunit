@@ -5,7 +5,7 @@
         <version>2.0.0-alpha</version>
         <title>xUnit.net Runners</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>Runners for the xUnit.net framework, including Console, GUI, and MSBuild.</description>
+        <description>Runners for the xUnit.net framework, including Console and MSBuild.</description>
         <language>en-US</language>
         <projectUrl>http://xunit.codeplex.com</projectUrl>
         <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>
