@@ -69,15 +69,11 @@ namespace Xunit.Sdk
         public object[] Arguments { get; private set; }
 
         /// <inheritdoc/>
-        public Type Class
+        public ITypeInfo Class
         {
             get
             {
-                var reflectionTypeInfo = type as IReflectionTypeInfo;
-                if (reflectionTypeInfo != null)
-                    return reflectionTypeInfo.Type;
-
-                return null;
+                return type;
             }
         }
 
@@ -91,15 +87,11 @@ namespace Xunit.Sdk
         public string DisplayName { get; private set; }
 
         /// <inheritdoc/>
-        public MethodInfo Method
+        public IMethodInfo Method
         {
             get
             {
-                var reflectionMethodInfo = method as IReflectionMethodInfo;
-                if (reflectionMethodInfo != null)
-                    return reflectionMethodInfo.MethodInfo;
-
-                return null;
+                return method;
             }
         }
 
@@ -268,8 +260,8 @@ namespace Xunit.Sdk
         protected virtual bool RunTests(IMessageSink messageSink)
         {
             var canceled = false;
-            var classUnderTest = Class ?? GetRuntimeClass();
-            var methodUnderTest = Method ?? GetRuntimeMethod(classUnderTest);
+            var classUnderTest = GetRuntimeClass();
+            var methodUnderTest = GetRuntimeMethod(classUnderTest);
             decimal executionTime = 0M;
 
             if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName }))

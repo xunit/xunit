@@ -14,15 +14,15 @@ public class TestCase : ITestCase
     public TestCase(Type type, string methodName)
         : this()
     {
-        Class = type;
-        Method = type.GetMethod(methodName);
+        Class = Reflector.Wrap(type);
+        Method = Reflector.Wrap(type.GetMethod(methodName));
     }
 
     public IAssemblyInfo Assembly { get; set; }
-    public Type Class { get; set; }
+    public ITypeInfo Class { get; set; }
     public string ClassName { get; set; }
     public string DisplayName { get; set; }
-    public MethodInfo Method { get; set; }
+    public IMethodInfo Method { get; set; }
     public string MethodName { get; set; }
     public string SkipReason { get; set; }
     public int? SourceFileLine { get; set; }

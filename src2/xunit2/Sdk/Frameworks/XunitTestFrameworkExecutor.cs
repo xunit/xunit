@@ -52,7 +52,7 @@ namespace Xunit.Sdk
                         {
                             foreach (var group in classGroups)
                             {
-                                if (messageSink.OnMessage(new TestClassStarting { ClassName = group.Key.FullName }))
+                                if (messageSink.OnMessage(new TestClassStarting { ClassName = group.Key.Name }))
                                 {
                                     foreach (XunitTestCase testCase in group)
                                     {
@@ -76,7 +76,7 @@ namespace Xunit.Sdk
                                     }
                                 }
 
-                                messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = group.Key.FullName, TestsRun = totalRun });
+                                messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = group.Key.Name, TestsRun = totalRun });
 
                                 if (cancelled)
                                     break;

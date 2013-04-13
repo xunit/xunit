@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Xunit.Abstractions
 {
@@ -12,15 +11,14 @@ namespace Xunit.Abstractions
     public interface ITestCase
     {
         /// <summary>
-        /// Gets the class that this test case resides in, if known. May return <c>null</c> for tests
-        /// which are discovered without the use of reflection.
+        /// Gets the class that this test case is attached to.
         /// </summary>
-        [Obsolete]
-        Type Class { get; }
+        ITypeInfo Class { get; }
 
         /// <summary>
         /// Gets the fully qualified type name of the class that this test case resides in.
         /// </summary>
+        [Obsolete]
         string ClassName { get; }
 
         /// <summary>
@@ -29,15 +27,14 @@ namespace Xunit.Abstractions
         string DisplayName { get; }
 
         /// <summary>
-        /// Gets the method that this test case resides in, if known. May return <c>null</c> for tests
-        /// which are discovered without the use of reflection.
+        /// Gets the method associated with this test case.
         /// </summary>
-        [Obsolete]
-        MethodInfo Method { get; }
-
+        IMethodInfo Method { get; }
+        
         /// <summary>
         /// Gets the name of the method that this test case resides in.
         /// </summary>
+        [Obsolete]
         string MethodName { get; }
 
         /// <summary>

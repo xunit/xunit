@@ -4,6 +4,7 @@ using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 public static class Mocks
 {
@@ -79,9 +80,9 @@ public static class Mocks
             throw new Exception("Unknown method: " + typeUnderTest.FullName + "." + methodName);
 
         var result = Substitute.For<ITestCase>();
-        result.Class.Returns(typeUnderTest);
+        result.Class.Returns(Reflector.Wrap(typeUnderTest));
         result.ClassName.Returns(typeUnderTest.FullName);
-        result.Method.Returns(methodInfo);
+        result.Method.Returns(Reflector.Wrap(methodInfo));
         result.MethodName.Returns(methodName);
         return result;
     }
