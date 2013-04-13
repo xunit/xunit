@@ -40,6 +40,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\common\ExceptionExtensions.cs">
+      <Link>Common\ExceptionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
@@ -67,7 +70,6 @@
     <Compile Include="PropertyDataAttribute.cs" />
     <Compile Include="Record.cs" />
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
-    <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="FactAttribute.cs" />
     <Compile Include="InlineDataAttribute.cs" />
     <Compile Include="Sdk\AssemblyLoader.cs" />

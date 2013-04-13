@@ -85,6 +85,16 @@ public static class Mocks
         return result;
     }
 
+    public static IReflectionAttributeInfo TheoryAttribute(string displayName = null, string skip = null, int timeout = 0)
+    {
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        result.Attribute.Returns(new TheoryAttribute { DisplayName = displayName, Skip = skip, Timeout = timeout });
+        result.GetNamedArgument<string>("DisplayName").Returns(displayName);
+        result.GetNamedArgument<string>("Skip").Returns(skip);
+        result.GetNamedArgument<int>("Timeout").Returns(timeout);
+        return result;
+    }
+
     public static IReflectionAttributeInfo TraitAttribute(string name, string value)
     {
         var result = Substitute.For<IReflectionAttributeInfo>();

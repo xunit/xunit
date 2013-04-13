@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -76,11 +77,16 @@ public class TheoryDiscovererTests : AcceptanceTest
     [Fact]
     public void ThrowingData()
     {
-        var fails = Run<ITestFailed>(typeof(ThrowingDataClass));
+        var discoverer = new TheoryDiscoverer();
+        var type = typeof(ThrowingDataClass);
+        var method = type.GetMethod("TheoryWithMisbehavingData");
+        var theory = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(TheoryAttribute));
 
-        var fail = Assert.Single(fails);
-        Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", fail.TestDisplayName);
-        Assert.Contains("An exception was thrown while getting data for theory TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", fail.Message);
+        var testCases = discoverer.Discover(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(theory));
+
+        var testCase = Assert.Single(testCases);
+        var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
+        Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", theoryTestCase.DisplayName);
     }
 
     public class ThrowingDataAttribute : DataAttribute
@@ -95,6 +101,25 @@ public class TheoryDiscovererTests : AcceptanceTest
     {
         [Theory, ThrowingData]
         public void TheoryWithMisbehavingData(string a) { }
+    }
+
+    [Fact]
+    public void DataDiscovererReturningNullYieldsSingleTheoryTestCase()
+    {
+        var discoverer = new TheoryDiscoverer();
+        var assembly = Mocks.AssemblyInfo();
+        var type = Mocks.TypeInfo();
+        var theory = Mocks.TheoryAttribute();
+        var data = Substitute.For<IAttributeInfo>();
+        var method = Mocks.MethodInfo();
+        method.GetCustomAttributes(typeof(DataAttribute).AssemblyQualifiedName).Returns(new[] { data });
+        method.GetCustomAttributes(typeof(TheoryAttribute).AssemblyQualifiedName).Returns(new[] { theory });
+
+        var testCases = discoverer.Discover(assembly, type, method, theory);
+
+        var testCase = Assert.Single(testCases);
+        var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
+        Assert.Equal("MockType.MockMethod", theoryTestCase.DisplayName);
     }
 
     [Fact]

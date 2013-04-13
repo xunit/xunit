@@ -20,8 +20,6 @@ namespace Xunit.Sdk
         readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
 
         readonly IAssemblyInfo assembly;
-        readonly IMethodInfo method;
-        readonly ITypeInfo type;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCase"/> class.
@@ -33,32 +31,18 @@ namespace Xunit.Sdk
         /// <param name="arguments">The arguments for the test method.</param>
         public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments = null)
         {
+            string displayNameBase = factAttribute.GetNamedArgument<string>("DisplayName") ?? type.Name + "." + method.Name;
+
             this.assembly = assembly;
-            this.type = type;
-            this.method = method;
 
+            Class = type;
+            Method = method;
             Arguments = arguments ?? EmptyArray;
-            DisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? type.Name + "." + method.Name;
+            DisplayName = GetDisplayNameWithArguments(displayNameBase, arguments);
             SkipReason = factAttribute.GetNamedArgument<string>("Skip");
-
-            if (arguments != null)
-            {
-                IParameterInfo[] parameterInfos = method.GetParameters().ToArray();
-                string[] displayValues = new string[Math.Max(arguments.Length, parameterInfos.Length)];
-                int idx;
-
-                for (idx = 0; idx < arguments.Length; idx++)
-                    displayValues[idx] = ParameterToDisplayValue(GetParameterName(parameterInfos, idx), arguments[idx]);
-
-                for (; idx < parameterInfos.Length; idx++)  // Fill-in any missing parameters with "???"
-                    displayValues[idx] = GetParameterName(parameterInfos, idx) + ": ???";
-
-                DisplayName = String.Format(CultureInfo.CurrentCulture, "{0}({1})", DisplayName, string.Join(", ", displayValues));
-            }
-
             Traits = new Dictionary<string, string>();
 
-            foreach (IAttributeInfo traitAttribute in method.GetCustomAttributes(typeof(TraitAttribute)))
+            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute)))
             {
                 var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
                 Traits.Add((string)ctorArgs[0], (string)ctorArgs[1]);
@@ -69,37 +53,13 @@ namespace Xunit.Sdk
         public object[] Arguments { get; private set; }
 
         /// <inheritdoc/>
-        public ITypeInfo Class
-        {
-            get
-            {
-                return type;
-            }
-        }
-
-        /// <inheritdoc/>
-        public string ClassName
-        {
-            get { return type.Name; }
-        }
+        public ITypeInfo Class { get; private set; }
 
         /// <inheritdoc/>
         public string DisplayName { get; private set; }
 
         /// <inheritdoc/>
-        public IMethodInfo Method
-        {
-            get
-            {
-                return method;
-            }
-        }
-
-        /// <inheritdoc/>
-        public string MethodName
-        {
-            get { return method.Name; }
-        }
+        public IMethodInfo Method { get; private set; }
 
         /// <inheritdoc/>
         public string SkipReason { get; private set; }
@@ -165,6 +125,24 @@ namespace Xunit.Sdk
                                  .Cast<BeforeAfterTestAttribute>();
         }
 
+        protected string GetDisplayNameWithArguments(string displayName, object[] arguments)
+        {
+            if (arguments == null)
+                return displayName;
+
+            IParameterInfo[] parameterInfos = Method.GetParameters().ToArray();
+            string[] displayValues = new string[Math.Max(arguments.Length, parameterInfos.Length)];
+            int idx;
+
+            for (idx = 0; idx < arguments.Length; idx++)
+                displayValues[idx] = ParameterToDisplayValue(GetParameterName(parameterInfos, idx), arguments[idx]);
+
+            for (; idx < parameterInfos.Length; idx++)  // Fill-in any missing parameters with "???"
+                displayValues[idx] = GetParameterName(parameterInfos, idx) + ": ???";
+
+            return String.Format(CultureInfo.CurrentCulture, "{0}({1})", displayName, string.Join(", ", displayValues));
+        }
+
         static string GetParameterName(IParameterInfo[] parameters, int index)
         {
             if (index >= parameters.Length)
@@ -175,7 +153,7 @@ namespace Xunit.Sdk
 
         protected Type GetRuntimeClass()
         {
-            return Reflector.GetType(type.Name, assembly.Name);
+            return Reflector.GetType(Class.Name, assembly.Name);
         }
 
         protected MethodInfo GetRuntimeMethod(Type type)
@@ -183,7 +161,7 @@ namespace Xunit.Sdk
             if (type == null)
                 return null;
 
-            return type.GetMethod(method.Name, method.GetBindingFlags());
+            return type.GetMethod(Method.Name, Method.GetBindingFlags());
         }
 
         static string ParameterToDisplayValue(object parameterValue)
@@ -259,12 +237,34 @@ namespace Xunit.Sdk
         /// <param name="messageSink">The message sink to send results to.</param>
         protected virtual bool RunTests(IMessageSink messageSink)
         {
-            var canceled = false;
             var classUnderTest = GetRuntimeClass();
             var methodUnderTest = GetRuntimeMethod(classUnderTest);
+            var beforeAfterAttributes = GetBeforeAfterAttributes(classUnderTest, methodUnderTest).ToList();
             decimal executionTime = 0M;
 
-            if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName }))
+            return RunTestsOnMethod(messageSink, classUnderTest, methodUnderTest, beforeAfterAttributes, ref executionTime);
+        }
+
+        protected virtual bool RunTestsOnMethod(IMessageSink messageSink,
+                                                Type classUnderTest,
+                                                MethodInfo methodUnderTest,
+                                                List<BeforeAfterTestAttribute> beforeAfterAttributes,
+                                                ref decimal executionTime)
+        {
+            return RunTestWithArguments(messageSink, classUnderTest, methodUnderTest, Arguments, DisplayName, beforeAfterAttributes, ref executionTime);
+        }
+
+        protected bool RunTestWithArguments(IMessageSink messageSink,
+                                            Type classUnderTest,
+                                            MethodInfo methodUnderTest,
+                                            object[] arguments,
+                                            string displayName,
+                                            List<BeforeAfterTestAttribute> beforeAfterAttributes,
+                                            ref decimal executionTime)
+        {
+            bool canceled = false;
+
+            if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = displayName }))
                 canceled = true;
             else
             {
@@ -285,7 +285,7 @@ namespace Xunit.Sdk
 
                         if (!methodUnderTest.IsStatic)
                         {
-                            if (!messageSink.OnMessage(new TestClassConstructionStarting { TestCase = this, TestDisplayName = DisplayName }))
+                            if (!messageSink.OnMessage(new TestClassConstructionStarting { TestCase = this, TestDisplayName = displayName }))
                                 canceled = true;
 
                             try
@@ -295,20 +295,18 @@ namespace Xunit.Sdk
                             }
                             finally
                             {
-                                if (!messageSink.OnMessage(new TestClassConstructionFinished { TestCase = this, TestDisplayName = DisplayName }))
+                                if (!messageSink.OnMessage(new TestClassConstructionFinished { TestCase = this, TestDisplayName = displayName }))
                                     canceled = true;
                             }
                         }
 
                         if (!canceled)
                         {
-                            var beforeAfterAttributes = GetBeforeAfterAttributes(classUnderTest, methodUnderTest);
-
                             aggregator.Run(() =>
                             {
                                 foreach (var beforeAfterAttribute in beforeAfterAttributes)
                                 {
-                                    if (!messageSink.OnMessage(new BeforeTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
+                                    if (!messageSink.OnMessage(new BeforeTestStarting { TestCase = this, TestDisplayName = displayName, AttributeName = beforeAfterAttribute.GetType().Name }))
                                         canceled = true;
                                     else
                                     {
@@ -319,7 +317,7 @@ namespace Xunit.Sdk
                                         }
                                         finally
                                         {
-                                            if (!messageSink.OnMessage(new BeforeTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
+                                            if (!messageSink.OnMessage(new BeforeTestFinished { TestCase = this, TestDisplayName = displayName, AttributeName = beforeAfterAttribute.GetType().Name }))
                                                 canceled = true;
                                         }
                                     }
@@ -333,7 +331,7 @@ namespace Xunit.Sdk
                                     var parameterTypes = methodUnderTest.GetParameters().Select(p => p.ParameterType).ToArray();
                                     aggregator.Run(() =>
                                     {
-                                        var result = methodUnderTest.Invoke(testClass, ConvertArguments(Arguments, parameterTypes));
+                                        var result = methodUnderTest.Invoke(testClass, ConvertArguments(arguments, parameterTypes));
                                         var task = result as Task;
                                         if (task != null)
                                             task.GetAwaiter().GetResult();
@@ -343,12 +341,12 @@ namespace Xunit.Sdk
 
                             foreach (var beforeAfterAttribute in beforeAttributesRun)
                             {
-                                if (!messageSink.OnMessage(new AfterTestStarting { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
+                                if (!messageSink.OnMessage(new AfterTestStarting { TestCase = this, TestDisplayName = displayName, AttributeName = beforeAfterAttribute.GetType().Name }))
                                     canceled = true;
 
                                 aggregator.Run(() => beforeAfterAttribute.After(methodUnderTest));
 
-                                if (!messageSink.OnMessage(new AfterTestFinished { TestCase = this, TestDisplayName = DisplayName, AttributeName = beforeAfterAttribute.GetType().Name }))
+                                if (!messageSink.OnMessage(new AfterTestFinished { TestCase = this, TestDisplayName = displayName, AttributeName = beforeAfterAttribute.GetType().Name }))
                                     canceled = true;
                             }
                         }
@@ -358,7 +356,7 @@ namespace Xunit.Sdk
                             IDisposable disposable = testClass as IDisposable;
                             if (disposable != null)
                             {
-                                if (!messageSink.OnMessage(new TestClassDisposeStarting { TestCase = this, TestDisplayName = DisplayName }))
+                                if (!messageSink.OnMessage(new TestClassDisposeStarting { TestCase = this, TestDisplayName = displayName }))
                                     canceled = true;
 
                                 try
@@ -367,7 +365,7 @@ namespace Xunit.Sdk
                                 }
                                 finally
                                 {
-                                    if (!messageSink.OnMessage(new TestClassDisposeFinished { TestCase = this, TestDisplayName = DisplayName }))
+                                    if (!messageSink.OnMessage(new TestClassDisposeFinished { TestCase = this, TestDisplayName = displayName }))
                                         canceled = true;
                                 }
                             }
@@ -383,7 +381,7 @@ namespace Xunit.Sdk
                         var exception = aggregator.ToException();
                         var testResult = exception == null ? (TestResultMessage)new TestPassed() : new TestFailed(exception);
                         testResult.TestCase = this;
-                        testResult.TestDisplayName = DisplayName;
+                        testResult.TestDisplayName = displayName;
                         testResult.ExecutionTime = executionTime;
 
                         if (!messageSink.OnMessage(testResult))
@@ -392,7 +390,7 @@ namespace Xunit.Sdk
                 }
             }
 
-            if (!messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName, ExecutionTime = executionTime }))
+            if (!messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = displayName, ExecutionTime = executionTime }))
                 canceled = true;
 
             return canceled;

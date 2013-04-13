@@ -48,10 +48,10 @@ public class ExceptionUtilityTests
 
             var result = ExceptionUtility.GetMessage(outer);
 
-            Assert.Equal<object>("System.AggregateException : One or more errors occurred." + Environment.NewLine
-                               + "---- System.DivideByZeroException : inner #1" + Environment.NewLine
-                               + "---- System.NotImplementedException : inner #2" + Environment.NewLine
-                               + "---- this is crazy", result);
+            Assert.Equal("System.AggregateException : One or more errors occurred." + Environment.NewLine
+                       + "---- System.DivideByZeroException : inner #1" + Environment.NewLine
+                       + "---- System.NotImplementedException : inner #2" + Environment.NewLine
+                       + "---- this is crazy", result);
         }
     }
 

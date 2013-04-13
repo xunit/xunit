@@ -1,111 +1,142 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Reflection;
-//using Xunit;
-//using Xunit.Abstractions;
-//using Xunit.Sdk;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
-//public class XunitTheoryTestCaseTests
-//{
-//    [Fact]
-//    public void Monkey()
-//    {
-//        var testCase = TestableXunitTheoryTestCase.Create(typeof(ClassUnderTest), "TheTest");
-//        var spy = new SpyMessageSink<ITestCaseFinished>();
+public class XunitTheoryTestCaseTests
+{
+    public class Run
+    {
+        [Fact]
+        public void EnumeratesDataAtRuntimeAndExecutesOneTestForEachDataRow()
+        {
+            var testCase = TestableXunitTheoryTestCase.Create(typeof(ClassUnderTest), "TestWithData");
+            var spy = new SpyMessageSink<ITestCaseFinished>();
 
-//        testCase.Run(spy);
-//        spy.Finished.WaitOne();
+            testCase.Run(spy);
+            spy.Finished.WaitOne();
 
-//        var msgTypes = spy.Messages.Select(msg => msg.GetType().FullName).ToList();
+            var resultMessages = spy.Messages.OfType<ITestResultMessage>();
+            Assert.Equal(2, resultMessages.Count());
+            var passed = (ITestPassed)Assert.Single(resultMessages, msg => msg is ITestPassed);
+            Assert.Equal("XunitTheoryTestCaseTests+Run+ClassUnderTest.TestWithData(x: 42, y: 21.12, z: \"Hello\")", passed.TestDisplayName);
+            var failed = (ITestFailed)Assert.Single(resultMessages, msg => msg is ITestFailed);
+            Assert.Equal("XunitTheoryTestCaseTests+Run+ClassUnderTest.TestWithData(x: 0, y: 0, z: \"World!\")", failed.TestDisplayName);
+        }
 
-//        var passed = (ITestPassed)Assert.Single(spy.Messages, msg => msg is ITestPassed);
-//        Assert.Equal<object>("?", passed.TestDisplayName);
-//        var failed = (ITestFailed)Assert.Single(spy.Messages, msg => msg is ITestFailed);
-//        Assert.Equal<object>("?", failed.TestDisplayName);
-//    }
+        [Fact]
+        public void DiscovererWhichThrowsReturnsASingleFailedTest()
+        {
+            var testCase = TestableXunitTheoryTestCase.Create(typeof(ClassUnderTest), "TestWithThrowingData");
+            var spy = new SpyMessageSink<ITestCaseFinished>();
 
-//    class ClassUnderTest
-//    {
-//        public static IEnumerable<object[]> SomeData
-//        {
-//            get
-//            {
-//                yield return new object[] { 42, 21.12, "Hello" };
-//                yield return new object[] { 0, 0.0, "World!" };
-//            }
-//        }
+            testCase.Run(spy);
+            spy.Finished.WaitOne();
 
-//        [Theory]
-//        [PropertyData("SomeData")]
-//        public void TheTest(int x, double y, string z)
-//        {
-//            Assert.NotEqual(x, 0);
-//        }
-//    }
+            var resultMessages = spy.Messages.OfType<ITestResultMessage>();
+            var failed = (ITestFailed)Assert.Single(resultMessages);
+            Assert.Equal("XunitTheoryTestCaseTests+Run+ClassUnderTest.TestWithThrowingData", failed.TestDisplayName);
+            Assert.Equal("System.DivideByZeroException : Attempted to divide by zero.", failed.Message);
+            Assert.Contains("XunitTheoryTestCaseTests.Run.ClassUnderTest.get_ThrowingData()", failed.StackTrace);
+        }
 
-//    class SpyMessage : ITestMessage { }
+        class ClassUnderTest
+        {
+            public static IEnumerable<object[]> SomeData
+            {
+                get
+                {
+                    yield return new object[] { 42, 21.12, "Hello" };
+                    yield return new object[] { 0, 0.0, "World!" };
+                }
+            }
 
-//    public class TestableXunitTheoryTestCase : XunitTheoryTestCase
-//    {
-//        Action<IMessageSink> callback;
-//        SpyMessageSink<ITestMessage> sink = new SpyMessageSink<ITestMessage>();
+            [Theory]
+            [PropertyData("SomeData")]
+            public void TestWithData(int x, double y, string z)
+            {
+                Assert.NotEqual(x, 0);
+            }
 
-//        TestableXunitTheoryTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, Action<IMessageSink> callback = null)
-//            : base(assembly, type, method, factAttribute)
-//        {
-//            this.callback = callback;
-//        }
+            public static IEnumerable<object[]> ThrowingData
+            {
+                get
+                {
+                    throw new DivideByZeroException();
+                }
+            }
 
-//        public List<ITestMessage> Messages
-//        {
-//            get { return sink.Messages; }
-//        }
+            [Theory]
+            [PropertyData("ThrowingData")]
+            public void TestWithThrowingData(int x) { }
+        }
 
-//        public static TestableXunitTheoryTestCase Create(Action<IMessageSink> callback = null)
-//        {
-//            var fact = Mocks.FactAttribute();
-//            var method = Mocks.MethodInfo();
-//            var type = Mocks.TypeInfo(methods: new[] { method });
-//            var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
+        class SpyMessage : ITestMessage { }
 
-//            return new TestableXunitTheoryTestCase(assmInfo, type, method, fact, callback ?? (sink => sink.OnMessage(new SpyMessage())));
-//        }
+        public class TestableXunitTheoryTestCase : XunitTheoryTestCase
+        {
+            Action<IMessageSink> callback;
+            SpyMessageSink<ITestMessage> sink = new SpyMessageSink<ITestMessage>();
 
-//        public static TestableXunitTheoryTestCase Create(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute)
-//        {
-//            return new TestableXunitTheoryTestCase(assembly, type, method, factAttribute);
-//        }
+            TestableXunitTheoryTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, Action<IMessageSink> callback = null)
+                : base(assembly, type, method, factAttribute)
+            {
+                this.callback = callback;
+            }
 
-//        public static TestableXunitTheoryTestCase Create(Type typeUnderTest, string methodName)
-//        {
-//            var methodUnderTest = typeUnderTest.GetMethod(methodName);
-//            var assembly = Reflector.Wrap(typeUnderTest.Assembly);
-//            var type = Reflector.Wrap(typeUnderTest);
-//            var method = Reflector.Wrap(methodUnderTest);
-//            var fact = Reflector.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest)
-//                                                         .Single(cad => cad.AttributeType == typeof(TheoryAttribute)));
-//            return new TestableXunitTheoryTestCase(assembly, type, method, fact);
-//        }
+            public List<ITestMessage> Messages
+            {
+                get { return sink.Messages; }
+            }
 
-//        protected override IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
-//        {
-//            // Order by name so they are discovered in a predictable order, for these tests
-//            return base.GetBeforeAfterAttributes(classUnderTest, methodUnderTest).OrderBy(a => a.GetType().Name);
-//        }
+            public static TestableXunitTheoryTestCase Create(Action<IMessageSink> callback = null)
+            {
+                var fact = Mocks.FactAttribute();
+                var method = Mocks.MethodInfo();
+                var type = Mocks.TypeInfo(methods: new[] { method });
+                var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
 
-//        public void RunTests()
-//        {
-//            RunTests(sink);
-//        }
+                return new TestableXunitTheoryTestCase(assmInfo, type, method, fact, callback ?? (sink => sink.OnMessage(new SpyMessage())));
+            }
 
-//        protected override bool RunTests(IMessageSink messageSink)
-//        {
-//            if (callback == null)
-//                return base.RunTests(messageSink);
+            public static TestableXunitTheoryTestCase Create(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute)
+            {
+                return new TestableXunitTheoryTestCase(assembly, type, method, factAttribute);
+            }
 
-//            callback(messageSink);
-//            return true;
-//        }
-//    }
-//}
+            public static TestableXunitTheoryTestCase Create(Type typeUnderTest, string methodName)
+            {
+                var methodUnderTest = typeUnderTest.GetMethod(methodName);
+                var assembly = Reflector.Wrap(typeUnderTest.Assembly);
+                var type = Reflector.Wrap(typeUnderTest);
+                var method = Reflector.Wrap(methodUnderTest);
+                var fact = Reflector.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest)
+                                                             .Single(cad => cad.AttributeType == typeof(TheoryAttribute)));
+                return new TestableXunitTheoryTestCase(assembly, type, method, fact);
+            }
+
+            protected override IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
+            {
+                // Order by name so they are discovered in a predictable order, for these tests
+                return base.GetBeforeAfterAttributes(classUnderTest, methodUnderTest).OrderBy(a => a.GetType().Name);
+            }
+
+            public void RunTests()
+            {
+                RunTests(sink);
+            }
+
+            protected override bool RunTests(IMessageSink messageSink)
+            {
+                if (callback == null)
+                    return base.RunTests(messageSink);
+
+                callback(messageSink);
+                return true;
+            }
+        }
+    }
+}

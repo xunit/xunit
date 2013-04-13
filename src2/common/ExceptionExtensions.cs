@@ -1,10 +1,7 @@
-﻿using System;
+using System;
 using System.Reflection;
 
-/// <summary>
-/// Extension methods for <see cref="Exception"/>.
-/// </summary>
-public static class ExceptionExtensions
+internal static class ExceptionExtensions
 {
     const string RETHROW_MARKER = "$$RethrowMarker$$";
 
@@ -27,5 +24,22 @@ public static class ExceptionExtensions
 
         remoteStackTraceString.SetValue(ex, ex.StackTrace + RETHROW_MARKER);
         throw ex;
+    }
+
+    /// <summary>
+    /// Unwraps an exception to remove any wrappers, like <see cref="TargetInvocationException"/>.
+    /// </summary>
+    /// <param name="ex">The exception to unwrap.</param>
+    /// <returns>The unwrapped exception.</returns>
+    public static Exception Unwrap(this Exception ex)
+    {
+        while (true)
+        {
+            TargetInvocationException tiex = ex as TargetInvocationException;
+            if (tiex == null)
+                return ex;
+
+            ex = tiex.InnerException;
+        }
     }
 }

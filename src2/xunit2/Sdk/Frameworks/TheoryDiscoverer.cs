@@ -31,24 +31,21 @@ namespace Xunit.Sdk
                     var discovererType = Reflector.GetType(args[0], args[1]);
                     IDataDiscoverer discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
 
-                    // TODO: Handle null! The discoverer may not know how many data items there are at discovery
-                    // time, so in that case, we need to send back a special composite test case.
+                    // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it
+                    // down below so that we get the composite test case.
                     foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
                         results.Add(new XunitTestCase(assembly, testClass, testMethod, factAttribute, dataRow));
                 }
 
+                // REVIEW: Could we re-write LambdaTestCase to just be for exceptions?
                 if (results.Count == 0)
                     results.Add(new LambdaTestCase(assembly, testClass, testMethod, factAttribute, () => { throw new InvalidOperationException("No data found for " + testClass.Name + "." + testMethod.Name); }));
 
                 return results;
             }
-            catch (Exception ex)
+            catch
             {
-                return new XunitTestCase[] {
-                    new LambdaTestCase(assembly, testClass, testMethod, factAttribute, () => {
-                        throw new InvalidOperationException(String.Format("An exception was thrown while getting data for theory {0}.{1}: {2}", testClass.Name, testMethod.Name, ex));
-                    })
-                };
+                return new XunitTestCase[] { new XunitTheoryTestCase(assembly, testClass, testMethod, factAttribute) };
             }
         }
     }
