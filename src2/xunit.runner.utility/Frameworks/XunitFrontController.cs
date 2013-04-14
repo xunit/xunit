@@ -29,6 +29,12 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public ITestCase Deserialize(string value)
+        {
+            return xunit2.Deserialize(value);
+        }
+
+        /// <inheritdoc/>
         public void Dispose()
         {
             xunit2.SafeDispose();
@@ -50,6 +56,12 @@ namespace Xunit
         public virtual void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
         {
             xunit2.Run(testMethods, messageSink);
+        }
+
+        /// <inheritdoc/>
+        public string Serialize(ITestCase testCase)
+        {
+            return xunit2.Serialize(testCase);
         }
     }
 }

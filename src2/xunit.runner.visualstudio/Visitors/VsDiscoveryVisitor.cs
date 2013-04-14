@@ -14,12 +14,14 @@ namespace Xunit.Runner.VisualStudio
 
         readonly Func<bool> cancelThunk;
         readonly DiaSessionWrapper diaSession;
+        readonly ITestFrameworkDiscoverer discoverer;
         readonly ITestCaseDiscoverySink discoverySink;
         readonly string source;
 
-        public VsDiscoveryVisitor(string source, ITestCaseDiscoverySink discoverySink, Func<bool> cancelThunk)
+        public VsDiscoveryVisitor(string source, ITestFrameworkDiscoverer discoverer, ITestCaseDiscoverySink discoverySink, Func<bool> cancelThunk)
         {
             this.source = source;
+            this.discoverer = discoverer;
             this.discoverySink = discoverySink;
             this.cancelThunk = cancelThunk;
 
@@ -34,17 +36,13 @@ namespace Xunit.Runner.VisualStudio
             base.Dispose();
         }
 
-        public static TestCase CreateVsTestCase(string source, ITestCase xunitTestCase, DiaSessionWrapper diaSession = null)
+        public static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, DiaSessionWrapper diaSession = null)
         {
             string typeName = xunitTestCase.Class.Name;
             string methodName = xunitTestCase.Method.Name;
+            string serializedTestCase = discoverer.Serialize(xunitTestCase);
 
-            var result = new TestCase(String.Format("{0}.{1}", typeName, methodName), uri, source)
-            {
-                DisplayName = xunitTestCase.DisplayName
-            };
-
-            TestCaseMapper.Set(source, result, xunitTestCase);
+            var result = new TestCase(serializedTestCase, uri, source) { DisplayName = xunitTestCase.DisplayName };
 
             if (addTraitThunk != null)
                 foreach (var trait in xunitTestCase.Traits)
@@ -95,7 +93,7 @@ namespace Xunit.Runner.VisualStudio
 
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)
         {
-            discoverySink.SendTestCase(CreateVsTestCase(source, discovery.TestCase, diaSession));
+            discoverySink.SendTestCase(CreateVsTestCase(source, discoverer, discovery.TestCase, diaSession));
 
             return !cancelThunk();
         }

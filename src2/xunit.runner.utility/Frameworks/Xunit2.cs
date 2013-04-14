@@ -25,6 +25,12 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public ITestCase Deserialize(string value)
+        {
+            return executor.Deserialize(value);
+        }
+
+        /// <inheritdoc/>
         public override sealed void Dispose()
         {
             executor.SafeDispose();

@@ -5,8 +5,6 @@ using Microsoft.Build.Utilities;
 
 namespace Xunit.Runner.MSBuild
 {
-    // REVIEW: Where is cancellation support?
-
     public class xunit : Task, ICancelableTask
     {
         bool cancel;
@@ -60,23 +58,23 @@ namespace Xunit.Runner.MSBuild
         {
             RemotingUtility.CleanUpRegisteredChannels();
 
-            using (AssemblyHelper.SubscribeResolve())
+            if (WorkingFolder != null)
+                Directory.SetCurrentDirectory(WorkingFolder);
+
+            Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
+
+            foreach (ITaskItem assembly in Assemblies)
             {
-                if (WorkingFolder != null)
-                    Directory.SetCurrentDirectory(WorkingFolder);
+                if (cancel)
+                    break;
 
-                Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
+                string assemblyFilename = assembly.GetMetadata("FullPath");
+                string configFilename = assembly.GetMetadata("ConfigFile");
+                if (configFilename != null && configFilename.Length == 0)
+                    configFilename = null;
 
-                foreach (ITaskItem assembly in Assemblies)
+                using (AssemblyHelper.SubscribeResolve(Path.GetDirectoryName(assemblyFilename)))
                 {
-                    if (cancel)
-                        break;
-
-                    string assemblyFilename = assembly.GetMetadata("FullPath");
-                    string configFilename = assembly.GetMetadata("ConfigFile");
-                    if (configFilename != null && configFilename.Length == 0)
-                        configFilename = null;
-
                     MSBuildVisitor visitor = CreateVisitor(assemblyFilename);
                     ExecuteAssembly(assemblyFilename, configFilename, visitor);
                     visitor.Finished.WaitOne();
@@ -84,9 +82,9 @@ namespace Xunit.Runner.MSBuild
                     if (visitor.Failed != 0)
                         ExitCode = 1;
                 }
-
-                return ExitCode == 0;
             }
+
+            return ExitCode == 0;
         }
 
         protected virtual void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)

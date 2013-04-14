@@ -118,7 +118,9 @@ public class xunitTests
         {
             var visitor = new MSBuildVisitor(null, null) { Failed = 1 };
             visitor.Finished.Set();
-            var xunit = new Testable_xunit { CreateVisitor_Result = visitor, Assemblies = new[] { Substitute.For<ITaskItem>() } };
+            var task = Substitute.For<ITaskItem>();
+            task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
+            var xunit = new Testable_xunit { CreateVisitor_Result = visitor, Assemblies = new[] { task } };
 
             var result = xunit.Execute();
 

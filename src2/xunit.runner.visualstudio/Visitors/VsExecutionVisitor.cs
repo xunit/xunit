@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -16,10 +14,10 @@ namespace Xunit.Runner.VisualStudio
         readonly ITestExecutionRecorder recorder;
         readonly Dictionary<ITestCase, TestCase> testCases;
 
-        public VsExecutionVisitor(string source, ITestExecutionRecorder recorder, IEnumerable<TestCase> testCases, Func<bool> cancelledThunk)
+        public VsExecutionVisitor(string source, ITestExecutionRecorder recorder, Dictionary<ITestCase, TestCase> testCases, Func<bool> cancelledThunk)
         {
             this.recorder = recorder;
-            this.testCases = testCases.ToDictionary(tc => TestCaseMapper.Find(source, tc));
+            this.testCases = testCases;
             this.cancelledThunk = cancelledThunk;
         }
 

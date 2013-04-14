@@ -77,7 +77,7 @@ namespace Xunit
             discoverer.Find(typeName, includeSourceInformation, messageSink);
         }
 
-        private static string GetXunit2AssemblyPath(string assemblyFileName)
+        static string GetXunit2AssemblyPath(string assemblyFileName)
         {
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
             Guard.ArgumentValid("assemblyFileName", "File not found: " + assemblyFileName, File.Exists(assemblyFileName));
@@ -85,12 +85,18 @@ namespace Xunit
             return Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit2.dll");
         }
 
-        private static string GetXunit2AssemblyPath(IAssemblyInfo assemblyInfo)
+        static string GetXunit2AssemblyPath(IAssemblyInfo assemblyInfo)
         {
             Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
             Guard.ArgumentNotNullOrEmpty("assemblyInfo.AssemblyPath", assemblyInfo.AssemblyPath);
 
             return Path.Combine(Path.GetDirectoryName(assemblyInfo.AssemblyPath), "xunit2.dll");
+        }
+
+        /// <inheritdoc/>
+        public string Serialize(ITestCase testCase)
+        {
+            return discoverer.Serialize(testCase);
         }
     }
 }

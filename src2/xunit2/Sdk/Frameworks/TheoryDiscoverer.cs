@@ -25,8 +25,6 @@ namespace Xunit.Sdk
             {
                 using (var memoryStream = new MemoryStream())
                 {
-                    var formatter = new BinaryFormatter();
-
                     List<XunitTestCase> results = new List<XunitTestCase>();
 
                     var dataAttributes = testMethod.GetCustomAttributes(typeof(DataAttribute));
@@ -46,9 +44,7 @@ namespace Xunit.Sdk
                             // throw and we will fall back to a single theory test case that gets its data
                             // at runtime.
                             var testCase = new XunitTestCase(assembly, testClass, testMethod, factAttribute, dataRow);
-                            memoryStream.Position = 0;
-                            formatter.Serialize(memoryStream, testCase);
-
+                            TestCaseSerializer.Serialize(testCase);
                             results.Add(testCase);
                         }
                     }

@@ -98,6 +98,7 @@
     <Compile Include="Sdk\Frameworks\XunitTheoryTestCaseTests.cs" />
     <Compile Include="Sdk\MessageBusTests.cs" />
     <Compile Include="Sdk\Frameworks\TheoryDiscovererTests.cs" />
+    <Compile Include="Sdk\TestCaseSerializerTests.cs" />
     <Compile Include="SerializationTests.cs" />
   </ItemGroup>
   <ItemGroup>

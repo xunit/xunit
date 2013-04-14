@@ -16,7 +16,7 @@ namespace Xunit.Sdk
     /// both <see cref="FactAttribute"/> and <see cref="TheoryAttribute"/>.
     /// </summary>
     [Serializable]
-    public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase
+    public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable
     {
         readonly static object[] EmptyArray = new object[0];
         readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
@@ -233,14 +233,14 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public virtual bool Run(IMessageSink messageSink)
         {
-            bool canceled = false;
+            bool cancelled = false;
             int totalFailed = 0;
             int totalRun = 0;
             int totalSkipped = 0;
             decimal executionTime = 0M;
 
             if (!messageSink.OnMessage(new TestCaseStarting { TestCase = this }))
-                canceled = true;
+                cancelled = true;
             else
             {
                 var delegatingSink = new DelegatingMessageSink(messageSink, msg =>
@@ -256,7 +256,7 @@ namespace Xunit.Sdk
                         totalSkipped++;
                 });
 
-                canceled = RunTests(delegatingSink);
+                cancelled = RunTests(delegatingSink);
             }
 
             if (!messageSink.OnMessage(new TestCaseFinished
@@ -267,9 +267,9 @@ namespace Xunit.Sdk
                 TestsFailed = totalFailed,
                 TestsSkipped = totalSkipped
             }))
-                canceled = true;
+                cancelled = true;
 
-            return canceled;
+            return cancelled;
         }
 
         /// <summary>
@@ -303,16 +303,16 @@ namespace Xunit.Sdk
                                             List<BeforeAfterTestAttribute> beforeAfterAttributes,
                                             ref decimal executionTime)
         {
-            bool canceled = false;
+            bool cancelled = false;
 
             if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = displayName }))
-                canceled = true;
+                cancelled = true;
             else
             {
                 if (!String.IsNullOrEmpty(SkipReason))
                 {
                     if (!messageSink.OnMessage(new TestSkipped { TestCase = this, TestDisplayName = DisplayName, Reason = SkipReason }))
-                        canceled = true;
+                        cancelled = true;
                 }
                 else
                 {
@@ -327,28 +327,28 @@ namespace Xunit.Sdk
                         if (!methodUnderTest.IsStatic)
                         {
                             if (!messageSink.OnMessage(new TestClassConstructionStarting { TestCase = this, TestDisplayName = displayName }))
-                                canceled = true;
+                                cancelled = true;
 
                             try
                             {
-                                if (!canceled)
+                                if (!cancelled)
                                     testClass = Activator.CreateInstance(classUnderTest);
                             }
                             finally
                             {
                                 if (!messageSink.OnMessage(new TestClassConstructionFinished { TestCase = this, TestDisplayName = displayName }))
-                                    canceled = true;
+                                    cancelled = true;
                             }
                         }
 
-                        if (!canceled)
+                        if (!cancelled)
                         {
                             aggregator.Run(() =>
                             {
                                 foreach (var beforeAfterAttribute in beforeAfterAttributes)
                                 {
                                     if (!messageSink.OnMessage(new BeforeTestStarting { TestCase = this, TestDisplayName = displayName, AttributeName = beforeAfterAttribute.GetType().Name }))
-                                        canceled = true;
+                                        cancelled = true;
                                     else
                                     {
                                         try
@@ -359,15 +359,15 @@ namespace Xunit.Sdk
                                         finally
                                         {
                                             if (!messageSink.OnMessage(new BeforeTestFinished { TestCase = this, TestDisplayName = displayName, AttributeName = beforeAfterAttribute.GetType().Name }))
-                                                canceled = true;
+                                                cancelled = true;
                                         }
                                     }
 
-                                    if (canceled)
+                                    if (cancelled)
                                         return;
                                 }
 
-                                if (!canceled)
+                                if (!cancelled)
                                 {
                                     var parameterTypes = methodUnderTest.GetParameters().Select(p => p.ParameterType).ToArray();
                                     aggregator.Run(() =>
@@ -383,12 +383,12 @@ namespace Xunit.Sdk
                             foreach (var beforeAfterAttribute in beforeAttributesRun)
                             {
                                 if (!messageSink.OnMessage(new AfterTestStarting { TestCase = this, TestDisplayName = displayName, AttributeName = beforeAfterAttribute.GetType().Name }))
-                                    canceled = true;
+                                    cancelled = true;
 
                                 aggregator.Run(() => beforeAfterAttribute.After(methodUnderTest));
 
                                 if (!messageSink.OnMessage(new AfterTestFinished { TestCase = this, TestDisplayName = displayName, AttributeName = beforeAfterAttribute.GetType().Name }))
-                                    canceled = true;
+                                    cancelled = true;
                             }
                         }
 
@@ -398,7 +398,7 @@ namespace Xunit.Sdk
                             if (disposable != null)
                             {
                                 if (!messageSink.OnMessage(new TestClassDisposeStarting { TestCase = this, TestDisplayName = displayName }))
-                                    canceled = true;
+                                    cancelled = true;
 
                                 try
                                 {
@@ -407,7 +407,7 @@ namespace Xunit.Sdk
                                 finally
                                 {
                                     if (!messageSink.OnMessage(new TestClassDisposeFinished { TestCase = this, TestDisplayName = displayName }))
-                                        canceled = true;
+                                        cancelled = true;
                                 }
                             }
                         });
@@ -415,7 +415,7 @@ namespace Xunit.Sdk
 
                     stopwatch.Stop();
 
-                    if (!canceled)
+                    if (!cancelled)
                     {
                         executionTime = (decimal)stopwatch.Elapsed.TotalSeconds;
 
@@ -426,15 +426,15 @@ namespace Xunit.Sdk
                         testResult.ExecutionTime = executionTime;
 
                         if (!messageSink.OnMessage(testResult))
-                            canceled = true;
+                            cancelled = true;
                     }
                 }
             }
 
             if (!messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = displayName, ExecutionTime = executionTime }))
-                canceled = true;
+                cancelled = true;
 
-            return canceled;
+            return cancelled;
         }
     }
 }

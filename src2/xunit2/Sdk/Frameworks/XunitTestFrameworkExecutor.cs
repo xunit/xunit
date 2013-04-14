@@ -25,6 +25,12 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
+        public ITestCase Deserialize(string value)
+        {
+            return TestCaseSerializer.Deserialize(value);
+        }
+
+        /// <inheritdoc/>
         public void Dispose() { }
 
         /// <inheritdoc/>

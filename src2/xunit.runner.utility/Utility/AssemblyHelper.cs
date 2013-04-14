@@ -9,17 +9,29 @@ namespace Xunit
     /// need to use <see cref="SubscribeResolve" /> to help automatically resolve missing assemblies
     /// when running tests.
     /// </summary>
-    public static class AssemblyHelper
+    public class AssemblyHelper : IDisposable
     {
-        static string loadPath = Path.GetDirectoryName(new Uri(typeof(AssemblyHelper).Assembly.CodeBase).LocalPath);
+        string folder;
 
-        static Assembly LoadAssembly(AssemblyName assemblyName)
+        AssemblyHelper(string folder)
         {
-            string path = Path.Combine(loadPath, assemblyName.Name);
+            this.folder = folder;
+
+            AppDomain.CurrentDomain.AssemblyResolve += Resolve;
+        }
+
+        public void Dispose()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
+        }
+
+        Assembly LoadAssembly(AssemblyName assemblyName)
+        {
+            string path = Path.Combine(folder, assemblyName.Name);
             return LoadAssembly(path + ".dll") ?? LoadAssembly(path + ".exe");
         }
 
-        static Assembly LoadAssembly(string assemblyPath)
+        Assembly LoadAssembly(string assemblyPath)
         {
             try
             {
@@ -31,7 +43,7 @@ namespace Xunit
             return null;
         }
 
-        static Assembly Resolve(object sender, ResolveEventArgs args)
+        Assembly Resolve(object sender, ResolveEventArgs args)
         {
             return LoadAssembly(new AssemblyName(args.Name));
         }
@@ -41,18 +53,9 @@ namespace Xunit
         /// provide automatic assembly resolution for assemblies in the runner.
         /// </summary>
         /// <returns>IDisposable.</returns>
-        public static IDisposable SubscribeResolve()
+        public static IDisposable SubscribeResolve(string folder)
         {
-            AppDomain.CurrentDomain.AssemblyResolve += AssemblyHelper.Resolve;
-            return new ResolveUnsubscribe();
-        }
-
-        class ResolveUnsubscribe : IDisposable
-        {
-            public void Dispose()
-            {
-                AppDomain.CurrentDomain.AssemblyResolve -= AssemblyHelper.Resolve;
-            }
+            return new AssemblyHelper(folder);
         }
     }
 }

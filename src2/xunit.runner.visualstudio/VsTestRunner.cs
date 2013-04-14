@@ -33,9 +33,9 @@ namespace Xunit.Runner.VisualStudio
             {
                 RemotingUtility.CleanUpRegisteredChannels();
 
-                using (AssemblyHelper.SubscribeResolve())
-                {
-                    foreach (string source in sources)
+                foreach (string source in sources)
+                    using (AssemblyHelper.SubscribeResolve(Path.GetDirectoryName(source)))
+                    {
                         try
                         {
                             if (cancelled)
@@ -43,9 +43,8 @@ namespace Xunit.Runner.VisualStudio
 
                             if (IsXunitTestAssembly(source))
                                 using (var xunit2 = new Xunit2(source, configFileName: null, shadowCopy: true))
-                                using (var sink = new VsDiscoveryVisitor(source, discoverySink, () => cancelled))
+                                using (var sink = new VsDiscoveryVisitor(source, xunit2, discoverySink, () => cancelled))
                                 {
-                                    TestCaseMapper.Clear(source);
                                     xunit2.Find(includeSourceInformation: true, messageSink: sink);
                                     sink.Finished.WaitOne();
                                 }
@@ -54,7 +53,7 @@ namespace Xunit.Runner.VisualStudio
                         {
                             logger.SendMessage(TestMessageLevel.Error, String.Format("xUnit.net: Exception discovering tests from {0}: {1}", source, e));
                         }
-                }
+                    }
             }
             catch
             {
@@ -92,8 +91,9 @@ namespace Xunit.Runner.VisualStudio
                 cancelled = false;
 
                 foreach (string source in sources)
-                    if (VsTestRunner.IsXunitTestAssembly(source))
-                        RunTestsInAssembly(toDispose, source, frameworkHandle);
+                    using (AssemblyHelper.SubscribeResolve(Path.GetDirectoryName(source)))
+                        if (VsTestRunner.IsXunitTestAssembly(source))
+                            RunTestsInAssembly(toDispose, source, frameworkHandle);
             }
             finally
             {
@@ -120,7 +120,8 @@ namespace Xunit.Runner.VisualStudio
 
                 foreach (var testCaseGroup in tests.GroupBy(tc => tc.Source))
                     if (VsTestRunner.IsXunitTestAssembly(testCaseGroup.Key))
-                        RunTestsInAssembly(toDispose, testCaseGroup.Key, frameworkHandle, testCaseGroup);
+                        using (AssemblyHelper.SubscribeResolve(Path.GetDirectoryName(testCaseGroup.Key)))
+                            RunTestsInAssembly(toDispose, testCaseGroup.Key, frameworkHandle, testCaseGroup);
             }
             finally
             {
@@ -145,14 +146,42 @@ namespace Xunit.Runner.VisualStudio
                 {
                     xunit2.Find(includeSourceInformation: true, messageSink: visitor);
                     visitor.Finished.WaitOne();
-                    testCases = visitor.TestCases.Select(tc => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, tc)).ToList();
+                    testCases = visitor.TestCases.Select(tc => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, xunit2, tc)).ToList();
                 }
             }
 
-            using (var executionVisitor = new VsExecutionVisitor(assemblyFileName, recorder, testCases, () => cancelled))
+            var xunitTestCases = testCases.ToDictionary(tc => xunit2.Deserialize(tc.FullyQualifiedName));
+
+            using (var executionVisitor = new VsExecutionVisitor(assemblyFileName, recorder, xunitTestCases, () => cancelled))
+            using (var wrapper = new WrapperSink(executionVisitor))
             {
-                xunit2.Run(testCases.Select(tc => TestCaseMapper.Find(assemblyFileName, tc)).ToList(), executionVisitor);
+                xunit2.Run(xunitTestCases.Keys, wrapper);
                 executionVisitor.Finished.WaitOne();
+            }
+        }
+
+        class WrapperSink : MarshalByRefObject, IMessageSink
+        {
+            readonly IMessageSink inner;
+
+            public WrapperSink(IMessageSink inner)
+            {
+                this.inner = inner;
+            }
+
+            public bool OnMessage(ITestMessage message)
+            {
+                return inner.OnMessage(message);
+            }
+
+            public void Dispose()
+            {
+                inner.Dispose();
+            }
+
+            public override object InitializeLifetimeService()
+            {
+                return null;
             }
         }
     }

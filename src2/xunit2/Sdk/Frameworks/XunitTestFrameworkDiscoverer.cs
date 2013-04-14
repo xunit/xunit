@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -102,6 +103,12 @@ namespace Xunit.Sdk
             {
                 Directory.SetCurrentDirectory(currentDirectory);
             }
+        }
+
+        /// <inheritdoc/>
+        public string Serialize(ITestCase testCase)
+        {
+            return TestCaseSerializer.Serialize(testCase);
         }
 
         private ITestCase UpdateTestCaseWithSourceInfo(XunitTestCase testCase, bool includeSourceInformation)

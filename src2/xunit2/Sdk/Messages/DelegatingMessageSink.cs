@@ -8,7 +8,7 @@ namespace Xunit.Sdk
     /// Implementation of <see cref="IMessageSink" /> that delegates to another implementation of
     /// <see cref="IMessageSink" /> while calling into a callback for each message.
     /// </summary>
-    public class DelegatingMessageSink : IMessageSink
+    public class DelegatingMessageSink : LongLivedMarshalByRefObject, IMessageSink
     {
         Action<ITestMessage> callback;
         IMessageSink innerSink;

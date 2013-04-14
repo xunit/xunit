@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace Xunit.Abstractions
 {
@@ -8,7 +7,7 @@ namespace Xunit.Abstractions
     /// the case of dynamically generated data for data driven tests, the test case may actually return
     /// multiple results when run.
     /// </summary>
-    public interface ITestCase : ISerializable
+    public interface ITestCase
     {
         /// <summary>
         /// Gets the class that this test case is attached to.

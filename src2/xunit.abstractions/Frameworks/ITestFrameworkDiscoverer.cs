@@ -21,5 +21,7 @@ namespace Xunit.Abstractions
         /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
         /// <param name="messageSink">The message sink to report results back to.</param>
         void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink);
+
+        string Serialize(ITestCase testCase);
     }
 }

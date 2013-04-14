@@ -8,6 +8,8 @@ namespace Xunit.Abstractions
     /// </summary>
     public interface ITestFrameworkExecutor : IDisposable
     {
+        ITestCase Deserialize(string value);
+
         /// <summary>
         /// Starts the process of running tests.
         /// </summary>

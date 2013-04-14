@@ -77,6 +77,15 @@ namespace Xunit.Sdk
             // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);
             if (assembly == null)
+            {
+                try
+                {
+                    assembly = Assembly.Load(assemblyName);
+                }
+                catch { }
+            }
+
+            if (assembly == null)
                 return null;
 
             return assembly.GetType(typeName);

@@ -152,6 +152,7 @@
     <Compile Include="Sdk\Reflection\ReflectionAssemblyInfo.cs" />
     <Compile Include="Sdk\Reflection\ReflectionAttributeInfo.cs" />
     <Compile Include="Sdk\Reflection\Reflector.cs" />
+    <Compile Include="Sdk\TestCaseSerializer.cs" />
     <Compile Include="TheoryAttribute.cs" />
     <Compile Include="TraitAttribute.cs" />
   </ItemGroup>
