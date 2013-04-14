@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -21,27 +23,42 @@ namespace Xunit.Sdk
 
             try
             {
-                List<XunitTestCase> results = new List<XunitTestCase>();
-
-                var dataAttributes = testMethod.GetCustomAttributes(typeof(DataAttribute));
-                foreach (var dataAttribute in dataAttributes)
+                using (var memoryStream = new MemoryStream())
                 {
-                    var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
-                    var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    var discovererType = Reflector.GetType(args[0], args[1]);
-                    IDataDiscoverer discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
+                    var formatter = new BinaryFormatter();
 
-                    // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it
-                    // down below so that we get the composite test case.
-                    foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
-                        results.Add(new XunitTestCase(assembly, testClass, testMethod, factAttribute, dataRow));
+                    List<XunitTestCase> results = new List<XunitTestCase>();
+
+                    var dataAttributes = testMethod.GetCustomAttributes(typeof(DataAttribute));
+                    foreach (var dataAttribute in dataAttributes)
+                    {
+                        var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
+                        var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                        var discovererType = Reflector.GetType(args[0], args[1]);
+                        IDataDiscoverer discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
+
+                        // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it
+                        // down below so that we get the composite test case.
+                        foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
+                        {
+                            // Attempt to serialize the test case, since we need a way to uniquely identify a test
+                            // and serialization is the best way to do that. If it's not serializable, this will
+                            // throw and we will fall back to a single theory test case that gets its data
+                            // at runtime.
+                            var testCase = new XunitTestCase(assembly, testClass, testMethod, factAttribute, dataRow);
+                            memoryStream.Position = 0;
+                            formatter.Serialize(memoryStream, testCase);
+
+                            results.Add(testCase);
+                        }
+                    }
+
+                    // REVIEW: Could we re-write LambdaTestCase to just be for exceptions?
+                    if (results.Count == 0)
+                        results.Add(new LambdaTestCase(assembly, testClass, testMethod, factAttribute, () => { throw new InvalidOperationException("No data found for " + testClass.Name + "." + testMethod.Name); }));
+
+                    return results;
                 }
-
-                // REVIEW: Could we re-write LambdaTestCase to just be for exceptions?
-                if (results.Count == 0)
-                    results.Add(new LambdaTestCase(assembly, testClass, testMethod, factAttribute, () => { throw new InvalidOperationException("No data found for " + testClass.Name + "." + testMethod.Name); }));
-
-                return results;
             }
             catch
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -10,10 +11,13 @@ namespace Xunit.Sdk
     /// Represents a test case which runs multiple tests for theory data, either because the
     /// data was not enumerable or because the data was not serializable.
     /// </summary>
+    [Serializable]
     public class XunitTheoryTestCase : XunitTestCase
     {
         public XunitTheoryTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute)
             : base(assembly, type, method, factAttribute) { }
+
+        protected XunitTheoryTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         protected override bool RunTestsOnMethod(IMessageSink messageSink,
                                                  Type classUnderTest,

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
@@ -218,9 +221,6 @@ public class XunitTestCaseTests
             Assert.Equal(3.5M, testCaseFinished.ExecutionTime);
         }
     }
-
-    // TODO: We will want end-to-end versions, including deep inspection of the message values
-    // For now, we'll just make sure we're getting the right *kind* of messages back.
 
     public class RunTests
     {
@@ -894,6 +894,103 @@ public class XunitTestCaseTests
                 {
                     Assert.True(false);
                 }
+            }
+        }
+    }
+
+    public class Serialization
+    {
+        [Fact]
+        public void CanSerializeFactBasedTestCase()
+        {
+            var type = typeof(ClassUnderTest);
+            var method = type.GetMethod("FactMethod");
+            var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
+            var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
+            var formatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                Assert.DoesNotThrow(() => formatter.Serialize(memoryStream, testCase));
+            }
+        }
+
+        [Fact]
+        public void DeserializedTestCaseContainsSameDataAsOriginalTestCase()
+        {
+            var type = typeof(ClassUnderTest);
+            var method = type.GetMethod("FactMethod");
+            var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
+            var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
+            var formatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, testCase);
+                memoryStream.Position = 0;
+
+                var result = (XunitTestCase)formatter.Deserialize(memoryStream);
+
+                Assert.Equal(testCase.Assembly.AssemblyPath, result.Assembly.AssemblyPath);
+                Assert.Equal(testCase.Assembly.Name, result.Assembly.Name);
+                Assert.Equal(testCase.Class.Name, result.Class.Name);
+                Assert.Equal(testCase.Method.Name, result.Method.Name);
+                Assert.Equal(testCase.DisplayName, result.DisplayName);
+                Assert.Null(result.Arguments);
+                Assert.Equal(testCase.SkipReason, result.SkipReason);
+                Assert.Collection(result.Traits,
+                    trait =>
+                    {
+                        Assert.Equal("name", trait.Key);
+                        Assert.Equal("value", trait.Value);
+                    });
+            }
+        }
+
+        [Fact]
+        public void DeserializedTestWithSerializableArgumentsPreservesArguments()
+        {
+            var type = typeof(ClassUnderTest);
+            var method = type.GetMethod("FactMethod");
+            var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
+            var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact), new object[] { 42, 21.12, "Hello world" });
+            var formatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, testCase);
+                memoryStream.Position = 0;
+
+                var result = (XunitTestCase)formatter.Deserialize(memoryStream);
+
+                Assert.Collection(result.Arguments,
+                    arg => Assert.Equal(42, arg),
+                    arg => Assert.Equal(21.12, arg),
+                    arg => Assert.Equal("Hello world", arg));
+            }
+        }
+
+        [Fact]
+        public void DeserializedTestWithNonSerializableArgumentsThrows()
+        {
+            var type = typeof(ClassUnderTest);
+            var method = type.GetMethod("FactMethod");
+            var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
+            var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact), new object[] { new ClassUnderTest() });
+            var formatter = new BinaryFormatter();
+
+            using (var memoryStream = new MemoryStream())
+            {
+                var ex = Record.Exception(() => formatter.Serialize(memoryStream, testCase));
+
+                Assert.IsType<SerializationException>(ex);
+            }
+        }
+
+        class ClassUnderTest
+        {
+            [Fact(Skip = "Skip me", Timeout = 42, DisplayName = "Hi there")]
+            [Trait("name", "value")]
+            public void FactMethod()
+            {
+                Assert.True(false);
             }
         }
     }

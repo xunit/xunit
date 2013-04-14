@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Xunit.Abstractions
 {
@@ -8,7 +8,7 @@ namespace Xunit.Abstractions
     /// the case of dynamically generated data for data driven tests, the test case may actually return
     /// multiple results when run.
     /// </summary>
-    public interface ITestCase
+    public interface ITestCase : ISerializable
     {
         /// <summary>
         /// Gets the class that this test case is attached to.
@@ -24,7 +24,7 @@ namespace Xunit.Abstractions
         /// Gets the method associated with this test case.
         /// </summary>
         IMethodInfo Method { get; }
-        
+
         /// <summary>
         /// Gets the display text for the reason a test is being skipped; if the test
         /// is not skipped, returns null.

@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
+using System.Security;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
@@ -13,13 +15,12 @@ namespace Xunit.Sdk
     /// Default implementation of <see cref="IXunitTestCase"/> that supports tests decorated with
     /// both <see cref="FactAttribute"/> and <see cref="TheoryAttribute"/>.
     /// </summary>
+    [Serializable]
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase
     {
         readonly static object[] EmptyArray = new object[0];
         readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
         readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
-
-        readonly IAssemblyInfo assembly;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCase"/> class.
@@ -31,13 +32,39 @@ namespace Xunit.Sdk
         /// <param name="arguments">The arguments for the test method.</param>
         public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments = null)
         {
+            Initialize(assembly, type, method, factAttribute, arguments);
+        }
+
+        /// <inheritdoc/>
+        protected XunitTestCase(SerializationInfo info, StreamingContext context)
+        {
+            string assemblyName = info.GetString("AssemblyName");
+            string typeName = info.GetString("TypeName");
+            string methodName = info.GetString("MethodName");
+            object[] arguments = null;
+
+            try
+            {
+                arguments = (object[])info.GetValue("Arguments", typeof(object[]));
+            }
+            catch (SerializationException) { }
+
+            var type = Reflector.GetType(typeName, assemblyName);
+            var typeInfo = Reflector.Wrap(type);
+            var methodInfo = Reflector.Wrap(type.GetMethod(methodName));
+            var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+            Initialize(Reflector.Wrap(type.Assembly), typeInfo, methodInfo, factAttribute, arguments);
+        }
+
+        private void Initialize(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments)
+        {
             string displayNameBase = factAttribute.GetNamedArgument<string>("DisplayName") ?? type.Name + "." + method.Name;
 
-            this.assembly = assembly;
-
+            Assembly = assembly;
             Class = type;
             Method = method;
-            Arguments = arguments ?? EmptyArray;
+            Arguments = arguments;
             DisplayName = GetDisplayNameWithArguments(displayNameBase, arguments);
             SkipReason = factAttribute.GetNamedArgument<string>("Skip");
             Traits = new Dictionary<string, string>();
@@ -48,9 +75,11 @@ namespace Xunit.Sdk
                 Traits.Add((string)ctorArgs[0], (string)ctorArgs[1]);
             }
         }
-
         /// <inheritdoc/>
         public object[] Arguments { get; private set; }
+
+        /// <inheritdoc/>
+        public IAssemblyInfo Assembly { get; private set; }
 
         /// <inheritdoc/>
         public ITypeInfo Class { get; private set; }
@@ -143,6 +172,18 @@ namespace Xunit.Sdk
             return String.Format(CultureInfo.CurrentCulture, "{0}({1})", displayName, string.Join(", ", displayValues));
         }
 
+        /// <inheritdoc/>
+        [SecurityCritical]
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("AssemblyName", Assembly.Name);
+            info.AddValue("TypeName", Class.Name);
+            info.AddValue("MethodName", Method.Name);
+
+            if (Arguments != null)
+                info.AddValue("Arguments", Arguments);
+        }
+
         static string GetParameterName(IParameterInfo[] parameters, int index)
         {
             if (index >= parameters.Length)
@@ -153,7 +194,7 @@ namespace Xunit.Sdk
 
         protected Type GetRuntimeClass()
         {
-            return Reflector.GetType(Class.Name, assembly.Name);
+            return Reflector.GetType(Class.Name, Assembly.Name);
         }
 
         protected MethodInfo GetRuntimeMethod(Type type)
@@ -331,7 +372,7 @@ namespace Xunit.Sdk
                                     var parameterTypes = methodUnderTest.GetParameters().Select(p => p.ParameterType).ToArray();
                                     aggregator.Run(() =>
                                     {
-                                        var result = methodUnderTest.Invoke(testClass, ConvertArguments(arguments, parameterTypes));
+                                        var result = methodUnderTest.Invoke(testClass, ConvertArguments(arguments ?? EmptyArray, parameterTypes));
                                         var task = result as Task;
                                         if (task != null)
                                             task.GetAwaiter().GetResult();

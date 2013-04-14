@@ -123,6 +123,36 @@ public class TheoryDiscovererTests : AcceptanceTest
     }
 
     [Fact]
+    public void NonSerializableDataYieldsSingleTheoryTestCase()
+    {
+        var discoverer = new TheoryDiscoverer();
+        var type = typeof(NonSerializableDataClass);
+        var method = type.GetMethod("TheoryMethod");
+        var theory = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(TheoryAttribute));
+
+        var testCases = discoverer.Discover(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(theory));
+
+        var testCase = Assert.Single(testCases);
+        var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
+        Assert.Equal("TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod", theoryTestCase.DisplayName);
+    }
+
+    public class NonSerializableDataAttribute : DataAttribute
+    {
+        public override IEnumerable<object[]> GetData(MethodInfo method)
+        {
+            yield return new object[] { 42 };
+            yield return new object[] { new NonSerializableDataAttribute() };
+        }
+    }
+
+    class NonSerializableDataClass
+    {
+        [Theory, NonSerializableData]
+        public void TheoryMethod(object a) { }
+    }
+
+    [Fact]
     public void SkippedTheoryWithNoData()
     {
         var skips = Run<ITestSkipped>(typeof(SkippedWithNoData));

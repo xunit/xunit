@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -136,6 +138,64 @@ public class XunitTheoryTestCaseTests
 
                 callback(messageSink);
                 return true;
+            }
+        }
+    }
+
+    public class Serialization
+    {
+        [Fact]
+        public void CanSerializeFactBasedTestCase()
+        {
+            var type = typeof(ClassUnderTest);
+            var method = type.GetMethod("FactMethod");
+            var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
+            var testCase = new XunitTheoryTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
+            var formatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                Assert.DoesNotThrow(() => formatter.Serialize(memoryStream, testCase));
+            }
+        }
+
+        [Fact]
+        public void DeserializedTestCaseContainsSameDataAsOriginalTestCase()
+        {
+            var type = typeof(ClassUnderTest);
+            var method = type.GetMethod("FactMethod");
+            var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
+            var testCase = new XunitTheoryTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
+            var formatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, testCase);
+                memoryStream.Position = 0;
+
+                var result = (XunitTheoryTestCase)formatter.Deserialize(memoryStream);
+
+                Assert.Equal(testCase.Assembly.AssemblyPath, result.Assembly.AssemblyPath);
+                Assert.Equal(testCase.Assembly.Name, result.Assembly.Name);
+                Assert.Equal(testCase.Class.Name, result.Class.Name);
+                Assert.Equal(testCase.Method.Name, result.Method.Name);
+                Assert.Equal(testCase.DisplayName, result.DisplayName);
+                Assert.Null(result.Arguments);
+                Assert.Equal(testCase.SkipReason, result.SkipReason);
+                Assert.Collection(result.Traits,
+                    trait =>
+                    {
+                        Assert.Equal("name", trait.Key);
+                        Assert.Equal("value", trait.Value);
+                    });
+            }
+        }
+
+        class ClassUnderTest
+        {
+            [Fact(Skip = "Skip me", Timeout = 42, DisplayName = "Hi there")]
+            [Trait("name", "value")]
+            public void FactMethod()
+            {
+                Assert.True(false);
             }
         }
     }
