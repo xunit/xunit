@@ -22,6 +22,11 @@ namespace Xunit.Abstractions
         /// <param name="messageSink">The message sink to report results back to.</param>
         void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink);
 
+        /// <summary>
+        /// Serializes a test case into string form.
+        /// </summary>
+        /// <param name="testCase">The test case to be serialized.</param>
+        /// <returns>The serialized representation of the test case.</returns>
         string Serialize(ITestCase testCase);
     }
 }

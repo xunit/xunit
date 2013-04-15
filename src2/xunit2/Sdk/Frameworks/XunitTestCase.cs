@@ -57,7 +57,7 @@ namespace Xunit.Sdk
             Initialize(Reflector.Wrap(type.Assembly), typeInfo, methodInfo, factAttribute, arguments);
         }
 
-        private void Initialize(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments)
+        void Initialize(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments)
         {
             string displayNameBase = factAttribute.GetNamedArgument<string>("DisplayName") ?? type.Name + "." + method.Name;
 
@@ -105,6 +105,12 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IDictionary<string, string> Traits { get; private set; }
 
+        /// <summary>
+        /// Converts arguments into their target types.
+        /// </summary>
+        /// <param name="args">The arguments to be converted.</param>
+        /// <param name="types">The target types for the conversion.</param>
+        /// <returns>The converted arguments.</returns>
         protected object[] ConvertArguments(object[] args, Type[] types)
         {
             if (args.Length == types.Length)
@@ -154,6 +160,12 @@ namespace Xunit.Sdk
                                  .Cast<BeforeAfterTestAttribute>();
         }
 
+        /// <summary>
+        /// Supplements a display name for a test method with its arguments.
+        /// </summary>
+        /// <param name="displayName">The base display name.</param>
+        /// <param name="arguments">The test method's arguments.</param>
+        /// <returns>The supplemented display name.</returns>
         protected string GetDisplayNameWithArguments(string displayName, object[] arguments)
         {
             if (arguments == null)
@@ -192,11 +204,20 @@ namespace Xunit.Sdk
             return parameters[index].Name;
         }
 
+        /// <summary>
+        /// Gets the <see cref="Type"/> of the class under test.
+        /// </summary>
+        /// <returns>The type under test, if possible; null, if not available.</returns>
         protected Type GetRuntimeClass()
         {
             return Reflector.GetType(Class.Name, Assembly.Name);
         }
 
+        /// <summary>
+        /// Gets the <see cref="MethodInfo"/> of the method under test.
+        /// </summary>
+        /// <param name="type">The type the method is attached to.</param>
+        /// <returns>The method under test, if possible; null, if not available.</returns>
         protected MethodInfo GetRuntimeMethod(Type type)
         {
             if (type == null)
@@ -286,6 +307,14 @@ namespace Xunit.Sdk
             return RunTestsOnMethod(messageSink, classUnderTest, methodUnderTest, beforeAfterAttributes, ref executionTime);
         }
 
+        /// <summary>
+        /// Runs the tests for a given test method.
+        /// </summary>
+        /// <param name="messageSink">The message sink to send results to.</param>
+        /// <param name="classUnderTest">The class under test.</param>
+        /// <param name="methodUnderTest">The method under test.</param>
+        /// <param name="beforeAfterAttributes">The <see cref="BeforeAfterTestAttribute"/> instances attached to the test.</param>
+        /// <param name="executionTime">The time spent executing the tests.</param>
         protected virtual bool RunTestsOnMethod(IMessageSink messageSink,
                                                 Type classUnderTest,
                                                 MethodInfo methodUnderTest,
@@ -295,6 +324,16 @@ namespace Xunit.Sdk
             return RunTestWithArguments(messageSink, classUnderTest, methodUnderTest, Arguments, DisplayName, beforeAfterAttributes, ref executionTime);
         }
 
+        /// <summary>
+        /// Runs a single test for a given test method.
+        /// </summary>
+        /// <param name="messageSink">The message sink to send results to.</param>
+        /// <param name="classUnderTest">The class under test.</param>
+        /// <param name="methodUnderTest">The method under test.</param>
+        /// <param name="arguments">The arguments to pass to the test method.</param>
+        /// <param name="displayName">The display name for the test.</param>
+        /// <param name="beforeAfterAttributes">The <see cref="BeforeAfterTestAttribute"/> instances attached to the test.</param>
+        /// <param name="executionTime">The time spent executing the tests.</param>
         protected bool RunTestWithArguments(IMessageSink messageSink,
                                             Type classUnderTest,
                                             MethodInfo methodUnderTest,

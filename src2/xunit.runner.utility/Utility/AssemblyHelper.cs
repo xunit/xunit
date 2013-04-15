@@ -20,6 +20,7 @@ namespace Xunit
             AppDomain.CurrentDomain.AssemblyResolve += Resolve;
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
