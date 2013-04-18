@@ -16,7 +16,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="lib\net45\xunit.runner.utility.dll" />
-        <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="lib\net45\xunit.runner.utility.xml" />
+        <file src="bin\Release\xunit.runner.utility.dll" target="lib\net35\xunit.runner.utility.dll" />
+        <file src="bin\Release\xunit.runner.utility.xml" target="lib\net35\xunit.runner.utility.xml" />
     </files>
 </package>

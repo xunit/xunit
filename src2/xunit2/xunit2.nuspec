@@ -19,11 +19,11 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="..\src2\xunit2\bin\Release\xunit2.dll" target="lib\net45\xunit2.dll" />
-        <file src="..\src2\xunit2\bin\Release\xunit2.dll.tdnet" target="lib\net45\xunit2.dll.tdnet" />
-        <file src="..\src2\xunit2\bin\Release\xunit2.xml" target="lib\net45\xunit2.xml" />
-        <file src="..\src2\xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll" target="lib\net45\xunit.runner.tdnet.dll" />
-        <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="lib\net45\xunit.runner.utility.dll" />
-        <file src="..\src2\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="lib\net45\xunit.runner.utility.xml" />
+        <file src="bin\Release\xunit2.dll" target="lib\net45\xunit2.dll" />
+        <file src="bin\Release\xunit2.dll.tdnet" target="lib\net45\xunit2.dll.tdnet" />
+        <file src="bin\Release\xunit2.xml" target="lib\net45\xunit2.xml" />
+        <file src="..\xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll" target="lib\net45\xunit.runner.tdnet.dll" />
+        <file src="..\xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="lib\net45\xunit.runner.utility.dll" />
+        <file src="..\xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="lib\net45\xunit.runner.utility.xml" />
     </files>
 </package>

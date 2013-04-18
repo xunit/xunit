@@ -16,7 +16,7 @@
         </references>
     </metadata>
     <files>
-        <file src="..\src2\xunit.abstractions\bin\Release\xunit.abstractions.dll" target="lib\net45\xunit.abstractions.dll" />
-        <file src="..\src2\xunit.abstractions\bin\Release\xunit.abstractions.xml" target="lib\net45\xunit.abstractions.xml" />
+        <file src="bin\Release\xunit.abstractions.dll" target="lib\net35\xunit.abstractions.dll" />
+        <file src="bin\Release\xunit.abstractions.xml" target="lib\net35\xunit.abstractions.xml" />
     </files>
 </package>

@@ -14,7 +14,10 @@
         <TrackFileAccess>false</TrackFileAccess>
     </PropertyGroup>
     <ItemGroup>
-        <NuspecFiles Include="nuget\*.nuspec" />
+        <NuGetNuspecTargets Include="src2\*.nuspec" />
+        <NuGetCsprojTargets Include="src2\xunit2\xunit2.csproj;
+                                     src2\xunit.abstractions\xunit.abstractions.csproj;
+                                     src2\xunit.runner.utility\xunit.runner.utility.csproj" />
     </ItemGroup>
 
     <!-- Cascading attempts to find a build number -->
@@ -134,7 +137,8 @@
     </Target>
 
     <Target Name='Packages'>
-        <Exec Command='.nuget\NuGet.exe pack %(NuSpecFiles.Identity) -NoPackageAnalysis' />
+        <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
+        <Exec Command='.nuget\NuGet.exe pack %(NuGetCsProjTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet -Symbols' />
     </Target>
 
     <Target Name="Zip">
