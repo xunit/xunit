@@ -142,6 +142,13 @@
         <Exec Command='.nuget\NuGet.exe pack %(NuGetCsProjTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet -Symbols' />
     </Target>
 
+    <Target Name="PushPackages">
+        <ItemGroup>
+            <NupkgFiles Include="*.nupkg" Exclude="*.symbols.nupkg" />
+        </ItemGroup>
+        <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive" />
+    </Target>
+
     <Target Name="Zip">
         <ItemGroup>
             <ZipFileList Include="license.txt"/>
