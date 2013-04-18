@@ -14,6 +14,7 @@
         <TrackFileAccess>false</TrackFileAccess>
     </PropertyGroup>
     <ItemGroup>
+        <NuspecFiles Include="**\*.nuspec" />
         <NuGetNuspecTargets Include="src2\*.nuspec" />
         <NuGetCsprojTargets Include="src2\xunit2\xunit2.csproj;
                                      src2\xunit.abstractions\xunit.abstractions.csproj;
