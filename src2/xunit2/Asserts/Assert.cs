@@ -26,6 +26,7 @@ namespace Xunit
             throw new InvalidOperationException("Assert.Equals should not be used");
         }
 
+        /// <summary>Do not call this method.</summary>
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "a", Justification = "We do not control the signature of this method.")]
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "b", Justification = "We do not control the signature of this method.")]
         [Obsolete("This is an override of Object.ReferenceEquals(). Call Assert.Equal() instead.", true)]

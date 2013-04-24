@@ -70,11 +70,11 @@ public class TeamCityVisitorTests
         public void LogsMessage()
         {
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll");
+            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
 
             visitor.OnMessage(assemblyFinished);
 
-            Assert.Single(logger.Messages, @"MESSAGE[High]: ##teamcity[testSuiteFinished name='C:\Foo\Bar.dll']");
+            Assert.Single(logger.Messages, @"MESSAGE[High]: ##teamcity[testSuiteFinished name='C:\Foo\Bar.dll' flowId='myFlowId']");
         }
 
         [Fact]
@@ -127,11 +127,12 @@ public class TeamCityVisitorTests
         public void LogsMessage()
         {
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll");
+            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
 
             visitor.OnMessage(assemblyStarting);
 
-            Assert.Single(logger.Messages, @"MESSAGE[High]: ##teamcity[testSuiteStarted name='C:\Foo\Bar.dll']");
+            Assert.Collection(logger.Messages,
+                msg => Assert.Equal(@"MESSAGE[High]: ##teamcity[testSuiteStarted name='C:\Foo\Bar.dll' flowId='myFlowId']", msg));
         }
 
         [Fact]
@@ -174,13 +175,13 @@ public class TeamCityVisitorTests
         public void LogsTestNameWithExceptionAndStackTrace()
         {
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll");
+            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
 
             visitor.OnMessage(testFailed);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFailed name='This is my display name \t|r|n' details='This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3']", msg),
-                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234']", msg)
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFailed name='This is my display name \t|r|n' details='This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='myFlowId']", msg),
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
             );
         }
 
@@ -222,12 +223,12 @@ public class TeamCityVisitorTests
         public void LogsTestName()
         {
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll");
+            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
 
             visitor.OnMessage(testPassed);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234']", msg)
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
             );
         }
 
@@ -269,13 +270,13 @@ public class TeamCityVisitorTests
         public void LogsTestNameAsWarning()
         {
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll");
+            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
 
             visitor.OnMessage(testSkipped);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testIgnored name='This is my display name \t|r|n' message='This is my skip reason \t|r|n']", msg),
-                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='0']", msg)
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testIgnored name='This is my display name \t|r|n' message='This is my skip reason \t|r|n' flowId='myFlowId']", msg),
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='0' flowId='myFlowId']", msg)
             );
         }
 
@@ -316,11 +317,11 @@ public class TeamCityVisitorTests
         public void LogsTestName()
         {
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll");
+            var visitor = new TeamCityVisitor(logger, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
 
             visitor.OnMessage(testStarting);
 
-            Assert.Single(logger.Messages, "MESSAGE[High]: ##teamcity[testStarted name='This is my display name \t|r|n']");
+            Assert.Single(logger.Messages, "MESSAGE[High]: ##teamcity[testStarted name='This is my display name \t|r|n' flowId='myFlowId']");
         }
 
         [Fact]
