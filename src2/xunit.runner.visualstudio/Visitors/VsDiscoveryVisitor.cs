@@ -47,7 +47,7 @@ namespace Xunit.Runner.VisualStudio
             string serializedTestCase = discoverer.Serialize(xunitTestCase);
             string uniqueName = String.Format("{0}.{1} ({2})", xunitTestCase.Class.Name, xunitTestCase.Method.Name, xunitTestCase.UniqueID);
 
-            var result = new TestCase(uniqueName, uri, source) { DisplayName = xunitTestCase.DisplayName };
+            var result = new TestCase(uniqueName, uri, source) { DisplayName = Escape(xunitTestCase.DisplayName) };
             result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, serializedTestCase);
 
             if (addTraitThunk != null)
@@ -66,6 +66,14 @@ namespace Xunit.Runner.VisualStudio
             }
 
             return result;
+        }
+
+        static string Escape(string value)
+        {
+            if (value == null)
+                return String.Empty;
+
+            return value.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t");
         }
 
         static Action<TestCase, string, string> GetAddTraitThunk()
