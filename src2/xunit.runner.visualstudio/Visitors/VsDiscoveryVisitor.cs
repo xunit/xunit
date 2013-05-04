@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.VisualStudio
@@ -10,18 +11,21 @@ namespace Xunit.Runner.VisualStudio
     public class VsDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
     {
         static Action<TestCase, string, string> addTraitThunk = GetAddTraitThunk();
+
         static Uri uri = new Uri(Constants.ExecutorUri);
 
         readonly Func<bool> cancelThunk;
         readonly DiaSessionWrapper diaSession;
         readonly ITestFrameworkDiscoverer discoverer;
         readonly ITestCaseDiscoverySink discoverySink;
+        readonly IMessageLogger logger;
         readonly string source;
 
-        public VsDiscoveryVisitor(string source, ITestFrameworkDiscoverer discoverer, ITestCaseDiscoverySink discoverySink, Func<bool> cancelThunk)
+        public VsDiscoveryVisitor(string source, ITestFrameworkDiscoverer discoverer, IMessageLogger logger, ITestCaseDiscoverySink discoverySink, Func<bool> cancelThunk)
         {
             this.source = source;
             this.discoverer = discoverer;
+            this.logger = logger;
             this.discoverySink = discoverySink;
             this.cancelThunk = cancelThunk;
 
@@ -36,13 +40,15 @@ namespace Xunit.Runner.VisualStudio
             base.Dispose();
         }
 
-        public static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, DiaSessionWrapper diaSession = null)
+        public static TestCase CreateVsTestCase(IMessageLogger logger, string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, DiaSessionWrapper diaSession = null)
         {
             string typeName = xunitTestCase.Class.Name;
             string methodName = xunitTestCase.Method.Name;
             string serializedTestCase = discoverer.Serialize(xunitTestCase);
+            string uniqueName = String.Format("{0}.{1} ({2})", xunitTestCase.Class.Name, xunitTestCase.Method.Name, xunitTestCase.UniqueID);
 
-            var result = new TestCase(serializedTestCase, uri, source) { DisplayName = xunitTestCase.DisplayName };
+            var result = new TestCase(uniqueName, uri, source) { DisplayName = xunitTestCase.DisplayName };
+            result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, serializedTestCase);
 
             if (addTraitThunk != null)
                 foreach (var trait in xunitTestCase.Traits)
@@ -93,7 +99,7 @@ namespace Xunit.Runner.VisualStudio
 
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)
         {
-            discoverySink.SendTestCase(CreateVsTestCase(source, discoverer, discovery.TestCase, diaSession));
+            discoverySink.SendTestCase(CreateVsTestCase(logger, source, discoverer, discovery.TestCase, diaSession));
 
             return !cancelThunk();
         }

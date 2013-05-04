@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
@@ -18,9 +21,13 @@ namespace Xunit.Sdk
     [Serializable]
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable
     {
+        readonly static HashAlgorithm hasher = new SHA1Managed();
+
         readonly static object[] EmptyArray = new object[0];
         readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
         readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
+
+        Lazy<string> uniqueID;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCase"/> class.
@@ -41,17 +48,11 @@ namespace Xunit.Sdk
             string assemblyName = info.GetString("AssemblyName");
             string typeName = info.GetString("TypeName");
             string methodName = info.GetString("MethodName");
-            object[] arguments = null;
-
-            try
-            {
-                arguments = (object[])info.GetValue("Arguments", typeof(object[]));
-            }
-            catch (SerializationException) { }
+            object[] arguments = (object[])info.GetValue("Arguments", typeof(object[]));
 
             var type = Reflector.GetType(typeName, assemblyName);
             var typeInfo = Reflector.Wrap(type);
-            var methodInfo = Reflector.Wrap(type.GetMethod(methodName));
+            var methodInfo = Reflector.Wrap(type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
             var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).Single();
 
             Initialize(Reflector.Wrap(type.Assembly), typeInfo, methodInfo, factAttribute, arguments);
@@ -74,7 +75,10 @@ namespace Xunit.Sdk
                 var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
                 Traits.Add((string)ctorArgs[0], (string)ctorArgs[1]);
             }
+
+            uniqueID = new Lazy<string>(GetUniqueID, true);
         }
+
         /// <inheritdoc/>
         public object[] Arguments { get; private set; }
 
@@ -104,6 +108,9 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         public IDictionary<string, string> Traits { get; private set; }
+
+        /// <inheritdoc/>
+        public string UniqueID { get { return uniqueID.Value; } }
 
         /// <summary>
         /// Converts arguments into their target types.
@@ -191,9 +198,7 @@ namespace Xunit.Sdk
             info.AddValue("AssemblyName", Assembly.Name);
             info.AddValue("TypeName", Class.Name);
             info.AddValue("MethodName", Method.Name);
-
-            if (Arguments != null)
-                info.AddValue("Arguments", Arguments);
+            info.AddValue("Arguments", Arguments);
         }
 
         static string GetParameterName(IParameterInfo[] parameters, int index)
@@ -224,6 +229,30 @@ namespace Xunit.Sdk
                 return null;
 
             return type.GetMethod(Method.Name, Method.GetBindingFlags());
+        }
+
+        string GetUniqueID()
+        {
+            using (var stream = new MemoryStream())
+            {
+                Write(stream, Assembly.Name);
+                Write(stream, Class.Name);
+                Write(stream, Method.Name);
+
+                if (Arguments != null)
+                    Write(stream, SerializationHelper.Serialize(Arguments));
+
+                stream.Position = 0;
+                byte[] hash = hasher.ComputeHash(stream);
+                return String.Join("", hash.Select(x => x.ToString("x2")).ToArray());
+            }
+        }
+
+        static void Write(Stream stream, string value)
+        {
+            var bytes = Encoding.UTF8.GetBytes(value);
+            stream.Write(bytes, 0, bytes.Length);
+            stream.WriteByte(0);
         }
 
         static string ParameterToDisplayValue(object parameterValue)

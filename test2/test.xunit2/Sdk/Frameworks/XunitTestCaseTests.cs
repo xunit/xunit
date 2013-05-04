@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using NSubstitute;
 using Xunit;
@@ -898,6 +897,98 @@ public class XunitTestCaseTests
         }
     }
 
+    public class Serialization
+    {
+        [Fact]
+        public void CanRoundTrip_PublicClass_PublicTestMethod()
+        {
+            var serializer = new BinaryFormatter();
+            var testCase = Create(typeof(Serialization), "CanRoundTrip_PublicClass_PublicTestMethod");
+            var memoryStream = new MemoryStream();
+
+            serializer.Serialize(memoryStream, testCase);
+            memoryStream.Position = 0;
+
+            Assert.DoesNotThrow(() => serializer.Deserialize(memoryStream));
+        }
+
+        [Fact]
+        void CanRoundTrip_PublicClass_PrivateTestMethod()
+        {
+            var serializer = new BinaryFormatter();
+            var testCase = Create(typeof(Serialization), "CanRoundTrip_PublicClass_PrivateTestMethod");
+            var memoryStream = new MemoryStream();
+
+            serializer.Serialize(memoryStream, testCase);
+            memoryStream.Position = 0;
+
+            Assert.DoesNotThrow(() => serializer.Deserialize(memoryStream));
+        }
+
+        [Fact]
+        public void CannotRoundTrip_PrivateClass()
+        {
+            var serializer = new BinaryFormatter();
+            var testCase = Create(typeof(PrivateClass), "TestMethod");
+            var memoryStream = new MemoryStream();
+
+            serializer.Serialize(memoryStream, testCase);
+            memoryStream.Position = 0;
+
+            Assert.DoesNotThrow(() => serializer.Deserialize(memoryStream));
+        }
+
+        class PrivateClass
+        {
+            [Fact]
+            public void TestMethod()
+            {
+                Assert.True(false);
+            }
+        }
+    }
+
+    public class UniqueID
+    {
+        [Fact]
+        public void UniqueIDIsStable_NoArguments()
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                Assert.Equal("15872073f38f376aa47628c286c5dc3f7ea18ac2", Create(typeof(ClassUnderTest), "TestMethod").UniqueID);
+            }
+        }
+
+        [Fact]
+        public void UniqueIDIsStable_WithArguments()
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                Assert.Equal("7781c6832e3aedf3d625962e5fb2956356477e19", Create(typeof(ClassUnderTest), "TestMethod", 42).UniqueID);
+                Assert.Equal("b4c40947d156ed21cf546082a811d6e7f8a7bab0", Create(typeof(ClassUnderTest), "TestMethod", "Hello, world!").UniqueID);
+                Assert.Equal("3f592619e86e2b74c079836b8c5689d51aaeb58e", Create(typeof(ClassUnderTest), "TestMethod", (string)null).UniqueID);
+            }
+        }
+
+        class ClassUnderTest
+        {
+            [Fact]
+            public void TestMethod() { }
+        }
+    }
+
+    static XunitTestCase Create(Type typeUnderTest, string methodName, params object[] arguments)
+    {
+        var methodUnderTest = typeUnderTest.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+        var assembly = Reflector.Wrap(typeUnderTest.Assembly);
+        var type = Reflector.Wrap(typeUnderTest);
+        var method = Reflector.Wrap(methodUnderTest);
+        var fact = Reflector.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest)
+                                                     .Single(cad => cad.AttributeType == typeof(FactAttribute)));
+
+        return new XunitTestCase(assembly, type, method, fact, arguments.Length == 0 ? null : arguments);
+    }
+
     class DummyBeforeAfterTest : SpyBeforeAfterTest { }
 
     class SpyMessage : ITestMessage { }
@@ -940,7 +1031,7 @@ public class XunitTestCaseTests
             var type = Reflector.Wrap(typeUnderTest);
             var method = Reflector.Wrap(methodUnderTest);
             var fact = Reflector.Wrap(CustomAttributeData.GetCustomAttributes(methodUnderTest)
-                                                          .Single(cad => cad.AttributeType == typeof(FactAttribute)));
+                                                         .Single(cad => cad.AttributeType == typeof(FactAttribute)));
             return new TestableXunitTestCase(assembly, type, method, fact);
         }
 

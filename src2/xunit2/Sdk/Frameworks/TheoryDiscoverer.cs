@@ -44,7 +44,7 @@ namespace Xunit.Sdk
                             // throw and we will fall back to a single theory test case that gets its data
                             // at runtime.
                             var testCase = new XunitTestCase(assembly, testClass, testMethod, factAttribute, dataRow);
-                            TestCaseSerializer.Serialize(testCase);
+                            SerializationHelper.Serialize(testCase);
                             results.Add(testCase);
                         }
                     }

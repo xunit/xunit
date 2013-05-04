@@ -9,23 +9,23 @@ namespace Xunit.Sdk
     /// Serializes and de-serializes <see cref="ITestCase"/> instances using <see cref="BinaryFormatter"/>,
     /// <see cref="Convert.ToBase64String(byte[])"/>, and <see cref="Convert.FromBase64String"/>.
     /// </summary>
-    public static class TestCaseSerializer
+    public static class SerializationHelper
     {
         static BinaryFormatter binaryFormatter = new BinaryFormatter();
 
         /// <inheritdoc/>
-        public static ITestCase Deserialize(string value)
+        public static T Deserialize<T>(string serializedValue)
         {
-            using (var stream = new MemoryStream(Convert.FromBase64String(value)))
-                return (ITestCase)binaryFormatter.Deserialize(stream);
+            using (var stream = new MemoryStream(Convert.FromBase64String(serializedValue)))
+                return (T)binaryFormatter.Deserialize(stream);
         }
 
         /// <inheritdoc/>
-        public static string Serialize(ITestCase testCase)
+        public static string Serialize(object value)
         {
             using (var stream = new MemoryStream())
             {
-                binaryFormatter.Serialize(stream, testCase);
+                binaryFormatter.Serialize(stream, value);
                 return Convert.ToBase64String(stream.GetBuffer());
             }
         }

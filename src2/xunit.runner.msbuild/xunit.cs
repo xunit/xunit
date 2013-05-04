@@ -58,23 +58,23 @@ namespace Xunit.Runner.MSBuild
         {
             RemotingUtility.CleanUpRegisteredChannels();
 
-            if (WorkingFolder != null)
-                Directory.SetCurrentDirectory(WorkingFolder);
-
-            Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
-
-            foreach (ITaskItem assembly in Assemblies)
+            using (AssemblyHelper.SubscribeResolve())
             {
-                if (cancel)
-                    break;
+                if (WorkingFolder != null)
+                    Directory.SetCurrentDirectory(WorkingFolder);
 
-                string assemblyFilename = assembly.GetMetadata("FullPath");
-                string configFilename = assembly.GetMetadata("ConfigFile");
-                if (configFilename != null && configFilename.Length == 0)
-                    configFilename = null;
+                Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
 
-                using (AssemblyHelper.SubscribeResolve(Path.GetDirectoryName(assemblyFilename)))
+                foreach (ITaskItem assembly in Assemblies)
                 {
+                    if (cancel)
+                        break;
+
+                    string assemblyFilename = assembly.GetMetadata("FullPath");
+                    string configFilename = assembly.GetMetadata("ConfigFile");
+                    if (configFilename != null && configFilename.Length == 0)
+                        configFilename = null;
+
                     MSBuildVisitor visitor = CreateVisitor(assemblyFilename);
                     ExecuteAssembly(assemblyFilename, configFilename, visitor);
                     visitor.Finished.WaitOne();

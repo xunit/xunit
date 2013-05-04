@@ -110,6 +110,10 @@
       <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
       <Name>xunit.runner.tdnet</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src2\xunit.runner.utility\xunit.runner.utility.csproj">
+      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
+      <Name>xunit.runner.utility</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src2\xunit2\xunit2.csproj">
       <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
       <Name>xunit2</Name>

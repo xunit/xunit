@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
@@ -38,9 +37,7 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.Find();
 
-            Assert.Collection(framework.Messages,
-                message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
-            );
+            Assert.Empty(framework.TestCases);
         }
 
         [Fact]
@@ -63,6 +60,7 @@ public class XunitTestFrameworkDiscovererTests
             framework.FindImpl(null).ReturnsForAnyArgs(true);
 
             framework.Find();
+            framework.Visitor.Finished.WaitOne();
 
             framework.Received(1).FindImpl(objectTypeInfo, false);
             framework.Received(1).FindImpl(intTypeInfo, false);
@@ -77,6 +75,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
 
             framework.Find();
+            framework.Visitor.Finished.WaitOne();
 
             sourceProvider.Received(0).GetSourceInformation(Arg.Any<ITestCase>());
         }
@@ -93,15 +92,13 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.Find(includeSourceInformation: true);
 
-            Assert.Collection(framework.Messages,
-                message =>
+            Assert.Collection(framework.TestCases,
+                testCase =>
                 {
-                    var discoveryMessage = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(message);
-                    Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", discoveryMessage.TestCase.DisplayName);
-                    Assert.Equal("Source File", discoveryMessage.TestCase.SourceFileName);
-                    Assert.Equal(42, discoveryMessage.TestCase.SourceFileLine);
-                },
-                message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
+                    Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
+                    Assert.Equal("Source File", testCase.SourceFileName);
+                    Assert.Equal(42, testCase.SourceFileLine);
+                }
             );
         }
     }
@@ -137,6 +134,7 @@ public class XunitTestFrameworkDiscovererTests
             framework.Assembly.GetType("abc").Returns(type);
 
             framework.Find("abc");
+            framework.Visitor.Finished.WaitOne();
 
             type.Received(1).GetMethods(includePrivateMethods: true);
         }
@@ -149,6 +147,7 @@ public class XunitTestFrameworkDiscovererTests
             framework.Assembly.GetType("abc").Returns(type);
 
             framework.Find("abc");
+            framework.Visitor.Finished.WaitOne();
 
             framework.Received(1).FindImpl(type, false);
         }
@@ -176,15 +175,13 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.Find("abc", includeSourceInformation: true);
 
-            Assert.Collection(framework.Messages,
-                message =>
+            Assert.Collection(framework.TestCases,
+                testCase =>
                 {
-                    var discoveryMessage = Assert.IsAssignableFrom<ITestCaseDiscoveryMessage>(message);
-                    Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", discoveryMessage.TestCase.DisplayName);
-                    Assert.Equal("Source File", discoveryMessage.TestCase.SourceFileName);
-                    Assert.Equal(42, discoveryMessage.TestCase.SourceFileLine);
-                },
-                message => Assert.IsAssignableFrom<IDiscoveryCompleteMessage>(message)
+                    Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
+                    Assert.Equal("Source File", testCase.SourceFileName);
+                    Assert.Equal(42, testCase.SourceFileLine);
+                }
             );
         }
     }
@@ -204,7 +201,7 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.FindImpl(type);
 
-            Assert.Empty(framework.Messages);
+            Assert.False(framework.Visitor.Finished.WaitOne(0));
         }
 
         class ClassWithOneFact
@@ -221,8 +218,9 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.FindImpl(type);
 
-            var discoveryMessage = (ITestCaseDiscoveryMessage)Assert.Single(framework.Messages, msg => msg is ITestCaseDiscoveryMessage);
-            Assert.IsType<XunitTestCase>(discoveryMessage.TestCase);
+            Assert.Collection(framework.Visitor.TestCases,
+                testCase => Assert.IsType<XunitTestCase>(testCase)
+            );
         }
 
         class ClassWithMixOfFactsAndNonFacts
@@ -244,13 +242,9 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.FindImpl(type);
 
-            var results = framework.Messages
-                                   .OfType<ITestCaseDiscoveryMessage>()
-                                   .Select(msg => msg.TestCase)
-                                   .ToArray();
-            Assert.Equal(2, results.Count());
-            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
-            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod2");
+            Assert.Equal(2, framework.Visitor.TestCases.Count);
+            Assert.Single(framework.Visitor.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
+            Assert.Single(framework.Visitor.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod2");
         }
 
         class TheoryWithInlineData
@@ -269,13 +263,9 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.FindImpl(type);
 
-            var results = framework.Messages
-                                   .OfType<ITestCaseDiscoveryMessage>()
-                                   .Select(msg => msg.TestCase)
-                                   .ToArray();
-            Assert.Equal(2, results.Count());
-            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
-            Assert.Single(results, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: 42)");
+            Assert.Equal(2, framework.Visitor.TestCases.Count);
+            Assert.Single(framework.Visitor.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
+            Assert.Single(framework.Visitor.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: 42)");
         }
 
         class TheoryWithPropertyData
@@ -302,14 +292,9 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.FindImpl(type);
 
-            var results = framework.Messages
-                                   .OfType<ITestCaseDiscoveryMessage>()
-                                   .Select(msg => msg.TestCase)
-                                   .Select(tc => tc.DisplayName)
-                                   .ToArray();
-            Assert.Equal(2, results.Count());
-            Assert.Single(results, name => name == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
-            Assert.Single(results, name => name == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 2112)");
+            Assert.Equal(2, framework.Visitor.TestCases.Count);
+            Assert.Single(framework.Visitor.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
+            Assert.Single(framework.Visitor.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 2112)");
         }
     }
 
@@ -319,26 +304,33 @@ public class XunitTestFrameworkDiscovererTests
         public void TestMethod() { }
     }
 
-    public class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer, IMessageSink
+    public class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer
     {
         protected TestableXunitTestFrameworkDiscoverer()
             : this(Mocks.AssemblyInfo(), Substitute.For<ISourceInformationProvider>()) { }
 
         protected TestableXunitTestFrameworkDiscoverer(IAssemblyInfo assembly)
-            : base(assembly)
-        {
-            Assembly = assembly;
-        }
+            : this(assembly, Substitute.For<ISourceInformationProvider>()) { }
 
         TestableXunitTestFrameworkDiscoverer(IAssemblyInfo assembly, ISourceInformationProvider sourceProvider)
             : base(assembly, sourceProvider)
         {
             Assembly = assembly;
+            Visitor = new TestDiscoveryVisitor();
         }
 
         public IAssemblyInfo Assembly { get; private set; }
 
-        public List<ITestMessage> Messages = new List<ITestMessage>();
+        public List<ITestCase> TestCases
+        {
+            get
+            {
+                Visitor.Finished.WaitOne();
+                return Visitor.TestCases;
+            }
+        }
+
+        public TestDiscoveryVisitor Visitor { get; private set; }
 
         public static TestableXunitTestFrameworkDiscoverer Create(IAssemblyInfo assembly = null, ISourceInformationProvider sourceProvider = null)
         {
@@ -348,29 +340,22 @@ public class XunitTestFrameworkDiscovererTests
 
         public void Find(bool includeSourceInformation = false)
         {
-            base.Find(includeSourceInformation, this);
+            base.Find(includeSourceInformation, Visitor);
         }
 
         public void Find(string typeName, bool includeSourceInformation = false)
         {
-            base.Find(typeName, includeSourceInformation, this);
+            base.Find(typeName, includeSourceInformation, Visitor);
         }
 
         public virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation = false)
         {
-            return base.FindImpl(type, includeSourceInformation, this);
+            return base.FindImpl(type, includeSourceInformation, Visitor);
         }
 
         protected sealed override bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
             return FindImpl(type, includeSourceInformation);
-        }
-
-        public bool OnMessage(ITestMessage message)
-        {
-            Messages.Add(message);
-
-            return true;
         }
     }
 }

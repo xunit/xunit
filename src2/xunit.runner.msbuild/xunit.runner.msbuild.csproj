@@ -66,7 +66,6 @@
     <Compile Include="Loggers\StandardLogger.cs" />
     <Compile Include="Loggers\TeamCityLogger.cs" />
     <Compile Include="Loggers\VerboseLogger.cs" />
-    <Compile Include="Utility\RemotingUtility.cs" />
     <Compile Include="Utility\XmlTestRunner.cs" />
     <Compile Include="Visitors\MSBuildVisitor.cs" />
     <Compile Include="Visitors\StandardOutputVisitor.cs" />

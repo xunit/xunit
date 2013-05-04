@@ -15,7 +15,7 @@ public class TestCaseSerializerTests
             Assert.True(false);
         }
     }
-    
+
     public class WithXunitTestCase
     {
         [Fact]
@@ -26,7 +26,7 @@ public class TestCaseSerializerTests
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
             var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
 
-            Assert.DoesNotThrow(() => TestCaseSerializer.Serialize(testCase));
+            Assert.DoesNotThrow(() => SerializationHelper.Serialize(testCase));
         }
 
         [Fact]
@@ -36,9 +36,9 @@ public class TestCaseSerializerTests
             var method = type.GetMethod("FactMethod");
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
             var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
-            var serialized = TestCaseSerializer.Serialize(testCase);
+            var serialized = SerializationHelper.Serialize(testCase);
 
-            var result = (XunitTestCase)TestCaseSerializer.Deserialize(serialized);
+            var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
 
             Assert.Equal(testCase.Assembly.AssemblyPath, result.Assembly.AssemblyPath);
             Assert.Equal(testCase.Assembly.Name, result.Assembly.Name);
@@ -62,9 +62,9 @@ public class TestCaseSerializerTests
             var method = type.GetMethod("FactMethod");
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
             var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact), new object[] { 42, 21.12, "Hello world" });
-            var serialized = TestCaseSerializer.Serialize(testCase);
+            var serialized = SerializationHelper.Serialize(testCase);
 
-            var result = (XunitTestCase)TestCaseSerializer.Deserialize(serialized);
+            var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
 
             Assert.Collection(result.Arguments,
                 arg => Assert.Equal(42, arg),
@@ -80,7 +80,7 @@ public class TestCaseSerializerTests
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
             var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact), new object[] { new ClassUnderTest() });
 
-            var ex = Record.Exception(() => TestCaseSerializer.Serialize(testCase));
+            var ex = Record.Exception(() => SerializationHelper.Serialize(testCase));
 
             Assert.IsType<SerializationException>(ex);
         }
@@ -96,7 +96,7 @@ public class TestCaseSerializerTests
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
             var testCase = new XunitTheoryTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
 
-            Assert.DoesNotThrow(() => TestCaseSerializer.Serialize(testCase));
+            Assert.DoesNotThrow(() => SerializationHelper.Serialize(testCase));
         }
 
         [Fact]
@@ -106,9 +106,9 @@ public class TestCaseSerializerTests
             var method = type.GetMethod("FactMethod");
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
             var testCase = new XunitTheoryTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
-            var serialized = TestCaseSerializer.Serialize(testCase);
+            var serialized = SerializationHelper.Serialize(testCase);
 
-            var result = (XunitTheoryTestCase)TestCaseSerializer.Deserialize(serialized);
+            var result = SerializationHelper.Deserialize<XunitTheoryTestCase>(serialized);
 
             Assert.Equal(testCase.Assembly.AssemblyPath, result.Assembly.AssemblyPath);
             Assert.Equal(testCase.Assembly.Name, result.Assembly.Name);

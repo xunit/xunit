@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -36,11 +36,14 @@ namespace Xunit.Sdk
         {
             Guard.ArgumentNotNull("messageSink", messageSink);
 
-            foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
-                if (!FindImpl(type, includeSourceInformation, messageSink))
-                    break;
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
+                    if (!FindImpl(type, includeSourceInformation, messageSink))
+                        break;
 
-            messageSink.OnMessage(new DiscoveryCompleteMessage());
+                messageSink.OnMessage(new DiscoveryCompleteMessage());
+            });
         }
 
         /// <inheritdoc/>
@@ -49,11 +52,14 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNullOrEmpty("typeName", typeName);
             Guard.ArgumentNotNull("messageSink", messageSink);
 
-            ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
-            if (typeInfo != null)
-                FindImpl(typeInfo, includeSourceInformation, messageSink);
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
+                if (typeInfo != null)
+                    FindImpl(typeInfo, includeSourceInformation, messageSink);
 
-            messageSink.OnMessage(new DiscoveryCompleteMessage());
+                messageSink.OnMessage(new DiscoveryCompleteMessage());
+            });
         }
 
         /// <summary>
@@ -108,7 +114,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
         {
-            return TestCaseSerializer.Serialize(testCase);
+            return SerializationHelper.Serialize(testCase);
         }
 
         private ITestCase UpdateTestCaseWithSourceInfo(XunitTestCase testCase, bool includeSourceInformation)

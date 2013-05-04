@@ -28,4 +28,5 @@ public class TestCase : ITestCase
     public string SourceFileName { get; set; }
     public ITestCollection TestCollection { get; set; }
     public IDictionary<string, string> Traits { get; set; }
+    public string UniqueID { get; set; }
 }

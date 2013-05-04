@@ -6,7 +6,7 @@ namespace Xunit
 {
     /// <summary>
     /// This class provides assistance with assembly resolution for missing assemblies. Runners may
-    /// need to use <see cref="SubscribeResolve" /> to help automatically resolve missing assemblies
+    /// need to use <see cref="SubscribeResolve()" /> to help automatically resolve missing assemblies
     /// when running tests.
     /// </summary>
     public class AssemblyHelper : IDisposable
@@ -46,6 +46,9 @@ namespace Xunit
 
         Assembly Resolve(object sender, ResolveEventArgs args)
         {
+#if DEBUG
+            Console.WriteLine(String.Format(">>> Resolving {0} in {1}", args.Name, folder));
+#endif
             return LoadAssembly(new AssemblyName(args.Name));
         }
 
@@ -53,10 +56,10 @@ namespace Xunit
         /// Subscribes to the current <see cref="AppDomain"/> <see cref="AppDomain.AssemblyResolve"/> event, to
         /// provide automatic assembly resolution for assemblies in the runner.
         /// </summary>
-        /// <returns>IDisposable.</returns>
-        public static IDisposable SubscribeResolve(string folder)
+        /// <returns>An object which, when disposed, un-subscribes.</returns>
+        public static IDisposable SubscribeResolve()
         {
-            return new AssemblyHelper(folder);
+            return new AssemblyHelper(Path.GetDirectoryName(new Uri(typeof(AssemblyHelper).Assembly.CodeBase).LocalPath));
         }
     }
 }
