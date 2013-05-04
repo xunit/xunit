@@ -70,26 +70,14 @@ namespace Xunit.Runner.VisualStudio
             return String.Format("{0}.{1}", type, method);
         }
 
-        private string GetTestResultDisplayName(string testCaseDisplayName, string testResultDisplayName, string fullyQualifiedName)
-        {
-            // If the display name looks like fully qualified name + parameters (as in the case of
-            // [Theory]), we want to follow the same DisplayName pattern we used earlier with the
-            // test case.
-            if (!testResultDisplayName.StartsWith(fullyQualifiedName, StringComparison.OrdinalIgnoreCase))
-                return testResultDisplayName;
-
-            return testCaseDisplayName + testResultDisplayName.Substring(fullyQualifiedName.Length);
-        }
-
         private VsTestResult MakeVsTestResult(ITestResultMessage testResult, TestOutcome outcome)
         {
             TestCase testCase = testCases[testResult.TestCase];
-            string fullyQualifiedName = GetFullyQualifiedName(testResult.TestCase.Class.Name, testResult.TestCase.Method.Name);
 
             VsTestResult result = new VsTestResult(testCase)
             {
                 ComputerName = Environment.MachineName,
-                DisplayName = GetTestResultDisplayName(testCase.DisplayName, testResult.TestDisplayName, fullyQualifiedName),
+                DisplayName = testResult.TestDisplayName,
                 Duration = TimeSpan.FromSeconds((double)testResult.ExecutionTime),
                 Outcome = outcome,
             };
