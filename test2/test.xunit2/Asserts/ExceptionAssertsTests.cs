@@ -122,7 +122,7 @@ public class ExceptionAssertsTests
             {
                 Assert.Throws<Exception>(delegate { throw new InvalidOperationException(); });
             }
-            catch (AssertException exception)
+            catch (XunitException exception)
             {
                 Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
             }
@@ -184,7 +184,7 @@ public class ExceptionAssertsTests
             {
                 Assert.Throws<Exception>(() => accessor.FailingProperty);
             }
-            catch (AssertException exception)
+            catch (XunitException exception)
             {
                 Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
             }
@@ -240,7 +240,7 @@ public class ExceptionAssertsTests
             {
                 Assert.Throws<Exception>(() => Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
             }
-            catch (AssertException exception)
+            catch (XunitException exception)
             {
                 Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
             }
@@ -278,7 +278,7 @@ public class ExceptionAssertsTests
             {
                 Assert.Throws(typeof(Exception), delegate { throw new InvalidOperationException(); });
             }
-            catch (AssertException exception)
+            catch (XunitException exception)
             {
                 Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
             }
@@ -321,7 +321,7 @@ public class ExceptionAssertsTests
             {
                 Assert.Throws(typeof(Exception), () => accessor.FailingProperty);
             }
-            catch (AssertException exception)
+            catch (XunitException exception)
             {
                 Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
             }
@@ -362,7 +362,7 @@ public class ExceptionAssertsTests
             {
                 Assert.Throws(typeof(Exception), () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
             }
-            catch (AssertException exception)
+            catch (XunitException exception)
             {
                 Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
             }

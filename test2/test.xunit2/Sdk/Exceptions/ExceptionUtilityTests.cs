@@ -9,7 +9,7 @@ public class ExceptionUtilityTests
         [Fact]
         public void XunitException()
         {
-            var ex = new AssertException("This is the message");
+            var ex = new XunitException("This is the message");
 
             var result = ExceptionUtility.GetMessage(ex);
 
@@ -43,7 +43,7 @@ public class ExceptionUtilityTests
         {
             var inner1 = new DivideByZeroException("inner #1");
             var inner2 = new NotImplementedException("inner #2");
-            var inner3 = new AssertException("this is crazy");
+            var inner3 = new XunitException("this is crazy");
             var outer = new AggregateException(inner1, inner2, inner3);
 
             var result = ExceptionUtility.GetMessage(outer);
@@ -60,12 +60,12 @@ public class ExceptionUtilityTests
         [Fact]
         public void XunitException()
         {
-            var ex = Record.Exception(() => { throw new AssertException(); });
+            var ex = Record.Exception(() => { throw new XunitException(); });
 
             var result = ExceptionUtility.GetStackTrace(ex);
 
             Assert.DoesNotContain(typeof(Record).FullName, result);
-            Assert.DoesNotContain(typeof(AssertException).FullName, result);
+            Assert.DoesNotContain(typeof(XunitException).FullName, result);
             Assert.Contains("at ExceptionUtilityTests.GetStackTrace", result);
         }
 
@@ -77,7 +77,7 @@ public class ExceptionUtilityTests
             var result = ExceptionUtility.GetStackTrace(ex);
 
             Assert.DoesNotContain(typeof(Record).FullName, result);
-            Assert.DoesNotContain(typeof(AssertException).FullName, result);
+            Assert.DoesNotContain(typeof(XunitException).FullName, result);
             Assert.Contains("at ExceptionUtilityTests.GetStackTrace", result);
         }
 
@@ -101,7 +101,7 @@ public class ExceptionUtilityTests
         {
             var inner1 = Record.Exception(() => { throw new DivideByZeroException(); });
             var inner2 = Record.Exception(() => { throw new NotImplementedException("inner #2"); });
-            var inner3 = Record.Exception(() => { throw new AssertException("this is crazy"); });
+            var inner3 = Record.Exception(() => { throw new XunitException("this is crazy"); });
             var outer = Record.Exception(() => { throw new AggregateException(inner1, inner2, inner3); });
 
             var result = ExceptionUtility.GetStackTrace(outer);
@@ -112,7 +112,7 @@ public class ExceptionUtilityTests
                 line => Assert.Contains("at ExceptionUtilityTests.GetStackTrace", line),
                 line => Assert.Equal("----- Inner Stack Trace #2 (System.NotImplementedException) -----", line),
                 line => Assert.Contains("at ExceptionUtilityTests.GetStackTrace", line),
-                line => Assert.Equal("----- Inner Stack Trace #3 (Xunit.Sdk.AssertException) -----", line),
+                line => Assert.Equal("----- Inner Stack Trace #3 (Xunit.Sdk.XunitException) -----", line),
                 line => Assert.Contains("at ExceptionUtilityTests.GetStackTrace", line)
             );
         }

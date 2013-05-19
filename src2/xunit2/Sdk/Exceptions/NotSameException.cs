@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     [Serializable]
-    public class NotSameException : AssertException
+    public class NotSameException : XunitException
     {
         /// <summary>
         /// Creates a new instance of the <see cref="NotSameException"/> class.

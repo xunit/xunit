@@ -54,8 +54,8 @@ namespace Xunit.Sdk
                 result += " ";
             }
 
-            var aex = ex as AssertException;
-            if (aex == null)
+            var xex = ex as XunitException;
+            if (xex == null)
                 result += ex.GetType().FullName + " : ";
 
             result += ex.Message;

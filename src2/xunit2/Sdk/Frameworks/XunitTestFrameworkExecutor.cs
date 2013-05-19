@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -37,10 +38,7 @@ namespace Xunit.Sdk
         public void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
         {
             bool cancelled = false;
-            int totalRun = 0;
-            int totalFailed = 0;
-            int totalSkipped = 0;
-            decimal totalTime = 0M;
+            var totalSummary = new RunSummary();
 
             string currentDirectory = Directory.GetCurrentDirectory();
 
@@ -54,53 +52,23 @@ namespace Xunit.Sdk
 
                     if (classGroups.Count > 0)
                     {
+                        var collectionSummary = new RunSummary();
+
                         if (messageSink.OnMessage(new TestCollectionStarting()))
                         {
                             foreach (var group in classGroups)
                             {
+                                var classSummary = new RunSummary();
+
                                 if (!messageSink.OnMessage(new TestClassStarting { ClassName = group.Key.Name }))
                                     cancelled = true;
                                 else
                                 {
-                                    var methodGroups = group.GroupBy(tc => tc.Method);
-
-                                    foreach (var method in methodGroups)
-                                    {
-                                        if (!messageSink.OnMessage(new TestMethodStarting { ClassName = group.Key.Name, MethodName = method.Key.Name }))
-                                            cancelled = true;
-                                        else
-                                        {
-                                            foreach (XunitTestCase testCase in method)
-                                            {
-                                                var delegatingSink = new DelegatingMessageSink<ITestCaseFinished>(messageSink);
-
-                                                // REVIEW: testCase.Run() returning bool implies synchronous behavior, which will probably
-                                                // not be true once we start supporting parallelization. This could be achieved by always
-                                                // using a delegating sink (like above) and watching for cancellation there, then checking
-                                                // for the cancellation result in the delegating sink after work is finished.
-
-                                                cancelled = testCase.Run(delegatingSink);
-                                                delegatingSink.Finished.WaitOne();
-
-                                                totalRun += delegatingSink.FinalMessage.TestsRun;
-                                                totalFailed += delegatingSink.FinalMessage.TestsFailed;
-                                                totalSkipped += delegatingSink.FinalMessage.TestsSkipped;
-                                                totalTime += delegatingSink.FinalMessage.ExecutionTime;
-
-                                                if (cancelled)
-                                                    break;
-                                            }
-                                        }
-
-                                        if (!messageSink.OnMessage(new TestMethodFinished { ClassName = group.Key.Name, MethodName = method.Key.Name }))
-                                            cancelled = true;
-
-                                        if (cancelled)
-                                            break;
-                                    }
+                                    cancelled = RunTestClass(messageSink, group, classSummary);
+                                    collectionSummary.Aggregate(classSummary);
                                 }
 
-                                if (!messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = group.Key.Name, TestsRun = totalRun }))
+                                if (!messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = group.Key.Name, TestsRun = classSummary.Total }))
                                     cancelled = true;
 
                                 if (cancelled)
@@ -108,15 +76,140 @@ namespace Xunit.Sdk
                             }
                         }
 
-                        messageSink.OnMessage(new TestCollectionFinished { Assembly = assemblyInfo, TestsRun = totalRun });
+                        messageSink.OnMessage(new TestCollectionFinished { Assembly = assemblyInfo, TestsRun = collectionSummary.Total });
+                        totalSummary.Aggregate(collectionSummary);
                     }
                 }
 
-                messageSink.OnMessage(new TestAssemblyFinished { Assembly = assemblyInfo, TestsRun = totalRun, TestsFailed = totalFailed, TestsSkipped = totalSkipped, ExecutionTime = totalTime });
+                messageSink.OnMessage(new TestAssemblyFinished
+                {
+                    Assembly = assemblyInfo,
+                    TestsRun = totalSummary.Total,
+                    TestsFailed = totalSummary.Failed,
+                    TestsSkipped = totalSummary.Skipped,
+                    ExecutionTime = totalSummary.Time
+                });
             }
             finally
             {
                 Directory.SetCurrentDirectory(currentDirectory);
+            }
+        }
+
+        private static bool RunTestClass(IMessageSink messageSink, IGrouping<ITypeInfo, XunitTestCase> group, RunSummary classSummary)
+        {
+            bool cancelled = false;
+            var aggregator = new ExceptionAggregator();
+
+            Type testClassType = ((IReflectionTypeInfo)group.Key).Type;
+            Dictionary<Type, object> fixtureMappings = new Dictionary<Type, object>();
+            List<object> constructorArguments = new List<object>();
+
+            // TODO: Read class fixtures from test collection
+            foreach (var iface in testClassType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
+            {
+                Type fixtureType = iface.GetGenericArguments().Single();
+                object fixture = null;
+                aggregator.Run(() => fixture = Activator.CreateInstance(fixtureType));
+                fixtureMappings.Add(fixtureType, fixture);
+            }
+
+            var ctors = testClassType.GetConstructors();
+            if (ctors.Length != 1)
+            {
+                aggregator.Add(new TestClassException("A test class may only define a single public constructor."));
+            }
+            else
+            {
+                var ctor = ctors.Single();
+                List<string> unusedArguments = new List<string>();
+
+                foreach (var paramInfo in ctor.GetParameters())
+                {
+                    object fixture;
+
+                    if (fixtureMappings.TryGetValue(paramInfo.ParameterType, out fixture))
+                        constructorArguments.Add(fixture);
+                    else
+                        unusedArguments.Add(paramInfo.ParameterType.Name + " " + paramInfo.Name);
+                }
+
+                if (unusedArguments.Count > 0)
+                    aggregator.Add(new TestClassException("The following constructor arguments did not have matching fixture data: " + String.Join(", ", unusedArguments)));
+            }
+
+            var methodGroups = group.GroupBy(tc => tc.Method);
+
+            foreach (var method in methodGroups)
+            {
+                if (!messageSink.OnMessage(new TestMethodStarting { ClassName = group.Key.Name, MethodName = method.Key.Name }))
+                    cancelled = true;
+                else
+                    cancelled = RunTestMethod(messageSink, constructorArguments.ToArray(), method, classSummary, aggregator);
+
+                if (!messageSink.OnMessage(new TestMethodFinished { ClassName = group.Key.Name, MethodName = method.Key.Name }))
+                    cancelled = true;
+
+                if (cancelled)
+                    break;
+            }
+
+            foreach (var fixture in fixtureMappings.Values.OfType<IDisposable>())
+            {
+                try
+                {
+                    fixture.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    if (!messageSink.OnMessage(new ErrorMessage(ex.Unwrap())))
+                        cancelled = true;
+                }
+            }
+
+            return cancelled;
+        }
+
+        private static bool RunTestMethod(IMessageSink messageSink, object[] constructorArguments, IEnumerable<XunitTestCase> testCases, RunSummary classSummary, ExceptionAggregator aggregator)
+        {
+            bool cancelled = false;
+
+            foreach (XunitTestCase testCase in testCases)
+            {
+                var delegatingSink = new DelegatingMessageSink<ITestCaseFinished>(messageSink);
+
+                // REVIEW: testCase.Run() returning bool implies synchronous behavior, which will probably
+                // not be true once we start supporting parallelization. This could be achieved by always
+                // using a delegating sink (like above) and watching for cancellation there, then checking
+                // for the cancellation result in the delegating sink after work is finished.
+
+                cancelled = testCase.Run(delegatingSink, constructorArguments, aggregator);
+                delegatingSink.Finished.WaitOne();
+
+                classSummary.Total += delegatingSink.FinalMessage.TestsRun;
+                classSummary.Failed += delegatingSink.FinalMessage.TestsFailed;
+                classSummary.Skipped += delegatingSink.FinalMessage.TestsSkipped;
+                classSummary.Time += delegatingSink.FinalMessage.ExecutionTime;
+
+                if (cancelled)
+                    break;
+            }
+
+            return cancelled;
+        }
+        class RunSummary
+        {
+            public int Total = 0;
+            public int Failed = 0;
+            public int Skipped = 0;
+            public decimal Time = 0M;
+
+            public void Aggregate(RunSummary other)
+            {
+                Total += other.Total;
+                Failed += other.Failed;
+                Skipped += other.Skipped;
+                Time += other.Time;
             }
         }
     }

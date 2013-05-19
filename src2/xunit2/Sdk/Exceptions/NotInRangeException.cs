@@ -11,7 +11,7 @@ namespace Xunit.Sdk
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     [Serializable]
-    public class NotInRangeException : AssertException
+    public class NotInRangeException : XunitException
     {
         readonly string actual;
         readonly string high;

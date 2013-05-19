@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     [Serializable]
-    public class TrueException : AssertException
+    public class TrueException : XunitException
     {
         /// <summary>
         /// Creates a new instance of the <see cref="TrueException"/> class.

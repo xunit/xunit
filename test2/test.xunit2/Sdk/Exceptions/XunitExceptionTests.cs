@@ -3,12 +3,12 @@ using System.Runtime.Serialization;
 using Xunit;
 using Xunit.Sdk;
 
-public class AssertExceptionTests
+public class XunitExceptionTests
 {
     [Fact]
     public void PreservesUserMessage()
     {
-        AssertException ex = new AssertException("UserMessage");
+        var ex = new XunitException("UserMessage");
 
         Assert.Equal("UserMessage", ex.UserMessage);
     }
@@ -16,7 +16,7 @@ public class AssertExceptionTests
     [Fact]
     public void UserMessageIsTheMessage()
     {
-        AssertException ex = new AssertException("UserMessage");
+        var ex = new XunitException("UserMessage");
 
         Assert.Equal(ex.UserMessage, ex.Message);
     }
@@ -24,7 +24,7 @@ public class AssertExceptionTests
     [Fact]
     public void SerializesCustomProperties()
     {
-        var originalException = new TestableAssertException("User Message", "Stack Trace");
+        var originalException = new TestableXunitException("User Message", "Stack Trace");
 
         var deserializedException = SerializationUtility.SerializeAndDeserialize(originalException);
 
@@ -33,12 +33,12 @@ public class AssertExceptionTests
     }
 
     [Serializable]
-    class TestableAssertException : AssertException
+    class TestableXunitException : XunitException
     {
-        public TestableAssertException(string userMessage, string stackTrace)
+        public TestableXunitException(string userMessage, string stackTrace)
             : base(userMessage, stackTrace) { }
 
-        protected TestableAssertException(SerializationInfo info, StreamingContext context)
+        protected TestableXunitException(SerializationInfo info, StreamingContext context)
             : base(info, context) { }
     }
 }

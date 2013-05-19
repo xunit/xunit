@@ -16,3 +16,4 @@ help
 *.nupkg
 *.exe
 *.dll
+*.ncrunch*

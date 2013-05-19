@@ -1041,15 +1041,20 @@ public class XunitTestCaseTests
             return base.GetBeforeAfterAttributes(classUnderTest, methodUnderTest).OrderBy(a => a.GetType().Name);
         }
 
-        public void RunTests()
+        public bool Run(IMessageSink messageSink)
         {
-            RunTests(sink);
+            return Run(messageSink, new object[0], new ExceptionAggregator());
         }
 
-        protected override bool RunTests(IMessageSink messageSink)
+        public void RunTests()
+        {
+            RunTests(sink, new object[0], new ExceptionAggregator());
+        }
+
+        protected override bool RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator)
         {
             if (callback == null)
-                return base.RunTests(messageSink);
+                return base.RunTests(messageSink, constructorArguments, aggregator);
 
             callback(messageSink);
             return true;

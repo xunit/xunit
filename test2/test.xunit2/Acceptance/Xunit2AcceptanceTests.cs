@@ -116,7 +116,6 @@ public class Xunit2AcceptanceTests
                 }
             );
         }
-
     }
 
     public class SkippedTests : AcceptanceTest
@@ -838,6 +837,79 @@ public class Xunit2AcceptanceTests
 
             [Fact(Skip = "No soup for you!"), MyBeforeAfter]
             public void TestMethod2() { Assert.True(false); }
+        }
+    }
+
+    public class ClassFailures : AcceptanceTest
+    {
+        [Fact]
+        public void TestFailureResultsFromThrowingCtorInTestClass()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassUnderTest_CtorFailure));
+
+            Assert.Collection(messages,
+                msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionType)
+            );
+        }
+
+        [Fact]
+        public void TestFailureResultsFromThrowingDisposeInTestClass()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassUnderTest_DisposeFailure));
+
+            Assert.Collection(messages,
+                msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionType)
+            );
+        }
+
+        [Fact]
+        public void CompositeTestFailureResultsFromFailingTestsPlusThrowingDisposeInTestClass()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
+
+            var msg = Assert.Single(messages);
+            Assert.Equal(typeof(AggregateException).FullName, msg.ExceptionType);
+            Assert.Equal("System.AggregateException : One or more errors occurred." + Environment.NewLine +
+                         "---- Assert.Equal() Failure" + Environment.NewLine +
+                         "Expected: 2" + Environment.NewLine +
+                         "Actual:   3" + Environment.NewLine +
+                         "---- System.DivideByZeroException : Attempted to divide by zero.", msg.Message);
+        }
+
+        class ClassUnderTest_CtorFailure
+        {
+            public ClassUnderTest_CtorFailure()
+            {
+                throw new DivideByZeroException();
+            }
+
+            [Fact]
+            public void TheTest() { }
+        }
+
+        class ClassUnderTest_DisposeFailure : IDisposable
+        {
+            public void Dispose()
+            {
+                throw new DivideByZeroException();
+            }
+
+            [Fact]
+            public void TheTest() { }
+        }
+
+        class ClassUnderTest_FailingTestAndDisposeFailure : IDisposable
+        {
+            public void Dispose()
+            {
+                throw new DivideByZeroException();
+            }
+
+            [Fact]
+            public void TheTest()
+            {
+                Assert.Equal(2, 3);
+            }
         }
     }
 

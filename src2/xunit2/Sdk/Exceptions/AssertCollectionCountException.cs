@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// </summary>
     [Serializable]
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    public class AssertCollectionCountException : AssertException
+    public class AssertCollectionCountException : XunitException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SingleException"/> class.

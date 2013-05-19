@@ -10,47 +10,47 @@ namespace Xunit.Sdk
     /// The base assert exception class
     /// </summary>
     [Serializable]
-    public class AssertException : Exception
+    public class XunitException : Exception
     {
         readonly string stackTrace;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AssertException"/> class.
+        /// Initializes a new instance of the <see cref="XunitException"/> class.
         /// </summary>
-        public AssertException() { }
+        public XunitException() { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AssertException"/> class.
+        /// Initializes a new instance of the <see cref="XunitException"/> class.
         /// </summary>
         /// <param name="userMessage">The user message to be displayed</param>
-        public AssertException(string userMessage)
+        public XunitException(string userMessage)
             : base(userMessage)
         {
             this.UserMessage = userMessage;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AssertException"/> class.
+        /// Initializes a new instance of the <see cref="XunitException"/> class.
         /// </summary>
         /// <param name="userMessage">The user message to be displayed</param>
         /// <param name="innerException">The inner exception</param>
         [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-        protected AssertException(string userMessage, Exception innerException)
+        protected XunitException(string userMessage, Exception innerException)
             : base(userMessage, innerException) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AssertException"/> class.
+        /// Initializes a new instance of the <see cref="XunitException"/> class.
         /// </summary>
         /// <param name="userMessage">The user message to be displayed</param>
         /// <param name="stackTrace">The stack trace to be displayed</param>
-        protected AssertException(string userMessage, string stackTrace)
+        protected XunitException(string userMessage, string stackTrace)
             : base(userMessage)
         {
             this.stackTrace = stackTrace;
         }
 
         /// <inheritdoc/>
-        protected AssertException(SerializationInfo info, StreamingContext context)
+        protected XunitException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             stackTrace = info.GetString("CustomStackTrace");

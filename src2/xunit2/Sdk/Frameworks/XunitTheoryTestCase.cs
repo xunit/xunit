@@ -30,8 +30,10 @@ namespace Xunit.Sdk
         /// <inheritdoc />
         protected override bool RunTestsOnMethod(IMessageSink messageSink,
                                                  Type classUnderTest,
+                                                 object[] constructorArguments,
                                                  MethodInfo methodUnderTest,
                                                  List<BeforeAfterTestAttribute> beforeAfterAttributes,
+                                                 ExceptionAggregator aggregator,
                                                  ref decimal executionTime)
         {
             try
@@ -47,7 +49,7 @@ namespace Xunit.Sdk
                     IDataDiscoverer discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
 
                     foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
-                        if (RunTestWithArguments(messageSink, classUnderTest, methodUnderTest, dataRow, GetDisplayNameWithArguments(DisplayName, dataRow), beforeAfterAttributes, ref executionTime))
+                        if (RunTestWithArguments(messageSink, classUnderTest, constructorArguments, methodUnderTest, dataRow, GetDisplayNameWithArguments(DisplayName, dataRow), beforeAfterAttributes, aggregator, ref executionTime))
                             return true;
                 }
 

@@ -13,7 +13,7 @@ namespace Xunit.Sdk
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     [Serializable]
-    public class AssertActualExpectedException : AssertException
+    public class AssertActualExpectedException : XunitException
     {
         /// <summary>
         /// Creates a new instance of the <see href="AssertActualExpectedException"/> class.

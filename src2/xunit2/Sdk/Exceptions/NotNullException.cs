@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     [Serializable]
-    public class NotNullException : AssertException
+    public class NotNullException : XunitException
     {
         /// <summary>
         /// Creates a new instance of the <see cref="NotNullException"/> class.

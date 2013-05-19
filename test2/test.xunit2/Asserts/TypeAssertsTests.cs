@@ -125,7 +125,7 @@ public class TypeAssertsTests
         [Fact]
         public void MatchedTypeThrows()
         {
-            AssertException exception =
+            XunitException exception =
                 Assert.Throws<IsNotTypeException>(
                     () => Assert.IsNotType<InvalidCastException>(new InvalidCastException()));
 
@@ -152,7 +152,7 @@ public class TypeAssertsTests
         [Fact]
         public void MatchedTypeThrows()
         {
-            AssertException exception =
+            XunitException exception =
                 Assert.Throws<IsNotTypeException>(
                     () => Assert.IsNotType(typeof(InvalidCastException), new InvalidCastException()));
 
@@ -189,7 +189,7 @@ public class TypeAssertsTests
         [Fact]
         public void UnmatchedTypeThrows()
         {
-            AssertException exception =
+            XunitException exception =
                 Assert.Throws<IsTypeException>(
                     () => Assert.IsType<InvalidCastException>(new InvalidOperationException()));
 
@@ -216,7 +216,7 @@ public class TypeAssertsTests
         [Fact]
         public void UnmatchedTypeThrows()
         {
-            AssertException exception =
+            XunitException exception =
                 Assert.Throws<IsTypeException>(
                     () => Assert.IsType(typeof(InvalidCastException), new InvalidOperationException()));
 

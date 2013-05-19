@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// Exception thrown when Assert.Collection fails.
     /// </summary>
     [Serializable]
-    public class CollectionException : AssertException
+    public class CollectionException : XunitException
     {
         readonly string innerException;
         readonly string innerStackTrace;

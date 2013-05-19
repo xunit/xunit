@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     [Serializable]
-    public class DoesNotContainException : AssertException
+    public class DoesNotContainException : XunitException
     {
         /// <summary>
         /// Creates a new instance of the <see cref="DoesNotContainException"/> class.

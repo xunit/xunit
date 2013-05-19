@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     [Serializable]
-    public class TimeoutException : AssertException
+    public class TimeoutException : XunitException
     {
         /// <summary>
         /// Creates a new instance of the <see cref="TimeoutException"/> class.

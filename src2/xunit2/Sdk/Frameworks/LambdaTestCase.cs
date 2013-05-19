@@ -30,7 +30,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override bool RunTests(IMessageSink messageSink)
+        protected override bool RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator)
         {
             bool cancelled = false;
 
