@@ -21,7 +21,7 @@ public class StandardOutputVisitorTests
         public void LogsMessage()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, null);
+            var visitor = new StandardOutputVisitor(logger, false, null);
 
             var result = visitor.OnMessage(errorMessage);
 
@@ -34,7 +34,7 @@ public class StandardOutputVisitorTests
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => true);
+            var visitor = new StandardOutputVisitor(logger, false, () => true);
 
             var result = visitor.OnMessage(errorMessage);
 
@@ -45,7 +45,7 @@ public class StandardOutputVisitorTests
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => false);
+            var visitor = new StandardOutputVisitor(logger, false, () => false);
 
             var result = visitor.OnMessage(errorMessage);
 
@@ -70,7 +70,7 @@ public class StandardOutputVisitorTests
         public void LogsMessageWithStatitics()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, null);
+            var visitor = new StandardOutputVisitor(logger, false, null);
 
             visitor.OnMessage(assemblyFinished);
 
@@ -81,7 +81,7 @@ public class StandardOutputVisitorTests
         public void AddsStatisticsToRunningTotal()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, null) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
+            var visitor = new StandardOutputVisitor(logger, false, null) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
 
             visitor.OnMessage(assemblyFinished);
 
@@ -95,7 +95,7 @@ public class StandardOutputVisitorTests
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => true);
+            var visitor = new StandardOutputVisitor(logger, false, () => true);
 
             var result = visitor.OnMessage(assemblyFinished);
 
@@ -106,7 +106,7 @@ public class StandardOutputVisitorTests
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => false);
+            var visitor = new StandardOutputVisitor(logger, false, () => false);
 
             var result = visitor.OnMessage(assemblyFinished);
 
@@ -130,7 +130,7 @@ public class StandardOutputVisitorTests
         public void LogsTestNameWithExceptionAndStackTrace()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, null);
+            var visitor = new StandardOutputVisitor(logger, false, null);
 
             visitor.OnMessage(testFailed);
 
@@ -143,7 +143,7 @@ public class StandardOutputVisitorTests
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => true);
+            var visitor = new StandardOutputVisitor(logger, false, () => true);
 
             var result = visitor.OnMessage(testFailed);
 
@@ -154,7 +154,7 @@ public class StandardOutputVisitorTests
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => false);
+            var visitor = new StandardOutputVisitor(logger, false, () => false);
 
             var result = visitor.OnMessage(testFailed);
 
@@ -176,7 +176,7 @@ public class StandardOutputVisitorTests
         public void LogsTestName()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, null);
+            var visitor = new StandardOutputVisitor(logger, false, null);
 
             visitor.OnMessage(testPassed);
 
@@ -184,10 +184,21 @@ public class StandardOutputVisitorTests
         }
 
         [Fact]
+        public void AddsPassToLogWhenInVerboseMode()
+        {
+            var logger = SpyLogger.Create();
+            var visitor = new StandardOutputVisitor(logger, true, null);
+
+            visitor.OnMessage(testPassed);
+
+            Assert.Single(logger.Messages, "MESSAGE[Normal]:     PASS:  This is my display name \\t\\r\\n");
+        }
+
+        [Fact]
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => true);
+            var visitor = new StandardOutputVisitor(logger, false, () => true);
 
             var result = visitor.OnMessage(testPassed);
 
@@ -198,7 +209,7 @@ public class StandardOutputVisitorTests
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => false);
+            var visitor = new StandardOutputVisitor(logger, false, () => false);
 
             var result = visitor.OnMessage(testPassed);
 
@@ -221,7 +232,7 @@ public class StandardOutputVisitorTests
         public void LogsTestNameAsWarning()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, null);
+            var visitor = new StandardOutputVisitor(logger, false, null);
 
             visitor.OnMessage(testSkipped);
 
@@ -232,7 +243,7 @@ public class StandardOutputVisitorTests
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => true);
+            var visitor = new StandardOutputVisitor(logger, false, () => true);
 
             var result = visitor.OnMessage(testSkipped);
 
@@ -243,9 +254,64 @@ public class StandardOutputVisitorTests
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, () => false);
+            var visitor = new StandardOutputVisitor(logger, false, () => false);
 
             var result = visitor.OnMessage(testSkipped);
+
+            Assert.True(result);
+        }
+    }
+
+    public class OnMessage_TestStarting
+    {
+        ITestStarting testStarting;
+
+        public OnMessage_TestStarting()
+        {
+            testStarting = Substitute.For<ITestStarting>();
+            testStarting.TestDisplayName.Returns("This is my display name \t\r\n");
+        }
+
+        [Fact]
+        public void NoOutputWhenNotInVerboseMode()
+        {
+            var logger = SpyLogger.Create();
+            var visitor = new StandardOutputVisitor(logger, false, null);
+
+            visitor.OnMessage(testStarting);
+
+            Assert.Empty(logger.Messages);
+        }
+
+        [Fact]
+        public void OutputStartMessageWhenInVerboseMode()
+        {
+            var logger = SpyLogger.Create();
+            var visitor = new StandardOutputVisitor(logger, true, null);
+
+            visitor.OnMessage(testStarting);
+
+            Assert.Single(logger.Messages, "MESSAGE[Normal]:     START: This is my display name \\t\\r\\n");
+        }
+
+        [Fact]
+        public void ReturnsFalseWhenCancellationThunkIsTrue()
+        {
+            var logger = SpyLogger.Create();
+            var visitor = new StandardOutputVisitor(logger, false, () => true);
+
+            var result = visitor.OnMessage(testStarting);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void ReturnsTrueWhenCancellationThunkIsFalse()
+        {
+            var logger = SpyLogger.Create();
+            var visitor = new StandardOutputVisitor(logger, false, () => false);
+
+            var result = visitor.OnMessage(testStarting);
 
             Assert.True(result);
         }

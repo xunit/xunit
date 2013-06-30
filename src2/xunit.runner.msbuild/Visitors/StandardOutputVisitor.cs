@@ -7,8 +7,13 @@ namespace Xunit.Runner.MSBuild
 {
     public class StandardOutputVisitor : MSBuildVisitor
     {
-        public StandardOutputVisitor(TaskLoggingHelper log, Func<bool> cancelThunk)
-            : base(log, cancelThunk) { }
+        private readonly bool verbose;
+
+        public StandardOutputVisitor(TaskLoggingHelper log, bool verbose, Func<bool> cancelThunk)
+            : base(log, cancelThunk)
+        {
+            this.verbose = verbose;
+        }
 
         protected override bool Visit(ITestAssemblyFinished assemblyFinished)
         {
@@ -42,7 +47,10 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(ITestPassed testPassed)
         {
-            Log.LogMessage("    {0}", Escape(testPassed.TestDisplayName));
+            if (verbose)
+                Log.LogMessage("    PASS:  {0}", Escape(testPassed.TestDisplayName));
+            else
+                Log.LogMessage("    {0}", Escape(testPassed.TestDisplayName));
 
             return !CancelThunk();
         }
@@ -50,6 +58,14 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestSkipped testSkipped)
         {
             Log.LogWarning("{0}: {1}", Escape(testSkipped.TestDisplayName), Escape(testSkipped.Reason));
+
+            return !CancelThunk();
+        }
+
+        protected override bool Visit(ITestStarting testStarting)
+        {
+            if (verbose)
+                Log.LogMessage("    START: {0}", Escape(testStarting.TestDisplayName));
 
             return !CancelThunk();
         }

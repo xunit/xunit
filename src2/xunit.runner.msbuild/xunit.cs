@@ -47,11 +47,7 @@ namespace Xunit.Runner.MSBuild
             if (TeamCity)
                 return new TeamCityVisitor(Log, () => cancel, assemblyFilename);
 
-            //TeamCity ? (IMessageSink)new TeamCityLogger(Log, () => cancel) :
-            //Verbose ? new VerboseLogger(Log, () => cancel) :
-            //          new StandardLogger(Log, () => cancel);
-
-            return new StandardOutputVisitor(Log, () => cancel);
+            return new StandardOutputVisitor(Log, Verbose, () => cancel);
         }
 
         public override bool Execute()
