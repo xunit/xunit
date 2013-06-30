@@ -17,6 +17,7 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(ITestAssemblyFinished assemblyFinished)
         {
+            // Base class does computation of results, so call it first.
             var result = base.Visit(assemblyFinished);
 
             Log.LogMessage(MessageImportance.High,
