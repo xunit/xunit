@@ -30,7 +30,7 @@ namespace Xunit.Runner.MSBuild
 
         public string WorkingFolder { get; set; }
 
-        //public ITaskItem Xml { get; set; }
+        public ITaskItem Xml { get; set; }
 
         public void Cancel()
         {

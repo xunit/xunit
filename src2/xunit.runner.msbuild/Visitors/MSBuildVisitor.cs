@@ -19,6 +19,15 @@ namespace Xunit.Runner.MSBuild
         public decimal Time;
         public int Total;
 
+        public override bool OnMessage(ITestMessage message)
+        {
+            var result = base.OnMessage(message);
+            if (result)
+                result = !CancelThunk();
+
+            return result;
+        }
+
         protected override bool Visit(ITestAssemblyFinished assemblyFinished)
         {
             Total += assemblyFinished.TestsRun;

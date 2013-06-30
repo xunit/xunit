@@ -17,7 +17,7 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(ITestAssemblyFinished assemblyFinished)
         {
-            base.Visit(assemblyFinished);
+            var result = base.Visit(assemblyFinished);
 
             Log.LogMessage(MessageImportance.High,
                            "  Tests: {0}, Failures: {1}, Skipped: {2}, Time: {3} seconds",
@@ -26,7 +26,7 @@ namespace Xunit.Runner.MSBuild
                            assemblyFinished.TestsSkipped,
                            assemblyFinished.ExecutionTime.ToString("0.000"));
 
-            return !CancelThunk();
+            return result;
         }
 
         protected override bool Visit(IErrorMessage error)
@@ -34,7 +34,7 @@ namespace Xunit.Runner.MSBuild
             Log.LogError("{0}: {1}", error.ExceptionType, Escape(error.Message));
             Log.LogError(error.StackTrace);
 
-            return !CancelThunk();
+            return base.Visit(error);
         }
 
         protected override bool Visit(ITestFailed testFailed)
@@ -42,7 +42,7 @@ namespace Xunit.Runner.MSBuild
             Log.LogError("{0}: {1}", Escape(testFailed.TestDisplayName), Escape(testFailed.Message));
             Log.LogError(testFailed.StackTrace);
 
-            return !CancelThunk();
+            return base.Visit(testFailed);
         }
 
         protected override bool Visit(ITestPassed testPassed)
@@ -52,14 +52,14 @@ namespace Xunit.Runner.MSBuild
             else
                 Log.LogMessage("    {0}", Escape(testPassed.TestDisplayName));
 
-            return !CancelThunk();
+            return base.Visit(testPassed);
         }
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
             Log.LogWarning("{0}: {1}", Escape(testSkipped.TestDisplayName), Escape(testSkipped.Reason));
 
-            return !CancelThunk();
+            return base.Visit(testSkipped);
         }
 
         protected override bool Visit(ITestStarting testStarting)
@@ -67,7 +67,7 @@ namespace Xunit.Runner.MSBuild
             if (verbose)
                 Log.LogMessage("    START: {0}", Escape(testStarting.TestDisplayName));
 
-            return !CancelThunk();
+            return base.Visit(testStarting);
         }
     }
 }
