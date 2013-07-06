@@ -32,14 +32,15 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCase"/> class.
         /// </summary>
+        /// <param name="testCollection">The test collection this test case belongs to.</param>
         /// <param name="assembly">The test assembly.</param>
         /// <param name="type">The test class.</param>
         /// <param name="method">The test method.</param>
         /// <param name="factAttribute">The instance of the <see cref="FactAttribute"/>.</param>
         /// <param name="arguments">The arguments for the test method.</param>
-        public XunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments = null)
+        public XunitTestCase(XunitTestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments = null)
         {
-            Initialize(assembly, type, method, factAttribute, arguments);
+            Initialize(testCollection, assembly, type, method, factAttribute, arguments);
         }
 
         /// <inheritdoc/>
@@ -49,16 +50,17 @@ namespace Xunit.Sdk
             string typeName = info.GetString("TypeName");
             string methodName = info.GetString("MethodName");
             object[] arguments = (object[])info.GetValue("Arguments", typeof(object[]));
+            var testCollection = (XunitTestCollection)info.GetValue("TestCollection", typeof(XunitTestCollection));
 
             var type = Reflector.GetType(typeName, assemblyName);
             var typeInfo = Reflector.Wrap(type);
             var methodInfo = Reflector.Wrap(type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
             var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-            Initialize(Reflector.Wrap(type.Assembly), typeInfo, methodInfo, factAttribute, arguments);
+            Initialize(testCollection, Reflector.Wrap(type.Assembly), typeInfo, methodInfo, factAttribute, arguments);
         }
 
-        void Initialize(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments)
+        void Initialize(XunitTestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments)
         {
             string displayNameBase = factAttribute.GetNamedArgument<string>("DisplayName") ?? type.Name + "." + method.Name;
 
@@ -69,6 +71,7 @@ namespace Xunit.Sdk
             DisplayName = GetDisplayNameWithArguments(displayNameBase, arguments);
             SkipReason = factAttribute.GetNamedArgument<string>("Skip");
             Traits = new Dictionary<string, string>();
+            TestCollection = testCollection;
 
             foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute)))
             {
@@ -139,23 +142,6 @@ namespace Xunit.Sdk
             return args;
         }
 
-        static string ConvertToSimpleTypeName(Type type)
-        {
-            if (!type.IsGenericType)
-                return type.Name;
-
-            Type[] genericTypes = type.GetGenericArguments();
-            string[] simpleNames = new string[genericTypes.Length];
-
-            for (int idx = 0; idx < genericTypes.Length; idx++)
-                simpleNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
-
-            string baseTypeName = type.Name;
-            int backTickIdx = type.Name.IndexOf('`');
-
-            return baseTypeName.Substring(0, backTickIdx) + "<" + String.Join(", ", simpleNames) + ">";
-        }
-
         /// <summary>
         /// Gets the <see cref="BeforeAfterTestAttribute"/> instances for a test method.
         /// </summary>
@@ -201,6 +187,7 @@ namespace Xunit.Sdk
             info.AddValue("TypeName", Class.Name);
             info.AddValue("MethodName", Method.Name);
             info.AddValue("Arguments", Arguments);
+            info.AddValue("TestCollection", TestCollection);
         }
 
         static string GetParameterName(IParameterInfo[] parameters, int index)

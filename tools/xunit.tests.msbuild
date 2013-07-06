@@ -15,9 +15,9 @@
 
     <Target Name="Test">
         <xunit
-            Assemblies="@(TestAssemblies)" />
-            <!--Xml="..\TestResults-$(PROCESSOR_ARCHITECTURE).xml"
-            Html="..\TestResults-$(PROCESSOR_ARCHITECTURE).html" -->
+            Assemblies="@(TestAssemblies)"
+            Xml="..\TestResults-$(PROCESSOR_ARCHITECTURE).xml"
+        />
     </Target>
 
 </Project>

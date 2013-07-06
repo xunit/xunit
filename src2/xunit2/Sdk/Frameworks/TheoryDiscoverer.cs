@@ -14,12 +14,12 @@ namespace Xunit.Sdk
     public class TheoryDiscoverer : IXunitDiscoverer
     {
         /// <inheritdoc/>
-        public IEnumerable<XunitTestCase> Discover(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute)
+        public IEnumerable<XunitTestCase> Discover(XunitTestCollection testCollection, IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute)
         {
             // Special case Skip, because we want a single Skip (not one per data item), and a skipped test may
             // not actually have any data (which is quasi-legal, since it's skipped).
             if (factAttribute.GetNamedArgument<string>("Skip") != null)
-                return new[] { new XunitTestCase(assembly, testClass, testMethod, factAttribute) };
+                return new[] { new XunitTestCase(testCollection, assembly, testClass, testMethod, factAttribute) };
 
             try
             {
@@ -43,7 +43,7 @@ namespace Xunit.Sdk
                             // and serialization is the best way to do that. If it's not serializable, this will
                             // throw and we will fall back to a single theory test case that gets its data
                             // at runtime.
-                            var testCase = new XunitTestCase(assembly, testClass, testMethod, factAttribute, dataRow);
+                            var testCase = new XunitTestCase(testCollection, assembly, testClass, testMethod, factAttribute, dataRow);
                             SerializationHelper.Serialize(testCase);
                             results.Add(testCase);
                         }
@@ -51,14 +51,14 @@ namespace Xunit.Sdk
 
                     // REVIEW: Could we re-write LambdaTestCase to just be for exceptions?
                     if (results.Count == 0)
-                        results.Add(new LambdaTestCase(assembly, testClass, testMethod, factAttribute, () => { throw new InvalidOperationException("No data found for " + testClass.Name + "." + testMethod.Name); }));
+                        results.Add(new LambdaTestCase(testCollection, assembly, testClass, testMethod, factAttribute, () => { throw new InvalidOperationException("No data found for " + testClass.Name + "." + testMethod.Name); }));
 
                     return results;
                 }
             }
             catch
             {
-                return new XunitTestCase[] { new XunitTheoryTestCase(assembly, testClass, testMethod, factAttribute) };
+                return new XunitTestCase[] { new XunitTheoryTestCase(testCollection, assembly, testClass, testMethod, factAttribute) };
             }
         }
     }

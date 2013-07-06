@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Xunit.Abstractions;
@@ -10,8 +11,8 @@ namespace Xunit.Runner.MSBuild
     {
         string assemblyFileName;
 
-        public TeamCityVisitor(TaskLoggingHelper log, Func<bool> cancelThunk, string assemblyFileName)
-            : base(log, cancelThunk)
+        public TeamCityVisitor(TaskLoggingHelper log, XElement assembliesElement, Func<bool> cancelThunk, string assemblyFileName)
+            : base(log, assembliesElement, cancelThunk)
         {
             this.assemblyFileName = Path.GetFullPath(assemblyFileName);
 

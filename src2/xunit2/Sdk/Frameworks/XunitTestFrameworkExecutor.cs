@@ -13,7 +13,8 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFrameworkExecutor : LongLivedMarshalByRefObject, ITestFrameworkExecutor
     {
-        IAssemblyInfo assemblyInfo;
+        readonly string assemblyFileName;
+        readonly IAssemblyInfo assemblyInfo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
@@ -21,6 +22,8 @@ namespace Xunit.Sdk
         /// <param name="assemblyFileName">Path of the test assembly.</param>
         public XunitTestFrameworkExecutor(string assemblyFileName)
         {
+            this.assemblyFileName = assemblyFileName;
+
             var assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
             assemblyInfo = Reflector.Wrap(assembly);
         }
@@ -46,18 +49,22 @@ namespace Xunit.Sdk
             {
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 
-                if (messageSink.OnMessage(new TestAssemblyStarting()))
+                if (messageSink.OnMessage(new TestAssemblyStarting
+                    {
+                        AssemblyFileName = assemblyFileName,
+                        ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile,
+                        StartTime = DateTime.Now,
+                        TestEnvironment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version),
+                        TestFrameworkDisplayName = XunitTestFrameworkDiscoverer.DisplayName
+                    }))
                 {
-                    var classGroups = testMethods.Cast<XunitTestCase>().GroupBy(tc => tc.Class).ToList();
-
-                    if (classGroups.Count > 0)
+                    foreach (var collectionGroup in testMethods.Cast<XunitTestCase>().GroupBy(tc => tc.TestCollection))
                     {
                         var collectionSummary = new RunSummary();
-                        var testCollection = new XunitTestCollection();
 
-                        if (messageSink.OnMessage(new TestCollectionStarting { TestCollection = testCollection }))
+                        if (messageSink.OnMessage(new TestCollectionStarting { TestCollection = collectionGroup.Key }))
                         {
-                            foreach (var group in classGroups)
+                            foreach (var group in collectionGroup.GroupBy(tc => tc.Class))
                             {
                                 var classSummary = new RunSummary();
 
@@ -89,7 +96,7 @@ namespace Xunit.Sdk
                         {
                             Assembly = assemblyInfo,
                             ExecutionTime = collectionSummary.Time,
-                            TestCollection = testCollection,
+                            TestCollection = collectionGroup.Key,
                             TestsFailed = collectionSummary.Failed,
                             TestsRun = collectionSummary.Total,
                             TestsSkipped = collectionSummary.Skipped

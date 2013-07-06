@@ -16,7 +16,7 @@ public class StandardOutputVisitorTests
             errorMessage.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
 
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             var result = visitor.OnMessage(errorMessage);
 
@@ -38,7 +38,7 @@ public class StandardOutputVisitorTests
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(assemblyFinished);
 
@@ -57,7 +57,7 @@ public class StandardOutputVisitorTests
             testFailed.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
 
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(testFailed);
 
@@ -81,7 +81,7 @@ public class StandardOutputVisitorTests
         public void LogsTestName()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(testPassed);
 
@@ -92,7 +92,7 @@ public class StandardOutputVisitorTests
         public void AddsPassToLogWhenInVerboseMode()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, true, null);
+            var visitor = new StandardOutputVisitor(logger, null, true, null);
 
             visitor.OnMessage(testPassed);
 
@@ -110,7 +110,7 @@ public class StandardOutputVisitorTests
             testSkipped.Reason.Returns("This is my skip reason \t\r\n");
 
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(testSkipped);
 
@@ -132,7 +132,7 @@ public class StandardOutputVisitorTests
         public void NoOutputWhenNotInVerboseMode()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(testStarting);
 
@@ -143,7 +143,7 @@ public class StandardOutputVisitorTests
         public void OutputStartMessageWhenInVerboseMode()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, true, null);
+            var visitor = new StandardOutputVisitor(logger, null, true, null);
 
             visitor.OnMessage(testStarting);
 

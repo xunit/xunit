@@ -18,13 +18,14 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="LambdaTestCase"/> class.
         /// </summary>
+        /// <param name="testCollection">The test collection this test case belongs to.</param>
         /// <param name="assembly">The test assembly.</param>
         /// <param name="testClass">The test class.</param>
         /// <param name="testMethod">The test method.</param>
         /// <param name="factAttribute">The instance of <see cref="FactAttribute"/>.</param>
         /// <param name="lambda">The code to run for the test.</param>
-        public LambdaTestCase(IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute, Action lambda)
-            : base(assembly, testClass, testMethod, factAttribute)
+        public LambdaTestCase(XunitTestCollection testCollection, IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute, Action lambda)
+            : base(testCollection, assembly, testClass, testMethod, factAttribute)
         {
             this.lambda = lambda;
         }

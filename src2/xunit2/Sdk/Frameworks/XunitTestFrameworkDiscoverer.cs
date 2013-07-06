@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -12,8 +13,10 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFrameworkDiscoverer : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer
     {
-        IAssemblyInfo assemblyInfo;
-        ISourceInformationProvider sourceProvider;
+        public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
+
+        readonly IAssemblyInfo assemblyInfo;
+        readonly ISourceInformationProvider sourceProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
@@ -29,6 +32,12 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
+        public string TestFrameworkDisplayName
+        {
+            get { return DisplayName; }
+        }
+
+        /// <inheritdoc/>
         public void Dispose() { }
 
         /// <inheritdoc/>
@@ -38,8 +47,11 @@ namespace Xunit.Sdk
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
+                // REVIEW: Hard coding the knowledge that assembly == test collection
+                var testCollection = new XunitTestCollection();
+
                 foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
-                    if (!FindImpl(type, includeSourceInformation, messageSink))
+                    if (!FindImpl(testCollection, type, includeSourceInformation, messageSink))
                         break;
 
                 messageSink.OnMessage(new DiscoveryCompleteMessage());
@@ -54,9 +66,12 @@ namespace Xunit.Sdk
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
+                // REVIEW: Hard coding the knowledge that assembly == test collection
+                var testCollection = new XunitTestCollection();
+
                 ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
                 if (typeInfo != null)
-                    FindImpl(typeInfo, includeSourceInformation, messageSink);
+                    FindImpl(testCollection, typeInfo, includeSourceInformation, messageSink);
 
                 messageSink.OnMessage(new DiscoveryCompleteMessage());
             });
@@ -69,7 +84,7 @@ namespace Xunit.Sdk
         /// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
         /// <param name="messageSink">The message sink to send discovery messages to.</param>
         /// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
-        protected virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        protected virtual bool FindImpl(XunitTestCollection testCollection, ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
             string currentDirectory = Directory.GetCurrentDirectory();
 
@@ -92,7 +107,7 @@ namespace Xunit.Sdk
                             {
                                 IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
 
-                                foreach (XunitTestCase testCase in discoverer.Discover(assemblyInfo, type, method, factAttribute))
+                                foreach (XunitTestCase testCase in discoverer.Discover(testCollection, assemblyInfo, type, method, factAttribute))
                                     if (!messageSink.OnMessage(new TestCaseDiscoveryMessage { TestCase = UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation) }))
                                         return false;
                             }

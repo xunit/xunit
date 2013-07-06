@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Xunit.Abstractions;
@@ -9,8 +10,8 @@ namespace Xunit.Runner.MSBuild
     {
         private readonly bool verbose;
 
-        public StandardOutputVisitor(TaskLoggingHelper log, bool verbose, Func<bool> cancelThunk)
-            : base(log, cancelThunk)
+        public StandardOutputVisitor(TaskLoggingHelper log, XElement assemblyElement, bool verbose, Func<bool> cancelThunk)
+            : base(log, assemblyElement, cancelThunk)
         {
             this.verbose = verbose;
         }

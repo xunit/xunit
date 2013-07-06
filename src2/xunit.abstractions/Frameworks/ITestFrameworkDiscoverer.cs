@@ -8,6 +8,11 @@ namespace Xunit.Abstractions
     public interface ITestFrameworkDiscoverer : IDisposable
     {
         /// <summary>
+        /// Returns the display name of the test framework that this discoverer is running tests for.
+        /// </summary>
+        string TestFrameworkDisplayName { get; }
+
+        /// <summary>
         /// Starts the process of finding all tests in an assembly.
         /// </summary>
         /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>

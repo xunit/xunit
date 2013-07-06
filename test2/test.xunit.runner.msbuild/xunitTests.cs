@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NSubstitute;
@@ -78,7 +80,7 @@ public class xunitTests
         [Fact]
         public void CallsExecuteAssemblyOnceForEachAssembly()
         {
-            var visitor = new MSBuildVisitor(null, null);
+            var visitor = new MSBuildVisitor(null, null, null);
             visitor.Finished.Set();
             var assm1 = new TaskItem(@"C:\Full\Path\1");
             var assm2 = new TaskItem(@"C:\Full\Path\2", new Dictionary<string, string> { { "ConfigFile", @"C:\Config\File" } });
@@ -116,7 +118,7 @@ public class xunitTests
         [Fact]
         public void ReturnsFalseWhenFailCountIsNonZero()
         {
-            var visitor = new MSBuildVisitor(null, null) { Failed = 1 };
+            var visitor = new MSBuildVisitor(null, null, null) { Failed = 1 };
             visitor.Finished.Set();
             var task = Substitute.For<ITaskItem>();
             task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
@@ -137,6 +139,31 @@ public class xunitTests
             xunit.Execute();
 
             Assert.Empty(xunit.ExecuteAssembly_Calls);
+        }
+
+        [Fact]
+        public void WritesXmlToDisk()
+        {
+            var tempFile = Path.GetTempFileName();
+
+            try
+            {
+                var visitor = new MSBuildVisitor(null, null, null) { Failed = 1 };
+                visitor.Finished.Set();
+                var task = Substitute.For<ITaskItem>();
+                task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
+                var xmlTaskItem = Substitute.For<ITaskItem>();
+                xmlTaskItem.GetMetadata("FullPath").Returns(tempFile);
+                var xunit = new Testable_xunit { CreateVisitor_Result = visitor, Assemblies = new[] { task }, Xml = xmlTaskItem };
+
+                xunit.Execute();
+
+                Assert.DoesNotThrow(() => new XmlDocument().Load(tempFile));
+            }
+            finally
+            {
+                File.Delete(tempFile);
+            }
         }
     }
 
@@ -261,24 +288,24 @@ public class xunitTests
             if (CreateVisitor_Result != null)
                 return CreateVisitor_Result;
 
-            return base.CreateVisitor(assemblyFileName);
+            return base.CreateVisitor(assemblyFileName, null);
         }
 
-        protected override MSBuildVisitor CreateVisitor(string assemblyFileName)
+        protected override MSBuildVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)
         {
             return _CreateVisitor(assemblyFileName);
         }
 
         public void _ExecuteAssembly(string assemblyFilename, string configFileName)
         {
-            base.ExecuteAssembly(assemblyFilename, configFileName, new MSBuildVisitor(null, null));
+            base.ExecuteAssembly(assemblyFilename, configFileName, new MSBuildVisitor(null, null, null));
         }
 
         protected override void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
         {
             ExecuteAssembly_Calls.Add(String.Format("{0}, {1}", assemblyFilename ?? "(null)", configFileName ?? "(null)"));
 
-            base.ExecuteAssembly(assemblyFilename, configFileName, new MSBuildVisitor(null, null));
+            base.ExecuteAssembly(assemblyFilename, configFileName, new MSBuildVisitor(null, null, null));
         }
 
         private void ReturnDiscoveryMessages(IMessageSink sink)

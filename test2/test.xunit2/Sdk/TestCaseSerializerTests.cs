@@ -1,7 +1,9 @@
 ﻿using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using NSubstitute;
 using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 public class TestCaseSerializerTests
@@ -21,10 +23,11 @@ public class TestCaseSerializerTests
         [Fact]
         public void CanSerializeFactBasedTestCase()
         {
+            var testCollection = new XunitTestCollection();
             var type = typeof(ClassUnderTest);
             var method = type.GetMethod("FactMethod");
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
-            var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
+            var testCase = new XunitTestCase(testCollection, Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
 
             Assert.DoesNotThrow(() => SerializationHelper.Serialize(testCase));
         }
@@ -32,10 +35,11 @@ public class TestCaseSerializerTests
         [Fact]
         public void DeserializedTestCaseContainsSameDataAsOriginalTestCase()
         {
+            var testCollection = new XunitTestCollection();
             var type = typeof(ClassUnderTest);
             var method = type.GetMethod("FactMethod");
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
-            var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
+            var testCase = new XunitTestCase(testCollection, Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
             var serialized = SerializationHelper.Serialize(testCase);
 
             var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
@@ -58,10 +62,11 @@ public class TestCaseSerializerTests
         [Fact]
         public void DeserializedTestWithSerializableArgumentsPreservesArguments()
         {
+            var testCollection = new XunitTestCollection();
             var type = typeof(ClassUnderTest);
             var method = type.GetMethod("FactMethod");
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
-            var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact), new object[] { 42, 21.12, "Hello world" });
+            var testCase = new XunitTestCase(testCollection, Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact), new object[] { 42, 21.12, "Hello world" });
             var serialized = SerializationHelper.Serialize(testCase);
 
             var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
@@ -75,10 +80,11 @@ public class TestCaseSerializerTests
         [Fact]
         public void DeserializedTestWithNonSerializableArgumentsThrows()
         {
+            var testCollection = new XunitTestCollection();
             var type = typeof(ClassUnderTest);
             var method = type.GetMethod("FactMethod");
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
-            var testCase = new XunitTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact), new object[] { new ClassUnderTest() });
+            var testCase = new XunitTestCase(testCollection, Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact), new object[] { new ClassUnderTest() });
 
             var ex = Record.Exception(() => SerializationHelper.Serialize(testCase));
 
@@ -91,10 +97,11 @@ public class TestCaseSerializerTests
         [Fact]
         public void CanSerializeFactBasedTestCase()
         {
+            var testCollection = new XunitTestCollection();
             var type = typeof(ClassUnderTest);
             var method = type.GetMethod("FactMethod");
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
-            var testCase = new XunitTheoryTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
+            var testCase = new XunitTheoryTestCase(testCollection, Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
 
             Assert.DoesNotThrow(() => SerializationHelper.Serialize(testCase));
         }
@@ -102,10 +109,11 @@ public class TestCaseSerializerTests
         [Fact]
         public void DeserializedTestCaseContainsSameDataAsOriginalTestCase()
         {
+            var testCollection = new XunitTestCollection();
             var type = typeof(ClassUnderTest);
             var method = type.GetMethod("FactMethod");
             var fact = CustomAttributeData.GetCustomAttributes(method).Single(cad => cad.AttributeType == typeof(FactAttribute));
-            var testCase = new XunitTheoryTestCase(Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
+            var testCase = new XunitTheoryTestCase(testCollection, Reflector.Wrap(type.Assembly), Reflector.Wrap(type), Reflector.Wrap(method), Reflector.Wrap(fact));
             var serialized = SerializationHelper.Serialize(testCase);
 
             var result = SerializationHelper.Deserialize<XunitTheoryTestCase>(serialized);

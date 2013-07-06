@@ -59,6 +59,12 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public string TestFrameworkDisplayName
+        {
+            get { return discoverer.TestFrameworkDisplayName; }
+        }
+
+        /// <inheritdoc/>
         public virtual void Dispose()
         {
             discoverer.SafeDispose();

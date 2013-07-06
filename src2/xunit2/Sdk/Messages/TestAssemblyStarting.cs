@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -7,5 +8,14 @@ namespace Xunit.Sdk
     /// </summary>
     public class TestAssemblyStarting : LongLivedMarshalByRefObject, ITestAssemblyStarting
     {
+        public string AssemblyFileName { get; set; }
+
+        public string ConfigFileName { get; set; }
+
+        public DateTime StartTime { get; set; }
+
+        public string TestEnvironment { get; set; }
+
+        public string TestFrameworkDisplayName { get; set; }
     }
 }

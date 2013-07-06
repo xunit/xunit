@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -84,7 +85,7 @@ public class XunitTheoryTestCaseTests
             SpyMessageSink<ITestMessage> sink = new SpyMessageSink<ITestMessage>();
 
             TestableXunitTheoryTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, Action<IMessageSink> callback = null)
-                : base(assembly, type, method, factAttribute)
+                : base(new XunitTestCollection(), assembly, type, method, factAttribute)
             {
                 this.callback = callback;
             }

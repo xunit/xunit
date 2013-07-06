@@ -29,6 +29,12 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public string TestFrameworkDisplayName
+        {
+            get { return xunit2.TestFrameworkDisplayName; }
+        }
+
+        /// <inheritdoc/>
         public ITestCase Deserialize(string value)
         {
             return xunit2.Deserialize(value);

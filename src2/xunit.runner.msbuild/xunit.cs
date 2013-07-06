@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -42,45 +43,62 @@ namespace Xunit.Runner.MSBuild
             return new XunitFrontController(assemblyFilename, configFileName, ShadowCopy);
         }
 
-        protected virtual MSBuildVisitor CreateVisitor(string assemblyFilename)
+        protected virtual MSBuildVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)
         {
             if (TeamCity)
-                return new TeamCityVisitor(Log, () => cancel, assemblyFilename);
+                return new TeamCityVisitor(Log, assemblyElement, () => cancel, assemblyFileName);
 
-            return new StandardOutputVisitor(Log, Verbose, () => cancel);
+            return new StandardOutputVisitor(Log, assemblyElement, Verbose, () => cancel);
         }
 
         public override bool Execute()
         {
             RemotingUtility.CleanUpRegisteredChannels();
+            XElement assembliesElement = null;
+            var environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
+
+            if (Xml != null)
+                assembliesElement = new XElement("assemblies");
 
             using (AssemblyHelper.SubscribeResolve())
             {
                 if (WorkingFolder != null)
                     Directory.SetCurrentDirectory(WorkingFolder);
 
-                Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
+                Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0})", environment);
 
                 foreach (ITaskItem assembly in Assemblies)
                 {
                     if (cancel)
                         break;
 
-                    string assemblyFilename = assembly.GetMetadata("FullPath");
-                    string configFilename = assembly.GetMetadata("ConfigFile");
-                    if (configFilename != null && configFilename.Length == 0)
-                        configFilename = null;
+                    string assemblyFileName = assembly.GetMetadata("FullPath");
+                    string configFileName = assembly.GetMetadata("ConfigFile");
+                    if (configFileName != null && configFileName.Length == 0)
+                        configFileName = null;
 
-                    MSBuildVisitor visitor = CreateVisitor(assemblyFilename);
-                    ExecuteAssembly(assemblyFilename, configFilename, visitor);
+                    var assemblyElement = CreateAssemblyXElement();
+                    var visitor = CreateVisitor(assemblyFileName, assemblyElement);
+                    ExecuteAssembly(assemblyFileName, configFileName, visitor);
                     visitor.Finished.WaitOne();
 
                     if (visitor.Failed != 0)
                         ExitCode = 1;
+
+                    if (assembliesElement != null)
+                        assembliesElement.Add(assemblyElement);
                 }
             }
 
+            if (Xml != null)
+                assembliesElement.Save(Xml.GetMetadata("FullPath"));
+
             return ExitCode == 0;
+        }
+
+        private XElement CreateAssemblyXElement()
+        {
+            return Xml == null ? null : new XElement("assembly");
         }
 
         protected virtual void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
