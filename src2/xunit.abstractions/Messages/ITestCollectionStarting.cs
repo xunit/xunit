@@ -5,6 +5,9 @@
     /// </summary>
     public interface ITestCollectionStarting : ITestMessage
     {
-        // TODO: How do we represent the collection?
+        /// <summary>
+        /// Gets the test collection.
+        /// </summary>
+        ITestCollection TestCollection { get; }
     }
 }

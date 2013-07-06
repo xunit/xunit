@@ -53,8 +53,9 @@ namespace Xunit.Sdk
                     if (classGroups.Count > 0)
                     {
                         var collectionSummary = new RunSummary();
+                        var testCollection = new XunitTestCollection();
 
-                        if (messageSink.OnMessage(new TestCollectionStarting()))
+                        if (messageSink.OnMessage(new TestCollectionStarting { TestCollection = testCollection }))
                         {
                             foreach (var group in classGroups)
                             {
@@ -68,7 +69,15 @@ namespace Xunit.Sdk
                                     collectionSummary.Aggregate(classSummary);
                                 }
 
-                                if (!messageSink.OnMessage(new TestClassFinished { Assembly = assemblyInfo, ClassName = group.Key.Name, TestsRun = classSummary.Total }))
+                                if (!messageSink.OnMessage(new TestClassFinished
+                                {
+                                    Assembly = assemblyInfo,
+                                    ClassName = group.Key.Name,
+                                    ExecutionTime = classSummary.Time,
+                                    TestsFailed = classSummary.Failed,
+                                    TestsRun = classSummary.Total,
+                                    TestsSkipped = classSummary.Skipped
+                                }))
                                     cancelled = true;
 
                                 if (cancelled)
@@ -76,7 +85,16 @@ namespace Xunit.Sdk
                             }
                         }
 
-                        messageSink.OnMessage(new TestCollectionFinished { Assembly = assemblyInfo, TestsRun = collectionSummary.Total });
+                        messageSink.OnMessage(new TestCollectionFinished
+                        {
+                            Assembly = assemblyInfo,
+                            ExecutionTime = collectionSummary.Time,
+                            TestCollection = testCollection,
+                            TestsFailed = collectionSummary.Failed,
+                            TestsRun = collectionSummary.Total,
+                            TestsSkipped = collectionSummary.Skipped
+                        });
+
                         totalSummary.Aggregate(collectionSummary);
                     }
                 }
@@ -84,10 +102,10 @@ namespace Xunit.Sdk
                 messageSink.OnMessage(new TestAssemblyFinished
                 {
                     Assembly = assemblyInfo,
+                    ExecutionTime = totalSummary.Time,
                     TestsRun = totalSummary.Total,
                     TestsFailed = totalSummary.Failed,
-                    TestsSkipped = totalSummary.Skipped,
-                    ExecutionTime = totalSummary.Time
+                    TestsSkipped = totalSummary.Skipped
                 });
             }
             finally
@@ -197,6 +215,7 @@ namespace Xunit.Sdk
 
             return cancelled;
         }
+
         class RunSummary
         {
             public int Total = 0;

@@ -7,5 +7,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class TestCollectionStarting : LongLivedMarshalByRefObject, ITestCollectionStarting
     {
+        /// <inheritdoc/>
+        public ITestCollection TestCollection { get; set; }
     }
 }

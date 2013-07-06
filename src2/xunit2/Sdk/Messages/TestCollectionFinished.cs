@@ -14,6 +14,9 @@ namespace Xunit.Sdk
         public decimal ExecutionTime { get; set; }
 
         /// <inheritdoc/>
+        public ITestCollection TestCollection { get; set; }
+
+        /// <inheritdoc/>
         public int TestsFailed { get; set; }
 
         /// <inheritdoc/>

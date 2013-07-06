@@ -6,6 +6,9 @@
     /// </summary>
     public interface ITestCollectionFinished : IFinishedMessage
     {
-        // TODO: How do we represent a collection?
+        /// <summary>
+        /// Gets the test collection.
+        /// </summary>
+        ITestCollection TestCollection { get; }
     }
 }

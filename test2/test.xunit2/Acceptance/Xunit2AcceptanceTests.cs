@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -36,7 +37,8 @@ public class Xunit2AcceptanceTests
                 message =>
                 {
                     var collectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
-                    // TODO: How do we represent collections?
+                    Assert.NotNull(collectionStarting.TestCollection);
+                    // TODO: There will need to be more tests here eventually...
                 },
                 message =>
                 {
@@ -73,6 +75,7 @@ public class Xunit2AcceptanceTests
                 {
                     var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
                     Assert.Equal(testPassed.TestCase.DisplayName, testPassed.TestDisplayName);
+                    Assert.NotEqual(0M, testPassed.ExecutionTime);
                 },
                 message =>
                 {
@@ -85,6 +88,7 @@ public class Xunit2AcceptanceTests
                     Assert.Equal(1, testCaseFinished.TestsRun);
                     Assert.Equal(0, testCaseFinished.TestsFailed);
                     Assert.Equal(0, testCaseFinished.TestsSkipped);
+                    Assert.NotEqual(0M, testCaseFinished.ExecutionTime);
                 },
                 message =>
                 {
@@ -98,21 +102,25 @@ public class Xunit2AcceptanceTests
                     Assert.Equal(1, classFinished.TestsRun);
                     Assert.Equal(0, classFinished.TestsFailed);
                     Assert.Equal(0, classFinished.TestsSkipped);
+                    Assert.NotEqual(0M, classFinished.ExecutionTime);
                 },
                 message =>
                 {
                     var collectionFinished = Assert.IsAssignableFrom<ITestCollectionFinished>(message);
+                    Assert.NotNull(collectionFinished.TestCollection);
                     Assert.Equal(1, collectionFinished.TestsRun);
                     Assert.Equal(0, collectionFinished.TestsFailed);
                     Assert.Equal(0, collectionFinished.TestsSkipped);
-                    // TODO: How do we represent collections?
+                    Assert.NotEqual(0M, collectionFinished.ExecutionTime);
+                    // TODO: There will need to be more tests here eventually...
                 },
                 message =>
                 {
-                    var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
-                    Assert.Equal(1, finished.TestsRun);
-                    Assert.Equal(0, finished.TestsFailed);
-                    Assert.Equal(0, finished.TestsSkipped);
+                    var assemblyFinished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
+                    Assert.Equal(1, assemblyFinished.TestsRun);
+                    Assert.Equal(0, assemblyFinished.TestsFailed);
+                    Assert.Equal(0, assemblyFinished.TestsSkipped);
+                    Assert.NotEqual(0M, assemblyFinished.ExecutionTime);
                 }
             );
         }
@@ -123,11 +131,17 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void SingleSkippedTest()
         {
-            List<ITestSkipped> results = Run<ITestSkipped>(typeof(SingleSkippedTestClass));
+            List<ITestMessage> results = Run(typeof(SingleSkippedTestClass));
 
-            var skippedMessage = Assert.Single(results);
+            var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
             Assert.Equal("Xunit2AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.TestDisplayName);
             Assert.Equal("This is a skipped test", skippedMessage.Reason);
+
+            var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+            Assert.Equal(1, classFinishedMessage.TestsSkipped);
+
+            var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+            Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
         }
     }
 
@@ -136,10 +150,16 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void SingleFailingTest()
         {
-            List<ITestFailed> results = Run<ITestFailed>(typeof(SingleFailingTestClass));
+            List<ITestMessage> results = Run(typeof(SingleFailingTestClass));
 
-            var failedMessage = Assert.Single(results);
+            var failedMessage = Assert.Single(results.OfType<ITestFailed>());
             Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionType);
+
+            var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+            Assert.Equal(1, classFinishedMessage.TestsFailed);
+
+            var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+            Assert.Equal(1, collectionFinishedMessage.TestsFailed);
         }
     }
 
