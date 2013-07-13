@@ -6,9 +6,7 @@
     <xsl:text disable-output-escaping="yes"><![CDATA[<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">]]></xsl:text>
     <html>
       <head>
-        <title>
-          xUnit.net Test Results - <xsl:value-of select="@name"/>
-        </title>
+        <title>xUnit.net Test Results</title>
         <style type="text/css">
           body { font-family: Calibri, Verdana, Arial, sans-serif; background-color: White; color: Black; }
           h2,h3,h4,h5 { margin: 0; padding: 0; }
@@ -66,7 +64,7 @@
             </b>
           </a>,
           Run time: <b>
-            <xsl:value-of select="sum(//assembly/@time)"/>s
+            <xsl:value-of select="format-number(sum(//assembly/@time), '0.000')"/>s
           </b>
         </div>
         <xsl:if test="//assembly/collection/test[@result='Fail']">

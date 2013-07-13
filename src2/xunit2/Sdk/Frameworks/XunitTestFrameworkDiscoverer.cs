@@ -48,7 +48,7 @@ namespace Xunit.Sdk
             ThreadPool.QueueUserWorkItem(_ =>
             {
                 // REVIEW: Hard coding the knowledge that assembly == test collection
-                var testCollection = new XunitTestCollection();
+                var testCollection = new XunitTestCollection { DisplayName = "Test collection for " + Path.GetFileName(assemblyInfo.AssemblyPath) };
 
                 foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
                     if (!FindImpl(testCollection, type, includeSourceInformation, messageSink))
@@ -67,7 +67,7 @@ namespace Xunit.Sdk
             ThreadPool.QueueUserWorkItem(_ =>
             {
                 // REVIEW: Hard coding the knowledge that assembly == test collection
-                var testCollection = new XunitTestCollection();
+                var testCollection = new XunitTestCollection { DisplayName = "Test collection for " + Path.GetFileName(assemblyInfo.AssemblyPath) };
 
                 ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
                 if (typeInfo != null)
