@@ -165,6 +165,32 @@ public class xunitTests
                 File.Delete(tempFile);
             }
         }
+
+        [Fact]
+        public void WritesHtmlToDisk()
+        {
+            var tempFile = Path.GetTempFileName();
+            File.Delete(tempFile);
+
+            try
+            {
+                var visitor = new MSBuildVisitor(null, null, null) { Failed = 1 };
+                visitor.Finished.Set();
+                var task = Substitute.For<ITaskItem>();
+                task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
+                var htmlTaskItem = Substitute.For<ITaskItem>();
+                htmlTaskItem.GetMetadata("FullPath").Returns(tempFile);
+                var xunit = new Testable_xunit { CreateVisitor_Result = visitor, Assemblies = new[] { task }, Html = htmlTaskItem };
+
+                xunit.Execute();
+
+                Assert.True(File.Exists(tempFile));
+            }
+            finally
+            {
+                File.Delete(tempFile);
+            }
+        }
     }
 
     public class ExecuteAssembly

@@ -163,10 +163,10 @@
         <span class="success">&#x2714;</span>
       </xsl:if>
       &#160;<xsl:value-of select="@name"/>
-      <xsl:if test="child::node()/message">
-        : <xsl:value-of select="child::node()/message"/>
-      </xsl:if>
       <br clear="all" />
+      <xsl:if test="child::node()/message">
+        <pre><xsl:value-of select="child::node()/message"/></pre>
+      </xsl:if>
       <xsl:if test="failure/stack-trace">
         <pre><xsl:value-of select="failure/stack-trace"/></pre>
       </xsl:if>
@@ -178,7 +178,10 @@
     <xsl:for-each select="failure">
       <div>
         <xsl:attribute name="class"><xsl:if test="(position() mod 2 = 0)">alt</xsl:if>row</xsl:attribute>
-        <span class="failure">&#x2718;</span> <xsl:value-of select="message"/><br clear="all"/>
+        <span class="failure">&#x2718;</span><br clear="all"/>
+        <xsl:if test="child::node()/message">
+          <pre><xsl:value-of select="child::node()/message"/></pre>
+        </xsl:if>
         <xsl:if test="stack-trace">
           <pre><xsl:value-of select="stack-trace"/></pre>
         </xsl:if>

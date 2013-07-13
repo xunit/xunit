@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Xsl;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -21,7 +23,12 @@ namespace Xunit.Runner.MSBuild
         [Output]
         public int ExitCode { get; protected set; }
 
-        //public ITaskItem Html { get; set; }
+        public ITaskItem Html { get; set; }
+
+        protected bool NeedsXml
+        {
+            get { return Xml != null || Html != null; }
+        }
 
         public bool ShadowCopy { get; set; }
 
@@ -57,7 +64,7 @@ namespace Xunit.Runner.MSBuild
             XElement assembliesElement = null;
             var environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
 
-            if (Xml != null)
+            if (NeedsXml)
                 assembliesElement = new XElement("assemblies");
 
             using (AssemblyHelper.SubscribeResolve())
@@ -92,6 +99,18 @@ namespace Xunit.Runner.MSBuild
 
             if (Xml != null)
                 assembliesElement.Save(Xml.GetMetadata("FullPath"));
+
+            if (Html != null)
+            {
+                var xmlTransform = new XslCompiledTransform();
+
+                using (var writer = XmlWriter.Create(Html.GetMetadata("FullPath")))
+                using (var xsltReader = XmlReader.Create(typeof(xunit).Assembly.GetManifestResourceStream("Xunit.Runner.MSBuild.HTML.xslt")))
+                {
+                    xmlTransform.Load(xsltReader);
+                    xmlTransform.Transform(assembliesElement.CreateReader(), writer);
+                }
+            }
 
             return ExitCode == 0;
         }

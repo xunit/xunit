@@ -67,16 +67,6 @@ public class MSBuildVisitorTests
 
     public class Xml
     {
-        //XslCompiledTransform xmlTransform = new XslCompiledTransform();
-        //StringBuilder htmlOutput = new StringBuilder();
-        //XmlWriter writer = XmlWriter.Create(htmlOutput);
-        //XmlReader xsltReader = XmlReader.Create(Assembly.GetExecutingAssembly().GetManifestResourceStream("test.xunit.runner.msbuild.HTML.xsl"));
-
-        //xmlTransform.Load(xsltReader);
-        //xmlTransform.Transform(visitor.Xml.CreateReader(), writer);
-
-        //Assert.Equal<object>("?", htmlOutput.ToString());
-
         [Fact]
         public void AddsAssemblyStartingInformationToXml()
         {
