@@ -167,6 +167,31 @@ public class xunitTests
         }
 
         [Fact]
+        public void WritesXmlV1ToDisk()
+        {
+            var tempFile = Path.GetTempFileName();
+
+            try
+            {
+                var visitor = new MSBuildVisitor(null, null, null) { Failed = 1 };
+                visitor.Finished.Set();
+                var task = Substitute.For<ITaskItem>();
+                task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
+                var xmlTaskItem = Substitute.For<ITaskItem>();
+                xmlTaskItem.GetMetadata("FullPath").Returns(tempFile);
+                var xunit = new Testable_xunit { CreateVisitor_Result = visitor, Assemblies = new[] { task }, XmlV1 = xmlTaskItem };
+
+                xunit.Execute();
+
+                Assert.DoesNotThrow(() => new XmlDocument().Load(tempFile));
+            }
+            finally
+            {
+                File.Delete(tempFile);
+            }
+        }
+
+        [Fact]
         public void WritesHtmlToDisk()
         {
             var tempFile = Path.GetTempFileName();

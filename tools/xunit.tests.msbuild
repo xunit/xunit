@@ -1,24 +1,24 @@
 <Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 
-    <PropertyGroup>
-        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-    </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+  </PropertyGroup>
 
-    <UsingTask
-        AssemblyFile="..\src2\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"
-        TaskName="Xunit.Runner.MSBuild.xunit"/>
+  <UsingTask
+      AssemblyFile="..\src2\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"
+      TaskName="Xunit.Runner.MSBuild.xunit"/>
 
-    <ItemGroup>
-        <TestAssemblies
-            Include="..\test2\test.xunit*\bin\$(Configuration)\test.xunit*.dll" />
-    </ItemGroup>
+  <ItemGroup>
+    <TestAssemblies
+        Include="..\test2\test.xunit*\bin\$(Configuration)\test.xunit*.dll" />
+  </ItemGroup>
 
-    <Target Name="Test">
-        <xunit
-            Assemblies="@(TestAssemblies)"
-            Xml="..\TestResults-$(PROCESSOR_ARCHITECTURE).xml"
-            Html="..\TestResults-$(PROCESSOR_ARCHITECTURE).html"
-        />
-    </Target>
+  <Target Name="Test">
+    <xunit
+        Assemblies="@(TestAssemblies)"
+        Xml="..\TestResults-$(PROCESSOR_ARCHITECTURE).xml"
+        Html="..\TestResults-$(PROCESSOR_ARCHITECTURE).html"
+    />
+  </Target>
 
 </Project>

@@ -18,6 +18,7 @@ namespace Xunit.Runner.MSBuild
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
         }
 
+        [Required]
         public ITaskItem[] Assemblies { get; set; }
 
         [Output]
@@ -27,7 +28,7 @@ namespace Xunit.Runner.MSBuild
 
         protected bool NeedsXml
         {
-            get { return Xml != null || Html != null; }
+            get { return Xml != null || XmlV1 != null || Html != null; }
         }
 
         public bool ShadowCopy { get; set; }
@@ -39,6 +40,8 @@ namespace Xunit.Runner.MSBuild
         public string WorkingFolder { get; set; }
 
         public ITaskItem Xml { get; set; }
+
+        public ITaskItem XmlV1 { get; set; }
 
         public void Cancel()
         {
@@ -97,27 +100,24 @@ namespace Xunit.Runner.MSBuild
                 }
             }
 
-            if (Xml != null)
-                assembliesElement.Save(Xml.GetMetadata("FullPath"));
-
-            if (Html != null)
+            if (NeedsXml)
             {
-                var xmlTransform = new XslCompiledTransform();
+                if (Xml != null)
+                    assembliesElement.Save(Xml.GetMetadata("FullPath"));
 
-                using (var writer = XmlWriter.Create(Html.GetMetadata("FullPath")))
-                using (var xsltReader = XmlReader.Create(typeof(xunit).Assembly.GetManifestResourceStream("Xunit.Runner.MSBuild.HTML.xslt")))
-                {
-                    xmlTransform.Load(xsltReader);
-                    xmlTransform.Transform(assembliesElement.CreateReader(), writer);
-                }
+                if (XmlV1 != null)
+                    Transform("xUnit1.xslt", assembliesElement, XmlV1);
+
+                if (Html != null)
+                    Transform("HTML.xslt", assembliesElement, Html);
             }
 
             return ExitCode == 0;
         }
 
-        private XElement CreateAssemblyXElement()
+        XElement CreateAssemblyXElement()
         {
-            return Xml == null ? null : new XElement("assembly");
+            return NeedsXml ? new XElement("assembly") : null;
         }
 
         protected virtual void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
@@ -154,9 +154,17 @@ namespace Xunit.Runner.MSBuild
             }
         }
 
-        //static Stream ResourceStream(string xmlResourceName)
-        //{
-        //    return System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Xunit.Runner.MSBuild." + xmlResourceName);
-        //}
+        void Transform(string resourceName, XNode xml, ITaskItem outputFile)
+        {
+            var xmlTransform = new XslCompiledTransform();
+
+            using (var writer = XmlWriter.Create(outputFile.GetMetadata("FullPath"), new XmlWriterSettings { Indent = true }))
+            using (var xsltReader = XmlReader.Create(typeof(xunit).Assembly.GetManifestResourceStream("Xunit.Runner.MSBuild." + resourceName)))
+            using (var xmlReader = xml.CreateReader())
+            {
+                xmlTransform.Load(xsltReader);
+                xmlTransform.Transform(xmlReader, writer);
+            }
+        }
     }
 }

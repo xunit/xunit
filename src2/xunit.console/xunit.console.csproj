@@ -72,6 +72,9 @@
     <Compile Include="Utility\TransformFactory.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="xUnit1.xslt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="HTML.xslt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
