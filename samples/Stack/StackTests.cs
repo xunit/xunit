@@ -1,163 +1,187 @@
 using System;
 using Xunit;
 
+// Expectations List
+//      Context: Empty Stack
+//          Verify that Count is 0
+//          Call Pop, Verify InvalidOperationException is thrown
+//          Call Peek, Verify InvalidOperationException is thrown
+//          Call Contains, Verify that it returns false
+//
+//      Context: Create a Stack, Push an Integer
+//          Verify that Count is 1
+//          Call Pop, Verify Count is 0
+//          Call Peek, Verify Count is 1
+//          Call Pop, Verify Pop returns the pushed integer
+//          Call Peek, Verify Peek returns the pushed integer
+//
+//      Context: Create a Stack, Push Multiple Integers
+//          Push 3 ints, verify that Count is 3
+//          Push 3 ints 10, 20, 30, Call Pop three times, verify that they are removed 30, 20, 10
+//          Create a Stack, Push(10), Push(20), Push(30), call Contains(20), verify that it returns true
+//
+//      Context: Create a Stack<string>
+//          Push("Help"), call Pop, verify that what is returned from Pop equals "Help"
+
 public class StackTests
 {
-    [Fact]
-    public void NoElementsShouldBeEmpty()
+    public class EmptyStack
     {
-        Stack<string> stack = new Stack<string>();
+        Stack<int> stack;
 
-        Assert.True(stack.IsEmpty);
+        public EmptyStack()
+        {
+            stack = new Stack<int>();
+        }
+
+        [Fact]
+        public void Count_ShouldReturnZero()
+        {
+            int count = stack.Count;
+
+            Assert.Equal(0, count);
+        }
+
+        [Fact]
+        public void Contains_ShouldReturnFalse()
+        {
+            bool contains = stack.Contains(10);
+
+            Assert.False(contains);
+        }
+
+        [Fact]
+        public void Pop_ShouldThrowInvalidOperationException()
+        {
+            Exception exception = Record.Exception(() => stack.Pop());
+
+            Assert.IsType<InvalidOperationException>(exception);
+        }
+
+        [Fact]
+        public void Peek_ShouldThrowInvalidOperationException()
+        {
+            Exception exception = Record.Exception(() => stack.Peek());
+
+            Assert.IsType<InvalidOperationException>(exception);
+        }
     }
 
-    [Fact]
-    public void PushAnElementShouldNotBeEmpty()
+    public class StackWithOneElement
     {
-        Stack<string> stack = new Stack<string>();
+        Stack<int> stack;
+        const int pushedValue = 42;
 
-        stack.Push("first element");
 
-        Assert.False(stack.IsEmpty);
+        public StackWithOneElement()
+        {
+            stack = new Stack<int>();
+            stack.Push(pushedValue);
+        }
+
+        [Fact]
+        public void Count_ShouldBeOne()
+        {
+            int count = stack.Count;
+
+            Assert.Equal(1, count);
+        }
+
+        [Fact]
+        public void Pop_CountShouldBeZero()
+        {
+            stack.Pop();
+
+            int count = stack.Count;
+
+            Assert.Equal(0, count);
+        }
+
+        [Fact]
+        public void Peek_CountShouldBeOne()
+        {
+            stack.Peek();
+
+            int count = stack.Count;
+
+            Assert.Equal(1, count);
+        }
+
+        [Fact]
+        public void Pop_ShouldReturnPushedValue()
+        {
+            int actual = stack.Pop();
+
+            Assert.Equal(pushedValue, actual);
+        }
+
+        [Fact]
+        public void Peek_ShouldReturnPushedValue()
+        {
+            int actual = stack.Peek();
+
+            Assert.Equal(pushedValue, actual);
+        }
     }
 
-    [Fact]
-    public void PushNullShouldNotBeEmpty()
+    public class StackWithMultipleValues
     {
-        Stack<string> stack = new Stack<string>();
+        Stack<int> stack;
+        const int firstPushedValue = 42;
+        const int secondPushedValue = 21;
+        const int thirdPushedValue = 11;
 
-        stack.Push(null);
+        public StackWithMultipleValues()
+        {
+            stack = new Stack<int>();
+            stack.Push(firstPushedValue);
+            stack.Push(secondPushedValue);
+            stack.Push(thirdPushedValue);
+        }
 
-        Assert.False(stack.IsEmpty);
+        [Fact]
+        public void Count_ShouldBeThree()
+        {
+            int count = stack.Count;
+
+            Assert.Equal(3, count);
+        }
+
+        [Fact]
+        public void Pop_VerifyLifoOrder()
+        {
+            Assert.Equal(thirdPushedValue, stack.Pop());
+            Assert.Equal(secondPushedValue, stack.Pop());
+            Assert.Equal(firstPushedValue, stack.Pop());
+        }
+
+        [Fact]
+        public void Peek_ReturnsLastPushedValue()
+        {
+            int actual = stack.Peek();
+            Assert.Equal(thirdPushedValue, actual);
+        }
+
+        [Fact]
+        public void Contains_ReturnsTrue()
+        {
+            bool contains = stack.Contains(secondPushedValue);
+
+            Assert.True(contains);
+        }
     }
 
-    [Fact]
-    public void PushThenPopShouldLeaveStackEmpty()
+    public class StackWithStrings
     {
-        Stack<string> stack = new Stack<string>();
+        [Fact]
+        public void Pop_ShouldReturnPushedValue()
+        {
+            Stack<string> stack = new Stack<string>();
+            stack.Push("Help");
 
-        stack.Push("first element");
-        stack.Pop();
+            string actual = stack.Pop();
 
-        Assert.True(stack.IsEmpty);
-    }
-
-    [Fact]
-    public void PopShouldReturnPushedElement()
-    {
-        Stack<string> stack = new Stack<string>();
-        string expected = "first element";
-        stack.Push(expected);
-
-        string result = stack.Pop();
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void PopShouldReturnNull()
-    {
-        Stack<string> stack = new Stack<string>();
-        stack.Push(null);
-
-        string result = stack.Pop();
-
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public void TopShouldReturnNull()
-    {
-        Stack<string> stack = new Stack<string>();
-        stack.Push(null);
-
-        Assert.Null(stack.Top);
-    }
-
-    [Fact]
-    public void MultiplePopsShouldreturnElementsInCorrectOrder()
-    {
-        string firstElement = "firstElement";
-        string secondElement = "secondElement";
-        string thirdElement = "thirdElement";
-
-        Stack<string> stack = new Stack<string>();
-        stack.Push(firstElement);
-        stack.Push(secondElement);
-        stack.Push(thirdElement);
-
-        Assert.Equal(thirdElement, stack.Pop());
-        Assert.Equal(secondElement, stack.Pop());
-        Assert.Equal(firstElement, stack.Pop());
-    }
-
-    [Fact]
-    public void PopEmptyStack()
-    {
-        Stack<string> stack = new Stack<string>();
-
-        Assert.Throws<InvalidOperationException>(
-            delegate
-            {
-                stack.Pop();
-            });
-    }
-
-    [Fact]
-    public void TopShouldNotChangeTheStateOfTheStack()
-    {
-        Stack<string> stack = new Stack<string>();
-        stack.Push("42");
-
-        string element = stack.Top;
-
-        Assert.False(stack.IsEmpty);
-    }
-
-    [Fact]
-    public void TopShouldReturnTopmostElement()
-    {
-        Stack<string> stack = new Stack<string>();
-        stack.Push("42");
-
-        Assert.Equal("42", stack.Top);
-    }
-
-    [Fact]
-    public void MultipleTopCallsShouldReturnTopmostElement()
-    {
-        string firstElement = "firstElement";
-        string secondElement = "secondElement";
-        string thirdElement = "thirdElement";
-
-        Stack<string> stack = new Stack<string>();
-        stack.Push(firstElement);
-        stack.Push(secondElement);
-        stack.Push(thirdElement);
-
-        for (int index = 0; index < 10; index++)
-            Assert.Equal(thirdElement, stack.Top);
-    }
-
-    [Fact]
-    public void TopEmptyStack()
-    {
-        Stack<string> stack = new Stack<string>();
-
-        Assert.Throws<InvalidOperationException>(
-            delegate
-            {
-                string element = stack.Top;
-            });
-    }
-
-    [Fact]
-    public void StackShouldWorkWithGenericTypes()
-    {
-        Stack<int> stack = new Stack<int>();
-
-        stack.Push(42);
-
-        Assert.Equal(42, stack.Pop());
+            Assert.Equal("Help", actual);
+        }
     }
 }

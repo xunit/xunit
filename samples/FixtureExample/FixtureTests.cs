@@ -46,11 +46,11 @@ namespace FixtureExample
         }
     }
 
-    public class FixtureTests : IUseFixture<DatabaseFixture>
+    public class FixtureTests : IClassFixture<DatabaseFixture>
     {
         DatabaseFixture database;
 
-        public void SetFixture(DatabaseFixture data)
+        public FixtureTests(DatabaseFixture data)
         {
             database = data;
         }

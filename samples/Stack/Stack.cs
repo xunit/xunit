@@ -1,36 +1,38 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
-class Stack<T>
+public class Stack<T>
 {
-    readonly LinkedList<T> elements = new LinkedList<T>();
+    List<T> elements = new List<T>();
 
-    public bool IsEmpty
+    public int Count
     {
-        get { return elements.Count == 0; }
+        get { return elements.Count; }
     }
 
-    public void Push(T element)
+    public bool Contains(T element)
     {
-        elements.AddFirst(element);
+        return elements.Contains(element);
     }
 
-    public T Top
+    public T Peek()
     {
-        get
-        {
-            if (elements.Count == 0)
-                throw new InvalidOperationException("cannot top an empty stack");
+        if (Count == 0)
+            throw new InvalidOperationException("empty stack");
 
-            return elements.First.Value;
-        }
+        return elements.Last();
     }
 
     public T Pop()
     {
-        T top = Top;
-        elements.RemoveFirst();
+        T element = Peek();
+        elements.RemoveAt(Count - 1);
+        return element;
+    }
 
-        return top;
+    public void Push(T element)
+    {
+        elements.Add(element);
     }
 }
