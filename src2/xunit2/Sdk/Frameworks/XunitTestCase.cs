@@ -365,7 +365,7 @@ namespace Xunit.Sdk
         /// <param name="testMethodArguments">The arguments to pass to the test method.</param>
         /// <param name="displayName">The display name for the test.</param>
         /// <param name="beforeAfterAttributes">The <see cref="BeforeAfterTestAttribute"/> instances attached to the test.</param>
-        /// <param name="aggregator">The error aggregator to use for catching exception.</param>
+        /// <param name="parentAggregator">The parent aggregator that contains the exceptions up to this point.</param>
         /// <param name="executionTime">The time spent executing the tests.</param>
         protected bool RunTestWithArguments(IMessageSink messageSink,
                                             Type classUnderTest,
@@ -374,10 +374,11 @@ namespace Xunit.Sdk
                                             object[] testMethodArguments,
                                             string displayName,
                                             List<BeforeAfterTestAttribute> beforeAfterAttributes,
-                                            ExceptionAggregator aggregator,
+                                            ExceptionAggregator parentAggregator,
                                             ref decimal executionTime)
         {
             bool cancelled = false;
+            var aggregator = new ExceptionAggregator(parentAggregator);
 
             if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = displayName }))
                 cancelled = true;

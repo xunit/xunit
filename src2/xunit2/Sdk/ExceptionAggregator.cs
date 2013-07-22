@@ -9,7 +9,25 @@ namespace Xunit.Sdk
     /// </summary>
     public class ExceptionAggregator
     {
-        List<Exception> exceptions = new List<Exception>();
+        readonly List<Exception> exceptions;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionAggregator"/> class.
+        /// </summary>
+        public ExceptionAggregator()
+        {
+            exceptions = new List<Exception>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionAggregator"/> class that
+        /// contains the exception list of its parent.
+        /// </summary>
+        /// <param name="parent">The parent aggregator to copy exceptions from.</param>
+        public ExceptionAggregator(ExceptionAggregator parent)
+        {
+            exceptions = new List<Exception>(parent.exceptions);
+        }
 
         /// <summary>
         /// Returns <c>true</c> if the aggregator has at least one exception inside it.

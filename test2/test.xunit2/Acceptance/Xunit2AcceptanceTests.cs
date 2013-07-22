@@ -952,6 +952,36 @@ public class Xunit2AcceptanceTests
         }
     }
 
+    public class ErrorAggregation : AcceptanceTest
+    {
+        [Fact]
+        public void EachTestMethodHasIndividualExceptionMessage()
+        {
+            var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
+
+            var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.EqualFailure");
+            Assert.Contains("Assert.Equal() Failure", equalFailure.Message);
+
+            var notNullFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.NotNullFailure");
+            Assert.Contains("Assert.NotNull() Failure", notNullFailure.Message);
+        }
+
+        class ClassUnderTest
+        {
+            [Fact]
+            public void EqualFailure()
+            {
+                Assert.Equal(42, 40);
+            }
+
+            [Fact]
+            public void NotNullFailure()
+            {
+                Assert.NotNull(null);
+            }
+        }
+    }
+
     class NoTestsClass { }
 
     class SinglePassingTestClass

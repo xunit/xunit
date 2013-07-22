@@ -268,4 +268,39 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaPropertyData(int x) { }
         }
     }
+
+    public class ErrorAggregation : AcceptanceTest
+    {
+        [Fact]
+        public void EachTheoryHasIndividualExceptionMessage()
+        {
+            var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
+
+            var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: 21.12, z: Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest)");
+            Assert.Contains("Assert.Equal() Failure", equalFailure.Message);
+
+            var notNullFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)");
+            Assert.Contains("Assert.NotNull() Failure", notNullFailure.Message);
+        }
+
+        class ClassUnderTest
+        {
+            public static IEnumerable<object[]> Data
+            {
+                get
+                {
+                    yield return new object[] { 42, 21.12, new ClassUnderTest() };
+                    yield return new object[] { 0, 0.0, null };
+                }
+            }
+
+            [Theory]
+            [PropertyData("Data")]
+            public void TestViaInlineData(int x, double y, object z)
+            {
+                Assert.Equal(0, x); // Fails the first data item
+                Assert.NotNull(z);  // Fails the second data item
+            }
+        }
+    }
 }
