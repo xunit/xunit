@@ -26,12 +26,13 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="assemblyInfo">The test assembly.</param>
         /// <param name="sourceProvider">The source information provider.</param>
-        public XunitTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo, ISourceInformationProvider sourceProvider = null)
+        public XunitTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo, ISourceInformationProvider sourceProvider)
         {
             Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
+            Guard.ArgumentNotNull("sourceProvider", sourceProvider);
 
             this.assemblyInfo = assemblyInfo;
-            this.sourceProvider = sourceProvider ?? new VisualStudioSourceInformationProvider();
+            this.sourceProvider = sourceProvider;
         }
 
         /// <inheritdoc/>
@@ -138,29 +139,10 @@ namespace Xunit.Sdk
 
         private ITestCase UpdateTestCaseWithSourceInfo(XunitTestCase testCase, bool includeSourceInformation)
         {
-            if (includeSourceInformation)
-            {
-                Tuple<string, int?> sourceInfo = sourceProvider.GetSourceInformation(testCase);
-                testCase.SourceFileName = sourceInfo.Item1;
-                testCase.SourceFileLine = sourceInfo.Item2;
-            }
+            if (includeSourceInformation && sourceProvider != null)
+                testCase.SourceInformation = sourceProvider.GetSourceInformation(testCase);
 
             return testCase;
-        }
-
-        class VisualStudioSourceInformationProvider : ISourceInformationProvider
-        {
-            public Tuple<string, int?> GetSourceInformation(ITestCase testCase)
-            {
-                return Tuple.Create<string, int?>(null, null);
-
-                // TODO: Load DiaSession dynamically, since it's only available when running inside of Visual Studio.
-                //       Or look at the CCI2 stuff from the Rx framework: https://github.com/Reactive-Extensions/IL2JS/tree/master/CCI2/PdbReader
-
-                //IMethodTestCase methodTestCase = testCase as IMethodTestCase;
-                //if (methodTestCase == null)
-                //    return Tuple.Create<string, int?>(null, null);
-            }
         }
     }
 }

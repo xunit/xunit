@@ -39,9 +39,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\ReflectionAbstractionExtensions.cs" />
+    <Compile Include="Frameworks\ISourceInformationProvider.cs" />
     <Compile Include="Frameworks\ITestFramework.cs" />
     <Compile Include="Frameworks\ITestFrameworkDiscoverer.cs" />
     <Compile Include="Frameworks\ITestFrameworkExecutor.cs" />
+    <Compile Include="Frameworks\SourceInformation.cs" />
     <Compile Include="Messages\IAfterTestFinished.cs" />
     <Compile Include="Messages\IAfterTestStarting.cs" />
     <Compile Include="Messages\IBeforeTestFinished.cs" />

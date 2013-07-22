@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -9,7 +8,7 @@ namespace Xunit
     /// An implementation of <see cref="IMessageSink"/> that provides several Visit methods that
     /// can provide access to specific message types without the burden of casting.
     /// </summary>
-    public class TestMessageVisitor : MarshalByRefObject, IMessageSink
+    public class TestMessageVisitor : LongLivedMarshalByRefObject, IMessageSink
     {
         /// <inheritdoc/>
         public virtual void Dispose() { }
@@ -314,13 +313,6 @@ namespace Xunit
         protected virtual bool Visit(ITestStarting testStarting)
         {
             return true;
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        public override Object InitializeLifetimeService()
-        {
-            return null;
         }
     }
 

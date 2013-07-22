@@ -13,7 +13,8 @@ public class XunitTestFrameworkDiscovererTests
         [Fact]
         public void GuardClause()
         {
-            Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(assemblyInfo: null), "assemblyInfo");
+            Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(null, Substitute.For<ISourceInformationProvider>()), "assemblyInfo");
+            Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(Substitute.For<IAssemblyInfo>(), null), "sourceProvider");
         }
     }
 
@@ -85,7 +86,7 @@ public class XunitTestFrameworkDiscovererTests
         {
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
             sourceProvider.GetSourceInformation(null)
-                          .ReturnsForAnyArgs(Tuple.Create<string, int?>("Source File", 42));
+                          .ReturnsForAnyArgs(new SourceInformation { FileName = "Source File", LineNumber = 42 });
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = Mocks.AssemblyInfo(types: new[] { typeInfo });
             var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
@@ -96,8 +97,8 @@ public class XunitTestFrameworkDiscovererTests
                 testCase =>
                 {
                     Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
-                    Assert.Equal("Source File", testCase.SourceFileName);
-                    Assert.Equal(42, testCase.SourceFileLine);
+                    Assert.Equal("Source File", testCase.SourceInformation.FileName);
+                    Assert.Equal(42, testCase.SourceInformation.LineNumber);
                 }
             );
         }
@@ -168,7 +169,7 @@ public class XunitTestFrameworkDiscovererTests
         {
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
             sourceProvider.GetSourceInformation(null)
-                          .ReturnsForAnyArgs(Tuple.Create<string, int?>("Source File", 42));
+                          .ReturnsForAnyArgs(new SourceInformation { FileName = "Source File", LineNumber = 42 });
             var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
             framework.Assembly.GetType("abc").Returns(typeInfo);
@@ -179,8 +180,8 @@ public class XunitTestFrameworkDiscovererTests
                 testCase =>
                 {
                     Assert.Equal("XunitTestFrameworkDiscovererTests+ClassWithSingleTest.TestMethod", testCase.DisplayName);
-                    Assert.Equal("Source File", testCase.SourceFileName);
-                    Assert.Equal(42, testCase.SourceFileLine);
+                    Assert.Equal("Source File", testCase.SourceInformation.FileName);
+                    Assert.Equal(42, testCase.SourceInformation.LineNumber);
                 }
             );
         }

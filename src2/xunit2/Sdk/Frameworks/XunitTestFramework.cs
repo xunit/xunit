@@ -8,10 +8,21 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFramework : LongLivedMarshalByRefObject, ITestFramework
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitTestFramework"/> class.
+        /// </summary>
+        public XunitTestFramework()
+        {
+            SourceInformationProvider = new NullSourceInformationProvider();
+        }
+
+        /// <inheritdoc/>
+        public ISourceInformationProvider SourceInformationProvider { get; set; }
+
         /// <inheritdoc/>
         public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assemblyInfo)
         {
-            return new XunitTestFrameworkDiscoverer(assemblyInfo);
+            return new XunitTestFrameworkDiscoverer(assemblyInfo, SourceInformationProvider);
         }
 
         /// <inheritdoc/>
@@ -22,5 +33,13 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         public void Dispose() { }
+
+        class NullSourceInformationProvider : ISourceInformationProvider
+        {
+            public SourceInformation GetSourceInformation(ITestCase testCase)
+            {
+                return new SourceInformation();
+            }
+        }
     }
 }

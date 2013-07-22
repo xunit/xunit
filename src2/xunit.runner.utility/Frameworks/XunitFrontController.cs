@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -9,7 +11,7 @@ namespace Xunit
     /// </summary>
     public class XunitFrontController : IFrontController
     {
-        readonly Xunit2 xunit2;
+        readonly IFrontController innerController;
 
         /// <summary>
         /// This constructor is for unit testing purposes only.
@@ -25,49 +27,57 @@ namespace Xunit
         /// tests to be discovered and run without locking assembly files on disk.</param>
         public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true)
         {
-            xunit2 = new Xunit2(assemblyFileName, configFileName, shadowCopy);
+            Guard.FileExists("assemblyFileName", assemblyFileName);
+            var xunit1Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
+            var xunit2Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit2.dll");
+            var sourceInformationProvider = new VisualStudioSourceInformationProvider();
+
+            if (File.Exists(xunit2Path))
+                innerController = new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+            else
+                throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit2.dll.", assemblyFileName);
         }
 
         /// <inheritdoc/>
         public string TestFrameworkDisplayName
         {
-            get { return xunit2.TestFrameworkDisplayName; }
+            get { return innerController.TestFrameworkDisplayName; }
         }
 
         /// <inheritdoc/>
         public ITestCase Deserialize(string value)
         {
-            return xunit2.Deserialize(value);
+            return innerController.Deserialize(value);
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            xunit2.SafeDispose();
+            innerController.SafeDispose();
         }
 
         /// <inheritdoc/>
         public virtual void Find(bool includeSourceInformation, IMessageSink messageSink)
         {
-            xunit2.Find(includeSourceInformation, messageSink);
+            innerController.Find(includeSourceInformation, messageSink);
         }
 
         /// <inheritdoc/>
         public virtual void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
         {
-            xunit2.Find(typeName, includeSourceInformation, messageSink);
+            innerController.Find(typeName, includeSourceInformation, messageSink);
         }
 
         /// <inheritdoc/>
         public virtual void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
         {
-            xunit2.Run(testMethods, messageSink);
+            innerController.Run(testMethods, messageSink);
         }
 
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
         {
-            return xunit2.Serialize(testCase);
+            return innerController.Serialize(testCase);
         }
     }
 }

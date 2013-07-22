@@ -16,7 +16,7 @@ public class AcceptanceTest : IDisposable
 
     public List<ITestMessage> Run(Type type, Func<ITestMessage, bool> cancellationThunk = null)
     {
-        Xunit2 = new Xunit2(new Uri(type.Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
+        Xunit2 = new Xunit2(new NullSourceInformationProvider(), new Uri(type.Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
 
         bool cancelled = false;
         Func<ITestMessage, bool> wrapper = msg =>

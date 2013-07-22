@@ -112,7 +112,7 @@
     <Compile Include="SerializationUtility.cs" />
     <Compile Include="SpyBeforeAfterTest.cs" />
     <Compile Include="TheoryData.cs" />
-    <Compile Include="Xunit2AcceptanceTest.cs" />
+    <Compile Include="AcceptanceTest.cs" />
     <Compile Include="AcceptanceTestAssembly.cs" />
     <Compile Include="Mocks.cs" />
     <Compile Include="SpyMessageSink.cs" />

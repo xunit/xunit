@@ -9,6 +9,11 @@ namespace Xunit.Abstractions
     public interface ITestFramework : IDisposable
     {
         /// <summary>
+        /// Sets the source information provider to be used during discovery.
+        /// </summary>
+        ISourceInformationProvider SourceInformationProvider { set; }
+
+        /// <summary>
         /// Get a test discoverer.
         /// </summary>
         /// <param name="assembly">The assembly from which to discover the tests.</param>

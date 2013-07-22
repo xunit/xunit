@@ -22,7 +22,7 @@ public class Xunit2Tests
         public void NoTestMethods()
         {
             using (var assm = new AcceptanceTestAssembly(code: ""))
-            using (var controller = new Xunit2(assm.FileName, null, true))
+            using (var controller = new TestableXunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -48,7 +48,7 @@ public class Xunit2Tests
             ";
 
             using (var assm = new AcceptanceTestAssembly(code))
-            using (var controller = new Xunit2(assm.FileName, null, true))
+            using (var controller = new TestableXunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -98,7 +98,7 @@ public class Xunit2Tests
             ";
 
             using (var assembly = new AcceptanceTestAssembly(code))
-            using (var controller = new Xunit2(assembly.FileName, null, true))
+            using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -140,7 +140,7 @@ public class Xunit2Tests
             ";
 
             using (var assembly = new AcceptanceTestAssembly(code))
-            using (var controller = new Xunit2(assembly.FileName, null, true))
+            using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
@@ -155,6 +155,14 @@ public class Xunit2Tests
                 Assert.Contains("TestClass.TestMethod(x: 42)", testCaseNames);
                 Assert.Contains("TestClass.TestMethod(x: 42, ???: 21.12)", testCaseNames);
             }
+        }
+    }
+
+    class TestableXunit2 : Xunit2
+    {
+        public TestableXunit2(string assemblyFileName, string configFileName = null, bool shadowCopy = true)
+            : base(new NullSourceInformationProvider(), assemblyFileName, configFileName, shadowCopy)
+        {
         }
     }
 }

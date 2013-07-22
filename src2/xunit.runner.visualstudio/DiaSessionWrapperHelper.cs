@@ -3,11 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Security;
 
 namespace Xunit.Runner.VisualStudio
 {
-    internal class DiaSessionWrapperHelper : MarshalByRefObject
+    internal class DiaSessionWrapperHelper : LongLivedMarshalByRefObject
     {
         Assembly assembly;
         static Func<MethodInfo, Type> GetStateMachineType = InitializeGetStateMachineType();
@@ -150,12 +149,6 @@ namespace Xunit.Runner.VisualStudio
                 }
             }
             catch { }
-        }
-
-        [SecurityCritical]
-        public override object InitializeLifetimeService()
-        {
-            return null;
         }
     }
 }

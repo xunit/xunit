@@ -18,6 +18,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="AppDomainTestFramework"/> class.
         /// </summary>
+        /// <param name="sourceInformationProvider">The source code information provider.</param>
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="testFrameworkFileName">The file path of the test framework assembly (i.e., xunit2.dll).</param>
         /// <param name="testFrameworkTypeName">The fully qualified type name of the implementation of <see cref="ITestFramework"/>
@@ -25,20 +26,27 @@ namespace Xunit
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
         /// tests to be discovered and run without locking assembly files on disk.</param>
-        public AppDomainTestFramework(string assemblyFileName, string testFrameworkFileName, string testFrameworkTypeName, string configFileName = null, bool shadowCopy = true)
+        public AppDomainTestFramework(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string testFrameworkFileName, string testFrameworkTypeName, string configFileName = null, bool shadowCopy = true)
         {
+            Guard.ArgumentNotNull("sourceInformationProvider", sourceInformationProvider);
             Guard.ArgumentNotNullOrEmpty("testFrameworkFileName", testFrameworkFileName);
 
             testFrameworkFileName = Path.GetFullPath(testFrameworkFileName);
             Guard.ArgumentValid("testFrameworkFileName", "File not found: " + testFrameworkFileName, File.Exists(testFrameworkFileName));
+
+            SourceInformationProvider = sourceInformationProvider;
 
             // assemblyFileName might be null (during AST-based discovery), so pass along with the test
             // framework filename instead if we don't have an assembly under test yet.
             appDomain = new RemoteAppDomainManager(assemblyFileName ?? testFrameworkFileName, configFileName, shadowCopy);
 
             testFrameworkAssemblyName = AssemblyName.GetAssemblyName(testFrameworkFileName);
-            testFramework = appDomain.CreateObject<ITestFramework>(testFrameworkAssemblyName.FullName, "Xunit.Sdk.XunitTestFramework");
+            testFramework = appDomain.CreateObject<ITestFramework>(testFrameworkAssemblyName.FullName, testFrameworkTypeName);
+            testFramework.SourceInformationProvider = SourceInformationProvider;
         }
+
+        /// <inheritdoc/>
+        public ISourceInformationProvider SourceInformationProvider { get; set; }
 
         /// <summary>
         /// Creates an object (from the test framework assembly) in the remote app domain.

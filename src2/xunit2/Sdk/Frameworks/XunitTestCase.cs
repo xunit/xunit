@@ -21,11 +21,10 @@ namespace Xunit.Sdk
     [Serializable]
     public class XunitTestCase : LongLivedMarshalByRefObject, ITestCase, ISerializable
     {
-        readonly static HashAlgorithm hasher = new SHA1Managed();
-
         readonly static object[] EmptyArray = new object[0];
         readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
         readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
+        readonly static HashAlgorithm Hasher = new SHA1Managed();
 
         Lazy<string> uniqueID;
 
@@ -103,10 +102,7 @@ namespace Xunit.Sdk
         public string SkipReason { get; private set; }
 
         /// <inheritdoc/>
-        public int? SourceFileLine { get; internal set; }
-
-        /// <inheritdoc/>
-        public string SourceFileName { get; internal set; }
+        public SourceInformation SourceInformation { get; internal set; }
 
         /// <inheritdoc/>
         public ITestCollection TestCollection { get; private set; }
@@ -232,7 +228,7 @@ namespace Xunit.Sdk
                     Write(stream, SerializationHelper.Serialize(Arguments));
 
                 stream.Position = 0;
-                byte[] hash = hasher.ComputeHash(stream);
+                byte[] hash = Hasher.ComputeHash(stream);
                 return String.Join("", hash.Select(x => x.ToString("x2")).ToArray());
             }
         }

@@ -38,11 +38,13 @@ namespace Xunit.Runner.MSBuild
                     new XAttribute("result", resultText)
                 );
 
-            if (testResult.TestCase.SourceFileName != null)
-                testResultElement.Add(new XAttribute("source-file", testResult.TestCase.SourceFileName));
-
-            if (testResult.TestCase.SourceFileLine != null)
-                testResultElement.Add(new XAttribute("source-line", testResult.TestCase.SourceFileLine.GetValueOrDefault()));
+            if (testResult.TestCase.SourceInformation != null)
+            {
+                if (testResult.TestCase.SourceInformation.FileName != null)
+                    testResultElement.Add(new XAttribute("source-file", testResult.TestCase.SourceInformation.FileName));
+                if (testResult.TestCase.SourceInformation.LineNumber != null)
+                    testResultElement.Add(new XAttribute("source-line", testResult.TestCase.SourceInformation.LineNumber.GetValueOrDefault()));
+            }
 
             if (testResult.TestCase.Traits != null && testResult.TestCase.Traits.Count > 0)
             {

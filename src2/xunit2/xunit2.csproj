@@ -107,7 +107,6 @@
     <Compile Include="Sdk\Frameworks\DataDiscovererAttribute.cs" />
     <Compile Include="Sdk\Frameworks\FactDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\IDataDiscoverer.cs" />
-    <Compile Include="Sdk\Frameworks\ISourceInformationProvider.cs" />
     <Compile Include="Sdk\Frameworks\IXunitDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\TheoryDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\XunitDiscovererAttribute.cs" />

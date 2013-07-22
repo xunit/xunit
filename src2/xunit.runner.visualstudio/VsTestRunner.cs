@@ -17,6 +17,7 @@ namespace Xunit.Runner.VisualStudio
     public class VsTestRunner : ITestDiscoverer, ITestExecutor
     {
         public static TestProperty SerializedTestCaseProperty = GetTestProperty();
+        static readonly ISourceInformationProvider SourceInformationProvider = new VisualStudioSourceInformationProvider();
 
         bool cancelled;
 
@@ -48,7 +49,7 @@ namespace Xunit.Runner.VisualStudio
 
                                 if (IsXunitTestAssembly(source))
                                 {
-                                    var framework = new Xunit2(source, configFileName: null, shadowCopy: true);
+                                    var framework = new Xunit2(SourceInformationProvider, source, configFileName: null, shadowCopy: true);
                                     var sink = new VsDiscoveryVisitor(source, framework, logger, discoverySink, () => cancelled);
                                     sourceSinks.Add(new SourceSink { Framework = framework, Source = source, Sink = sink });
                                     framework.Find(includeSourceInformation: true, messageSink: sink);
@@ -78,11 +79,6 @@ namespace Xunit.Runner.VisualStudio
             }
         }
 
-        static string GetDisplayName(string displayName, string shortMethodName, string fullyQualifiedMethodName)
-        {
-            return displayName == fullyQualifiedMethodName ? shortMethodName : displayName;
-        }
-
         private static TestProperty GetTestProperty()
         {
             return TestProperty.Register("XunitTestCase", "xUnit.net Test Case", typeof(string), typeof(VsTestRunner));
@@ -92,11 +88,6 @@ namespace Xunit.Runner.VisualStudio
         {
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit2.dll");
             return File.Exists(xunitPath);
-        }
-
-        private static TestProperty RegisterTestCaseTestProperty()
-        {
-            return TestProperty.Register("XunitTestCase", "XunitTestCase", typeof(ITestCase), typeof(VsTestRunner));
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
@@ -160,7 +151,7 @@ namespace Xunit.Runner.VisualStudio
             if (cancelled)
                 return;
 
-            var xunit2 = new Xunit2(assemblyFileName, configFileName: null, shadowCopy: true);
+            var xunit2 = new Xunit2(SourceInformationProvider, assemblyFileName, configFileName: null, shadowCopy: true);
             toDispose.Add(xunit2);
 
             if (testCases == null)

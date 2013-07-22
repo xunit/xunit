@@ -24,8 +24,7 @@ public class TestCase : ITestCase
     public IMethodInfo Method { get; set; }
     public string MethodName { get; set; }
     public string SkipReason { get; set; }
-    public int? SourceFileLine { get; set; }
-    public string SourceFileName { get; set; }
+    public SourceInformation SourceInformation { get; set; }
     public ITestCollection TestCollection { get; set; }
     public IDictionary<string, string> Traits { get; set; }
     public string UniqueID { get; set; }

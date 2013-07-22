@@ -162,8 +162,7 @@ public class MSBuildVisitorTests
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-            testCase.SourceFileName.Returns((string)null);
-            testCase.SourceFileLine.Returns((int?)null);
+            testCase.SourceInformation.Returns(new SourceInformation());
             var testPassed = Substitute.For<ITestPassed>();
             testPassed.TestCase.Returns(testCase);
             testPassed.TestDisplayName.Returns("Test Display Name");
@@ -256,8 +255,7 @@ public class MSBuildVisitorTests
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-            testCase.SourceFileName.Returns("source file");
-            testCase.SourceFileLine.Returns(42);
+            testCase.SourceInformation.Returns(new SourceInformation { FileName = "source file", LineNumber = 42 });
             var testPassed = Substitute.For<ITestPassed>();
             testPassed.TestCase.Returns(testCase);
 
