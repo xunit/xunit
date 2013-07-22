@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 /// <summary>
 /// Guard class, used for guard clauses and argument validation
@@ -15,16 +16,13 @@ internal static class Guard
     }
 
     /// <summary/>
-    [SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "obj", Justification = "No can do.")]
     [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "This method may not be called by all users of Guard.")]
     public static void ArgumentNotNullOrEmpty(string argName, IEnumerable argValue)
     {
         ArgumentNotNull(argName, argValue);
 
-        foreach (object obj in argValue)
-            return;
-
-        throw new ArgumentException("Argument was empty", argName);
+        if (!argValue.GetEnumerator().MoveNext())
+            throw new ArgumentException("Argument was empty", argName);
     }
 
     /// <summary/>
@@ -33,5 +31,15 @@ internal static class Guard
     {
         if (!test)
             throw new ArgumentException(message, argName);
+    }
+
+    /// <summary/>
+    [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "This method may not be called by all users of Guard.")]
+    public static void FileExists(string argName, string fileName)
+    {
+        Guard.ArgumentNotNullOrEmpty(argName, fileName);
+        Guard.ArgumentValid("assemblyFileName",
+                            String.Format("File not found: {0}", fileName),
+                            File.Exists(fileName));
     }
 }
