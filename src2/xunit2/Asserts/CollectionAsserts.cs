@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit.Sdk;
 
@@ -107,15 +106,12 @@ namespace Xunit
         /// <param name="collection">The collection to be inspected</param>
         /// <exception cref="ArgumentNullException">Thrown when the collection is null</exception>
         /// <exception cref="EmptyException">Thrown when the collection is not empty</exception>
-        [SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "object", Justification = "No can do")]
         public static void Empty(IEnumerable collection)
         {
             Guard.ArgumentNotNull("collection", collection);
 
-#pragma warning disable 168
-            foreach (object @object in collection)
+            if (collection.GetEnumerator().MoveNext())
                 throw new EmptyException();
-#pragma warning restore 168
         }
 
         /// <summary>
@@ -194,17 +190,12 @@ namespace Xunit
         /// <param name="collection">The collection to be inspected</param>
         /// <exception cref="ArgumentNullException">Thrown when a null collection is passed</exception>
         /// <exception cref="NotEmptyException">Thrown when the collection is empty</exception>
-        [SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "object", Justification = "No can do")]
         public static void NotEmpty(IEnumerable collection)
         {
             Guard.ArgumentNotNull("collection", collection);
 
-#pragma warning disable 168
-            foreach (object @object in collection)
-                return;
-#pragma warning restore 168
-
-            throw new NotEmptyException();
+            if (!collection.GetEnumerator().MoveNext())
+                throw new NotEmptyException();
         }
 
         /// <summary>

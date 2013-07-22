@@ -11,13 +11,13 @@ namespace Xunit.Sdk
     /// </summary>
     public static class SerializationHelper
     {
-        static BinaryFormatter binaryFormatter = new BinaryFormatter();
+        static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
 
         /// <inheritdoc/>
         public static T Deserialize<T>(string serializedValue)
         {
             using (var stream = new MemoryStream(Convert.FromBase64String(serializedValue)))
-                return (T)binaryFormatter.Deserialize(stream);
+                return (T)BinaryFormatter.Deserialize(stream);
         }
 
         /// <inheritdoc/>
@@ -25,7 +25,7 @@ namespace Xunit.Sdk
         {
             using (var stream = new MemoryStream())
             {
-                binaryFormatter.Serialize(stream, value);
+                BinaryFormatter.Serialize(stream, value);
                 return Convert.ToBase64String(stream.GetBuffer());
             }
         }

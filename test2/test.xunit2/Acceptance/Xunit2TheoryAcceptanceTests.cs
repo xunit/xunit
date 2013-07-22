@@ -9,7 +9,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void Skipped()
         {
-            var testMessages = Run(typeof(ClassUnderTest));
+            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
 
             Assert.None(testMessages, msg => msg is ITestPassed);
             Assert.None(testMessages, msg => msg is ITestFailed);
@@ -42,7 +42,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void RunsForEachDataElement()
         {
-            var testMessages = Run(typeof(ClassUnderTest));
+            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
 
             Assert.Single(testMessages, msg =>
             {
@@ -79,7 +79,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void SingleNullValuesWork()
         {
-            var testMessages = Run(typeof(ClassUnderTestForNullValues));
+            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForNullValues));
 
             Assert.Single(testMessages, msg =>
             {
@@ -102,7 +102,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void ArraysWork()
         {
-            var testMessages = Run(typeof(ClassUnderTestForArrays));
+            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForArrays));
 
             Assert.Single(testMessages, msg =>
             {
@@ -115,7 +115,7 @@ public class Xunit2TheoryAcceptanceTests
             });
         }
 
-        public class ClassUnderTestForArrays
+        class ClassUnderTestForArrays
         {
             [Theory]
             [InlineData(new[] { 42, 2112 }, new[] { "SELF", "PARENT1", "PARENT2", "PARENT3" }, null, 10.5, "Hello, world!")]
@@ -128,7 +128,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void RunsForEachDataElement()
         {
-            var testMessages = Run(typeof(ClassWithSelfPropertyData));
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfPropertyData));
 
             Assert.Single(testMessages, msg =>
             {
@@ -173,7 +173,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void CanUsePropertyDataFromOtherClass()
         {
-            var testMessages = Run(typeof(ClassWithImportedPropertyData));
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithImportedPropertyData));
 
             Assert.Single(testMessages, msg => msg is ITestPassed);
             Assert.Single(testMessages, msg => msg is ITestFailed);
@@ -193,7 +193,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void MissingPropertyDataThrows()
         {
-            var testMessages = Run(typeof(ClassWithMissingPropertyData));
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithMissingPropertyData));
 
             Assert.Single(testMessages, msg =>
             {
@@ -217,7 +217,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void NonStaticPropertyDataThrows()
         {
-            var testMessages = Run(typeof(ClassWithNonStaticPropertyData));
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithNonStaticPropertyData));
 
             Assert.Single(testMessages, msg =>
             {
@@ -243,7 +243,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void CanUsePropertyDataFromBaseType()
         {
-            var testMessages = Run(typeof(ClassWithBaseClassData));
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithBaseClassData));
 
             Assert.Single(testMessages, msg =>
             {

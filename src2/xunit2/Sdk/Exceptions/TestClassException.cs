@@ -13,6 +13,10 @@ namespace Xunit.Sdk
     [Serializable]
     public class TestClassException : XunitException
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestClassException"/> class.
+        /// </summary>
+        /// <param name="message">The exception message.</param>
         public TestClassException(string message) : base(message) { }
 
         /// <inheritdoc/>

@@ -15,14 +15,15 @@ namespace Xunit.Sdk
     [Serializable]
     public class EqualException : AssertActualExpectedException
     {
-        static Dictionary<char, string> _encodings = new Dictionary<char, string> {
+        static readonly Dictionary<char, string> Encodings = new Dictionary<char, string>
+        {
             { '\r', "\\r" },
             { '\n', "\\n" },
             { '\t', "\\t" },
             { '\0', "\\0" }
         };
 
-        string _message;
+        string message;
 
         /// <summary>
         /// Creates a new instance of the <see cref="EqualException"/> class.
@@ -75,10 +76,10 @@ namespace Xunit.Sdk
         {
             get
             {
-                if (_message == null)
-                    _message = CreateMessage();
+                if (message == null)
+                    message = CreateMessage();
 
-                return _message;
+                return message;
             }
         }
 
@@ -133,7 +134,7 @@ namespace Xunit.Sdk
                 string encoding;
                 int paddingLength = 1;
 
-                if (_encodings.TryGetValue(c, out encoding))
+                if (Encodings.TryGetValue(c, out encoding))
                 {
                     printedValue.Append(encoding);
                     paddingLength = encoding.Length;

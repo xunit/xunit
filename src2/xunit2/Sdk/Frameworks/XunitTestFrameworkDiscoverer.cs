@@ -13,6 +13,9 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFrameworkDiscoverer : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer
     {
+        /// <summary>
+        /// Gets the display name of the xUnit.net v2 test framework.
+        /// </summary>
         public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
 
         readonly IAssemblyInfo assemblyInfo;
@@ -80,6 +83,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Core implementation to discover unit tests in a given test class.
         /// </summary>
+        /// <param name="testCollection">The test collection that this type belongs to.</param>
         /// <param name="type">The test class.</param>
         /// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
         /// <param name="messageSink">The message sink to send discovery messages to.</param>

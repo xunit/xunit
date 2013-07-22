@@ -2,6 +2,9 @@
 
 namespace Xunit
 {
+    /// <summary>
+    /// Internal helper class for remoting.
+    /// </summary>
     public static class RemotingUtility
     {
         /// <summary>
