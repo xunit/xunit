@@ -139,28 +139,32 @@ namespace Xunit.Sdk
                 fixtureMappings.Add(fixtureType, fixture);
             }
 
-            var ctors = testClassType.GetConstructors();
-            if (ctors.Length != 1)
+            var isStaticClass = testClassType.IsAbstract && testClassType.IsSealed;
+            if (!isStaticClass)
             {
-                aggregator.Add(new TestClassException("A test class may only define a single public constructor."));
-            }
-            else
-            {
-                var ctor = ctors.Single();
-                List<string> unusedArguments = new List<string>();
-
-                foreach (var paramInfo in ctor.GetParameters())
+                var ctors = testClassType.GetConstructors();
+                if (ctors.Length != 1)
                 {
-                    object fixture;
-
-                    if (fixtureMappings.TryGetValue(paramInfo.ParameterType, out fixture))
-                        constructorArguments.Add(fixture);
-                    else
-                        unusedArguments.Add(paramInfo.ParameterType.Name + " " + paramInfo.Name);
+                    aggregator.Add(new TestClassException("A test class may only define a single public constructor."));
                 }
+                else
+                {
+                    var ctor = ctors.Single();
+                    List<string> unusedArguments = new List<string>();
 
-                if (unusedArguments.Count > 0)
-                    aggregator.Add(new TestClassException("The following constructor arguments did not have matching fixture data: " + String.Join(", ", unusedArguments)));
+                    foreach (var paramInfo in ctor.GetParameters())
+                    {
+                        object fixture;
+
+                        if (fixtureMappings.TryGetValue(paramInfo.ParameterType, out fixture))
+                            constructorArguments.Add(fixture);
+                        else
+                            unusedArguments.Add(paramInfo.ParameterType.Name + " " + paramInfo.Name);
+                    }
+
+                    if (unusedArguments.Count > 0)
+                        aggregator.Add(new TestClassException("The following constructor arguments did not have matching fixture data: " + String.Join(", ", unusedArguments)));
+                }
             }
 
             var methodGroups = group.GroupBy(tc => tc.Method);

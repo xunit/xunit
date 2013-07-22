@@ -933,6 +933,25 @@ public class Xunit2AcceptanceTests
         }
     }
 
+    public class StaticClassSupport : AcceptanceTest
+    {
+        [Fact]
+        public void TestsCanBeInStaticClasses()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(StaticClassUnderTest));
+
+            var testMessage = Assert.Single(testMessages);
+            Assert.Equal("Xunit2AcceptanceTests+StaticClassSupport+StaticClassUnderTest.Passing", testMessage.TestDisplayName);
+            Assert.IsAssignableFrom<ITestPassed>(testMessage);
+        }
+
+        static class StaticClassUnderTest
+        {
+            [Fact]
+            public static void Passing() { }
+        }
+    }
+
     class NoTestsClass { }
 
     class SinglePassingTestClass
