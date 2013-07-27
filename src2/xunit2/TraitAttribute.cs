@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+using Xunit.Sdk;
 
 namespace Xunit
 {
@@ -7,8 +7,11 @@ namespace Xunit
     /// Attribute used to decorate a test method with arbitrary name/value pairs ("traits").
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
-    [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
-    public class TraitAttribute : Attribute
+    // TODO: This is sealed today; we may want to come back and revisit opening this up again, and
+    // using the discoverer pattern so that it can support Resharper. We may also want to visit the
+    // issue of supporting 0..n trait values rather than a forced single value pair model that
+    // we have today.
+    public sealed class TraitAttribute : AttributeBase
     {
         /// <summary>
         /// Creates a new instance of the <see cref="TraitAttribute"/> class.
@@ -25,12 +28,6 @@ namespace Xunit
         /// Gets the trait name.
         /// </summary>
         public string Name { get; private set; }
-
-        /// <inheritdoc/>
-        public override object TypeId
-        {
-            get { return this; }
-        }
 
         /// <summary>
         /// Gets the trait value.
