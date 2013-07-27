@@ -150,7 +150,7 @@ namespace Xunit.Runner.MSBuild
                     new XElement("failure",
                         new XAttribute("exception-type", testFailed.ExceptionType),
                         new XElement("message", new XCData(XmlEscape(testFailed.Message))),
-                        new XElement("stack-trace", new XCData(testFailed.StackTrace))
+                        new XElement("stack-trace", new XCData(testFailed.StackTrace ?? String.Empty))
                     )
                 );
             }

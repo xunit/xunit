@@ -42,7 +42,9 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestFailed testFailed)
         {
             Log.LogError("{0}: {1}", Escape(testFailed.TestDisplayName), Escape(testFailed.Message));
-            Log.LogError(testFailed.StackTrace);
+
+            if (!String.IsNullOrWhiteSpace(testFailed.StackTrace))
+                Log.LogError(testFailed.StackTrace);
 
             return base.Visit(testFailed);
         }

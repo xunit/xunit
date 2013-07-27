@@ -65,6 +65,23 @@ public class StandardOutputVisitorTests
                 msg => Assert.Equal("ERROR: This is my display name \\t\\r\\n: This is my message \\t\\r\\n", msg),
                 msg => Assert.Equal("ERROR: Line 1\r\nLine 2\r\nLine 3", msg));
         }
+
+        [Fact]
+        public void NullStackTraceDoesNotLogStackTrace()
+        {
+            var testFailed = Substitute.For<ITestFailed>();
+            testFailed.TestDisplayName.Returns("1");
+            testFailed.Message.Returns("2");
+            testFailed.StackTrace.Returns((string)null);
+
+            var logger = SpyLogger.Create();
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
+
+            visitor.OnMessage(testFailed);
+
+            Assert.Collection(logger.Messages,
+                msg => Assert.Equal("ERROR: 1: 2", msg));
+        }
     }
 
     public class OnMessage_TestPassed

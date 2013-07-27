@@ -222,6 +222,27 @@ public class MSBuildVisitorTests
         }
 
         [Fact]
+        public void NullStackTraceInFailedTestResultsInEmptyStackTraceXmlElement()
+        {
+            var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+            var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
+            var testFailed = Substitute.For<ITestFailed>();
+            testFailed.TestCase.Returns(testCase);
+            testFailed.StackTrace.Returns((string)null);
+
+            var logger = SpyLogger.Create();
+            var assemblyElement = new XElement("assembly");
+            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+
+            visitor.OnMessage(testFailed);
+            visitor.OnMessage(assemblyFinished);
+
+            var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
+            var failureElement = Assert.Single(testElement.Elements("failure"));
+            Assert.Empty(failureElement.Elements("stack-trace").Single().Value);
+        }
+
+        [Fact]
         public void AddsSkippedTestElementToXml()
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
