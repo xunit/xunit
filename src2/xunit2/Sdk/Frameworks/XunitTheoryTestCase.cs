@@ -22,7 +22,7 @@ namespace Xunit.Sdk
         /// <param name="type">The type under test.</param>
         /// <param name="method">The method under test.</param>
         /// <param name="theoryAttribute">The theory attribute.</param>
-        public XunitTheoryTestCase(XunitTestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo theoryAttribute)
+        public XunitTheoryTestCase(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo theoryAttribute)
             : base(testCollection, assembly, type, method, theoryAttribute) { }
 
         /// <inheritdoc />

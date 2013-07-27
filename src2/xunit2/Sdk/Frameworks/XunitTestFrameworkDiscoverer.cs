@@ -33,13 +33,41 @@ namespace Xunit.Sdk
 
             this.assemblyInfo = assemblyInfo;
             this.sourceProvider = sourceProvider;
+
+            // Determine the collection behavior, and tack it onto the end of the display name
+            var collectionBehavior = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
+            var factoryType = GetTestCollectionFactoryType(collectionBehavior);
+
+            TestCollectionFactory = (IXunitTestCollectionFactory)Activator.CreateInstance(factoryType, new[] { assemblyInfo });
+            TestFrameworkDisplayName = String.Format("{0} [{1}, non-parallel]", DisplayName, TestCollectionFactory.DisplayName);
         }
 
-        /// <inheritdoc/>
-        public string TestFrameworkDisplayName
+        private Type GetTestCollectionFactoryType(IAttributeInfo collectionBehavior)
         {
-            get { return DisplayName; }
+            if (collectionBehavior == null)
+                return typeof(CollectionPerClassTestCollectionFactory);
+
+            var ctorArgs = collectionBehavior.GetConstructorArguments().ToList();
+            if (ctorArgs.Count == 0)
+                return typeof(CollectionPerClassTestCollectionFactory);
+
+            if (ctorArgs.Count == 1 && (CollectionBehavior)ctorArgs[0] == CollectionBehavior.CollectionPerAssembly)
+                return typeof(CollectionPerAssemblyTestCollectionFactory);
+
+            var result = Reflector.GetType((string)ctorArgs[0], (string)ctorArgs[1]);
+            if (!typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)
+                return typeof(CollectionPerClassTestCollectionFactory);
+
+            return result;
         }
+
+        /// <summary>
+        /// Gets the test collection factory that makes test collections.
+        /// </summary>
+        public IXunitTestCollectionFactory TestCollectionFactory { get; private set; }
+
+        /// <inheritdoc/>
+        public string TestFrameworkDisplayName { get; private set; }
 
         /// <inheritdoc/>
         public void Dispose() { }
@@ -51,11 +79,8 @@ namespace Xunit.Sdk
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                // REVIEW: Hard coding the knowledge that assembly == test collection
-                var testCollection = new XunitTestCollection { DisplayName = "Test collection for " + Path.GetFileName(assemblyInfo.AssemblyPath) };
-
                 foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
-                    if (!FindImpl(testCollection, type, includeSourceInformation, messageSink))
+                    if (!FindImpl(type, includeSourceInformation, messageSink))
                         break;
 
                 messageSink.OnMessage(new DiscoveryCompleteMessage());
@@ -70,12 +95,9 @@ namespace Xunit.Sdk
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                // REVIEW: Hard coding the knowledge that assembly == test collection
-                var testCollection = new XunitTestCollection { DisplayName = "Test collection for " + Path.GetFileName(assemblyInfo.AssemblyPath) };
-
                 ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
                 if (typeInfo != null)
-                    FindImpl(testCollection, typeInfo, includeSourceInformation, messageSink);
+                    FindImpl(typeInfo, includeSourceInformation, messageSink);
 
                 messageSink.OnMessage(new DiscoveryCompleteMessage());
             });
@@ -84,14 +106,14 @@ namespace Xunit.Sdk
         /// <summary>
         /// Core implementation to discover unit tests in a given test class.
         /// </summary>
-        /// <param name="testCollection">The test collection that this type belongs to.</param>
         /// <param name="type">The test class.</param>
         /// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
         /// <param name="messageSink">The message sink to send discovery messages to.</param>
         /// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
-        protected virtual bool FindImpl(XunitTestCollection testCollection, ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        protected virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
             string currentDirectory = Directory.GetCurrentDirectory();
+            var testCollection = TestCollectionFactory.Get(type);
 
             try
             {

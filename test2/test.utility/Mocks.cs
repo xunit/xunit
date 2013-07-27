@@ -17,6 +17,30 @@ public static class Mocks
         return result;
     }
 
+    public static IReflectionAttributeInfo CollectionAttribute(string collectionName)
+    {
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        result.Attribute.Returns(new CollectionAttribute(collectionName));
+        result.GetConstructorArguments().Returns(new[] { collectionName });
+        return result;
+    }
+
+    public static IReflectionAttributeInfo CollectionBehaviorAttribute(CollectionBehavior collectionBehavior)
+    {
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        result.Attribute.Returns(new CollectionBehaviorAttribute(collectionBehavior));
+        result.GetConstructorArguments().Returns(new object[] { collectionBehavior });
+        return result;
+    }
+
+    public static IReflectionAttributeInfo CollectionBehaviorAttribute(string factoryTypeName, string factoryAssemblyName)
+    {
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        result.Attribute.Returns(new CollectionBehaviorAttribute(factoryTypeName, factoryAssemblyName));
+        result.GetConstructorArguments().Returns(new object[] { factoryTypeName, factoryAssemblyName });
+        return result;
+    }
+
     public static IReflectionAttributeInfo FactAttribute(string displayName = null, string skip = null, int timeout = 0)
     {
         var result = Substitute.For<IReflectionAttributeInfo>();

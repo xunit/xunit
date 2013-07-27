@@ -59,14 +59,19 @@
     <Compile Include="Asserts\RangeAsserts.cs" />
     <Compile Include="Asserts\StringAsserts.cs" />
     <Compile Include="Asserts\TypeAsserts.cs" />
+    <Compile Include="CollectionAttribute.cs" />
+    <Compile Include="CollectionBehavior.cs" />
     <Compile Include="IClassFixture.cs" />
     <Compile Include="Sdk\ExceptionAggregator.cs" />
     <Compile Include="Sdk\Exceptions\AssertCollectionCountException.cs" />
     <Compile Include="Sdk\Exceptions\ExceptionUtility.cs" />
     <Compile Include="Sdk\Exceptions\TestClassException.cs" />
     <Compile Include="Sdk\Exceptions\NoneException.cs" />
+    <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactory.cs" />
+    <Compile Include="Sdk\Frameworks\IXunitTestCollectionFactory.cs" />
     <Compile Include="Sdk\Frameworks\LambdaTestCase.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCollection.cs" />
+    <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactory.cs" />
     <Compile Include="Sdk\Frameworks\XunitTheoryTestCase.cs" />
     <Compile Include="Sdk\InlineDataDiscoverer.cs" />
     <Compile Include="PropertyDataAttribute.cs" />
@@ -154,6 +159,7 @@
     <Compile Include="Sdk\Reflection\ReflectionAttributeInfo.cs" />
     <Compile Include="Sdk\Reflection\Reflector.cs" />
     <Compile Include="Sdk\SerializationHelper.cs" />
+    <Compile Include="CollectionBehaviorAttribute.cs" />
     <Compile Include="TheoryAttribute.cs" />
     <Compile Include="TraitAttribute.cs" />
   </ItemGroup>

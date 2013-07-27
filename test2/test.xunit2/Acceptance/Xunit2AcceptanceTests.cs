@@ -322,6 +322,56 @@ public class Xunit2AcceptanceTests
         }
 
         [Fact]
+        public void CancelDuringITestAssemblyFinished()
+        {
+            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestAssemblyFinished));
+
+            Assert.Collection(results,
+                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
+                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
+                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
+
+                // TestMethod1
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+                message => Assert.IsAssignableFrom<ITestStarting>(message),
+                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
+                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
+                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
+                message => Assert.IsAssignableFrom<ITestPassed>(message),
+                message => Assert.IsAssignableFrom<ITestFinished>(message),
+                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+
+                // TestMethod2
+                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+                message => Assert.IsAssignableFrom<ITestStarting>(message),
+                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
+                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
+                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
+                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
+                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
+                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
+                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
+                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
+                message => Assert.IsAssignableFrom<ITestPassed>(message),
+                message => Assert.IsAssignableFrom<ITestFinished>(message),
+                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+
+                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
+                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
+                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
+            );
+        }
+
+        [Fact]
         public void CancelDuringITestCaseFinished()
         {
             List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCaseFinished));

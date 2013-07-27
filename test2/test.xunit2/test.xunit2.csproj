@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acceptance\AsyncAcceptanceTests.cs" />
+    <Compile Include="Acceptance\CollectionAcceptanceTests.cs" />
     <Compile Include="Acceptance\FixtureAcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2TheoryAcceptanceTests.cs" />
@@ -93,6 +94,8 @@
     <Compile Include="Sdk\Exceptions\InRangeExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\NotInRangeExceptionTests.cs" />
     <Compile Include="Sdk\Exceptions\ThrowsExceptionTests.cs" />
+    <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactoryTests.cs" />
+    <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkDiscovererTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkExecutorTests.cs" />

@@ -16,6 +16,91 @@ public class XunitTestFrameworkDiscovererTests
             Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(null, Substitute.For<ISourceInformationProvider>()), "assemblyInfo");
             Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(Substitute.For<IAssemblyInfo>(), null), "sourceProvider");
         }
+
+        [Fact]
+        public void DefaultTestCollectionFactoryIsCollectionPerClass()
+        {
+            var assembly = Mocks.AssemblyInfo();
+            var sourceInfoProvider = Substitute.For<ISourceInformationProvider>();
+
+            var discoverer = new XunitTestFrameworkDiscoverer(assembly, sourceInfoProvider);
+
+            Assert.IsType<CollectionPerClassTestCollectionFactory>(discoverer.TestCollectionFactory);
+            Assert.Equal("xUnit.net 2.0.0.0 [collection-per-class, non-parallel]", discoverer.TestFrameworkDisplayName);
+        }
+
+        [Fact]
+        public void UserCanChooseFromBuiltInCollectionFactories()
+        {
+            var attr = Mocks.CollectionBehaviorAttribute(CollectionBehavior.CollectionPerAssembly);
+            var assembly = Mocks.AssemblyInfo(attributes: new[] { attr });
+            var sourceInfoProvider = Substitute.For<ISourceInformationProvider>();
+
+            var discoverer = new XunitTestFrameworkDiscoverer(assembly, sourceInfoProvider);
+
+            Assert.IsType<CollectionPerAssemblyTestCollectionFactory>(discoverer.TestCollectionFactory);
+            Assert.Equal("xUnit.net 2.0.0.0 [collection-per-assembly, non-parallel]", discoverer.TestFrameworkDisplayName);
+        }
+
+        [Fact]
+        public void UserCanChooseCustomCollectionFactory()
+        {
+            var factoryType = typeof(MyTestCollectionFactory);
+            var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName, factoryType.Assembly.FullName);
+            var assembly = Mocks.AssemblyInfo(attributes: new[] { attr });
+            var sourceInfoProvider = Substitute.For<ISourceInformationProvider>();
+
+            var discoverer = new XunitTestFrameworkDiscoverer(assembly, sourceInfoProvider);
+
+            Assert.IsType<MyTestCollectionFactory>(discoverer.TestCollectionFactory);
+            Assert.Equal("xUnit.net 2.0.0.0 [My Factory, non-parallel]", discoverer.TestFrameworkDisplayName);
+        }
+
+        class MyTestCollectionFactory : IXunitTestCollectionFactory
+        {
+            public string DisplayName { get { return "My Factory"; } }
+
+            public MyTestCollectionFactory(IAssemblyInfo assembly) { }
+
+            public ITestCollection Get(ITypeInfo testClass)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [Theory]
+        [InlineData("XunitTestFrameworkDiscovererTests+Construction+TestCollectionFactory_NoCompatibleConstructor")]
+        [InlineData("XunitTestFrameworkDiscovererTests+Construction+TestCollectionFactory_DoesNotImplementInterface")]
+        [InlineData("ThisIsNotARealType")]
+        public void IncompatibleOrInvalidTypesGetDefaultBehavior(string factoryTypeName)
+        {
+            var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "test.xunit2");
+            var assembly = Mocks.AssemblyInfo(attributes: new[] { attr });
+            var sourceInfoProvider = Substitute.For<ISourceInformationProvider>();
+
+            var discoverer = new XunitTestFrameworkDiscoverer(assembly, sourceInfoProvider);
+
+            Assert.IsType<CollectionPerClassTestCollectionFactory>(discoverer.TestCollectionFactory);
+            Assert.Equal("xUnit.net 2.0.0.0 [collection-per-class, non-parallel]", discoverer.TestFrameworkDisplayName);
+        }
+
+        class TestCollectionFactory_NoCompatibleConstructor : IXunitTestCollectionFactory
+        {
+            public string DisplayName
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public ITestCollection Get(ITypeInfo testClass)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        class TestCollectionFactory_DoesNotImplementInterface
+        {
+            public TestCollectionFactory_DoesNotImplementInterface(IAssemblyInfo assemblyInfo) { }
+        }
     }
 
     public class FindByAssembly
@@ -58,13 +143,13 @@ public class XunitTestFrameworkDiscovererTests
             var intTypeInfo = Reflector.Wrap(typeof(int));
             var assembly = Mocks.AssemblyInfo(types: new[] { objectTypeInfo, intTypeInfo });
             var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>(assembly);
-            framework.FindImpl(null, null).ReturnsForAnyArgs(true);
+            framework.FindImpl(null).ReturnsForAnyArgs(true);
 
             framework.Find();
             framework.Visitor.Finished.WaitOne();
 
-            framework.Received(1).FindImpl(Arg.Any<XunitTestCollection>(), objectTypeInfo, false);
-            framework.Received(1).FindImpl(Arg.Any<XunitTestCollection>(), intTypeInfo, false);
+            framework.Received(1).FindImpl(objectTypeInfo, false);
+            framework.Received(1).FindImpl(intTypeInfo, false);
         }
 
         [Fact]
@@ -150,7 +235,7 @@ public class XunitTestFrameworkDiscovererTests
             framework.Find("abc");
             framework.Visitor.Finished.WaitOne();
 
-            framework.Received(1).FindImpl(Arg.Any<XunitTestCollection>(), type, false);
+            framework.Received(1).FindImpl(type, false);
         }
 
         [Fact]
@@ -200,7 +285,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithNoTests));
 
-            framework.FindImpl(null, type);
+            framework.FindImpl(type);
 
             Assert.False(framework.Visitor.Finished.WaitOne(0));
         }
@@ -217,7 +302,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithOneFact));
 
-            framework.FindImpl(null, type);
+            framework.FindImpl(type);
 
             Assert.Collection(framework.Visitor.TestCases,
                 testCase => Assert.IsType<XunitTestCase>(testCase)
@@ -241,7 +326,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithMixOfFactsAndNonFacts));
 
-            framework.FindImpl(null, type);
+            framework.FindImpl(type);
 
             Assert.Equal(2, framework.Visitor.TestCases.Count);
             Assert.Single(framework.Visitor.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
@@ -262,7 +347,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(TheoryWithInlineData));
 
-            framework.FindImpl(null, type);
+            framework.FindImpl(type);
 
             Assert.Equal(2, framework.Visitor.TestCases.Count);
             Assert.Single(framework.Visitor.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
@@ -291,7 +376,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(TheoryWithPropertyData));
 
-            framework.FindImpl(null, type);
+            framework.FindImpl(type);
 
             Assert.Equal(2, framework.Visitor.TestCases.Count);
             Assert.Single(framework.Visitor.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
@@ -349,14 +434,14 @@ public class XunitTestFrameworkDiscovererTests
             base.Find(typeName, includeSourceInformation, Visitor);
         }
 
-        public virtual bool FindImpl(XunitTestCollection testCollection, ITypeInfo type, bool includeSourceInformation = false)
+        public virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation = false)
         {
-            return base.FindImpl(testCollection, type, includeSourceInformation, Visitor);
+            return base.FindImpl(type, includeSourceInformation, Visitor);
         }
 
-        protected sealed override bool FindImpl(XunitTestCollection testCollection, ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        protected sealed override bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
         {
-            return FindImpl(testCollection, type, includeSourceInformation);
+            return FindImpl(type, includeSourceInformation);
         }
     }
 }

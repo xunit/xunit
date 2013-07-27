@@ -24,7 +24,7 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method.</param>
         /// <param name="factAttribute">The instance of <see cref="FactAttribute"/>.</param>
         /// <param name="lambda">The code to run for the test.</param>
-        public LambdaTestCase(XunitTestCollection testCollection, IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute, Action lambda)
+        public LambdaTestCase(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute, Action lambda)
             : base(testCollection, assembly, testClass, testMethod, factAttribute)
         {
             this.lambda = lambda;

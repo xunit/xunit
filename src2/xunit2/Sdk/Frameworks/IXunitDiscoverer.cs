@@ -18,6 +18,6 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method.</param>
         /// <param name="factAttribute">The fact attribute attached to the test method.</param>
         /// <returns>Returns zero or more test cases represented by the test method.</returns>
-        IEnumerable<XunitTestCase> Discover(XunitTestCollection testCollection, IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute);
+        IEnumerable<XunitTestCase> Discover(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute);
     }
 }

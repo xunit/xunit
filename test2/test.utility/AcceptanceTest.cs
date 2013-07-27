@@ -16,7 +16,12 @@ public class AcceptanceTest : IDisposable
 
     public List<ITestMessage> Run(Type type, Func<ITestMessage, bool> cancellationThunk = null)
     {
-        Xunit2 = new Xunit2(new NullSourceInformationProvider(), new Uri(type.Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
+        return Run(new[] { type }, cancellationThunk);
+    }
+
+    public List<ITestMessage> Run(Type[] types, Func<ITestMessage, bool> cancellationThunk = null)
+    {
+        Xunit2 = new Xunit2(new NullSourceInformationProvider(), new Uri(types[0].Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
 
         bool cancelled = false;
         Func<ITestMessage, bool> wrapper = msg =>
@@ -33,8 +38,12 @@ public class AcceptanceTest : IDisposable
         };
 
         var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>(wrapper);
-        Xunit2.Find(type.FullName, includeSourceInformation: false, messageSink: discoverySink);
-        discoverySink.Finished.WaitOne();
+        foreach (Type type in types)
+        {
+            Xunit2.Find(type.FullName, includeSourceInformation: false, messageSink: discoverySink);
+            discoverySink.Finished.WaitOne();
+            discoverySink.Finished.Reset();
+        }
 
         if (cancelled)
             return new List<ITestMessage>();
@@ -52,5 +61,11 @@ public class AcceptanceTest : IDisposable
         where TMessageType : ITestMessage
     {
         return Run(type).OfType<TMessageType>().ToList();
+    }
+
+    public List<TMessageType> Run<TMessageType>(Type[] types, Func<ITestMessage, bool> cancellationThunk = null)
+        where TMessageType : ITestMessage
+    {
+        return Run(types).OfType<TMessageType>().ToList();
     }
 }

@@ -37,7 +37,7 @@ namespace Xunit.Sdk
         /// <param name="method">The test method.</param>
         /// <param name="factAttribute">The instance of the <see cref="FactAttribute"/>.</param>
         /// <param name="arguments">The arguments for the test method.</param>
-        public XunitTestCase(XunitTestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments = null)
+        public XunitTestCase(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments = null)
         {
             Initialize(testCollection, assembly, type, method, factAttribute, arguments);
         }
@@ -49,7 +49,7 @@ namespace Xunit.Sdk
             string typeName = info.GetString("TypeName");
             string methodName = info.GetString("MethodName");
             object[] arguments = (object[])info.GetValue("Arguments", typeof(object[]));
-            var testCollection = (XunitTestCollection)info.GetValue("TestCollection", typeof(XunitTestCollection));
+            var testCollection = (ITestCollection)info.GetValue("TestCollection", typeof(ITestCollection));
 
             var type = Reflector.GetType(typeName, assemblyName);
             var typeInfo = Reflector.Wrap(type);
@@ -59,7 +59,7 @@ namespace Xunit.Sdk
             Initialize(testCollection, Reflector.Wrap(type.Assembly), typeInfo, methodInfo, factAttribute, arguments);
         }
 
-        void Initialize(XunitTestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments)
+        void Initialize(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments)
         {
             string displayNameBase = factAttribute.GetNamedArgument<string>("DisplayName") ?? type.Name + "." + method.Name;
 
