@@ -62,6 +62,15 @@ public class EqualityAssertsTests
             Assert.Equal(nco1, nco2);
         }
 
+        [Fact]
+        public void DepthExample()
+        {
+            var x = new List<object> { new List<object> { new List<object> { new List<object>() } } };
+            var y = new List<object> { new List<object> { new List<object> { new List<object>() } } };
+
+            Assert.Equal(x, y);
+        }
+
         class SpyComparable : IComparable
         {
             public bool CompareCalled;

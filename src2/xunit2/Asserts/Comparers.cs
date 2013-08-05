@@ -52,14 +52,17 @@ namespace Xunit
 
         class AssertEqualityComparer<T> : IEqualityComparer<T>
         {
-            static IEqualityComparer defaultInnerComparer = new AssertEqualityComparerAdapter<object>(new AssertEqualityComparer<object>());
-            IEqualityComparer innerComparer;
-            bool skipTypeCheck;
+            static readonly IEqualityComparer DefaultInnerComparer = new AssertEqualityComparerAdapter<object>(new AssertEqualityComparer<object>());
+
+            readonly Func<IEqualityComparer> innerComparerFactory;
+            readonly bool skipTypeCheck;
 
             public AssertEqualityComparer(bool skipTypeCheck = false, IEqualityComparer innerComparer = null)
             {
                 this.skipTypeCheck = skipTypeCheck;
-                this.innerComparer = innerComparer ?? defaultInnerComparer;
+
+                // Use a thunk to delay evaluation of DefaultInnerComparer
+                this.innerComparerFactory = () => innerComparer ?? DefaultInnerComparer;
             }
 
             public bool Equals(T x, T y)
@@ -81,28 +84,29 @@ namespace Xunit
                     return false;
 
                 // Implements IEquatable<T>?
-                IEquatable<T> equatable = x as IEquatable<T>;
+                var equatable = x as IEquatable<T>;
                 if (equatable != null)
                     return equatable.Equals(y);
 
                 // Implements IComparable<T>?
-                IComparable<T> comparable1 = x as IComparable<T>;
-                if (comparable1 != null)
-                    return comparable1.CompareTo(y) == 0;
+                var comparableGeneric = x as IComparable<T>;
+                if (comparableGeneric != null)
+                    return comparableGeneric.CompareTo(y) == 0;
 
                 // Implements IComparable?
-                IComparable comparable2 = x as IComparable;
-                if (comparable2 != null)
-                    return comparable2.CompareTo(y) == 0;
+                var comparable = x as IComparable;
+                if (comparable != null)
+                    return comparable.CompareTo(y) == 0;
 
                 // Enumerable?
-                IEnumerable enumerableX = x as IEnumerable;
-                IEnumerable enumerableY = y as IEnumerable;
+                var enumerableX = x as IEnumerable;
+                var enumerableY = y as IEnumerable;
 
                 if (enumerableX != null && enumerableY != null)
                 {
-                    IEnumerator enumeratorX = enumerableX.GetEnumerator();
-                    IEnumerator enumeratorY = enumerableY.GetEnumerator();
+                    var enumeratorX = enumerableX.GetEnumerator();
+                    var enumeratorY = enumerableY.GetEnumerator();
+                    var equalityComparer = innerComparerFactory();
 
                     while (true)
                     {
@@ -112,7 +116,7 @@ namespace Xunit
                         if (!hasNextX || !hasNextY)
                             return (hasNextX == hasNextY);
 
-                        if (!innerComparer.Equals(enumeratorX.Current, enumeratorY.Current))
+                        if (!equalityComparer.Equals(enumeratorX.Current, enumeratorY.Current))
                             return false;
                     }
                 }
