@@ -92,6 +92,15 @@ public class EqualTests
             // Assert.Contains("First difference is at position 0\r\n", ex.Message);
         }
 
+        [Fact]
+        public void DepthExample()
+        {
+            var x = new List<object> { new List<object> { new List<object> { new List<object>() } } };
+            var y = new List<object> { new List<object> { new List<object> { new List<object>() } } };
+
+            Assert.Equal(x, y);
+        }
+
         class IntComparer : IEqualityComparer<int>
         {
             bool answer;
