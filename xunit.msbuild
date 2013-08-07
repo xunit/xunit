@@ -32,7 +32,7 @@
 
   <!-- Build server targets -->
 
-  <Target Name="TeamCity" DependsOnTargets="Clean;RestorePackages;SetVersionNumber;Test;Packages;Zip" />
+  <Target Name="TeamCity" DependsOnTargets="Clean;PackageRestore;SetVersionNumber;Test;Packages;Zip" />
 
   <!-- Individiual targets -->
 
@@ -53,11 +53,13 @@
     <RemoveDir Directories="@(CleanFolderList)" ContinueOnError="true"/>
   </Target>
 
-  <Target Name="RestorePackages">
+  <Target Name="PackageRestore">
     <MSBuild Projects=".nuget\NuGet.targets" Targets="RestoreSolutionPackages" />
   </Target>
 
-  <Target Name="Build" DependsOnTargets="RestorePackages">
+  <Target Name="RestorePackages" DependsOnTargets="PackageRestore" />
+
+  <Target Name="Build" DependsOnTargets="PackageRestore">
     <MSBuild
         Projects="xunit2.sln"
         Targets="Build"

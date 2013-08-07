@@ -15,7 +15,8 @@
             <reference file="xunit2.dll" />
         </references>
         <dependencies>
-            <dependency id="xunit.abstractions" version="[2.0.0-alpha,2.1)" />
+            <dependency id="xunit.abstractions" version="[2.0.0-alpha]" />
+            <!--<dependency id="xunit.abstractions" version="[2.0.0-alpha,2.1)" />-->
         </dependencies>
     </metadata>
     <files>
