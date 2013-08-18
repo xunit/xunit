@@ -28,6 +28,12 @@ namespace Xunit.Sdk
             assemblyInfo = Reflector.Wrap(assembly);
         }
 
+        static void CreateFixture(Type interfaceType, ExceptionAggregator aggregator, Dictionary<Type, object> mappings)
+        {
+            var fixtureType = interfaceType.GetGenericArguments().Single();
+            aggregator.Run(() => mappings[fixtureType] = Activator.CreateInstance(fixtureType));
+        }
+
         /// <inheritdoc/>
         public ITestCase Deserialize(string value)
         {
@@ -59,51 +65,7 @@ namespace Xunit.Sdk
                     }))
                 {
                     foreach (var collectionGroup in testMethods.Cast<XunitTestCase>().GroupBy(tc => tc.TestCollection))
-                    {
-                        var collectionSummary = new RunSummary();
-
-                        if (messageSink.OnMessage(new TestCollectionStarting { TestCollection = collectionGroup.Key }))
-                        {
-                            foreach (var group in collectionGroup.GroupBy(tc => tc.Class))
-                            {
-                                var classSummary = new RunSummary();
-
-                                if (!messageSink.OnMessage(new TestClassStarting { ClassName = group.Key.Name }))
-                                    cancelled = true;
-                                else
-                                {
-                                    cancelled = RunTestClass(messageSink, group, classSummary);
-                                    collectionSummary.Aggregate(classSummary);
-                                }
-
-                                if (!messageSink.OnMessage(new TestClassFinished
-                                {
-                                    Assembly = assemblyInfo,
-                                    ClassName = group.Key.Name,
-                                    ExecutionTime = classSummary.Time,
-                                    TestsFailed = classSummary.Failed,
-                                    TestsRun = classSummary.Total,
-                                    TestsSkipped = classSummary.Skipped
-                                }))
-                                    cancelled = true;
-
-                                if (cancelled)
-                                    break;
-                            }
-                        }
-
-                        messageSink.OnMessage(new TestCollectionFinished
-                        {
-                            Assembly = assemblyInfo,
-                            ExecutionTime = collectionSummary.Time,
-                            TestCollection = collectionGroup.Key,
-                            TestsFailed = collectionSummary.Failed,
-                            TestsRun = collectionSummary.Total,
-                            TestsSkipped = collectionSummary.Skipped
-                        });
-
-                        totalSummary.Aggregate(collectionSummary);
-                    }
+                        cancelled = RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, totalSummary, cancelled);
                 }
 
                 messageSink.OnMessage(new TestAssemblyFinished
@@ -121,22 +83,100 @@ namespace Xunit.Sdk
             }
         }
 
-        private static bool RunTestClass(IMessageSink messageSink, IGrouping<ITypeInfo, XunitTestCase> group, RunSummary classSummary)
+        private bool RunTestCollection(IMessageSink messageSink, ITestCollection collection, IEnumerable<XunitTestCase> testCases, RunSummary totalSummary, bool cancelled)
         {
-            bool cancelled = false;
+            var collectionSummary = new RunSummary();
+            var collectionFixtureMappings = new Dictionary<Type, object>();
             var aggregator = new ExceptionAggregator();
 
-            Type testClassType = ((IReflectionTypeInfo)group.Key).Type;
-            Dictionary<Type, object> fixtureMappings = new Dictionary<Type, object>();
-            List<object> constructorArguments = new List<object>();
-
-            // TODO: Read class fixtures from test collection
-            foreach (var iface in testClassType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
+            if (collection.CollectionDefinition != null)
             {
-                Type fixtureType = iface.GetGenericArguments().Single();
-                object fixture = null;
-                aggregator.Run(() => fixture = Activator.CreateInstance(fixtureType));
-                fixtureMappings.Add(fixtureType, fixture);
+                var declarationType = ((IReflectionTypeInfo)collection.CollectionDefinition).Type;
+                foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+                    CreateFixture(interfaceType, aggregator, collectionFixtureMappings);
+            }
+
+            if (messageSink.OnMessage(new TestCollectionStarting { TestCollection = collection }))
+            {
+                foreach (var testCasesByClass in testCases.GroupBy(tc => tc.Class))
+                {
+                    var classSummary = new RunSummary();
+
+                    if (!messageSink.OnMessage(new TestClassStarting { ClassName = testCasesByClass.Key.Name }))
+                        cancelled = true;
+                    else
+                    {
+                        cancelled = RunTestClass(messageSink, collection, collectionFixtureMappings, (IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass, classSummary, aggregator);
+                        collectionSummary.Aggregate(classSummary);
+                    }
+
+                    if (!messageSink.OnMessage(new TestClassFinished
+                    {
+                        Assembly = assemblyInfo,
+                        ClassName = testCasesByClass.Key.Name,
+                        ExecutionTime = classSummary.Time,
+                        TestsFailed = classSummary.Failed,
+                        TestsRun = classSummary.Total,
+                        TestsSkipped = classSummary.Skipped
+                    }))
+                        cancelled = true;
+
+                    if (cancelled)
+                        break;
+                }
+            }
+
+            foreach (var fixture in collectionFixtureMappings.Values.OfType<IDisposable>())
+            {
+                try
+                {
+                    fixture.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    if (!messageSink.OnMessage(new ErrorMessage(ex.Unwrap())))
+                        cancelled = true;
+                }
+            }
+
+            messageSink.OnMessage(new TestCollectionFinished
+            {
+                Assembly = assemblyInfo,
+                ExecutionTime = collectionSummary.Time,
+                TestCollection = collection,
+                TestsFailed = collectionSummary.Failed,
+                TestsRun = collectionSummary.Total,
+                TestsSkipped = collectionSummary.Skipped
+            });
+
+            totalSummary.Aggregate(collectionSummary);
+            return cancelled;
+        }
+
+        private static bool RunTestClass(IMessageSink messageSink,
+                                         ITestCollection collection,
+                                         Dictionary<Type, object> collectionFixtureMappings,
+                                         IReflectionTypeInfo testClass,
+                                         IEnumerable<XunitTestCase> testCases,
+                                         RunSummary classSummary,
+                                         ExceptionAggregator aggregator)
+        {
+            var cancelled = false;
+            var testClassType = testClass.Type;
+            var fixtureMappings = new Dictionary<Type, object>();
+            var constructorArguments = new List<object>();
+
+            if (testClassType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+                aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
+
+            foreach (var interfaceType in testClassType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
+                CreateFixture(interfaceType, aggregator, fixtureMappings);
+
+            if (collection.CollectionDefinition != null)
+            {
+                var declarationType = ((IReflectionTypeInfo)collection.CollectionDefinition).Type;
+                foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
+                    CreateFixture(interfaceType, aggregator, fixtureMappings);
             }
 
             var isStaticClass = testClassType.IsAbstract && testClassType.IsSealed;
@@ -156,7 +196,7 @@ namespace Xunit.Sdk
                     {
                         object fixture;
 
-                        if (fixtureMappings.TryGetValue(paramInfo.ParameterType, out fixture))
+                        if (fixtureMappings.TryGetValue(paramInfo.ParameterType, out fixture) || collectionFixtureMappings.TryGetValue(paramInfo.ParameterType, out fixture))
                             constructorArguments.Add(fixture);
                         else
                             unusedArguments.Add(paramInfo.ParameterType.Name + " " + paramInfo.Name);
@@ -167,16 +207,16 @@ namespace Xunit.Sdk
                 }
             }
 
-            var methodGroups = group.GroupBy(tc => tc.Method);
+            var methodGroups = testCases.GroupBy(tc => tc.Method);
 
             foreach (var method in methodGroups)
             {
-                if (!messageSink.OnMessage(new TestMethodStarting { ClassName = group.Key.Name, MethodName = method.Key.Name }))
+                if (!messageSink.OnMessage(new TestMethodStarting { ClassName = testClass.Name, MethodName = method.Key.Name }))
                     cancelled = true;
                 else
                     cancelled = RunTestMethod(messageSink, constructorArguments.ToArray(), method, classSummary, aggregator);
 
-                if (!messageSink.OnMessage(new TestMethodFinished { ClassName = group.Key.Name, MethodName = method.Key.Name }))
+                if (!messageSink.OnMessage(new TestMethodFinished { ClassName = testClass.Name, MethodName = method.Key.Name }))
                     cancelled = true;
 
                 if (cancelled)

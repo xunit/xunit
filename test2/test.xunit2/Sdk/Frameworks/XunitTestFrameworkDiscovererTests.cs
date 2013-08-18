@@ -13,8 +13,11 @@ public class XunitTestFrameworkDiscovererTests
         [Fact]
         public void GuardClause()
         {
-            Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(null, Substitute.For<ISourceInformationProvider>()), "assemblyInfo");
-            Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(Substitute.For<IAssemblyInfo>(), null), "sourceProvider");
+            var assembly = Substitute.For<IAssemblyInfo>();
+            var sourceProvider = Substitute.For<ISourceInformationProvider>();
+
+            Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(null, sourceProvider), "assemblyInfo");
+            Assert.Throws<ArgumentNullException>(() => new XunitTestFrameworkDiscoverer(assembly, null), "sourceProvider");
         }
 
         [Fact]
@@ -129,7 +132,7 @@ public class XunitTestFrameworkDiscovererTests
         [Fact]
         public void RequestsOnlyPublicTypesFromAssembly()
         {
-            var framework = TestableXunitTestFrameworkDiscoverer.Create();
+            var framework = TestableXunitTestFrameworkDiscoverer.Create(collectionFactory: Substitute.For<IXunitTestCollectionFactory>());
 
             framework.Find();
 
@@ -382,6 +385,72 @@ public class XunitTestFrameworkDiscovererTests
             Assert.Single(framework.Visitor.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
             Assert.Single(framework.Visitor.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 2112)");
         }
+
+        class ClassWithNoCollection
+        {
+            [Fact]
+            public void TestMethod() { }
+        }
+
+        [Fact]
+        public void DefaultTestCollection()
+        {
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
+            var type = Reflector.Wrap(typeof(ClassWithNoCollection));
+
+            framework.FindImpl(type);
+
+            var testCase = Assert.Single(framework.Visitor.TestCases);
+            Assert.NotNull(testCase.TestCollection);
+            Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+FindImpl+ClassWithNoCollection", testCase.TestCollection.DisplayName);
+            Assert.Null(testCase.TestCollection.CollectionDefinition);
+        }
+
+        [Collection("This a collection without declaration")]
+        class ClassWithUndeclaredCollection
+        {
+            [Fact]
+            public void TestMethod() { }
+        }
+
+        [Fact]
+        public void UndeclaredTestCollection()
+        {
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
+            var type = Reflector.Wrap(typeof(ClassWithUndeclaredCollection));
+
+            framework.FindImpl(type);
+
+            var testCase = Assert.Single(framework.Visitor.TestCases);
+            Assert.NotNull(testCase.TestCollection);
+            Assert.Equal("This a collection without declaration", testCase.TestCollection.DisplayName);
+            Assert.Null(testCase.TestCollection.CollectionDefinition);
+        }
+
+        [CollectionDefinition("This a defined collection")]
+        public class DeclaredCollection { }
+
+        [Collection("This a defined collection")]
+        class ClassWithDefinedCollection
+        {
+            [Fact]
+            public void TestMethod() { }
+        }
+
+        [Fact]
+        public void DefinedTestCollection()
+        {
+            var type = Reflector.Wrap(typeof(ClassWithDefinedCollection));
+            var framework = TestableXunitTestFrameworkDiscoverer.Create(type.Assembly);
+
+            framework.FindImpl(type);
+
+            var testCase = Assert.Single(framework.Visitor.TestCases);
+            Assert.NotNull(testCase.TestCollection);
+            Assert.Equal("This a defined collection", testCase.TestCollection.DisplayName);
+            Assert.NotNull(testCase.TestCollection.CollectionDefinition);
+            Assert.Equal("XunitTestFrameworkDiscovererTests+FindImpl+DeclaredCollection", testCase.TestCollection.CollectionDefinition.Name);
+        }
     }
 
     class ClassWithSingleTest
@@ -393,13 +462,19 @@ public class XunitTestFrameworkDiscovererTests
     public class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer
     {
         protected TestableXunitTestFrameworkDiscoverer()
-            : this(Mocks.AssemblyInfo(), Substitute.For<ISourceInformationProvider>()) { }
+            : this(Mocks.AssemblyInfo()) { }
 
         protected TestableXunitTestFrameworkDiscoverer(IAssemblyInfo assembly)
-            : this(assembly, Substitute.For<ISourceInformationProvider>()) { }
+            : this(assembly, null, null, null) { }
 
-        TestableXunitTestFrameworkDiscoverer(IAssemblyInfo assembly, ISourceInformationProvider sourceProvider)
-            : base(assembly, sourceProvider)
+        protected TestableXunitTestFrameworkDiscoverer(IAssemblyInfo assembly,
+                                                       ISourceInformationProvider sourceProvider,
+                                                       IXunitTestCollectionFactory collectionFactory,
+                                                       IMessageAggregator messageAggregator)
+            : base(assembly,
+                   sourceProvider ?? Substitute.For<ISourceInformationProvider>(),
+                   collectionFactory,
+                   messageAggregator)
         {
             Assembly = assembly;
             Visitor = new TestDiscoveryVisitor();
@@ -418,10 +493,12 @@ public class XunitTestFrameworkDiscovererTests
 
         public TestDiscoveryVisitor Visitor { get; private set; }
 
-        public static TestableXunitTestFrameworkDiscoverer Create(IAssemblyInfo assembly = null, ISourceInformationProvider sourceProvider = null)
+        public static TestableXunitTestFrameworkDiscoverer Create(IAssemblyInfo assembly = null,
+                                                                  ISourceInformationProvider sourceProvider = null,
+                                                                  IXunitTestCollectionFactory collectionFactory = null,
+                                                                  IMessageAggregator messageAggregator = null)
         {
-            return new TestableXunitTestFrameworkDiscoverer(assembly ?? Mocks.AssemblyInfo(),
-                                                            sourceProvider ?? Substitute.For<ISourceInformationProvider>());
+            return new TestableXunitTestFrameworkDiscoverer(assembly ?? Mocks.AssemblyInfo(), sourceProvider, collectionFactory, messageAggregator);
         }
 
         public void Find(bool includeSourceInformation = false)

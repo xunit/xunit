@@ -69,10 +69,10 @@ namespace Xunit.Sdk
             if (parts.Count == 1)
                 return Type.GetType(parts[0]);
 
-            return GetType(parts[0], parts[1]);
+            return GetType(parts[1], parts[0]);
         }
 
-        internal static Type GetType(string typeName, string assemblyName)
+        internal static Type GetType(string assemblyName, string typeName)
         {
             // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);

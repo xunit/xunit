@@ -33,6 +33,14 @@ public static class Mocks
         return result;
     }
 
+    public static IReflectionAttributeInfo CollectionDefinitionAttribute(string collectionName)
+    {
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        result.Attribute.Returns(new CollectionDefinitionAttribute(collectionName));
+        result.GetConstructorArguments().Returns(new[] { collectionName });
+        return result;
+    }
+
     public static IReflectionAttributeInfo CollectionBehaviorAttribute(string factoryTypeName, string factoryAssemblyName)
     {
         var result = Substitute.For<IReflectionAttributeInfo>();

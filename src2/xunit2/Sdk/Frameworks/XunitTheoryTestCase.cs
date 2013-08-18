@@ -46,7 +46,7 @@ namespace Xunit.Sdk
                 {
                     var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                     var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    var discovererType = Reflector.GetType(args[0], args[1]);
+                    var discovererType = Reflector.GetType(args[1], args[0]);
                     IDataDiscoverer discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
 
                     foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))

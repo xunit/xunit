@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -7,5 +8,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class DiscoveryCompleteMessage : LongLivedMarshalByRefObject, IDiscoveryCompleteMessage
     {
+        /// <inheritdoc/>
+        public IEnumerable<string> Warnings { get; set; }
     }
 }

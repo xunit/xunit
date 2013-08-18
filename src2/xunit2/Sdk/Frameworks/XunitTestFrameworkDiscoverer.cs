@@ -19,6 +19,7 @@ namespace Xunit.Sdk
         public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
 
         readonly IAssemblyInfo assemblyInfo;
+        readonly IMessageAggregator messageAggregator;
         readonly ISourceInformationProvider sourceProvider;
 
         /// <summary>
@@ -27,38 +28,29 @@ namespace Xunit.Sdk
         /// <param name="assemblyInfo">The test assembly.</param>
         /// <param name="sourceProvider">The source information provider.</param>
         public XunitTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo, ISourceInformationProvider sourceProvider)
+            : this(assemblyInfo, sourceProvider, null, MessageAggregator.Instance) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
+        /// </summary>
+        /// <param name="assemblyInfo">The test assembly.</param>
+        /// <param name="sourceProvider">The source information provider.</param>
+        /// <param name="collectionFactory">The test collection factory used to look up test collections.</param>
+        /// <param name="messageAggregator">The message aggregator to receive environmental warnings from.</param>
+        public XunitTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo,
+                                            ISourceInformationProvider sourceProvider,
+                                            IXunitTestCollectionFactory collectionFactory,
+                                            IMessageAggregator messageAggregator)
         {
             Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
             Guard.ArgumentNotNull("sourceProvider", sourceProvider);
 
             this.assemblyInfo = assemblyInfo;
             this.sourceProvider = sourceProvider;
+            this.messageAggregator = messageAggregator ?? MessageAggregator.Instance;
 
-            // Determine the collection behavior, and tack it onto the end of the display name
-            var collectionBehavior = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
-            var factoryType = GetTestCollectionFactoryType(collectionBehavior);
-
-            TestCollectionFactory = (IXunitTestCollectionFactory)Activator.CreateInstance(factoryType, new[] { assemblyInfo });
+            TestCollectionFactory = collectionFactory ?? GetTestCollectionFactory(this.assemblyInfo);
             TestFrameworkDisplayName = String.Format("{0} [{1}, non-parallel]", DisplayName, TestCollectionFactory.DisplayName);
-        }
-
-        private Type GetTestCollectionFactoryType(IAttributeInfo collectionBehavior)
-        {
-            if (collectionBehavior == null)
-                return typeof(CollectionPerClassTestCollectionFactory);
-
-            var ctorArgs = collectionBehavior.GetConstructorArguments().ToList();
-            if (ctorArgs.Count == 0)
-                return typeof(CollectionPerClassTestCollectionFactory);
-
-            if (ctorArgs.Count == 1 && (CollectionBehavior)ctorArgs[0] == CollectionBehavior.CollectionPerAssembly)
-                return typeof(CollectionPerAssemblyTestCollectionFactory);
-
-            var result = Reflector.GetType((string)ctorArgs[0], (string)ctorArgs[1]);
-            if (!typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)
-                return typeof(CollectionPerClassTestCollectionFactory);
-
-            return result;
         }
 
         /// <summary>
@@ -83,7 +75,8 @@ namespace Xunit.Sdk
                     if (!FindImpl(type, includeSourceInformation, messageSink))
                         break;
 
-                messageSink.OnMessage(new DiscoveryCompleteMessage());
+                var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
+                messageSink.OnMessage(new DiscoveryCompleteMessage { Warnings = warnings });
             });
         }
 
@@ -99,7 +92,8 @@ namespace Xunit.Sdk
                 if (typeInfo != null)
                     FindImpl(typeInfo, includeSourceInformation, messageSink);
 
-                messageSink.OnMessage(new DiscoveryCompleteMessage());
+                var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
+                messageSink.OnMessage(new DiscoveryCompleteMessage { Warnings = warnings });
             });
         }
 
@@ -129,7 +123,7 @@ namespace Xunit.Sdk
                         if (discovererAttribute != null)
                         {
                             var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                            var discovererType = Reflector.GetType(args[0], args[1]);
+                            var discovererType = Reflector.GetType(args[1], args[0]);
                             if (discovererType != null)
                             {
                                 IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
@@ -151,6 +145,33 @@ namespace Xunit.Sdk
             {
                 Directory.SetCurrentDirectory(currentDirectory);
             }
+        }
+
+        static IXunitTestCollectionFactory GetTestCollectionFactory(IAssemblyInfo assemblyInfo)
+        {
+            var collectionBehavior = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
+            var factoryType = GetTestCollectionFactoryType(collectionBehavior);
+
+            return (IXunitTestCollectionFactory)Activator.CreateInstance(factoryType, new[] { assemblyInfo });
+        }
+
+        static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehavior)
+        {
+            if (collectionBehavior == null)
+                return typeof(CollectionPerClassTestCollectionFactory);
+
+            var ctorArgs = collectionBehavior.GetConstructorArguments().ToList();
+            if (ctorArgs.Count == 0)
+                return typeof(CollectionPerClassTestCollectionFactory);
+
+            if (ctorArgs.Count == 1 && (CollectionBehavior)ctorArgs[0] == CollectionBehavior.CollectionPerAssembly)
+                return typeof(CollectionPerAssemblyTestCollectionFactory);
+
+            var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
+            if (!typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)
+                return typeof(CollectionPerClassTestCollectionFactory);
+
+            return result;
         }
 
         /// <inheritdoc/>

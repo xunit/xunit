@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -32,7 +31,7 @@ namespace Xunit.Sdk
                     {
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                         var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        var discovererType = Reflector.GetType(args[0], args[1]);
+                        var discovererType = Reflector.GetType(args[1], args[0]);
                         IDataDiscoverer discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
 
                         // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it

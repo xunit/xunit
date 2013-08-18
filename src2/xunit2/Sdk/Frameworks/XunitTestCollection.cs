@@ -20,7 +20,16 @@ namespace Xunit.Sdk
         protected XunitTestCollection(SerializationInfo info, StreamingContext context)
         {
             DisplayName = info.GetString("DisplayName");
+
+            var assemblyName = info.GetString("DeclarationAssemblyName");
+            var typeName = info.GetString("DeclarationTypeName");
+
+            if (!String.IsNullOrWhiteSpace(assemblyName) && String.IsNullOrWhiteSpace(typeName))
+                CollectionDefinition = Reflector.Wrap(Reflector.GetType(assemblyName, typeName));
         }
+
+        /// <inheritdoc/>
+        public ITypeInfo CollectionDefinition { get; set; }
 
         /// <inheritdoc/>
         public string DisplayName { get; set; }
@@ -30,6 +39,17 @@ namespace Xunit.Sdk
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("DisplayName", DisplayName);
+
+            if (CollectionDefinition != null)
+            {
+                info.AddValue("DeclarationAssemblyName", CollectionDefinition.Assembly.Name);
+                info.AddValue("DeclarationTypeName", CollectionDefinition.Name);
+            }
+            else
+            {
+                info.AddValue("DeclarationAssemblyName", null);
+                info.AddValue("DeclarationTypeName", null);
+            }
         }
     }
 }

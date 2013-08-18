@@ -51,7 +51,7 @@ namespace Xunit.Sdk
             object[] arguments = (object[])info.GetValue("Arguments", typeof(object[]));
             var testCollection = (ITestCollection)info.GetValue("TestCollection", typeof(ITestCollection));
 
-            var type = Reflector.GetType(typeName, assemblyName);
+            var type = Reflector.GetType(assemblyName, typeName);
             var typeInfo = Reflector.Wrap(type);
             var methodInfo = Reflector.Wrap(type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
             var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).Single();
@@ -200,7 +200,7 @@ namespace Xunit.Sdk
         /// <returns>The type under test, if possible; null, if not available.</returns>
         protected Type GetRuntimeClass()
         {
-            return Reflector.GetType(Class.Name, Assembly.Name);
+            return Reflector.GetType(Assembly.Name, Class.Name);
         }
 
         /// <summary>
