@@ -9,11 +9,11 @@ public class SerializationTests
     class SerializableObject { }
 
     [Fact]
-    void CanSerializeAndDeserializeObjectsInATest()
+    public void CanSerializeAndDeserializeObjectsInATest()
     {
-        BinaryFormatter bf = new BinaryFormatter();
+        var bf = new BinaryFormatter();
 
-        using (Stream ms = new MemoryStream())
+        using (var ms = new MemoryStream())
         {
             bf.Serialize(ms, (object)new SerializableObject());
             ms.Position = 0;

@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
@@ -442,13 +443,31 @@ namespace Xunit.Sdk
                                     if (!cancelled)
                                     {
                                         var parameterTypes = methodUnderTest.GetParameters().Select(p => p.ParameterType).ToArray();
-                                        aggregator.Run(() =>
+                                        var oldSyncContext = SynchronizationContext.Current;
+
+                                        try
                                         {
-                                            var result = methodUnderTest.Invoke(testClass, ConvertArguments(testMethodArguments ?? EmptyArray, parameterTypes));
-                                            var task = result as Task;
-                                            if (task != null)
-                                                task.GetAwaiter().GetResult();
-                                        });
+                                            var asyncSyncContext = new AsyncTestSyncContext();
+                                            SetSynchronizationContext(asyncSyncContext);
+
+                                            aggregator.Run(() =>
+                                            {
+                                                var result = methodUnderTest.Invoke(testClass, ConvertArguments(testMethodArguments ?? EmptyArray, parameterTypes));
+                                                var task = result as Task;
+                                                if (task != null)
+                                                    task.GetAwaiter().GetResult();
+                                                else
+                                                {
+                                                    var ex = asyncSyncContext.WaitForCompletion();
+                                                    if (ex != null)
+                                                        aggregator.Add(ex);
+                                                }
+                                            });
+                                        }
+                                        finally
+                                        {
+                                            SetSynchronizationContext(oldSyncContext);
+                                        }
                                     }
                                 });
 
@@ -508,6 +527,12 @@ namespace Xunit.Sdk
                 cancelled = true;
 
             return cancelled;
+        }
+
+        [SecuritySafeCritical]
+        void SetSynchronizationContext(SynchronizationContext context)
+        {
+            SynchronizationContext.SetSynchronizationContext(context);
         }
     }
 }

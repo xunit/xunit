@@ -64,6 +64,7 @@
     <Compile Include="CollectionDefinitionAttribute.cs" />
     <Compile Include="IClassFixture.cs" />
     <Compile Include="ICollectionFixture.cs" />
+    <Compile Include="Sdk\AsyncTestSyncContext.cs" />
     <Compile Include="Sdk\EnvironmentalWarning.cs" />
     <Compile Include="Sdk\MessageAggregator.cs" />
     <Compile Include="Sdk\ExceptionAggregator.cs" />
