@@ -92,6 +92,9 @@ namespace Xunit.Sdk
         /// <returns>The filtered stack trace</returns>
         protected string FilterStackTrace(string stack)
         {
+#if DEBUG
+            return stack;
+#else
             if (stack == null)
                 return null;
 
@@ -105,6 +108,7 @@ namespace Xunit.Sdk
             }
 
             return string.Join(Environment.NewLine, results.ToArray());
+#endif
         }
 
         /// <inheritdoc/>

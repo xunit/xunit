@@ -134,6 +134,8 @@ namespace Xunit.Sdk
 
             string baseTypeName = type.Name;
             int backTickIdx = type.Name.IndexOf('`');
+            if (backTickIdx < 0)
+                backTickIdx = type.Name.Length;  // F# doesn't use backticks for generic type names
 
             return baseTypeName.Substring(0, backTickIdx) + "<" + String.Join(", ", simpleNames) + ">";
         }

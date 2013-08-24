@@ -22,6 +22,7 @@ public class AssertExceptionTests
         Assert.Equal(ex.UserMessage, ex.Message);
     }
 
+#if !DEBUG
     [Fact]
     public void DeveloperCanChooseWhichStackFrameItemsToExclude()
     {
@@ -34,6 +35,7 @@ public class AssertExceptionTests
         Assert.Contains("at AssertExceptionTests.<DeveloperCanChooseWhichStackFrameItemsToExclude>", ex.StackFrames[0]);
         Assert.Contains("at Xunit.Record.Exception", ex.StackFrames[1]);
     }
+#endif
 
     class CustomException : AssertException
     {
