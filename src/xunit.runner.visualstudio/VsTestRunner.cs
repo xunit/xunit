@@ -139,6 +139,8 @@ namespace Xunit.Runner.VisualStudio
             Guard.ArgumentNotNull("runContext", runContext);
             Guard.ArgumentNotNull("frameworkHandle", frameworkHandle);
 
+            frameworkHandle.EnableShutdownAfterTestRun = true;
+
             var cleanupList = new List<ExecutorWrapper>();
 
             try
@@ -165,6 +167,8 @@ namespace Xunit.Runner.VisualStudio
             Guard.ArgumentNotNull("tests", tests);
             Guard.ArgumentNotNull("runContext", runContext);
             Guard.ArgumentNotNull("frameworkHandle", frameworkHandle);
+
+            frameworkHandle.EnableShutdownAfterTestRun = true;
 
             var cleanupList = new List<ExecutorWrapper>();
 
