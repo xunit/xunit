@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Concurrent;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -9,24 +9,24 @@ namespace Xunit.Runner.MSBuild
 {
     public class TeamCityVisitor : MSBuildVisitor
     {
-        string assemblyFileName;
+        readonly ConcurrentDictionary<string, string> flowMappings = new ConcurrentDictionary<string, string>();
+        readonly Func<string, string> flowIdMapper;
 
-        public TeamCityVisitor(TaskLoggingHelper log, XElement assembliesElement, Func<bool> cancelThunk, string assemblyFileName)
+        public TeamCityVisitor(TaskLoggingHelper log, XElement assembliesElement, Func<bool> cancelThunk)
+            : this(log, assembliesElement, cancelThunk, _ => Guid.NewGuid().ToString("N")) { }
+
+        public TeamCityVisitor(TaskLoggingHelper log, XElement assembliesElement, Func<bool> cancelThunk, Func<string, string> flowIdMapper)
             : base(log, assembliesElement, cancelThunk)
         {
-            this.assemblyFileName = Path.GetFullPath(assemblyFileName);
-
-            FlowId = Guid.NewGuid().ToString("n");
+            this.flowIdMapper = flowIdMapper;
         }
-
-        public string FlowId { get; set; }
 
         private void LogFinish(ITestResultMessage testResult)
         {
             Log.LogMessage(MessageImportance.High, "##teamcity[testFinished name='{0}' duration='{1}' flowId='{2}']",
                            TeamCityEscape(testResult.TestDisplayName),
                            (int)(testResult.ExecutionTime * 1000M),
-                           FlowId);
+                           ToFlowId(testResult.TestCollection.DisplayName));
         }
 
         protected override bool Visit(IErrorMessage error)
@@ -37,25 +37,25 @@ namespace Xunit.Runner.MSBuild
             return base.Visit(error);
         }
 
-        protected override bool Visit(ITestAssemblyFinished assemblyFinished)
+        protected override bool Visit(ITestCollectionFinished testCollectionFinished)
         {
             // Base class does computation of results, so call it first.
-            var result = base.Visit(assemblyFinished);
+            var result = base.Visit(testCollectionFinished);
 
             Log.LogMessage(MessageImportance.High, "##teamcity[testSuiteFinished name='{0}' flowId='{1}']",
-                           TeamCityEscape(assemblyFileName),
-                           FlowId);
+                           TeamCityEscape(testCollectionFinished.TestCollection.DisplayName),
+                           ToFlowId(testCollectionFinished.TestCollection.DisplayName));
 
             return result;
         }
 
-        protected override bool Visit(ITestAssemblyStarting assemblyStarting)
+        protected override bool Visit(ITestCollectionStarting testCollectionStarting)
         {
             Log.LogMessage(MessageImportance.High, "##teamcity[testSuiteStarted name='{0}' flowId='{1}']",
-                           TeamCityEscape(assemblyFileName),
-                           FlowId);
+                           TeamCityEscape(testCollectionStarting.TestCollection.DisplayName),
+                           ToFlowId(testCollectionStarting.TestCollection.DisplayName));
 
-            return base.Visit(assemblyStarting);
+            return base.Visit(testCollectionStarting);
         }
 
         protected override bool Visit(ITestFailed testFailed)
@@ -64,7 +64,7 @@ namespace Xunit.Runner.MSBuild
                            TeamCityEscape(testFailed.TestDisplayName),
                            TeamCityEscape(testFailed.Message),
                            TeamCityEscape(testFailed.StackTrace),
-                           FlowId);
+                           ToFlowId(testFailed.TestCollection.DisplayName));
             LogFinish(testFailed);
 
             return base.Visit(testFailed);
@@ -82,7 +82,7 @@ namespace Xunit.Runner.MSBuild
             Log.LogMessage(MessageImportance.High, "##teamcity[testIgnored name='{0}' message='{1}' flowId='{2}']",
                            TeamCityEscape(testSkipped.TestDisplayName),
                            TeamCityEscape(testSkipped.Reason),
-                           FlowId);
+                           ToFlowId(testSkipped.TestCollection.DisplayName));
             LogFinish(testSkipped);
 
             return base.Visit(testSkipped);
@@ -92,7 +92,7 @@ namespace Xunit.Runner.MSBuild
         {
             Log.LogMessage(MessageImportance.High, "##teamcity[testStarted name='{0}' flowId='{1}']",
                            TeamCityEscape(testStarting.TestDisplayName),
-                           FlowId);
+                           ToFlowId(testStarting.TestCollection.DisplayName));
 
             return base.Visit(testStarting);
         }
@@ -107,6 +107,11 @@ namespace Xunit.Runner.MSBuild
                         .Replace("\r", "|r")
                         .Replace("\n", "|n")
                         .Replace("]", "|]");
+        }
+
+        private string ToFlowId(string testCollectionName)
+        {
+            return flowMappings.GetOrAdd(testCollectionName, flowIdMapper);
         }
     }
 }

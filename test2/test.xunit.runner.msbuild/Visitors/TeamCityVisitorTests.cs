@@ -16,7 +16,7 @@ public class TeamCityVisitorTests
             errorMessage.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, @"C:\Foo\Bar.dll");
+            var visitor = new TeamCityVisitor(logger, null, null);
 
             var result = visitor.OnMessage(errorMessage);
 
@@ -26,40 +26,42 @@ public class TeamCityVisitorTests
         }
     }
 
-    public class OnMessage_TestAssemblyFinished
+    public class OnMessage_TestCollectionFinished
     {
         [Fact]
         public void LogsMessage()
         {
-            var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
-            assemblyFinished.TestsRun.Returns(2112);
-            assemblyFinished.TestsFailed.Returns(42);
-            assemblyFinished.TestsSkipped.Returns(6);
-            assemblyFinished.ExecutionTime.Returns(123.4567M);
+            var collectionFinished = Substitute.For<ITestCollectionFinished>();
+            collectionFinished.TestsRun.Returns(2112);
+            collectionFinished.TestsFailed.Returns(42);
+            collectionFinished.TestsSkipped.Returns(6);
+            collectionFinished.ExecutionTime.Returns(123.4567M);
+            collectionFinished.TestCollection.DisplayName.Returns("Display Name");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
-            visitor.OnMessage(assemblyFinished);
+            visitor.OnMessage(collectionFinished);
 
-            Assert.Single(logger.Messages, @"MESSAGE[High]: ##teamcity[testSuiteFinished name='C:\Foo\Bar.dll' flowId='myFlowId']");
+            Assert.Single(logger.Messages, @"MESSAGE[High]: ##teamcity[testSuiteFinished name='Display Name' flowId='myFlowId']");
         }
     }
 
-    public class OnMessage_TestAssemblyStarting
+    public class OnMessage_TestCollectionStarting
     {
         [Fact]
         public void LogsMessage()
         {
-            var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
+            var collectionStarting = Substitute.For<ITestCollectionStarting>();
+            collectionStarting.TestCollection.DisplayName.Returns("Display Name");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
-            visitor.OnMessage(assemblyStarting);
+            visitor.OnMessage(collectionStarting);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal(@"MESSAGE[High]: ##teamcity[testSuiteStarted name='C:\Foo\Bar.dll' flowId='myFlowId']", msg));
+                msg => Assert.Equal(@"MESSAGE[High]: ##teamcity[testSuiteStarted name='Display Name' flowId='myFlowId']", msg));
         }
     }
 
@@ -75,7 +77,7 @@ public class TeamCityVisitorTests
             testFailed.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(testFailed);
 
@@ -96,7 +98,7 @@ public class TeamCityVisitorTests
             testPassed.ExecutionTime.Returns(1.2345M);
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(testPassed);
 
@@ -116,7 +118,7 @@ public class TeamCityVisitorTests
             testSkipped.Reason.Returns("This is my skip reason \t\r\n");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(testSkipped);
 
@@ -136,7 +138,7 @@ public class TeamCityVisitorTests
             testStarting.TestDisplayName.Returns("This is my display name \t\r\n");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, @"C:\Foo\Bar.dll") { FlowId = "myFlowId" };
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(testStarting);
 

@@ -56,7 +56,7 @@ namespace Xunit.Runner.MSBuild
         protected virtual MSBuildVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)
         {
             if (TeamCity)
-                return new TeamCityVisitor(Log, assemblyElement, () => cancel, assemblyFileName);
+                return new TeamCityVisitor(Log, assemblyElement, () => cancel);
 
             return new StandardOutputVisitor(Log, assemblyElement, Verbose, () => cancel);
         }
