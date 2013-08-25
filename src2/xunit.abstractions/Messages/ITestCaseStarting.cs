@@ -3,11 +3,7 @@
     /// <summary>
     /// This message indicates that a test case is about to start executing.
     /// </summary>
-    public interface ITestCaseStarting : ITestMessage
+    public interface ITestCaseStarting : ITestCaseMessage
     {
-        /// <summary>
-        /// The test case that is about to execute.
-        /// </summary>
-        ITestCase TestCase { get; }
     }
 }

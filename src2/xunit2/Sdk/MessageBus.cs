@@ -11,7 +11,7 @@ namespace Xunit.Sdk
     public class MessageBus : IMessageBus, IDisposable
     {
         readonly IMessageSink messageSink;
-        readonly ConcurrentQueue<ITestMessage> reporterQueue = new ConcurrentQueue<ITestMessage>();
+        readonly ConcurrentQueue<IMessageSinkMessage> reporterQueue = new ConcurrentQueue<IMessageSinkMessage>();
         readonly Thread reporterThread;
         readonly AutoResetEvent reporterWorkEvent = new AutoResetEvent(initialState: false);
         volatile bool shutdownRequested;
@@ -27,7 +27,7 @@ namespace Xunit.Sdk
 
         private void DispatchMessages()
         {
-            ITestMessage message;
+            IMessageSinkMessage message;
             while (reporterQueue.TryDequeue(out message))
                 try
                 {
@@ -47,7 +47,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary/>
-        public void QueueMessage(ITestMessage message)
+        public void QueueMessage(IMessageSinkMessage message)
         {
             reporterQueue.Enqueue(message);
             reporterWorkEvent.Set();

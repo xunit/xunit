@@ -130,6 +130,9 @@
     <Compile Include="Sdk\IMessageBus.cs" />
     <Compile Include="Sdk\LongLivedMarshalByRefObject.cs" />
     <Compile Include="Sdk\MessageBus.cs" />
+    <Compile Include="Sdk\Messages\BaseMessages\TestCaseMessage.cs" />
+    <Compile Include="Sdk\Messages\BaseMessages\TestCollectionMessage.cs" />
+    <Compile Include="Sdk\Messages\BaseMessages\TestMessage.cs" />
     <Compile Include="Sdk\Messages\BeforeTestFinished.cs" />
     <Compile Include="Sdk\Messages\BeforeTestStarting.cs" />
     <Compile Include="Sdk\Messages\AfterTestFinished.cs" />
@@ -142,7 +145,7 @@
     <Compile Include="Sdk\Messages\TestFailed.cs" />
     <Compile Include="Sdk\Messages\TestMethodFinished.cs" />
     <Compile Include="Sdk\Messages\TestMethodStarting.cs" />
-    <Compile Include="Sdk\Messages\TestResultMessage.cs" />
+    <Compile Include="Sdk\Messages\BaseMessages\TestResultMessage.cs" />
     <Compile Include="Sdk\Messages\TestSkipped.cs" />
     <Compile Include="Sdk\Messages\DiscoveryCompleteMessage.cs" />
     <Compile Include="Sdk\Messages\ErrorMessage.cs" />

@@ -5,9 +5,9 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestCaseDiscoveryMessage"/>.
     /// </summary>
-    public class TestCaseDiscoveryMessage : LongLivedMarshalByRefObject, ITestCaseDiscoveryMessage
+    public class TestCaseDiscoveryMessage : TestCaseMessage, ITestCaseDiscoveryMessage
     {
-        /// <inheritdoc/>
-        public ITestCase TestCase { get; set; }
+        public TestCaseDiscoveryMessage(ITestCase testCase)
+            : base(testCase) { }
     }
 }

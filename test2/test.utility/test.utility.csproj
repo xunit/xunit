@@ -99,6 +99,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstractions\TestCollection.cs" />
     <Compile Include="NSubstituteExtensions.cs" />
     <Compile Include="PreserveWorkingDirectoryAttribute.cs" />
     <Compile Include="Abstractions\AssemblyWrapper.cs" />

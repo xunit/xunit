@@ -7,7 +7,7 @@ using Xunit.Sdk;
 
 public class MessageBusTests
 {
-    IMessageSink SpySink(List<ITestMessage> messages = null)
+    IMessageSink SpySink(List<IMessageSinkMessage> messages = null)
     {
         var result = Substitute.For<IMessageSink>();
 
@@ -15,7 +15,7 @@ public class MessageBusTests
             callInfo =>
             {
                 if (messages != null)
-                    messages.Add((ITestMessage)callInfo[0]);
+                    messages.Add((IMessageSinkMessage)callInfo[0]);
 
                 return true;
             });
@@ -26,11 +26,11 @@ public class MessageBusTests
     [Fact]
     public void QueuedMessageShowUpInMessageSink()
     {
-        var messages = new List<ITestMessage>();
+        var messages = new List<IMessageSinkMessage>();
         var sink = SpySink(messages);
-        var msg1 = Substitute.For<ITestMessage>();
-        var msg2 = Substitute.For<ITestMessage>();
-        var msg3 = Substitute.For<ITestMessage>();
+        var msg1 = Substitute.For<IMessageSinkMessage>();
+        var msg2 = Substitute.For<IMessageSinkMessage>();
+        var msg3 = Substitute.For<IMessageSinkMessage>();
 
         using (var bus = new MessageBus(sink))
         {
@@ -63,7 +63,7 @@ public class MessageBusTests
         bus.Dispose();
 
         var exception = Record.Exception(
-            () => bus.QueueMessage(Substitute.For<ITestMessage>())
+            () => bus.QueueMessage(Substitute.For<IMessageSinkMessage>())
         );
 
         Assert.IsType<ObjectDisposedException>(exception);
@@ -73,14 +73,14 @@ public class MessageBusTests
     public void WhenSinkThrowsMessagesContinueToBeDelivered()
     {
         var sink = Substitute.For<IMessageSink>();
-        var msg1 = Substitute.For<ITestMessage>();
-        var msg2 = Substitute.For<ITestMessage>();
-        var msg3 = Substitute.For<ITestMessage>();
-        var messages = new List<ITestMessage>();
-        sink.OnMessage(Arg.Any<ITestMessage>())
+        var msg1 = Substitute.For<IMessageSinkMessage>();
+        var msg2 = Substitute.For<IMessageSinkMessage>();
+        var msg3 = Substitute.For<IMessageSinkMessage>();
+        var messages = new List<IMessageSinkMessage>();
+        sink.OnMessage(Arg.Any<IMessageSinkMessage>())
             .Returns(callInfo =>
             {
-                var msg = (ITestMessage)callInfo[0];
+                var msg = (IMessageSinkMessage)callInfo[0];
                 if (msg == msg2)
                     throw new Exception("whee!");
                 else

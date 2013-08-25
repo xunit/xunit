@@ -5,15 +5,15 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="IBeforeTestStarting"/>.
     /// </summary>
-    public class BeforeTestStarting : LongLivedMarshalByRefObject, IBeforeTestStarting
+    public class BeforeTestStarting : TestMessage, IBeforeTestStarting
     {
-        /// <inheritdoc/>
-        public string AttributeName { get; set; }
+        public BeforeTestStarting(ITestCase testCase, string testDisplayName, string attributeName)
+            : base(testCase, testDisplayName)
+        {
+            AttributeName = attributeName;
+        }
 
         /// <inheritdoc/>
-        public ITestCase TestCase { get; set; }
-
-        /// <inheritdoc/>
-        public string TestDisplayName { get; set; }
+        public string AttributeName { get; private set; }
     }
 }

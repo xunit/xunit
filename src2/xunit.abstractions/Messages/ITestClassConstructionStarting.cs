@@ -7,14 +7,5 @@
     /// </summary>
     public interface ITestClassConstructionStarting : ITestMessage
     {
-        /// <summary>
-        /// The test case that this class is being constructed for.
-        /// </summary>
-        ITestCase TestCase { get; }
-
-        /// <summary>
-        /// The display name of the test case.
-        /// </summary>
-        string TestDisplayName { get; }
     }
 }

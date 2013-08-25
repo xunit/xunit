@@ -11,18 +11,19 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorMessage"/> class.
         /// </summary>
-        public ErrorMessage() { }
+        public ErrorMessage(string exceptionType, string message, string stackTrace)
+        {
+            StackTrace = stackTrace;
+            Message = message;
+            ExceptionType = exceptionType;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorMessage"/> class.
         /// </summary>
         /// <param name="ex">The exception that represents the error message.</param>
         public ErrorMessage(Exception ex)
-        {
-            ExceptionType = ex.GetType().FullName;
-            Message = ExceptionUtility.GetMessage(ex);
-            StackTrace = ExceptionUtility.GetStackTrace(ex);
-        }
+            : this(ex.GetType().FullName, ExceptionUtility.GetMessage(ex), ExceptionUtility.GetStackTrace(ex)) { }
 
         /// <inheritdoc/>
         public string ExceptionType { get; private set; }

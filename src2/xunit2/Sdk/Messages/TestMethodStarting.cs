@@ -5,12 +5,19 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestMethodStarting"/>.
     /// </summary>
-    public class TestMethodStarting : LongLivedMarshalByRefObject, ITestMethodStarting
+    public class TestMethodStarting : TestCollectionMessage, ITestMethodStarting
     {
-        /// <inheritdoc/>
-        public string ClassName { get; set; }
+        public TestMethodStarting(ITestCollection testCollection, string className, string methodName)
+            : base(testCollection)
+        {
+            ClassName = className;
+            MethodName = methodName;
+        }
 
         /// <inheritdoc/>
-        public string MethodName { get; set; }
+        public string ClassName { get; private set; }
+
+        /// <inheritdoc/>
+        public string MethodName { get; private set; }
     }
 }

@@ -5,12 +5,9 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestClassDisposeFinished"/>.
     /// </summary>
-    public class TestClassDisposeFinished : LongLivedMarshalByRefObject, ITestClassDisposeFinished
+    public class TestClassDisposeFinished : TestMessage, ITestClassDisposeFinished
     {
-        /// <inheritdoc/>
-        public ITestCase TestCase { get; set; }
-
-        /// <inheritdoc/>
-        public string TestDisplayName { get; set; }
+        public TestClassDisposeFinished(ITestCase testCase, string testDisplayName)
+            : base(testCase, testDisplayName) { }
     }
 }

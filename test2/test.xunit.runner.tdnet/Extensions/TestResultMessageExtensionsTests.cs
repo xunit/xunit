@@ -10,12 +10,7 @@ public class TestResultMessageExtensionsTests
     public void ConvertsDataFromXunitToTdNetFormat()
     {
         var testCase = Mocks.TestCase<TestResultMessageExtensionsTests>("ConvertsDataFromXunitToTdNetFormat");
-        var message = new TestResultMessage
-        {
-            TestCase = testCase,
-            TestDisplayName = "Display Name",
-            ExecutionTime = 123.45M
-        };
+        var message = new TestResultMessage(testCase, "Display Name", 123.45M);
 
         var result = message.ToTdNetTestResult(TestState.Ignored);
 

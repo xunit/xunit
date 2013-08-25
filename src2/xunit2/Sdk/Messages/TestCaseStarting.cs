@@ -5,9 +5,9 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestCaseStarting"/>.
     /// </summary>
-    public class TestCaseStarting : LongLivedMarshalByRefObject, ITestCaseStarting
+    public class TestCaseStarting : TestCaseMessage, ITestCaseStarting
     {
-        /// <inheritdoc/>
-        public ITestCase TestCase { get; set; }
+        public TestCaseStarting(ITestCase testCase)
+            : base(testCase) { }
     }
 }

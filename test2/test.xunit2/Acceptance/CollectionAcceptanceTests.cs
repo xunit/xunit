@@ -10,18 +10,16 @@ public class CollectionAcceptanceTests : AcceptanceTest
     {
         var results = Run(new[] { typeof(ClassInExplicitCollection), typeof(ClassInDefaultCollection) });
 
-        var defaultIndex = results.FindIndex(message => message is ITestCollectionStarting && ((ITestCollectionStarting)message).TestCollection.DisplayName.StartsWith("Test collection for "));
-        Assert.NotEqual(-1, defaultIndex);
-        AssertMessageSequence(results, defaultIndex, "CollectionAcceptanceTests+ClassInDefaultCollection.Passing");
+        var defaultResults = results.OfType<ITestCollectionMessage>().Where(message => message.TestCollection.DisplayName.StartsWith("Test collection for "));
+        AssertMessageSequence(defaultResults, "CollectionAcceptanceTests+ClassInDefaultCollection.Passing");
 
-        var explicitIndex = results.FindIndex(message => message is ITestCollectionStarting && ((ITestCollectionStarting)message).TestCollection.DisplayName == "Explicit Collection");
-        Assert.NotEqual(-1, explicitIndex);
-        AssertMessageSequence(results, explicitIndex, "CollectionAcceptanceTests+ClassInExplicitCollection.Passing");
+        var explicitResults = results.OfType<ITestCollectionMessage>().Where(message => message.TestCollection.DisplayName == "Explicit Collection");
+        AssertMessageSequence(explicitResults, "CollectionAcceptanceTests+ClassInExplicitCollection.Passing");
     }
 
-    private void AssertMessageSequence(List<ITestMessage> results, int defaultIndex, string testDisplayName)
+    private void AssertMessageSequence(IEnumerable<IMessageSinkMessage> results, string testDisplayName)
     {
-        Assert.Collection(results.Skip(defaultIndex).Take(13),
+        Assert.Collection(results,
             message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
             message => Assert.IsAssignableFrom<ITestClassStarting>(message),
             message => Assert.IsAssignableFrom<ITestMethodStarting>(message),

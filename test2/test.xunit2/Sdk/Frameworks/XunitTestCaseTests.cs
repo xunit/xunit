@@ -999,12 +999,12 @@ public class XunitTestCaseTests
 
     class DummyBeforeAfterTest : SpyBeforeAfterTest { }
 
-    class SpyMessage : ITestMessage { }
+    class SpyMessage : IMessageSinkMessage { }
 
     public class TestableXunitTestCase : XunitTestCase
     {
         Action<IMessageSink> callback;
-        SpyMessageSink<ITestMessage> sink = new SpyMessageSink<ITestMessage>();
+        SpyMessageSink<IMessageSinkMessage> sink = new SpyMessageSink<IMessageSinkMessage>();
 
         TestableXunitTestCase(IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, Action<IMessageSink> callback = null)
             : base(new XunitTestCollection(), assembly, type, method, factAttribute)
@@ -1012,7 +1012,7 @@ public class XunitTestCaseTests
             this.callback = callback;
         }
 
-        public List<ITestMessage> Messages
+        public List<IMessageSinkMessage> Messages
         {
             get { return sink.Messages; }
         }

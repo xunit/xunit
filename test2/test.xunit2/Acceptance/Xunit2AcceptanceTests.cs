@@ -12,7 +12,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void NoTests()
         {
-            List<ITestMessage> results = Run(typeof(NoTestsClass));
+            List<IMessageSinkMessage> results = Run(typeof(NoTestsClass));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -30,7 +30,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void SinglePassingTest()
         {
-            List<ITestMessage> results = Run(typeof(SinglePassingTestClass));
+            List<IMessageSinkMessage> results = Run(typeof(SinglePassingTestClass));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -131,7 +131,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void SingleSkippedTest()
         {
-            List<ITestMessage> results = Run(typeof(SingleSkippedTestClass));
+            List<IMessageSinkMessage> results = Run(typeof(SingleSkippedTestClass));
 
             var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
             Assert.Equal("Xunit2AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.TestDisplayName);
@@ -150,7 +150,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void SingleFailingTest()
         {
-            List<ITestMessage> results = Run(typeof(SingleFailingTestClass));
+            List<IMessageSinkMessage> results = Run(typeof(SingleFailingTestClass));
 
             var failedMessage = Assert.Single(results.OfType<ITestFailed>());
             Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionType);
@@ -170,7 +170,7 @@ public class Xunit2AcceptanceTests
         {
             bool alreadyCancelled = false;
 
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg =>
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg =>
             {
                 if (msg is ITestCaseDiscoveryMessage)
                 {
@@ -188,7 +188,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringIAfterTestFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IAfterTestFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IAfterTestFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -220,7 +220,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringIAfterTestStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IAfterTestStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IAfterTestStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -252,7 +252,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringIBeforeTestFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IBeforeTestFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IBeforeTestFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -284,7 +284,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringIBeforeTestStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IBeforeTestStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IBeforeTestStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -313,7 +313,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestAssemblyStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestAssemblyStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestAssemblyStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -324,7 +324,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestAssemblyFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestAssemblyFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestAssemblyFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -374,7 +374,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestCaseFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCaseFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCaseFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -407,7 +407,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestCaseStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCaseStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCaseStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -429,7 +429,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestClassConstructionFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassConstructionFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassConstructionFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -457,7 +457,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestClassConstructionStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassConstructionStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassConstructionStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -483,7 +483,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestClassDisposeFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassDisposeFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassDisposeFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -515,7 +515,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestClassDisposeStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassDisposeStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassDisposeStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -547,7 +547,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestClassFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -597,7 +597,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestClassStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -613,7 +613,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestCollectionFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCollectionFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCollectionFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -663,7 +663,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestCollectionStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCollectionStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCollectionStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -676,7 +676,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestFailed()
         {
-            List<ITestMessage> results = Run(typeof(FailingClassUnderTest), msg => !(msg is ITestFailed));
+            List<IMessageSinkMessage> results = Run(typeof(FailingClassUnderTest), msg => !(msg is ITestFailed));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -709,7 +709,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -742,7 +742,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestMethodFinished()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestMethodFinished));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestMethodFinished));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -775,7 +775,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestMethodStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestMethodStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestMethodStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -795,7 +795,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestPassed()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestPassed));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestPassed));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -828,7 +828,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestSkipped()
         {
-            List<ITestMessage> results = Run(typeof(SkippingClassUnderTest), msg => !(msg is ITestSkipped));
+            List<IMessageSinkMessage> results = Run(typeof(SkippingClassUnderTest), msg => !(msg is ITestSkipped));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -853,7 +853,7 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CancelDuringITestStarting()
         {
-            List<ITestMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestStarting));
+            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestStarting));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),

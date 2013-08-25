@@ -14,17 +14,17 @@ public class AcceptanceTest : IDisposable
             Xunit2.Dispose();
     }
 
-    public List<ITestMessage> Run(Type type, Func<ITestMessage, bool> cancellationThunk = null)
+    public List<IMessageSinkMessage> Run(Type type, Func<IMessageSinkMessage, bool> cancellationThunk = null)
     {
         return Run(new[] { type }, cancellationThunk);
     }
 
-    public List<ITestMessage> Run(Type[] types, Func<ITestMessage, bool> cancellationThunk = null)
+    public List<IMessageSinkMessage> Run(Type[] types, Func<IMessageSinkMessage, bool> cancellationThunk = null)
     {
         Xunit2 = new Xunit2(new NullSourceInformationProvider(), new Uri(types[0].Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
 
         bool cancelled = false;
-        Func<ITestMessage, bool> wrapper = msg =>
+        Func<IMessageSinkMessage, bool> wrapper = msg =>
         {
             var result = true;
 
@@ -46,7 +46,7 @@ public class AcceptanceTest : IDisposable
         }
 
         if (cancelled)
-            return new List<ITestMessage>();
+            return new List<IMessageSinkMessage>();
 
         var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
 
@@ -57,14 +57,14 @@ public class AcceptanceTest : IDisposable
         return runSink.Messages.ToList();
     }
 
-    public List<TMessageType> Run<TMessageType>(Type type, Func<ITestMessage, bool> cancellationThunk = null)
-        where TMessageType : ITestMessage
+    public List<TMessageType> Run<TMessageType>(Type type, Func<IMessageSinkMessage, bool> cancellationThunk = null)
+        where TMessageType : IMessageSinkMessage
     {
         return Run(type).OfType<TMessageType>().ToList();
     }
 
-    public List<TMessageType> Run<TMessageType>(Type[] types, Func<ITestMessage, bool> cancellationThunk = null)
-        where TMessageType : ITestMessage
+    public List<TMessageType> Run<TMessageType>(Type[] types, Func<IMessageSinkMessage, bool> cancellationThunk = null)
+        where TMessageType : IMessageSinkMessage
     {
         return Run(types).OfType<TMessageType>().ToList();
     }

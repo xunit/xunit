@@ -73,7 +73,6 @@ namespace Xunit.Sdk
         {
             IEnumerable<IAttributeInfo> results = Enumerable.Empty<IAttributeInfo>();
 
-            // REVIEW: 2013/02/09: Why would type ever be null?
             if (type != null)
             {
                 results = CustomAttributeData.GetCustomAttributes(type)
@@ -100,7 +99,6 @@ namespace Xunit.Sdk
 
         Attribute Instantiate(CustomAttributeData attributeData)
         {
-            // TODO: Guard type is correct
             Attribute attribute = (Attribute)Activator.CreateInstance(attributeData.Constructor.ReflectedType, GetConstructorArguments().ToArray());
 
             foreach (CustomAttributeNamedArgument namedArg in attributeData.NamedArguments)

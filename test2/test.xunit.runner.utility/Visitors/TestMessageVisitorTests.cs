@@ -37,7 +37,7 @@ public class TestMessageVisitorTests
     {
         var forMethodGeneric = typeof(Substitute).GetMethods().Single(m => m.Name == "For" && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1);
         var forMethod = forMethodGeneric.MakeGenericMethod(type);
-        var substitute = (ITestMessage)forMethod.Invoke(null, new object[] { new object[0] });
+        var substitute = (IMessageSinkMessage)forMethod.Invoke(null, new object[] { new object[0] });
         var visitor = new SpyTestMessageVisitor();
 
         visitor.OnMessage(substitute);
@@ -50,7 +50,7 @@ public class TestMessageVisitorTests
     [Fact]
     public void FinishedEventNotSignaledByDefault()
     {
-        var visitor = new TestMessageVisitor<ITestMessage>();
+        var visitor = new TestMessageVisitor<IMessageSinkMessage>();
 
         Assert.False(visitor.Finished.WaitOne(0));
     }
@@ -59,7 +59,7 @@ public class TestMessageVisitorTests
     public void SignalsEventWhenMessageOfSpecifiedTypeIsSeen()
     {
         var visitor = new TestMessageVisitor<IDiscoveryCompleteMessage>();
-        var message1 = Substitute.For<ITestMessage>();
+        var message1 = Substitute.For<IMessageSinkMessage>();
         var message2 = Substitute.For<IDiscoveryCompleteMessage>();
 
         visitor.OnMessage(message1);

@@ -6,18 +6,18 @@ using Xunit.Sdk;
 
 public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessageSink
 {
-    Func<ITestMessage, bool> cancellationThunk;
+    Func<IMessageSinkMessage, bool> cancellationThunk;
 
-    public SpyMessageSink(Func<ITestMessage, bool> cancellationThunk = null)
+    public SpyMessageSink(Func<IMessageSinkMessage, bool> cancellationThunk = null)
     {
         this.cancellationThunk = cancellationThunk ?? (msg => true);
     }
 
     public ManualResetEvent Finished = new ManualResetEvent(initialState: false);
 
-    public List<ITestMessage> Messages = new List<ITestMessage>();
+    public List<IMessageSinkMessage> Messages = new List<IMessageSinkMessage>();
 
-    public bool OnMessage(ITestMessage message)
+    public bool OnMessage(IMessageSinkMessage message)
     {
         Messages.Add(message);
 

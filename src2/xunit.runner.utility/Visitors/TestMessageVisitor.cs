@@ -13,8 +13,8 @@ namespace Xunit
         /// <inheritdoc/>
         public virtual void Dispose() { }
 
-        bool DoVisit<TMessage>(ITestMessage message, Func<TMessage, bool> callback)
-            where TMessage : class, ITestMessage
+        bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TMessage, bool> callback)
+            where TMessage : class, IMessageSinkMessage
         {
             TMessage castMessage = message as TMessage;
             if (castMessage != null)
@@ -24,7 +24,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public virtual bool OnMessage(ITestMessage message)
+        public virtual bool OnMessage(IMessageSinkMessage message)
         {
             return
                 DoVisit<IAfterTestFinished>(message, Visit) &&
@@ -323,7 +323,7 @@ namespace Xunit
     /// </summary>
     /// <typeparam name="TCompleteMessage">The type of the completion message.</typeparam>
     public class TestMessageVisitor<TCompleteMessage> : TestMessageVisitor
-        where TCompleteMessage : ITestMessage
+        where TCompleteMessage : IMessageSinkMessage
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMessageVisitor{TCompleteMessage}"/> class.
@@ -345,7 +345,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public override bool OnMessage(ITestMessage message)
+        public override bool OnMessage(IMessageSinkMessage message)
         {
             var result = base.OnMessage(message);
 

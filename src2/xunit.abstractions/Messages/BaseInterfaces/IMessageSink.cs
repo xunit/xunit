@@ -13,6 +13,6 @@ namespace Xunit.Abstractions
         /// </summary>
         /// <param name="message">The message from the message bus</param>
         /// <returns>Return <c>true</c> to continue running tests, or <c>false</c> to stop.</returns>
-        bool OnMessage(ITestMessage message);
+        bool OnMessage(IMessageSinkMessage message);
     }
 }

@@ -7,19 +7,28 @@ namespace Xunit.Sdk
     /// </summary>
     public class TestAssemblyFinished : LongLivedMarshalByRefObject, ITestAssemblyFinished
     {
-        /// <inheritdoc/>
-        public IAssemblyInfo Assembly { get; set; }
+        public TestAssemblyFinished(IAssemblyInfo assembly, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
+        {
+            TestsSkipped = testsSkipped;
+            TestsFailed = testsFailed;
+            TestsRun = testsRun;
+            ExecutionTime = executionTime;
+            Assembly = assembly;
+        }
 
         /// <inheritdoc/>
-        public decimal ExecutionTime { get; set; }
+        public IAssemblyInfo Assembly { get; private set; }
 
         /// <inheritdoc/>
-        public int TestsFailed { get; set; }
+        public decimal ExecutionTime { get; private set; }
 
         /// <inheritdoc/>
-        public int TestsRun { get; set; }
+        public int TestsFailed { get; private set; }
 
         /// <inheritdoc/>
-        public int TestsSkipped { get; set; }
+        public int TestsRun { get; private set; }
+
+        /// <inheritdoc/>
+        public int TestsSkipped { get; private set; }
     }
 }

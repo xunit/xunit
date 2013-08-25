@@ -35,7 +35,7 @@ namespace Xunit.Sdk
         {
             bool cancelled = false;
 
-            if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName }))
+            if (!messageSink.OnMessage(new TestStarting(this, DisplayName)))
                 cancelled = true;
             else
             {
@@ -43,17 +43,17 @@ namespace Xunit.Sdk
                 {
                     lambda();
 
-                    if (!messageSink.OnMessage(new TestPassed { TestCase = this, TestDisplayName = DisplayName }))
+                    if (!messageSink.OnMessage(new TestPassed(this, DisplayName, 0)))
                         cancelled = true;
                 }
                 catch (Exception ex)
                 {
-                    if (!messageSink.OnMessage(new TestFailed(ex) { TestCase = this, TestDisplayName = DisplayName }))
+                    if (!messageSink.OnMessage(new TestFailed(this, DisplayName, 0, ex)))
                         cancelled = true;
                 }
             }
 
-            if (!messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName }))
+            if (!messageSink.OnMessage(new TestFinished(this, DisplayName, 0)))
                 cancelled = true;
 
             return cancelled;

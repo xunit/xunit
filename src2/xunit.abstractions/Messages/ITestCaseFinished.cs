@@ -3,11 +3,7 @@
     /// <summary>
     /// This message indicates that a test case has finished executing.
     /// </summary>
-    public interface ITestCaseFinished : IFinishedMessage
+    public interface ITestCaseFinished : ITestCaseMessage, IFinishedMessage
     {
-        /// <summary>
-        /// The test case that has finished executing.
-        /// </summary>
-        ITestCase TestCase { get; }
     }
 }

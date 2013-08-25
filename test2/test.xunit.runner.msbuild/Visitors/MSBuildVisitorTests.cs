@@ -12,11 +12,11 @@ public class MSBuildVisitorTests
 {
     public class OnMessage
     {
-        ITestMessage testMessage;
+        IMessageSinkMessage testMessage;
 
         public OnMessage()
         {
-            testMessage = Substitute.For<ITestMessage>();
+            testMessage = Substitute.For<IMessageSinkMessage>();
         }
 
         [Fact]

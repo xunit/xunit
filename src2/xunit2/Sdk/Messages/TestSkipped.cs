@@ -7,7 +7,13 @@ namespace Xunit.Sdk
     /// </summary>
     public class TestSkipped : TestResultMessage, ITestSkipped
     {
+        public TestSkipped(ITestCase testCase, string testDisplayName, string reason)
+            : base(testCase, testDisplayName, 0)
+        {
+            Reason = reason;
+        }
+
         /// <inheritdoc/>
-        public string Reason { get; set; }
+        public string Reason { get; private set; }
     }
 }

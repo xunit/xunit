@@ -136,7 +136,7 @@ public class XunitTestFrameworkDiscovererTests
 
             framework.Find();
 
-            framework.Assembly.Received(1).GetTypes(/*includePrivateTypes*/ false);
+            framework.Assembly.Received(1).GetTypes(includePrivateTypes: false);
         }
 
         [Fact]
@@ -504,11 +504,13 @@ public class XunitTestFrameworkDiscovererTests
         public void Find(bool includeSourceInformation = false)
         {
             base.Find(includeSourceInformation, Visitor);
+            Visitor.Finished.WaitOne();
         }
 
         public void Find(string typeName, bool includeSourceInformation = false)
         {
             base.Find(typeName, includeSourceInformation, Visitor);
+            Visitor.Finished.WaitOne();
         }
 
         public virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation = false)

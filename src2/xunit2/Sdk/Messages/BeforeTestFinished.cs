@@ -5,15 +5,15 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="IBeforeTestFinished"/>.
     /// </summary>
-    public class BeforeTestFinished : LongLivedMarshalByRefObject, IBeforeTestFinished
+    public class BeforeTestFinished : TestMessage, IBeforeTestFinished
     {
-        /// <inheritdoc/>
-        public string AttributeName { get; set; }
+        public BeforeTestFinished(ITestCase testCase, string testDisplayName, string attributeName)
+            : base(testCase, testDisplayName)
+        {
+            AttributeName = attributeName;
+        }
 
         /// <inheritdoc/>
-        public ITestCase TestCase { get; set; }
-
-        /// <inheritdoc/>
-        public string TestDisplayName { get; set; }
+        public string AttributeName { get; private set; }
     }
 }

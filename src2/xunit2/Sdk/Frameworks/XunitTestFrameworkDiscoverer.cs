@@ -76,7 +76,7 @@ namespace Xunit.Sdk
                         break;
 
                 var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                messageSink.OnMessage(new DiscoveryCompleteMessage { Warnings = warnings });
+                messageSink.OnMessage(new DiscoveryCompleteMessage(warnings));
             });
         }
 
@@ -93,7 +93,7 @@ namespace Xunit.Sdk
                     FindImpl(typeInfo, includeSourceInformation, messageSink);
 
                 var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                messageSink.OnMessage(new DiscoveryCompleteMessage { Warnings = warnings });
+                messageSink.OnMessage(new DiscoveryCompleteMessage(warnings));
             });
         }
 
@@ -129,7 +129,7 @@ namespace Xunit.Sdk
                                 IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
 
                                 foreach (XunitTestCase testCase in discoverer.Discover(testCollection, assemblyInfo, type, method, factAttribute))
-                                    if (!messageSink.OnMessage(new TestCaseDiscoveryMessage { TestCase = UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation) }))
+                                    if (!messageSink.OnMessage(new TestCaseDiscoveryMessage(UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation))))
                                         return false;
                             }
                             // TODO: Figure out a way to report back an error when discovererType is not available

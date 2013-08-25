@@ -71,7 +71,7 @@ namespace Xunit.Runner.MSBuild
             return testCollectionElements.GetOrAdd(testCollection, tc => new XElement("collection"));
         }
 
-        public override bool OnMessage(ITestMessage message)
+        public override bool OnMessage(IMessageSinkMessage message)
         {
             var result = base.OnMessage(message);
             if (result)

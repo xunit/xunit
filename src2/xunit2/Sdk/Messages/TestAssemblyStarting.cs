@@ -8,19 +8,28 @@ namespace Xunit.Sdk
     /// </summary>
     public class TestAssemblyStarting : LongLivedMarshalByRefObject, ITestAssemblyStarting
     {
-        /// <inheritdoc/>
-        public string AssemblyFileName { get; set; }
+        public TestAssemblyStarting(string assemblyFileName, string configFileName, DateTime startTime, string testEnvironment, string testFrameworkDisplayName)
+        {
+            AssemblyFileName = assemblyFileName;
+            ConfigFileName = configFileName;
+            StartTime = startTime;
+            TestEnvironment = testEnvironment;
+            TestFrameworkDisplayName = testFrameworkDisplayName;
+        }
 
         /// <inheritdoc/>
-        public string ConfigFileName { get; set; }
+        public string AssemblyFileName { get; private set; }
 
         /// <inheritdoc/>
-        public DateTime StartTime { get; set; }
+        public string ConfigFileName { get; private set; }
 
         /// <inheritdoc/>
-        public string TestEnvironment { get; set; }
+        public DateTime StartTime { get; private set; }
 
         /// <inheritdoc/>
-        public string TestFrameworkDisplayName { get; set; }
+        public string TestEnvironment { get; private set; }
+
+        /// <inheritdoc/>
+        public string TestFrameworkDisplayName { get; private set; }
     }
 }

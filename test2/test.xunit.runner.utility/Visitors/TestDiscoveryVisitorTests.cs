@@ -15,7 +15,7 @@ public class TestDiscoveryVisitorTests
         visitor.OnMessage(new DiscoveryMessage(testCase1));
         visitor.OnMessage(new DiscoveryMessage(testCase2));
         visitor.OnMessage(new DiscoveryMessage(testCase3));
-        visitor.OnMessage(Substitute.For<ITestMessage>()); // Ignored
+        visitor.OnMessage(Substitute.For<IMessageSinkMessage>()); // Ignored
 
         Assert.Collection(visitor.TestCases,
             msg => Assert.Same(testCase1, msg),
@@ -29,8 +29,10 @@ public class TestDiscoveryVisitorTests
         public DiscoveryMessage(ITestCase testCase)
         {
             TestCase = testCase;
+            TestCollection = testCase.TestCollection;
         }
 
         public ITestCase TestCase { get; private set; }
+        public ITestCollection TestCollection { get; private set; }
     }
 }

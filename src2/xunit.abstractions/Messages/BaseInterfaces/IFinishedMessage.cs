@@ -5,7 +5,7 @@
     /// various phases of execution process (e.g.,  test case, test class, test collection,
     /// and assembly).
     /// </summary>
-    public interface IFinishedMessage : ITestMessage
+    public interface IFinishedMessage : IMessageSinkMessage
     {
         /// <summary>
         /// The execution time (in seconds) for this execution.

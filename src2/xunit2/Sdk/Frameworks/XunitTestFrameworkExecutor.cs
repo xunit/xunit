@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -44,9 +45,9 @@ namespace Xunit.Sdk
         public void Dispose() { }
 
         /// <inheritdoc/>
-        public void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
+        public async void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
         {
-            bool cancelled = false;
+            var cancelled = false;
             var totalSummary = new RunSummary();
 
             string currentDirectory = Directory.GetCurrentDirectory();
@@ -55,27 +56,24 @@ namespace Xunit.Sdk
             {
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 
-                if (messageSink.OnMessage(new TestAssemblyStarting
-                    {
-                        AssemblyFileName = assemblyFileName,
-                        ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile,
-                        StartTime = DateTime.Now,
-                        TestEnvironment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version),
-                        TestFrameworkDisplayName = XunitTestFrameworkDiscoverer.DisplayName
-                    }))
+                if (messageSink.OnMessage(new TestAssemblyStarting(assemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
+                                                                   String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version),
+                                                                   XunitTestFrameworkDiscoverer.DisplayName)))
                 {
-                    foreach (var collectionGroup in testMethods.Cast<XunitTestCase>().GroupBy(tc => tc.TestCollection))
-                        cancelled = RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, totalSummary, cancelled);
+                    var tasks =
+                        testMethods.Cast<XunitTestCase>()
+                                   .GroupBy(tc => tc.TestCollection)
+                                   .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup)))
+                                   .ToArray();
+
+                    var summaries = await Task.WhenAll(tasks);
+                    totalSummary.Time = summaries.Sum(s => s.Time);
+                    totalSummary.Total = summaries.Sum(s => s.Total);
+                    totalSummary.Failed = summaries.Sum(s => s.Failed);
+                    totalSummary.Skipped = summaries.Sum(s => s.Skipped);
                 }
 
-                messageSink.OnMessage(new TestAssemblyFinished
-                {
-                    Assembly = assemblyInfo,
-                    ExecutionTime = totalSummary.Time,
-                    TestsRun = totalSummary.Total,
-                    TestsFailed = totalSummary.Failed,
-                    TestsSkipped = totalSummary.Skipped
-                });
+                messageSink.OnMessage(new TestAssemblyFinished(assemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
             }
             finally
             {
@@ -83,8 +81,9 @@ namespace Xunit.Sdk
             }
         }
 
-        private bool RunTestCollection(IMessageSink messageSink, ITestCollection collection, IEnumerable<XunitTestCase> testCases, RunSummary totalSummary, bool cancelled)
+        private RunSummary RunTestCollection(IMessageSink messageSink, ITestCollection collection, IEnumerable<XunitTestCase> testCases)
         {
+            var cancelled = false;
             var collectionSummary = new RunSummary();
             var collectionFixtureMappings = new Dictionary<Type, object>();
             var aggregator = new ExceptionAggregator();
@@ -96,13 +95,13 @@ namespace Xunit.Sdk
                     CreateFixture(interfaceType, aggregator, collectionFixtureMappings);
             }
 
-            if (messageSink.OnMessage(new TestCollectionStarting { TestCollection = collection }))
+            if (messageSink.OnMessage(new TestCollectionStarting(collection)))
             {
                 foreach (var testCasesByClass in testCases.GroupBy(tc => tc.Class))
                 {
                     var classSummary = new RunSummary();
 
-                    if (!messageSink.OnMessage(new TestClassStarting { ClassName = testCasesByClass.Key.Name }))
+                    if (!messageSink.OnMessage(new TestClassStarting(collection, testCasesByClass.Key.Name)))
                         cancelled = true;
                     else
                     {
@@ -110,15 +109,7 @@ namespace Xunit.Sdk
                         collectionSummary.Aggregate(classSummary);
                     }
 
-                    if (!messageSink.OnMessage(new TestClassFinished
-                    {
-                        Assembly = assemblyInfo,
-                        ClassName = testCasesByClass.Key.Name,
-                        ExecutionTime = classSummary.Time,
-                        TestsFailed = classSummary.Failed,
-                        TestsRun = classSummary.Total,
-                        TestsSkipped = classSummary.Skipped
-                    }))
+                    if (!messageSink.OnMessage(new TestClassFinished(collection, testCasesByClass.Key.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
                         cancelled = true;
 
                     if (cancelled)
@@ -139,18 +130,8 @@ namespace Xunit.Sdk
                 }
             }
 
-            messageSink.OnMessage(new TestCollectionFinished
-            {
-                Assembly = assemblyInfo,
-                ExecutionTime = collectionSummary.Time,
-                TestCollection = collection,
-                TestsFailed = collectionSummary.Failed,
-                TestsRun = collectionSummary.Total,
-                TestsSkipped = collectionSummary.Skipped
-            });
-
-            totalSummary.Aggregate(collectionSummary);
-            return cancelled;
+            messageSink.OnMessage(new TestCollectionFinished(collection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped));
+            return collectionSummary;
         }
 
         private static bool RunTestClass(IMessageSink messageSink,
@@ -190,7 +171,7 @@ namespace Xunit.Sdk
                 else
                 {
                     var ctor = ctors.Single();
-                    List<string> unusedArguments = new List<string>();
+                    var unusedArguments = new List<string>();
 
                     foreach (var paramInfo in ctor.GetParameters())
                     {
@@ -211,12 +192,12 @@ namespace Xunit.Sdk
 
             foreach (var method in methodGroups)
             {
-                if (!messageSink.OnMessage(new TestMethodStarting { ClassName = testClass.Name, MethodName = method.Key.Name }))
+                if (!messageSink.OnMessage(new TestMethodStarting(collection, testClass.Name, method.Key.Name)))
                     cancelled = true;
                 else
                     cancelled = RunTestMethod(messageSink, constructorArguments.ToArray(), method, classSummary, aggregator);
 
-                if (!messageSink.OnMessage(new TestMethodFinished { ClassName = testClass.Name, MethodName = method.Key.Name }))
+                if (!messageSink.OnMessage(new TestMethodFinished(collection, testClass.Name, method.Key.Name)))
                     cancelled = true;
 
                 if (cancelled)

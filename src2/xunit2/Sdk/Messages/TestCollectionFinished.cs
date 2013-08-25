@@ -5,24 +5,27 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestCollectionFinished"/>.
     /// </summary>
-    public class TestCollectionFinished : LongLivedMarshalByRefObject, ITestCollectionFinished
+    public class TestCollectionFinished : TestCollectionMessage, ITestCollectionFinished
     {
-        /// <inheritdoc/>
-        public IAssemblyInfo Assembly { get; set; }
+        public TestCollectionFinished(ITestCollection testCollection, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
+            : base(testCollection)
+        {
+            ExecutionTime = executionTime;
+            TestsRun = testsRun;
+            TestsFailed = testsFailed;
+            TestsSkipped = testsSkipped;
+        }
 
         /// <inheritdoc/>
-        public decimal ExecutionTime { get; set; }
+        public decimal ExecutionTime { get; private set; }
 
         /// <inheritdoc/>
-        public ITestCollection TestCollection { get; set; }
+        public int TestsFailed { get; private set; }
 
         /// <inheritdoc/>
-        public int TestsFailed { get; set; }
+        public int TestsRun { get; private set; }
 
         /// <inheritdoc/>
-        public int TestsRun { get; set; }
-
-        /// <inheritdoc/>
-        public int TestsSkipped { get; set; }
+        public int TestsSkipped { get; private set; }
     }
 }

@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class DelegatingMessageSink : LongLivedMarshalByRefObject, IMessageSink
     {
-        Action<ITestMessage> callback;
+        Action<IMessageSinkMessage> callback;
         IMessageSink innerSink;
 
         /// <summary>
@@ -18,14 +18,14 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="innerSink">The inner message sink.</param>
         /// <param name="callback">The callback.</param>
-        public DelegatingMessageSink(IMessageSink innerSink, Action<ITestMessage> callback = null)
+        public DelegatingMessageSink(IMessageSink innerSink, Action<IMessageSinkMessage> callback = null)
         {
             this.innerSink = innerSink;
             this.callback = callback;
         }
 
         /// <inheritdoc/>
-        public virtual bool OnMessage(ITestMessage message)
+        public virtual bool OnMessage(IMessageSinkMessage message)
         {
             if (callback != null)
                 callback(message);
@@ -45,14 +45,14 @@ namespace Xunit.Sdk
     /// </summary>
     /// <typeparam name="TFinalMessage">The type of the T final message.</typeparam>
     public class DelegatingMessageSink<TFinalMessage> : DelegatingMessageSink
-        where TFinalMessage : class, ITestMessage
+        where TFinalMessage : class, IMessageSinkMessage
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DelegatingMessageSink" /> class.
         /// </summary>
         /// <param name="innerSink">The inner message sink.</param>
         /// <param name="callback">The callback.</param>
-        public DelegatingMessageSink(IMessageSink innerSink, Action<ITestMessage> callback = null)
+        public DelegatingMessageSink(IMessageSink innerSink, Action<IMessageSinkMessage> callback = null)
             : base(innerSink, callback)
         {
             Finished = new ManualResetEvent(initialState: false);
@@ -69,7 +69,7 @@ namespace Xunit.Sdk
         public ManualResetEvent Finished { get; private set; }
 
         /// <inheritdoc/>
-        public override bool OnMessage(ITestMessage message)
+        public override bool OnMessage(IMessageSinkMessage message)
         {
             var result = base.OnMessage(message);
 

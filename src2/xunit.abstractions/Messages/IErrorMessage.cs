@@ -3,7 +3,7 @@
     /// <summary>
     /// This message indicates that an error has occurred in the execution process. 
     /// </summary>
-    public interface IErrorMessage : ITestMessage
+    public interface IErrorMessage : IMessageSinkMessage
     {
         /// <summary>
         /// The fully-qualified type name of the exception.

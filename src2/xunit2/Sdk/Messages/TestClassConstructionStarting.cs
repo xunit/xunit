@@ -5,12 +5,9 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestClassConstructionStarting"/>.
     /// </summary>
-    public class TestClassConstructionStarting : LongLivedMarshalByRefObject, ITestClassConstructionStarting
+    public class TestClassConstructionStarting : TestMessage, ITestClassConstructionStarting
     {
-        /// <inheritdoc/>
-        public ITestCase TestCase { get; set; }
-
-        /// <inheritdoc/>
-        public string TestDisplayName { get; set; }
+        public TestClassConstructionStarting(ITestCase testCase, string testDisplayName)
+            : base(testCase, testDisplayName) { }
     }
 }

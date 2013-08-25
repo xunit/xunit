@@ -11,26 +11,28 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFailed"/> class.
         /// </summary>
-        public TestFailed() { }
+        public TestFailed(ITestCase testCase, string testDisplayName, decimal executionTime, string exceptionType, string message, string stackTrace)
+            : base(testCase, testDisplayName, executionTime)
+        {
+            StackTrace = stackTrace;
+            Message = message;
+            ExceptionType = exceptionType;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFailed"/> class.
         /// </summary>
         /// <param name="ex">The exception that caused the test to fail.</param>
-        public TestFailed(Exception ex)
-        {
-            ExceptionType = ex.GetType().FullName;
-            Message = ExceptionUtility.GetMessage(ex);
-            StackTrace = ExceptionUtility.GetStackTrace(ex);
-        }
+        public TestFailed(ITestCase testCase, string testDisplayName, decimal executionTime, Exception ex)
+            : this(testCase, testDisplayName, executionTime, ex.GetType().FullName, ExceptionUtility.GetMessage(ex), ExceptionUtility.GetStackTrace(ex)) { }
 
         /// <inheritdoc/>
-        public string ExceptionType { get; set; }
+        public string ExceptionType { get; private set; }
 
         /// <inheritdoc/>
-        public string Message { get; set; }
+        public string Message { get; private set; }
 
         /// <inheritdoc/>
-        public string StackTrace { get; set; }
+        public string StackTrace { get; private set; }
     }
 }

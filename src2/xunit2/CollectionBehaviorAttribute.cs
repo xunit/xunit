@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -7,7 +8,7 @@ namespace Xunit
     /// Used to declare a the default test collection behavior for the assembly.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-    public class CollectionBehaviorAttribute : AttributeBase
+    public sealed class CollectionBehaviorAttribute : AttributeBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CollectionBehaviorAttribute" /> class.
@@ -19,6 +20,10 @@ namespace Xunit
         /// </summary>
         /// <param name="collectionBehavior">The collection behavior for the assembly.</param>
         public CollectionBehaviorAttribute(CollectionBehavior collectionBehavior) { }
+
+        // This method is here as an allowance to Enum-issues related to CustomAttributeData.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CollectionBehaviorAttribute(int collectionBehavior) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollectionBehaviorAttribute" /> class.

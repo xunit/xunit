@@ -266,7 +266,7 @@ public class xunitTests
                                  .Do(callInfo =>
                                  {
                                      runTestCases.AddRange((IEnumerable<ITestCase>)callInfo[0]);
-                                     ((IMessageSink)callInfo[1]).OnMessage(new TestAssemblyFinished());
+                                     ((IMessageSink)callInfo[1]).OnMessage(Substitute.For<ITestAssemblyFinished>());
                                  });
 
             xunit._ExecuteAssembly("assemblyFilename", "configFilename");
@@ -314,7 +314,7 @@ public class xunitTests
             FrontController.WhenAny(fc => fc.Find("", false, null))
                            .Do<string, bool, IMessageSink>((_, __, sink) => ReturnDiscoveryMessages(sink));
             FrontController.WhenAny(fc => fc.Run(null, null))
-                           .Do<object, IMessageSink>((_, sink) => sink.OnMessage(new TestAssemblyFinished()));
+                           .Do<object, IMessageSink>((_, sink) => sink.OnMessage(Substitute.For<ITestAssemblyFinished>()));
 
             Assemblies = new ITaskItem[0];
 
@@ -362,9 +362,9 @@ public class xunitTests
         private void ReturnDiscoveryMessages(IMessageSink sink)
         {
             foreach (var testCase in DiscoveryTestCases)
-                sink.OnMessage(new TestCaseDiscoveryMessage { TestCase = testCase });
+                sink.OnMessage(new TestCaseDiscoveryMessage(testCase));
 
-            sink.OnMessage(new DiscoveryCompleteMessage());
+            sink.OnMessage(new DiscoveryCompleteMessage(new String[0]));
         }
     }
 }

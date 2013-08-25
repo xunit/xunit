@@ -60,15 +60,15 @@ namespace Xunit.Sdk
             {
                 var cancelled = false;
 
-                if (!messageSink.OnMessage(new TestStarting { TestCase = this, TestDisplayName = DisplayName }))
+                if (!messageSink.OnMessage(new TestStarting(this, DisplayName)))
                     cancelled = true;
                 else
                 {
-                    if (!messageSink.OnMessage(new TestFailed(ex.Unwrap()) { TestCase = this, TestDisplayName = DisplayName }))
+                    if (!messageSink.OnMessage(new TestFailed(this, DisplayName, executionTime, ex.Unwrap())))
                         cancelled = true;
                 }
 
-                if (!messageSink.OnMessage(new TestFinished { TestCase = this, TestDisplayName = DisplayName }))
+                if (!messageSink.OnMessage(new TestFinished(this, DisplayName, executionTime)))
                     cancelled = true;
 
                 return cancelled;

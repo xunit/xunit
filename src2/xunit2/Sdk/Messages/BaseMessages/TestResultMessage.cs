@@ -3,11 +3,11 @@
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// Default implementation of <see cref="ITestFinished"/>.
+    /// Default implementation of <see cref="ITestResultMessage"/>.
     /// </summary>
-    public class TestFinished : TestMessage, ITestFinished
+    public class TestResultMessage : TestMessage, ITestResultMessage
     {
-        public TestFinished(ITestCase testCase, string testDisplayName, decimal executionTime)
+        public TestResultMessage(ITestCase testCase, string testDisplayName, decimal executionTime)
             : base(testCase, testDisplayName)
         {
             ExecutionTime = executionTime;

@@ -5,9 +5,9 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestCollectionStarting"/>.
     /// </summary>
-    public class TestCollectionStarting : LongLivedMarshalByRefObject, ITestCollectionStarting
+    public class TestCollectionStarting : TestCollectionMessage, ITestCollectionStarting
     {
-        /// <inheritdoc/>
-        public ITestCollection TestCollection { get; set; }
+        public TestCollectionStarting(ITestCollection testCollection)
+            : base(testCollection) { }
     }
 }
