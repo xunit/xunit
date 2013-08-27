@@ -46,9 +46,6 @@ namespace Xunit
 
         Assembly Resolve(object sender, ResolveEventArgs args)
         {
-#if DEBUG
-            Console.WriteLine(String.Format(">>> Resolving {0} in {1}", args.Name, folder));
-#endif
             return LoadAssembly(new AssemblyName(args.Name));
         }
 

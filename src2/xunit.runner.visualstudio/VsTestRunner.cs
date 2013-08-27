@@ -96,6 +96,9 @@ namespace Xunit.Runner.VisualStudio
             Guard.ArgumentNotNull("runContext", runContext);
             Guard.ArgumentNotNull("frameworkHandle", frameworkHandle);
 
+            if (runContext.KeepAlive)
+                frameworkHandle.EnableShutdownAfterTestRun = true;
+
             var toDispose = new List<IDisposable>();
 
             try
@@ -123,6 +126,9 @@ namespace Xunit.Runner.VisualStudio
             Guard.ArgumentNotNull("tests", tests);
             Guard.ArgumentNotNull("runContext", runContext);
             Guard.ArgumentNotNull("frameworkHandle", frameworkHandle);
+
+            if (runContext.KeepAlive)
+                frameworkHandle.EnableShutdownAfterTestRun = true;
 
             var toDispose = new List<IDisposable>();
 
