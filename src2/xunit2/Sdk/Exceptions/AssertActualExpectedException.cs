@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
 
@@ -78,29 +79,25 @@ namespace Xunit.Sdk
             if (!type.IsGenericType)
                 return type.Name;
 
-            Type[] genericTypes = type.GetGenericArguments();
-            string[] simpleNames = new string[genericTypes.Length];
+            var simpleNames = type.GetGenericArguments().Select(ConvertToSimpleTypeName);
+            var backTickIdx = type.Name.IndexOf('`');
+            if (backTickIdx < 0)
+                backTickIdx = type.Name.Length;  // F# doesn't use backticks for generic type names
 
-            for (int idx = 0; idx < genericTypes.Length; idx++)
-                simpleNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
-
-            string baseTypeName = type.Name;
-            int backTickIdx = type.Name.IndexOf('`');
-
-            return baseTypeName.Substring(0, backTickIdx) + "<" + String.Join(", ", simpleNames) + ">";
+            return type.Name.Substring(0, backTickIdx) + "<" + String.Join(", ", simpleNames) + ">";
         }
 
         static string ConvertToString(object value)
         {
-            string stringValue = value as string;
+            var stringValue = value as string;
             if (stringValue != null)
                 return stringValue;
 
-            IEnumerable enumerableValue = value as IEnumerable;
+            var enumerableValue = value as IEnumerable;
             if (enumerableValue == null)
                 return value.ToString();
 
-            List<string> valueStrings = new List<string>();
+            var valueStrings = new List<string>();
 
             foreach (object valueObject in enumerableValue)
             {
@@ -110,7 +107,7 @@ namespace Xunit.Sdk
                     displayName = "(null)";
                 else
                 {
-                    string stringValueObject = valueObject as string;
+                    var stringValueObject = valueObject as string;
                     if (stringValueObject != null)
                         displayName = "\"" + stringValueObject + "\"";
                     else
