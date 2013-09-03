@@ -3,91 +3,94 @@ using System.Threading;
 using Xunit;
 using Xunit.Extensions;
 
-public class FreezeClockAttributeFacts
+namespace Xunit1.Extensions
 {
-    [Fact]
-    public void DefaultConstructor()
+    public class FreezeClockAttributeFacts
     {
-        FreezeClockAttribute attr = new FreezeClockAttribute();
-
-        attr.Before(null);
-
-        try
+        [Fact]
+        public void DefaultConstructor()
         {
-            DateTime reference = DateTime.Now;
-            DateTime result1 = Clock.Now;
-            Thread.Sleep(100);
-            DateTime result2 = Clock.Now;
+            FreezeClockAttribute attr = new FreezeClockAttribute();
 
-            Assert.Equal(result1, result2);
-            Assert.True((result1 - reference).Milliseconds < 1000);
+            attr.Before(null);
+
+            try
+            {
+                DateTime reference = DateTime.Now;
+                DateTime result1 = Clock.Now;
+                Thread.Sleep(100);
+                DateTime result2 = Clock.Now;
+
+                Assert.Equal(result1, result2);
+                Assert.True((result1 - reference).Milliseconds < 1000);
+            }
+            finally
+            {
+                attr.After(null);
+            }
         }
-        finally
+
+        [Fact]
+        public void DateSpecificConstructor()
         {
-            attr.After(null);
+            FreezeClockAttribute attr = new FreezeClockAttribute(2006, 12, 31);
+
+            attr.Before(null);
+
+            try
+            {
+                DateTime reference = DateTime.Now;
+                DateTime result = Clock.Now;
+
+                Assert.NotEqual(reference, result);
+                Assert.Equal(new DateTime(2006, 12, 31), result);
+            }
+            finally
+            {
+                attr.After(null);
+            }
         }
-    }
 
-    [Fact]
-    public void DateSpecificConstructor()
-    {
-        FreezeClockAttribute attr = new FreezeClockAttribute(2006, 12, 31);
-
-        attr.Before(null);
-
-        try
+        [Fact]
+        public void LocalDateTimeConstructor()
         {
-            DateTime reference = DateTime.Now;
-            DateTime result = Clock.Now;
+            FreezeClockAttribute attr = new FreezeClockAttribute(2006, 12, 31, 4, 5, 6);
 
-            Assert.NotEqual(reference, result);
-            Assert.Equal(new DateTime(2006, 12, 31), result);
+            attr.Before(null);
+
+            try
+            {
+                DateTime reference = DateTime.Now;
+                DateTime result = Clock.Now;
+
+                Assert.NotEqual(reference, result);
+                Assert.Equal(new DateTime(2006, 12, 31, 4, 5, 6), result);
+            }
+            finally
+            {
+                attr.After(null);
+            }
         }
-        finally
+
+        [Fact]
+        public void KindSpecificDateTimeConstructor()
         {
-            attr.After(null);
-        }
-    }
+            FreezeClockAttribute attr = new FreezeClockAttribute(2006, 12, 31, 4, 5, 6, DateTimeKind.Utc);
 
-    [Fact]
-    public void LocalDateTimeConstructor()
-    {
-        FreezeClockAttribute attr = new FreezeClockAttribute(2006, 12, 31, 4, 5, 6);
+            attr.Before(null);
 
-        attr.Before(null);
+            try
+            {
+                DateTime reference = DateTime.Now;
+                DateTime result = Clock.Now;
 
-        try
-        {
-            DateTime reference = DateTime.Now;
-            DateTime result = Clock.Now;
-
-            Assert.NotEqual(reference, result);
-            Assert.Equal(new DateTime(2006, 12, 31, 4, 5, 6), result);
-        }
-        finally
-        {
-            attr.After(null);
-        }
-    }
-
-    [Fact]
-    public void KindSpecificDateTimeConstructor()
-    {
-        FreezeClockAttribute attr = new FreezeClockAttribute(2006, 12, 31, 4, 5, 6, DateTimeKind.Utc);
-
-        attr.Before(null);
-
-        try
-        {
-            DateTime reference = DateTime.Now;
-            DateTime result = Clock.Now;
-
-            Assert.NotEqual(reference, result);
-            Assert.Equal(new DateTime(2006, 12, 31, 4, 5, 6, DateTimeKind.Utc).ToLocalTime(), result);
-        }
-        finally
-        {
-            attr.After(null);
+                Assert.NotEqual(reference, result);
+                Assert.Equal(new DateTime(2006, 12, 31, 4, 5, 6, DateTimeKind.Utc).ToLocalTime(), result);
+            }
+            finally
+            {
+                attr.After(null);
+            }
         }
     }
 }

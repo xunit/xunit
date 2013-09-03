@@ -1,24 +1,27 @@
 using Xunit;
 using Xunit.Sdk;
 
-public class NullTests
+namespace Xunit1
 {
-    [Fact]
-    public void Null()
+    public class NullTests
     {
-        Assert.Null(null);
-    }
-
-    [Fact]
-    public void NullThrowsExceptionWhenNotNull()
-    {
-        try
+        [Fact]
+        public void Null()
         {
-            Assert.Null(new object());
+            Assert.Null(null);
         }
-        catch (AssertException exception)
+
+        [Fact]
+        public void NullThrowsExceptionWhenNotNull()
         {
-            Assert.Equal("Assert.Null() Failure", exception.UserMessage);
+            try
+            {
+                Assert.Null(new object());
+            }
+            catch (AssertException exception)
+            {
+                Assert.Equal("Assert.Null() Failure", exception.UserMessage);
+            }
         }
     }
 }

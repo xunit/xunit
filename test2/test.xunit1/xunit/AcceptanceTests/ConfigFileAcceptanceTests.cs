@@ -2,12 +2,14 @@
 using TestUtility;
 using Xunit;
 
-public class ConfigFileAcceptanceTests : AcceptanceTestInNewAppDomain
+namespace Xunit1
 {
-    [Fact]
-    public void LackOfConfigurationFileBugInCLR4()  // http://xunit.codeplex.com/workitem/9696
+    public class ConfigFileAcceptanceTests : AcceptanceTestInNewAppDomain
     {
-        string code = @"
+        [Fact]
+        public void LackOfConfigurationFileBugInCLR4()  // http://xunit.codeplex.com/workitem/9696
+        {
+            string code = @"
             using System;
             using Xunit;
 
@@ -20,8 +22,9 @@ public class ConfigFileAcceptanceTests : AcceptanceTestInNewAppDomain
                 }
             }";
 
-        XmlNode assemblyNode = Execute(code);
+            XmlNode assemblyNode = Execute(code);
 
-        ResultXmlUtility.AssertResult(assemblyNode, "Pass", "ConfigurationFileExample.Test");
+            ResultXmlUtility.AssertResult(assemblyNode, "Pass", "ConfigurationFileExample.Test");
+        }
     }
 }

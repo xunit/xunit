@@ -1,56 +1,59 @@
 using Xunit;
 using Xunit.Sdk;
 
-public class InRangeTests
+namespace Xunit1
 {
-    public class RangeForDoubles
+    public class InRangeTests
     {
-        [Fact]
-        public void DoubleNotWithinRange()
+        public class RangeForDoubles
         {
-            Assert.Throws<InRangeException>(() => Assert.InRange(1.50, .75, 1.25));
+            [Fact]
+            public void DoubleNotWithinRange()
+            {
+                Assert.Throws<InRangeException>(() => Assert.InRange(1.50, .75, 1.25));
+            }
+
+            [Fact]
+            public void DoubleValueWithinRange()
+            {
+                Assert.InRange(1.0, .75, 1.25);
+            }
         }
 
-        [Fact]
-        public void DoubleValueWithinRange()
+        public class RangeForInts
         {
-            Assert.InRange(1.0, .75, 1.25);
-        }
-    }
+            [Fact]
+            public void IntNotWithinRangeWithZeroActual()
+            {
+                Assert.Throws<InRangeException>(() => Assert.InRange(0, 1, 2));
+            }
 
-    public class RangeForInts
-    {
-        [Fact]
-        public void IntNotWithinRangeWithZeroActual()
-        {
-            Assert.Throws<InRangeException>(() => Assert.InRange(0, 1, 2));
-        }
+            [Fact]
+            public void IntNotWithinRangeWithZeroMinimum()
+            {
+                Assert.Throws<InRangeException>(() => Assert.InRange(2, 0, 1));
+            }
 
-        [Fact]
-        public void IntNotWithinRangeWithZeroMinimum()
-        {
-            Assert.Throws<InRangeException>(() => Assert.InRange(2, 0, 1));
-        }
-
-        [Fact]
-        public void IntValueWithinRange()
-        {
-            Assert.InRange(2, 1, 3);
-        }
-    }
-
-    public class RangeForStrings
-    {
-        [Fact]
-        public void StringNotWithinRange()
-        {
-            Assert.Throws<InRangeException>(() => Assert.InRange("adam", "bob", "scott"));
+            [Fact]
+            public void IntValueWithinRange()
+            {
+                Assert.InRange(2, 1, 3);
+            }
         }
 
-        [Fact]
-        public void StringValueWithinRange()
+        public class RangeForStrings
         {
-            Assert.InRange("bob", "adam", "scott");
+            [Fact]
+            public void StringNotWithinRange()
+            {
+                Assert.Throws<InRangeException>(() => Assert.InRange("adam", "bob", "scott"));
+            }
+
+            [Fact]
+            public void StringValueWithinRange()
+            {
+                Assert.InRange("bob", "adam", "scott");
+            }
         }
     }
 }

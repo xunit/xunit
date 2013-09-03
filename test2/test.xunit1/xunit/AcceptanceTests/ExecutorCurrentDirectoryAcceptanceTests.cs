@@ -4,12 +4,14 @@ using System.Xml;
 using TestUtility;
 using Xunit;
 
-public class ExecutorCurrentDirectoryAcceptanceTests : AcceptanceTestInNewAppDomain
+namespace Xunit1
 {
-    [Fact]
-    public void CurrentDirectoryWhenRunningTestsIsTestAssemblyPath()
+    public class ExecutorCurrentDirectoryAcceptanceTests : AcceptanceTestInNewAppDomain
     {
-        string code = @"
+        [Fact]
+        public void CurrentDirectoryWhenRunningTestsIsTestAssemblyPath()
+        {
+            string code = @"
             using System.IO;
             using Xunit;
 
@@ -25,17 +27,17 @@ public class ExecutorCurrentDirectoryAcceptanceTests : AcceptanceTestInNewAppDom
             }
         ";
 
-        string assemblyName = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
-        XmlNode assemblyNode = ExecuteWithCustomAssemblyName(code, assemblyName);
+            string assemblyName = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
+            XmlNode assemblyNode = ExecuteWithCustomAssemblyName(code, assemblyName);
 
-        ResultXmlUtility.AssertResult(assemblyNode, "Pass", "ChangeDirectoryTests.ChangeDirectory");
-    }
+            ResultXmlUtility.AssertResult(assemblyNode, "Pass", "ChangeDirectoryTests.ChangeDirectory");
+        }
 
-    [Fact]
-    [PreserveWorkingDirectory]
-    public void CurrentDirectoryIsRestoredAfterExecution()
-    {
-        string code = @"
+        [Fact]
+        [PreserveWorkingDirectory]
+        public void CurrentDirectoryIsRestoredAfterExecution()
+        {
+            string code = @"
             using System.IO;
             using Xunit;
 
@@ -49,27 +51,28 @@ public class ExecutorCurrentDirectoryAcceptanceTests : AcceptanceTestInNewAppDom
             }
         ";
 
-        string directory = Directory.GetDirectoryRoot(Directory.GetCurrentDirectory());
-        Directory.SetCurrentDirectory(directory);
-        string newDirectory = Directory.GetCurrentDirectory();
+            string directory = Directory.GetDirectoryRoot(Directory.GetCurrentDirectory());
+            Directory.SetCurrentDirectory(directory);
+            string newDirectory = Directory.GetCurrentDirectory();
 
-        Execute(code);
+            Execute(code);
 
-        Assert.Equal(newDirectory, Directory.GetCurrentDirectory());
-    }
-
-    class PreserveWorkingDirectoryAttribute : BeforeAfterTestAttribute
-    {
-        string workingDirectory;
-
-        public override void Before(MethodInfo methodUnderTest)
-        {
-            workingDirectory = Directory.GetCurrentDirectory();
+            Assert.Equal(newDirectory, Directory.GetCurrentDirectory());
         }
 
-        public override void After(MethodInfo methodUnderTest)
+        class PreserveWorkingDirectoryAttribute : BeforeAfterTestAttribute
         {
-            Directory.SetCurrentDirectory(workingDirectory);
+            string workingDirectory;
+
+            public override void Before(MethodInfo methodUnderTest)
+            {
+                workingDirectory = Directory.GetCurrentDirectory();
+            }
+
+            public override void After(MethodInfo methodUnderTest)
+            {
+                Directory.SetCurrentDirectory(workingDirectory);
+            }
         }
     }
 }

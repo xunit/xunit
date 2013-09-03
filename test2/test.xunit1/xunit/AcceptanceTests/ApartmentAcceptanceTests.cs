@@ -1,11 +1,14 @@
 ﻿using System.Threading;
 using Xunit;
 
-public class ApartmentAcceptanceTests
+namespace Xunit1
 {
-    [Fact]
-    public void TestsRunsInTheSingleThreadedApartment()
+    public class ApartmentAcceptanceTests
     {
-        Assert.Equal(ApartmentState.STA, Thread.CurrentThread.GetApartmentState());
+        [Fact]
+        public void TestsRunsInTheSingleThreadedApartment()
+        {
+            Assert.Equal(ApartmentState.STA, Thread.CurrentThread.GetApartmentState());
+        }
     }
 }

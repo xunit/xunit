@@ -2,16 +2,19 @@
 using TestUtility;
 using Xunit;
 
-public class ExecutorAssemblyNodeCallbackAcceptanceTests : AcceptanceTestInNewAppDomain
+namespace Xunit1
 {
-    [Fact]
-    public void AssemblyFilenameInXmlMatchesOriginallyPassedNameToExecutor()
+    public class ExecutorAssemblyNodeCallbackAcceptanceTests : AcceptanceTestInNewAppDomain
     {
-        using (MockAssembly mockAssembly = new MockAssembly())
+        [Fact]
+        public void AssemblyFilenameInXmlMatchesOriginallyPassedNameToExecutor()
         {
-            mockAssembly.Compile("");
-            XmlNode assemblyNode = mockAssembly.Run(null);
-            ResultXmlUtility.AssertAttribute(assemblyNode, "name", mockAssembly.FileName);
+            using (MockAssembly mockAssembly = new MockAssembly())
+            {
+                mockAssembly.Compile("");
+                XmlNode assemblyNode = mockAssembly.Run(null);
+                ResultXmlUtility.AssertAttribute(assemblyNode, "name", mockAssembly.FileName);
+            }
         }
     }
 }

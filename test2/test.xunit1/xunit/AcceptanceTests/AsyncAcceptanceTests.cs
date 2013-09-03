@@ -5,31 +5,34 @@ using TestUtility;
 using Xunit;
 using Xunit.Sdk;
 
-public class AsyncAcceptanceTests : AcceptanceTest
+namespace Xunit1
 {
-    [Fact]
-    public void Async40AcceptanceTest()
-    {
-        IEnumerable<MethodResult> results = RunClass(typeof(Async40AcceptanceTestClass));
-
-        MethodResult result = Assert.Single(results);
-        FailedResult failedResult = Assert.IsType<FailedResult>(result);
-        Assert.Equal(typeof(TrueException).FullName, failedResult.ExceptionType);
-    }
-
-    class Async40AcceptanceTestClass
+    public class AsyncAcceptanceTests : AcceptanceTest
     {
         [Fact]
-        public Task MethodUnderTest()
+        public void Async40AcceptanceTest()
         {
-            return Task.Factory.StartNew(() =>
+            IEnumerable<MethodResult> results = RunClass(typeof(Async40AcceptanceTestClass));
+
+            MethodResult result = Assert.Single(results);
+            FailedResult failedResult = Assert.IsType<FailedResult>(result);
+            Assert.Equal(typeof(TrueException).FullName, failedResult.ExceptionType);
+        }
+
+        class Async40AcceptanceTestClass
+        {
+            [Fact]
+            public Task MethodUnderTest()
             {
-                Thread.Sleep(1);
-            })
-            .ContinueWith(_ =>
-            {
-                Assert.True(false);
-            });
+                return Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(1);
+                })
+                .ContinueWith(_ =>
+                {
+                    Assert.True(false);
+                });
+            }
         }
     }
 }

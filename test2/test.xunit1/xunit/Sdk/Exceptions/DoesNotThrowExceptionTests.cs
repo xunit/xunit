@@ -3,25 +3,28 @@ using System.Runtime.Serialization;
 using Xunit;
 using Xunit.Sdk;
 
-public class DoesNotThrowExceptionTests
+namespace Xunit1
 {
-    [Fact]
-    public void SerializesCustomProperties()
+    public class DoesNotThrowExceptionTests
     {
-        var originalException = new TestableDoesNotThrowException("Stack Trace");
+        [Fact]
+        public void SerializesCustomProperties()
+        {
+            var originalException = new TestableDoesNotThrowException("Stack Trace");
 
-        var deserializedException = SerializationUtility.SerializeAndDeserialize(originalException);
+            var deserializedException = SerializationUtility.SerializeAndDeserialize(originalException);
 
-        Assert.Equal(originalException.StackTrace, deserializedException.StackTrace);
-    }
+            Assert.Equal(originalException.StackTrace, deserializedException.StackTrace);
+        }
 
-    [Serializable]
-    class TestableDoesNotThrowException : DoesNotThrowException
-    {
-        public TestableDoesNotThrowException(string stackTrace)
-            : base(stackTrace) { }
+        [Serializable]
+        class TestableDoesNotThrowException : DoesNotThrowException
+        {
+            public TestableDoesNotThrowException(string stackTrace)
+                : base(stackTrace) { }
 
-        protected TestableDoesNotThrowException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
+            protected TestableDoesNotThrowException(SerializationInfo info, StreamingContext context)
+                : base(info, context) { }
+        }
     }
 }

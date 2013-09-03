@@ -3,50 +3,53 @@ using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
 
-public class EmptyTests
+namespace Xunit1
 {
-    public class Containers
+    public class EmptyTests
     {
-        [Fact]
-        public void IsEmpty()
+        public class Containers
         {
-            List<int> list = new List<int>();
+            [Fact]
+            public void IsEmpty()
+            {
+                List<int> list = new List<int>();
 
-            Assert.Empty(list);
+                Assert.Empty(list);
+            }
+
+            [Fact]
+            public void IsNotEmpty()
+            {
+                List<int> list = new List<int>();
+                list.Add(42);
+
+                EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty(list));
+
+                Assert.Equal("Assert.Empty() failure", ex.Message);
+            }
+
+            [Fact]
+            public void NullIsNotEmpty()
+            {
+                Assert.Throws<ArgumentNullException>(() => Assert.Empty(null));
+            }
         }
 
-        [Fact]
-        public void IsNotEmpty()
+        public class Strings
         {
-            List<int> list = new List<int>();
-            list.Add(42);
+            [Fact]
+            public void IsEmpty()
+            {
+                Assert.Empty("");
+            }
 
-            EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty(list));
+            [Fact]
+            public void IsNotEmpty()
+            {
+                EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty("Foo"));
 
-            Assert.Equal("Assert.Empty() failure", ex.Message);
-        }
-
-        [Fact]
-        public void NullIsNotEmpty()
-        {
-            Assert.Throws<ArgumentNullException>(() => Assert.Empty(null));
-        }
-    }
-
-    public class Strings
-    {
-        [Fact]
-        public void IsEmpty()
-        {
-            Assert.Empty("");
-        }
-
-        [Fact]
-        public void IsNotEmpty()
-        {
-            EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty("Foo"));
-
-            Assert.Equal("Assert.Empty() failure", ex.Message);
+                Assert.Equal("Assert.Empty() failure", ex.Message);
+            }
         }
     }
 }

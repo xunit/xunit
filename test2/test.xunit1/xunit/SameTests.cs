@@ -2,45 +2,48 @@ using System;
 using Xunit;
 using Xunit.Sdk;
 
-public class SameTests
+namespace Xunit1
 {
-    [Fact]
-    public void BoxedTypesDontWork()
+    public class SameTests
     {
-        int index = 0;
-
-        Assert.Throws<SameException>(() => Assert.Same(index, index));
-    }
-
-    [Fact]
-    public void SameFailsWith()
-    {
-        string actual = "Abc";
-        string expected = "a".ToUpperInvariant() + "bc";
-
-        try
+        [Fact]
+        public void BoxedTypesDontWork()
         {
-            Assert.Same(expected, actual);
+            int index = 0;
+
+            Assert.Throws<SameException>(() => Assert.Same(index, index));
         }
-        catch (Exception ex)
+
+        [Fact]
+        public void SameFailsWith()
         {
-            AssertException aex = Assert.IsAssignableFrom<AssertException>(ex);
-            Assert.Equal("Assert.Same() Failure", aex.UserMessage);
-            Assert.DoesNotContain("Position:", aex.Message);
+            string actual = "Abc";
+            string expected = "a".ToUpperInvariant() + "bc";
+
+            try
+            {
+                Assert.Same(expected, actual);
+            }
+            catch (Exception ex)
+            {
+                AssertException aex = Assert.IsAssignableFrom<AssertException>(ex);
+                Assert.Equal("Assert.Same() Failure", aex.UserMessage);
+                Assert.DoesNotContain("Position:", aex.Message);
+            }
         }
-    }
 
-    [Fact]
-    public void ValuesAreNotTheSame()
-    {
-        Assert.Throws<SameException>(() => Assert.Same("bob", "jim"));
-    }
+        [Fact]
+        public void ValuesAreNotTheSame()
+        {
+            Assert.Throws<SameException>(() => Assert.Same("bob", "jim"));
+        }
 
-    [Fact]
-    public void ValuesAreTheSame()
-    {
-        string jim = "jim";
+        [Fact]
+        public void ValuesAreTheSame()
+        {
+            string jim = "jim";
 
-        Assert.Same(jim, jim);
+            Assert.Same(jim, jim);
+        }
     }
 }

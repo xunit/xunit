@@ -1,17 +1,20 @@
 using Xunit;
 using Xunit.Sdk;
 
-public class NotNullTests
+namespace Xunit1
 {
-    [Fact]
-    public void NotNull()
+    public class NotNullTests
     {
-        Assert.NotNull(new object());
-    }
+        [Fact]
+        public void NotNull()
+        {
+            Assert.NotNull(new object());
+        }
 
-    [Fact]
-    public void NotNullThrowsException()
-    {
-        Assert.Throws<NotNullException>(() => Assert.NotNull(null));
+        [Fact]
+        public void NotNullThrowsException()
+        {
+            Assert.Throws<NotNullException>(() => Assert.NotNull(null));
+        }
     }
 }

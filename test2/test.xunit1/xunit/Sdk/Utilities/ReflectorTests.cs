@@ -4,146 +4,149 @@ using System.Reflection;
 using Xunit;
 using Xunit.Sdk;
 
-public class ReflectorTests
+namespace Xunit1
 {
-    public class GetMethod
+    public class ReflectorTests
     {
-        [Fact]
-        public void CanFindPublicMethod()
+        public class GetMethod
         {
-            ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
+            [Fact]
+            public void CanFindPublicMethod()
+            {
+                ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
 
-            IMethodInfo result = typeInfo.GetMethod("PublicMethod");
+                IMethodInfo result = typeInfo.GetMethod("PublicMethod");
 
-            Assert.NotNull(result);
+                Assert.NotNull(result);
+            }
+
+            [Fact]
+            public void CanFindPublicStaticMethod()
+            {
+                ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
+
+                IMethodInfo result = typeInfo.GetMethod("PublicStaticMethod");
+
+                Assert.NotNull(result);
+            }
+
+            [Fact]
+            public void CanFindPrivateMethod()
+            {
+                ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
+
+                IMethodInfo result = typeInfo.GetMethod("PrivateMethod");
+
+                Assert.NotNull(result);
+            }
+
+            [Fact]
+            public void CanFindPrivateStaticMethod()
+            {
+                ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
+
+                IMethodInfo result = typeInfo.GetMethod("PrivateStaticMethod");
+
+                Assert.NotNull(result);
+            }
+
+            [Fact]
+            public void NonExistantMethodReturnsNull()
+            {
+                ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
+
+                IMethodInfo result = typeInfo.GetMethod("NonExistantMethod");
+
+                Assert.Null(result);
+            }
         }
 
-        [Fact]
-        public void CanFindPublicStaticMethod()
+        public class GetMethods
         {
-            ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
+            [Fact]
+            public void ReturnsPublicAndPrivateStaticAndNonStaticMethods()
+            {
+                ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
 
-            IMethodInfo result = typeInfo.GetMethod("PublicStaticMethod");
+                List<IMethodInfo> methods = new List<IMethodInfo>(typeInfo.GetMethods());
 
-            Assert.NotNull(result);
+                foreach (string name in new string[] { "PrivateMethod", "PrivateStaticMethod", "PublicMethod", "PublicStaticMethod" })
+                    Assert.NotNull(methods.Find(methodInfo => methodInfo.Name == name));
+
+                Assert.Null(methods.Find(methodInfo => methodInfo.Name == "Property"));
+            }
         }
 
-        [Fact]
-        public void CanFindPrivateMethod()
+        public class Invoke
         {
-            ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
-
-            IMethodInfo result = typeInfo.GetMethod("PrivateMethod");
-
-            Assert.NotNull(result);
-        }
-
-        [Fact]
-        public void CanFindPrivateStaticMethod()
-        {
-            ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
-
-            IMethodInfo result = typeInfo.GetMethod("PrivateStaticMethod");
-
-            Assert.NotNull(result);
-        }
-
-        [Fact]
-        public void NonExistantMethodReturnsNull()
-        {
-            ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
-
-            IMethodInfo result = typeInfo.GetMethod("NonExistantMethod");
-
-            Assert.Null(result);
-        }
-    }
-
-    public class GetMethods
-    {
-        [Fact]
-        public void ReturnsPublicAndPrivateStaticAndNonStaticMethods()
-        {
-            ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
-
-            List<IMethodInfo> methods = new List<IMethodInfo>(typeInfo.GetMethods());
-
-            foreach (string name in new string[] { "PrivateMethod", "PrivateStaticMethod", "PublicMethod", "PublicStaticMethod" })
-                Assert.NotNull(methods.Find(methodInfo => methodInfo.Name == name));
-
-            Assert.Null(methods.Find(methodInfo => methodInfo.Name == "Property"));
-        }
-    }
-
-    public class Invoke
-    {
-        [Fact]
-        public void ThrowsException()
-        {
-            MethodInfo method = typeof(TestMethodCommandClass).GetMethod("ThrowsException");
-            IMethodInfo wrappedMethod = Reflector.Wrap(method);
-            TestMethodCommandClass obj = new TestMethodCommandClass();
-
-            Exception ex = Record.Exception(() => wrappedMethod.Invoke(obj));
-
-            Assert.IsType<InvalidOperationException>(ex);
-        }
-
-        [Fact]
-        public void ThrowsTargetInvocationException()
-        {
-            MethodInfo method = typeof(TestMethodCommandClass).GetMethod("ThrowsTargetInvocationException");
-            IMethodInfo wrappedMethod = Reflector.Wrap(method);
-            TestMethodCommandClass obj = new TestMethodCommandClass();
-
-            Exception ex = Record.Exception(() => wrappedMethod.Invoke(obj));
-
-            Assert.IsType<TargetInvocationException>(ex);
-        }
-
-        [Fact]
-        public void TurnsTargetParameterCountExceptionIntoParameterCountMismatchException()
-        {
-            MethodInfo method = typeof(TestMethodCommandClass).GetMethod("ThrowsException");
-            IMethodInfo wrappedMethod = Reflector.Wrap(method);
-            TestMethodCommandClass obj = new TestMethodCommandClass();
-
-            Exception ex = Record.Exception(() => wrappedMethod.Invoke(obj, "Hello world"));
-
-            Assert.IsType<ParameterCountMismatchException>(ex);
-        }
-
-        internal class TestMethodCommandClass
-        {
+            [Fact]
             public void ThrowsException()
             {
-                throw new InvalidOperationException();
+                MethodInfo method = typeof(TestMethodCommandClass).GetMethod("ThrowsException");
+                IMethodInfo wrappedMethod = Reflector.Wrap(method);
+                TestMethodCommandClass obj = new TestMethodCommandClass();
+
+                Exception ex = Record.Exception(() => wrappedMethod.Invoke(obj));
+
+                Assert.IsType<InvalidOperationException>(ex);
             }
 
+            [Fact]
             public void ThrowsTargetInvocationException()
             {
-                throw new TargetInvocationException(null);
+                MethodInfo method = typeof(TestMethodCommandClass).GetMethod("ThrowsTargetInvocationException");
+                IMethodInfo wrappedMethod = Reflector.Wrap(method);
+                TestMethodCommandClass obj = new TestMethodCommandClass();
+
+                Exception ex = Record.Exception(() => wrappedMethod.Invoke(obj));
+
+                Assert.IsType<TargetInvocationException>(ex);
+            }
+
+            [Fact]
+            public void TurnsTargetParameterCountExceptionIntoParameterCountMismatchException()
+            {
+                MethodInfo method = typeof(TestMethodCommandClass).GetMethod("ThrowsException");
+                IMethodInfo wrappedMethod = Reflector.Wrap(method);
+                TestMethodCommandClass obj = new TestMethodCommandClass();
+
+                Exception ex = Record.Exception(() => wrappedMethod.Invoke(obj, "Hello world"));
+
+                Assert.IsType<ParameterCountMismatchException>(ex);
+            }
+
+            internal class TestMethodCommandClass
+            {
+                public void ThrowsException()
+                {
+                    throw new InvalidOperationException();
+                }
+
+                public void ThrowsTargetInvocationException()
+                {
+                    throw new TargetInvocationException(null);
+                }
             }
         }
-    }
 
-    internal class TestClass
-    {
-        public string Property
+        internal class TestClass
         {
-            get { return null; }
+            public string Property
+            {
+                get { return null; }
+            }
+
+            [Fact]
+            void PrivateMethod() { }
+
+            [Fact]
+            static void PrivateStaticMethod() { }
+
+            [Fact]
+            public void PublicMethod() { }
+
+            [Fact]
+            public static void PublicStaticMethod() { }
         }
-
-        [Fact]
-        void PrivateMethod() { }
-
-        [Fact]
-        static void PrivateStaticMethod() { }
-
-        [Fact]
-        public void PublicMethod() { }
-
-        [Fact]
-        public static void PublicStaticMethod() { }
     }
 }

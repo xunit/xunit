@@ -3,91 +3,94 @@ using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
 
-public class NotEqualTests
+namespace Xunit1
 {
-    [Fact]
-    public void NotEqualFailsString()
+    public class NotEqualTests
     {
-        try
+        [Fact]
+        public void NotEqualFailsString()
         {
-            Assert.NotEqual("actual", "actual");
-        }
-        catch (NotEqualException exception)
-        {
-            Assert.Equal("Assert.NotEqual() Failure", exception.UserMessage);
-        }
-    }
-
-    [Fact]
-    public void NotEqualWithCustomComparer()
-    {
-        string expected = "TestString";
-        string actual = "testString";
-
-        Assert.False(actual == expected);
-        Assert.Equal(expected, actual, StringComparer.CurrentCultureIgnoreCase);
-        Assert.NotEqual(expected, actual, StringComparer.CurrentCulture);
-    }
-
-    [Fact]
-    public void ValuesNotEqual()
-    {
-        Assert.NotEqual("bob", "jim");
-    }
-
-    [Fact]
-    public void EnumerableInequivalence()
-    {
-        int[] expected = new[] { 1, 2, 3, 4, 5 };
-        List<int> actual = new List<int>(new[] { 1, 2, 3, 4, 6 });
-
-        Assert.NotEqual(expected, actual);
-    }
-
-    [Fact]
-    public void EnumerableEquivalence()
-    {
-        int[] expected = new[] { 1, 2, 3, 4, 5 };
-        List<int> actual = new List<int>(expected);
-
-        Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
-    }
-
-    [Fact]
-    public void EnumerableInequivalenceWithFailedComparer()
-    {
-        int[] expected = new[] { 1, 2, 3, 4, 5 };
-        List<int> actual = new List<int>(new int[] { 1, 2, 3, 4, 5 });
-
-        Assert.NotEqual(expected, actual, new IntComparer(false));
-    }
-
-    [Fact]
-    public void EnumerableEquivalenceWithSuccessfulComparer()
-    {
-        int[] expected = new[] { 1, 2, 3, 4, 5 };
-        List<int> actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
-
-        Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual, new IntComparer(true)));
-    }
-
-    class IntComparer : IEqualityComparer<int>
-    {
-        bool answer;
-
-        public IntComparer(bool answer)
-        {
-            this.answer = answer;
+            try
+            {
+                Assert.NotEqual("actual", "actual");
+            }
+            catch (NotEqualException exception)
+            {
+                Assert.Equal("Assert.NotEqual() Failure", exception.UserMessage);
+            }
         }
 
-        public bool Equals(int x, int y)
+        [Fact]
+        public void NotEqualWithCustomComparer()
         {
-            return answer;
+            string expected = "TestString";
+            string actual = "testString";
+
+            Assert.False(actual == expected);
+            Assert.Equal(expected, actual, StringComparer.CurrentCultureIgnoreCase);
+            Assert.NotEqual(expected, actual, StringComparer.CurrentCulture);
         }
 
-        public int GetHashCode(int obj)
+        [Fact]
+        public void ValuesNotEqual()
         {
-            throw new NotImplementedException();
+            Assert.NotEqual("bob", "jim");
+        }
+
+        [Fact]
+        public void EnumerableInequivalence()
+        {
+            int[] expected = new[] { 1, 2, 3, 4, 5 };
+            List<int> actual = new List<int>(new[] { 1, 2, 3, 4, 6 });
+
+            Assert.NotEqual(expected, actual);
+        }
+
+        [Fact]
+        public void EnumerableEquivalence()
+        {
+            int[] expected = new[] { 1, 2, 3, 4, 5 };
+            List<int> actual = new List<int>(expected);
+
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+        }
+
+        [Fact]
+        public void EnumerableInequivalenceWithFailedComparer()
+        {
+            int[] expected = new[] { 1, 2, 3, 4, 5 };
+            List<int> actual = new List<int>(new int[] { 1, 2, 3, 4, 5 });
+
+            Assert.NotEqual(expected, actual, new IntComparer(false));
+        }
+
+        [Fact]
+        public void EnumerableEquivalenceWithSuccessfulComparer()
+        {
+            int[] expected = new[] { 1, 2, 3, 4, 5 };
+            List<int> actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
+
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual, new IntComparer(true)));
+        }
+
+        class IntComparer : IEqualityComparer<int>
+        {
+            bool answer;
+
+            public IntComparer(bool answer)
+            {
+                this.answer = answer;
+            }
+
+            public bool Equals(int x, int y)
+            {
+                return answer;
+            }
+
+            public int GetHashCode(int obj)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

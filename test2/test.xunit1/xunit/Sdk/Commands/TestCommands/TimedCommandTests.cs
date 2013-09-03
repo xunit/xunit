@@ -4,45 +4,48 @@ using System.Xml;
 using Xunit;
 using Xunit.Sdk;
 
-public class TimedCommandTests
+namespace Xunit1
 {
-    [Fact]
-    public void MeasuresTime()
+    public class TimedCommandTests
     {
-        TimedCommand command = new TimedCommand(new DummyCommand());
-
-        MethodResult result = command.Execute(null);
-
-        Assert.InRange(result.ExecutionTime, 0.01, 100.0);
-    }
-
-    class DummyCommand : ITestCommand
-    {
-        public string DisplayName
+        [Fact]
+        public void MeasuresTime()
         {
-            get { return null; }
+            TimedCommand command = new TimedCommand(new DummyCommand());
+
+            MethodResult result = command.Execute(null);
+
+            Assert.InRange(result.ExecutionTime, 0.01, 100.0);
         }
 
-        public bool ShouldCreateInstance
+        class DummyCommand : ITestCommand
         {
-            get { return true; }
-        }
+            public string DisplayName
+            {
+                get { return null; }
+            }
 
-        public int Timeout
-        {
-            get { return 0; }
-        }
+            public bool ShouldCreateInstance
+            {
+                get { return true; }
+            }
 
-        public MethodResult Execute(object testClass)
-        {
-            Thread.Sleep(50);
-            MethodInfo method = GetType().GetMethod("Execute");
-            return new PassedResult(Reflector.Wrap(method), null);
-        }
+            public int Timeout
+            {
+                get { return 0; }
+            }
 
-        public XmlNode ToStartXml()
-        {
-            return null;
+            public MethodResult Execute(object testClass)
+            {
+                Thread.Sleep(50);
+                MethodInfo method = GetType().GetMethod("Execute");
+                return new PassedResult(Reflector.Wrap(method), null);
+            }
+
+            public XmlNode ToStartXml()
+            {
+                return null;
+            }
         }
     }
 }

@@ -2,22 +2,25 @@ using System.Reflection;
 using Xunit;
 using Xunit.Sdk;
 
-public class SkipCommandTests
+namespace Xunit1
 {
-    [Fact]
-    public void SkipReturnSkipResult()
+    public class SkipCommandTests
     {
-        MethodInfo method = typeof(SpyStub).GetMethod("Skip");
-        SkipCommand command = new SkipCommand(Reflector.Wrap(method), null, "reason");
+        [Fact]
+        public void SkipReturnSkipResult()
+        {
+            MethodInfo method = typeof(SpyStub).GetMethod("Skip");
+            SkipCommand command = new SkipCommand(Reflector.Wrap(method), null, "reason");
 
-        MethodResult result = command.Execute(new SpyStub());
+            MethodResult result = command.Execute(new SpyStub());
 
-        SkipResult skipResult = Assert.IsType<SkipResult>(result);
-        Assert.Equal("reason", skipResult.Reason);
-    }
+            SkipResult skipResult = Assert.IsType<SkipResult>(result);
+            Assert.Equal("reason", skipResult.Reason);
+        }
 
-    internal class SpyStub : FixtureSpy
-    {
-        public void Skip() { }
+        internal class SpyStub : FixtureSpy
+        {
+            public void Skip() { }
+        }
     }
 }

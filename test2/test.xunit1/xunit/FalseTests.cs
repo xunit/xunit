@@ -1,24 +1,27 @@
 using Xunit;
 using Xunit.Sdk;
 
-public class FalseTests
+namespace Xunit1
 {
-    [Fact]
-    public void AssertFalse()
+    public class FalseTests
     {
-        Assert.False(false);
-    }
-
-    [Fact]
-    public void AssertFalseThrowsExceptionWhenTrue()
-    {
-        try
+        [Fact]
+        public void AssertFalse()
         {
-            Assert.False(true);
+            Assert.False(false);
         }
-        catch (AssertException exception)
+
+        [Fact]
+        public void AssertFalseThrowsExceptionWhenTrue()
         {
-            Assert.Equal("Assert.False() Failure", exception.UserMessage);
+            try
+            {
+                Assert.False(true);
+            }
+            catch (AssertException exception)
+            {
+                Assert.Equal("Assert.False() Failure", exception.UserMessage);
+            }
         }
     }
 }

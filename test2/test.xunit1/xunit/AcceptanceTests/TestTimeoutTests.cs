@@ -5,25 +5,28 @@ using TestUtility;
 using Xunit;
 using Xunit.Sdk;
 
-public class TestTimeoutFixture : AcceptanceTest
+namespace Xunit1
 {
-    [Fact]
-    public void TestHasTimeoutAndExceeds()
+    public class TestTimeoutFixture : AcceptanceTest
     {
-        MethodResult result = RunClass(typeof(ClassUnderTest)).Single();
-
-        FailedResult failedResult = Assert.IsType<FailedResult>(result);
-        Assert.InRange(failedResult.ExecutionTime, 0.049, 0.051);
-        Assert.Equal("Test execution time exceeded: 50ms", failedResult.Message);
-    }
-
-    class ClassUnderTest
-    {
-        [Fact(Timeout = 50)]
-        public void TestShouldTimeout()
+        [Fact]
+        public void TestHasTimeoutAndExceeds()
         {
-            Thread.Sleep(120);
-            Assert.Equal(2, 2);
+            MethodResult result = RunClass(typeof(ClassUnderTest)).Single();
+
+            FailedResult failedResult = Assert.IsType<FailedResult>(result);
+            Assert.InRange(failedResult.ExecutionTime, 0.049, 0.051);
+            Assert.Equal("Test execution time exceeded: 50ms", failedResult.Message);
+        }
+
+        class ClassUnderTest
+        {
+            [Fact(Timeout = 50)]
+            public void TestShouldTimeout()
+            {
+                Thread.Sleep(120);
+                Assert.Equal(2, 2);
+            }
         }
     }
 }

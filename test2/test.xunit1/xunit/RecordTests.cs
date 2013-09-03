@@ -1,58 +1,61 @@
 using System;
 using Xunit;
 
-public class RecordTests
+namespace Xunit1
 {
-    public class MethodsWithoutReturnValues
+    public class RecordTests
     {
-        [Fact]
-        public void Exception()
+        public class MethodsWithoutReturnValues
         {
-            Exception ex = Record.Exception(delegate { throw new InvalidOperationException(); });
-
-            Assert.NotNull(ex);
-            Assert.IsType<InvalidOperationException>(ex);
-        }
-
-        [Fact]
-        public void NoException()
-        {
-            Exception ex = Record.Exception(delegate { });
-
-            Assert.Null(ex);
-        }
-    }
-
-    public class MethodsWithReturnValues
-    {
-        [Fact]
-        public void Exception()
-        {
-            StubAccessor accessor = new StubAccessor();
-
-            Exception ex = Record.Exception(() => accessor.FailingProperty);
-
-            Assert.NotNull(ex);
-            Assert.IsType<InvalidOperationException>(ex);
-        }
-
-        [Fact]
-        public void NoException()
-        {
-            StubAccessor accessor = new StubAccessor();
-
-            Exception ex = Record.Exception(() => accessor.SuccessfulProperty);
-
-            Assert.Null(ex);
-        }
-
-        class StubAccessor
-        {
-            public int SuccessfulProperty { get; set; }
-
-            public int FailingProperty
+            [Fact]
+            public void Exception()
             {
-                get { throw new InvalidOperationException(); }
+                Exception ex = Record.Exception(delegate { throw new InvalidOperationException(); });
+
+                Assert.NotNull(ex);
+                Assert.IsType<InvalidOperationException>(ex);
+            }
+
+            [Fact]
+            public void NoException()
+            {
+                Exception ex = Record.Exception(delegate { });
+
+                Assert.Null(ex);
+            }
+        }
+
+        public class MethodsWithReturnValues
+        {
+            [Fact]
+            public void Exception()
+            {
+                StubAccessor accessor = new StubAccessor();
+
+                Exception ex = Record.Exception(() => accessor.FailingProperty);
+
+                Assert.NotNull(ex);
+                Assert.IsType<InvalidOperationException>(ex);
+            }
+
+            [Fact]
+            public void NoException()
+            {
+                StubAccessor accessor = new StubAccessor();
+
+                Exception ex = Record.Exception(() => accessor.SuccessfulProperty);
+
+                Assert.Null(ex);
+            }
+
+            class StubAccessor
+            {
+                public int SuccessfulProperty { get; set; }
+
+                public int FailingProperty
+                {
+                    get { throw new InvalidOperationException(); }
+                }
             }
         }
     }

@@ -4,32 +4,35 @@ using System.Threading;
 using Xunit;
 using Xunit.Extensions;
 
-public class AssumeIdentityAttributeAcceptanceTests
+namespace Xunit1.Extensions
 {
-    [Fact, AssumeIdentity("casper")]
-    public void AttributeChangesRoleInTestMethod()
+    public class AssumeIdentityAttributeAcceptanceTests
     {
-        Assert.True(Thread.CurrentPrincipal.IsInRole("casper"));
-    }
+        [Fact, AssumeIdentity("casper")]
+        public void AttributeChangesRoleInTestMethod()
+        {
+            Assert.True(Thread.CurrentPrincipal.IsInRole("casper"));
+        }
 
-    [Fact]
-    public void CallingSecuredMethodWillThrow()
-    {
-        Assert.Throws<SecurityException>(() => DefeatVillian());
-    }
+        [Fact]
+        public void CallingSecuredMethodWillThrow()
+        {
+            Assert.Throws<SecurityException>(() => DefeatVillian());
+        }
 
-    [Fact, AssumeIdentity("Q")]
-    public void CallingSecuredMethodWithWrongIdentityWillThrow()
-    {
-        Assert.Throws<SecurityException>(() => DefeatVillian());
-    }
+        [Fact, AssumeIdentity("Q")]
+        public void CallingSecuredMethodWithWrongIdentityWillThrow()
+        {
+            Assert.Throws<SecurityException>(() => DefeatVillian());
+        }
 
-    [Fact, AssumeIdentity("007")]
-    public void CallingSecuredMethodWithAssumedIdentityPasses()
-    {
-        Assert.DoesNotThrow(() => DefeatVillian());
-    }
+        [Fact, AssumeIdentity("007")]
+        public void CallingSecuredMethodWithAssumedIdentityPasses()
+        {
+            Assert.DoesNotThrow(() => DefeatVillian());
+        }
 
-    [PrincipalPermission(SecurityAction.Demand, Role = "007")]
-    public void DefeatVillian() { }
+        [PrincipalPermission(SecurityAction.Demand, Role = "007")]
+        public void DefeatVillian() { }
+    }
 }

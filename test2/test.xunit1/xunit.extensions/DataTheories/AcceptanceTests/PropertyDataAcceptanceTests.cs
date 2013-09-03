@@ -5,27 +5,30 @@ using Xunit;
 using Xunit.Extensions;
 using Xunit.Sdk;
 
-public class PropertyDataAcceptanceTests : AcceptanceTest
+namespace Xunit1.Extensions
 {
-    [Fact]
-    public void PropertyDataTest()
+    public class PropertyDataAcceptanceTests : AcceptanceTest
     {
-        MethodResult result = RunClass(typeof(PropertyDataTestClass)).Single();
-
-        Assert.IsType<PassedResult>(result);
-        Assert.Equal(@"PropertyDataAcceptanceTests+PropertyDataTestClass.PassingTestData(foo: 1, bar: ""hello world"", baz: 2.3)", result.DisplayName);
-    }
-
-    class PropertyDataTestClass
-    {
-        public static IEnumerable<object[]> MyTestData
+        [Fact]
+        public void PropertyDataTest()
         {
-            get { yield return new object[] { 1, "hello world", 2.3 }; }
+            MethodResult result = RunClass(typeof(PropertyDataTestClass)).Single();
+
+            Assert.IsType<PassedResult>(result);
+            Assert.Equal(@"Xunit1.Extensions.PropertyDataAcceptanceTests+PropertyDataTestClass.PassingTestData(foo: 1, bar: ""hello world"", baz: 2.3)", result.DisplayName);
         }
 
-        [Theory, PropertyData("MyTestData")]
-        public void PassingTestData(int foo, string bar, double baz)
+        class PropertyDataTestClass
         {
+            public static IEnumerable<object[]> MyTestData
+            {
+                get { yield return new object[] { 1, "hello world", 2.3 }; }
+            }
+
+            [Theory, PropertyData("MyTestData")]
+            public void PassingTestData(int foo, string bar, double baz)
+            {
+            }
         }
     }
 }

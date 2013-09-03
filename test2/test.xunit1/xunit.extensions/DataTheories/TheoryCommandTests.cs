@@ -5,297 +5,300 @@ using Xunit;
 using Xunit.Extensions;
 using Xunit.Sdk;
 
-public class TheoryCommandTests
+namespace Xunit1.Extensions
 {
-    [Fact]
-    public void ExecuteCreatesClassAndRunsTest()
+    public class TheoryCommandTests
     {
-        MethodInfo methodInfo = typeof(InstrumentedSpy).GetMethod("PassedTest");
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), null);
-        InstrumentedSpy.ctorCounter = 0;
-        InstrumentedSpy.passedTestCounter = 0;
-
-        command.Execute(new InstrumentedSpy());
-
-        Assert.Equal(1, InstrumentedSpy.ctorCounter);
-        Assert.Equal(1, InstrumentedSpy.passedTestCounter);
-    }
-
-    [Fact]
-    public void ExecuteStubTestFixtureVerifyBeforeAfterTestCalledOnce()
-    {
-        MethodInfo methodInfo = typeof(DisposableSpy).GetMethod("PassedTest");
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), null);
-        DisposableSpy.ctorCalled = 0;
-        DisposableSpy.disposeCalled = 0;
-
-        ITestResult result = command.Execute(new DisposableSpy());
-
-        Assert.IsType<PassedResult>(result);
-    }
-
-    [Fact]
-    public void NotEnoughData()
-    {
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(ParameterSpy).GetMethod("Method")),
-                                                  new object[] { 2 });
-
-        Assert.Throws<InvalidOperationException>(() => command.Execute(new ParameterSpy()));
-    }
-
-    [Fact]
-    public void UsesDisplayName()
-    {
-        MethodInfo methodInfo = typeof(DummyWithAttributes).GetMethod("TheoryMethod");
-
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42, 24.5 });
-
-        Assert.Equal("My display name(x: 42, y: 24.5)", command.DisplayName);
-    }
-
-    [Fact]
-    public void DisplayNameWithTooManyValues()
-    {
-        MethodInfo methodInfo = typeof(DummyWithAttributes).GetMethod("TheoryMethod");
-
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42, 24.5, "Hello!", 'c' });
-
-        Assert.Equal("My display name(x: 42, y: 24.5, ???: \"Hello!\", ???: 'c')", command.DisplayName);
-    }
-
-    [Fact]
-    public void DisplayNameWithTooFewValues()
-    {
-        MethodInfo methodInfo = typeof(DummyWithAttributes).GetMethod("TheoryMethod");
-
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42 });
-
-        Assert.Equal("My display name(x: 42, y: ???)", command.DisplayName);
-    }
-
-    [Fact]
-    public void PassesParametersToTest()
-    {
-        MethodInfo methodInfo = typeof(SpyWithDataPassed).GetMethod("Test");
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42, 24.5, "foo" });
-        SpyWithDataPassed.X = 0;
-        SpyWithDataPassed.Y = 0.0;
-        SpyWithDataPassed.Z = null;
-
-        command.Execute(new SpyWithDataPassed());
-
-        Assert.Equal(42, SpyWithDataPassed.X);
-        Assert.Equal(24.5, SpyWithDataPassed.Y);
-        Assert.Equal("foo", SpyWithDataPassed.Z);
-    }
-
-    [Fact]
-    public void TestMethodReturnPassedResult()
-    {
-        MethodInfo methodInfo = typeof(TestMethodCommandClass).GetMethod("TestMethod");
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), null);
-
-        MethodResult result = command.Execute(new TestMethodCommandClass());
-
-        Assert.IsType<PassedResult>(result);
-    }
-
-    [Fact]
-    public void ThrowsExceptionReturnFailedResult()
-    {
-        MethodInfo methodInfo = typeof(TestMethodCommandClass).GetMethod("ThrowsException");
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), null);
-
-        Assert.Throws<InvalidOperationException>(() => command.Execute(new TestMethodCommandClass()));
-    }
-
-    [Fact]
-    public void TooMuchData()
-    {
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(ParameterSpy).GetMethod("Method")),
-                                                  new object[] { 2, "foo", 3.14 });
-
-        Assert.Throws<InvalidOperationException>(() => command.Execute(new ParameterSpy()));
-    }
-
-    [Fact]
-    public void TruncatesVeryLongStrings()
-    {
-        StringBuilder sb = new StringBuilder(500);
-
-        for (int idx = 0; idx < 50; idx++)
-            sb.Append("----=----|");
-
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(ParameterSpy).GetMethod("Method")),
-                                                  new object[] { 2, sb.ToString() });
-
-        MethodResult result = command.Execute(new ParameterSpy());
-
-        Assert.IsType<PassedResult>(result);
-        Assert.Equal(@"TheoryCommandTests+ParameterSpy.Method(x: 2, y: ""----=----|----=----|----=----|----=----|----=----|""...)", result.DisplayName);
-    }
-
-    [Fact]
-    public void SettingTheoryTimeoutSetsTimeout()
-    {
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(DummyWithAttributes).GetMethod("TimeoutMethod")), null);
-
-        Assert.Equal(153, command.Timeout);
-    }
-
-    [Fact]
-    public void StringDataWithEmbeddedNullCreatesValidXml()  // CodePlex issue #9755
-    {
-        string expectedXml = @"<start name=""TheoryCommandTests+DummyWithAttributes.StringMethod(s: &quot;\x0\xFFFF&quot;)"" type=""TheoryCommandTests+DummyWithAttributes"" method=""StringMethod"" />";
-
-        TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(DummyWithAttributes).GetMethod("StringMethod")), new object[] { "\0\xffff" });
-
-        Assert.Equal(expectedXml, command.ToStartXml().OuterXml);
-    }
-
-    internal class DummyWithAttributes
-    {
-        [Theory(DisplayName = "My display name")]
-        public void TheoryMethod(int x, double y) { }
-
-        [Theory(Timeout = 153)]
-        public void TimeoutMethod() { }
-
-        [Theory]
-        public void StringMethod(string s) { }
-    }
-
-    internal class DisposableSpy : IDisposable
-    {
-        public static int ctorCalled;
-        public static int disposeCalled;
-
-        public DisposableSpy()
+        [Fact]
+        public void ExecuteCreatesClassAndRunsTest()
         {
-            ctorCalled++;
+            MethodInfo methodInfo = typeof(InstrumentedSpy).GetMethod("PassedTest");
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), null);
+            InstrumentedSpy.ctorCounter = 0;
+            InstrumentedSpy.passedTestCounter = 0;
+
+            command.Execute(new InstrumentedSpy());
+
+            Assert.Equal(1, InstrumentedSpy.ctorCounter);
+            Assert.Equal(1, InstrumentedSpy.passedTestCounter);
         }
 
-        public void Dispose()
+        [Fact]
+        public void ExecuteStubTestFixtureVerifyBeforeAfterTestCalledOnce()
         {
-            disposeCalled++;
+            MethodInfo methodInfo = typeof(DisposableSpy).GetMethod("PassedTest");
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), null);
+            DisposableSpy.ctorCalled = 0;
+            DisposableSpy.disposeCalled = 0;
+
+            ITestResult result = command.Execute(new DisposableSpy());
+
+            Assert.IsType<PassedResult>(result);
         }
 
-        public void PassedTest() { }
-    }
-
-    internal class DisposableSpyWithConstructorThrow : IDisposable
-    {
-        public static int ctorCalled;
-        public static int disposeCalled;
-        public static int testCalled;
-
-        public DisposableSpyWithConstructorThrow()
+        [Fact]
+        public void NotEnoughData()
         {
-            ctorCalled++;
-            throw new InvalidOperationException("Constructor Failed");
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(ParameterSpy).GetMethod("Method")),
+                                                      new object[] { 2 });
+
+            Assert.Throws<InvalidOperationException>(() => command.Execute(new ParameterSpy()));
         }
 
-        public void Dispose()
+        [Fact]
+        public void UsesDisplayName()
         {
-            disposeCalled++;
+            MethodInfo methodInfo = typeof(DummyWithAttributes).GetMethod("TheoryMethod");
+
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42, 24.5 });
+
+            Assert.Equal("My display name(x: 42, y: 24.5)", command.DisplayName);
         }
 
-        public void PassedTest()
+        [Fact]
+        public void DisplayNameWithTooManyValues()
         {
-            testCalled++;
-        }
-    }
+            MethodInfo methodInfo = typeof(DummyWithAttributes).GetMethod("TheoryMethod");
 
-    internal class DisposableSpyWithDisposeThrow : IDisposable
-    {
-        public static int ctorCalled;
-        public static int disposeCalled;
-        public static int testCalled;
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42, 24.5, "Hello!", 'c' });
 
-        public DisposableSpyWithDisposeThrow()
-        {
-            ctorCalled++;
+            Assert.Equal("My display name(x: 42, y: 24.5, ???: \"Hello!\", ???: 'c')", command.DisplayName);
         }
 
-        public void Dispose()
+        [Fact]
+        public void DisplayNameWithTooFewValues()
         {
-            disposeCalled++;
-            throw new InvalidOperationException("Dispose Failed");
+            MethodInfo methodInfo = typeof(DummyWithAttributes).GetMethod("TheoryMethod");
+
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42 });
+
+            Assert.Equal("My display name(x: 42, y: ???)", command.DisplayName);
         }
 
-        public void PassedTest()
+        [Fact]
+        public void PassesParametersToTest()
         {
-            testCalled++;
-        }
-    }
+            MethodInfo methodInfo = typeof(SpyWithDataPassed).GetMethod("Test");
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), new object[] { 42, 24.5, "foo" });
+            SpyWithDataPassed.X = 0;
+            SpyWithDataPassed.Y = 0.0;
+            SpyWithDataPassed.Z = null;
 
-    internal class DisposableSpyWithTestThrow : IDisposable
-    {
-        public static int ctorCalled;
-        public static int disposeCalled;
-        public static int testCalled;
+            command.Execute(new SpyWithDataPassed());
 
-        public DisposableSpyWithTestThrow()
-        {
-            ctorCalled++;
-        }
-
-        public void Dispose()
-        {
-            disposeCalled++;
+            Assert.Equal(42, SpyWithDataPassed.X);
+            Assert.Equal(24.5, SpyWithDataPassed.Y);
+            Assert.Equal("foo", SpyWithDataPassed.Z);
         }
 
-        public void FailedTest()
+        [Fact]
+        public void TestMethodReturnPassedResult()
         {
-            testCalled++;
-            throw new InvalidOperationException("Dispose Failed");
-        }
-    }
+            MethodInfo methodInfo = typeof(TestMethodCommandClass).GetMethod("TestMethod");
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), null);
 
-    internal class InstrumentedSpy
-    {
-        public static int ctorCounter;
-        public static int passedTestCounter;
+            MethodResult result = command.Execute(new TestMethodCommandClass());
 
-        public InstrumentedSpy()
-        {
-            ctorCounter++;
+            Assert.IsType<PassedResult>(result);
         }
 
-        public void PassedTest()
+        [Fact]
+        public void ThrowsExceptionReturnFailedResult()
         {
-            passedTestCounter++;
+            MethodInfo methodInfo = typeof(TestMethodCommandClass).GetMethod("ThrowsException");
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(methodInfo), null);
+
+            Assert.Throws<InvalidOperationException>(() => command.Execute(new TestMethodCommandClass()));
         }
-    }
 
-    internal class ParameterSpy
-    {
-        public void Method(int x, string y)
+        [Fact]
+        public void TooMuchData()
         {
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(ParameterSpy).GetMethod("Method")),
+                                                      new object[] { 2, "foo", 3.14 });
+
+            Assert.Throws<InvalidOperationException>(() => command.Execute(new ParameterSpy()));
         }
-    }
 
-    internal class SpyWithDataPassed
-    {
-        public static int X;
-        public static double Y;
-        public static string Z;
-
-        public void Test(int x, double y, string z)
+        [Fact]
+        public void TruncatesVeryLongStrings()
         {
-            X = x;
-            Y = y;
-            Z = z;
+            StringBuilder sb = new StringBuilder(500);
+
+            for (int idx = 0; idx < 50; idx++)
+                sb.Append("----=----|");
+
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(ParameterSpy).GetMethod("Method")),
+                                                      new object[] { 2, sb.ToString() });
+
+            MethodResult result = command.Execute(new ParameterSpy());
+
+            Assert.IsType<PassedResult>(result);
+            Assert.Equal(@"Xunit1.Extensions.TheoryCommandTests+ParameterSpy.Method(x: 2, y: ""----=----|----=----|----=----|----=----|----=----|""...)", result.DisplayName);
         }
-    }
 
-    internal class TestMethodCommandClass
-    {
-        public void TestMethod() { }
-
-        public void ThrowsException()
+        [Fact]
+        public void SettingTheoryTimeoutSetsTimeout()
         {
-            throw new InvalidOperationException();
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(DummyWithAttributes).GetMethod("TimeoutMethod")), null);
+
+            Assert.Equal(153, command.Timeout);
+        }
+
+        [Fact]
+        public void StringDataWithEmbeddedNullCreatesValidXml()  // CodePlex issue #9755
+        {
+            string expectedXml = @"<start name=""Xunit1.Extensions.TheoryCommandTests+DummyWithAttributes.StringMethod(s: &quot;\x0\xFFFF&quot;)"" type=""Xunit1.Extensions.TheoryCommandTests+DummyWithAttributes"" method=""StringMethod"" />";
+
+            TheoryCommand command = new TheoryCommand(Reflector.Wrap(typeof(DummyWithAttributes).GetMethod("StringMethod")), new object[] { "\0\xffff" });
+
+            Assert.Equal(expectedXml, command.ToStartXml().OuterXml);
+        }
+
+        internal class DummyWithAttributes
+        {
+            [Theory(DisplayName = "My display name")]
+            public void TheoryMethod(int x, double y) { }
+
+            [Theory(Timeout = 153)]
+            public void TimeoutMethod() { }
+
+            [Theory]
+            public void StringMethod(string s) { }
+        }
+
+        internal class DisposableSpy : IDisposable
+        {
+            public static int ctorCalled;
+            public static int disposeCalled;
+
+            public DisposableSpy()
+            {
+                ctorCalled++;
+            }
+
+            public void Dispose()
+            {
+                disposeCalled++;
+            }
+
+            public void PassedTest() { }
+        }
+
+        internal class DisposableSpyWithConstructorThrow : IDisposable
+        {
+            public static int ctorCalled;
+            public static int disposeCalled;
+            public static int testCalled;
+
+            public DisposableSpyWithConstructorThrow()
+            {
+                ctorCalled++;
+                throw new InvalidOperationException("Constructor Failed");
+            }
+
+            public void Dispose()
+            {
+                disposeCalled++;
+            }
+
+            public void PassedTest()
+            {
+                testCalled++;
+            }
+        }
+
+        internal class DisposableSpyWithDisposeThrow : IDisposable
+        {
+            public static int ctorCalled;
+            public static int disposeCalled;
+            public static int testCalled;
+
+            public DisposableSpyWithDisposeThrow()
+            {
+                ctorCalled++;
+            }
+
+            public void Dispose()
+            {
+                disposeCalled++;
+                throw new InvalidOperationException("Dispose Failed");
+            }
+
+            public void PassedTest()
+            {
+                testCalled++;
+            }
+        }
+
+        internal class DisposableSpyWithTestThrow : IDisposable
+        {
+            public static int ctorCalled;
+            public static int disposeCalled;
+            public static int testCalled;
+
+            public DisposableSpyWithTestThrow()
+            {
+                ctorCalled++;
+            }
+
+            public void Dispose()
+            {
+                disposeCalled++;
+            }
+
+            public void FailedTest()
+            {
+                testCalled++;
+                throw new InvalidOperationException("Dispose Failed");
+            }
+        }
+
+        internal class InstrumentedSpy
+        {
+            public static int ctorCounter;
+            public static int passedTestCounter;
+
+            public InstrumentedSpy()
+            {
+                ctorCounter++;
+            }
+
+            public void PassedTest()
+            {
+                passedTestCounter++;
+            }
+        }
+
+        internal class ParameterSpy
+        {
+            public void Method(int x, string y)
+            {
+            }
+        }
+
+        internal class SpyWithDataPassed
+        {
+            public static int X;
+            public static double Y;
+            public static string Z;
+
+            public void Test(int x, double y, string z)
+            {
+                X = x;
+                Y = y;
+                Z = z;
+            }
+        }
+
+        internal class TestMethodCommandClass
+        {
+            public void TestMethod() { }
+
+            public void ThrowsException()
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 }

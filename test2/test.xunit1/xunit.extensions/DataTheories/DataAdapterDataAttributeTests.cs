@@ -4,93 +4,96 @@ using System.Data;
 using Xunit;
 using Xunit.Extensions;
 
-public class DataAdapterDataAttributeTests
+namespace Xunit1.Extensions
 {
-    [Fact]
-    public void WillConvertDBNullToNull()
+    public class DataAdapterDataAttributeTests
     {
-        DataAdapterDataAttribute attr = new TestableDataAdapterDataAttribute(DBNull.Value);
+        [Fact]
+        public void WillConvertDBNullToNull()
+        {
+            DataAdapterDataAttribute attr = new TestableDataAdapterDataAttribute(DBNull.Value);
 
-        List<object[]> results = new List<object[]>(attr.GetData(null, new Type[] { typeof(object) }));
+            List<object[]> results = new List<object[]>(attr.GetData(null, new Type[] { typeof(object) }));
 
-        object[] result = Assert.Single(results);
-        object singleResult = Assert.Single(result);
-        Assert.Null(singleResult);
+            object[] result = Assert.Single(results);
+            object singleResult = Assert.Single(result);
+            Assert.Null(singleResult);
+        }
+
+        [Fact]
+        public void WillNotThrowWhenGivenInsufficientParameterTypeLength()
+        {
+            DataAdapterDataAttribute attr = new TestableDataAdapterDataAttribute(DBNull.Value);
+
+            Assert.DoesNotThrow(() => new List<object[]>(attr.GetData(null, new Type[0])));
+        }
     }
 
-    [Fact]
-    public void WillNotThrowWhenGivenInsufficientParameterTypeLength()
-    {
-        DataAdapterDataAttribute attr = new TestableDataAdapterDataAttribute(DBNull.Value);
-
-        Assert.DoesNotThrow(() => new List<object[]>(attr.GetData(null, new Type[0])));
-    }
-}
-
-class TestableDataAdapterDataAttribute : DataAdapterDataAttribute
-{
-    readonly object[] data;
-
-    public TestableDataAdapterDataAttribute(params object[] data)
-    {
-        this.data = data;
-    }
-
-    protected override IDataAdapter DataAdapter
-    {
-        get { return new InlineDataAdapter(data); }
-    }
-
-    class InlineDataAdapter : IDataAdapter
+    class TestableDataAdapterDataAttribute : DataAdapterDataAttribute
     {
         readonly object[] data;
 
-        public InlineDataAdapter(object[] data)
+        public TestableDataAdapterDataAttribute(params object[] data)
         {
             this.data = data;
         }
 
-        public DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType)
+        protected override IDataAdapter DataAdapter
         {
-            throw new NotImplementedException();
+            get { return new InlineDataAdapter(data); }
         }
 
-        public int Fill(DataSet dataSet)
+        class InlineDataAdapter : IDataAdapter
         {
-            DataTable table = dataSet.Tables.Add();
+            readonly object[] data;
 
-            foreach (object value in data)
-                table.Columns.Add(new DataColumn());
+            public InlineDataAdapter(object[] data)
+            {
+                this.data = data;
+            }
 
-            table.Rows.Add(data);
-            return 1;
-        }
+            public DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType)
+            {
+                throw new NotImplementedException();
+            }
 
-        public IDataParameter[] GetFillParameters()
-        {
-            throw new NotImplementedException();
-        }
+            public int Fill(DataSet dataSet)
+            {
+                DataTable table = dataSet.Tables.Add();
 
-        public int Update(DataSet dataSet)
-        {
-            throw new NotImplementedException();
-        }
+                foreach (object value in data)
+                    table.Columns.Add(new DataColumn());
 
-        public MissingMappingAction MissingMappingAction
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
+                table.Rows.Add(data);
+                return 1;
+            }
 
-        public MissingSchemaAction MissingSchemaAction
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
+            public IDataParameter[] GetFillParameters()
+            {
+                throw new NotImplementedException();
+            }
 
-        public ITableMappingCollection TableMappings
-        {
-            get { throw new NotImplementedException(); }
+            public int Update(DataSet dataSet)
+            {
+                throw new NotImplementedException();
+            }
+
+            public MissingMappingAction MissingMappingAction
+            {
+                get { throw new NotImplementedException(); }
+                set { throw new NotImplementedException(); }
+            }
+
+            public MissingSchemaAction MissingSchemaAction
+            {
+                get { throw new NotImplementedException(); }
+                set { throw new NotImplementedException(); }
+            }
+
+            public ITableMappingCollection TableMappings
+            {
+                get { throw new NotImplementedException(); }
+            }
         }
     }
 }

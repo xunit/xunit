@@ -6,151 +6,154 @@ using Moq;
 using Xunit;
 using Xunit.Sdk;
 
-public class ExecutorCallbackTests
+namespace Xunit1
 {
-    public class Notify
+    public class ExecutorCallbackTests
     {
-        [Fact]
-        public void IMessageSink()
+        public class Notify
         {
-            IMessage msg = null;
-            var handler = new Mock<IMessageSink>();
-            handler.Setup(h => h.SyncProcessMessage(It.IsAny<IMessage>()))
-                   .Callback<IMessage>(_msg => msg = _msg)
-                   .Returns((IMessage)null);
-            var callback = ExecutorCallback.Wrap(handler.Object);
+            [Fact]
+            public void IMessageSink()
+            {
+                IMessage msg = null;
+                var handler = new Mock<IMessageSink>();
+                handler.Setup(h => h.SyncProcessMessage(It.IsAny<IMessage>()))
+                       .Callback<IMessage>(_msg => msg = _msg)
+                       .Returns((IMessage)null);
+                var callback = ExecutorCallback.Wrap(handler.Object);
 
-            callback.Notify("This is the callback value");
+                callback.Notify("This is the callback value");
 
-            Assert.Equal("This is the callback value", msg.Properties["data"]);
+                Assert.Equal("This is the callback value", msg.Properties["data"]);
+            }
+
+            [Fact]
+            public void ICallbackEventHandler()
+            {
+                var handler = new Mock<ICallbackEventHandler>();
+                var callback = ExecutorCallback.Wrap(handler.Object);
+
+                callback.Notify("This is the callback value");
+
+                handler.Verify(h => h.RaiseCallbackEvent("This is the callback value"), Times.Once());
+            }
+
+            [Fact]
+            public void NullCallbackDoesNotThrow()
+            {
+                var callback = ExecutorCallback.Wrap(null);
+
+                Assert.DoesNotThrow(() => callback.Notify("This is the callback value"));
+            }
         }
 
-        [Fact]
-        public void ICallbackEventHandler()
+        public class ShouldContinue
         {
-            var handler = new Mock<ICallbackEventHandler>();
-            var callback = ExecutorCallback.Wrap(handler.Object);
+            [Fact]
+            public void IMessageSinkReturnsTrueByDefault()
+            {
+                var handler = new Mock<IMessageSink>();
+                var callback = ExecutorCallback.Wrap(handler.Object);
+                // Don't call Notify here
 
-            callback.Notify("This is the callback value");
+                var result = callback.ShouldContinue();
 
-            handler.Verify(h => h.RaiseCallbackEvent("This is the callback value"), Times.Once());
+                Assert.True(result);
+            }
+
+            [Fact]
+            public void IMessageSinkReturningTrue()
+            {
+                var values = new Hashtable { { "data", "true" } };
+                var message = new Mock<IMessage>();
+                message.Setup(m => m.Properties).Returns(values);
+                var handler = new Mock<IMessageSink>();
+                handler.Setup(h => h.SyncProcessMessage(It.IsAny<IMessage>()))
+                       .Returns(message.Object);
+                var callback = ExecutorCallback.Wrap(handler.Object);
+                // Have to call Notify() because that's how we discover the intended ShouldContinue value
+                callback.Notify(null);
+
+                var result = callback.ShouldContinue();
+
+                Assert.True(result);
+            }
+
+            [Fact]
+            public void IMessageSinkReturningFalse()
+            {
+                var values = new Hashtable { { "data", "false" } };
+                var message = new Mock<IMessage>();
+                message.Setup(m => m.Properties).Returns(values);
+                var handler = new Mock<IMessageSink>();
+                handler.Setup(h => h.SyncProcessMessage(It.IsAny<IMessage>()))
+                       .Returns(message.Object);
+                var callback = ExecutorCallback.Wrap(handler.Object);
+                // Have to call Notify() because that's how we discover the intended ShouldContinue value
+                callback.Notify(null);
+
+                var result = callback.ShouldContinue();
+
+                Assert.False(result);
+            }
+
+            [Fact]
+            public void ICallbackEventHandlerReturningTrue()
+            {
+                var handler = new Mock<ICallbackEventHandler>();
+                handler.Setup(h => h.GetCallbackResult()).Returns("true");
+                var callback = ExecutorCallback.Wrap(handler.Object);
+
+                var result = callback.ShouldContinue();
+
+                Assert.True(result);
+            }
+
+            [Fact]
+            public void ICallbackEventHandlerReturningFalse()
+            {
+                var handler = new Mock<ICallbackEventHandler>();
+                handler.Setup(h => h.GetCallbackResult()).Returns("false");
+                var callback = ExecutorCallback.Wrap(handler.Object);
+
+                var result = callback.ShouldContinue();
+
+                Assert.False(result);
+            }
+
+            [Fact]
+            public void ICallbackEventHandlerReturningNull()
+            {
+                var handler = new Mock<ICallbackEventHandler>();
+                var callback = ExecutorCallback.Wrap(handler.Object);
+
+                var result = callback.ShouldContinue();
+
+                Assert.True(result);
+            }
+
+            [Fact]
+            public void NullCallbackAlwaysReturnsTrue()
+            {
+                var callback = ExecutorCallback.Wrap(null);
+
+                var result = callback.ShouldContinue();
+
+                Assert.True(result);
+            }
         }
 
-        [Fact]
-        public void NullCallbackDoesNotThrow()
+        public class Wrap
         {
-            var callback = ExecutorCallback.Wrap(null);
+            [Fact]
+            public void UnsupportedCallbackTypeThrows()
+            {
+                ExecutorCallback wrapper = ExecutorCallback.Wrap(42);
 
-            Assert.DoesNotThrow(() => callback.Notify("This is the callback value"));
-        }
-    }
+                var ex = Record.Exception(() => wrapper.Notify("Notification"));
 
-    public class ShouldContinue
-    {
-        [Fact]
-        public void IMessageSinkReturnsTrueByDefault()
-        {
-            var handler = new Mock<IMessageSink>();
-            var callback = ExecutorCallback.Wrap(handler.Object);
-            // Don't call Notify here
-
-            var result = callback.ShouldContinue();
-
-            Assert.True(result);
-        }
-
-        [Fact]
-        public void IMessageSinkReturningTrue()
-        {
-            var values = new Hashtable { { "data", "true" } };
-            var message = new Mock<IMessage>();
-            message.Setup(m => m.Properties).Returns(values);
-            var handler = new Mock<IMessageSink>();
-            handler.Setup(h => h.SyncProcessMessage(It.IsAny<IMessage>()))
-                   .Returns(message.Object);
-            var callback = ExecutorCallback.Wrap(handler.Object);
-            // Have to call Notify() because that's how we discover the intended ShouldContinue value
-            callback.Notify(null);
-
-            var result = callback.ShouldContinue();
-
-            Assert.True(result);
-        }
-
-        [Fact]
-        public void IMessageSinkReturningFalse()
-        {
-            var values = new Hashtable { { "data", "false" } };
-            var message = new Mock<IMessage>();
-            message.Setup(m => m.Properties).Returns(values);
-            var handler = new Mock<IMessageSink>();
-            handler.Setup(h => h.SyncProcessMessage(It.IsAny<IMessage>()))
-                   .Returns(message.Object);
-            var callback = ExecutorCallback.Wrap(handler.Object);
-            // Have to call Notify() because that's how we discover the intended ShouldContinue value
-            callback.Notify(null);
-
-            var result = callback.ShouldContinue();
-
-            Assert.False(result);
-        }
-
-        [Fact]
-        public void ICallbackEventHandlerReturningTrue()
-        {
-            var handler = new Mock<ICallbackEventHandler>();
-            handler.Setup(h => h.GetCallbackResult()).Returns("true");
-            var callback = ExecutorCallback.Wrap(handler.Object);
-
-            var result = callback.ShouldContinue();
-
-            Assert.True(result);
-        }
-
-        [Fact]
-        public void ICallbackEventHandlerReturningFalse()
-        {
-            var handler = new Mock<ICallbackEventHandler>();
-            handler.Setup(h => h.GetCallbackResult()).Returns("false");
-            var callback = ExecutorCallback.Wrap(handler.Object);
-
-            var result = callback.ShouldContinue();
-
-            Assert.False(result);
-        }
-
-        [Fact]
-        public void ICallbackEventHandlerReturningNull()
-        {
-            var handler = new Mock<ICallbackEventHandler>();
-            var callback = ExecutorCallback.Wrap(handler.Object);
-
-            var result = callback.ShouldContinue();
-
-            Assert.True(result);
-        }
-
-        [Fact]
-        public void NullCallbackAlwaysReturnsTrue()
-        {
-            var callback = ExecutorCallback.Wrap(null);
-
-            var result = callback.ShouldContinue();
-
-            Assert.True(result);
-        }
-    }
-
-    public class Wrap
-    {
-        [Fact]
-        public void UnsupportedCallbackTypeThrows()
-        {
-            ExecutorCallback wrapper = ExecutorCallback.Wrap(42);
-
-            var ex = Record.Exception(() => wrapper.Notify("Notification"));
-
-            Assert.IsType<TargetException>(ex);
+                Assert.IsType<TargetException>(ex);
+            }
         }
     }
 }

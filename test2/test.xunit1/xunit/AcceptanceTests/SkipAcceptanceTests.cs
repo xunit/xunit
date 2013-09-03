@@ -4,27 +4,30 @@ using TestUtility;
 using Xunit;
 using Xunit.Sdk;
 
-public class SkipAcceptanceTests : AcceptanceTest
+namespace Xunit1
 {
-    [Fact]
-    public void TestClassIsNotInstantiatedForSkippedTests()
+    public class SkipAcceptanceTests : AcceptanceTest
     {
-        MethodResult result = RunClass(typeof(ClassUnderTest)).Single();
-
-        // If we ran the constructor, we would get a failure instead of a skip.
-        Assert.IsType<SkipResult>(result);
-    }
-
-    class ClassUnderTest
-    {
-        public ClassUnderTest()
+        [Fact]
+        public void TestClassIsNotInstantiatedForSkippedTests()
         {
-            throw new Exception("Should not reach me!");
+            MethodResult result = RunClass(typeof(ClassUnderTest)).Single();
+
+            // If we ran the constructor, we would get a failure instead of a skip.
+            Assert.IsType<SkipResult>(result);
         }
 
-        [Fact(Skip = "the reason")]
-        public void TestThatShouldBeSkipped()
+        class ClassUnderTest
         {
+            public ClassUnderTest()
+            {
+                throw new Exception("Should not reach me!");
+            }
+
+            [Fact(Skip = "the reason")]
+            public void TestThatShouldBeSkipped()
+            {
+            }
         }
     }
 }

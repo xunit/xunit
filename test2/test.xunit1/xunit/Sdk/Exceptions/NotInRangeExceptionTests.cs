@@ -1,17 +1,20 @@
 ﻿using Xunit;
 using Xunit.Sdk;
 
-public class NotInRangeExceptionTests
+namespace Xunit1
 {
-    [Fact]
-    public void SerializesCustomProperties()
+    public class NotInRangeExceptionTests
     {
-        var originalException = new NotInRangeException("Actual", "Low", "High");
+        [Fact]
+        public void SerializesCustomProperties()
+        {
+            var originalException = new NotInRangeException("Actual", "Low", "High");
 
-        var deserializedException = SerializationUtility.SerializeAndDeserialize(originalException);
+            var deserializedException = SerializationUtility.SerializeAndDeserialize(originalException);
 
-        Assert.Equal(originalException.Actual, deserializedException.Actual);
-        Assert.Equal(originalException.Low, deserializedException.Low);
-        Assert.Equal(originalException.High, deserializedException.High);
+            Assert.Equal(originalException.Actual, deserializedException.Actual);
+            Assert.Equal(originalException.Low, deserializedException.Low);
+            Assert.Equal(originalException.High, deserializedException.High);
+        }
     }
 }

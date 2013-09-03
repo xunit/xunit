@@ -3,45 +3,48 @@ using TestUtility;
 using Xunit;
 using Xunit.Sdk;
 
-public class FixtureDataAcceptanceTests : AcceptanceTest
+namespace Xunit1
 {
-    [Fact]
-    public void ClassWithFixtureAndSkippedFactDoesNotSetFixtureData()
+    public class FixtureDataAcceptanceTests : AcceptanceTest
     {
-        MethodResult result = RunClass(typeof(FixtureWithAllSkips)).Single();
-
-        // If it ran the fixture, then we would get a class failure
-        Assert.IsType<SkipResult>(result);
-    }
-
-    class FixtureWithAllSkips : IUseFixture<object>
-    {
-        public void SetFixture(object data)
+        [Fact]
+        public void ClassWithFixtureAndSkippedFactDoesNotSetFixtureData()
         {
-            Assert.True(false);
+            MethodResult result = RunClass(typeof(FixtureWithAllSkips)).Single();
+
+            // If it ran the fixture, then we would get a class failure
+            Assert.IsType<SkipResult>(result);
         }
 
-        [Fact(Skip = "Skip Me!")]
-        public void SkippedTest() { }
-    }
-
-    [Fact]
-    public void ClassWithFixtureAndStaticFactDoesNotSetFixtureData()
-    {
-        MethodResult result = RunClass(typeof(FixtureWithAllStatics)).Single();
-
-        // If it ran the fixture, then we would get a class failure
-        Assert.IsType<PassedResult>(result);
-    }
-
-    class FixtureWithAllStatics : IUseFixture<object>
-    {
-        public void SetFixture(object data)
+        class FixtureWithAllSkips : IUseFixture<object>
         {
-            Assert.True(false);
+            public void SetFixture(object data)
+            {
+                Assert.True(false);
+            }
+
+            [Fact(Skip = "Skip Me!")]
+            public void SkippedTest() { }
         }
 
         [Fact]
-        public static void StaticPassingTest() { }
+        public void ClassWithFixtureAndStaticFactDoesNotSetFixtureData()
+        {
+            MethodResult result = RunClass(typeof(FixtureWithAllStatics)).Single();
+
+            // If it ran the fixture, then we would get a class failure
+            Assert.IsType<PassedResult>(result);
+        }
+
+        class FixtureWithAllStatics : IUseFixture<object>
+        {
+            public void SetFixture(object data)
+            {
+                Assert.True(false);
+            }
+
+            [Fact]
+            public static void StaticPassingTest() { }
+        }
     }
 }

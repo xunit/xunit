@@ -7,145 +7,148 @@ using System.Xml;
 using Xunit;
 using Xunit.Sdk;
 
-public class ExceptionAndOutputCaptureCommandTests
+namespace Xunit1
 {
-    public class ExceptionTests
+    public class ExceptionAndOutputCaptureCommandTests
     {
-        [Fact]
-        public void ShouldWrapExceptionDetailsWhenExceptionIsThrown()
+        public class ExceptionTests
         {
-            ExceptionThrowingCommand innerCmd = new ExceptionThrowingCommand();
-            MethodInfo method = typeof(ExceptionThrowingCommand).GetMethod("Execute");
-            var command = new ExceptionAndOutputCaptureCommand(innerCmd, Reflector.Wrap(method));
+            [Fact]
+            public void ShouldWrapExceptionDetailsWhenExceptionIsThrown()
+            {
+                ExceptionThrowingCommand innerCmd = new ExceptionThrowingCommand();
+                MethodInfo method = typeof(ExceptionThrowingCommand).GetMethod("Execute");
+                var command = new ExceptionAndOutputCaptureCommand(innerCmd, Reflector.Wrap(method));
 
-            MethodResult result = command.Execute(null);
+                MethodResult result = command.Execute(null);
 
-            FailedResult failed = Assert.IsType<FailedResult>(result);
-            Assert.Equal(method.Name, failed.MethodName);
-            Assert.Equal(method.DeclaringType.FullName, failed.TypeName);
-            Assert.Equal(typeof(TargetInvocationException).FullName, failed.ExceptionType);
-            Assert.Contains("ExceptionThrowingCommand.Execute", failed.StackTrace);
+                FailedResult failed = Assert.IsType<FailedResult>(result);
+                Assert.Equal(method.Name, failed.MethodName);
+                Assert.Equal(method.DeclaringType.FullName, failed.TypeName);
+                Assert.Equal(typeof(TargetInvocationException).FullName, failed.ExceptionType);
+                Assert.Contains("ExceptionThrowingCommand.Execute", failed.StackTrace);
+            }
+
+            class ExceptionThrowingCommand : ITestCommand
+            {
+                public string DisplayName
+                {
+                    get { return null; }
+                }
+
+                public bool ShouldCreateInstance
+                {
+                    get { return true; }
+                }
+
+                public int Timeout
+                {
+                    get { return 0; }
+                }
+
+                public MethodResult Execute(object testClass)
+                {
+                    throw new TargetInvocationException(new Exception());
+                }
+
+                public XmlNode ToStartXml()
+                {
+                    return null;
+                }
+            }
         }
 
-        class ExceptionThrowingCommand : ITestCommand
+        public class OutputCaptureTests : IDisposable
         {
-            public string DisplayName
+            TraceListener[] oldListeners;
+
+            public OutputCaptureTests()
             {
-                get { return null; }
+                oldListeners = Trace.Listeners.OfType<TraceListener>().ToArray();
+                Trace.Listeners.Clear();
             }
 
-            public bool ShouldCreateInstance
+            public void Dispose()
             {
-                get { return true; }
+                Trace.Listeners.Clear();
+                Trace.Listeners.AddRange(oldListeners);
             }
 
-            public int Timeout
+            [Fact]
+            public void ConsoleOutAndErrorAreReplacedDuringTestExecution()
             {
-                get { return 0; }
+                TextWriter originalOut = Console.Out;
+                TextWriter originalError = Console.Error;
+
+                try
+                {
+                    TextWriter newOut = new StringWriter();
+                    TextWriter newError = new StringWriter();
+                    Console.SetOut(newOut);
+                    Console.SetError(newError);
+                    StubCommand cmd = new StubCommand();
+                    var outputCmd = new ExceptionAndOutputCaptureCommand(cmd, null);
+
+                    outputCmd.Execute(null);
+
+                    Assert.Empty(newOut.ToString());
+                    Assert.Empty(newError.ToString());
+                }
+                finally
+                {
+                    Console.SetOut(originalOut);
+                    Console.SetError(originalError);
+                }
             }
 
-            public MethodResult Execute(object testClass)
+            [Fact]
+            public void ConsoleOutAndErrorAndTraceIsCapturedAndPlacedInMethodResult()
             {
-                throw new TargetInvocationException(new Exception());
-            }
+                string expected = "Standard Output" + Environment.NewLine +
+                                  "Standard Error" + Environment.NewLine +
+                                  "Trace" + Environment.NewLine;
 
-            public XmlNode ToStartXml()
-            {
-                return null;
-            }
-        }
-    }
-
-    public class OutputCaptureTests : IDisposable
-    {
-        TraceListener[] oldListeners;
-
-        public OutputCaptureTests()
-        {
-            oldListeners = Trace.Listeners.OfType<TraceListener>().ToArray();
-            Trace.Listeners.Clear();
-        }
-
-        public void Dispose()
-        {
-            Trace.Listeners.Clear();
-            Trace.Listeners.AddRange(oldListeners);
-        }
-
-        [Fact]
-        public void ConsoleOutAndErrorAreReplacedDuringTestExecution()
-        {
-            TextWriter originalOut = Console.Out;
-            TextWriter originalError = Console.Error;
-
-            try
-            {
-                TextWriter newOut = new StringWriter();
-                TextWriter newError = new StringWriter();
-                Console.SetOut(newOut);
-                Console.SetError(newError);
                 StubCommand cmd = new StubCommand();
                 var outputCmd = new ExceptionAndOutputCaptureCommand(cmd, null);
 
-                outputCmd.Execute(null);
+                MethodResult result = outputCmd.Execute(null);
 
-                Assert.Empty(newOut.ToString());
-                Assert.Empty(newError.ToString());
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-                Console.SetError(originalError);
-            }
-        }
-
-        [Fact]
-        public void ConsoleOutAndErrorAndTraceIsCapturedAndPlacedInMethodResult()
-        {
-            string expected = "Standard Output" + Environment.NewLine +
-                              "Standard Error" + Environment.NewLine +
-                              "Trace" + Environment.NewLine;
-
-            StubCommand cmd = new StubCommand();
-            var outputCmd = new ExceptionAndOutputCaptureCommand(cmd, null);
-
-            MethodResult result = outputCmd.Execute(null);
-
-            Assert.Equal(expected, result.Output);
-        }
-
-        class StubCommand : ITestCommand
-        {
-            public object TestClass;
-
-            public string DisplayName
-            {
-                get { return null; }
+                Assert.Equal(expected, result.Output);
             }
 
-            public bool ShouldCreateInstance
+            class StubCommand : ITestCommand
             {
-                get { return true; }
-            }
+                public object TestClass;
 
-            public int Timeout
-            {
-                get { return 0; }
-            }
+                public string DisplayName
+                {
+                    get { return null; }
+                }
 
-            public MethodResult Execute(object testClass)
-            {
-                TestClass = testClass;
-                Console.WriteLine("Standard Output");
-                Console.Error.WriteLine("Standard Error");
-                Trace.WriteLine("Trace");
-                MethodInfo method = typeof(StubCommand).GetMethod("Execute");
-                return new PassedResult(Reflector.Wrap(method), null);
-            }
+                public bool ShouldCreateInstance
+                {
+                    get { return true; }
+                }
 
-            public XmlNode ToStartXml()
-            {
-                return null;
+                public int Timeout
+                {
+                    get { return 0; }
+                }
+
+                public MethodResult Execute(object testClass)
+                {
+                    TestClass = testClass;
+                    Console.WriteLine("Standard Output");
+                    Console.Error.WriteLine("Standard Error");
+                    Trace.WriteLine("Trace");
+                    MethodInfo method = typeof(StubCommand).GetMethod("Execute");
+                    return new PassedResult(Reflector.Wrap(method), null);
+                }
+
+                public XmlNode ToStartXml()
+                {
+                    return null;
+                }
             }
         }
     }

@@ -1,51 +1,53 @@
 ﻿using System;
 using System.Reflection;
-using Moq;
 using Xunit;
 using Xunit.Sdk;
 
-public class FactCommandTests
+namespace Xunit1
 {
-    [Fact]
-    public void ExecuteRunsTest()
+    public class FactCommandTests
     {
-        MethodInfo method = typeof(TestMethodCommandClass).GetMethod("TestMethod");
-        TestCommand command = new FactCommand(Reflector.Wrap(method));
-        TestMethodCommandClass.testCounter = 0;
-
-        command.Execute(new TestMethodCommandClass());
-
-        Assert.Equal(1, TestMethodCommandClass.testCounter);
-    }
-
-    [Fact]
-    public void TestMethodReturnPassedResult()
-    {
-        MethodInfo method = typeof(TestMethodCommandClass).GetMethod("TestMethod");
-        TestCommand command = new FactCommand(Reflector.Wrap(method));
-
-        MethodResult result = command.Execute(new TestMethodCommandClass());
-
-        Assert.IsType<PassedResult>(result);
-    }
-
-    internal class TestMethodCommandClass
-    {
-        public static int testCounter;
-
-        public void TestMethod()
+        [Fact]
+        public void ExecuteRunsTest()
         {
-            ++testCounter;
+            MethodInfo method = typeof(TestMethodCommandClass).GetMethod("TestMethod");
+            TestCommand command = new FactCommand(Reflector.Wrap(method));
+            TestMethodCommandClass.testCounter = 0;
+
+            command.Execute(new TestMethodCommandClass());
+
+            Assert.Equal(1, TestMethodCommandClass.testCounter);
         }
 
-        public void ThrowsException()
+        [Fact]
+        public void TestMethodReturnPassedResult()
         {
-            throw new InvalidOperationException();
+            MethodInfo method = typeof(TestMethodCommandClass).GetMethod("TestMethod");
+            TestCommand command = new FactCommand(Reflector.Wrap(method));
+
+            MethodResult result = command.Execute(new TestMethodCommandClass());
+
+            Assert.IsType<PassedResult>(result);
         }
 
-        public void ThrowsTargetInvocationException()
+        internal class TestMethodCommandClass
         {
-            throw new TargetInvocationException(null);
+            public static int testCounter;
+
+            public void TestMethod()
+            {
+                ++testCounter;
+            }
+
+            public void ThrowsException()
+            {
+                throw new InvalidOperationException();
+            }
+
+            public void ThrowsTargetInvocationException()
+            {
+                throw new TargetInvocationException(null);
+            }
         }
     }
 }

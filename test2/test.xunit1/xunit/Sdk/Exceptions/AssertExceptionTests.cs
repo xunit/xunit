@@ -4,23 +4,25 @@ using System.Runtime.Serialization;
 using Xunit;
 using Xunit.Sdk;
 
-public class AssertExceptionTests
+namespace Xunit1
 {
-    [Fact]
-    public void PreservesUserMessage()
+    public class AssertExceptionTests
     {
-        AssertException ex = new AssertException("UserMessage");
+        [Fact]
+        public void PreservesUserMessage()
+        {
+            AssertException ex = new AssertException("UserMessage");
 
-        Assert.Equal("UserMessage", ex.UserMessage);
-    }
+            Assert.Equal("UserMessage", ex.UserMessage);
+        }
 
-    [Fact]
-    public void UserMessageIsTheMessage()
-    {
-        AssertException ex = new AssertException("UserMessage");
+        [Fact]
+        public void UserMessageIsTheMessage()
+        {
+            AssertException ex = new AssertException("UserMessage");
 
-        Assert.Equal(ex.UserMessage, ex.Message);
-    }
+            Assert.Equal(ex.UserMessage, ex.Message);
+        }
 
 #if !DEBUG
     [Fact]
@@ -32,40 +34,41 @@ public class AssertExceptionTests
 
         Assert.Empty(stackTrace);  // Everything was filtered out in our exception
         Assert.Equal(2, ex.StackFrames.Count);
-        Assert.Contains("at AssertExceptionTests.<DeveloperCanChooseWhichStackFrameItemsToExclude>", ex.StackFrames[0]);
+        Assert.Contains("at Xunit1.AssertExceptionTests.<DeveloperCanChooseWhichStackFrameItemsToExclude>", ex.StackFrames[0]);
         Assert.Contains("at Xunit.Record.Exception", ex.StackFrames[1]);
     }
 #endif
 
-    class CustomException : AssertException
-    {
-        public List<string> StackFrames = new List<string>();
-
-        protected override bool ExcludeStackFrame(string stackFrame)
+        class CustomException : AssertException
         {
-            StackFrames.Add(stackFrame);
-            return true;
+            public List<string> StackFrames = new List<string>();
+
+            protected override bool ExcludeStackFrame(string stackFrame)
+            {
+                StackFrames.Add(stackFrame);
+                return true;
+            }
         }
-    }
 
-    [Fact]
-    public void SerializesCustomProperties()
-    {
-        var originalException = new TestableAssertException("User Message", "Stack Trace");
+        [Fact]
+        public void SerializesCustomProperties()
+        {
+            var originalException = new TestableAssertException("User Message", "Stack Trace");
 
-        var deserializedException = SerializationUtility.SerializeAndDeserialize(originalException);
+            var deserializedException = SerializationUtility.SerializeAndDeserialize(originalException);
 
-        Assert.Equal(originalException.StackTrace, deserializedException.StackTrace);
-        Assert.Equal(originalException.UserMessage, deserializedException.UserMessage);
-    }
+            Assert.Equal(originalException.StackTrace, deserializedException.StackTrace);
+            Assert.Equal(originalException.UserMessage, deserializedException.UserMessage);
+        }
 
-    [Serializable]
-    class TestableAssertException : AssertException
-    {
-        public TestableAssertException(string userMessage, string stackTrace)
-            : base(userMessage, stackTrace) { }
+        [Serializable]
+        class TestableAssertException : AssertException
+        {
+            public TestableAssertException(string userMessage, string stackTrace)
+                : base(userMessage, stackTrace) { }
 
-        protected TestableAssertException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
+            protected TestableAssertException(SerializationInfo info, StreamingContext context)
+                : base(info, context) { }
+        }
     }
 }
