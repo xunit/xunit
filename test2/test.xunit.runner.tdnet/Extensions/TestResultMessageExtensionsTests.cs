@@ -2,20 +2,18 @@
 using TestDriven.Framework;
 using Xunit;
 using Xunit.Runner.TdNet;
-using Xunit.Sdk;
 
 public class TestResultMessageExtensionsTests
 {
     [Fact]
     public void ConvertsDataFromXunitToTdNetFormat()
     {
-        var testCase = Mocks.TestCase<TestResultMessageExtensionsTests>("ConvertsDataFromXunitToTdNetFormat");
-        var message = new TestResultMessage(testCase, "Display Name", 123.45M);
+        var message = Mocks.TestResult<TestResultMessageExtensionsTests>("ConvertsDataFromXunitToTdNetFormat", "Display Name", 123.45M);
 
         var result = message.ToTdNetTestResult(TestState.Ignored);
 
-        Assert.Same(testCase.GetClass(), result.FixtureType);
-        Assert.Same(testCase.GetMethod(), result.Method);
+        Assert.Same(message.TestCase.GetClass(), result.FixtureType);
+        Assert.Same(message.TestCase.GetMethod(), result.Method);
         Assert.Equal("Display Name", result.Name);
         Assert.Equal(TimeSpan.FromTicks(1234500), result.TimeSpan);
         Assert.Equal(1, result.TotalTests);

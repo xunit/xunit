@@ -56,12 +56,88 @@
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\BaseMessages\TestCaseMessage.cs">
+      <Link>Frameworks\Messages\BaseMessages\TestCaseMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\BaseMessages\TestCollectionMessage.cs">
+      <Link>Frameworks\Messages\BaseMessages\TestCollectionMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\BaseMessages\TestMessage.cs">
+      <Link>Frameworks\Messages\BaseMessages\TestMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\BaseMessages\TestResultMessage.cs">
+      <Link>Frameworks\Messages\BaseMessages\TestResultMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\DiscoveryCompleteMessage.cs">
+      <Link>Frameworks\Messages\DiscoveryCompleteMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\ErrorMessage.cs">
+      <Link>Frameworks\Messages\ErrorMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestAssemblyFinished.cs">
+      <Link>Frameworks\Messages\TestAssemblyFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestAssemblyStarting.cs">
+      <Link>Frameworks\Messages\TestAssemblyStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestCaseDiscoveryMessage.cs">
+      <Link>Frameworks\Messages\TestCaseDiscoveryMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestCaseFinished.cs">
+      <Link>Frameworks\Messages\TestCaseFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestCaseStarting.cs">
+      <Link>Frameworks\Messages\TestCaseStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestClassFinished.cs">
+      <Link>Frameworks\Messages\TestClassFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestClassStarting.cs">
+      <Link>Frameworks\Messages\TestClassStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestCollectionFinished.cs">
+      <Link>Frameworks\Messages\TestCollectionFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestCollectionStarting.cs">
+      <Link>Frameworks\Messages\TestCollectionStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestFailed.cs">
+      <Link>Frameworks\Messages\TestFailed.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestFinished.cs">
+      <Link>Frameworks\Messages\TestFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestMethodFinished.cs">
+      <Link>Frameworks\Messages\TestMethodFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestMethodStarting.cs">
+      <Link>Frameworks\Messages\TestMethodStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestPassed.cs">
+      <Link>Frameworks\Messages\TestPassed.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestSkipped.cs">
+      <Link>Frameworks\Messages\TestSkipped.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\TestStarting.cs">
+      <Link>Frameworks\Messages\TestStarting.cs</Link>
+    </Compile>
     <Compile Include="Frameworks\AppDomainTestFramework.cs" />
     <Compile Include="Frameworks\NullSourceInformationProvider.cs" />
+    <Compile Include="Frameworks\v1\IXunit1Executor.cs" />
+    <Compile Include="Frameworks\v1\TestClassCallbackHandler.cs" />
+    <Compile Include="Frameworks\v1\RunSummary.cs" />
+    <Compile Include="Frameworks\v1\XmlNodeCallbackHandler.cs" />
+    <Compile Include="Frameworks\v1\Xunit1AssemblyInfo.cs" />
+    <Compile Include="Frameworks\v1\Xunit1Executor.cs" />
     <Compile Include="Frameworks\VisualStudioSourceInformationProvider.cs" />
     <Compile Include="Frameworks\IFrontController.cs" />
     <Compile Include="Frameworks\RemoteAppDomainManager.cs" />
-    <Compile Include="Frameworks\Xunit1.cs" />
+    <Compile Include="Frameworks\v1\Xunit1.cs" />
+    <Compile Include="Frameworks\v1\Xunit1ReflectionWrapper.cs" />
+    <Compile Include="Frameworks\v1\Xunit1TestCase.cs" />
+    <Compile Include="Frameworks\v1\Xunit1TestCollection.cs" />
+    <Compile Include="Frameworks\v1\XmlNodeExtensions.cs" />
     <Compile Include="Frameworks\XunitFrontController.cs" />
     <Compile Include="Frameworks\v2\Xunit2Discoverer.cs" />
     <Compile Include="Frameworks\v2\Xunit2.cs" />

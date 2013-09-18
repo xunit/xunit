@@ -34,6 +34,8 @@ namespace Xunit
 
             if (File.Exists(xunit2Path))
                 innerController = new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+            else if (File.Exists(xunit1Path))
+                innerController = new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
             else
                 throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit2.dll.", assemblyFileName);
         }

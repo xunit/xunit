@@ -9,7 +9,6 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.MSBuild;
-using Xunit.Sdk;
 
 public class xunitTests
 {
@@ -273,25 +272,6 @@ public class xunitTests
 
             Assert.Equal(xunit.DiscoveryTestCases, runTestCases);
         }
-
-        [Fact]
-        public void ErrorsDuringExecutionAreLogged()
-        {
-            var exception = new DivideByZeroException();
-            var xunit = new Testable_xunit { CreateFrontController_Exception = exception };
-            var messages = new List<string>();
-
-            xunit._ExecuteAssembly("assemblyFilename", "configFilename");
-
-            xunit.BuildEngine.Received().LogErrorEvent(Arg.Is<BuildErrorEventArgs>(beea => CaptureErrorMessage(beea, messages)));
-            Assert.Equal("System.DivideByZeroException: Attempted to divide by zero.", messages[0]);
-        }
-
-        private bool CaptureErrorMessage(BuildErrorEventArgs eventArgs, List<string> messages)
-        {
-            messages.Add(eventArgs.Message);
-            return true;
-        }
     }
 
     public class Testable_xunit : xunit
@@ -362,9 +342,26 @@ public class xunitTests
         private void ReturnDiscoveryMessages(IMessageSink sink)
         {
             foreach (var testCase in DiscoveryTestCases)
-                sink.OnMessage(new TestCaseDiscoveryMessage(testCase));
+                sink.OnMessage(new TestCaseDiscoveryMessage { TestCase = testCase });
 
-            sink.OnMessage(new DiscoveryCompleteMessage(new String[0]));
+            sink.OnMessage(new DiscoveryCompleteMessage());
+        }
+
+        class TestCaseDiscoveryMessage : ITestCaseDiscoveryMessage
+        {
+            public ITestCase TestCase { get; set; }
+
+            public ITestCollection TestCollection { get; set; }
+        }
+
+        class DiscoveryCompleteMessage : IDiscoveryCompleteMessage
+        {
+            public DiscoveryCompleteMessage()
+            {
+                Warnings = new string[0];
+            }
+
+            public IEnumerable<string> Warnings { get; set; }
         }
     }
 }

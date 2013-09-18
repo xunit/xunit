@@ -117,6 +117,16 @@ public static class Mocks
         return result;
     }
 
+    public static ITestResultMessage TestResult<TClassUnderTest>(string methodName, string displayName, decimal executionTime)
+    {
+        var testCase = Mocks.TestCase<TClassUnderTest>(methodName);
+        var result = Substitute.For<ITestResultMessage>();
+        result.TestCase.Returns(testCase);
+        result.TestDisplayName.Returns(displayName);
+        result.ExecutionTime.Returns(executionTime);
+        return result;
+    }
+
     public static IReflectionAttributeInfo TheoryAttribute(string displayName = null, string skip = null, int timeout = 0)
     {
         var result = Substitute.For<IReflectionAttributeInfo>();
