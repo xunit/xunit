@@ -63,8 +63,8 @@
     <Compile Include="Frameworks\RemoteAppDomainManager.cs" />
     <Compile Include="Frameworks\Xunit1.cs" />
     <Compile Include="Frameworks\XunitFrontController.cs" />
-    <Compile Include="Frameworks\Xunit2Discoverer.cs" />
-    <Compile Include="Frameworks\Xunit2.cs" />
+    <Compile Include="Frameworks\v2\Xunit2Discoverer.cs" />
+    <Compile Include="Frameworks\v2\Xunit2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\LongLivedMarshalByRefObject.cs" />
     <Compile Include="Utility\AssemblyHelper.cs" />
