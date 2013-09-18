@@ -21,7 +21,7 @@ namespace Xunit.Runner.MSBuild
             this.flowIdMapper = flowIdMapper;
         }
 
-        private void LogFinish(ITestResultMessage testResult)
+        void LogFinish(ITestResultMessage testResult)
         {
             Log.LogMessage(MessageImportance.High, "##teamcity[testFinished name='{0}' duration='{1}' flowId='{2}']",
                            TeamCityEscape(testResult.TestDisplayName),
@@ -109,7 +109,7 @@ namespace Xunit.Runner.MSBuild
                         .Replace("]", "|]");
         }
 
-        private string ToFlowId(string testCollectionName)
+        string ToFlowId(string testCollectionName)
         {
             return flowMappings.GetOrAdd(testCollectionName, flowIdMapper);
         }

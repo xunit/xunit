@@ -82,21 +82,40 @@ namespace Xunit.Runner.MSBuild
                     if (cancel)
                         break;
 
-                    string assemblyFileName = assembly.GetMetadata("FullPath");
-                    string configFileName = assembly.GetMetadata("ConfigFile");
-                    if (configFileName != null && configFileName.Length == 0)
-                        configFileName = null;
+                    try
+                    {
+                        string assemblyFileName = assembly.GetMetadata("FullPath");
+                        string configFileName = assembly.GetMetadata("ConfigFile");
+                        if (configFileName != null && configFileName.Length == 0)
+                            configFileName = null;
 
-                    var assemblyElement = CreateAssemblyXElement();
-                    var visitor = CreateVisitor(assemblyFileName, assemblyElement);
-                    ExecuteAssembly(assemblyFileName, configFileName, visitor);
-                    visitor.Finished.WaitOne();
+                        var assemblyElement = CreateAssemblyXElement();
+                        var visitor = CreateVisitor(assemblyFileName, assemblyElement);
+                        ExecuteAssembly(assemblyFileName, configFileName, visitor);
+                        visitor.Finished.WaitOne();
 
-                    if (visitor.Failed != 0)
-                        ExitCode = 1;
+                        if (visitor.Failed != 0)
+                            ExitCode = 1;
 
-                    if (assembliesElement != null)
-                        assembliesElement.Add(assemblyElement);
+                        if (assembliesElement != null)
+                            assembliesElement.Add(assemblyElement);
+                    }
+                    catch (Exception ex)
+                    {
+                        Exception e = ex;
+
+                        while (e != null)
+                        {
+                            Log.LogError(e.GetType().FullName + ": " + e.Message);
+
+                            foreach (string stackLine in e.StackTrace.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+                                Log.LogError(stackLine);
+
+                            e = e.InnerException;
+                        }
+
+                        ExitCode = -1;
+                    }
                 }
             }
 
@@ -122,35 +141,16 @@ namespace Xunit.Runner.MSBuild
 
         protected virtual void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
         {
-            try
+            Log.LogMessage(MessageImportance.High, "Test assembly: {0}", assemblyFilename);
+
+            using (var controller = CreateFrontController(assemblyFilename, configFileName))
             {
-                Log.LogMessage(MessageImportance.High, "Test assembly: {0}", assemblyFilename);
+                var discoveryVisitor = new TestDiscoveryVisitor();
+                controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
+                discoveryVisitor.Finished.WaitOne();
 
-                using (var controller = CreateFrontController(assemblyFilename, configFileName))
-                {
-                    var discoveryVisitor = new TestDiscoveryVisitor();
-                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
-                    discoveryVisitor.Finished.WaitOne();
-
-                    controller.Run(discoveryVisitor.TestCases, resultsVisitor);
-                    resultsVisitor.Finished.WaitOne();
-                }
-            }
-            catch (Exception ex)
-            {
-                Exception e = ex;
-
-                while (e != null)
-                {
-                    Log.LogError(e.GetType().FullName + ": " + e.Message);
-
-                    foreach (string stackLine in e.StackTrace.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
-                        Log.LogError(stackLine);
-
-                    e = e.InnerException;
-                }
-
-                ExitCode = -1;
+                controller.Run(discoveryVisitor.TestCases, resultsVisitor);
+                resultsVisitor.Finished.WaitOne();
             }
         }
 
