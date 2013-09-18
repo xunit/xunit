@@ -5,7 +5,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestFinished"/>.
     /// </summary>
-    public class TestFinished : TestMessage, ITestFinished
+    internal class TestFinished : TestMessage, ITestFinished
     {
         public TestFinished(ITestCase testCase, string testDisplayName, decimal executionTime)
             : base(testCase, testDisplayName)

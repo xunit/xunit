@@ -5,7 +5,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="IAfterTestFinished"/>.
     /// </summary>
-    public class AfterTestFinished : TestMessage, IAfterTestFinished
+    internal class AfterTestFinished : TestMessage, IAfterTestFinished
     {
         public AfterTestFinished(ITestCase testCase, string testDisplayName, string attributeName)
             : base(testCase, testDisplayName)

@@ -24,14 +24,14 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XUNIT2_DLL</DefineConstants>
     <DocumentationFile>bin\Debug\xunit2.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;XUNIT2_DLL</DefineConstants>
     <DocumentationFile>bin\Release\xunit2.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>

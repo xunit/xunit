@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    public class TestCollectionMessage : LongLivedMarshalByRefObject, ITestCollectionMessage
+    internal class TestCollectionMessage : LongLivedMarshalByRefObject, ITestCollectionMessage
     {
         public TestCollectionMessage(ITestCollection testCollection)
         {

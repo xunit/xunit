@@ -5,7 +5,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyFinished"/>.
     /// </summary>
-    public class TestAssemblyFinished : LongLivedMarshalByRefObject, ITestAssemblyFinished
+    internal class TestAssemblyFinished : LongLivedMarshalByRefObject, ITestAssemblyFinished
     {
         public TestAssemblyFinished(IAssemblyInfo assembly, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
         {

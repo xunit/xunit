@@ -6,7 +6,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="IErrorMessage"/>.
     /// </summary>
-    public class ErrorMessage : LongLivedMarshalByRefObject, IErrorMessage
+    internal class ErrorMessage : LongLivedMarshalByRefObject, IErrorMessage
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorMessage"/> class.
@@ -18,12 +18,14 @@ namespace Xunit.Sdk
             ExceptionType = exceptionType;
         }
 
+#if XUNIT2_DLL
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorMessage"/> class.
         /// </summary>
         /// <param name="ex">The exception that represents the error message.</param>
         public ErrorMessage(Exception ex)
             : this(ex.GetType().FullName, ExceptionUtility.GetMessage(ex), ExceptionUtility.GetStackTrace(ex)) { }
+#endif
 
         /// <inheritdoc/>
         public string ExceptionType { get; private set; }

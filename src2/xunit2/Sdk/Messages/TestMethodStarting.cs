@@ -5,7 +5,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestMethodStarting"/>.
     /// </summary>
-    public class TestMethodStarting : TestCollectionMessage, ITestMethodStarting
+    internal class TestMethodStarting : TestCollectionMessage, ITestMethodStarting
     {
         public TestMethodStarting(ITestCollection testCollection, string className, string methodName)
             : base(testCollection)

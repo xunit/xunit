@@ -5,7 +5,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="IBeforeTestStarting"/>.
     /// </summary>
-    public class BeforeTestStarting : TestMessage, IBeforeTestStarting
+    internal class BeforeTestStarting : TestMessage, IBeforeTestStarting
     {
         public BeforeTestStarting(ITestCase testCase, string testDisplayName, string attributeName)
             : base(testCase, testDisplayName)

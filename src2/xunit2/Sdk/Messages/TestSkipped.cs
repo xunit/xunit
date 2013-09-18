@@ -5,7 +5,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestSkipped"/>.
     /// </summary>
-    public class TestSkipped : TestResultMessage, ITestSkipped
+    internal class TestSkipped : TestResultMessage, ITestSkipped
     {
         public TestSkipped(ITestCase testCase, string testDisplayName, string reason)
             : base(testCase, testDisplayName, 0)

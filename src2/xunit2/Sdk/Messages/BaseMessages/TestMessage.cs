@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    public class TestMessage : TestCaseMessage, ITestMessage
+    internal class TestMessage : TestCaseMessage, ITestMessage
     {
         public TestMessage(ITestCase testCase, string testDisplayName)
             : base(testCase)

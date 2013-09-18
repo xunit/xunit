@@ -6,7 +6,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="IDiscoveryCompleteMessage"/>.
     /// </summary>
-    public class DiscoveryCompleteMessage : LongLivedMarshalByRefObject, IDiscoveryCompleteMessage
+    internal class DiscoveryCompleteMessage : LongLivedMarshalByRefObject, IDiscoveryCompleteMessage
     {
         public DiscoveryCompleteMessage(IEnumerable<string> warnings)
         {
