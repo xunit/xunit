@@ -45,7 +45,7 @@ namespace Xunit.Sdk
         public void Dispose() { }
 
         /// <inheritdoc/>
-        public async void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
+        public async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
             var cancelled = false;
             var totalSummary = new RunSummary();
@@ -60,11 +60,13 @@ namespace Xunit.Sdk
                                                                    String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version),
                                                                    XunitTestFrameworkDiscoverer.DisplayName)))
                 {
+                    // TODO: Contract for Run() states that null "testCases" means "run everything".
+
                     var tasks =
-                        testMethods.Cast<XunitTestCase>()
-                                   .GroupBy(tc => tc.TestCollection)
-                                   .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup)))
-                                   .ToArray();
+                        testCases.Cast<XunitTestCase>()
+                                 .GroupBy(tc => tc.TestCollection)
+                                 .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup)))
+                                 .ToArray();
 
                     var summaries = await Task.WhenAll(tasks);
                     totalSummary.Time = summaries.Sum(s => s.Time);
