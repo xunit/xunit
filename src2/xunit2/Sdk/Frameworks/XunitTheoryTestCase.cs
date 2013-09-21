@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -29,12 +30,13 @@ namespace Xunit.Sdk
         protected XunitTheoryTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         /// <inheritdoc />
-        protected override bool RunTestsOnMethod(IMessageSink messageSink,
+        protected override void RunTestsOnMethod(IMessageSink messageSink,
                                                  Type classUnderTest,
                                                  object[] constructorArguments,
                                                  MethodInfo methodUnderTest,
                                                  List<BeforeAfterTestAttribute> beforeAfterAttributes,
                                                  ExceptionAggregator aggregator,
+                                                 CancellationTokenSource cancellationTokenSource,
                                                  ref decimal executionTime)
         {
             try
@@ -50,28 +52,25 @@ namespace Xunit.Sdk
                     IDataDiscoverer discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
 
                     foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
-                        if (RunTestWithArguments(messageSink, classUnderTest, constructorArguments, methodUnderTest, dataRow, GetDisplayNameWithArguments(DisplayName, dataRow), beforeAfterAttributes, aggregator, ref executionTime))
-                            return true;
+                    {
+                        RunTestWithArguments(messageSink, classUnderTest, constructorArguments, methodUnderTest, dataRow, GetDisplayNameWithArguments(DisplayName, dataRow), beforeAfterAttributes, aggregator, cancellationTokenSource, ref executionTime);
+                        if (cancellationTokenSource.IsCancellationRequested)
+                            return;
+                    }
                 }
-
-                return false;
             }
             catch (Exception ex)
             {
-                var cancelled = false;
-
                 if (!messageSink.OnMessage(new TestStarting(this, DisplayName)))
-                    cancelled = true;
+                    cancellationTokenSource.Cancel();
                 else
                 {
                     if (!messageSink.OnMessage(new TestFailed(this, DisplayName, executionTime, ex.Unwrap())))
-                        cancelled = true;
+                        cancellationTokenSource.Cancel();
                 }
 
                 if (!messageSink.OnMessage(new TestFinished(this, DisplayName, executionTime)))
-                    cancelled = true;
-
-                return cancelled;
+                    cancellationTokenSource.Cancel();
             }
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
@@ -47,7 +48,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
-            var cancelled = false;
+            var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
 
             string currentDirectory = Directory.GetCurrentDirectory();
@@ -65,7 +66,7 @@ namespace Xunit.Sdk
                     var tasks =
                         testCases.Cast<XunitTestCase>()
                                  .GroupBy(tc => tc.TestCollection)
-                                 .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup)))
+                                 .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, cancellationTokenSource)))
                                  .ToArray();
 
                     var summaries = await Task.WhenAll(tasks);
@@ -83,9 +84,8 @@ namespace Xunit.Sdk
             }
         }
 
-        private RunSummary RunTestCollection(IMessageSink messageSink, ITestCollection collection, IEnumerable<XunitTestCase> testCases)
+        private RunSummary RunTestCollection(IMessageSink messageSink, ITestCollection collection, IEnumerable<XunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
         {
-            var cancelled = false;
             var collectionSummary = new RunSummary();
             var collectionFixtureMappings = new Dictionary<Type, object>();
             var aggregator = new ExceptionAggregator();
@@ -104,17 +104,17 @@ namespace Xunit.Sdk
                     var classSummary = new RunSummary();
 
                     if (!messageSink.OnMessage(new TestClassStarting(collection, testCasesByClass.Key.Name)))
-                        cancelled = true;
+                        cancellationTokenSource.Cancel();
                     else
                     {
-                        cancelled = RunTestClass(messageSink, collection, collectionFixtureMappings, (IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass, classSummary, aggregator);
+                        RunTestClass(messageSink, collection, collectionFixtureMappings, (IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass, classSummary, aggregator, cancellationTokenSource);
                         collectionSummary.Aggregate(classSummary);
                     }
 
                     if (!messageSink.OnMessage(new TestClassFinished(collection, testCasesByClass.Key.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
-                        cancelled = true;
+                        cancellationTokenSource.Cancel();
 
-                    if (cancelled)
+                    if (cancellationTokenSource.IsCancellationRequested)
                         break;
                 }
             }
@@ -128,7 +128,7 @@ namespace Xunit.Sdk
                 catch (Exception ex)
                 {
                     if (!messageSink.OnMessage(new ErrorMessage(ex.Unwrap())))
-                        cancelled = true;
+                        cancellationTokenSource.Cancel();
                 }
             }
 
@@ -136,15 +136,15 @@ namespace Xunit.Sdk
             return collectionSummary;
         }
 
-        private static bool RunTestClass(IMessageSink messageSink,
+        private static void RunTestClass(IMessageSink messageSink,
                                          ITestCollection collection,
                                          Dictionary<Type, object> collectionFixtureMappings,
                                          IReflectionTypeInfo testClass,
                                          IEnumerable<XunitTestCase> testCases,
                                          RunSummary classSummary,
-                                         ExceptionAggregator aggregator)
+                                         ExceptionAggregator aggregator,
+                                         CancellationTokenSource cancellationTokenSource)
         {
-            var cancelled = false;
             var testClassType = testClass.Type;
             var fixtureMappings = new Dictionary<Type, object>();
             var constructorArguments = new List<object>();
@@ -195,14 +195,14 @@ namespace Xunit.Sdk
             foreach (var method in methodGroups)
             {
                 if (!messageSink.OnMessage(new TestMethodStarting(collection, testClass.Name, method.Key.Name)))
-                    cancelled = true;
+                    cancellationTokenSource.Cancel();
                 else
-                    cancelled = RunTestMethod(messageSink, constructorArguments.ToArray(), method, classSummary, aggregator);
+                    RunTestMethod(messageSink, constructorArguments.ToArray(), method, classSummary, aggregator, cancellationTokenSource);
 
                 if (!messageSink.OnMessage(new TestMethodFinished(collection, testClass.Name, method.Key.Name)))
-                    cancelled = true;
+                    cancellationTokenSource.Cancel();
 
-                if (cancelled)
+                if (cancellationTokenSource.IsCancellationRequested)
                     break;
             }
 
@@ -215,27 +215,23 @@ namespace Xunit.Sdk
                 catch (Exception ex)
                 {
                     if (!messageSink.OnMessage(new ErrorMessage(ex.Unwrap())))
-                        cancelled = true;
+                        cancellationTokenSource.Cancel();
                 }
             }
-
-            return cancelled;
         }
 
-        private static bool RunTestMethod(IMessageSink messageSink, object[] constructorArguments, IEnumerable<XunitTestCase> testCases, RunSummary classSummary, ExceptionAggregator aggregator)
+        private static void RunTestMethod(IMessageSink messageSink,
+                                          object[] constructorArguments,
+                                          IEnumerable<XunitTestCase> testCases,
+                                          RunSummary classSummary,
+                                          ExceptionAggregator aggregator,
+                                          CancellationTokenSource cancellationTokenSource)
         {
-            bool cancelled = false;
-
             foreach (XunitTestCase testCase in testCases)
             {
                 var delegatingSink = new DelegatingMessageSink<ITestCaseFinished>(messageSink);
 
-                // REVIEW: testCase.Run() returning bool implies synchronous behavior, which will probably
-                // not be true once we start supporting parallelization. This could be achieved by always
-                // using a delegating sink (like above) and watching for cancellation there, then checking
-                // for the cancellation result in the delegating sink after work is finished.
-
-                cancelled = testCase.Run(delegatingSink, constructorArguments, aggregator);
+                testCase.Run(delegatingSink, constructorArguments, aggregator, cancellationTokenSource);
                 delegatingSink.Finished.WaitOne();
 
                 classSummary.Total += delegatingSink.FinalMessage.TestsRun;
@@ -243,11 +239,9 @@ namespace Xunit.Sdk
                 classSummary.Skipped += delegatingSink.FinalMessage.TestsSkipped;
                 classSummary.Time += delegatingSink.FinalMessage.ExecutionTime;
 
-                if (cancelled)
+                if (cancellationTokenSource.IsCancellationRequested)
                     break;
             }
-
-            return cancelled;
         }
 
         class RunSummary

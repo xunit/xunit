@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
@@ -1051,21 +1052,22 @@ public class XunitTestCaseTests
 
         public bool Run(IMessageSink messageSink)
         {
-            return Run(messageSink, new object[0], new ExceptionAggregator());
+            var cancellationTokenSource = new CancellationTokenSource();
+            Run(messageSink, new object[0], new ExceptionAggregator(), cancellationTokenSource);
+            return cancellationTokenSource.IsCancellationRequested;
         }
 
         public void RunTests()
         {
-            RunTests(sink, new object[0], new ExceptionAggregator());
+            RunTests(sink, new object[0], new ExceptionAggregator(), new CancellationTokenSource());
         }
 
-        protected override bool RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator)
+        protected override void RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             if (callback == null)
-                return base.RunTests(messageSink, constructorArguments, aggregator);
-
-            callback(messageSink);
-            return true;
+                base.RunTests(messageSink, constructorArguments, aggregator, cancellationTokenSource);
+            else
+                callback(messageSink);
         }
     }
 }

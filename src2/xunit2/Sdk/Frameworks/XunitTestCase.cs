@@ -272,18 +272,16 @@ namespace Xunit.Sdk
         /// <param name="messageSink">The message sink to report results to.</param>
         /// <param name="constructorArguments">The arguments to pass to the constructor.</param>
         /// <param name="aggregator">The error aggregator to use for catching exception.</param>
-        /// <returns>Returns <c>true</c> if the tests should continue to run; <c>false</c> otherwise.</returns>
-        // REVIEW: Returning bool from this method may be bad design, as it dictates a synchronous execution pattern.
-        public virtual bool Run(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator)
+        /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
+        public virtual void Run(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
-            bool cancelled = false;
             int totalFailed = 0;
             int totalRun = 0;
             int totalSkipped = 0;
             decimal executionTime = 0M;
 
             if (!messageSink.OnMessage(new TestCaseStarting(this)))
-                cancelled = true;
+                cancellationTokenSource.Cancel();
             else
             {
                 var delegatingSink = new DelegatingMessageSink(messageSink, msg =>
@@ -299,13 +297,11 @@ namespace Xunit.Sdk
                         totalSkipped++;
                 });
 
-                cancelled = RunTests(delegatingSink, constructorArguments, aggregator);
+                RunTests(delegatingSink, constructorArguments, aggregator, cancellationTokenSource);
             }
 
             if (!messageSink.OnMessage(new TestCaseFinished(this, executionTime, totalRun, totalFailed, totalSkipped)))
-                cancelled = true;
-
-            return cancelled;
+                cancellationTokenSource.Cancel();
         }
 
         /// <summary>
@@ -314,14 +310,15 @@ namespace Xunit.Sdk
         /// <param name="messageSink">The message sink to send results to.</param>
         /// <param name="constructorArguments">The arguments to pass to the constructor.</param>
         /// <param name="aggregator">The error aggregator to use for catching exception.</param>
-        protected virtual bool RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator)
+        /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
+        protected virtual void RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             var classUnderTest = GetRuntimeClass();
             var methodUnderTest = GetRuntimeMethod(classUnderTest);
             var beforeAfterAttributes = GetBeforeAfterAttributes(classUnderTest, methodUnderTest).ToList();
             decimal executionTime = 0M;
 
-            return RunTestsOnMethod(messageSink, classUnderTest, constructorArguments, methodUnderTest, beforeAfterAttributes, aggregator, ref executionTime);
+            RunTestsOnMethod(messageSink, classUnderTest, constructorArguments, methodUnderTest, beforeAfterAttributes, aggregator, cancellationTokenSource, ref executionTime);
         }
 
         /// <summary>
@@ -333,16 +330,18 @@ namespace Xunit.Sdk
         /// <param name="methodUnderTest">The method under test.</param>
         /// <param name="beforeAfterAttributes">The <see cref="BeforeAfterTestAttribute"/> instances attached to the test.</param>
         /// <param name="aggregator">The error aggregator to use for catching exception.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
         /// <param name="executionTime">The time spent executing the tests.</param>
-        protected virtual bool RunTestsOnMethod(IMessageSink messageSink,
+        protected virtual void RunTestsOnMethod(IMessageSink messageSink,
                                                 Type classUnderTest,
                                                 object[] constructorArguments,
                                                 MethodInfo methodUnderTest,
                                                 List<BeforeAfterTestAttribute> beforeAfterAttributes,
                                                 ExceptionAggregator aggregator,
+                                                CancellationTokenSource cancellationTokenSource,
                                                 ref decimal executionTime)
         {
-            return RunTestWithArguments(messageSink, classUnderTest, constructorArguments, methodUnderTest, Arguments, DisplayName, beforeAfterAttributes, aggregator, ref executionTime);
+            RunTestWithArguments(messageSink, classUnderTest, constructorArguments, methodUnderTest, Arguments, DisplayName, beforeAfterAttributes, aggregator, cancellationTokenSource, ref executionTime);
         }
 
         /// <summary>
@@ -356,8 +355,9 @@ namespace Xunit.Sdk
         /// <param name="displayName">The display name for the test.</param>
         /// <param name="beforeAfterAttributes">The <see cref="BeforeAfterTestAttribute"/> instances attached to the test.</param>
         /// <param name="parentAggregator">The parent aggregator that contains the exceptions up to this point.</param>
+        /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
         /// <param name="executionTime">The time spent executing the tests.</param>
-        protected bool RunTestWithArguments(IMessageSink messageSink,
+        protected void RunTestWithArguments(IMessageSink messageSink,
                                             Type classUnderTest,
                                             object[] constructorArguments,
                                             MethodInfo methodUnderTest,
@@ -365,19 +365,19 @@ namespace Xunit.Sdk
                                             string displayName,
                                             List<BeforeAfterTestAttribute> beforeAfterAttributes,
                                             ExceptionAggregator parentAggregator,
+                                            CancellationTokenSource cancellationTokenSource,
                                             ref decimal executionTime)
         {
-            bool cancelled = false;
             var aggregator = new ExceptionAggregator(parentAggregator);
 
             if (!messageSink.OnMessage(new TestStarting(this, displayName)))
-                cancelled = true;
+                cancellationTokenSource.Cancel();
             else
             {
                 if (!String.IsNullOrEmpty(SkipReason))
                 {
                     if (!messageSink.OnMessage(new TestSkipped(this, displayName, SkipReason)))
-                        cancelled = true;
+                        cancellationTokenSource.Cancel();
                 }
                 else
                 {
@@ -392,21 +392,21 @@ namespace Xunit.Sdk
                             if (!methodUnderTest.IsStatic)
                             {
                                 if (!messageSink.OnMessage(new TestClassConstructionStarting(this, displayName)))
-                                    cancelled = true;
+                                    cancellationTokenSource.Cancel();
 
                                 try
                                 {
-                                    if (!cancelled)
+                                    if (!cancellationTokenSource.IsCancellationRequested)
                                         testClass = Activator.CreateInstance(classUnderTest, constructorArguments);
                                 }
                                 finally
                                 {
                                     if (!messageSink.OnMessage(new TestClassConstructionFinished(this, displayName)))
-                                        cancelled = true;
+                                        cancellationTokenSource.Cancel();
                                 }
                             }
 
-                            if (!cancelled)
+                            if (!cancellationTokenSource.IsCancellationRequested)
                             {
                                 aggregator.Run(() =>
                                 {
@@ -414,7 +414,7 @@ namespace Xunit.Sdk
                                     {
                                         var attributeName = beforeAfterAttribute.GetType().Name;
                                         if (!messageSink.OnMessage(new BeforeTestStarting(this, displayName, attributeName)))
-                                            cancelled = true;
+                                            cancellationTokenSource.Cancel();
                                         else
                                         {
                                             try
@@ -425,15 +425,15 @@ namespace Xunit.Sdk
                                             finally
                                             {
                                                 if (!messageSink.OnMessage(new BeforeTestFinished(this, displayName, attributeName)))
-                                                    cancelled = true;
+                                                    cancellationTokenSource.Cancel();
                                             }
                                         }
 
-                                        if (cancelled)
+                                        if (cancellationTokenSource.IsCancellationRequested)
                                             return;
                                     }
 
-                                    if (!cancelled)
+                                    if (!cancellationTokenSource.IsCancellationRequested)
                                     {
                                         var parameterTypes = methodUnderTest.GetParameters().Select(p => p.ParameterType).ToArray();
                                         var oldSyncContext = SynchronizationContext.Current;
@@ -468,12 +468,12 @@ namespace Xunit.Sdk
                                 {
                                     var attributeName = beforeAfterAttribute.GetType().Name;
                                     if (!messageSink.OnMessage(new AfterTestStarting(this, displayName, attributeName)))
-                                        cancelled = true;
+                                        cancellationTokenSource.Cancel();
 
                                     aggregator.Run(() => beforeAfterAttribute.After(methodUnderTest));
 
                                     if (!messageSink.OnMessage(new AfterTestFinished(this, displayName, attributeName)))
-                                        cancelled = true;
+                                        cancellationTokenSource.Cancel();
                                 }
                             }
 
@@ -483,7 +483,7 @@ namespace Xunit.Sdk
                                 if (disposable != null)
                                 {
                                     if (!messageSink.OnMessage(new TestClassDisposeStarting(this, displayName)))
-                                        cancelled = true;
+                                        cancellationTokenSource.Cancel();
 
                                     try
                                     {
@@ -492,7 +492,7 @@ namespace Xunit.Sdk
                                     finally
                                     {
                                         if (!messageSink.OnMessage(new TestClassDisposeFinished(this, displayName)))
-                                            cancelled = true;
+                                            cancellationTokenSource.Cancel();
                                     }
                                 }
                             });
@@ -500,22 +500,20 @@ namespace Xunit.Sdk
 
                     stopwatch.Stop();
 
-                    if (!cancelled)
+                    if (!cancellationTokenSource.IsCancellationRequested)
                     {
                         executionTime = (decimal)stopwatch.Elapsed.TotalSeconds;
 
                         var exception = aggregator.ToException();
                         var testResult = exception == null ? (TestResultMessage)new TestPassed(this, displayName, executionTime) : new TestFailed(this, displayName, executionTime, exception);
                         if (!messageSink.OnMessage(testResult))
-                            cancelled = true;
+                            cancellationTokenSource.Cancel();
                     }
                 }
             }
 
             if (!messageSink.OnMessage(new TestFinished(this, displayName, executionTime)))
-                cancelled = true;
-
-            return cancelled;
+                cancellationTokenSource.Cancel();
         }
 
         [SecuritySafeCritical]

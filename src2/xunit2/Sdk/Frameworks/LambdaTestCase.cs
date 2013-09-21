@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -31,12 +32,10 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override bool RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator)
+        protected override void RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
-            bool cancelled = false;
-
             if (!messageSink.OnMessage(new TestStarting(this, DisplayName)))
-                cancelled = true;
+                cancellationTokenSource.Cancel();
             else
             {
                 try
@@ -44,19 +43,17 @@ namespace Xunit.Sdk
                     lambda();
 
                     if (!messageSink.OnMessage(new TestPassed(this, DisplayName, 0)))
-                        cancelled = true;
+                        cancellationTokenSource.Cancel();
                 }
                 catch (Exception ex)
                 {
                     if (!messageSink.OnMessage(new TestFailed(this, DisplayName, 0, ex)))
-                        cancelled = true;
+                        cancellationTokenSource.Cancel();
                 }
             }
 
             if (!messageSink.OnMessage(new TestFinished(this, DisplayName, 0)))
-                cancelled = true;
-
-            return cancelled;
+                cancellationTokenSource.Cancel();
         }
     }
 }
