@@ -42,14 +42,14 @@ namespace Xunit
             TestClassResults.Total = Int32.Parse(xml.Attributes["total"].Value);
             TestClassResults.Failed = Int32.Parse(xml.Attributes["failed"].Value);
             TestClassResults.Skipped = Int32.Parse(xml.Attributes["skipped"].Value);
-            return true;
+            return TestClassResults.Continue;
         }
 
         bool OnStart(XmlNode xml)
         {
             var testCase = FindTestCase(xml.Attributes["type"].Value, xml.Attributes["method"].Value);
             SendTestCaseMessagesWhenAppropriate(testCase);
-            return messageSink.OnMessage(new TestStarting(testCase, xml.Attributes["name"].Value));
+            return messageSink.OnMessage(new TestStarting(testCase, xml.Attributes["name"].Value)) && TestClassResults.Continue;
         }
 
         bool OnTest(XmlNode xml)
@@ -89,7 +89,7 @@ namespace Xunit
                 @continue = messageSink.OnMessage(resultMessage) && @continue;
 
             @continue = messageSink.OnMessage(new TestFinished(testCase, displayName, time)) && @continue;
-            return @continue;
+            return @continue && TestClassResults.Continue;
         }
 
         protected override bool OnXmlNode(XmlNode xml)

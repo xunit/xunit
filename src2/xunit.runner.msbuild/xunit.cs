@@ -1,16 +1,20 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using Xunit.Abstractions;
 
 namespace Xunit.Runner.MSBuild
 {
     public class xunit : Task, ICancelableTask
     {
-        bool cancel;
+        volatile bool cancel;
+        ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
 
         public xunit()
         {
@@ -30,6 +34,8 @@ namespace Xunit.Runner.MSBuild
         {
             get { return Xml != null || XmlV1 != null || Html != null; }
         }
+
+        public bool ParallelizeAssemblies { get; set; }
 
         public bool ShadowCopy { get; set; }
 
@@ -58,7 +64,7 @@ namespace Xunit.Runner.MSBuild
             if (TeamCity)
                 return new TeamCityVisitor(Log, assemblyElement, () => cancel);
 
-            return new StandardOutputVisitor(Log, assemblyElement, Verbose, () => cancel);
+            return new StandardOutputVisitor(Log, assemblyElement, Verbose, () => cancel, completionMessages);
         }
 
         public override bool Execute()
@@ -77,45 +83,38 @@ namespace Xunit.Runner.MSBuild
 
                 Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0})", environment);
 
-                foreach (ITaskItem assembly in Assemblies)
+                if (ParallelizeAssemblies)
                 {
-                    if (cancel)
-                        break;
-
-                    try
+                    var tasks = Assemblies.Select(assembly => System.Threading.Tasks.Task.Run(() => RunAssembly(assembly)));
+                    var results = System.Threading.Tasks.Task.WhenAll(tasks).GetAwaiter().GetResult();
+                    foreach (var assemblyElement in results.Where(result => result != null))
+                        assembliesElement.Add(assemblyElement);
+                }
+                else
+                {
+                    foreach (ITaskItem assembly in Assemblies)
                     {
-                        string assemblyFileName = assembly.GetMetadata("FullPath");
-                        string configFileName = assembly.GetMetadata("ConfigFile");
-                        if (configFileName != null && configFileName.Length == 0)
-                            configFileName = null;
-
-                        var assemblyElement = CreateAssemblyXElement();
-                        var visitor = CreateVisitor(assemblyFileName, assemblyElement);
-                        ExecuteAssembly(assemblyFileName, configFileName, visitor);
-                        visitor.Finished.WaitOne();
-
-                        if (visitor.Failed != 0)
-                            ExitCode = 1;
-
-                        if (assembliesElement != null)
+                        var assemblyElement = RunAssembly(assembly);
+                        if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
-                    catch (Exception ex)
-                    {
-                        Exception e = ex;
+                }
 
-                        while (e != null)
-                        {
-                            Log.LogError(e.GetType().FullName + ": " + e.Message);
+                if (completionMessages.Count > 0)
+                {
+                    Log.LogMessage(MessageImportance.High, "Execution summary:");
+                    int longestAssemblyName = completionMessages.Keys.Max(key => key.Length);
+                    int longestTotal = completionMessages.Values.Max(summary => summary.Total.ToString().Length);
+                    int longestFailed = completionMessages.Values.Max(summary => summary.Failed.ToString().Length);
+                    int longestSkipped = completionMessages.Values.Max(summary => summary.Skipped.ToString().Length);
 
-                            foreach (string stackLine in e.StackTrace.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
-                                Log.LogError(stackLine);
-
-                            e = e.InnerException;
-                        }
-
-                        ExitCode = -1;
-                    }
+                    foreach (var message in completionMessages)
+                        Log.LogMessage(MessageImportance.High,
+                                       "  {0}  Total: {1}, Failed: {2}, Skipped: {3}",
+                                       message.Key.PadRight(longestAssemblyName, ' '),
+                                       message.Value.Total.ToString().PadLeft(longestTotal),
+                                       message.Value.Failed.ToString().PadLeft(longestFailed),
+                                       message.Value.Skipped.ToString().PadLeft(longestSkipped));
                 }
             }
 
@@ -134,6 +133,47 @@ namespace Xunit.Runner.MSBuild
             return ExitCode == 0;
         }
 
+        private XElement RunAssembly(ITaskItem assembly)
+        {
+            if (cancel)
+                return null;
+
+            var assemblyElement = CreateAssemblyXElement();
+
+            try
+            {
+                string assemblyFileName = assembly.GetMetadata("FullPath");
+                string configFileName = assembly.GetMetadata("ConfigFile");
+                if (configFileName != null && configFileName.Length == 0)
+                    configFileName = null;
+
+                var visitor = CreateVisitor(assemblyFileName, assemblyElement);
+                ExecuteAssembly(assemblyFileName, configFileName, visitor);
+                visitor.Finished.WaitOne();
+
+                if (visitor.Failed != 0)
+                    ExitCode = 1;
+            }
+            catch (Exception ex)
+            {
+                Exception e = ex;
+
+                while (e != null)
+                {
+                    Log.LogError(e.GetType().FullName + ": " + e.Message);
+
+                    foreach (string stackLine in e.StackTrace.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+                        Log.LogError(stackLine);
+
+                    e = e.InnerException;
+                }
+
+                ExitCode = -1;
+            }
+
+            return assemblyElement;
+        }
+
         XElement CreateAssemblyXElement()
         {
             return NeedsXml ? new XElement("assembly") : null;
@@ -141,8 +181,6 @@ namespace Xunit.Runner.MSBuild
 
         protected virtual void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
         {
-            Log.LogMessage(MessageImportance.High, "Test assembly: {0}", assemblyFilename);
-
             using (var controller = CreateFrontController(assemblyFilename, configFileName))
             {
                 var discoveryVisitor = new TestDiscoveryVisitor();

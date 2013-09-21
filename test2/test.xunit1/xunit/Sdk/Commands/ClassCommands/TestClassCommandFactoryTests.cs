@@ -109,7 +109,7 @@ namespace Xunit1
                 CtorThreadId = Thread.CurrentThread.ManagedThreadId;
             }
 
-            [Fact(Timeout = 1000)]
+            [Fact]
             public void TestMethod()
             {
                 TestThreadId = Thread.CurrentThread.ManagedThreadId;

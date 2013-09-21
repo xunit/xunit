@@ -18,7 +18,7 @@ public class StandardOutputVisitorTests
             var logger = SpyLogger.Create();
             var visitor = new StandardOutputVisitor(logger, null, false, null);
 
-            var result = visitor.OnMessage(errorMessage);
+            visitor.OnMessage(errorMessage);
 
             Assert.Collection(logger.Messages,
                 msg => Assert.Equal("ERROR: ExceptionType: This is my message \\t\\r\\n", msg),
@@ -31,6 +31,8 @@ public class StandardOutputVisitorTests
         [Fact]
         public void LogsMessageWithStatitics()
         {
+            var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
+            assemblyStarting.AssemblyFileName.Returns(@"C:\Assembly\File.dll");
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             assemblyFinished.TestsRun.Returns(2112);
             assemblyFinished.TestsFailed.Returns(42);
@@ -40,9 +42,11 @@ public class StandardOutputVisitorTests
             var logger = SpyLogger.Create();
             var visitor = new StandardOutputVisitor(logger, null, false, null);
 
+            visitor.OnMessage(assemblyStarting);
             visitor.OnMessage(assemblyFinished);
 
-            Assert.Single(logger.Messages, "MESSAGE[High]:   Tests: 2112, Failures: 42, Skipped: 6, Time: 123.457 seconds");
+            Assert.Single(logger.Messages, "MESSAGE[High]:   Started: File.dll");
+            Assert.Single(logger.Messages, "MESSAGE[High]:   Finished: File.dll");
         }
     }
 

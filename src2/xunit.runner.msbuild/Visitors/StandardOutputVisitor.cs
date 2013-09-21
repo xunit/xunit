@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.IO;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -8,12 +10,28 @@ namespace Xunit.Runner.MSBuild
 {
     public class StandardOutputVisitor : MSBuildVisitor
     {
+        private readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
         private readonly bool verbose;
 
-        public StandardOutputVisitor(TaskLoggingHelper log, XElement assemblyElement, bool verbose, Func<bool> cancelThunk)
+        private string assemblyFileName;
+
+        public StandardOutputVisitor(TaskLoggingHelper log,
+                                     XElement assemblyElement,
+                                     bool verbose,
+                                     Func<bool> cancelThunk,
+                                     ConcurrentDictionary<string, ExecutionSummary> completionMessages = null)
             : base(log, assemblyElement, cancelThunk)
         {
+            this.completionMessages = completionMessages;
             this.verbose = verbose;
+        }
+
+        protected override bool Visit(ITestAssemblyStarting assemblyStarting)
+        {
+            assemblyFileName = Path.GetFileName(assemblyStarting.AssemblyFileName);
+            Log.LogMessage(MessageImportance.High, "  Started: {0}", assemblyFileName);
+
+            return base.Visit(assemblyStarting);
         }
 
         protected override bool Visit(ITestAssemblyFinished assemblyFinished)
@@ -21,12 +39,16 @@ namespace Xunit.Runner.MSBuild
             // Base class does computation of results, so call it first.
             var result = base.Visit(assemblyFinished);
 
-            Log.LogMessage(MessageImportance.High,
-                           "  Tests: {0}, Failures: {1}, Skipped: {2}, Time: {3} seconds",
-                           assemblyFinished.TestsRun,
-                           assemblyFinished.TestsFailed,
-                           assemblyFinished.TestsSkipped,
-                           assemblyFinished.ExecutionTime.ToString("0.000"));
+            Log.LogMessage(MessageImportance.High, "  Finished: {0}", assemblyFileName);
+
+            if (completionMessages != null)
+                completionMessages.TryAdd(assemblyFileName, new ExecutionSummary
+                {
+                    Total = assemblyFinished.TestsRun,
+                    Failed = assemblyFinished.TestsFailed,
+                    Skipped = assemblyFinished.TestsSkipped,
+                    Time = assemblyFinished.ExecutionTime
+                });
 
             return result;
         }

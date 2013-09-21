@@ -220,23 +220,6 @@ public class xunitTests
     public class ExecuteAssembly
     {
         [Fact]
-        public void LogsAssemblyMessage()
-        {
-            var xunit = new Testable_xunit();
-
-            xunit._ExecuteAssembly("assemblyFilename", "configFilename");
-
-            xunit.BuildEngine.Received().LogMessageEvent(Arg.Is<BuildMessageEventArgs>(bmea => ValidateAssemblyBanner(bmea)));
-        }
-
-        private bool ValidateAssemblyBanner(BuildMessageEventArgs eventArgs)
-        {
-            Assert.Equal("Test assembly: assemblyFilename", eventArgs.Message);
-            Assert.Equal(MessageImportance.High, eventArgs.Importance);
-            return true;
-        }
-
-        [Fact]
         public void DisposesOfFrontController()
         {
             var xunit = new Testable_xunit();
