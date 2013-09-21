@@ -129,18 +129,6 @@ public class xunitTests
         }
 
         [Fact]
-        public void StopsExecutingAssemblyWhenCanceled()
-        {
-            var assembly = new TaskItem(@"C:\Full\Path\1");
-            var xunit = new Testable_xunit { Assemblies = new ITaskItem[] { assembly } };
-            xunit.Cancel();
-
-            xunit.Execute();
-
-            Assert.Empty(xunit.ExecuteAssembly_Calls);
-        }
-
-        [Fact]
         public void WritesXmlToDisk()
         {
             var tempFile = Path.GetTempFileName();
@@ -312,14 +300,14 @@ public class xunitTests
 
         public void _ExecuteAssembly(string assemblyFilename, string configFileName)
         {
-            base.ExecuteAssembly(assemblyFilename, configFileName, new MSBuildVisitor(null, null, null));
+            base.ExecuteAssembly(assemblyFilename, configFileName);
         }
 
-        protected override void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
+        protected override XElement ExecuteAssembly(string assemblyFilename, string configFileName)
         {
             ExecuteAssembly_Calls.Add(String.Format("{0}, {1}", assemblyFilename ?? "(null)", configFileName ?? "(null)"));
 
-            base.ExecuteAssembly(assemblyFilename, configFileName, new MSBuildVisitor(null, null, null));
+            return base.ExecuteAssembly(assemblyFilename, configFileName);
         }
 
         private void ReturnDiscoveryMessages(IMessageSink sink)

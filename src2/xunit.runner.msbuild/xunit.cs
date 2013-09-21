@@ -2,16 +2,16 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
-using Xunit.Abstractions;
+using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.Runner.MSBuild
 {
-    public class xunit : Task, ICancelableTask
+    public class xunit : MSBuildTask, ICancelableTask
     {
         volatile bool cancel;
         ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
@@ -78,23 +78,33 @@ namespace Xunit.Runner.MSBuild
 
             using (AssemblyHelper.SubscribeResolve())
             {
+                Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0})", environment);
+
+                var testAssemblyPaths = Assemblies.Select(assembly =>
+                {
+                    string assemblyFileName = assembly.GetMetadata("FullPath");
+                    string configFileName = assembly.GetMetadata("ConfigFile");
+                    if (configFileName != null && configFileName.Length == 0)
+                        configFileName = null;
+
+                    return Tuple.Create(assemblyFileName, configFileName);
+                }).ToList();
+
                 if (WorkingFolder != null)
                     Directory.SetCurrentDirectory(WorkingFolder);
 
-                Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0})", environment);
-
                 if (ParallelizeAssemblies)
                 {
-                    var tasks = Assemblies.Select(assembly => System.Threading.Tasks.Task.Run(() => RunAssembly(assembly)));
-                    var results = System.Threading.Tasks.Task.WhenAll(tasks).GetAwaiter().GetResult();
+                    var tasks = testAssemblyPaths.Select(path => Task.Run(() => ExecuteAssembly(path.Item1, path.Item2)));
+                    var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
                 }
                 else
                 {
-                    foreach (ITaskItem assembly in Assemblies)
+                    foreach (var path in testAssemblyPaths)
                     {
-                        var assemblyElement = RunAssembly(assembly);
+                        var assemblyElement = ExecuteAssembly(path.Item1, path.Item2);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -102,7 +112,7 @@ namespace Xunit.Runner.MSBuild
 
                 if (completionMessages.Count > 0)
                 {
-                    Log.LogMessage(MessageImportance.High, "Execution summary:");
+                    Log.LogMessage(MessageImportance.High, "=== TEST EXECUTION SUMMARY ===");
                     int longestAssemblyName = completionMessages.Keys.Max(key => key.Length);
                     int longestTotal = completionMessages.Values.Max(summary => summary.Total.ToString().Length);
                     int longestFailed = completionMessages.Values.Max(summary => summary.Failed.ToString().Length);
@@ -111,7 +121,7 @@ namespace Xunit.Runner.MSBuild
                     foreach (var message in completionMessages)
                         Log.LogMessage(MessageImportance.High,
                                        "  {0}  Total: {1}, Failed: {2}, Skipped: {3}",
-                                       message.Key.PadRight(longestAssemblyName, ' '),
+                                       message.Key.PadRight(longestAssemblyName),
                                        message.Value.Total.ToString().PadLeft(longestTotal),
                                        message.Value.Failed.ToString().PadLeft(longestFailed),
                                        message.Value.Skipped.ToString().PadLeft(longestSkipped));
@@ -133,7 +143,12 @@ namespace Xunit.Runner.MSBuild
             return ExitCode == 0;
         }
 
-        private XElement RunAssembly(ITaskItem assembly)
+        XElement CreateAssemblyXElement()
+        {
+            return NeedsXml ? new XElement("assembly") : null;
+        }
+
+        protected virtual XElement ExecuteAssembly(string assemblyFileName, string configFileName)
         {
             if (cancel)
                 return null;
@@ -142,17 +157,20 @@ namespace Xunit.Runner.MSBuild
 
             try
             {
-                string assemblyFileName = assembly.GetMetadata("FullPath");
-                string configFileName = assembly.GetMetadata("ConfigFile");
-                if (configFileName != null && configFileName.Length == 0)
-                    configFileName = null;
+                using (var controller = CreateFrontController(assemblyFileName, configFileName))
+                {
+                    var discoveryVisitor = new TestDiscoveryVisitor();
+                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
+                    discoveryVisitor.Finished.WaitOne();
 
-                var visitor = CreateVisitor(assemblyFileName, assemblyElement);
-                ExecuteAssembly(assemblyFileName, configFileName, visitor);
-                visitor.Finished.WaitOne();
+                    var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement);
+                    controller.Run(discoveryVisitor.TestCases, resultsVisitor);
+                    resultsVisitor.Finished.WaitOne();
 
-                if (visitor.Failed != 0)
-                    ExitCode = 1;
+                    if (resultsVisitor.Failed != 0)
+                        ExitCode = 1;
+                }
+
             }
             catch (Exception ex)
             {
@@ -172,24 +190,6 @@ namespace Xunit.Runner.MSBuild
             }
 
             return assemblyElement;
-        }
-
-        XElement CreateAssemblyXElement()
-        {
-            return NeedsXml ? new XElement("assembly") : null;
-        }
-
-        protected virtual void ExecuteAssembly(string assemblyFilename, string configFileName, MSBuildVisitor resultsVisitor)
-        {
-            using (var controller = CreateFrontController(assemblyFilename, configFileName))
-            {
-                var discoveryVisitor = new TestDiscoveryVisitor();
-                controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
-                discoveryVisitor.Finished.WaitOne();
-
-                controller.Run(discoveryVisitor.TestCases, resultsVisitor);
-                resultsVisitor.Finished.WaitOne();
-            }
         }
 
         void Transform(string resourceName, XNode xml, ITaskItem outputFile)
