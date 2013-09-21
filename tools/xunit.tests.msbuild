@@ -10,10 +10,16 @@
 
   <ItemGroup>
     <TestAssemblies
-        Include="..\test2\test.xunit*\bin\$(Configuration)\test.xunit*.dll" />
+        Include="..\test2\test.xunit*\bin\$(Configuration)\test.xunit*.dll"
+        Exclude="..\test2\test.xunit1\bin\$(Configuration)\test.xunit1.dll" />
   </ItemGroup>
 
   <Target Name="Test">
+    <xunit
+        Assemblies="..\test2\test.xunit1\bin\$(Configuration)\test.xunit1.dll"
+        Xml="..\TestResults-v1-$(PROCESSOR_ARCHITECTURE).xml"
+        Html="..\TestResults-v1-$(PROCESSOR_ARCHITECTURE).html"
+    />
     <xunit
         Assemblies="@(TestAssemblies)"
         ParallelizeAssemblies="true"
