@@ -76,6 +76,8 @@ namespace Xunit.Runner.MSBuild
             if (NeedsXml)
                 assembliesElement = new XElement("assemblies");
 
+            string originalWorkingFolder = Directory.GetCurrentDirectory();
+
             using (AssemblyHelper.SubscribeResolve())
             {
                 Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild runner ({0})", environment);
@@ -127,6 +129,8 @@ namespace Xunit.Runner.MSBuild
                                        message.Value.Skipped.ToString().PadLeft(longestSkipped));
                 }
             }
+
+            Directory.SetCurrentDirectory(WorkingFolder ?? originalWorkingFolder);
 
             if (NeedsXml)
             {
