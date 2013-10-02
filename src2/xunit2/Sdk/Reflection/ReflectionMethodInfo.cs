@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,9 @@ namespace Xunit.Sdk
     /// </summary>
     public class ReflectionMethodInfo : LongLivedMarshalByRefObject, IReflectionMethodInfo
     {
+        static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
+        static readonly IEqualityComparer<IEnumerable<Type>> TypeListComparer = new AssertEqualityComparer<IEnumerable<Type>>(innerComparer: TypeComparer);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflectionMethodInfo"/> class.
         /// </summary>
@@ -85,7 +89,6 @@ namespace Xunit.Sdk
             if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || !results.Any()))
             {
                 // Need to find the parent method, which may not necessarily be on the parent type
-
                 var baseMethod = GetParent(method);
                 if (baseMethod != null)
                     results = results.Concat(GetCustomAttributes(baseMethod, attributeType, attributeUsage));
@@ -94,16 +97,22 @@ namespace Xunit.Sdk
             return results;
         }
 
-        static MethodInfo GetParent(MethodInfo m)
+        static MethodInfo GetParent(MethodInfo method)
         {
-            if (!m.IsVirtual)
+            if (!method.IsVirtual)
                 return null;
 
-            var baseType = m.DeclaringType.BaseType;
+            var baseType = method.DeclaringType.BaseType;
             if (baseType == null)
                 return null;
 
-            return baseType.GetMethod(m.Name, m.GetBindingFlags(), null, m.GetParameters().Select(p => p.ParameterType).ToArray(), null);
+            var methodParameters = method.GetParameters().Select(p => p.ParameterType).ToArray();
+            var methodGenericArgCount = method.GetGenericArguments().Length;
+
+            return baseType.GetMethods(method.GetBindingFlags())
+                           .SingleOrDefault(m => m.Name == method.Name
+                                              && m.GetGenericArguments().Length == methodGenericArgCount
+                                              && TypeListComparer.Equals(m.GetParameters().Select(p => p.ParameterType).ToArray(), methodParameters));
         }
 
         /// <inheritdoc/>
@@ -119,6 +128,25 @@ namespace Xunit.Sdk
                              .Select(Reflector.Wrap)
                              .Cast<IParameterInfo>()
                              .ToList();
+        }
+
+        class GenericTypeComparer : IEqualityComparer
+        {
+            bool IEqualityComparer.Equals(object x, object y)
+            {
+                Type typeX = (Type)x;
+                Type typeY = (Type)y;
+
+                if (typeX.IsGenericParameter && typeY.IsGenericParameter)
+                    return typeX.GenericParameterPosition == typeY.GenericParameterPosition;
+
+                return typeX == typeY;
+            }
+
+            int IEqualityComparer.GetHashCode(object obj)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
