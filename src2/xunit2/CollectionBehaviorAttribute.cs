@@ -21,7 +21,9 @@ namespace Xunit
         /// <param name="collectionBehavior">The collection behavior for the assembly.</param>
         public CollectionBehaviorAttribute(CollectionBehavior collectionBehavior) { }
 
-        // This method is here as an allowance to Enum-issues related to CustomAttributeData.
+        /// <summary>
+        /// This method is here as an allowance to Enum-issues related to CustomAttributeData.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public CollectionBehaviorAttribute(int collectionBehavior) { }
 

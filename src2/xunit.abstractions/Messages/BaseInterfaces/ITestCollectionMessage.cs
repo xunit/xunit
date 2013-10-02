@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace Xunit.Abstractions
 {
+    /// <summary>
+    /// Base message interface for all messages related to test collections.
+    /// </summary>
     public interface ITestCollectionMessage : IMessageSinkMessage
     {
         /// <summary>

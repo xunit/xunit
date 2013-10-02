@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Xunit.Abstractions
 {
+    /// <summary>
+    /// Base message interface for all messages related to tests.
+    /// </summary>
     public interface ITestMessage : ITestCaseMessage
     {
         /// <summary>

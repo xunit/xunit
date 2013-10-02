@@ -64,6 +64,9 @@
     <Compile Include="CollectionDefinitionAttribute.cs" />
     <Compile Include="IClassFixture.cs" />
     <Compile Include="ICollectionFixture.cs" />
+    <Compile Include="Sdk\AssertComparer.cs" />
+    <Compile Include="Sdk\AssertEqualityComparer.cs" />
+    <Compile Include="Sdk\AssertEqualityComparerAdapter.cs" />
     <Compile Include="Sdk\AsyncTestSyncContext.cs" />
     <Compile Include="Sdk\EnvironmentalWarning.cs" />
     <Compile Include="Sdk\MessageAggregator.cs" />

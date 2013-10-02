@@ -19,7 +19,13 @@ namespace Xunit
         readonly AssemblyName xunitAssemblyName;
         readonly string xunitAssemblyPath;
 
-        public Xunit1Executor(string testAssemblyFileName, string configFileName, bool shadowCopy)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Xunit1Executor" /> class.
+        /// </summary>
+        /// <param name="testAssemblyFileName">The filename of the test assembly.</param>
+        /// <param name="configFileName">The filename of the configuration file.</param>
+        /// <param name="shadowCopy">Set to <c>true</c> to enable shadow copying the assemblies.</param>
+        public Xunit1Executor(string testAssemblyFileName, string configFileName = null, bool shadowCopy = true)
         {
             appDomain = new RemoteAppDomainManager(testAssemblyFileName, configFileName, shadowCopy);
             xunitAssemblyPath = GetXunitAssemblyPath(testAssemblyFileName);
@@ -28,6 +34,7 @@ namespace Xunit
             TestFrameworkDisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", AssemblyName.GetAssemblyName(xunitAssemblyPath).Version);
         }
 
+        /// <inheritdoc/>
         public string TestFrameworkDisplayName { get; private set; }
 
         object CreateObject(string typeName, params object[] args)
@@ -35,11 +42,13 @@ namespace Xunit
             return appDomain.CreateObject<object>(xunitAssemblyName.FullName, typeName, args);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             appDomain.SafeDispose();
         }
 
+        /// <inheritdoc/>
         public void EnumerateTests(ICallbackEventHandler handler)
         {
             CreateObject("Xunit.Sdk.Executor+EnumerateTests", executor, handler);
@@ -55,6 +64,7 @@ namespace Xunit
             return xunitPath;
         }
 
+        /// <inheritdoc/>
         public void RunTests(string type, List<string> methods, ICallbackEventHandler handler)
         {
             CreateObject("Xunit.Sdk.Executor+RunTests", executor, type, methods, handler);

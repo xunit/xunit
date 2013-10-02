@@ -7,6 +7,9 @@ using Xunit.Sdk;
 
 namespace Xunit
 {
+    /// <summary>
+    /// A handler that dispatches v1 Executor messages from running a test class.
+    /// </summary>
     public class TestClassCallbackHandler : XmlNodeCallbackHandler
     {
         readonly Dictionary<string, Predicate<XmlNode>> handlers;
@@ -16,6 +19,11 @@ namespace Xunit
 
         Xunit1TestCase lastTestCase;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestClassCallbackHandler" /> class.
+        /// </summary>
+        /// <param name="testCases">The test cases that are being run.</param>
+        /// <param name="messageSink">The message sink to call with the translated results.</param>
         public TestClassCallbackHandler(IList<Xunit1TestCase> testCases, IMessageSink messageSink)
             : base(lastNodeName: "class")
         {
@@ -27,6 +35,9 @@ namespace Xunit
             TestClassResults = new RunSummary();
         }
 
+        /// <summary>
+        /// Gets the test class results, after the execution has completed.
+        /// </summary>
         public RunSummary TestClassResults { get; private set; }
 
         Xunit1TestCase FindTestCase(string typeName, string methodName)
@@ -92,6 +103,7 @@ namespace Xunit
             return @continue && TestClassResults.Continue;
         }
 
+        /// <inheritdoc/>
         protected override bool OnXmlNode(XmlNode xml)
         {
             Predicate<XmlNode> handler;
