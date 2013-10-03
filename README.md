@@ -1,6 +1,6 @@
-# About xUnit.net
+## <a href="https://github.com/xunit/xunit"><img src="https://raw.github.com/xunit/media/master/full-logo.png" title="xUnit.net" /></a>
 
-xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. Works with ReSharper, CodeRush, and TestDriven.NET. xUnit.net is part of the [ASP.NET Open Source Gallery](http://www.outercurve.org/Galleries/ASPNETOpenSourceGallery) under the [Outercurve Foundation](http://www.outercurve.org/). It is licensed under the [Apache 2 license](http://opensource.org/licenses/Apache-2.0), which is approved by the OSI.
+xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit v2, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. Works with ReSharper, CodeRush, and TestDriven.NET. xUnit.net is part of the [ASP.NET Open Source Gallery](http://www.outercurve.org/Galleries/ASPNETOpenSourceGallery) under the [Outercurve Foundation](http://www.outercurve.org/). It is licensed under the [Apache 2 license](http://opensource.org/licenses/Apache-2.0), which is approved by the OSI.
 
 _For status updates, follow us on Twitter: [@xunit](http://twitter.com/xunit), [@jamesnewkirk](http://twitter.com/jamesnewkirk), [@bradwilson](http://twitter.com/bradwilson)_
 
@@ -43,4 +43,4 @@ _The xUnit.net logo was designed by [Nathan Young](http://flavors.me/nathanyoung
 * [CruiseControl .NET](http://confluence.public.thoughtworks.org/display/CCNET)
 * [MSBuild Reference](http://msdn.microsoft.com/en-us/library/0k6kkbsd.aspx)
 
-![Powered by NDepend](http://i3.codeplex.com/Download?ProjectName=xunit&DownloadId=636261)
+<a href="http://www.NDepend.com"><img src="https://raw.github.com/xunit/media/master/powered-by-ndepend.png" title="Powered by NDepend" /></a>
