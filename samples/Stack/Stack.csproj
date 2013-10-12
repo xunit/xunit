@@ -11,11 +11,6 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Stack</RootNamespace>
     <AssemblyName>Stack</AssemblyName>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>

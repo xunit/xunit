@@ -1,5 +1,4 @@
-<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
+<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <UsingTask
       AssemblyFile="packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
       TaskName="CodePlex.MSBuildTasks.RegexReplace"/>
@@ -12,6 +11,8 @@
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <TrackFileAccess>false</TrackFileAccess>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\</SolutionDir>
+    <NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(SolutionDir).nuget\nuget.exe</NuGetExePath>
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
@@ -19,6 +20,10 @@
     <NuGetCsprojTargets Include="src2\xunit2\xunit2.csproj;
                                  src2\xunit.abstractions\xunit.abstractions.csproj;
                                  src2\xunit.runner.utility\xunit.runner.utility.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(PackageSources)' == '' ">
+    <PackageSource Include="https://nuget.org/api/v2/" />
+    <PackageSource Include="http://www.myget.org/F/b4ff5f68eccf4f6bbfed74f055f88d8f/" />
   </ItemGroup>
 
   <!-- Cascading attempts to find a build number -->
@@ -53,11 +58,11 @@
     <RemoveDir Directories="@(CleanFolderList)" ContinueOnError="true"/>
   </Target>
 
-  <Target Name="PackageRestore">
-    <MSBuild Projects=".nuget\NuGet.targets" Targets="RestoreSolutionPackages" />
+  <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
+    <Message Text="Restoring NuGet packages..." Importance="High" />
+    <Exec Command="$(NuGetExePath) install xunit.buildtasks -Source @(PackageSource) -SolutionDir $(SolutionDir) -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)packages\xunit.buildtasks\')" />
+    <Exec Command="$(NuGetExePath) restore $(SolutionDir)xunit2.sln -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
   </Target>
-
-  <Target Name="RestorePackages" DependsOnTargets="PackageRestore" />
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
     <MSBuild
@@ -194,5 +199,41 @@
         Files="@(ZipPdbFileList)"
         StripPath="true"/>
   </Target>
+
+  <Target Name="_DownloadNuGet">
+    <MakeDir Directories="$(SolutionDir).nuget" />
+    <DownloadNuGet OutputFilename="$(NuGetExePath)" Condition="!Exists('$(NuGetExePath)')" />
+  </Target>
+
+  <UsingTask TaskName="DownloadNuGet" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <OutputFilename ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Core" />
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Net" />
+      <Using Namespace="Microsoft.Build.Framework" />
+      <Using Namespace="Microsoft.Build.Utilities" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          try {
+              OutputFilename = Path.GetFullPath(OutputFilename);
+
+              Log.LogMessage("Downloading latest version of NuGet.exe...");
+              WebClient webClient = new WebClient();
+              webClient.DownloadFile("https://nuget.org/nuget.exe", OutputFilename);
+
+              return true;
+          }
+          catch (Exception ex) {
+              Log.LogErrorFromException(ex);
+              return false;
+          }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
 
 </Project>
