@@ -25,11 +25,12 @@ public static class Mocks
         return result;
     }
 
-    public static IReflectionAttributeInfo CollectionBehaviorAttribute(CollectionBehavior collectionBehavior)
+    public static IReflectionAttributeInfo CollectionBehaviorAttribute(CollectionBehavior collectionBehavior, bool disableTestParallelization = false)
     {
         var result = Substitute.For<IReflectionAttributeInfo>();
-        result.Attribute.Returns(new CollectionBehaviorAttribute(collectionBehavior));
+        result.Attribute.Returns(new CollectionBehaviorAttribute(collectionBehavior) { DisableTestParallelization = disableTestParallelization });
         result.GetConstructorArguments().Returns(new object[] { collectionBehavior });
+        result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization);
         return result;
     }
 

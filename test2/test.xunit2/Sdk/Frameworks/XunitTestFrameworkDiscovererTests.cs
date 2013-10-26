@@ -29,13 +29,13 @@ public class XunitTestFrameworkDiscovererTests
             var discoverer = new XunitTestFrameworkDiscoverer(assembly, sourceInfoProvider);
 
             Assert.IsType<CollectionPerClassTestCollectionFactory>(discoverer.TestCollectionFactory);
-            Assert.Equal(XunitTestFrameworkDiscoverer.DisplayName + " [collection-per-class, non-parallel]", discoverer.TestFrameworkDisplayName);
+            Assert.Equal(XunitTestFrameworkDiscoverer.DisplayName + " [collection-per-class, parallel]", discoverer.TestFrameworkDisplayName);
         }
 
         [Fact]
-        public void UserCanChooseFromBuiltInCollectionFactories()
+        public void UserCanChooseFromBuiltInCollectionFactories_NonParallel()
         {
-            var attr = Mocks.CollectionBehaviorAttribute(CollectionBehavior.CollectionPerAssembly);
+            var attr = Mocks.CollectionBehaviorAttribute(CollectionBehavior.CollectionPerAssembly, disableTestParallelization: true);
             var assembly = Mocks.AssemblyInfo(attributes: new[] { attr });
             var sourceInfoProvider = Substitute.For<ISourceInformationProvider>();
 
@@ -56,7 +56,7 @@ public class XunitTestFrameworkDiscovererTests
             var discoverer = new XunitTestFrameworkDiscoverer(assembly, sourceInfoProvider);
 
             Assert.IsType<MyTestCollectionFactory>(discoverer.TestCollectionFactory);
-            Assert.Equal(XunitTestFrameworkDiscoverer.DisplayName + " [My Factory, non-parallel]", discoverer.TestFrameworkDisplayName);
+            Assert.Equal(XunitTestFrameworkDiscoverer.DisplayName + " [My Factory, parallel]", discoverer.TestFrameworkDisplayName);
         }
 
         class MyTestCollectionFactory : IXunitTestCollectionFactory
@@ -84,7 +84,7 @@ public class XunitTestFrameworkDiscovererTests
             var discoverer = new XunitTestFrameworkDiscoverer(assembly, sourceInfoProvider);
 
             Assert.IsType<CollectionPerClassTestCollectionFactory>(discoverer.TestCollectionFactory);
-            Assert.Equal(XunitTestFrameworkDiscoverer.DisplayName + " [collection-per-class, non-parallel]", discoverer.TestFrameworkDisplayName);
+            Assert.Equal(XunitTestFrameworkDiscoverer.DisplayName + " [collection-per-class, parallel]", discoverer.TestFrameworkDisplayName);
         }
 
         class TestCollectionFactory_NoCompatibleConstructor : IXunitTestCollectionFactory

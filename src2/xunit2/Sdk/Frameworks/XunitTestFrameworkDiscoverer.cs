@@ -49,8 +49,14 @@ namespace Xunit.Sdk
             this.sourceProvider = sourceProvider;
             this.messageAggregator = messageAggregator ?? MessageAggregator.Instance;
 
-            TestCollectionFactory = collectionFactory ?? GetTestCollectionFactory(this.assemblyInfo);
-            TestFrameworkDisplayName = String.Format("{0} [{1}, non-parallel]", DisplayName, TestCollectionFactory.DisplayName);
+            var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
+            var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+
+            TestCollectionFactory = collectionFactory ?? GetTestCollectionFactory(this.assemblyInfo, collectionBehaviorAttribute);
+            TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",
+                                                     DisplayName,
+                                                     TestCollectionFactory.DisplayName,
+                                                     disableParallelization ? "non-parallel" : "parallel");
         }
 
         /// <summary>
@@ -147,10 +153,9 @@ namespace Xunit.Sdk
             }
         }
 
-        static IXunitTestCollectionFactory GetTestCollectionFactory(IAssemblyInfo assemblyInfo)
+        static IXunitTestCollectionFactory GetTestCollectionFactory(IAssemblyInfo assemblyInfo, IAttributeInfo collectionBehaviorAttribute)
         {
-            var collectionBehavior = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
-            var factoryType = GetTestCollectionFactoryType(collectionBehavior);
+            var factoryType = GetTestCollectionFactoryType(collectionBehaviorAttribute);
 
             return (IXunitTestCollectionFactory)Activator.CreateInstance(factoryType, new[] { assemblyInfo });
         }

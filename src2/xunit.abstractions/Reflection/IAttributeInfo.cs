@@ -23,7 +23,8 @@ namespace Xunit.Abstractions
         IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
         /// <summary>
-        /// Gets a named-argument initialized value of the attribute.
+        /// Gets a named-argument initialized value of the attribute. If there is no named argument for the given name
+        /// on this attribute, then returns default(TValue).
         /// </summary>
         /// <typeparam name="TValue">The type of the argument</typeparam>
         /// <param name="argumentName">The name of the argument</param>

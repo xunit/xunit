@@ -37,6 +37,6 @@ namespace Xunit
         /// <summary>
         /// Determines whether tests in this assembly are run in parallel.
         /// </summary>
-        public bool RunCollectionsInParallel { get; set; }
+        public bool DisableTestParallelization { get; set; }
     }
 }
