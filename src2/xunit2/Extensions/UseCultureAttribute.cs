@@ -12,6 +12,7 @@ namespace Xunit.Extensions
     /// <see cref="Thread.CurrentThread" /> <see cref="CultureInfo.CurrentCulture" /> and
     /// <see cref="CultureInfo.CurrentUICulture" /> with another culture.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class UseCultureAttribute : BeforeAfterTestAttribute
     {
         readonly Lazy<CultureInfo> culture;
