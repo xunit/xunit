@@ -58,6 +58,13 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public void Dispose() { }
 
+        static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo ordererAttribute)
+        {
+            var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
+            var ordererType = Reflector.GetType(args[1], args[0]);
+            return (ITestCaseOrderer)Activator.CreateInstance(ordererType);
+        }
+
         /// <inheritdoc/>
         public async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
@@ -65,6 +72,9 @@ namespace Xunit.Sdk
             var totalSummary = new RunSummary();
 
             string currentDirectory = Directory.GetCurrentDirectory();
+
+            var ordererAttribute = assemblyInfo.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
+            var orderer = ordererAttribute != null ? GetTestCaseOrderer(ordererAttribute) : new DefaultTestCaseOrderer();
 
             try
             {
@@ -83,13 +93,13 @@ namespace Xunit.Sdk
                         summaries = new List<RunSummary>();
 
                         foreach (var collectionGroup in testCases.Cast<XunitTestCase>().GroupBy(tc => tc.TestCollection))
-                            summaries.Add(RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, cancellationTokenSource));
+                            summaries.Add(RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource));
                     }
                     else
                     {
                         var tasks = testCases.Cast<XunitTestCase>()
                                              .GroupBy(tc => tc.TestCollection)
-                                             .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, cancellationTokenSource)))
+                                             .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource)))
                                              .ToArray();
 
                         summaries = await Task.WhenAll(tasks);
@@ -109,7 +119,11 @@ namespace Xunit.Sdk
             }
         }
 
-        private RunSummary RunTestCollection(IMessageSink messageSink, ITestCollection collection, IEnumerable<XunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
+        private RunSummary RunTestCollection(IMessageSink messageSink,
+                                             ITestCollection collection,
+                                             IEnumerable<XunitTestCase> testCases,
+                                             ITestCaseOrderer orderer,
+                                             CancellationTokenSource cancellationTokenSource)
         {
             var collectionSummary = new RunSummary();
             var collectionFixtureMappings = new Dictionary<Type, object>();
@@ -120,6 +134,10 @@ namespace Xunit.Sdk
                 var declarationType = ((IReflectionTypeInfo)collection.CollectionDefinition).Type;
                 foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
                     CreateFixture(interfaceType, aggregator, collectionFixtureMappings);
+
+                var ordererAttribute = collection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
+                if (ordererAttribute != null)
+                    orderer = GetTestCaseOrderer(ordererAttribute);
             }
 
             if (messageSink.OnMessage(new TestCollectionStarting(collection)))
@@ -132,7 +150,7 @@ namespace Xunit.Sdk
                         cancellationTokenSource.Cancel();
                     else
                     {
-                        RunTestClass(messageSink, collection, collectionFixtureMappings, (IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass, classSummary, aggregator, cancellationTokenSource);
+                        RunTestClass(messageSink, collection, collectionFixtureMappings, (IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass, orderer, classSummary, aggregator, cancellationTokenSource);
                         collectionSummary.Aggregate(classSummary);
                     }
 
@@ -166,6 +184,7 @@ namespace Xunit.Sdk
                                          Dictionary<Type, object> collectionFixtureMappings,
                                          IReflectionTypeInfo testClass,
                                          IEnumerable<XunitTestCase> testCases,
+                                         ITestCaseOrderer orderer,
                                          RunSummary classSummary,
                                          ExceptionAggregator aggregator,
                                          CancellationTokenSource cancellationTokenSource)
@@ -173,6 +192,10 @@ namespace Xunit.Sdk
             var testClassType = testClass.Type;
             var fixtureMappings = new Dictionary<Type, object>();
             var constructorArguments = new List<object>();
+
+            var ordererAttribute = testClass.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
+            if (ordererAttribute != null)
+                orderer = GetTestCaseOrderer(ordererAttribute);
 
             if (testClassType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
                 aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
@@ -215,7 +238,8 @@ namespace Xunit.Sdk
                 }
             }
 
-            var methodGroups = testCases.GroupBy(tc => tc.Method);
+            var orderedTestCases = orderer.OrderTestCases(testCases);
+            var methodGroups = orderedTestCases.GroupBy(tc => tc.Method);
 
             foreach (var method in methodGroups)
             {

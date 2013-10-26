@@ -155,6 +155,22 @@ public static class Mocks
         return result;
     }
 
+    public static XunitTestCase XunitTestCase<TClassUnderTest>(string methodName)
+    {
+        var typeUnderTest = typeof(TClassUnderTest);
+        var methodUnderTest = typeUnderTest.GetMethod(methodName);
+        if (methodUnderTest == null)
+            throw new Exception("Unknown method: " + typeUnderTest.FullName + "." + methodName);
+
+        var testCollection = new XunitTestCollection();
+        var assemblyInfo = Reflector.Wrap(typeUnderTest.Assembly);
+        var typeInfo = Reflector.Wrap(typeUnderTest);
+        var methodInfo = Reflector.Wrap(methodUnderTest);
+        var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).SingleOrDefault();
+
+        return new XunitTestCase(testCollection, assemblyInfo, typeInfo, methodInfo, factAttribute);
+    }
+
     private static Type GetType(string assemblyQualifiedAttributeTypeName)
     {
         var parts = assemblyQualifiedAttributeTypeName.Split(new[] { ',' }, 2).Select(x => x.Trim()).ToList();

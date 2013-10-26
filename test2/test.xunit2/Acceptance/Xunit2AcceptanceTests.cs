@@ -1032,6 +1032,73 @@ public class Xunit2AcceptanceTests
         }
     }
 
+    public class TestOrdering : AcceptanceTest
+    {
+        [Fact]
+        public void OverrideOfOrderingAtCollectionLevel()
+        {
+            var testMessages = Run<ITestPassed>(typeof(TestClassUsingCollection));
+
+            Assert.Collection(testMessages,
+                message => Assert.Equal("Test1", message.TestCase.Method.Name),
+                message => Assert.Equal("Test2", message.TestCase.Method.Name),
+                message => Assert.Equal("Test3", message.TestCase.Method.Name)
+            );
+        }
+
+        [CollectionDefinition("Ordered Collection")]
+        [TestCaseOrderer("Xunit2AcceptanceTests+TestOrdering+AlphabeticalOrderer", "test.xunit2")]
+        public class CollectionClass { }
+
+        [Collection("Ordered Collection")]
+        class TestClassUsingCollection
+        {
+            [Fact]
+            public void Test1() { }
+
+            [Fact]
+            public void Test3() { }
+
+            [Fact]
+            public void Test2() { }
+        }
+
+        [Fact]
+        public void OverrideOfOrderingAtClassLevel()
+        {
+            var testMessages = Run<ITestPassed>(typeof(TestClassWithoutCollection));
+
+            Assert.Collection(testMessages,
+                message => Assert.Equal("Test1", message.TestCase.Method.Name),
+                message => Assert.Equal("Test2", message.TestCase.Method.Name),
+                message => Assert.Equal("Test3", message.TestCase.Method.Name)
+            );
+        }
+
+        [TestCaseOrderer("Xunit2AcceptanceTests+TestOrdering+AlphabeticalOrderer", "test.xunit2")]
+        class TestClassWithoutCollection
+        {
+            [Fact]
+            public void Test1() { }
+
+            [Fact]
+            public void Test3() { }
+
+            [Fact]
+            public void Test2() { }
+        }
+
+        public class AlphabeticalOrderer : ITestCaseOrderer
+        {
+            public IEnumerable<XunitTestCase> OrderTestCases(IEnumerable<XunitTestCase> testCases)
+            {
+                var result = testCases.ToList();
+                result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.Method.Name, y.Method.Name));
+                return result;
+            }
+        }
+    }
+
     class NoTestsClass { }
 
     class SinglePassingTestClass

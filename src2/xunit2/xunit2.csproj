@@ -66,7 +66,9 @@
     <Compile Include="Sdk\AssertEqualityComparer.cs" />
     <Compile Include="Sdk\AssertEqualityComparerAdapter.cs" />
     <Compile Include="Sdk\AsyncTestSyncContext.cs" />
+    <Compile Include="Sdk\DefaultTestCaseOrderer.cs" />
     <Compile Include="Sdk\EnvironmentalWarning.cs" />
+    <Compile Include="Sdk\ITestCaseOrderer.cs" />
     <Compile Include="Sdk\MessageAggregator.cs" />
     <Compile Include="Sdk\ExceptionAggregator.cs" />
     <Compile Include="Sdk\Exceptions\AssertCollectionCountException.cs" />
@@ -172,6 +174,7 @@
     <Compile Include="Sdk\Reflection\Reflector.cs" />
     <Compile Include="Sdk\SerializationHelper.cs" />
     <Compile Include="CollectionBehaviorAttribute.cs" />
+    <Compile Include="TestCaseOrdererAttribute.cs" />
     <Compile Include="TheoryAttribute.cs" />
     <Compile Include="TraitAttribute.cs" />
   </ItemGroup>

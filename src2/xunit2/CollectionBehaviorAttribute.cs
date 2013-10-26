@@ -30,7 +30,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="CollectionBehaviorAttribute" /> class.
         /// </summary>
-        /// <param name="factoryTypeName">The type name of the test collection factory (that implements <see cref="IXunitTestCollectionFactory"/>.</param>
+        /// <param name="factoryTypeName">The type name of the test collection factory (that implements <see cref="IXunitTestCollectionFactory"/>).</param>
         /// <param name="factoryAssemblyName">The assembly that <paramref name="factoryTypeName"/> exists in.</param>
         public CollectionBehaviorAttribute(string factoryTypeName, string factoryAssemblyName) { }
 
