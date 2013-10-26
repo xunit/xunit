@@ -153,14 +153,14 @@ namespace Xunit.Sdk
             }
         }
 
-        static IXunitTestCollectionFactory GetTestCollectionFactory(IAssemblyInfo assemblyInfo, IAttributeInfo collectionBehaviorAttribute)
+        internal static IXunitTestCollectionFactory GetTestCollectionFactory(IAssemblyInfo assemblyInfo, IAttributeInfo collectionBehaviorAttribute)
         {
             var factoryType = GetTestCollectionFactoryType(collectionBehaviorAttribute);
 
             return (IXunitTestCollectionFactory)Activator.CreateInstance(factoryType, new[] { assemblyInfo });
         }
 
-        static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehavior)
+        internal static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehavior)
         {
             if (collectionBehavior == null)
                 return typeof(CollectionPerClassTestCollectionFactory);

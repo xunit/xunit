@@ -18,6 +18,7 @@ namespace Xunit.Sdk
         readonly string assemblyFileName;
         readonly IAssemblyInfo assemblyInfo;
         readonly bool disableParallelization = false;
+        readonly string displayName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
@@ -30,9 +31,16 @@ namespace Xunit.Sdk
             var assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
             assemblyInfo = Reflector.Wrap(assembly);
 
-            var collectionBehavior = assembly.GetCustomAttribute<CollectionBehaviorAttribute>();
-            if (collectionBehavior != null)
-                disableParallelization = collectionBehavior.DisableTestParallelization;
+            var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
+            if (collectionBehaviorAttribute != null)
+                disableParallelization = collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+
+            var testCollectionFactory = XunitTestFrameworkDiscoverer.GetTestCollectionFactory(assemblyInfo, collectionBehaviorAttribute);
+            displayName = String.Format("{0}-bit .NET {1} [{2}, {3}]",
+                                        IntPtr.Size * 8,
+                                        Environment.Version,
+                                        testCollectionFactory.DisplayName,
+                                        disableParallelization ? "non-parallel" : "parallel");
         }
 
         static void CreateFixture(Type interfaceType, ExceptionAggregator aggregator, Dictionary<Type, object> mappings)
@@ -63,7 +71,7 @@ namespace Xunit.Sdk
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 
                 if (messageSink.OnMessage(new TestAssemblyStarting(assemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
-                                                                   String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version),
+                                                                   displayName,
                                                                    XunitTestFrameworkDiscoverer.DisplayName)))
                 {
                     IList<RunSummary> summaries;
