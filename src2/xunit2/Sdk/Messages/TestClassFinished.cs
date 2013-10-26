@@ -5,20 +5,16 @@ namespace Xunit.Sdk
     /// <summary>
     /// Default implementation of <see cref="ITestClassFinished"/>.
     /// </summary>
-    internal class TestClassFinished : TestCollectionMessage, ITestClassFinished
+    internal class TestClassFinished : TestClassMessage, ITestClassFinished
     {
         public TestClassFinished(ITestCollection testCollection, string className, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
-            : base(testCollection)
+            : base(testCollection, className)
         {
-            ClassName = className;
             ExecutionTime = executionTime;
             TestsRun = testsRun;
             TestsFailed = testsFailed;
             TestsSkipped = testsSkipped;
         }
-
-        /// <inheritdoc/>
-        public string ClassName { get; private set; }
 
         /// <inheritdoc/>
         public decimal ExecutionTime { get; private set; }

@@ -132,6 +132,7 @@
     <Compile Include="Sdk\LongLivedMarshalByRefObject.cs" />
     <Compile Include="Sdk\MessageBus.cs" />
     <Compile Include="Sdk\Messages\BaseMessages\TestCaseMessage.cs" />
+    <Compile Include="Sdk\Messages\BaseMessages\TestClassMessage.cs" />
     <Compile Include="Sdk\Messages\BaseMessages\TestCollectionMessage.cs" />
     <Compile Include="Sdk\Messages\BaseMessages\TestMessage.cs" />
     <Compile Include="Sdk\Messages\BeforeTestFinished.cs" />

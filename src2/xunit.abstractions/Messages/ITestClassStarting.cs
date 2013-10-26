@@ -3,11 +3,7 @@
     /// <summary>
     /// This message indicates that a test class is about to begin running.
     /// </summary>
-    public interface ITestClassStarting : ITestCollectionMessage
+    public interface ITestClassStarting : ITestClassMessage
     {
-        /// <summary>
-        /// The fully-qualified name of the test class.
-        /// </summary>
-        string ClassName { get; }
     }
 }

@@ -57,6 +57,9 @@
     <Compile Include="..\xunit2\Sdk\Messages\BaseMessages\TestCaseMessage.cs">
       <Link>Frameworks\Messages\BaseMessages\TestCaseMessage.cs</Link>
     </Compile>
+    <Compile Include="..\xunit2\Sdk\Messages\BaseMessages\TestClassMessage.cs">
+      <Link>Frameworks\Messages\BaseMessages\TestClassMessage.cs</Link>
+    </Compile>
     <Compile Include="..\xunit2\Sdk\Messages\BaseMessages\TestCollectionMessage.cs">
       <Link>Frameworks\Messages\BaseMessages\TestCollectionMessage.cs</Link>
     </Compile>
