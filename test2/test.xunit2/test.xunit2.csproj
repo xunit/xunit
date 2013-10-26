@@ -81,6 +81,7 @@
     <Compile Include="Asserts\RangeAssertsTests.cs" />
     <Compile Include="Asserts\StringAssertsTests.cs" />
     <Compile Include="Asserts\TypeAssertsTests.cs" />
+    <Compile Include="Extensions\UseCultureAttributeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecordTests.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />

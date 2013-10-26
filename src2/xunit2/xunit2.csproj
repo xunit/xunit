@@ -60,6 +60,7 @@
     <Compile Include="CollectionAttribute.cs" />
     <Compile Include="CollectionBehavior.cs" />
     <Compile Include="CollectionDefinitionAttribute.cs" />
+    <Compile Include="Extensions\UseCultureAttribute.cs" />
     <Compile Include="IClassFixture.cs" />
     <Compile Include="ICollectionFixture.cs" />
     <Compile Include="Sdk\AssertComparer.cs" />
