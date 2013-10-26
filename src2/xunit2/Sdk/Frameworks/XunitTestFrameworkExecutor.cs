@@ -17,6 +17,7 @@ namespace Xunit.Sdk
     {
         readonly string assemblyFileName;
         readonly IAssemblyInfo assemblyInfo;
+        readonly bool disableParallelization = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
@@ -28,6 +29,10 @@ namespace Xunit.Sdk
 
             var assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
             assemblyInfo = Reflector.Wrap(assembly);
+
+            var collectionBehavior = assembly.GetCustomAttribute<CollectionBehaviorAttribute>();
+            if (collectionBehavior != null)
+                disableParallelization = collectionBehavior.DisableTestParallelization;
         }
 
         static void CreateFixture(Type interfaceType, ExceptionAggregator aggregator, Dictionary<Type, object> mappings)
@@ -61,15 +66,27 @@ namespace Xunit.Sdk
                                                                    String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version),
                                                                    XunitTestFrameworkDiscoverer.DisplayName)))
                 {
+                    IList<RunSummary> summaries;
+
                     // TODO: Contract for Run() states that null "testCases" means "run everything".
 
-                    var tasks =
-                        testCases.Cast<XunitTestCase>()
-                                 .GroupBy(tc => tc.TestCollection)
-                                 .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, cancellationTokenSource)))
-                                 .ToArray();
+                    if (disableParallelization)
+                    {
+                        summaries = new List<RunSummary>();
 
-                    var summaries = await Task.WhenAll(tasks);
+                        foreach (var collectionGroup in testCases.Cast<XunitTestCase>().GroupBy(tc => tc.TestCollection))
+                            summaries.Add(RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, cancellationTokenSource));
+                    }
+                    else
+                    {
+                        var tasks = testCases.Cast<XunitTestCase>()
+                                             .GroupBy(tc => tc.TestCollection)
+                                             .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, cancellationTokenSource)))
+                                             .ToArray();
+
+                        summaries = await Task.WhenAll(tasks);
+                    }
+
                     totalSummary.Time = summaries.Sum(s => s.Time);
                     totalSummary.Total = summaries.Sum(s => s.Total);
                     totalSummary.Failed = summaries.Sum(s => s.Failed);
