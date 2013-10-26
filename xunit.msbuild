@@ -125,7 +125,7 @@
   <Target Name="_Test64" DependsOnTargets="Build">
     <Exec
         Condition="'$(PROCESSOR_ARCHITEW6432)' != ''"
-        Command="$(SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe tools\xunit.tests.msbuild /p:Configuration=$(Configuration)" />
+        Command="$(SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe tools\xunit.tests.msbuild /p:Configuration=$(Configuration) /v:$(RequestedVerbosity)" />
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build;_Test32;_Test64" />

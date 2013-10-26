@@ -10,5 +10,5 @@ if ($msbuilds.Count -eq 0) {
     $msbuild = $msbuilds[0].Definition
 }
 
-$allArgs = @("xunit.msbuild", "/m", "/nologo", "/verbosity:$verbosity", "/t:$target", $args)
+$allArgs = @("xunit.msbuild", "/m", "/nologo", "/verbosity:$verbosity", "/t:$target", "/property:RequestedVerbosity=$verbosity", $args)
 & $msbuild $allArgs
