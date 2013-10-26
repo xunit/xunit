@@ -106,7 +106,11 @@ namespace Xunit.Runner.MSBuild
                         .Replace("'", "|'")
                         .Replace("\r", "|r")
                         .Replace("\n", "|n")
-                        .Replace("]", "|]");
+                        .Replace("]", "|]")
+                        .Replace("[", "|[")
+                        .Replace("\u0085", "|x")
+                        .Replace("\u2028", "|l")
+                        .Replace("\u2029", "|p");
         }
 
         string ToFlowId(string testCollectionName)
