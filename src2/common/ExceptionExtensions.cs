@@ -16,14 +16,16 @@ internal static class ExceptionExtensions
     /// </remarks>
     public static void RethrowWithNoStackTraceLoss(this Exception ex)
     {
-        // TODO: Is there code from ASP.NET Web Stack that we can borrow, that helps us do better things in 4.5?
-
+#if XUNIT2_DLL
+        System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex).Throw();
+#else
         FieldInfo remoteStackTraceString =
             typeof(Exception).GetField("_remoteStackTraceString", BindingFlags.Instance | BindingFlags.NonPublic) ??
             typeof(Exception).GetField("remote_stack_trace", BindingFlags.Instance | BindingFlags.NonPublic);
 
         remoteStackTraceString.SetValue(ex, ex.StackTrace + RETHROW_MARKER);
         throw ex;
+#endif
     }
 
     /// <summary>
