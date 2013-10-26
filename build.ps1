@@ -1,5 +1,6 @@
 param(
-    [string]$target = "Test"
+    [string]$target = "Test",
+    [string]$verbosity = "minimal"
 )
 
 $msbuilds = @(get-command msbuild -ea SilentlyContinue)
@@ -9,5 +10,5 @@ if ($msbuilds.Count -eq 0) {
     $msbuild = $msbuilds[0].Definition
 }
 
-$allArgs = @("xunit.msbuild", "/m", "/nologo", "/verbosity:minimal", "/t:$target", $args)
+$allArgs = @("xunit.msbuild", "/m", "/nologo", "/verbosity:$verbosity", "/t:$target", $args)
 & $msbuild $allArgs
