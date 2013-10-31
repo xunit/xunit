@@ -1,6 +1,7 @@
 param(
     [string]$target = "Test",
-    [string]$verbosity = "minimal"
+    [string]$verbosity = "minimal",
+    [int]$maxCpuCount = 0
 )
 
 $msbuilds = @(get-command msbuild -ea SilentlyContinue)
@@ -10,5 +11,11 @@ if ($msbuilds.Count -eq 0) {
     $msbuild = $msbuilds[0].Definition
 }
 
-$allArgs = @("xunit.msbuild", "/m", "/nologo", "/verbosity:$verbosity", "/t:$target", "/property:RequestedVerbosity=$verbosity", $args)
+if ($maxCpuCount -lt 1) {
+    $maxCpuCountText = $Env:MSBuildProcessorCount
+} else {
+    $maxCpuCountText = ":$maxCpuCount"
+}
+
+$allArgs = @("xunit.msbuild", "/m$maxCpuCountText", "/nologo", "/verbosity:$verbosity", "/t:$target", "/property:RequestedVerbosity=$verbosity", $args)
 & $msbuild $allArgs
