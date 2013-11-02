@@ -54,6 +54,8 @@
     <Compile Include="Asserts\Comparers.cs" />
     <Compile Include="Asserts\EqualityAsserts.cs" />
     <Compile Include="Asserts\ExceptionAsserts.cs" />
+    <Compile Include="Asserts\IdentityAsserts.cs" />
+    <Compile Include="Asserts\NullAsserts.cs" />
     <Compile Include="Asserts\PropertyAsserts.cs" />
     <Compile Include="Asserts\RangeAsserts.cs" />
     <Compile Include="Asserts\StringAsserts.cs" />

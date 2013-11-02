@@ -77,6 +77,8 @@
     <Compile Include="Asserts\CollectionAssertsTests.cs" />
     <Compile Include="Asserts\EqualityAssertsTests.cs" />
     <Compile Include="Asserts\ExceptionAssertsTests.cs" />
+    <Compile Include="Asserts\IdentityAssertsTests.cs" />
+    <Compile Include="Asserts\NullAssertsTests.cs" />
     <Compile Include="Asserts\PropertyAssertsTests.cs" />
     <Compile Include="Asserts\RangeAssertsTests.cs" />
     <Compile Include="Asserts\StringAssertsTests.cs" />
