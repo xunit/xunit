@@ -9,7 +9,7 @@ namespace Xunit
     /// by the test runner. It can also be extended to support a customized definition of a
     /// test method.
     /// </summary>
-    [XunitDiscoverer("Xunit.Sdk.FactDiscoverer", "xunit2")]
+    [TestCaseDiscoverer("Xunit.Sdk.FactDiscoverer", "xunit2")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     [SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes", Justification = "This attribute is designed as an extensibility point.")]
     public class FactAttribute : Attribute

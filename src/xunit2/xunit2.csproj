@@ -133,7 +133,7 @@
     <Compile Include="Sdk\Frameworks\IDataDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\IXunitDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\TheoryDiscoverer.cs" />
-    <Compile Include="Sdk\Frameworks\XunitDiscovererAttribute.cs" />
+    <Compile Include="Sdk\Frameworks\TestCaseDiscovererAttribute.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCase.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFramework.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkDiscoverer.cs" />

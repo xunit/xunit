@@ -127,7 +127,7 @@ namespace Xunit.Sdk
                     IAttributeInfo factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
                     if (factAttribute != null)
                     {
-                        IAttributeInfo discovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitDiscovererAttribute)).FirstOrDefault();
+                        IAttributeInfo discovererAttribute = factAttribute.GetCustomAttributes(typeof(TestCaseDiscovererAttribute)).FirstOrDefault();
                         if (discovererAttribute != null)
                         {
                             var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();

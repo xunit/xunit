@@ -11,7 +11,7 @@ namespace Xunit
     /// derive from <see cref="DataAttribute"/> (notably, <see cref="InlineDataAttribute"/> and
     /// <see cref="PropertyDataAttribute"/>).
     /// </summary>
-    [XunitDiscoverer("Xunit.Sdk.TheoryDiscoverer", "xunit2")]
+    [TestCaseDiscoverer("Xunit.Sdk.TheoryDiscoverer", "xunit2")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class TheoryAttribute : FactAttribute { }
 }
