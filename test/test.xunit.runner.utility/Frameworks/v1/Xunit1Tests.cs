@@ -99,15 +99,18 @@ public class Xunit1Tests
                     Assert.Equal("MethodWithTraits", testCase.Method.Name);
                     Assert.Equal("SpecialType.MethodWithTraits", testCase.DisplayName);
                     Assert.Collection(testCase.Traits,
-                        trait =>
-                        {
-                            Assert.Equal("Trait1", trait.Key);
-                            Assert.Equal("Value1", trait.Value);
+                        key => {
+                            Assert.Equal("Trait1", key);
+                            Assert.Collection(testCase.Traits[key],
+                                value => Assert.Equal("Value1", value)
+                            );
                         },
-                        trait =>
+                        key =>
                         {
-                            Assert.Equal("Trait2", trait.Key);
-                            Assert.Equal("Value2", trait.Value);
+                            Assert.Equal("Trait2", key);
+                            Assert.Collection(testCase.Traits[key],
+                                value => Assert.Equal("Value2", value)
+                            );
                         }
                     );
                 }

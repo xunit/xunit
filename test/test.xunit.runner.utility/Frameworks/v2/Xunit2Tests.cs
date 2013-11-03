@@ -110,9 +110,10 @@ public class Xunit2Tests
                 Assert.Equal(4, testCases.Length);
 
                 ITestCase traitTest = Assert.Single(testCases, tc => tc.DisplayName == "Namespace1.Class1.Trait");
-                KeyValuePair<string, string> kvp = Assert.Single(traitTest.Traits);
-                Assert.Equal("Name!", kvp.Key);
-                Assert.Equal("Value!", kvp.Value);
+                string key = Assert.Single(traitTest.Traits);
+                Assert.Equal("Name!", key);
+                string value = Assert.Single(traitTest.Traits[key]);
+                Assert.Equal("Value!", value);
 
                 ITestCase skipped = Assert.Single(testCases, tc => tc.DisplayName == "Namespace1.Class1.Skipped");
                 Assert.Equal("Skipping", skipped.SkipReason);

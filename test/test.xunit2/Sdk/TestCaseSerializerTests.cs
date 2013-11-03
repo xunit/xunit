@@ -52,10 +52,10 @@ public class TestCaseSerializerTests
             Assert.Null(result.Arguments);
             Assert.Equal(testCase.SkipReason, result.SkipReason);
             Assert.Collection(result.Traits,
-                trait =>
+                key =>
                 {
-                    Assert.Equal("name", trait.Key);
-                    Assert.Equal("value", trait.Value);
+                    Assert.Equal("name", key);
+                    Assert.Equal("value", Assert.Single(result.Traits[key]));
                 });
         }
 
@@ -126,10 +126,10 @@ public class TestCaseSerializerTests
             Assert.Null(result.Arguments);
             Assert.Equal(testCase.SkipReason, result.SkipReason);
             Assert.Collection(result.Traits,
-                trait =>
+                key =>
                 {
-                    Assert.Equal("name", trait.Key);
-                    Assert.Equal("value", trait.Value);
+                    Assert.Equal("name", key);
+                    Assert.Equal("value", Assert.Single(result.Traits[key]));
                 });
         }
     }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
 using Xunit.Abstractions;
@@ -13,7 +12,7 @@ namespace Xunit
     [Serializable]
     public class Xunit1TestCase : ITestCase, ISerializable
     {
-        static readonly IDictionary<string, string> EmptyTraits = new Dictionary<string, string>();
+        static readonly IMultiValueDictionary<string, string> EmptyTraits = new MultiValueDictionary<string, string>();
 
         readonly Xunit1ReflectionWrapper reflectionWrapper;
 
@@ -30,7 +29,7 @@ namespace Xunit
                               string typeName,
                               string methodName,
                               string displayName,
-                              IDictionary<string, string> traits = null,
+                              IMultiValueDictionary<string, string> traits = null,
                               string skipReason = null)
         {
             reflectionWrapper = new Xunit1ReflectionWrapper(assemblyFileName, typeName, methodName);
@@ -52,7 +51,7 @@ namespace Xunit
             DisplayName = info.GetString("DisplayName");
             SkipReason = info.GetString("SkipReason");
             SourceInformation = info.GetValue<SourceInformation>("SourceInformation");
-            Traits = info.GetValue<IDictionary<string, string>>("Traits");
+            Traits = info.GetValue<IMultiValueDictionary<string, string>>("Traits");
         }
 
         /// <inheritdoc/>
@@ -80,7 +79,7 @@ namespace Xunit
         public ITestCollection TestCollection { get; set; }
 
         /// <inheritdoc/>
-        public IDictionary<string, string> Traits { get; private set; }
+        public IMultiValueDictionary<string, string> Traits { get; private set; }
 
         /// <inheritdoc/>
         public string UniqueID

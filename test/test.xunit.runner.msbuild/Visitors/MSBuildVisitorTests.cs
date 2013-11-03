@@ -295,7 +295,7 @@ public class MSBuildVisitorTests
         [Fact]
         public void TestElementTraisArePlacedInXmlWhenPresent()
         {
-            var traits = new Dictionary<string, string>
+            var traits = new MultiValueDictionary<string, string>
             {
                 { "name1", "value1" },
                 { "name2", "value2" }

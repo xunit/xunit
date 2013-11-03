@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Xunit.Abstractions
 {
     /// <summary>
@@ -46,7 +44,7 @@ namespace Xunit.Abstractions
         /// this should return an empty dictionary (not <c>null</c>). This
         /// dictionary must be treated as read-only.
         /// </summary>
-        IDictionary<string, string> Traits { get; }
+        IMultiValueDictionary<string, string> Traits { get; }
 
         /// <summary>
         /// Gets a unique identifier for the test case.

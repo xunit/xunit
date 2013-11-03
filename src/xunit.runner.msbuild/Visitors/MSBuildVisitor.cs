@@ -50,13 +50,14 @@ namespace Xunit.Runner.MSBuild
             {
                 var traitsElement = new XElement("traits");
 
-                foreach (var kvp in testResult.TestCase.Traits)
-                    traitsElement.Add(
-                        new XElement("trait",
-                            new XAttribute("name", XmlEscape(kvp.Key)),
-                            new XAttribute("value", XmlEscape(kvp.Value))
-                        )
-                    );
+                foreach (var key in testResult.TestCase.Traits)
+                    foreach (var value in testResult.TestCase.Traits[key])
+                        traitsElement.Add(
+                            new XElement("trait",
+                                new XAttribute("name", XmlEscape(key)),
+                                new XAttribute("value", XmlEscape(value))
+                            )
+                        );
 
                 testResultElement.Add(traitsElement);
             }

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Xml;
 using Xunit;
+using Xunit.Abstractions;
 
 internal static class XmlNodeExtensions
 {
@@ -14,7 +14,7 @@ internal static class XmlNodeExtensions
         var type = xml.Attributes["type"].Value;
         var method = xml.Attributes["method"].Value;
         string skipReason = null;
-        var traits = new Dictionary<string, string>();
+        var traits = new MultiValueDictionary<string, string>();
 
         var skipReasonAttribute = xml.Attributes["skip"];
         if (skipReasonAttribute != null)

@@ -58,8 +58,8 @@ public class XunitTestCaseTests
 
         var testCase = new XunitTestCase(testCollection, assmInfo, type, method, fact);
 
-        Assert.Equal("Value1", testCase.Traits["Trait1"]);
-        Assert.Equal("Value2", testCase.Traits["Trait2"]);
+        Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
+        Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
     }
 
     public class DisplayName

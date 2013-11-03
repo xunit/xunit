@@ -38,8 +38,9 @@ namespace Xunit.Runner.VisualStudio
             result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, serializedTestCase);
 
             if (addTraitThunk != null)
-                foreach (var trait in xunitTestCase.Traits)
-                    addTraitThunk(result, trait.Key, trait.Value);
+                foreach (var key in xunitTestCase.Traits)
+                    foreach (var value in xunitTestCase.Traits[key])
+                        addTraitThunk(result, key, value);
 
             result.CodeFilePath = xunitTestCase.SourceInformation.FileName;
             result.LineNumber = xunitTestCase.SourceInformation.LineNumber.GetValueOrDefault();

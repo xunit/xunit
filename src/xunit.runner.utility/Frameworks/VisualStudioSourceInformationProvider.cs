@@ -36,6 +36,7 @@ namespace Xunit
             };
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (session != null)

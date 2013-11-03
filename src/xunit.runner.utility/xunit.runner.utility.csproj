@@ -54,6 +54,9 @@
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\common\SerializationInfoExtensions.cs">
+      <Link>Common\SerializationInfoExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\xunit2\Sdk\Messages\BaseMessages\TestCaseMessage.cs">
       <Link>Frameworks\Messages\BaseMessages\TestCaseMessage.cs</Link>
     </Compile>
@@ -150,7 +153,6 @@
     <Compile Include="Utility\LongLivedMarshalByRefObject.cs" />
     <Compile Include="Utility\AssemblyHelper.cs" />
     <Compile Include="Utility\RemotingUtility.cs" />
-    <Compile Include="Utility\SerializationInfoExtensions.cs" />
     <Compile Include="Visitors\TestMessageVisitor.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -48,6 +48,9 @@
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\common\SerializationInfoExtensions.cs">
+      <Link>Common\SerializationInfoExtensions.cs</Link>
+    </Compile>
     <Compile Include="Asserts\Assert.cs" />
     <Compile Include="Asserts\BooleanAsserts.cs" />
     <Compile Include="Asserts\CollectionAsserts.cs" />
