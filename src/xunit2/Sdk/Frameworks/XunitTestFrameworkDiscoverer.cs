@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace Xunit.Sdk
         public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
 
         readonly IAssemblyInfo assemblyInfo;
+        readonly Dictionary<Type, IXunitDiscoverer> discoverers = new Dictionary<Type, IXunitDiscoverer>();
         readonly IMessageAggregator messageAggregator;
         readonly ISourceInformationProvider sourceProvider;
 
@@ -132,15 +134,15 @@ namespace Xunit.Sdk
                             var discovererType = Reflector.GetType(args[1], args[0]);
                             if (discovererType != null)
                             {
-                                IXunitDiscoverer discoverer = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
+                                IXunitDiscoverer discoverer = GetDiscoverer(discovererType);
 
-                                foreach (XunitTestCase testCase in discoverer.Discover(testCollection, assemblyInfo, type, method, factAttribute))
-                                    if (!messageSink.OnMessage(new TestCaseDiscoveryMessage(UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation))))
-                                        return false;
+                                if (discoverer != null)
+                                    foreach (XunitTestCase testCase in discoverer.Discover(testCollection, assemblyInfo, type, method, factAttribute))
+                                        if (!messageSink.OnMessage(new TestCaseDiscoveryMessage(UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation))))
+                                            return false;
                             }
-                            // TODO: Figure out a way to report back an error when discovererType is not available
-                            // TODO: What if the discovererType can't be created or cast to IXunitDiscoverer?
-                            // TODO: Performance optimization: cache instances of the discoverer type
+                            else
+                                messageAggregator.Add(new EnvironmentalWarning { Message = String.Format("Could not create discoverer type '{0}, {1}'", args[0], args[1]) });
                         }
                     }
                 }
@@ -155,6 +157,28 @@ namespace Xunit.Sdk
             }
 
             return true;
+        }
+
+        IXunitDiscoverer GetDiscoverer(Type discovererType)
+        {
+            IXunitDiscoverer result;
+
+            if (!discoverers.TryGetValue(discovererType, out result))
+            {
+                try
+                {
+                    result = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
+                }
+                catch (Exception ex)
+                {
+                    result = null;
+                    messageAggregator.Add(new EnvironmentalWarning { Message = String.Format("Discoverer type '{0}' could not be created or does not implement IXunitDiscoverer: {1}", discovererType.FullName, ex) });
+                }
+
+                discoverers[discovererType] = result;
+            }
+
+            return result;
         }
 
         internal static IXunitTestCollectionFactory GetTestCollectionFactory(IAssemblyInfo assemblyInfo, IAttributeInfo collectionBehaviorAttribute)
