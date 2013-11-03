@@ -124,6 +124,10 @@
       <Link>Frameworks\Messages\TestStarting.cs</Link>
     </Compile>
     <Compile Include="Frameworks\AppDomainTestFramework.cs" />
+    <Compile Include="Utility\DiaNavigationData.cs" />
+    <Compile Include="Utility\DiaSession.cs" />
+    <Compile Include="Utility\DiaSessionWrapper.cs" />
+    <Compile Include="Utility\DiaSessionWrapperHelper.cs" />
     <Compile Include="Frameworks\NullSourceInformationProvider.cs" />
     <Compile Include="Frameworks\v1\IXunit1Executor.cs" />
     <Compile Include="Frameworks\v1\TestClassCallbackHandler.cs" />

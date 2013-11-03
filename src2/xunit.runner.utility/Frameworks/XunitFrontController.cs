@@ -11,6 +11,7 @@ namespace Xunit
     /// </summary>
     public class XunitFrontController : IFrontController
     {
+        readonly IDisposable createdSourceInformationProvider;
         readonly IFrontController innerController;
 
         /// <summary>
@@ -24,13 +25,19 @@ namespace Xunit
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
+        /// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="VisualStudioSourceInformationProvider"/>).</param>
         /// tests to be discovered and run without locking assembly files on disk.</param>
-        public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true)
+        public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true, ISourceInformationProvider sourceInformationProvider = null)
         {
             Guard.FileExists("assemblyFileName", assemblyFileName);
             var xunit1Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
             var xunit2Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit2.dll");
-            var sourceInformationProvider = new VisualStudioSourceInformationProvider();
+
+            if (sourceInformationProvider == null)
+            {
+                sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
+                createdSourceInformationProvider = sourceInformationProvider;
+            }
 
             if (File.Exists(xunit2Path))
                 innerController = new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
@@ -56,6 +63,7 @@ namespace Xunit
         public void Dispose()
         {
             innerController.SafeDispose();
+            createdSourceInformationProvider.SafeDispose();
         }
 
         /// <inheritdoc/>

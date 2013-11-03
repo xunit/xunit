@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -8,13 +9,37 @@ namespace Xunit
     /// </summary>
     public class VisualStudioSourceInformationProvider : LongLivedMarshalByRefObject, ISourceInformationProvider
     {
+        static readonly SourceInformation EmptySourceInformation = new SourceInformation();
+
+        readonly DiaSessionWrapper session;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VisualStudioSourceInformationProvider" /> class.
+        /// </summary>
+        /// <param name="assemblyFileName">The assembly file name.</param>
+        public VisualStudioSourceInformationProvider(string assemblyFileName)
+        {
+            session = new DiaSessionWrapper(assemblyFileName);
+        }
+
         /// <inheritdoc/>
         public SourceInformation GetSourceInformation(ITestCase testCase)
         {
-            return new SourceInformation();
+            var navData = session.GetNavigationData(testCase.Class.Name, testCase.Method.Name);
+            if (navData == null)
+                return EmptySourceInformation;
 
-            // TODO: Load DiaSession dynamically, since it's only available when running inside of Visual Studio.
-            //       Or look at the CCI2 stuff from the Rx framework: https://github.com/Reactive-Extensions/IL2JS/tree/master/CCI2/PdbReader
+            return new SourceInformation
+            {
+                FileName = navData.FileName,
+                LineNumber = navData.LineNumber
+            };
+        }
+
+        public void Dispose()
+        {
+            if (session != null)
+                session.Dispose();
         }
     }
 }

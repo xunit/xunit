@@ -144,13 +144,17 @@ namespace Xunit.Sdk
                         }
                     }
                 }
-
-                return true;
+            }
+            catch (Exception ex)
+            {
+                messageAggregator.Add(new EnvironmentalWarning { Message = "Exception during discovery:" + Environment.NewLine + ex.ToString() });
             }
             finally
             {
                 Directory.SetCurrentDirectory(currentDirectory);
             }
+
+            return true;
         }
 
         internal static IXunitTestCollectionFactory GetTestCollectionFactory(IAssemblyInfo assemblyInfo, IAttributeInfo collectionBehaviorAttribute)

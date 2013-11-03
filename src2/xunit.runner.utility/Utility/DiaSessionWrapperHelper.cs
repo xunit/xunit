@@ -4,12 +4,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Xunit.Runner.VisualStudio
+namespace Xunit
 {
     internal class DiaSessionWrapperHelper : LongLivedMarshalByRefObject
     {
-        Assembly assembly;
-        static Func<MethodInfo, Type> GetStateMachineType = InitializeGetStateMachineType();
+        static readonly Func<MethodInfo, Type> GetStateMachineType = InitializeGetStateMachineType();
+
+        readonly Assembly assembly;
 
         public DiaSessionWrapperHelper(string assemblyFileName)
         {

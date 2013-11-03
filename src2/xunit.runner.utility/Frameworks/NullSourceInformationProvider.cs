@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -14,5 +15,7 @@ namespace Xunit
         {
             return new SourceInformation();
         }
+
+        public void Dispose() { }
     }
 }

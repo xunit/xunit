@@ -10,12 +10,11 @@ namespace Xunit.Runner.VisualStudio
 {
     public class VsDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
     {
-        static Action<TestCase, string, string> addTraitThunk = GetAddTraitThunk();
+        static readonly Action<TestCase, string, string> addTraitThunk = GetAddTraitThunk();
 
-        static Uri uri = new Uri(Constants.ExecutorUri);
+        static readonly Uri uri = new Uri(Constants.ExecutorUri);
 
         readonly Func<bool> cancelThunk;
-        readonly DiaSessionWrapper diaSession;
         readonly ITestFrameworkDiscoverer discoverer;
         readonly ITestCaseDiscoverySink discoverySink;
         readonly IMessageLogger logger;
@@ -28,22 +27,10 @@ namespace Xunit.Runner.VisualStudio
             this.logger = logger;
             this.discoverySink = discoverySink;
             this.cancelThunk = cancelThunk;
-
-            diaSession = new DiaSessionWrapper(source);
         }
 
-        public override void Dispose()
+        public static TestCase CreateVsTestCase(IMessageLogger logger, string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase)
         {
-            if (diaSession != null)
-                diaSession.Dispose();
-
-            base.Dispose();
-        }
-
-        public static TestCase CreateVsTestCase(IMessageLogger logger, string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, DiaSessionWrapper diaSession = null)
-        {
-            string typeName = xunitTestCase.Class.Name;
-            string methodName = xunitTestCase.Method.Name;
             string serializedTestCase = discoverer.Serialize(xunitTestCase);
             string uniqueName = String.Format("{0}.{1} ({2})", xunitTestCase.Class.Name, xunitTestCase.Method.Name, xunitTestCase.UniqueID);
 
@@ -54,16 +41,8 @@ namespace Xunit.Runner.VisualStudio
                 foreach (var trait in xunitTestCase.Traits)
                     addTraitThunk(result, trait.Key, trait.Value);
 
-            // TODO: This code belongs in xunit2
-            if (diaSession != null)
-            {
-                DiaNavigationData navigationData = diaSession.GetNavigationData(typeName, methodName);
-                if (navigationData != null)
-                {
-                    result.CodeFilePath = navigationData.FileName;
-                    result.LineNumber = navigationData.MinLineNumber;
-                }
-            }
+            result.CodeFilePath = xunitTestCase.SourceInformation.FileName;
+            result.LineNumber = xunitTestCase.SourceInformation.LineNumber.GetValueOrDefault();
 
             return result;
         }
@@ -107,7 +86,7 @@ namespace Xunit.Runner.VisualStudio
 
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)
         {
-            discoverySink.SendTestCase(CreateVsTestCase(logger, source, discoverer, discovery.TestCase, diaSession));
+            discoverySink.SendTestCase(CreateVsTestCase(logger, source, discoverer, discovery.TestCase));
 
             return !cancelThunk();
         }

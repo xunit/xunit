@@ -40,8 +40,6 @@
       <Link>Visitors\TestDiscoveryVisitor.cs</Link>
     </Compile>
     <Compile Include="Constants.cs" />
-    <Compile Include="DiaSessionWrapper.cs" />
-    <Compile Include="DiaSessionWrapperHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>

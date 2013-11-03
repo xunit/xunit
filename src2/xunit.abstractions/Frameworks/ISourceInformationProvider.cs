@@ -1,10 +1,12 @@
-﻿namespace Xunit.Abstractions
+﻿using System;
+
+namespace Xunit.Abstractions
 {
     /// <summary>
     /// Represents a provider which gives source line information for a test case. Generally
     /// consumed by an implementation of <see cref="ITestFrameworkDiscoverer"/> during Find operations.
     /// </summary>
-    public interface ISourceInformationProvider
+    public interface ISourceInformationProvider : IDisposable
     {
         /// <summary>
         /// Returns the source information for a test case.

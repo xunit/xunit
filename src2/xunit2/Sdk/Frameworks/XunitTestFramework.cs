@@ -40,6 +40,8 @@ namespace Xunit.Sdk
             {
                 return new SourceInformation();
             }
+
+            public void Dispose() { }
         }
     }
 }
