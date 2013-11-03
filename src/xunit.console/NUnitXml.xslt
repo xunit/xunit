@@ -90,6 +90,13 @@
           <xsl:value-of select="@time"/>
         </xsl:attribute>
       </xsl:if>
+      <xsl:if test="reason">
+        <reason>
+          <message>
+            <xsl:apply-templates select="reason"/>
+          </message>
+        </reason>
+      </xsl:if>
       <xsl:apply-templates select="traits"/>
       <xsl:apply-templates select="failure"/>
     </test-case>

@@ -2,15 +2,11 @@
 <RuleSet Name="FxCop rules for xUnit.net" Description="Rules for running FxCop against xUnit.net framework assemblies" ToolsVersion="11.0">
   <IncludeAll Action="Error" />
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
-    <!-- CA1002:DoNotExposeGenericLists -->
     <Rule Id="CA1002" Action="None" />
-    <!-- CA1063:ImplementIDisposableCorrectly -->
     <Rule Id="CA1063" Action="None" />
-    <!-- CA1303:Do not pass literals as localized parameters -->
     <Rule Id="CA1303" Action="None" />
-    <!-- CA1720:IdentifiersShouldNotContainTypeNames -->
     <Rule Id="CA1720" Action="None" />
-    <!-- CA1816:CallGCSuppressFinalizeCorrectly -->
+    <Rule Id="CA1813" Action="None" />
     <Rule Id="CA1816" Action="None" />
   </Rules>
 </RuleSet>

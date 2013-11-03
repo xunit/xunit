@@ -54,8 +54,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Moq">
-      <HintPath>..\..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    <Reference Include="NSubstitute">
+      <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -90,9 +90,9 @@
       <Project>{2CE5D729-2E2A-4D36-8161-0F215B1C46AF}</Project>
       <Name>xunit.runner.utility</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit\xunit.csproj">
+    <ProjectReference Include="..\..\src\xunit2\xunit2.csproj">
       <Project>{09EF9917-4B00-4646-8C3F-96EFACC8BF51}</Project>
-      <Name>xunit</Name>
+      <Name>xunit2</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 ﻿using System;
 using System.Reflection;
 
-[assembly: AssemblyTitle("xUnit.net Version-Independent Runner Support Library")]
+[assembly: AssemblyTitle("xUnit.net Runner Utility")]
 [assembly: CLSCompliant(true)]

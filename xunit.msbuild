@@ -17,10 +17,10 @@
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
-    <NuGetNuspecTargets Include="src2\*.nuspec" />
-    <NuGetCsprojTargets Include="src2\xunit2\xunit2.csproj;
-                                 src2\xunit.abstractions\xunit.abstractions.csproj;
-                                 src2\xunit.runner.utility\xunit.runner.utility.csproj" />
+    <NuGetNuspecTargets Include="src\*.nuspec" />
+    <NuGetCsprojTargets Include="src\xunit2\xunit2.csproj;
+                                 src\xunit.abstractions\xunit.abstractions.csproj;
+                                 src\xunit.runner.utility\xunit.runner.utility.csproj" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
     <PackageSource Include="https://nuget.org/api/v2/" />
@@ -62,17 +62,17 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="$(NuGetExePath) install xunit.buildtasks -Source @(PackageSource) -SolutionDir $(SolutionDir) -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)packages\xunit.buildtasks\')" />
-    <Exec Command="$(NuGetExePath) restore $(SolutionDir)xunit2.sln -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
+    <Exec Command="$(NuGetExePath) restore $(SolutionDir)xunit.sln -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
     <MSBuild
-        Projects="xunit2.sln"
+        Projects="xunit.sln"
         Targets="Build"
         Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
 
     <!-- Build Visual Studio VSIX -->
-    <MSBuild Projects="tools\xunit.vsix.msbuild" Properties="OutputPath=..\src2\xunit.runner.visualstudio\bin\$(Configuration)\" />
+    <MSBuild Projects="tools\xunit.vsix.msbuild" Properties="OutputPath=..\src\xunit.runner.visualstudio\bin\$(Configuration)\" />
 
     <!-- Build xunit.console.x86 -->
     <!--<Copy
@@ -139,7 +139,7 @@
     <RegexReplace
         Pattern='AssemblyVersion\("(\d+\.\d+\.\d+)\.\d+"\)'
         Replacement='AssemblyVersion("$1.$(BuildNumber)")'
-        Files='src2\common\GlobalAssemblyInfo.cs'/>
+        Files='src\common\GlobalAssemblyInfo.cs'/>
     <RegexReplace
         Pattern='&lt;version&gt;(\d+\.\d+\.\d+(-[A-Za-z0-9-]+)?)&lt;'
         Replacement='&lt;version&gt;$1-build$(BuildNumber)&lt;'
@@ -165,17 +165,17 @@
   <Target Name="Zip">
     <ItemGroup>
       <ZipFileList Include="license.txt"/>
-      <ZipFileList Include="src2\xunit2\bin\$(Configuration)\xunit2.??l"/>
-      <ZipFileList Include="src2\xunit2\bin\$(Configuration)\xunit2.dll.tdnet"/>
-      <ZipFileList Include="src2\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.??l"/>
+      <ZipFileList Include="src\xunit2\bin\$(Configuration)\xunit2.??l"/>
+      <ZipFileList Include="src\xunit2\bin\$(Configuration)\xunit2.dll.tdnet"/>
+      <ZipFileList Include="src\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.??l"/>
       <!--<ZipFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.exe*"/>
             <ZipFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe*"/>
             <ZipFileList Include="src\xunit.console\bin\$(Configuration)\*.xslt"/>
             <ZipFileList Include="src\xunit.gui\bin\$(Configuration)\xunit.gui.exe"/>
             <ZipFileList Include="src\xunit.gui\bin\$(Configuration).x86\xunit.gui.x86.exe"/>-->
-      <ZipFileList Include="src2\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.??l"/>
-      <ZipFileList Include="src2\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.dll"/>
-      <ZipFileList Include="src2\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"/>
+      <ZipFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.??l"/>
+      <ZipFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.dll"/>
+      <ZipFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"/>
     </ItemGroup>
     <Delete Files="xunit-build-$(BuildNumber).zip"/>
     <Zip
@@ -184,15 +184,15 @@
         StripPath="true"/>
 
     <ItemGroup>
-      <ZipPdbFileList Include="src2\xunit2\bin\$(Configuration)\xunit2.pdb"/>
-      <ZipPdbFileList Include="src2\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.pdb"/>
+      <ZipPdbFileList Include="src\xunit2\bin\$(Configuration)\xunit2.pdb"/>
+      <ZipPdbFileList Include="src\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.pdb"/>
       <!--<ZipPdbFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.pdb"/>
             <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.pdb"/>
             <ZipPdbFileList Include="src\xunit.gui\bin\$(Configuration)\xunit.gui.pdb"/>
             <ZipPdbFileList Include="src\xunit.gui\bin\$(Configuration).x86\xunit.gui.x86.pdb"/>-->
-      <ZipPdbFileList Include="src2\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.pdb"/>
-      <ZipPdbFileList Include="src2\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.pdb"/>
-      <ZipPdbFileList Include="src2\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.pdb"/>
+      <ZipPdbFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.pdb"/>
+      <ZipPdbFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.pdb"/>
+      <ZipPdbFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.pdb"/>
     </ItemGroup>
     <Delete Files="xunit-symbols-$(BuildNumber).zip"/>
     <Zip

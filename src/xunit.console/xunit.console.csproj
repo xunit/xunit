@@ -71,6 +71,9 @@
     <Compile Include="Utility\TransformFactory.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="xUnit1.xslt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="HTML.xslt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -82,6 +85,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">
+      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
+      <Name>xunit.abstractions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj">
       <Project>{2CE5D729-2E2A-4D36-8161-0F215B1C46AF}</Project>
       <Name>xunit.runner.utility</Name>

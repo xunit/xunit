@@ -1,20 +1,71 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit.Sdk;
+using Xunit;
+using Xunit.Abstractions;
 
-namespace TestUtility
+public class AcceptanceTest : IDisposable
 {
-    public class AcceptanceTest
+    protected Xunit2 Xunit2 { get; private set; }
+
+    public void Dispose()
     {
-        protected IEnumerable<MethodResult> RunClass(Type typeUnderTest)
+        if (Xunit2 != null)
+            Xunit2.Dispose();
+    }
+
+    public List<IMessageSinkMessage> Run(Type type, Func<IMessageSinkMessage, bool> cancellationThunk = null)
+    {
+        return Run(new[] { type }, cancellationThunk);
+    }
+
+    public List<IMessageSinkMessage> Run(Type[] types, Func<IMessageSinkMessage, bool> cancellationThunk = null)
+    {
+        Xunit2 = new Xunit2(new NullSourceInformationProvider(), new Uri(types[0].Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
+
+        bool cancelled = false;
+        Func<IMessageSinkMessage, bool> wrapper = msg =>
         {
-            ITestClassCommand testClassCommand = new TestClassCommand(typeUnderTest);
+            var result = true;
 
-            ClassResult classResult = TestClassCommandRunner.Execute(testClassCommand, testClassCommand.EnumerateTestMethods().ToList(),
-                                                                     startCallback: null, resultCallback: null);
+            if (cancellationThunk != null)
+                result = cancellationThunk(msg);
 
-            return classResult.Results.OfType<MethodResult>();
+            if (!result)
+                cancelled = true;
+
+            return result;
+        };
+
+        var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>(wrapper);
+        foreach (Type type in types)
+        {
+            Xunit2.Find(type.FullName, includeSourceInformation: false, messageSink: discoverySink);
+            discoverySink.Finished.WaitOne();
+            discoverySink.Finished.Reset();
         }
+
+        if (cancelled)
+            return new List<IMessageSinkMessage>();
+
+        var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
+
+        var runSink = new SpyMessageSink<ITestAssemblyFinished>(cancellationThunk);
+        Xunit2.Run(testCases, runSink);
+        runSink.Finished.WaitOne();
+
+        return runSink.Messages.ToList();
+    }
+
+    public List<TMessageType> Run<TMessageType>(Type type, Func<IMessageSinkMessage, bool> cancellationThunk = null)
+        where TMessageType : IMessageSinkMessage
+    {
+        return Run(type).OfType<TMessageType>().ToList();
+    }
+
+    public List<TMessageType> Run<TMessageType>(Type[] types, Func<IMessageSinkMessage, bool> cancellationThunk = null)
+        where TMessageType : IMessageSinkMessage
+    {
+        return Run(types).OfType<TMessageType>().ToList();
     }
 }

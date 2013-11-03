@@ -59,16 +59,15 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\common\TestDiscoveryVisitor.cs">
+      <Link>Visitors\TestDiscoveryVisitor.cs</Link>
+    </Compile>
+    <Compile Include="Visitors\ResultVisitor.cs" />
+    <Compile Include="TdNetRunnerHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TdNetLogger.cs" />
     <Compile Include="TdNetRunner.cs" />
-    <Compile Include="TestResultMapper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj">
-      <Project>{2CE5D729-2E2A-4D36-8161-0F215B1C46AF}</Project>
-      <Name>xunit.runner.utility</Name>
-    </ProjectReference>
+    <Compile Include="Extensions\XunitExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -86,6 +85,16 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">
+      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
+      <Name>xunit.abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj">
+      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
+      <Name>xunit.runner.utility</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

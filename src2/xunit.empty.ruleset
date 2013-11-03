@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Empty rules" Description="Turns off all FxCop rules, making it easier to run full solution analysis." ToolsVersion="11.0">
-  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
-    <!-- Have to enable one rule or FxCop issues a warning, so CA2242 is fairly innocuous -->
-    <Rule Id="CA2242" Action="Warning" />
-  </Rules>
-</RuleSet>
