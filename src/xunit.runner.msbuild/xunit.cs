@@ -120,7 +120,7 @@ namespace Xunit.Runner.MSBuild
                     int longestFailed = completionMessages.Values.Max(summary => summary.Failed.ToString().Length);
                     int longestSkipped = completionMessages.Values.Max(summary => summary.Skipped.ToString().Length);
 
-                    foreach (var message in completionMessages)
+                    foreach (var message in completionMessages.OrderBy(m => m.Key))
                         Log.LogMessage(MessageImportance.High,
                                        "  {0}  Total: {1}, Failed: {2}, Skipped: {3}",
                                        message.Key.PadRight(longestAssemblyName),
