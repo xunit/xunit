@@ -20,6 +20,7 @@ namespace Xunit
         {
             assemblies = new List<XunitProjectAssembly>();
             Filters = new XunitFilters();
+            Output = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -49,6 +50,15 @@ namespace Xunit
         /// the last time it was loaded or saved.
         /// </summary>
         public bool IsDirty { get; set; }
+
+        /// <summary>
+        /// Gets or sets the output filenames. The dictionary key is the type
+        /// of the file to be output; the dictionary value is the filename to
+        /// write the output to. Supported output types vary by runner (console
+        /// output types can be seen by getting help from the console runner;
+        /// MSBuild runner only supports 'html', 'xml', and 'xmlv1').
+        /// </summary>
+        public Dictionary<string, string> Output { get; set; }
 
         /// <summary>
         /// Adds an assembly to the project
@@ -91,7 +101,7 @@ namespace Xunit
                 throw new ArgumentException("The xUnit.net project file appears to be malformed.", "filename");
             }
 
-            foreach (XmlNode assemblyNode in doc.SelectNodes("xunit/assemblies/assembly"))
+            foreach (XmlNode assemblyNode in doc.SelectNodes("xunit2/assembly"))
             {
                 var assembly = new XunitProjectAssembly
                 {
@@ -103,12 +113,12 @@ namespace Xunit
                 if (assemblyNode.Attributes["shadow-copy"] != null)
                     assembly.ShadowCopy = Boolean.Parse(assemblyNode.Attributes["shadow-copy"].Value);
 
-                foreach (XmlNode outputNode in assemblyNode.SelectNodes("output"))
-                    assembly.Output.Add(outputNode.Attributes["type"].Value,
-                                        Path.GetFullPath(Path.Combine(directory, outputNode.Attributes["filename"].Value)));
-
                 result.assemblies.Add(assembly);
             }
+
+            foreach (XmlNode outputNode in doc.SelectNodes("xunit2/output"))
+                result.Output.Add(outputNode.Attributes["type"].Value,
+                                  Path.GetFullPath(Path.Combine(directory, outputNode.Attributes["filename"].Value)));
 
             if (result.assemblies.Count == 0)
                 throw new ArgumentException("The xUnit.net project file has no assemblies.", "filename");
@@ -150,8 +160,8 @@ namespace Xunit
             filename = Path.GetFullPath(filename);
             string directory = Path.GetDirectoryName(filename);
             var doc = new XmlDocument();
-            doc.LoadXml("<?xml version='1.0' encoding='utf-8'?><xunit><assemblies/></xunit>");
-            var assembliesNode = doc.SelectSingleNode("xunit/assemblies");
+            doc.LoadXml("<?xml version='1.0' encoding='utf-8'?><xunit2></xunit2>");
+            var xunit2Node = doc.SelectSingleNode("xunit2");
 
             foreach (var assembly in Assemblies)
             {
@@ -172,21 +182,22 @@ namespace Xunit
                 shadowCopyAttribute.Value = assembly.ShadowCopy.ToString().ToLowerInvariant();
                 assemblyNode.Attributes.Append(shadowCopyAttribute);
 
-                foreach (var kvp in assembly.Output)
-                {
-                    var outputElement = doc.CreateElement("output");
-                    assemblyNode.AppendChild(outputElement);
+                xunit2Node.AppendChild(assemblyNode);
+            }
 
-                    var outputTypeAttribute = doc.CreateAttribute("type");
-                    outputTypeAttribute.Value = kvp.Key;
-                    outputElement.Attributes.Append(outputTypeAttribute);
+            foreach (var kvp in Output)
+            {
+                var outputElement = doc.CreateElement("output");
 
-                    var outputFilenameAttribute = doc.CreateAttribute("filename");
-                    outputFilenameAttribute.Value = GetRelativePath(directory, kvp.Value);
-                    outputElement.Attributes.Append(outputFilenameAttribute);
-                }
+                var outputTypeAttribute = doc.CreateAttribute("type");
+                outputTypeAttribute.Value = kvp.Key;
+                outputElement.Attributes.Append(outputTypeAttribute);
 
-                assembliesNode.AppendChild(assemblyNode);
+                var outputFilenameAttribute = doc.CreateAttribute("filename");
+                outputFilenameAttribute.Value = GetRelativePath(directory, kvp.Value);
+                outputElement.Attributes.Append(outputFilenameAttribute);
+
+                xunit2Node.AppendChild(outputElement);
             }
 
             doc.Save(filename);

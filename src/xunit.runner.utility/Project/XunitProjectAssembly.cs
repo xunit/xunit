@@ -12,7 +12,6 @@ namespace Xunit
         /// </summary>
         public XunitProjectAssembly()
         {
-            Output = new Dictionary<string, string>();
             ShadowCopy = true;
         }
 
@@ -31,14 +30,5 @@ namespace Xunit
         /// when running the tests.
         /// </summary>
         public bool ShadowCopy { get; set; }
-
-        /// <summary>
-        /// Gets or sets the output filenames. The dictionary key is the type
-        /// of the file to be output; the dictionary value is the filename to
-        /// write the output to. Supported output types vary by runner (console
-        /// output types can be seen by getting help from the console runner;
-        /// MSBuild runner only supports 'html', 'xml', and 'xmlv1').
-        /// </summary>
-        public Dictionary<string, string> Output { get; set; }
     }
 }
