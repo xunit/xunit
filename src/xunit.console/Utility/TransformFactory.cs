@@ -1,25 +1,26 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Configuration;
-//using System.IO;
-//using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Reflection;
 
-//namespace Xunit.ConsoleClient
-//{
-//    public class TransformFactory
-//    {
-//        string executablePath;
-//        static TransformFactory instance = new TransformFactory();
+namespace Xunit.ConsoleClient
+{
+    public class TransformFactory
+    {
+        static readonly TransformFactory instance = new TransformFactory();
 
-//        protected TransformFactory()
-//        {
-//            string assemblyCodeBase = Assembly.GetExecutingAssembly().CodeBase;
-//            executablePath = Path.GetDirectoryName(new Uri(assemblyCodeBase).LocalPath);
-//            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-//            Config = (XunitConsoleConfigurationSection)config.GetSection("xunit") ?? new XunitConsoleConfigurationSection();
-//        }
+        readonly string executablePath;
 
-//        protected XunitConsoleConfigurationSection Config { get; set; }
+        protected TransformFactory()
+        {
+            string assemblyCodeBase = Assembly.GetExecutingAssembly().CodeBase;
+            executablePath = Path.GetDirectoryName(new Uri(assemblyCodeBase).LocalPath);
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            Config = (XunitConsoleConfigurationSection)config.GetSection("xunit") ?? new XunitConsoleConfigurationSection();
+        }
+
+        protected XunitConsoleConfigurationSection Config { get; set; }
 
 //        protected virtual bool FileExists(string filename)
 //        {
@@ -65,10 +66,10 @@
 //            return null;
 //        }
 
-//        public static IEnumerable<TransformConfigurationElement> GetInstalledTransforms()
-//        {
-//            foreach (TransformConfigurationElement element in instance.Config.Transforms)
-//                yield return element;
-//        }
-//    }
-//}
+        public static IEnumerable<TransformConfigurationElement> GetInstalledTransforms()
+        {
+            foreach (TransformConfigurationElement element in instance.Config.Transforms)
+                yield return element;
+        }
+    }
+}

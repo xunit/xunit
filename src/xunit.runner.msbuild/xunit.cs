@@ -14,7 +14,7 @@ namespace Xunit.Runner.MSBuild
     public class xunit : MSBuildTask, ICancelableTask
     {
         volatile bool cancel;
-        ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
+        readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
 
         public xunit()
         {

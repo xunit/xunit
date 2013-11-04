@@ -68,12 +68,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandLineFacts.cs" />
+    <Compile Include="CommandLineTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\StackFrameTransformerTests.cs" />
     <Compile Include="Utility\TransformFactoryFacts.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\xunit.abstractions\xunit.abstractions.csproj">
+      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
+      <Name>xunit.abstractions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\test.utility\test.utility.csproj">
       <Project>{4FEC8604-E544-43C2-979C-F0815B5770E2}</Project>
       <Name>test.utility</Name>

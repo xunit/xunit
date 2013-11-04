@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runner.MSBuild
+﻿namespace Xunit
 {
     public class ExecutionSummary
     {

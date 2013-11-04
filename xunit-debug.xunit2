@@ -1,0 +1,10 @@
+<xunit2>
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.abstractions\bin\Debug\test.xunit.abstractions.dll" />
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.console\bin\Debug\test.xunit.console.dll" />
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.runner.msbuild\bin\Debug\test.xunit.runner.msbuild.dll" />
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.runner.tdnet\bin\Debug\test.xunit.runner.tdnet.dll" />
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.runner.utility\bin\Debug\test.xunit.runner.utility.dll" />
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.runner.visualstudio\bin\Debug\test.xunit.runner.visualstudio.dll" />
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit1\bin\Debug\test.xunit1.dll" />
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit2\bin\Debug\test.xunit2.dll" />
+</xunit2>

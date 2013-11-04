@@ -53,10 +53,18 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\common\TestDiscoveryVisitor.cs">
+      <Link>Common\TestDiscoveryVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\common\XmlTestExecutionVisitor.cs">
+      <Link>Common\XmlTestExecutionVisitor.cs</Link>
     </Compile>
     <Compile Include="CommandLine.cs" />
     <Compile Include="Config\TransformConfigurationElement.cs" />
@@ -69,15 +77,14 @@
     <Compile Include="RunnerCallbacks\TeamCityRunnerCallback.cs" />
     <Compile Include="Utility\StackFrameTransformer.cs" />
     <Compile Include="Utility\TransformFactory.cs" />
+    <Compile Include="Visitors\StandardOutputVisitor.cs" />
+    <Compile Include="Visitors\TeamCityVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="xUnit1.xslt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="HTML.xslt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="NUnitXml.xslt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
