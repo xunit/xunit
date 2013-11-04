@@ -59,7 +59,7 @@ namespace Xunit.Runner.MSBuild
             return new XunitFrontController(assemblyFilename, configFileName, ShadowCopy);
         }
 
-        protected virtual MSBuildVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)
+        protected virtual XmlTestExecutionVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)
         {
             if (TeamCity)
                 return new TeamCityVisitor(Log, assemblyElement, () => cancel);

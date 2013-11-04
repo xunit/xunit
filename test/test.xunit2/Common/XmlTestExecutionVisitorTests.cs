@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Runner.MSBuild;
 
-public class MSBuildVisitorTests
+public class XmlTestExecutionVisitorTests
 {
     public class OnMessage
     {
-        IMessageSinkMessage testMessage;
+        readonly IMessageSinkMessage testMessage;
 
         public OnMessage()
         {
@@ -22,8 +20,7 @@ public class MSBuildVisitorTests
         [Fact]
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
-            var logger = SpyLogger.Create();
-            var visitor = new MSBuildVisitor(logger, null, () => true);
+            var visitor = new XmlTestExecutionVisitor(null, () => true);
 
             var result = visitor.OnMessage(testMessage);
 
@@ -33,8 +30,7 @@ public class MSBuildVisitorTests
         [Fact]
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
-            var logger = SpyLogger.Create();
-            var visitor = new MSBuildVisitor(logger, null, () => false);
+            var visitor = new XmlTestExecutionVisitor(null, () => false);
 
             var result = visitor.OnMessage(testMessage);
 
@@ -53,8 +49,7 @@ public class MSBuildVisitorTests
             assemblyFinished.TestsSkipped.Returns(6);
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
-            var logger = SpyLogger.Create();
-            var visitor = new MSBuildVisitor(logger, null, () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
+            var visitor = new XmlTestExecutionVisitor(null, () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
 
             visitor.OnMessage(assemblyFinished);
 
@@ -77,9 +72,8 @@ public class MSBuildVisitorTests
             assemblyStarting.TestEnvironment.Returns("256-bit MentalFloss");
             assemblyStarting.TestFrameworkDisplayName.Returns("xUnit.net v14.42");
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(assemblyStarting);
 
@@ -97,9 +91,8 @@ public class MSBuildVisitorTests
             var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
             assemblyStarting.ConfigFileName.Returns((string)null);
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(assemblyStarting);
 
@@ -115,9 +108,8 @@ public class MSBuildVisitorTests
             assemblyFinished.TestsSkipped.Returns(6);
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(assemblyFinished);
 
@@ -141,9 +133,8 @@ public class MSBuildVisitorTests
             testCollectionFinished.TestsSkipped.Returns(6);
             testCollectionFinished.ExecutionTime.Returns(123.4567M);
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(testCollectionFinished);
             visitor.OnMessage(assemblyFinished);
@@ -168,16 +159,15 @@ public class MSBuildVisitorTests
             testPassed.TestDisplayName.Returns("Test Display Name");
             testPassed.ExecutionTime.Returns(123.4567M);
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(testPassed);
             visitor.OnMessage(assemblyFinished);
 
             var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
             Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-            Assert.Equal("MSBuildVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
+            Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Pass", testElement.Attribute("result").Value);
             Assert.Equal("123.457", testElement.Attribute("time").Value);
@@ -201,16 +191,15 @@ public class MSBuildVisitorTests
             testFailed.Message.Returns("Exception Message");
             testFailed.StackTrace.Returns("Exception Stack Trace");
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(testFailed);
             visitor.OnMessage(assemblyFinished);
 
             var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
             Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-            Assert.Equal("MSBuildVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
+            Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Fail", testElement.Attribute("result").Value);
             Assert.Equal("123.457", testElement.Attribute("time").Value);
@@ -230,9 +219,8 @@ public class MSBuildVisitorTests
             testFailed.TestCase.Returns(testCase);
             testFailed.StackTrace.Returns((string)null);
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(testFailed);
             visitor.OnMessage(assemblyFinished);
@@ -253,16 +241,15 @@ public class MSBuildVisitorTests
             testSkipped.ExecutionTime.Returns(0.0M);
             testSkipped.Reason.Returns("Skip Reason");
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(testSkipped);
             visitor.OnMessage(assemblyFinished);
 
             var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
             Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-            Assert.Equal("MSBuildVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
+            Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Skip", testElement.Attribute("result").Value);
             Assert.Equal("0.000", testElement.Attribute("time").Value);
@@ -280,9 +267,8 @@ public class MSBuildVisitorTests
             var testPassed = Substitute.For<ITestPassed>();
             testPassed.TestCase.Returns(testCase);
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(testPassed);
             visitor.OnMessage(assemblyFinished);
@@ -306,9 +292,8 @@ public class MSBuildVisitorTests
             var testPassed = Substitute.For<ITestPassed>();
             testPassed.TestCase.Returns(passingTestCase);
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(testPassed);
             visitor.OnMessage(assemblyFinished);
@@ -330,9 +315,8 @@ public class MSBuildVisitorTests
             testSkipped.TestDisplayName.Returns("Display\0\r\nName");
             testSkipped.Reason.Returns("Bad\0\r\nString");
 
-            var logger = SpyLogger.Create();
             var assemblyElement = new XElement("assembly");
-            var visitor = new MSBuildVisitor(logger, assemblyElement, () => false);
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
 
             visitor.OnMessage(testSkipped);
             visitor.OnMessage(assemblyFinished);

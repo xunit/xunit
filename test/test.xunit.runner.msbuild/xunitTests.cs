@@ -79,7 +79,7 @@ public class xunitTests
         [Fact]
         public void CallsExecuteAssemblyOnceForEachAssembly()
         {
-            var visitor = new MSBuildVisitor(null, null, null);
+            var visitor = new XmlTestExecutionVisitor(null, null);
             visitor.Finished.Set();
             var assm1 = new TaskItem(@"C:\Full\Path\1");
             var assm2 = new TaskItem(@"C:\Full\Path\2", new Dictionary<string, string> { { "ConfigFile", @"C:\Config\File" } });
@@ -117,7 +117,7 @@ public class xunitTests
         [Fact]
         public void ReturnsFalseWhenFailCountIsNonZero()
         {
-            var visitor = new MSBuildVisitor(null, null, null) { Failed = 1 };
+            var visitor = new XmlTestExecutionVisitor(null, null) { Failed = 1 };
             visitor.Finished.Set();
             var task = Substitute.For<ITaskItem>();
             task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
@@ -135,7 +135,7 @@ public class xunitTests
 
             try
             {
-                var visitor = new MSBuildVisitor(null, null, null) { Failed = 1 };
+                var visitor = new XmlTestExecutionVisitor(null, null) { Failed = 1 };
                 visitor.Finished.Set();
                 var task = Substitute.For<ITaskItem>();
                 task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
@@ -160,7 +160,7 @@ public class xunitTests
 
             try
             {
-                var visitor = new MSBuildVisitor(null, null, null) { Failed = 1 };
+                var visitor = new XmlTestExecutionVisitor(null, null) { Failed = 1 };
                 visitor.Finished.Set();
                 var task = Substitute.For<ITaskItem>();
                 task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
@@ -186,7 +186,7 @@ public class xunitTests
 
             try
             {
-                var visitor = new MSBuildVisitor(null, null, null) { Failed = 1 };
+                var visitor = new XmlTestExecutionVisitor(null, null) { Failed = 1 };
                 visitor.Finished.Set();
                 var task = Substitute.For<ITaskItem>();
                 task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
@@ -248,7 +248,7 @@ public class xunitTests
     public class Testable_xunit : xunit
     {
         public Exception CreateFrontController_Exception;
-        public MSBuildVisitor CreateVisitor_Result;
+        public XmlTestExecutionVisitor CreateVisitor_Result;
         public readonly List<string> ExecuteAssembly_Calls = new List<string>();
         public readonly IFrontController FrontController;
         public readonly List<ITestCase> DiscoveryTestCases = new List<ITestCase>();
@@ -285,7 +285,7 @@ public class xunitTests
             return _CreateFrontController(assemblyFilename, configFileName);
         }
 
-        public MSBuildVisitor _CreateVisitor(string assemblyFileName)
+        public XmlTestExecutionVisitor _CreateVisitor(string assemblyFileName)
         {
             if (CreateVisitor_Result != null)
                 return CreateVisitor_Result;
@@ -293,7 +293,7 @@ public class xunitTests
             return base.CreateVisitor(assemblyFileName, null);
         }
 
-        protected override MSBuildVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)
+        protected override XmlTestExecutionVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)
         {
             return _CreateVisitor(assemblyFileName);
         }

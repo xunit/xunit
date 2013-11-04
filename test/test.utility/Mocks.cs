@@ -113,8 +113,10 @@ public static class Mocks
             throw new Exception("Unknown method: " + typeUnderTest.FullName + "." + methodName);
 
         var result = Substitute.For<ITestCase>();
+        var methodInfoWrapper = Reflector.Wrap(methodInfo);
         result.Class.Returns(Reflector.Wrap(typeUnderTest));
-        result.Method.Returns(Reflector.Wrap(methodInfo));
+        result.Method.Returns(methodInfoWrapper);
+        result.Traits.Returns(GetTraits(methodInfoWrapper));
         return result;
     }
 
@@ -169,6 +171,19 @@ public static class Mocks
         var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).SingleOrDefault();
 
         return new XunitTestCase(testCollection, assemblyInfo, typeInfo, methodInfo, factAttribute);
+    }
+
+    private static IMultiValueDictionary<string, string> GetTraits(IMethodInfo method)
+    {
+        var result = new MultiValueDictionary<string, string>();
+
+        foreach (IAttributeInfo traitAttribute in method.GetCustomAttributes(typeof(TraitAttribute)))
+        {
+            var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
+            result.Add((string)ctorArgs[0], (string)ctorArgs[1]);
+        }
+
+        return result;
     }
 
     private static Type GetType(string assemblyQualifiedAttributeTypeName)

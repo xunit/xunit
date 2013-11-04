@@ -48,7 +48,6 @@
     <Compile Include="Utility\SpyLogger.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Visitors\MSBuildVisitorTests.cs" />
     <Compile Include="Visitors\StandardOutputVisitorTests.cs">
       <SubType>Code</SubType>
     </Compile>
