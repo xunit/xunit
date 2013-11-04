@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="Frameworks\v1\Xunit1TestCaseTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1Tests.cs" />
+    <Compile Include="Project\XunitFiltersTests.cs" />
+    <Compile Include="Project\XunitProjectTests.cs" />
     <Compile Include="SpyTestMessageVisitor.cs" />
     <Compile Include="Frameworks\v2\Xunit2Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

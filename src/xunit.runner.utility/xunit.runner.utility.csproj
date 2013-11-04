@@ -127,6 +127,8 @@
       <Link>Frameworks\Messages\TestStarting.cs</Link>
     </Compile>
     <Compile Include="Frameworks\AppDomainTestFramework.cs" />
+    <Compile Include="Project\XunitFilters.cs" />
+    <Compile Include="Project\XunitProjectAssembly.cs" />
     <Compile Include="Utility\DiaNavigationData.cs" />
     <Compile Include="Utility\DiaSession.cs" />
     <Compile Include="Utility\DiaSessionWrapper.cs" />
@@ -153,6 +155,7 @@
     <Compile Include="Utility\LongLivedMarshalByRefObject.cs" />
     <Compile Include="Utility\AssemblyHelper.cs" />
     <Compile Include="Utility\RemotingUtility.cs" />
+    <Compile Include="Project\XunitProject.cs" />
     <Compile Include="Visitors\TestMessageVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
