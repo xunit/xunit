@@ -45,7 +45,7 @@ namespace Xunit
         /// </summary>
         /// <param name="node">The arriving XML node.</param>
         /// <returns>Return <c>true</c> to continue running tests; <c>false</c> to stop running tests.</returns>
-        protected virtual bool OnXmlNode(XmlNode node)
+        public virtual bool OnXmlNode(XmlNode node)
         {
             if (callback != null)
                 return callback(node);

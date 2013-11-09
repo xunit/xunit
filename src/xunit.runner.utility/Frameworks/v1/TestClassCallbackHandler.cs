@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 using Xunit.Abstractions;
@@ -49,10 +50,10 @@ namespace Xunit
         {
             SendTestCaseMessagesWhenAppropriate(null);
 
-            TestClassResults.Time = Decimal.Parse(xml.Attributes["time"].Value);
-            TestClassResults.Total = Int32.Parse(xml.Attributes["total"].Value);
-            TestClassResults.Failed = Int32.Parse(xml.Attributes["failed"].Value);
-            TestClassResults.Skipped = Int32.Parse(xml.Attributes["skipped"].Value);
+            TestClassResults.Time = Decimal.Parse(xml.Attributes["time"].Value, CultureInfo.InvariantCulture);
+            TestClassResults.Total = Int32.Parse(xml.Attributes["total"].Value, CultureInfo.InvariantCulture);
+            TestClassResults.Failed = Int32.Parse(xml.Attributes["failed"].Value, CultureInfo.InvariantCulture);
+            TestClassResults.Skipped = Int32.Parse(xml.Attributes["skipped"].Value, CultureInfo.InvariantCulture);
             return TestClassResults.Continue;
         }
 
@@ -68,7 +69,7 @@ namespace Xunit
             var @continue = true;
             var testCase = FindTestCase(xml.Attributes["type"].Value, xml.Attributes["method"].Value);
             var timeAttribute = xml.Attributes["time"];
-            var time = timeAttribute == null ? 0M : Decimal.Parse(timeAttribute.Value);
+            var time = timeAttribute == null ? 0M : Decimal.Parse(timeAttribute.Value, CultureInfo.InvariantCulture);
             var displayName = xml.Attributes["name"].Value;
             ITestCaseMessage resultMessage = null;
 
@@ -104,7 +105,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        protected override bool OnXmlNode(XmlNode xml)
+        public override bool OnXmlNode(XmlNode xml)
         {
             Predicate<XmlNode> handler;
             if (handlers.TryGetValue(xml.Name, out handler))

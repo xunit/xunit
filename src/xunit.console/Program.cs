@@ -64,7 +64,7 @@ namespace Xunit.ConsoleClient
             if (ex != null)
                 Console.WriteLine(ex.ToString());
             else
-                Console.WriteLine("Error of unknown type thrown in applicaton domain");
+                Console.WriteLine("Error of unknown type thrown in application domain");
 
             Environment.Exit(1);
         }
@@ -181,8 +181,8 @@ namespace Xunit.ConsoleClient
             try
             {
                 using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy))
+                using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
-                    var discoveryVisitor = new TestDiscoveryVisitor();
                     controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
                     discoveryVisitor.Finished.WaitOne();
 
