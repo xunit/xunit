@@ -231,17 +231,43 @@ public class xunitTests
         public void RunsDiscoveredTests()
         {
             var xunit = new Testable_xunit();
+            xunit.DiscoveryTestCases.Add(Substitute.For<ITestCase>());
             var runTestCases = new List<ITestCase>();
             xunit.FrontController.WhenAny(fc => fc.Run(null, null))
                                  .Do(callInfo =>
                                  {
                                      runTestCases.AddRange((IEnumerable<ITestCase>)callInfo[0]);
-                                     ((IMessageSink)callInfo[1]).OnMessage(Substitute.For<ITestAssemblyFinished>());
                                  });
 
             xunit._ExecuteAssembly("assemblyFilename", "configFilename");
 
             Assert.Equal(xunit.DiscoveryTestCases, runTestCases);
+        }
+
+        [Fact]
+        public void DoesNotRunFilteredTests()
+        {
+            var xunit = new Testable_xunit { ExcludeTraits = "One=1" };
+
+            var testCase1 = Substitute.For<ITestCase>();
+            xunit.DiscoveryTestCases.Add(testCase1);
+
+            var testCase2 = Substitute.For<ITestCase>();
+            testCase2.Traits.Returns(new Dictionary<string, List<string>> { { "One", new List<string> { "1" } } });
+            xunit.DiscoveryTestCases.Add(testCase2);
+
+            var runTestCases = new List<ITestCase>();
+            xunit.FrontController.WhenAny(fc => fc.Run(null, null))
+                                 .Do(callInfo =>
+                                 {
+                                     runTestCases.AddRange((IEnumerable<ITestCase>)callInfo[0]);
+                                 });
+
+            xunit._ExecuteAssembly("assembyFileName", "configFilename");
+
+            Assert.Equal(1, runTestCases.Count);
+            Assert.Contains(testCase1, runTestCases);
+            Assert.DoesNotContain(testCase2, runTestCases);
         }
     }
 
@@ -265,7 +291,13 @@ public class xunitTests
             FrontController.WhenAny(fc => fc.Find("", false, null))
                            .Do<string, bool, IMessageSink>((_, __, sink) => ReturnDiscoveryMessages(sink));
             FrontController.WhenAny(fc => fc.Run(null, null))
-                           .Do<object, IMessageSink>((_, sink) => sink.OnMessage(Substitute.For<ITestAssemblyFinished>()));
+                           .Do<object, IMessageSink>((_, sink) =>
+                               {
+                                   var testAssemblyStarting = Substitute.For<ITestAssemblyStarting>();
+                                   testAssemblyStarting.AssemblyFileName.Returns("Name.dll");
+                                   sink.OnMessage(testAssemblyStarting);
+                                   sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
+                               });
 
             Assemblies = new ITaskItem[0];
 

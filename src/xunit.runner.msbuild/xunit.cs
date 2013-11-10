@@ -15,6 +15,7 @@ namespace Xunit.Runner.MSBuild
     {
         volatile bool cancel;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
+        XunitFilters filters;
 
         public xunit()
         {
@@ -25,10 +26,14 @@ namespace Xunit.Runner.MSBuild
         [Required]
         public ITaskItem[] Assemblies { get; set; }
 
+        public string ExcludeTraits { get; set; }
+
         [Output]
         public int ExitCode { get; protected set; }
 
         public ITaskItem Html { get; set; }
+
+        public string IncludeTraits { get; set; }
 
         protected bool NeedsXml
         {
@@ -40,6 +45,22 @@ namespace Xunit.Runner.MSBuild
         public bool ShadowCopy { get; set; }
 
         public bool TeamCity { get; set; }
+
+        protected XunitFilters Filters
+        {
+            get
+            {
+                if (filters == null)
+                {
+                    var traitParser = new TraitParser(msg => Log.LogWarning(msg));
+                    filters = new XunitFilters();
+                    traitParser.Parse(IncludeTraits, filters.IncludedTraits);
+                    traitParser.Parse(ExcludeTraits, filters.ExcludedTraits);
+                }
+
+                return filters;
+            }
+        }
 
         public bool Verbose { get; set; }
 
@@ -162,13 +183,13 @@ namespace Xunit.Runner.MSBuild
             try
             {
                 using (var controller = CreateFrontController(assemblyFileName, configFileName))
+                using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
-                    var discoveryVisitor = new TestDiscoveryVisitor();
                     controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
                     discoveryVisitor.Finished.WaitOne();
 
                     var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement);
-                    controller.Run(discoveryVisitor.TestCases, resultsVisitor);
+                    controller.Run(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor);
                     resultsVisitor.Finished.WaitOne();
 
                     if (resultsVisitor.Failed != 0)
@@ -178,13 +199,13 @@ namespace Xunit.Runner.MSBuild
             }
             catch (Exception ex)
             {
-                Exception e = ex;
+                var e = ex;
 
                 while (e != null)
                 {
-                    Log.LogError(e.GetType().FullName + ": " + e.Message);
+                    Log.LogError("{0}: {1}", e.GetType().FullName, e.Message);
 
-                    foreach (string stackLine in e.StackTrace.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (string stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
                         Log.LogError(stackLine);
 
                     e = e.InnerException;

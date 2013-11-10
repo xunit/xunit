@@ -91,9 +91,9 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -noshadow              : do not shadow copy assemblies");
             Console.WriteLine("  -xml <filename>        : output results to xUnit.net v2 style XML file");
 
-            foreach (TransformConfigurationElement transform in TransformFactory.GetInstalledTransforms())
+            foreach (var transform in TransformFactory.GetInstalledTransforms())
             {
-                string commandLine = "-" + transform.CommandLine + " <filename>";
+                string commandLine = String.Format("-{0} <filename>", transform.CommandLine);
                 commandLine = commandLine.PadRight(22).Substring(0, 22);
 
                 Console.WriteLine("  {0} : {1}", commandLine, transform.Description);
@@ -194,13 +194,13 @@ namespace Xunit.ConsoleClient
             }
             catch (Exception ex)
             {
-                Exception e = ex;
+                var e = ex;
 
                 while (e != null)
                 {
-                    Console.WriteLine(e.GetType().FullName + ": " + e.Message);
+                    Console.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
 
-                    foreach (string stackLine in e.StackTrace.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (string stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
                         Console.WriteLine(stackLine);
 
                     e = e.InnerException;
