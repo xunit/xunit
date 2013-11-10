@@ -250,6 +250,7 @@ public class xunitTests
             var xunit = new Testable_xunit { ExcludeTraits = "One=1" };
 
             var testCase1 = Substitute.For<ITestCase>();
+            testCase1.Traits.Returns(new Dictionary<string, List<string>>());
             xunit.DiscoveryTestCases.Add(testCase1);
 
             var testCase2 = Substitute.For<ITestCase>();
