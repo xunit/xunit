@@ -42,6 +42,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\common\DictionaryExtensions.cs">
+      <Link>Common\DictionaryExtensions.cs</Link>
+    </Compile>
     <Compile Include="Frameworks\v1\TestClassCallbackHandlerTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCaseTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1Tests.cs" />

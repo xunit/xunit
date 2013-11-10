@@ -38,7 +38,7 @@ namespace Xunit.Runner.VisualStudio
             result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, serializedTestCase);
 
             if (addTraitThunk != null)
-                foreach (var key in xunitTestCase.Traits)
+                foreach (var key in xunitTestCase.Traits.Keys)
                     foreach (var value in xunitTestCase.Traits[key])
                         addTraitThunk(result, key, value);
 

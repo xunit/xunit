@@ -1,4 +1,6 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using System.Collections.Generic;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -12,19 +14,19 @@ namespace Xunit
         /// </summary>
         public XunitFilters()
         {
-            ExcludedTraits = new MultiValueDictionary<string, string>();
-            IncludedTraits = new MultiValueDictionary<string, string>();
+            ExcludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            IncludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
         /// Gets the set of trait filters for tests to exclude.
         /// </summary>
-        public IMultiValueDictionary<string, string> ExcludedTraits { get; private set; }
+        public Dictionary<string, List<string>> ExcludedTraits { get; private set; }
 
         /// <summary>
         /// Gets the set of trait filters for tests to include.
         /// </summary>
-        public IMultiValueDictionary<string, string> IncludedTraits { get; private set; }
+        public Dictionary<string, List<string>> IncludedTraits { get; private set; }
 
         /// <summary>
         /// Filters the given method using the defined filter values.
@@ -53,7 +55,7 @@ namespace Xunit
 
             foreach (string key in ExcludedTraits.Keys)
                 foreach (string value in ExcludedTraits[key])
-                    if (testCase.Traits.Contains(key, value))
+                    if (testCase.Traits.Contains(key, value, StringComparer.OrdinalIgnoreCase))
                         return false;
 
             return true;
@@ -71,7 +73,7 @@ namespace Xunit
 
             foreach (string key in IncludedTraits.Keys)
                 foreach (string value in IncludedTraits[key])
-                    if (testCase.Traits.Contains(key, value))
+                    if (testCase.Traits.Contains(key, value, StringComparer.OrdinalIgnoreCase))
                         return true;
 
             return false;

@@ -88,12 +88,10 @@
     <Compile Include="Reflection\IReflectionAttributeInfo.cs" />
     <Compile Include="Reflection\IReflectionMethodInfo.cs" />
     <Compile Include="Reflection\IReflectionTypeInfo.cs" />
-    <Compile Include="TestCases\IMultiValueDictionary.cs" />
     <Compile Include="TestCases\ITestCase.cs" />
     <Compile Include="TestCases\ITestCollection.cs" />
     <Compile Include="Reflection\ITypeInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestCases\MultiValueDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml" />

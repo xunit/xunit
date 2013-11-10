@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -281,10 +282,10 @@ public class XmlTestExecutionVisitorTests
         [Fact]
         public void TestElementTraisArePlacedInXmlWhenPresent()
         {
-            var traits = new MultiValueDictionary<string, string>
+            var traits = new Dictionary<string, List<string>>
             {
-                { "name1", "value1" },
-                { "name2", "value2" }
+                { "name1", new List<string> { "value1" }},
+                { "name2", new List<string> { "value2" }}
             };
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var passingTestCase = Mocks.TestCase<ClassUnderTest>("TestMethod");

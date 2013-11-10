@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -47,6 +48,22 @@ public class Xunit1TestCaseTests
             Assert.DoesNotThrow(() => serializer.Deserialize(memoryStream));
         }
 
+        [Fact]
+        public void RoundTrippedTraitsAreCaseInsensitive()
+        {
+            var serializer = new BinaryFormatter();
+            var traits = new Dictionary<string, List<string>> { { "foo", new List<string> { "bar" } } };
+            var testCase = Create(typeof(Serialization), "CanRoundTrip_PublicClass_PrivateTestMethod", traits);
+            var memoryStream = new MemoryStream();
+
+            serializer.Serialize(memoryStream, testCase);
+            memoryStream.Position = 0;
+
+            var deserializedTestCase = (Xunit1TestCase)serializer.Deserialize(memoryStream);
+
+            Assert.True(deserializedTestCase.Traits.Contains("fOo", "bAr", StringComparer.OrdinalIgnoreCase));
+        }
+
         class PrivateClass
         {
             [Fact]
@@ -77,9 +94,9 @@ public class Xunit1TestCaseTests
         }
     }
 
-    static Xunit1TestCase Create(Type typeUnderTest, string methodName)
+    static Xunit1TestCase Create(Type typeUnderTest, string methodName, Dictionary<string, List<string>> traits = null)
     {
         var assemblyFileName = new Uri(typeUnderTest.Assembly.CodeBase).LocalPath;
-        return new Xunit1TestCase(assemblyFileName, typeUnderTest.FullName, methodName, null);
+        return new Xunit1TestCase(assemblyFileName, typeUnderTest.FullName, methodName, null, traits);
     }
 }

@@ -70,7 +70,7 @@ namespace Xunit.Sdk
             Arguments = arguments;
             DisplayName = GetDisplayNameWithArguments(displayNameBase, arguments);
             SkipReason = factAttribute.GetNamedArgument<string>("Skip");
-            Traits = new MultiValueDictionary<string, string>();
+            Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             TestCollection = testCollection;
 
             foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute)))
@@ -109,7 +109,7 @@ namespace Xunit.Sdk
         public ITestCollection TestCollection { get; private set; }
 
         /// <inheritdoc/>
-        public IMultiValueDictionary<string, string> Traits { get; private set; }
+        public Dictionary<string, List<string>> Traits { get; private set; }
 
         /// <inheritdoc/>
         public string UniqueID { get { return uniqueID.Value; } }

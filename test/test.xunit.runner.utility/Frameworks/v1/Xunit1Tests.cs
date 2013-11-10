@@ -98,7 +98,7 @@ public class Xunit1Tests
                     Assert.Equal("SpecialType", testCase.Class.Name);
                     Assert.Equal("MethodWithTraits", testCase.Method.Name);
                     Assert.Equal("SpecialType.MethodWithTraits", testCase.DisplayName);
-                    Assert.Collection(testCase.Traits,
+                    Assert.Collection(testCase.Traits.Keys,
                         key => {
                             Assert.Equal("Trait1", key);
                             Assert.Collection(testCase.Traits[key],

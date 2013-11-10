@@ -36,8 +36,8 @@ public class XunitFiltersTests
             var methodWithFooBar = Mocks.TestCase<ClassUnderTest>("MethodWithFooBar");
             var methodWithBazBiff = Mocks.TestCase<ClassUnderTest>("MethodWithBazBiff");
             var methodWithNoTraits = Mocks.TestCase<ClassUnderTest>("MethodWithNoTraits");
-            filters.ExcludedTraits.Add("foo", "bar");
-            filters.ExcludedTraits.Add("baz", "biff");
+            filters.ExcludedTraits.Add("fOo", "bAr");
+            filters.ExcludedTraits.Add("bAz", "bIff");
 
             Assert.False(filters.Filter(methodWithFooBar));
             Assert.False(filters.Filter(methodWithBazBiff));
@@ -93,8 +93,8 @@ public class XunitFiltersTests
             var methodWithFooBar = Mocks.TestCase<ClassUnderTest>("MethodWithFooBar");
             var methodWithBazBiff = Mocks.TestCase<ClassUnderTest>("MethodWithBazBiff");
             var methodWithNoTraits = Mocks.TestCase<ClassUnderTest>("MethodWithNoTraits");
-            filters.IncludedTraits.Add("foo", "bar");
-            filters.IncludedTraits.Add("baz", "biff");
+            filters.IncludedTraits.Add("fOo", "bAr");
+            filters.IncludedTraits.Add("bAz", "bIff");
 
             Assert.True(filters.Filter(methodWithFooBar));
             Assert.True(filters.Filter(methodWithBazBiff));

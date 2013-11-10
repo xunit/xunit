@@ -47,7 +47,7 @@ namespace Xunit
             {
                 var traitsElement = new XElement("traits");
 
-                foreach (var key in testResult.TestCase.Traits)
+                foreach (var key in testResult.TestCase.Traits.Keys)
                     foreach (var value in testResult.TestCase.Traits[key])
                         traitsElement.Add(
                             new XElement("trait",

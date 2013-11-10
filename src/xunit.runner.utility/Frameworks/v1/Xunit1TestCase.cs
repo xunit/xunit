@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
 using Xunit.Abstractions;
@@ -12,7 +14,7 @@ namespace Xunit
     [Serializable]
     public class Xunit1TestCase : ITestCase, ISerializable
     {
-        static readonly IMultiValueDictionary<string, string> EmptyTraits = new MultiValueDictionary<string, string>();
+        static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
         readonly Xunit1ReflectionWrapper reflectionWrapper;
 
@@ -29,7 +31,7 @@ namespace Xunit
                               string typeName,
                               string methodName,
                               string displayName,
-                              IMultiValueDictionary<string, string> traits = null,
+                              Dictionary<string, List<string>> traits = null,
                               string skipReason = null)
         {
             reflectionWrapper = new Xunit1ReflectionWrapper(assemblyFileName, typeName, methodName);
@@ -51,7 +53,11 @@ namespace Xunit
             DisplayName = info.GetString("DisplayName");
             SkipReason = info.GetString("SkipReason");
             SourceInformation = info.GetValue<SourceInformation>("SourceInformation");
-            Traits = info.GetValue<IMultiValueDictionary<string, string>>("Traits");
+
+            Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            var keys = info.GetValue<List<string>>("Traits.Keys");
+            foreach (var key in keys)
+                Traits.Add(key, info.GetValue<List<string>>(String.Format("Traits[{0}]", key)));
         }
 
         /// <inheritdoc/>
@@ -79,7 +85,7 @@ namespace Xunit
         public ITestCollection TestCollection { get; set; }
 
         /// <inheritdoc/>
-        public IMultiValueDictionary<string, string> Traits { get; private set; }
+        public Dictionary<string, List<string>> Traits { get; private set; }
 
         /// <inheritdoc/>
         public string UniqueID
@@ -98,7 +104,10 @@ namespace Xunit
             info.AddValue("DisplayName", DisplayName);
             info.AddValue("SkipReason", SkipReason);
             info.AddValue("SourceInformation", SourceInformation);
-            info.AddValue("Traits", Traits);
+
+            info.AddValue("Traits.Keys", Traits.Keys.ToList());
+            foreach (var key in Traits.Keys)
+                info.AddValue(String.Format("Traits[{0}]", key), Traits[key]);
         }
     }
 }

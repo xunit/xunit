@@ -110,7 +110,7 @@ public static class Mocks
         var typeUnderTest = typeof(TClassUnderTest);
         var methodInfo = typeUnderTest.GetMethod(methodName);
         if (methodInfo == null)
-            throw new Exception("Unknown method: " + typeUnderTest.FullName + "." + methodName);
+            throw new Exception(String.Format("Unknown method: {0}.{1}", typeUnderTest.FullName, methodName));
 
         var result = Substitute.For<ITestCase>();
         var methodInfoWrapper = Reflector.Wrap(methodInfo);
@@ -162,7 +162,7 @@ public static class Mocks
         var typeUnderTest = typeof(TClassUnderTest);
         var methodUnderTest = typeUnderTest.GetMethod(methodName);
         if (methodUnderTest == null)
-            throw new Exception("Unknown method: " + typeUnderTest.FullName + "." + methodName);
+            throw new Exception(String.Format("Unknown method: {0}.{1}", typeUnderTest.FullName, methodName));
 
         var testCollection = new XunitTestCollection();
         var assemblyInfo = Reflector.Wrap(typeUnderTest.Assembly);
@@ -173,11 +173,11 @@ public static class Mocks
         return new XunitTestCase(testCollection, assemblyInfo, typeInfo, methodInfo, factAttribute);
     }
 
-    private static IMultiValueDictionary<string, string> GetTraits(IMethodInfo method)
+    private static Dictionary<string, List<string>> GetTraits(IMethodInfo method)
     {
-        var result = new MultiValueDictionary<string, string>();
+        var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (IAttributeInfo traitAttribute in method.GetCustomAttributes(typeof(TraitAttribute)))
+        foreach (var traitAttribute in method.GetCustomAttributes(typeof(TraitAttribute)))
         {
             var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
             result.Add((string)ctorArgs[0], (string)ctorArgs[1]);
@@ -193,7 +193,7 @@ public static class Mocks
             return null;
 
         if (parts.Count == 1)
-            return System.Type.GetType(parts[0]);
+            return Type.GetType(parts[0]);
 
         var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == parts[1]);
         if (assembly == null)

@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\common\DictionaryExtensions.cs">
+      <Link>Common\DictionaryExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\DisposableExtensions.cs">
       <Link>Common\DisposableExtensions.cs</Link>
     </Compile>

@@ -110,7 +110,7 @@ public class Xunit2Tests
                 Assert.Equal(4, testCases.Length);
 
                 ITestCase traitTest = Assert.Single(testCases, tc => tc.DisplayName == "Namespace1.Class1.Trait");
-                string key = Assert.Single(traitTest.Traits);
+                string key = Assert.Single(traitTest.Traits.Keys);
                 Assert.Equal("Name!", key);
                 string value = Assert.Single(traitTest.Traits[key]);
                 Assert.Equal("Value!", value);
