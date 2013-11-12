@@ -5,6 +5,9 @@
     /// </summary>
     public interface ITestFinished : ITestMessage
     {
+        /// <summary>
+        /// Gets the time spent executing the test, in seconds.
+        /// </summary>
         decimal ExecutionTime { get; }
 
         // TODO: How do we differentiate a test (when a test case has multiple tests)?

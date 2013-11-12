@@ -5,8 +5,14 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// Default implementation of <see cref="ITestCaseOrderer"/>. Orders tests in
+    /// an unpredictable but stable order, so that repeated test runs of the
+    /// identical test assembly run tests in the same order.
+    /// </summary>
     public class DefaultTestCaseOrderer : ITestCaseOrderer
     {
+        /// <inheritdoc/>
         public IEnumerable<XunitTestCase> OrderTestCases(IEnumerable<XunitTestCase> testCases)
         {
             var result = testCases.ToList();

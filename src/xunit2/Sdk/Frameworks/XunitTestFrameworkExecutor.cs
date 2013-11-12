@@ -17,7 +17,7 @@ namespace Xunit.Sdk
     {
         readonly string assemblyFileName;
         readonly IAssemblyInfo assemblyInfo;
-        readonly bool disableParallelization = false;
+        readonly bool disableParallelization;
         readonly string displayName;
 
         /// <summary>
