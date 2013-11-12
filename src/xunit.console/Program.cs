@@ -26,6 +26,15 @@ namespace Xunit.ConsoleClient
             }
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                if (!cancel)
+                {
+                    Console.WriteLine("Canceling... (Press Ctrl+C again to terminate)");
+                    cancel = true;
+                    e.Cancel = true;
+                }
+            };
 
             try
             {
