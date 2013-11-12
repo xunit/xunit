@@ -44,12 +44,8 @@
 
   <Target Name="Clean">
     <ItemGroup>
-      <CleanFileList
-          Include="xunit-build-*.zip;xunit-symbols-*.zip;*.html;*.xml;*.nupkg;.nuget\NuGet.exe"/>
-      <!-- TODO: Clean up Packages folder -->
+      <CleanFileList Include="xunit-build-*.zip;xunit-symbols-*.zip;*.html;*.xml;*.nupkg;.nuget\NuGet.exe"/>
       <CleanFolderList Include="xunit.console\bin\$(Configuration).x86"/>
-      <CleanFolderList Include="xunit.gui\bin\$(Configuration).x86"/>
-      <!-- TODO: Files in the help folder? -->
     </ItemGroup>
     <MSBuild
         Projects="xunit.sln"
@@ -75,46 +71,27 @@
     <MSBuild Projects="tools\xunit.vsix.msbuild" Properties="OutputPath=..\src\xunit.runner.visualstudio\bin\$(Configuration)\" />
 
     <!-- Build xunit.console.x86 -->
-    <!--<Copy
-            SourceFiles="src\xunit.console\xunit.console.csproj"
-            DestinationFiles="src\xunit.console\xunit.console.x86.csproj"/>
-        <RegexReplace
-            Pattern="&lt;AssemblyName>xunit\.console&lt;/AssemblyName>"
-            Replacement="&lt;AssemblyName>xunit.console.x86&lt;/AssemblyName>"
-            Files="src\xunit.console\xunit.console.x86.csproj"/>
-        <RegexReplace
-            Pattern="&lt;OutputPath>bin\\(\w+)\\&lt;/OutputPath>"
-            Replacement="&lt;OutputPath>bin\$1.x86\&lt;/OutputPath>"
-            Files="src\xunit.console\xunit.console.x86.csproj"/>
-        <MSBuild
-            Projects="src\xunit.console\xunit.console.x86.csproj"
-            Targets="Build"
-            Properties="PlatformTarget=x86;Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
-        <RegexReplace
-            Pattern="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console&quot;"
-            Replacement="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console.x86&quot;"
-            Files="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe.config" />
-        <Delete
-            Files="src\xunit.console\xunit.console.x86.csproj" />-->
-
-    <!-- Build xunit.gui.x86 -->
-    <!--<Copy
-            SourceFiles="src\xunit.gui\xunit.gui.csproj"
-            DestinationFiles="src\xunit.gui\xunit.gui.x86.csproj"/>
-        <RegexReplace
-            Pattern="&lt;AssemblyName>xunit\.gui&lt;/AssemblyName>"
-            Replacement="&lt;AssemblyName>xunit.gui.x86&lt;/AssemblyName>"
-            Files="src\xunit.gui\xunit.gui.x86.csproj"/>
-        <RegexReplace
-            Pattern="&lt;OutputPath>bin\\(\w+)\\&lt;/OutputPath>"
-            Replacement="&lt;OutputPath>bin\$1.x86\&lt;/OutputPath>"
-            Files="src\xunit.gui\xunit.gui.x86.csproj"/>
-        <MSBuild
-            Projects="src\xunit.gui\xunit.gui.x86.csproj"
-            Targets="Build"
-            Properties="PlatformTarget=x86;Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
-        <Delete
-            Files="src\xunit.gui\xunit.gui.x86.csproj" />-->
+    <Copy
+        SourceFiles="src\xunit.console\xunit.console.csproj"
+        DestinationFiles="src\xunit.console\xunit.console.x86.csproj"/>
+    <RegexReplace
+        Pattern="&lt;AssemblyName>xunit\.console&lt;/AssemblyName>"
+        Replacement="&lt;AssemblyName>xunit.console.x86&lt;/AssemblyName>"
+        Files="src\xunit.console\xunit.console.x86.csproj"/>
+    <RegexReplace
+        Pattern="&lt;OutputPath>bin\\(\w+)\\&lt;/OutputPath>"
+        Replacement="&lt;OutputPath>bin\$1.x86\&lt;/OutputPath>"
+        Files="src\xunit.console\xunit.console.x86.csproj"/>
+    <MSBuild
+        Projects="src\xunit.console\xunit.console.x86.csproj"
+        Targets="Build"
+        Properties="PlatformTarget=x86;Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
+    <RegexReplace
+        Pattern="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console&quot;"
+        Replacement="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console.x86&quot;"
+        Files="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe.config" />
+    <Delete
+        Files="src\xunit.console\xunit.console.x86.csproj" />
   </Target>
 
   <Target Name="_Test32" DependsOnTargets="Build">
@@ -168,11 +145,9 @@
       <ZipFileList Include="src\xunit2\bin\$(Configuration)\xunit2.??l"/>
       <ZipFileList Include="src\xunit2\bin\$(Configuration)\xunit2.dll.tdnet"/>
       <ZipFileList Include="src\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.??l"/>
-      <!--<ZipFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.exe*"/>
-            <ZipFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe*"/>
-            <ZipFileList Include="src\xunit.console\bin\$(Configuration)\*.xslt"/>
-            <ZipFileList Include="src\xunit.gui\bin\$(Configuration)\xunit.gui.exe"/>
-            <ZipFileList Include="src\xunit.gui\bin\$(Configuration).x86\xunit.gui.x86.exe"/>-->
+      <ZipFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.exe*"/>
+      <ZipFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe*"/>
+      <ZipFileList Include="src\xunit.console\bin\$(Configuration)\*.xslt"/>
       <ZipFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.??l"/>
       <ZipFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.dll"/>
       <ZipFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"/>
@@ -186,10 +161,8 @@
     <ItemGroup>
       <ZipPdbFileList Include="src\xunit2\bin\$(Configuration)\xunit2.pdb"/>
       <ZipPdbFileList Include="src\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.pdb"/>
-      <!--<ZipPdbFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.pdb"/>
-            <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.pdb"/>
-            <ZipPdbFileList Include="src\xunit.gui\bin\$(Configuration)\xunit.gui.pdb"/>
-            <ZipPdbFileList Include="src\xunit.gui\bin\$(Configuration).x86\xunit.gui.x86.pdb"/>-->
+      <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.pdb"/>
+      <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.pdb"/>
       <ZipPdbFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.pdb"/>
       <ZipPdbFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.pdb"/>
       <ZipPdbFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.pdb"/>

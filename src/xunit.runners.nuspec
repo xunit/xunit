@@ -13,16 +13,12 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
     </metadata>
     <files>
-        <!--
         <file src="xunit.console\HTML.xslt" target="tools\HTML.xslt" />
-        <file src="xunit.console\NUnitXml.xslt" target="tools\NUnitXml.xslt" />
+        <file src="xunit.console\xUnit1.xslt" target="tools\xUnit1.xslt" />
         <file src="xunit.console\bin\Release\xunit.console.exe" target="tools\xunit.console.exe" />
         <file src="xunit.console\bin\Release\xunit.console.exe.config" target="tools\xunit.console.exe.config" />
         <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe" target="tools\xunit.console.x86.exe" />
         <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe.config" target="tools\xunit.console.x86.exe.config" />
-        <file src="xunit.gui\bin\Release\xunit.gui.exe" target="tools\xunit.gui.exe" />
-        <file src="xunit.gui\bin\Release.x86\xunit.gui.x86.exe" target="tools\xunit.gui.x86.exe" />
-        -->
         <file src="xunit.abstractions\bin\Release\xunit.abstractions.dll" target="tools\xunit.abstractions.dll" />
         <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll" target="tools\xunit.runner.msbuild.dll" />
         <file src="xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="tools\xunit.runner.utility.dll" />
