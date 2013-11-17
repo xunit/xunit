@@ -1,0 +1,35 @@
+﻿[$RootKey$\InstalledProducts\xUnit.net]
+@="#110"
+"Package"="{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"
+"PID"="0.99.1"
+"ProductDetails"="#112"
+"LogoID"="#400"
+
+[$RootKey$\Packages\{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}]
+@="Xunit.Runner.VisualStudio.XunitVisualStudioPackage, xunit.runner.visualstudio"
+"InprocServer32"="$WinDir$\SYSTEM32\MSCOREE.DLL"
+"Class"="Xunit.Runner.VisualStudio.XunitVisualStudioPackage"
+"CodeBase"="$PackageFolder$\xunit.runner.visualstudio.dll"
+
+[$RootKey$\AutoLoadPackages\{adfc4e64-0397-11d1-9f4e-00a0c911004f}]
+"{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"=dword:00000000
+
+[$RootKey$\AutoLoadPackages\{f1536ef8-92ec-443c-9ed7-fdadf150da82}]
+"{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"=dword:00000000
+
+[$RootKey$\Menus]
+"{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"=", Menus.ctmenu, 1"
+
+[$RootKey$\ToolsOptionsPages\xUnit.net]
+@="#110"
+"Package"="{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"
+
+[$RootKey$\ToolsOptionsPages\xUnit.net\Settings]
+@="#113"
+"Package"="{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"
+"Page"="{11CDAE17-7F88-4E07-9B9B-DBE4179E6D3D}"
+
+[$RootKey$\AutomationProperties\xUnit.net\Settings]
+"Name"="xUnit.net Settings"
+"Package"="{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"
+

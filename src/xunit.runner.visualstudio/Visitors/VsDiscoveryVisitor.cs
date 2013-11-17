@@ -11,13 +11,13 @@ namespace Xunit.Runner.VisualStudio
     public class VsDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
     {
         static readonly Action<TestCase, string, string> addTraitThunk = GetAddTraitThunk();
-
         static readonly Uri uri = new Uri(Constants.ExecutorUri);
 
         readonly Func<bool> cancelThunk;
         readonly ITestFrameworkDiscoverer discoverer;
         readonly ITestCaseDiscoverySink discoverySink;
         readonly IMessageLogger logger;
+        readonly XunitVisualStudioSettings settings;
         readonly string source;
 
         public VsDiscoveryVisitor(string source, ITestFrameworkDiscoverer discoverer, IMessageLogger logger, ITestCaseDiscoverySink discoverySink, Func<bool> cancelThunk)
@@ -27,14 +27,18 @@ namespace Xunit.Runner.VisualStudio
             this.logger = logger;
             this.discoverySink = discoverySink;
             this.cancelThunk = cancelThunk;
+
+            settings = SettingsProvider.Load();
         }
 
-        public static TestCase CreateVsTestCase(IMessageLogger logger, string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase)
+        public static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, XunitVisualStudioSettings settings)
         {
-            string serializedTestCase = discoverer.Serialize(xunitTestCase);
-            string uniqueName = String.Format("{0}.{1} ({2})", xunitTestCase.Class.Name, xunitTestCase.Method.Name, xunitTestCase.UniqueID);
+            var serializedTestCase = discoverer.Serialize(xunitTestCase);
+            var fqTestMethodName = String.Format("{0}.{1}", xunitTestCase.Class.Name, xunitTestCase.Method.Name);
+            var uniqueName = String.Format("{0} ({1})", fqTestMethodName, xunitTestCase.UniqueID);
+            var displayName = GetDisplayName(xunitTestCase.DisplayName, xunitTestCase.Method.Name, fqTestMethodName, settings);
 
-            var result = new TestCase(uniqueName, uri, source) { DisplayName = Escape(xunitTestCase.DisplayName) };
+            var result = new TestCase(uniqueName, uri, source) { DisplayName = Escape(displayName) };
             result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, serializedTestCase);
 
             if (addTraitThunk != null)
@@ -85,11 +89,21 @@ namespace Xunit.Runner.VisualStudio
             }
         }
 
+        static string GetDisplayName(string displayName, string shortMethodName, string fullyQualifiedMethodName, XunitVisualStudioSettings settings)
+        {
+            if (settings.NameDisplay == NameDisplay.Full)
+                return displayName;
+
+            return displayName == fullyQualifiedMethodName ? shortMethodName : displayName;
+        }
+
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)
         {
-            discoverySink.SendTestCase(CreateVsTestCase(logger, source, discoverer, discovery.TestCase));
+            discoverySink.SendTestCase(CreateVsTestCase(source, discoverer, discovery.TestCase, settings));
 
             return !cancelThunk();
         }
+
+        public static string fqTestMethodName { get; set; }
     }
 }

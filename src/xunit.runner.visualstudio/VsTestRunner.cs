@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -71,13 +73,13 @@ namespace Xunit.Runner.VisualStudio
                         }
                     }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.SendMessage(TestMessageLevel.Error, String.Format("xUnit.net: Exception discovering tests: {0}", e));
             }
         }
 
-        private static TestProperty GetTestProperty()
+        static TestProperty GetTestProperty()
         {
             return TestProperty.Register("XunitTestCase", "xUnit.net Test Case", typeof(string), typeof(VsTestRunner));
         }
@@ -98,7 +100,7 @@ namespace Xunit.Runner.VisualStudio
             if (runContext.KeepAlive)
                 frameworkHandle.EnableShutdownAfterTestRun = true;
 
-            var toDispose = new List<IDisposable>();
+            var toDispose = new ConcurrentBag<IDisposable>();
 
             try
             {
@@ -107,9 +109,22 @@ namespace Xunit.Runner.VisualStudio
                 cancelled = false;
 
                 using (AssemblyHelper.SubscribeResolve())
-                    foreach (string source in sources)
-                        if (VsTestRunner.IsXunitTestAssembly(source))
-                            RunTestsInAssembly(frameworkHandle, toDispose, source);
+                {
+                    var settings = SettingsProvider.Load();
+
+                    if (settings.ParallelizeAssemblies)
+                    {
+                        var tasks = sources.Where(source => VsTestRunner.IsXunitTestAssembly(source))
+                                           .Select(source => Task.Run(() => RunTestsInAssembly(frameworkHandle, toDispose, source)));
+                        Task.WhenAll(tasks).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        foreach (string source in sources)
+                            if (VsTestRunner.IsXunitTestAssembly(source))
+                                RunTestsInAssembly(frameworkHandle, toDispose, source);
+                    }
+                }
             }
             finally
             {
@@ -129,7 +144,7 @@ namespace Xunit.Runner.VisualStudio
             if (runContext.KeepAlive)
                 frameworkHandle.EnableShutdownAfterTestRun = true;
 
-            var toDispose = new List<IDisposable>();
+            var toDispose = new ConcurrentBag<IDisposable>();
 
             try
             {
@@ -138,9 +153,23 @@ namespace Xunit.Runner.VisualStudio
                 cancelled = false;
 
                 using (AssemblyHelper.SubscribeResolve())
-                    foreach (var testCaseGroup in tests.GroupBy(tc => tc.Source))
-                        if (VsTestRunner.IsXunitTestAssembly(testCaseGroup.Key))
-                            RunTestsInAssembly(frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup);
+                {
+                    var settings = SettingsProvider.Load();
+
+                    if (settings.ParallelizeAssemblies)
+                    {
+                        var tasks = tests.GroupBy(testCase => testCase.Source)
+                                         .Where(testCaseGroup => VsTestRunner.IsXunitTestAssembly(testCaseGroup.Key))
+                                         .Select(testCaseGroup => Task.Run(() => RunTestsInAssembly(frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup)));
+                        Task.WhenAll(tasks).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        foreach (var testCaseGroup in tests.GroupBy(testCase => testCase.Source))
+                            if (VsTestRunner.IsXunitTestAssembly(testCaseGroup.Key))
+                                RunTestsInAssembly(frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup);
+                    }
+                }
             }
             finally
             {
@@ -153,7 +182,7 @@ namespace Xunit.Runner.VisualStudio
             }
         }
 
-        void RunTestsInAssembly(IFrameworkHandle frameworkHandle, List<IDisposable> toDispose, string assemblyFileName, IEnumerable<TestCase> testCases = null)
+        void RunTestsInAssembly(IFrameworkHandle frameworkHandle, ConcurrentBag<IDisposable> toDispose, string assemblyFileName, IEnumerable<TestCase> testCases = null)
         {
             if (cancelled)
                 return;
@@ -166,7 +195,9 @@ namespace Xunit.Runner.VisualStudio
                 {
                     controller.Find(includeSourceInformation: true, messageSink: visitor);
                     visitor.Finished.WaitOne();
-                    testCases = visitor.TestCases.Select(tc => VsDiscoveryVisitor.CreateVsTestCase(frameworkHandle, assemblyFileName, controller, tc)).ToList();
+
+                    var settings = SettingsProvider.Load();
+                    testCases = visitor.TestCases.Select(tc => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, controller, tc, settings)).ToList();
                 }
 
             var xunitTestCases = testCases.ToDictionary(tc => controller.Deserialize(tc.GetPropertyValue<string>(SerializedTestCaseProperty, null)));

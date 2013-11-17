@@ -3,7 +3,7 @@
   <Identifier Id="xunit.runner.visualstudio.Microsoft.623f78dd-6d4b-48f3-a2c7-4bbb381bb146">
     <Name>xUnit.net runner for Visual Studio 2012 and 2013</Name>
     <Author>Outercurve Foundation</Author>
-    <Version>0.99.0</Version>
+    <Version>0.99.1</Version>
     <Description xml:space="preserve">xUnit.net is a unit testing tool for the .NET Framework. Written by the original inventor of NUnit, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages.</Description>
     <Locale>1033</Locale>
     <MoreInfoUrl>http://xunit.codeplex.com/</MoreInfoUrl>
@@ -21,10 +21,11 @@
         <Edition>Pro</Edition>
       </VisualStudio>
     </SupportedProducts>
-    <SupportedFrameworkRuntimeEdition MinVersion="2.0" />
+    <SupportedFrameworkRuntimeEdition MinVersion="4.5" />
   </Identifier>
   <References />
   <Content>
+    <VsPackage>xunit.runner.visualstudio.pkgdef</VsPackage>
     <CustomExtension Type="UnitTestExtension">xunit.runner.visualstudio.dll</CustomExtension>
   </Content>
 </Vsix>
