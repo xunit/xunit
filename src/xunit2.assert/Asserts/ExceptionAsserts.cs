@@ -83,7 +83,7 @@ namespace Xunit
 
         private static Exception Throws(Type exceptionType, Exception exception)
         {
-            Guard.ArgumentNotNull("exceptionType", exceptionType);
+            Assert.GuardArgumentNotNull("exceptionType", exceptionType);
 
             if (exception == null)
                 throw new ThrowsException(exceptionType);

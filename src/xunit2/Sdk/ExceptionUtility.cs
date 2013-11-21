@@ -54,8 +54,7 @@ namespace Xunit.Sdk
                 result += " ";
             }
 
-            var xex = ex as XunitException;
-            if (xex == null)
+            if (ex.GetType().Namespace != "Xunit.Sdk")
                 result += ex.GetType().FullName + " : ";
 
             result += ex.Message;

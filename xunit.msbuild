@@ -19,6 +19,7 @@
     <NuspecFiles Include="**\*.nuspec" />
     <NuGetNuspecTargets Include="src\*.nuspec" />
     <NuGetCsprojTargets Include="src\xunit2\xunit2.csproj;
+                                 src\xunit2.assert\xunit2.assert.csproj;
                                  src\xunit.abstractions\xunit.abstractions.csproj;
                                  src\xunit.runner.utility\xunit.runner.utility.csproj" />
   </ItemGroup>

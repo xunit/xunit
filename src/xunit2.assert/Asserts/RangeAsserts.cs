@@ -30,7 +30,7 @@ namespace Xunit
         /// <exception cref="InRangeException">Thrown when the value is not in the given range</exception>
         public static void InRange<T>(T actual, T low, T high, IComparer<T> comparer)
         {
-            Guard.ArgumentNotNull("comparer", comparer);
+            Assert.GuardArgumentNotNull("comparer", comparer);
 
             if (comparer.Compare(low, actual) > 0 || comparer.Compare(actual, high) > 0)
                 throw new InRangeException(actual, low, high);
@@ -60,7 +60,7 @@ namespace Xunit
         /// <exception cref="NotInRangeException">Thrown when the value is in the given range</exception>
         public static void NotInRange<T>(T actual, T low, T high, IComparer<T> comparer)
         {
-            Guard.ArgumentNotNull("comparer", comparer);
+            Assert.GuardArgumentNotNull("comparer", comparer);
 
             if (comparer.Compare(low, actual) <= 0 && comparer.Compare(actual, high) <= 0)
                 throw new NotInRangeException(actual, low, high);

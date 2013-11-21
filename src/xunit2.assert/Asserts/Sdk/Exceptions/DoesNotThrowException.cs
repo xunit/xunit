@@ -58,7 +58,7 @@ namespace Xunit.Sdk
         [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Guard.ArgumentNotNull("info", info);
+            Assert.GuardArgumentNotNull("info", info);
 
             info.AddValue("CustomStackTrace2", stackTrace);
 

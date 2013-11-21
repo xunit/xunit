@@ -16,8 +16,8 @@ namespace Xunit
         /// <exception cref="PropertyChangedException">Thrown when the notification is not raised</exception>
         public static void PropertyChanged(INotifyPropertyChanged @object, string propertyName, Action testCode)
         {
-            Guard.ArgumentNotNull("object", @object);
-            Guard.ArgumentNotNull("testCode", testCode);
+            Assert.GuardArgumentNotNull("object", @object);
+            Assert.GuardArgumentNotNull("testCode", testCode);
 
             bool propertyChangeHappened = false;
 

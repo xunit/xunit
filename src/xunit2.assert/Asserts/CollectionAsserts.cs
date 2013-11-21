@@ -60,7 +60,7 @@ namespace Xunit
         /// <exception cref="ContainsException">Thrown when the object is not present in the collection</exception>
         public static void Contains<T>(T expected, IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
-            Guard.ArgumentNotNull("comparer", comparer);
+            Assert.GuardArgumentNotNull("comparer", comparer);
 
             if (collection != null)
                 foreach (T item in collection)
@@ -92,7 +92,7 @@ namespace Xunit
         /// <exception cref="DoesNotContainException">Thrown when the object is present inside the container</exception>
         public static void DoesNotContain<T>(T expected, IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
-            Guard.ArgumentNotNull("comparer", comparer);
+            Assert.GuardArgumentNotNull("comparer", comparer);
 
             if (collection != null)
                 foreach (T item in collection)
@@ -108,7 +108,7 @@ namespace Xunit
         /// <exception cref="EmptyException">Thrown when the collection is not empty</exception>
         public static void Empty(IEnumerable collection)
         {
-            Guard.ArgumentNotNull("collection", collection);
+            Assert.GuardArgumentNotNull("collection", collection);
 
             if (collection.GetEnumerator().MoveNext())
                 throw new EmptyException();
@@ -175,8 +175,8 @@ namespace Xunit
         /// <exception cref="NoneException">Thrown when the collection contains at least one matching element.</exception>
         public static void None<T>(IEnumerable<T> collection, Func<T, bool> predicate)
         {
-            Guard.ArgumentNotNull("collection", collection);
-            Guard.ArgumentNotNull("predicate", predicate);
+            Assert.GuardArgumentNotNull("collection", collection);
+            Assert.GuardArgumentNotNull("predicate", predicate);
 
             int count = collection.Count(predicate);
 
@@ -192,7 +192,7 @@ namespace Xunit
         /// <exception cref="NotEmptyException">Thrown when the collection is empty</exception>
         public static void NotEmpty(IEnumerable collection)
         {
-            Guard.ArgumentNotNull("collection", collection);
+            Assert.GuardArgumentNotNull("collection", collection);
 
             if (!collection.GetEnumerator().MoveNext())
                 throw new NotEmptyException();
@@ -279,8 +279,8 @@ namespace Xunit
         /// not contain exactly one element.</exception>
         public static T Single<T>(IEnumerable<T> collection, Predicate<T> predicate)
         {
-            Guard.ArgumentNotNull("collection", collection);
-            Guard.ArgumentNotNull("predicate", predicate);
+            Assert.GuardArgumentNotNull("collection", collection);
+            Assert.GuardArgumentNotNull("predicate", predicate);
 
             int count = 0;
             T result = default(T);

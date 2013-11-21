@@ -57,6 +57,10 @@
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
       <Name>xunit.runner.utility</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit2.assert\xunit2.assert.csproj">
+      <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>
+      <Name>xunit2.assert</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\xunit2\xunit2.csproj">
       <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
       <Name>xunit2</Name>

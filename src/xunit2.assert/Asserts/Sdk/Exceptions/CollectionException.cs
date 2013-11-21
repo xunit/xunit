@@ -109,7 +109,7 @@ namespace Xunit.Sdk
         [SecurityCritical]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Guard.ArgumentNotNull("info", info);
+            Assert.GuardArgumentNotNull("info", info);
 
             info.AddValue("ActualCount", ActualCount);
             info.AddValue("ExpectedCount", ExpectedCount);

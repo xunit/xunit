@@ -29,7 +29,7 @@ namespace Xunit
         /// <exception cref="EqualException">Thrown when the objects are not equal</exception>
         public static void Equal<T>(T expected, T actual, IEqualityComparer<T> comparer)
         {
-            Guard.ArgumentNotNull("comparer", comparer);
+            Assert.GuardArgumentNotNull("comparer", comparer);
 
             if (!comparer.Equals(expected, actual))
                 throw new EqualException(expected, actual);
@@ -97,7 +97,7 @@ namespace Xunit
         /// <exception cref="NotEqualException">Thrown when the objects are equal</exception>
         public static void NotEqual<T>(T expected, T actual, IEqualityComparer<T> comparer)
         {
-            Guard.ArgumentNotNull("comparer", comparer);
+            Assert.GuardArgumentNotNull("comparer", comparer);
 
             if (comparer.Equals(expected, actual))
                 throw new NotEqualException();

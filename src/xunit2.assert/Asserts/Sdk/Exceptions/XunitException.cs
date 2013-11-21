@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
 
 namespace Xunit.Sdk
 {
@@ -26,7 +25,7 @@ namespace Xunit.Sdk
         public XunitException(string userMessage)
             : base(userMessage)
         {
-            this.UserMessage = userMessage;
+            UserMessage = userMessage;
         }
 
         /// <summary>
@@ -75,7 +74,7 @@ namespace Xunit.Sdk
         [SecurityCritical]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Guard.ArgumentNotNull("info", info);
+            Assert.GuardArgumentNotNull("info", info);
 
             info.AddValue("CustomStackTrace", stackTrace);
             info.AddValue("UserMessage", UserMessage);
@@ -87,13 +86,13 @@ namespace Xunit.Sdk
         public override string ToString()
         {
             string className = GetType().ToString();
-            string message = this.Message;
+            string message = Message;
             string result;
 
             if (message == null || message.Length <= 0)
                 result = className;
             else
-                result = className + ": " + message;
+                result = String.Format("{0}: {1}", className, message);
 
             string stackTrace = StackTrace;
             if (stackTrace != null)

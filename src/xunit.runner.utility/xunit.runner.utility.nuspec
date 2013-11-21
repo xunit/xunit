@@ -3,9 +3,9 @@
     <metadata>
         <id>xunit.runner.utility</id>
         <version>2.0.0-alpha</version>
-        <title>xUnit.net Runner Utility</title>
+        <title>xUnit.net [Runner Utility]</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>Library to use when writing a version-independent runner for xUnit.net</description>
+        <description>Includes the version-independent runner for xUnit.net to run both v1 and v2 tests (xunit.runner.utility.dll).</description>
         <language>en-US</language>
         <projectUrl>http://xunit.codeplex.com</projectUrl>
         <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>

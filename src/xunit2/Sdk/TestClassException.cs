@@ -11,15 +11,17 @@ namespace Xunit.Sdk
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     [Serializable]
-    public class TestClassException : XunitException
+    public class TestClassException : Exception
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestClassException"/> class.
         /// </summary>
         /// <param name="message">The exception message.</param>
-        public TestClassException(string message) : base(message) { }
+        public TestClassException(string message)
+            : base(message) { }
 
         /// <inheritdoc/>
-        protected TestClassException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        protected TestClassException(SerializationInfo info, StreamingContext context)
+            : base(info, context) { }
     }
 }

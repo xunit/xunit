@@ -18,7 +18,7 @@ namespace Xunit
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         public static Exception Exception(Action testCode)
         {
-            Guard.ArgumentNotNull("testCode", testCode);
+            Assert.GuardArgumentNotNull("testCode", testCode);
 
             try
             {
@@ -40,7 +40,7 @@ namespace Xunit
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         public static Exception Exception(Func<object> testCode)
         {
-            Guard.ArgumentNotNull("testCode", testCode);
+            Assert.GuardArgumentNotNull("testCode", testCode);
 
             try
             {

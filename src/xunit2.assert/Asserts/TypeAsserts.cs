@@ -27,7 +27,7 @@ namespace Xunit
         /// <exception cref="IsAssignableFromException">Thrown when the object is not the given type</exception>
         public static void IsAssignableFrom(Type expectedType, object @object)
         {
-            Guard.ArgumentNotNull("expectedType", expectedType);
+            Assert.GuardArgumentNotNull("expectedType", expectedType);
 
             if (@object == null || !expectedType.IsAssignableFrom(@object.GetType()))
                 throw new IsAssignableFromException(expectedType, @object);
@@ -53,7 +53,7 @@ namespace Xunit
         /// <exception cref="IsNotTypeException">Thrown when the object is the given type</exception>
         public static void IsNotType(Type expectedType, object @object)
         {
-            Guard.ArgumentNotNull("expectedType", expectedType);
+            Assert.GuardArgumentNotNull("expectedType", expectedType);
 
             if (@object != null && expectedType.Equals(@object.GetType()))
                 throw new IsNotTypeException(expectedType, @object);
@@ -80,7 +80,7 @@ namespace Xunit
         /// <exception cref="IsTypeException">Thrown when the object is not the given type</exception>
         public static void IsType(Type expectedType, object @object)
         {
-            Guard.ArgumentNotNull("expectedType", expectedType);
+            Assert.GuardArgumentNotNull("expectedType", expectedType);
 
             if (@object == null)
                 throw new IsTypeException(expectedType.FullName, null);

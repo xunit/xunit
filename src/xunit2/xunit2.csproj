@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory),xunit.sln))\tools\xunit.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -54,18 +55,12 @@
     <Compile Include="..\common\SerializationInfoExtensions.cs">
       <Link>Common\SerializationInfoExtensions.cs</Link>
     </Compile>
-    <Compile Include="Asserts\Assert.cs" />
-    <Compile Include="Asserts\BooleanAsserts.cs" />
-    <Compile Include="Asserts\CollectionAsserts.cs" />
-    <Compile Include="Asserts\Comparers.cs" />
-    <Compile Include="Asserts\EqualityAsserts.cs" />
-    <Compile Include="Asserts\ExceptionAsserts.cs" />
-    <Compile Include="Asserts\IdentityAsserts.cs" />
-    <Compile Include="Asserts\NullAsserts.cs" />
-    <Compile Include="Asserts\PropertyAsserts.cs" />
-    <Compile Include="Asserts\RangeAsserts.cs" />
-    <Compile Include="Asserts\StringAsserts.cs" />
-    <Compile Include="Asserts\TypeAsserts.cs" />
+    <Compile Include="..\xunit2.assert\Asserts\Sdk\AssertEqualityComparer.cs">
+      <Link>Sdk\AssertEqualityComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit2.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs">
+      <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
+    </Compile>
     <Compile Include="CollectionAttribute.cs" />
     <Compile Include="CollectionBehavior.cs" />
     <Compile Include="CollectionDefinitionAttribute.cs" />
@@ -74,19 +69,13 @@
     <Compile Include="Extensions\UseCultureAttribute.cs" />
     <Compile Include="IClassFixture.cs" />
     <Compile Include="ICollectionFixture.cs" />
-    <Compile Include="Sdk\AssertComparer.cs" />
-    <Compile Include="Sdk\AssertEqualityComparer.cs" />
-    <Compile Include="Sdk\AssertEqualityComparerAdapter.cs" />
     <Compile Include="Sdk\AsyncTestSyncContext.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrderer.cs" />
     <Compile Include="Sdk\EnvironmentalWarning.cs" />
+    <Compile Include="Sdk\ExceptionUtility.cs" />
     <Compile Include="Sdk\ITestCaseOrderer.cs" />
     <Compile Include="Sdk\MessageAggregator.cs" />
     <Compile Include="Sdk\ExceptionAggregator.cs" />
-    <Compile Include="Sdk\Exceptions\AssertCollectionCountException.cs" />
-    <Compile Include="Sdk\Exceptions\ExceptionUtility.cs" />
-    <Compile Include="Sdk\Exceptions\TestClassException.cs" />
-    <Compile Include="Sdk\Exceptions\NoneException.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactory.cs" />
     <Compile Include="Sdk\Frameworks\IXunitTestCollectionFactory.cs" />
     <Compile Include="Sdk\Frameworks\LambdaTestCase.cs" />
@@ -97,37 +86,10 @@
     <Compile Include="Sdk\IMessageAggregator.cs" />
     <Compile Include="Sdk\InlineDataDiscoverer.cs" />
     <Compile Include="PropertyDataAttribute.cs" />
-    <Compile Include="Record.cs" />
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
     <Compile Include="FactAttribute.cs" />
     <Compile Include="InlineDataAttribute.cs" />
     <Compile Include="Sdk\AssemblyLoader.cs" />
-    <Compile Include="Sdk\Exceptions\AssertActualExpectedException.cs" />
-    <Compile Include="Sdk\Exceptions\XunitException.cs" />
-    <Compile Include="Sdk\Exceptions\CollectionException.cs" />
-    <Compile Include="Sdk\Exceptions\ContainsException.cs" />
-    <Compile Include="Sdk\Exceptions\DoesNotContainException.cs" />
-    <Compile Include="Sdk\Exceptions\DoesNotThrowException.cs" />
-    <Compile Include="Sdk\Exceptions\EmptyException.cs" />
-    <Compile Include="Sdk\Exceptions\EqualException.cs" />
-    <Compile Include="Sdk\Exceptions\FalseException.cs" />
-    <Compile Include="Sdk\Exceptions\InRangeException.cs" />
-    <Compile Include="Sdk\Exceptions\IsAssignableFromException.cs" />
-    <Compile Include="Sdk\Exceptions\IsNotTypeException.cs" />
-    <Compile Include="Sdk\Exceptions\IsTypeException.cs" />
-    <Compile Include="Sdk\Exceptions\NotEmptyException.cs" />
-    <Compile Include="Sdk\Exceptions\NotEqualException.cs" />
-    <Compile Include="Sdk\Exceptions\NotInRangeException.cs" />
-    <Compile Include="Sdk\Exceptions\NotNullException.cs" />
-    <Compile Include="Sdk\Exceptions\NotSameException.cs" />
-    <Compile Include="Sdk\Exceptions\NullException.cs" />
-    <Compile Include="Sdk\Exceptions\ParameterCountMismatchException.cs" />
-    <Compile Include="Sdk\Exceptions\PropertyChangedException.cs" />
-    <Compile Include="Sdk\Exceptions\SameException.cs" />
-    <Compile Include="Sdk\Exceptions\SingleException.cs" />
-    <Compile Include="Sdk\Exceptions\ThrowsException.cs" />
-    <Compile Include="Sdk\Exceptions\TimeoutException.cs" />
-    <Compile Include="Sdk\Exceptions\TrueException.cs" />
     <Compile Include="Sdk\Frameworks\AttributeBase.cs" />
     <Compile Include="Sdk\Frameworks\DataAttribute.cs" />
     <Compile Include="Sdk\Frameworks\DataDiscoverer.cs" />
@@ -186,6 +148,7 @@
     <Compile Include="Sdk\Reflection\Reflector.cs" />
     <Compile Include="Sdk\SerializationHelper.cs" />
     <Compile Include="CollectionBehaviorAttribute.cs" />
+    <Compile Include="Sdk\TestClassException.cs" />
     <Compile Include="TestCaseOrdererAttribute.cs" />
     <Compile Include="TheoryAttribute.cs" />
     <Compile Include="TraitAttribute.cs" />
@@ -199,40 +162,13 @@
     <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml" />
   </ItemGroup>
   <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

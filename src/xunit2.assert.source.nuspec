@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
     <metadata>
-        <id>xunit.abstractions</id>
+        <id>xunit.assert.source</id>
         <version>2.0.0-alpha</version>
-        <title>xUnit.net [Abstractions]</title>
+        <title>xUnit.net [Assertion Library, as source]</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).</description>
+        <description>Includes the current assertion library from xUnit.net, as source into your project.</description>
         <language>en-US</language>
         <projectUrl>http://xunit.codeplex.com</projectUrl>
         <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>
         <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <references>
-            <reference file="xunit.abstractions.dll" />
-        </references>
     </metadata>
     <files>
-        <file src="bin\Release\xunit.abstractions.dll" target="lib\net35\xunit.abstractions.dll" />
-        <file src="bin\Release\xunit.abstractions.xml" target="lib\net35\xunit.abstractions.xml" />
+        <file src="xunit2.assert\Asserts\*.cs" target="Content\Asserts" />
+        <file src="xunit2.assert\Asserts\Sdk\*.cs" target="Content\Asserts\Sdk" />
+        <file src="xunit2.assert\Asserts\Sdk\Exceptions\*.cs" target="Content\Asserts\Sdk\Exceptions" />
     </files>
 </package>
