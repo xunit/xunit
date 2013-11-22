@@ -65,11 +65,11 @@ namespace Xunit.Sdk
                     cancellationTokenSource.Cancel();
                 else
                 {
-                    if (!messageSink.OnMessage(new TestFailed(this, DisplayName, executionTime, ex.Unwrap())))
+                    if (!messageSink.OnMessage(new TestFailed(this, DisplayName, executionTime, null, ex.Unwrap())))
                         cancellationTokenSource.Cancel();
                 }
 
-                if (!messageSink.OnMessage(new TestFinished(this, DisplayName, executionTime)))
+                if (!messageSink.OnMessage(new TestFinished(this, DisplayName, executionTime, null)))
                     cancellationTokenSource.Cancel();
             }
         }

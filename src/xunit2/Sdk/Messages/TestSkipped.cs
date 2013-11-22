@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -8,7 +9,7 @@ namespace Xunit.Sdk
     internal class TestSkipped : TestResultMessage, ITestSkipped
     {
         public TestSkipped(ITestCase testCase, string testDisplayName, string reason)
-            : base(testCase, testDisplayName, 0)
+            : base(testCase, testDisplayName, 0, null)
         {
             Reason = reason;
         }

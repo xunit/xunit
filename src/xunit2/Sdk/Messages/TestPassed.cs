@@ -7,7 +7,7 @@ namespace Xunit.Sdk
     /// </summary>
     internal class TestPassed : TestResultMessage, ITestPassed
     {
-        public TestPassed(ITestCase testCase, string testDisplayName, decimal executionTime)
-            : base(testCase, testDisplayName, executionTime) { }
+        public TestPassed(ITestCase testCase, string testDisplayName, decimal executionTime, string output)
+            : base(testCase, testDisplayName, executionTime, output) { }
     }
 }

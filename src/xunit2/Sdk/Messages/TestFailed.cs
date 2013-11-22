@@ -8,8 +8,8 @@ namespace Xunit.Sdk
     /// </summary>
     internal class TestFailed : TestResultMessage, ITestFailed
     {
-        public TestFailed(ITestCase testCase, string testDisplayName, decimal executionTime, string exceptionType, string message, string stackTrace)
-            : base(testCase, testDisplayName, executionTime)
+        public TestFailed(ITestCase testCase, string testDisplayName, decimal executionTime, string output, string exceptionType, string message, string stackTrace)
+            : base(testCase, testDisplayName, executionTime, output)
         {
             StackTrace = stackTrace;
             Message = message;
@@ -17,8 +17,8 @@ namespace Xunit.Sdk
         }
 
 #if XUNIT2_DLL
-        public TestFailed(ITestCase testCase, string testDisplayName, decimal executionTime, Exception ex)
-            : this(testCase, testDisplayName, executionTime, ex.GetType().FullName, ExceptionUtility.GetMessage(ex), ExceptionUtility.GetStackTrace(ex)) { }
+        public TestFailed(ITestCase testCase, string testDisplayName, decimal executionTime, string output, Exception ex)
+            : this(testCase, testDisplayName, executionTime, output, ex.GetType().FullName, ExceptionUtility.GetMessage(ex), ExceptionUtility.GetStackTrace(ex)) { }
 #endif
 
         /// <inheritdoc/>

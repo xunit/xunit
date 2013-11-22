@@ -70,6 +70,8 @@ namespace Xunit
             var testCase = FindTestCase(xml.Attributes["type"].Value, xml.Attributes["method"].Value);
             var timeAttribute = xml.Attributes["time"];
             var time = timeAttribute == null ? 0M : Decimal.Parse(timeAttribute.Value, CultureInfo.InvariantCulture);
+            var outputElement = xml.SelectSingleNode("output");
+            var output = outputElement == null ? String.Empty : outputElement.InnerText;
             var displayName = xml.Attributes["name"].Value;
             ITestCaseMessage resultMessage = null;
 
@@ -79,14 +81,14 @@ namespace Xunit
             switch (xml.Attributes["result"].Value)
             {
                 case "Pass":
-                    resultMessage = new TestPassed(testCase, displayName, time);
+                    resultMessage = new TestPassed(testCase, displayName, time, output);
                     break;
 
                 case "Fail":
                     {
                         testCaseResults.Failed++;
                         var failure = xml.SelectSingleNode("failure");
-                        resultMessage = new TestFailed(testCase, displayName, time, failure.Attributes["exception-type"].Value,
+                        resultMessage = new TestFailed(testCase, displayName, time, output, failure.Attributes["exception-type"].Value,
                                                        failure.SelectSingleNode("message").InnerText, failure.SelectSingleNode("stack-trace").InnerText);
                         break;
                     }
@@ -100,7 +102,7 @@ namespace Xunit
             if (resultMessage != null)
                 @continue = messageSink.OnMessage(resultMessage) && @continue;
 
-            @continue = messageSink.OnMessage(new TestFinished(testCase, displayName, time)) && @continue;
+            @continue = messageSink.OnMessage(new TestFinished(testCase, displayName, time, output)) && @continue;
             return @continue && TestClassResults.Continue;
         }
 

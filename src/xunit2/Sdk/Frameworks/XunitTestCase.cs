@@ -369,6 +369,7 @@ namespace Xunit.Sdk
                                             ref decimal executionTime)
         {
             var aggregator = new ExceptionAggregator(parentAggregator);
+            var output = String.Empty;  // TODO: Add output facilities for v2
 
             if (!messageSink.OnMessage(new TestStarting(this, displayName)))
                 cancellationTokenSource.Cancel();
@@ -505,14 +506,14 @@ namespace Xunit.Sdk
                         executionTime = (decimal)stopwatch.Elapsed.TotalSeconds;
 
                         var exception = aggregator.ToException();
-                        var testResult = exception == null ? (TestResultMessage)new TestPassed(this, displayName, executionTime) : new TestFailed(this, displayName, executionTime, exception);
+                        var testResult = exception == null ? (TestResultMessage)new TestPassed(this, displayName, executionTime, output) : new TestFailed(this, displayName, executionTime, output, exception);
                         if (!messageSink.OnMessage(testResult))
                             cancellationTokenSource.Cancel();
                     }
                 }
             }
 
-            if (!messageSink.OnMessage(new TestFinished(this, displayName, executionTime)))
+            if (!messageSink.OnMessage(new TestFinished(this, displayName, executionTime, output)))
                 cancellationTokenSource.Cancel();
         }
 

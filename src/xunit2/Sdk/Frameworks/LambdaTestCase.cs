@@ -42,17 +42,17 @@ namespace Xunit.Sdk
                 {
                     lambda();
 
-                    if (!messageSink.OnMessage(new TestPassed(this, DisplayName, 0)))
+                    if (!messageSink.OnMessage(new TestPassed(this, DisplayName, 0, null)))
                         cancellationTokenSource.Cancel();
                 }
                 catch (Exception ex)
                 {
-                    if (!messageSink.OnMessage(new TestFailed(this, DisplayName, 0, ex)))
+                    if (!messageSink.OnMessage(new TestFailed(this, DisplayName, 0, null, ex)))
                         cancellationTokenSource.Cancel();
                 }
             }
 
-            if (!messageSink.OnMessage(new TestFinished(this, DisplayName, 0)))
+            if (!messageSink.OnMessage(new TestFinished(this, DisplayName, 0, null)))
                 cancellationTokenSource.Cancel();
         }
     }

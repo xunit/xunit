@@ -11,6 +11,7 @@ public class TestFailed : ITestFailed
         TestCase = new TestCase();
         TestCollection = new TestCollection();
         ExceptionType = ex.GetType().FullName;
+        Output = String.Empty;
         Message = ExceptionUtility.GetMessage(ex);
         StackTrace = ExceptionUtility.GetStackTrace(ex);
     }
@@ -18,6 +19,7 @@ public class TestFailed : ITestFailed
     public string ExceptionType { get; set; }
     public decimal ExecutionTime { get; set; }
     public string Message { get; set; }
+    public string Output { get; set; }
     public string StackTrace { get; set; }
     public ITestCase TestCase { get; set; }
     public ITestCollection TestCollection { get; set; }

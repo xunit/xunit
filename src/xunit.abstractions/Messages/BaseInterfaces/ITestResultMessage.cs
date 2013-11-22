@@ -10,5 +10,10 @@
         /// The execution time of the test, in seconds.
         /// </summary>
         decimal ExecutionTime { get; }
+
+        /// <summary>
+        /// The captured output of the test.
+        /// </summary>
+        string Output { get; }
     }
 }
