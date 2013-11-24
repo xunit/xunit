@@ -119,16 +119,16 @@ namespace Xunit.Runner.VisualStudio.TestRunner
             return TestProperty.Register("XunitTestCase", "xUnit.net Test Case", typeof(string), typeof(VsTestRunner));
         }
 
-        IEnumerable<IGrouping<string, TestCase>> GetTests(IEnumerable<string> sources, IMessageLogger logger, XunitVisualStudioSettings settings)
+        IEnumerable<IGrouping<string, TestCase>> GetTests(IEnumerable<string> sources, IMessageLogger logger, XunitVisualStudioSettings settings, Stopwatch stopwatch)
         {
             var sourceSinks = new List<SourceSink<TestDiscoveryVisitor>>();
             var result = new List<IGrouping<string, TestCase>>();
-            var stopwatch = Stopwatch.StartNew();
 
             try
             {
                 if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery started", stopwatch.Elapsed));
+                    lock (stopwatch)
+                        logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery started", stopwatch.Elapsed));
 
                 foreach (string assemblyFileName in sources)
                 {
@@ -140,12 +140,14 @@ namespace Xunit.Runner.VisualStudio.TestRunner
                         if (!IsXunitTestAssembly(assemblyFileName))
                         {
                             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
+                                lock (stopwatch)
+                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
                         }
                         else
                         {
                             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
+                                lock (stopwatch)
+                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
 
                             var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true);
                             var sink = new TestDiscoveryVisitor();
@@ -155,7 +157,8 @@ namespace Xunit.Runner.VisualStudio.TestRunner
                     }
                     catch (Exception e)
                     {
-                        logger.SendMessage(TestMessageLevel.Error,
+                        lock (stopwatch)
+                            logger.SendMessage(TestMessageLevel.Error,
                                            String.Format("[xUnit.net {0}] Exception discovering tests from {1}: {2}", stopwatch.Elapsed, assemblyFileName, e));
                     }
                 }
@@ -177,13 +180,12 @@ namespace Xunit.Runner.VisualStudio.TestRunner
                     );
 
                     if (settings.MessageDisplay != MessageDisplay.None)
-                        logger.SendMessage(TestMessageLevel.Informational,
+                        lock (stopwatch)
+                            logger.SendMessage(TestMessageLevel.Informational,
                                            String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, Path.GetFileName(sourceSink.AssemblyFileName), sourceSink.Sink.TestCases.Count));
 
                     toFinish.RemoveAt(finishedIdx);
                 }
-
-                return result;
             }
             finally
             {
@@ -194,10 +196,11 @@ namespace Xunit.Runner.VisualStudio.TestRunner
                 }
             }
 
-            stopwatch.Stop();
-
             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery complete", stopwatch.Elapsed));
+                lock (stopwatch)
+                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery complete", stopwatch.Elapsed));
+
+            return result;
         }
 
         static bool IsXunitTestAssembly(string assemblyFileName)
@@ -211,17 +214,21 @@ namespace Xunit.Runner.VisualStudio.TestRunner
         {
             Guard.ArgumentNotNull("sources", sources);
 
-            RunTests(runContext, frameworkHandle, settings => GetTests(sources, frameworkHandle, settings));
+            var stopwatch = Stopwatch.StartNew();
+            RunTests(runContext, frameworkHandle, stopwatch, settings => GetTests(sources, frameworkHandle, settings, stopwatch));
+            stopwatch.Stop();
         }
 
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             Guard.ArgumentNotNull("tests", tests);
 
-            RunTests(runContext, frameworkHandle, settings => tests.GroupBy(testCase => testCase.Source));
+            var stopwatch = Stopwatch.StartNew();
+            RunTests(runContext, frameworkHandle, stopwatch, settings => tests.GroupBy(testCase => testCase.Source));
+            stopwatch.Stop();
         }
 
-        void RunTests(IRunContext runContext, IFrameworkHandle frameworkHandle, Func<XunitVisualStudioSettings, IEnumerable<IGrouping<string, TestCase>>> testCaseAccessor)
+        void RunTests(IRunContext runContext, IFrameworkHandle frameworkHandle, Stopwatch stopwatch, Func<XunitVisualStudioSettings, IEnumerable<IGrouping<string, TestCase>>> testCaseAccessor)
         {
             Guard.ArgumentNotNull("runContext", runContext);
             Guard.ArgumentNotNull("frameworkHandle", frameworkHandle);
@@ -234,6 +241,10 @@ namespace Xunit.Runner.VisualStudio.TestRunner
 
             var toDispose = new List<IDisposable>();
 
+            if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                lock (stopwatch)
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution started", stopwatch.Elapsed));
+
             try
             {
                 RemotingUtility.CleanUpRegisteredChannels();
@@ -243,13 +254,13 @@ namespace Xunit.Runner.VisualStudio.TestRunner
                 using (AssemblyHelper.SubscribeResolve())
                     if (settings.ParallelizeAssemblies)
                         testCaseAccessor(settings)
-                            .Select(testCaseGroup => RunTestsInAssemblyAsync(frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup, settings))
+                            .Select(testCaseGroup => RunTestsInAssemblyAsync(frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup, settings, stopwatch))
                             .ToList()
                             .ForEach(@event => @event.WaitOne());
                     else
                         testCaseAccessor(settings)
                             .ToList()
-                            .ForEach(testCaseGroup => RunTestsInAssembly(frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup, settings));
+                            .ForEach(testCaseGroup => RunTestsInAssembly(frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup, settings, stopwatch));
             }
             finally
             {
@@ -260,6 +271,10 @@ namespace Xunit.Runner.VisualStudio.TestRunner
                         toDispose.ForEach(disposable => disposable.Dispose());
                     });
             }
+
+            if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                lock (stopwatch)
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution complete", stopwatch.Elapsed));
         }
 
         void RunTestsInAssembly(IFrameworkHandle frameworkHandle,
@@ -273,7 +288,8 @@ namespace Xunit.Runner.VisualStudio.TestRunner
                 return;
 
             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution starting: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
+                lock (stopwatch)
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution starting: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
 
             var controller = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true);
 
@@ -289,14 +305,16 @@ namespace Xunit.Runner.VisualStudio.TestRunner
             }
 
             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution finished: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
+                lock (stopwatch)
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution finished: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
         }
 
         ManualResetEvent RunTestsInAssemblyAsync(IFrameworkHandle frameworkHandle,
                                                  List<IDisposable> toDispose,
                                                  string assemblyFileName,
                                                  IEnumerable<TestCase> testCases,
-                                                 XunitVisualStudioSettings settings)
+                                                 XunitVisualStudioSettings settings,
+                                                 Stopwatch stopwatch)
         {
             var @event = new ManualResetEvent(initialState: false);
 
@@ -304,7 +322,7 @@ namespace Xunit.Runner.VisualStudio.TestRunner
             {
                 try
                 {
-                    RunTestsInAssembly(frameworkHandle, toDispose, assemblyFileName, testCases, settings);
+                    RunTestsInAssembly(frameworkHandle, toDispose, assemblyFileName, testCases, settings, stopwatch);
                 }
                 finally
                 {
