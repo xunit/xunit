@@ -7,8 +7,6 @@ help
 *.user
 *.[Cc]ache
 *[Rr]esharper*
-*.html
-*.xml
 *.zip
 *.suo
 *.user
@@ -17,3 +15,6 @@ help
 *.exe
 *.dll
 *.ncrunch*
+
+Test*.html
+Test*.xml

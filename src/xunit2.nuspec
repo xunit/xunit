@@ -16,4 +16,5 @@
             <dependency id="xunit.assert" version="[2.0.0-alpha]" />
         </dependencies>
     </metadata>
+    <files />
 </package>
