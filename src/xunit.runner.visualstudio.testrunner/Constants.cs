@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Xunit.Runner.VisualStudio
+﻿namespace Xunit.Runner.VisualStudio.TestRunner
 {
     public static class Constants
     {

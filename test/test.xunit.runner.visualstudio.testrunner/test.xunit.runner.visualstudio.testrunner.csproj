@@ -7,8 +7,8 @@
     <ProjectGuid>{05269B63-FD22-45DD-936E-FED6707113B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xunit.Runner.VisualStudio</RootNamespace>
-    <AssemblyName>test.xunit.runner.visualstudio</AssemblyName>
+    <RootNamespace>Xunit.Runner.VisualStudio.TestRunner</RootNamespace>
+    <AssemblyName>test.xunit.runner.visualstudio.testrunner</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.ObjectModel">
-      <HintPath>..\..\packages\Microsoft.VisualStudio.TestPlatform.ObjectModel.0.0.2\lib\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.VisualStudio.TestPlatform.ObjectModel.0.0.4\lib\net35\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
     </Reference>
     <Reference Include="NSubstitute">
       <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
@@ -63,9 +63,9 @@
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
       <Name>xunit.runner.utility</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.runner.visualstudio\xunit.runner.visualstudio.csproj">
-      <Project>{924678eb-03af-4513-827f-8d311cafdad7}</Project>
-      <Name>xunit.runner.visualstudio</Name>
+    <ProjectReference Include="..\..\src\xunit.runner.visualstudio.testrunner\xunit.runner.visualstudio.testrunner.csproj">
+      <Project>{ebab9937-2a6a-41ea-848b-3f7ede2396cb}</Project>
+      <Name>xunit.runner.visualstudio.testrunner</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\xunit2.assert\xunit2.assert.csproj">
       <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>

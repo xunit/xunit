@@ -2,13 +2,11 @@
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Shell;
 
-namespace Xunit.Runner.VisualStudio
+namespace Xunit.Runner.VisualStudio.Settings
 {
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideOptionPage(typeof(XunitVisualStudioSettings), "xUnit.net", "xUnit.net Settings", 115, 116, true)]
     [InstalledProductRegistration("#110", "#112", "0.99.1", IconResourceID = 400)]
-    [ProvideAutoLoad(Guids.UICONTEXT_NoSolution)]
-    [ProvideAutoLoad(Guids.UICONTEXT_SolutionExists)]
     [Guid(Guids.Package)]
     public sealed class XunitVisualStudioPackage : Package
     {

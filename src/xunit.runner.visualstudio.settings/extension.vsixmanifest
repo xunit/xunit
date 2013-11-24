@@ -26,6 +26,6 @@
   <References />
   <Content>
     <VsPackage>xunit.runner.visualstudio.pkgdef</VsPackage>
-    <CustomExtension Type="UnitTestExtension">xunit.runner.visualstudio.dll</CustomExtension>
+    <CustomExtension Type="UnitTestExtension">xunit.runner.visualstudio.testrunner.dll</CustomExtension>
   </Content>
 </Vsix>

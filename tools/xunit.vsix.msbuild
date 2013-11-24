@@ -7,8 +7,13 @@
     <Target Name="BuildVsix">
         <ItemGroup>
             <ZipItems
-                Include="$(OutputPath)*.dll;$(OutputPath)*.vsixmanifest;$(OutputPath)[Content_Types].xml;$(OutputPath)*.txt;$(OutputPath)*.ico;$(OutputPath)*.pkgdef"
-                Exclude="$(OutputPath)Microsoft*.dll" />
+                Include="$(InputTestRunner)*.dll;
+                         $(InputSettings)*.dll;
+                         $(InputSettings)*.vsixmanifest;
+                         $(InputSettings)[Content_Types].xml;
+                         $(InputSettings)*.txt;
+                         $(InputSettings)*.ico;
+                         $(InputSettings)*.pkgdef" />
         </ItemGroup>
 
         <Delete Files="$(OutputPath)xunit.runner.visualstudio.vsix" />

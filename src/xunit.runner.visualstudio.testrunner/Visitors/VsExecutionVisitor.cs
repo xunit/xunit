@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Abstractions;
 using VsTestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 
-namespace Xunit.Runner.VisualStudio
+namespace Xunit.Runner.VisualStudio.TestRunner
 {
     public class VsExecutionVisitor : TestMessageVisitor<ITestAssemblyFinished>
     {
@@ -14,7 +14,7 @@ namespace Xunit.Runner.VisualStudio
         readonly ITestExecutionRecorder recorder;
         readonly Dictionary<ITestCase, TestCase> testCases;
 
-        public VsExecutionVisitor(string source, ITestExecutionRecorder recorder, Dictionary<ITestCase, TestCase> testCases, Func<bool> cancelledThunk)
+        public VsExecutionVisitor(ITestExecutionRecorder recorder, Dictionary<ITestCase, TestCase> testCases, Func<bool> cancelledThunk)
         {
             this.recorder = recorder;
             this.testCases = testCases;
@@ -30,7 +30,7 @@ namespace Xunit.Runner.VisualStudio
 
         protected override bool Visit(ITestFailed testFailed)
         {
-            VsTestResult result = MakeVsTestResult(testFailed, TestOutcome.Failed);
+            var result = MakeVsTestResult(testFailed, TestOutcome.Failed);
             result.ErrorMessage = testFailed.Message;
             result.ErrorStackTrace = testFailed.StackTrace;
 
@@ -42,7 +42,7 @@ namespace Xunit.Runner.VisualStudio
 
         protected override bool Visit(ITestPassed testPassed)
         {
-            VsTestResult result = MakeVsTestResult(testPassed, TestOutcome.Passed);
+            var result = MakeVsTestResult(testPassed, TestOutcome.Passed);
             recorder.RecordEnd(result.TestCase, result.Outcome);
             recorder.RecordResult(result);
 
@@ -51,7 +51,7 @@ namespace Xunit.Runner.VisualStudio
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
-            VsTestResult result = MakeVsTestResult(testSkipped, TestOutcome.Skipped);
+            var result = MakeVsTestResult(testSkipped, TestOutcome.Skipped);
             recorder.RecordEnd(result.TestCase, result.Outcome);
             recorder.RecordResult(result);
 
@@ -65,16 +65,11 @@ namespace Xunit.Runner.VisualStudio
             return !cancelledThunk();
         }
 
-        private static string GetFullyQualifiedName(string type, string method)
-        {
-            return String.Format("{0}.{1}", type, method);
-        }
-
         private VsTestResult MakeVsTestResult(ITestResultMessage testResult, TestOutcome outcome)
         {
-            TestCase testCase = testCases[testResult.TestCase];
+            var testCase = testCases[testResult.TestCase];
 
-            VsTestResult result = new VsTestResult(testCase)
+            var result = new VsTestResult(testCase)
             {
                 ComputerName = Environment.MachineName,
                 DisplayName = testResult.TestDisplayName,
@@ -85,6 +80,9 @@ namespace Xunit.Runner.VisualStudio
             // Work around VS considering a test "not run" when the duration is 0
             if (result.Duration.TotalMilliseconds == 0)
                 result.Duration = TimeSpan.FromMilliseconds(1);
+
+            if (!String.IsNullOrEmpty(testResult.Output))
+                result.Messages.Add(new TestResultMessage(TestResultMessage.StandardOutCategory, testResult.Output));
 
             return result;
         }

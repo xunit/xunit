@@ -6,16 +6,10 @@
 "LogoID"="#400"
 
 [$RootKey$\Packages\{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}]
-@="Xunit.Runner.VisualStudio.XunitVisualStudioPackage, xunit.runner.visualstudio"
+@="Xunit.Runner.VisualStudio.Settings.XunitVisualStudioPackage, xunit.runner.visualstudio.settings"
 "InprocServer32"="$WinDir$\SYSTEM32\MSCOREE.DLL"
-"Class"="Xunit.Runner.VisualStudio.XunitVisualStudioPackage"
-"CodeBase"="$PackageFolder$\xunit.runner.visualstudio.dll"
-
-[$RootKey$\AutoLoadPackages\{adfc4e64-0397-11d1-9f4e-00a0c911004f}]
-"{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"=dword:00000000
-
-[$RootKey$\AutoLoadPackages\{f1536ef8-92ec-443c-9ed7-fdadf150da82}]
-"{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"=dword:00000000
+"Class"="Xunit.Runner.VisualStudio.Settings.XunitVisualStudioPackage"
+"CodeBase"="$PackageFolder$\xunit.runner.visualstudio.settings.dll"
 
 [$RootKey$\Menus]
 "{623f78dd-6d4b-48f3-a2c7-4bbb381bb146}"=", Menus.ctmenu, 1"

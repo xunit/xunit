@@ -5,8 +5,9 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Abstractions;
+using Xunit.Runner.VisualStudio.Settings;
 
-namespace Xunit.Runner.VisualStudio
+namespace Xunit.Runner.VisualStudio.TestRunner
 {
     public class VsDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
     {
@@ -30,6 +31,8 @@ namespace Xunit.Runner.VisualStudio
 
             settings = SettingsProvider.Load();
         }
+
+        public int TotalTests { get; private set; }
 
         public static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, XunitVisualStudioSettings settings)
         {
@@ -100,6 +103,7 @@ namespace Xunit.Runner.VisualStudio
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)
         {
             discoverySink.SendTestCase(CreateVsTestCase(source, discoverer, discovery.TestCase, settings));
+            TotalTests++;
 
             return !cancelThunk();
         }

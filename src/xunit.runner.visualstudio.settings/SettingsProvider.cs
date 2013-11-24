@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
 
-namespace Xunit.Runner.VisualStudio
+namespace Xunit.Runner.VisualStudio.Settings
 {
     public static class SettingsProvider
     {
+        private const string REGVALUE_MessageDisplay = "MessageDisplay";
         private const string REGVALUE_NameDisplay = "NameDisplay";
         private const string REGVALUE_ParallelizeAssemblies = "ParallelizeAssemblies";
+        private const string REGVALUE_ShutdownAfterRun = "ShutdownAfterRun";
 
         public static XunitVisualStudioSettings Load()
         {
@@ -19,8 +21,10 @@ namespace Xunit.Runner.VisualStudio
             using (var xunit = outercurve.CreateOrOpen("xUnit.net"))
             using (var vsrunner = xunit.CreateOrOpen("Visual Studio Test Plugin"))
             {
+                result.MessageDisplay = vsrunner.GetValue<string>(REGVALUE_MessageDisplay, MessageDisplay.None.ToString()).ToEnum<MessageDisplay>();
                 result.NameDisplay = vsrunner.GetValue<string>(REGVALUE_NameDisplay, NameDisplay.Short.ToString()).ToEnum<NameDisplay>();
-                result.ParallelizeAssemblies = vsrunner.GetValue<int>(REGVALUE_ParallelizeAssemblies) == 0 ? false : true;
+                result.ParallelizeAssemblies = vsrunner.GetValue<int>(REGVALUE_ParallelizeAssemblies) != 0;
+                result.ShutdownAfterRun = vsrunner.GetValue<int>(REGVALUE_ShutdownAfterRun) != 0;
             }
 
             return result;
@@ -33,8 +37,10 @@ namespace Xunit.Runner.VisualStudio
             using (var xunit = outercurve.CreateOrOpen("xUnit.net"))
             using (var vsrunner = xunit.CreateOrOpen("Visual Studio Test Plugin"))
             {
+                vsrunner.SetValue(REGVALUE_MessageDisplay, settings.MessageDisplay.ToString());
                 vsrunner.SetValue(REGVALUE_NameDisplay, settings.NameDisplay.ToString());
                 vsrunner.SetValue(REGVALUE_ParallelizeAssemblies, settings.ParallelizeAssemblies ? 1 : 0);
+                vsrunner.SetValue(REGVALUE_ShutdownAfterRun, settings.ShutdownAfterRun ? 1 : 0);
             }
         }
 
