@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting;
+using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -55,14 +57,19 @@ namespace Xunit.Sdk
             return SerializationHelper.Deserialize<ITestCase>(value);
         }
 
-        /// <inheritdoc/>
-        public void Dispose() { }
-
         static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo ordererAttribute)
         {
             var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
             var ordererType = Reflector.GetType(args[1], args[0]);
             return (ITestCaseOrderer)Activator.CreateInstance(ordererType);
+        }
+
+        [SecuritySafeCritical]
+        private static bool OnMessage(IMessageSink messageSink, IMessageSinkMessage message)
+        {
+            var result = messageSink.OnMessage(message);
+            RemotingServices.Disconnect((MarshalByRefObject)message);
+            return result;
         }
 
         /// <inheritdoc/>
@@ -80,7 +87,7 @@ namespace Xunit.Sdk
             {
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 
-                if (messageSink.OnMessage(new TestAssemblyStarting(assemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
+                if (OnMessage(messageSink, new TestAssemblyStarting(assemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
                                                                    displayName,
                                                                    XunitTestFrameworkDiscoverer.DisplayName)))
                 {
@@ -111,7 +118,7 @@ namespace Xunit.Sdk
                     totalSummary.Skipped = summaries.Sum(s => s.Skipped);
                 }
 
-                messageSink.OnMessage(new TestAssemblyFinished(assemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
+                OnMessage(messageSink, new TestAssemblyFinished(assemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
             }
             finally
             {
@@ -140,13 +147,13 @@ namespace Xunit.Sdk
                     orderer = GetTestCaseOrderer(ordererAttribute);
             }
 
-            if (messageSink.OnMessage(new TestCollectionStarting(collection)))
+            if (OnMessage(messageSink, new TestCollectionStarting(collection)))
             {
                 foreach (var testCasesByClass in testCases.GroupBy(tc => tc.Class))
                 {
                     var classSummary = new RunSummary();
 
-                    if (!messageSink.OnMessage(new TestClassStarting(collection, testCasesByClass.Key.Name)))
+                    if (!OnMessage(messageSink, new TestClassStarting(collection, testCasesByClass.Key.Name)))
                         cancellationTokenSource.Cancel();
                     else
                     {
@@ -154,7 +161,7 @@ namespace Xunit.Sdk
                         collectionSummary.Aggregate(classSummary);
                     }
 
-                    if (!messageSink.OnMessage(new TestClassFinished(collection, testCasesByClass.Key.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
+                    if (!OnMessage(messageSink, new TestClassFinished(collection, testCasesByClass.Key.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
                         cancellationTokenSource.Cancel();
 
                     if (cancellationTokenSource.IsCancellationRequested)
@@ -170,12 +177,12 @@ namespace Xunit.Sdk
                 }
                 catch (Exception ex)
                 {
-                    if (!messageSink.OnMessage(new ErrorMessage(ex.Unwrap())))
+                    if (!OnMessage(messageSink, new ErrorMessage(ex.Unwrap())))
                         cancellationTokenSource.Cancel();
                 }
             }
 
-            messageSink.OnMessage(new TestCollectionFinished(collection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped));
+            OnMessage(messageSink, new TestCollectionFinished(collection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped));
             return collectionSummary;
         }
 
@@ -243,12 +250,12 @@ namespace Xunit.Sdk
 
             foreach (var method in methodGroups)
             {
-                if (!messageSink.OnMessage(new TestMethodStarting(collection, testClass.Name, method.Key.Name)))
+                if (!OnMessage(messageSink, new TestMethodStarting(collection, testClass.Name, method.Key.Name)))
                     cancellationTokenSource.Cancel();
                 else
                     RunTestMethod(messageSink, constructorArguments.ToArray(), method, classSummary, aggregator, cancellationTokenSource);
 
-                if (!messageSink.OnMessage(new TestMethodFinished(collection, testClass.Name, method.Key.Name)))
+                if (!OnMessage(messageSink, new TestMethodFinished(collection, testClass.Name, method.Key.Name)))
                     cancellationTokenSource.Cancel();
 
                 if (cancellationTokenSource.IsCancellationRequested)
@@ -263,7 +270,7 @@ namespace Xunit.Sdk
                 }
                 catch (Exception ex)
                 {
-                    if (!messageSink.OnMessage(new ErrorMessage(ex.Unwrap())))
+                    if (!OnMessage(messageSink, new ErrorMessage(ex.Unwrap())))
                         cancellationTokenSource.Cancel();
                 }
             }
@@ -278,15 +285,16 @@ namespace Xunit.Sdk
         {
             foreach (XunitTestCase testCase in testCases)
             {
-                var delegatingSink = new DelegatingMessageSink<ITestCaseFinished>(messageSink);
+                using (var delegatingSink = new DelegatingMessageSink<ITestCaseFinished>(messageSink))
+                {
+                    testCase.Run(delegatingSink, constructorArguments, aggregator, cancellationTokenSource);
+                    delegatingSink.Finished.WaitOne();
 
-                testCase.Run(delegatingSink, constructorArguments, aggregator, cancellationTokenSource);
-                delegatingSink.Finished.WaitOne();
-
-                classSummary.Total += delegatingSink.FinalMessage.TestsRun;
-                classSummary.Failed += delegatingSink.FinalMessage.TestsFailed;
-                classSummary.Skipped += delegatingSink.FinalMessage.TestsSkipped;
-                classSummary.Time += delegatingSink.FinalMessage.ExecutionTime;
+                    classSummary.Total += delegatingSink.FinalMessage.TestsRun;
+                    classSummary.Failed += delegatingSink.FinalMessage.TestsFailed;
+                    classSummary.Skipped += delegatingSink.FinalMessage.TestsSkipped;
+                    classSummary.Time += delegatingSink.FinalMessage.ExecutionTime;
+                }
 
                 if (cancellationTokenSource.IsCancellationRequested)
                     break;

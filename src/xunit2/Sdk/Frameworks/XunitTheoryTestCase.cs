@@ -61,15 +61,15 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                if (!messageSink.OnMessage(new TestStarting(this, DisplayName)))
+                if (!OnMessage(messageSink, new TestStarting(this, DisplayName)))
                     cancellationTokenSource.Cancel();
                 else
                 {
-                    if (!messageSink.OnMessage(new TestFailed(this, DisplayName, executionTime, null, ex.Unwrap())))
+                    if (!OnMessage(messageSink, new TestFailed(this, DisplayName, executionTime, null, ex.Unwrap())))
                         cancellationTokenSource.Cancel();
                 }
 
-                if (!messageSink.OnMessage(new TestFinished(this, DisplayName, executionTime, null)))
+                if (!OnMessage(messageSink, new TestFinished(this, DisplayName, executionTime, null)))
                     cancellationTokenSource.Cancel();
             }
         }

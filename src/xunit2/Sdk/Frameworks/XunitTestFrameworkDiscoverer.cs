@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting;
+using System.Security;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -70,9 +72,6 @@ namespace Xunit.Sdk
         public string TestFrameworkDisplayName { get; private set; }
 
         /// <inheritdoc/>
-        public void Dispose() { }
-
-        /// <inheritdoc/>
         public void Find(bool includeSourceInformation, IMessageSink messageSink)
         {
             Guard.ArgumentNotNull("messageSink", messageSink);
@@ -84,7 +83,7 @@ namespace Xunit.Sdk
                         break;
 
                 var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                messageSink.OnMessage(new DiscoveryCompleteMessage(warnings));
+                OnMessage(messageSink, new DiscoveryCompleteMessage(warnings));
             });
         }
 
@@ -101,7 +100,7 @@ namespace Xunit.Sdk
                     FindImpl(typeInfo, includeSourceInformation, messageSink);
 
                 var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                messageSink.OnMessage(new DiscoveryCompleteMessage(warnings));
+                OnMessage(messageSink, new DiscoveryCompleteMessage(warnings));
             });
         }
 
@@ -138,7 +137,7 @@ namespace Xunit.Sdk
 
                                 if (discoverer != null)
                                     foreach (XunitTestCase testCase in discoverer.Discover(testCollection, assemblyInfo, type, method, factAttribute))
-                                        if (!messageSink.OnMessage(new TestCaseDiscoveryMessage(UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation))))
+                                        if (!OnMessage(messageSink, new TestCaseDiscoveryMessage(UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation))))
                                             return false;
                             }
                             else
@@ -204,6 +203,14 @@ namespace Xunit.Sdk
             if (!typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)
                 return typeof(CollectionPerClassTestCollectionFactory);
 
+            return result;
+        }
+
+        [SecuritySafeCritical]
+        private static bool OnMessage(IMessageSink messageSink, IMessageSinkMessage message)
+        {
+            var result = messageSink.OnMessage(message);
+            RemotingServices.Disconnect((MarshalByRefObject)message);
             return result;
         }
 

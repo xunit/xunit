@@ -32,9 +32,6 @@ namespace Xunit.Sdk
 
             return innerSink.OnMessage(message);
         }
-
-        /// <inheritdoc/>
-        public void Dispose() { }
     }
 
     /// <summary>

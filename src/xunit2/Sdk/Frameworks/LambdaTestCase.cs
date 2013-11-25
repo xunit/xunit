@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.Remoting;
+using System.Security;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -34,7 +36,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override void RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
-            if (!messageSink.OnMessage(new TestStarting(this, DisplayName)))
+            if (!OnMessage(messageSink, new TestStarting(this, DisplayName)))
                 cancellationTokenSource.Cancel();
             else
             {
@@ -42,17 +44,17 @@ namespace Xunit.Sdk
                 {
                     lambda();
 
-                    if (!messageSink.OnMessage(new TestPassed(this, DisplayName, 0, null)))
+                    if (!OnMessage(messageSink, new TestPassed(this, DisplayName, 0, null)))
                         cancellationTokenSource.Cancel();
                 }
                 catch (Exception ex)
                 {
-                    if (!messageSink.OnMessage(new TestFailed(this, DisplayName, 0, null, ex)))
+                    if (!OnMessage(messageSink, new TestFailed(this, DisplayName, 0, null, ex)))
                         cancellationTokenSource.Cancel();
                 }
             }
 
-            if (!messageSink.OnMessage(new TestFinished(this, DisplayName, 0, null)))
+            if (!OnMessage(messageSink, new TestFinished(this, DisplayName, 0, null)))
                 cancellationTokenSource.Cancel();
         }
     }

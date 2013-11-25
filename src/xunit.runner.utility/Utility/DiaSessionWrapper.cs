@@ -51,8 +51,8 @@ namespace Xunit
 
         public void Dispose()
         {
-            if (session != null)
-                session.Dispose();
+            helper.SafeDispose();
+            session.SafeDispose();
 
             if (appDomain != null)
                 AppDomain.Unload(appDomain);

@@ -10,9 +10,6 @@ namespace Xunit
     /// </summary>
     public class TestMessageVisitor : LongLivedMarshalByRefObject, IMessageSink
     {
-        /// <inheritdoc/>
-        public virtual void Dispose() { }
-
         bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TMessage, bool> callback)
             where TMessage : class, IMessageSinkMessage
         {
@@ -342,6 +339,8 @@ namespace Xunit
         public override void Dispose()
         {
             ((IDisposable)Finished).Dispose();
+
+            base.Dispose();
         }
 
         /// <inheritdoc/>

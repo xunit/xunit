@@ -95,8 +95,9 @@ namespace Xunit
             try
             {
                 XmlNode assemblyXml = null;
-                var handler = new XmlNodeCallbackHandler(xml => { assemblyXml = xml; return true; });
-                executor.EnumerateTests(handler);
+
+                using (var handler = new XmlNodeCallbackHandler(xml => { assemblyXml = xml; return true; }))
+                    executor.EnumerateTests(handler);
 
                 foreach (XmlNode method in assemblyXml.SelectNodes("//method"))
                 {

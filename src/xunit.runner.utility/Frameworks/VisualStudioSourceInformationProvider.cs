@@ -37,10 +37,12 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public void Dispose()
+        public override void Dispose()
         {
             if (session != null)
                 session.Dispose();
+
+            base.Dispose();
         }
     }
 }

@@ -94,6 +94,11 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public void Dispose()
+        {
+        }
+
+        /// <inheritdoc/>
         [SecurityCritical]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {

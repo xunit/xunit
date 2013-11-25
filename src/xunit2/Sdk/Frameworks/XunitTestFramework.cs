@@ -31,9 +31,6 @@ namespace Xunit.Sdk
             return new XunitTestFrameworkExecutor(assemblyFileName);
         }
 
-        /// <inheritdoc/>
-        public void Dispose() { }
-
         class NullSourceInformationProvider : ISourceInformationProvider
         {
             public SourceInformation GetSourceInformation(ITestCase testCase)

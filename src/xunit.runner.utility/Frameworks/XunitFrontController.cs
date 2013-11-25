@@ -62,8 +62,8 @@ namespace Xunit
         /// <inheritdoc/>
         public void Dispose()
         {
-            innerController.SafeDispose();
             createdSourceInformationProvider.SafeDispose();
+            innerController.SafeDispose();
         }
 
         /// <inheritdoc/>

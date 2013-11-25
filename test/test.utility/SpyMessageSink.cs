@@ -26,6 +26,4 @@ public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessa
 
         return cancellationThunk(message);
     }
-
-    public void Dispose() { }
 }

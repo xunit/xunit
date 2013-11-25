@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Cryptography;
@@ -241,6 +242,14 @@ namespace Xunit.Sdk
             stream.WriteByte(0);
         }
 
+        [SecuritySafeCritical]
+        protected static bool OnMessage(IMessageSink messageSink, IMessageSinkMessage message)
+        {
+            var result = messageSink.OnMessage(message);
+            RemotingServices.Disconnect((MarshalByRefObject)message);
+            return result;
+        }
+
         static string ParameterToDisplayValue(object parameterValue)
         {
             if (parameterValue == null)
@@ -280,11 +289,11 @@ namespace Xunit.Sdk
             int totalSkipped = 0;
             decimal executionTime = 0M;
 
-            if (!messageSink.OnMessage(new TestCaseStarting(this)))
+            if (!OnMessage(messageSink, new TestCaseStarting(this)))
                 cancellationTokenSource.Cancel();
             else
             {
-                var delegatingSink = new DelegatingMessageSink(messageSink, msg =>
+                using (var delegatingSink = new DelegatingMessageSink(messageSink, msg =>
                 {
                     if (msg is ITestResultMessage)
                     {
@@ -295,12 +304,11 @@ namespace Xunit.Sdk
                         totalFailed++;
                     if (msg is ITestSkipped)
                         totalSkipped++;
-                });
-
-                RunTests(delegatingSink, constructorArguments, aggregator, cancellationTokenSource);
+                }))
+                    RunTests(delegatingSink, constructorArguments, aggregator, cancellationTokenSource);
             }
 
-            if (!messageSink.OnMessage(new TestCaseFinished(this, executionTime, totalRun, totalFailed, totalSkipped)))
+            if (!OnMessage(messageSink, new TestCaseFinished(this, executionTime, totalRun, totalFailed, totalSkipped)))
                 cancellationTokenSource.Cancel();
         }
 
@@ -371,13 +379,13 @@ namespace Xunit.Sdk
             var aggregator = new ExceptionAggregator(parentAggregator);
             var output = String.Empty;  // TODO: Add output facilities for v2
 
-            if (!messageSink.OnMessage(new TestStarting(this, displayName)))
+            if (!OnMessage(messageSink, new TestStarting(this, displayName)))
                 cancellationTokenSource.Cancel();
             else
             {
                 if (!String.IsNullOrEmpty(SkipReason))
                 {
-                    if (!messageSink.OnMessage(new TestSkipped(this, displayName, SkipReason)))
+                    if (!OnMessage(messageSink, new TestSkipped(this, displayName, SkipReason)))
                         cancellationTokenSource.Cancel();
                 }
                 else
@@ -392,7 +400,7 @@ namespace Xunit.Sdk
 
                             if (!methodUnderTest.IsStatic)
                             {
-                                if (!messageSink.OnMessage(new TestClassConstructionStarting(this, displayName)))
+                                if (!OnMessage(messageSink, new TestClassConstructionStarting(this, displayName)))
                                     cancellationTokenSource.Cancel();
 
                                 try
@@ -402,7 +410,7 @@ namespace Xunit.Sdk
                                 }
                                 finally
                                 {
-                                    if (!messageSink.OnMessage(new TestClassConstructionFinished(this, displayName)))
+                                    if (!OnMessage(messageSink, new TestClassConstructionFinished(this, displayName)))
                                         cancellationTokenSource.Cancel();
                                 }
                             }
@@ -414,7 +422,7 @@ namespace Xunit.Sdk
                                     foreach (var beforeAfterAttribute in beforeAfterAttributes)
                                     {
                                         var attributeName = beforeAfterAttribute.GetType().Name;
-                                        if (!messageSink.OnMessage(new BeforeTestStarting(this, displayName, attributeName)))
+                                        if (!OnMessage(messageSink, new BeforeTestStarting(this, displayName, attributeName)))
                                             cancellationTokenSource.Cancel();
                                         else
                                         {
@@ -425,7 +433,7 @@ namespace Xunit.Sdk
                                             }
                                             finally
                                             {
-                                                if (!messageSink.OnMessage(new BeforeTestFinished(this, displayName, attributeName)))
+                                                if (!OnMessage(messageSink, new BeforeTestFinished(this, displayName, attributeName)))
                                                     cancellationTokenSource.Cancel();
                                             }
                                         }
@@ -468,12 +476,12 @@ namespace Xunit.Sdk
                                 foreach (var beforeAfterAttribute in beforeAttributesRun)
                                 {
                                     var attributeName = beforeAfterAttribute.GetType().Name;
-                                    if (!messageSink.OnMessage(new AfterTestStarting(this, displayName, attributeName)))
+                                    if (!OnMessage(messageSink, new AfterTestStarting(this, displayName, attributeName)))
                                         cancellationTokenSource.Cancel();
 
                                     aggregator.Run(() => beforeAfterAttribute.After(methodUnderTest));
 
-                                    if (!messageSink.OnMessage(new AfterTestFinished(this, displayName, attributeName)))
+                                    if (!OnMessage(messageSink, new AfterTestFinished(this, displayName, attributeName)))
                                         cancellationTokenSource.Cancel();
                                 }
                             }
@@ -483,7 +491,7 @@ namespace Xunit.Sdk
                                 IDisposable disposable = testClass as IDisposable;
                                 if (disposable != null)
                                 {
-                                    if (!messageSink.OnMessage(new TestClassDisposeStarting(this, displayName)))
+                                    if (!OnMessage(messageSink, new TestClassDisposeStarting(this, displayName)))
                                         cancellationTokenSource.Cancel();
 
                                     try
@@ -492,7 +500,7 @@ namespace Xunit.Sdk
                                     }
                                     finally
                                     {
-                                        if (!messageSink.OnMessage(new TestClassDisposeFinished(this, displayName)))
+                                        if (!OnMessage(messageSink, new TestClassDisposeFinished(this, displayName)))
                                             cancellationTokenSource.Cancel();
                                     }
                                 }
@@ -507,13 +515,13 @@ namespace Xunit.Sdk
 
                         var exception = aggregator.ToException();
                         var testResult = exception == null ? (TestResultMessage)new TestPassed(this, displayName, executionTime, output) : new TestFailed(this, displayName, executionTime, output, exception);
-                        if (!messageSink.OnMessage(testResult))
+                        if (!OnMessage(messageSink, testResult))
                             cancellationTokenSource.Cancel();
                     }
                 }
             }
 
-            if (!messageSink.OnMessage(new TestFinished(this, displayName, executionTime, output)))
+            if (!OnMessage(messageSink, new TestFinished(this, displayName, executionTime, output)))
                 cancellationTokenSource.Cancel();
         }
 

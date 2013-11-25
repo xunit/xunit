@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Xunit.Abstractions
@@ -7,7 +8,7 @@ namespace Xunit.Abstractions
     /// the case of dynamically generated data for data driven tests, the test case may actually return
     /// multiple results when run.
     /// </summary>
-    public interface ITestCase
+    public interface ITestCase : IDisposable
     {
         /// <summary>
         /// Gets the class that this test case is attached to.

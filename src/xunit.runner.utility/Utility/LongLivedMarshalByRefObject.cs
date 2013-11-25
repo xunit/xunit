@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Remoting;
 using System.Security;
 
 namespace Xunit
@@ -8,13 +9,20 @@ namespace Xunit
     /// <see cref="InitializeLifetimeService()"/> in a way that allows the object to live
     /// longer than the remoting default lifetime (5 minutes).
     /// </summary>
-    public abstract class LongLivedMarshalByRefObject : MarshalByRefObject
+    public abstract class LongLivedMarshalByRefObject : MarshalByRefObject, IDisposable
     {
-        /// <summary/>
+        /// <inheritdoc/>
         [SecurityCritical]
         public override sealed Object InitializeLifetimeService()
         {
             return null;
+        }
+
+        /// <inheritdoc/>
+        [SecuritySafeCritical]
+        public virtual void Dispose()
+        {
+            RemotingServices.Disconnect(this);
         }
     }
 }
