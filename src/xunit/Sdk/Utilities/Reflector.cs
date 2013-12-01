@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Threading;
 
 namespace Xunit.Sdk
 {
@@ -144,20 +145,37 @@ namespace Xunit.Sdk
 
                 try
                 {
-                    try
-                    {
-                        object result = method.Invoke(testClass, parameters);
+                    var oldSyncContext = SynchronizationContext.Current;
 
-                        if (taskType != null && result != null && taskType.IsAssignableFrom(result.GetType()))
-                            taskWaitMethod.Invoke(result, null);
-                    }
-                    catch (TargetParameterCountException)
+                    using (var asyncSyncContext = new AsyncTestSyncContext())
                     {
-                        throw new ParameterCountMismatchException();
-                    }
-                    catch (TargetInvocationException ex)
-                    {
-                        ExceptionUtility.RethrowWithNoStackTraceLoss(ex.InnerException);
+                        SynchronizationContext.SetSynchronizationContext(asyncSyncContext);
+
+                        try
+                        {
+                            object result = method.Invoke(testClass, parameters);
+
+                            if (taskType != null && result != null && taskType.IsAssignableFrom(result.GetType()))
+                                taskWaitMethod.Invoke(result, null);
+                            else
+                            {
+                                var ex = asyncSyncContext.WaitForCompletion();
+                                if (ex != null)
+                                    ExceptionUtility.RethrowWithNoStackTraceLoss(ex);
+                            }
+                        }
+                        catch (TargetParameterCountException)
+                        {
+                            throw new ParameterCountMismatchException();
+                        }
+                        catch (TargetInvocationException ex)
+                        {
+                            ExceptionUtility.RethrowWithNoStackTraceLoss(ex.InnerException);
+                        }
+                        finally
+                        {
+                            SynchronizationContext.SetSynchronizationContext(oldSyncContext);
+                        }
                     }
                 }
                 catch (Exception ex)

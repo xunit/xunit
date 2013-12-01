@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using TestUtility;
 using Xunit;
@@ -8,28 +7,44 @@ using Xunit.Sdk;
 public class AsyncAcceptanceTests : AcceptanceTest
 {
     [Fact]
-    public void Async40AcceptanceTest()
+    public void AsyncTaskTestsRunCorrectly()
     {
-        IEnumerable<MethodResult> results = RunClass(typeof(Async40AcceptanceTestClass));
+        var results = RunClass(typeof(ClassWithAsyncTask));
 
-        MethodResult result = Assert.Single(results);
-        FailedResult failedResult = Assert.IsType<FailedResult>(result);
-        Assert.Equal(typeof(TrueException).FullName, failedResult.ExceptionType);
+        var result = Assert.Single(results);
+        var failedResult = Assert.IsType<FailedResult>(result);
+        Assert.Equal(typeof(EqualException).FullName, failedResult.ExceptionType);
     }
 
-    class Async40AcceptanceTestClass
+    class ClassWithAsyncTask
     {
         [Fact]
-        public Task MethodUnderTest()
+        public async Task AsyncTest()
         {
-            return Task.Factory.StartNew(() =>
-            {
-                Thread.Sleep(1);
-            })
-            .ContinueWith(_ =>
-            {
-                Assert.True(false);
-            });
+            var result = await Task.FromResult(21);
+
+            Assert.Equal(42, result);
+        }
+    }
+
+    [Fact]
+    public void AsyncVoidTestsRunCorrectly()
+    {
+        var results = RunClass(typeof(ClassWithAsyncVoid));
+
+        var result = Assert.Single(results);
+        var failedResult = Assert.IsType<FailedResult>(result);
+        Assert.Equal(typeof(EqualException).FullName, failedResult.ExceptionType);
+    }
+
+    class ClassWithAsyncVoid
+    {
+        [Fact]
+        public async void AsyncTest()
+        {
+            var result = await Task.FromResult(21);
+
+            Assert.Equal(42, result);
         }
     }
 }
