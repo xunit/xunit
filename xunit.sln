@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.console", "src\xunit.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.visualstudio.settings", "src\xunit.runner.visualstudio.settings\xunit.runner.visualstudio.settings.csproj", "{924678EB-03AF-4513-827F-8D311CAFDAD7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.visualstudio.testrunner", "test\test.xunit.runner.visualstudio.testrunner\test.xunit.runner.visualstudio.testrunner.csproj", "{05269B63-FD22-45DD-936E-FED6707113B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.visualstudio.testadapter", "test\test.xunit.runner.visualstudio.testadapter\test.xunit.runner.visualstudio.testadapter.csproj", "{05269B63-FD22-45DD-936E-FED6707113B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit1", "test\test.xunit1\test.xunit1.csproj", "{61615231-0BD8-43FA-903E-27F5A5A5E3F6}"
 EndProject
@@ -41,7 +41,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.console", "test\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit2.assert", "src\xunit2.assert\xunit2.assert.csproj", "{80B04AFE-4331-4CDD-B247-864AC6482F7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.visualstudio.testrunner", "src\xunit.runner.visualstudio.testrunner\xunit.runner.visualstudio.testrunner.csproj", "{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.visualstudio.testadapter", "src\xunit.runner.visualstudio.testadapter\xunit.runner.visualstudio.testadapter.csproj", "{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

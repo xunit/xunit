@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runner.VisualStudio.TestRunner
+﻿namespace Xunit.Runner.VisualStudio.TestAdapter
 {
     public static class Constants
     {

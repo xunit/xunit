@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Abstractions;
 using Xunit.Runner.VisualStudio.Settings;
 
-namespace Xunit.Runner.VisualStudio.TestRunner
+namespace Xunit.Runner.VisualStudio.TestAdapter
 {
     public class VsDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
     {

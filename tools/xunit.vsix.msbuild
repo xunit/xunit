@@ -7,7 +7,7 @@
     <Target Name="BuildVsix">
         <ItemGroup>
             <ZipItems
-                Include="$(InputTestRunner)*.dll;
+                Include="$(InputTestAdapter)*.dll;
                          $(InputSettings)*.dll;
                          $(InputSettings)*.vsixmanifest;
                          $(InputSettings)[Content_Types].xml;

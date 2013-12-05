@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Abstractions;
 using VsTestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 
-namespace Xunit.Runner.VisualStudio.TestRunner
+namespace Xunit.Runner.VisualStudio.TestAdapter
 {
     public class VsExecutionVisitor : TestMessageVisitor<ITestAssemblyFinished>
     {

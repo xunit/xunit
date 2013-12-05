@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Runner.VisualStudio.Settings;
 
-namespace Xunit.Runner.VisualStudio.TestRunner
+namespace Xunit.Runner.VisualStudio.TestAdapter
 {
     [FileExtension(".dll")]
     [FileExtension(".exe")]

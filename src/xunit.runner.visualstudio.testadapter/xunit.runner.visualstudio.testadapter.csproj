@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{05269B63-FD22-45DD-936E-FED6707113B5}</ProjectGuid>
+    <ProjectGuid>{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xunit.Runner.VisualStudio.TestRunner</RootNamespace>
-    <AssemblyName>test.xunit.runner.visualstudio.testrunner</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>Xunit.Runner.VisualStudio.TestAdapter</RootNamespace>
+    <AssemblyName>xunit.runner.visualstudio.testadapter</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -31,53 +31,48 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.ObjectModel">
+      <Private>False</Private>
       <HintPath>..\..\packages\Microsoft.VisualStudio.TestPlatform.ObjectModel.0.0.4\lib\net35\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
-    </Reference>
-    <Reference Include="NSubstitute">
-      <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TestDriven.Framework">
-      <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\common\Guard.cs">
+      <Link>Common\Guard.cs</Link>
+    </Compile>
+    <Compile Include="..\common\TestDiscoveryVisitor.cs">
+      <Link>Visitors\TestDiscoveryVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.visualstudio.settings\SettingsProvider.cs">
+      <Link>Settings\SettingsProvider.cs</Link>
+    </Compile>
+    <Compile Include="Constants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\xunit.abstractions\xunit.abstractions.csproj">
-      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
-      <Name>xunit.abstractions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
-      <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
-      <Name>xunit.runner.tdnet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj">
-      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
-      <Name>xunit.runner.utility</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.runner.visualstudio.testrunner\xunit.runner.visualstudio.testrunner.csproj">
-      <Project>{ebab9937-2a6a-41ea-848b-3f7ede2396cb}</Project>
-      <Name>xunit.runner.visualstudio.testrunner</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit2.assert\xunit2.assert.csproj">
-      <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>
-      <Name>xunit2.assert</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit2\xunit2.csproj">
-      <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
-      <Name>xunit2</Name>
-    </ProjectReference>
+    <Compile Include="..\common\GlobalAssemblyInfo.cs">
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="Settings\XunitVisualStudioSettings.cs" />
+    <Compile Include="Visitors\VsDiscoveryVisitor.cs" />
+    <Compile Include="Visitors\VsExecutionVisitor.cs" />
+    <Compile Include="VsTestRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">
+      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
+      <Name>xunit.abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj">
+      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
+      <Name>xunit.runner.utility</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

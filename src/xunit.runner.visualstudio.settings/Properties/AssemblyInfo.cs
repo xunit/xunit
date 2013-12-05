@@ -1,3 +1,3 @@
 ﻿using System.Reflection;
 
-[assembly: AssemblyTitle("xUnit.net Runner for Visual Studio")]
+[assembly: AssemblyTitle("xUnit.net Runner for Visual Studio (Settings)")]

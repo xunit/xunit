@@ -69,7 +69,10 @@
         Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
 
     <!-- Build Visual Studio VSIX -->
-    <MSBuild Projects="tools\xunit.vsix.msbuild" Properties="InputSettings=..\src\xunit.runner.visualstudio.settings\bin\$(Configuration)\;InputTestRunner=..\src\xunit.runner.visualstudio.testrunner\bin\$(Configuration)\;OutputPath=..\src\xunit.runner.visualstudio.settings\bin\$(Configuration)\" />
+    <MSBuild Projects="tools\xunit.vsix.msbuild"
+             Properties="InputSettings=..\src\xunit.runner.visualstudio.settings\bin\$(Configuration)\;
+                         InputTestAdapter=..\src\xunit.runner.visualstudio.testadapter\bin\$(Configuration)\;
+                         OutputPath=..\src\xunit.runner.visualstudio.settings\bin\$(Configuration)\" />
 
     <!-- Build xunit.console.x86 -->
     <Copy
