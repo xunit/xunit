@@ -88,8 +88,13 @@ namespace Xunit
                     {
                         testCaseResults.Failed++;
                         var failure = xml.SelectSingleNode("failure");
-                        resultMessage = new TestFailed(testCase, displayName, time, output, failure.Attributes["exception-type"].Value,
-                                                       failure.SelectSingleNode("message").InnerText, failure.SelectSingleNode("stack-trace").InnerText);
+                        var messageElement = failure.SelectSingleNode("message");
+                        var stackTraceElement = failure.SelectSingleNode("stack-trace");
+                        var exceptionTypeAttribute = failure.Attributes["exception-type"];
+                        resultMessage = new TestFailed(testCase, displayName, time, output,
+                                                       exceptionTypeAttribute == null ? String.Empty : exceptionTypeAttribute.Value,
+                                                       messageElement == null ? String.Empty : messageElement.InnerText,
+                                                       stackTraceElement == null ? String.Empty : stackTraceElement.InnerText);
                         break;
                     }
 
