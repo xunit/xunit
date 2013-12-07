@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+    <metadata>
+        <id>xunit.runner.visualstudio</id>
+        <version>0.99.2</version>
+        <title>xUnit.net [Visual Studio/TFS Build Runner]</title>
+        <authors>James Newkirk, Brad Wilson</authors>
+        <description>Includes support for running xUnit.net v1 and v2 tests from Visual Studio 2012+ and TFS Build 2012+.</description>
+        <language>en-US</language>
+        <projectUrl>http://xunit.codeplex.com</projectUrl>
+        <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>
+        <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <references>
+            <reference file="xunit.runner.visualstudio.testadapter.dll" />
+        </references>
+    </metadata>
+    <files>
+        <file src="xunit.runner.visualstudio.testadapter\bin\Release\xunit.abstractions.dll" target="lib\" />
+        <file src="xunit.runner.visualstudio.testadapter\bin\Release\xunit.runner.utility.dll" target="lib\" />
+        <file src="xunit.runner.visualstudio.testadapter\bin\Release\xunit.runner.visualstudio.testadapter.dll" target="lib\" />
+    </files>
+</package>
