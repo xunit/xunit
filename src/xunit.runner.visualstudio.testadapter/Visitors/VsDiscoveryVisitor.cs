@@ -96,8 +96,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         {
             if (settings.NameDisplay == NameDisplay.Full)
                 return displayName;
-
-            return displayName == fullyQualifiedMethodName ? shortMethodName : displayName;
+            if (displayName == fullyQualifiedMethodName || displayName.StartsWith(fullyQualifiedMethodName + "("))
+                return shortMethodName + displayName.Substring(fullyQualifiedMethodName.Length);
+            return displayName;
         }
 
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)
