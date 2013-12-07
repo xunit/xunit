@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -21,6 +22,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         readonly XunitVisualStudioSettings settings;
         readonly string source;
 
+        string lastTestClass;
+        List<ITestCase> lastTestClassTestCases = new List<ITestCase>();
+
         public VsDiscoveryVisitor(string source, ITestFrameworkDiscoverer discoverer, IMessageLogger logger, ITestCaseDiscoverySink discoverySink, Func<bool> cancelThunk)
         {
             this.source = source;
@@ -34,12 +38,12 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         public int TotalTests { get; private set; }
 
-        public static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, XunitVisualStudioSettings settings)
+        public static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, XunitVisualStudioSettings settings, bool forceUniqueNames)
         {
             var serializedTestCase = discoverer.Serialize(xunitTestCase);
             var fqTestMethodName = String.Format("{0}.{1}", xunitTestCase.Class.Name, xunitTestCase.Method.Name);
-            var uniqueName = String.Format("{0} ({1})", fqTestMethodName, xunitTestCase.UniqueID);
             var displayName = GetDisplayName(xunitTestCase.DisplayName, xunitTestCase.Method.Name, fqTestMethodName, settings);
+            var uniqueName = forceUniqueNames ? String.Format("{0} ({1})", fqTestMethodName, xunitTestCase.UniqueID) : fqTestMethodName;
 
             var result = new TestCase(uniqueName, uri, source) { DisplayName = Escape(displayName) };
             result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, serializedTestCase);
@@ -103,10 +107,33 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)
         {
-            discoverySink.SendTestCase(CreateVsTestCase(source, discoverer, discovery.TestCase, settings));
+            var testCase = discovery.TestCase;
+            string testClass = String.Format("{0}.{1}", testCase.Class.Name, testCase.Method.Name);
+            if (lastTestClass != testClass)
+                SendExistingTestCases();
+
+            lastTestClass = testClass;
+            lastTestClassTestCases.Add(testCase);
             TotalTests++;
 
             return !cancelThunk();
+        }
+
+        protected override bool Visit(IDiscoveryCompleteMessage discoveryComplete)
+        {
+            SendExistingTestCases();
+
+            return !cancelThunk();
+        }
+
+        private void SendExistingTestCases()
+        {
+            var forceUniqueNames = lastTestClassTestCases.Count > 1;
+
+            foreach (var testCase in lastTestClassTestCases)
+                discoverySink.SendTestCase(CreateVsTestCase(source, discoverer, testCase, settings, forceUniqueNames));
+
+            lastTestClassTestCases.Clear();
         }
 
         public static string fqTestMethodName { get; set; }

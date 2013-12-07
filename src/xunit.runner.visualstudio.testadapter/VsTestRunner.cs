@@ -174,7 +174,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                         new Grouping<string, TestCase>(
                             sourceSink.AssemblyFileName,
                             sourceSink.Sink.TestCases
-                                           .Select(tc => VsDiscoveryVisitor.CreateVsTestCase(sourceSink.AssemblyFileName, sourceSink.Framework, tc, settings))
+                                           .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
+                                           .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(sourceSink.AssemblyFileName, sourceSink.Framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
                                            .ToList()
                         )
                     );
