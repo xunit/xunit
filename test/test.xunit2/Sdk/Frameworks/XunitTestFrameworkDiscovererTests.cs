@@ -491,7 +491,7 @@ public class XunitTestFrameworkDiscovererTests
             }
         }
 
-        public TestDiscoveryVisitor Visitor { get; private set; }
+        internal TestDiscoveryVisitor Visitor { get; private set; }
 
         public static TestableXunitTestFrameworkDiscoverer Create(IAssemblyInfo assembly = null,
                                                                   ISourceInformationProvider sourceProvider = null,

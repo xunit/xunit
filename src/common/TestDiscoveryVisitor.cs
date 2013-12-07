@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 namespace Xunit
 {
-    public class TestDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
+    internal class TestDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
     {
         public TestDiscoveryVisitor()
         {
