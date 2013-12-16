@@ -81,16 +81,6 @@
     <Compile Include="Acceptance\FixtureAcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2TheoryAcceptanceTests.cs" />
-    <Compile Include="Asserts\BooleanAssertsTests.cs" />
-    <Compile Include="Asserts\CollectionAssertsTests.cs" />
-    <Compile Include="Asserts\EqualityAssertsTests.cs" />
-    <Compile Include="Asserts\ExceptionAssertsTests.cs" />
-    <Compile Include="Asserts\IdentityAssertsTests.cs" />
-    <Compile Include="Asserts\NullAssertsTests.cs" />
-    <Compile Include="Asserts\PropertyAssertsTests.cs" />
-    <Compile Include="Asserts\RangeAssertsTests.cs" />
-    <Compile Include="Asserts\StringAssertsTests.cs" />
-    <Compile Include="Asserts\TypeAssertsTests.cs" />
     <Compile Include="Common\XmlTestExecutionVisitorTests.cs" />
     <Compile Include="Extensions\AssumeIdentityAttributeTests.cs" />
     <Compile Include="Extensions\UseCultureAttributeTests.cs" />

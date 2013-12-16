@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B1875255-91B8-4B17-A6B3-7A96A49004D5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Xunit</RootNamespace>
+    <AssemblyName>test.xunit2.assert</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NSubstitute">
+      <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TestDriven.Framework">
+      <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Asserts\BooleanAssertsTests.cs" />
+    <Compile Include="Asserts\CollectionAssertsTests.cs" />
+    <Compile Include="Asserts\EqualityAssertsTests.cs" />
+    <Compile Include="Asserts\ExceptionAssertsTests.cs" />
+    <Compile Include="Asserts\IdentityAssertsTests.cs" />
+    <Compile Include="Asserts\NullAssertsTests.cs" />
+    <Compile Include="Asserts\PropertyAssertsTests.cs" />
+    <Compile Include="Asserts\RangeAssertsTests.cs" />
+    <Compile Include="Asserts\StringAssertsTests.cs" />
+    <Compile Include="Asserts\TypeAssertsTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\xunit.abstractions\xunit.abstractions.csproj">
+      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
+      <Name>xunit.abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
+      <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
+      <Name>xunit.runner.tdnet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj">
+      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
+      <Name>xunit.runner.utility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit2.assert\xunit2.assert.csproj">
+      <Project>{80b04afe-4331-4cdd-b247-864ac6482f7c}</Project>
+      <Name>xunit2.assert</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit2\xunit2.csproj">
+      <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
+      <Name>xunit2</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

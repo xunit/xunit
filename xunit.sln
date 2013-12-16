@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit2.assert", "src\xunit2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.visualstudio.testadapter", "src\xunit.runner.visualstudio.testadapter\xunit.runner.visualstudio.testadapter.csproj", "{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit2.assert", "test\test.xunit2.assert\test.xunit2.assert.csproj", "{B1875255-91B8-4B17-A6B3-7A96A49004D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,10 @@ Global
 		{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,5 +150,6 @@ Global
 		{05269B63-FD22-45DD-936E-FED6707113B5} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{61615231-0BD8-43FA-903E-27F5A5A5E3F6} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{7AFFADA0-8F38-4D95-841E-A224B87A0011} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 	EndGlobalSection
 EndGlobal
