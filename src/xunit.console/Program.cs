@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,6 +19,7 @@ namespace Xunit.ConsoleClient
         {
             Console.WriteLine("xUnit.net console test runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
             Console.WriteLine("Copyright (C) 2013 Outercurve Foundation.");
+            Console.WriteLine();
 
             if (args.Length == 0 || args[0] == "-?")
             {
@@ -38,9 +40,13 @@ namespace Xunit.ConsoleClient
 
             try
             {
+                var defaultDirectory = Directory.GetCurrentDirectory();
+                if (!defaultDirectory.EndsWith(new String(new[] { Path.DirectorySeparatorChar })))
+                    defaultDirectory += Path.DirectorySeparatorChar;
+
                 var commandLine = CommandLine.Parse(args);
 
-                int failCount = RunProject(commandLine.Project, commandLine.TeamCity, commandLine.Silent, commandLine.Parallel);
+                int failCount = RunProject(defaultDirectory, commandLine.Project, commandLine.TeamCity, commandLine.Silent, commandLine.Parallel);
 
                 if (commandLine.Wait)
                 {
@@ -68,7 +74,7 @@ namespace Xunit.ConsoleClient
 
         static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Exception ex = e.ExceptionObject as Exception;
+            var ex = e.ExceptionObject as Exception;
 
             if (ex != null)
                 Console.WriteLine(ex.ToString());
@@ -82,7 +88,6 @@ namespace Xunit.ConsoleClient
         {
             string executableName = Path.GetFileNameWithoutExtension(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 
-            Console.WriteLine();
             Console.WriteLine("usage: {0} <xunitProjectFile> [options]", executableName);
             Console.WriteLine("usage: {0} <assemblyFile> [configFile] [options]", executableName);
             Console.WriteLine();
@@ -98,21 +103,20 @@ namespace Xunit.ConsoleClient
             Console.WriteLine();
             Console.WriteLine("Valid options for assemblies only:");
             Console.WriteLine("  -noshadow              : do not shadow copy assemblies");
-            Console.WriteLine("  -xml <filename>        : output results to xUnit.net v2 style XML file");
 
-            foreach (var transform in TransformFactory.GetInstalledTransforms())
-            {
-                string commandLine = String.Format("-{0} <filename>", transform.CommandLine);
-                commandLine = commandLine.PadRight(22).Substring(0, 22);
-
-                Console.WriteLine("  {0} : {1}", commandLine, transform.Description);
-            }
+            TransformFactory.AvailableTransforms.ForEach(
+                transform => Console.WriteLine("  {0} : {1}",
+                                               String.Format("-{0} <filename>", transform.CommandLine).PadRight(22).Substring(0, 22),
+                                               transform.Description)
+            );
         }
 
-        static int RunProject(XunitProject project, bool teamcity, bool silent, bool parallel)
+        static int RunProject(string defaultDirectory, XunitProject project, bool teamcity, bool silent, bool parallel)
         {
             XElement assembliesElement = null;
-            var needsXml = project.Output.Count > 0;
+            var xmlTransformers = TransformFactory.GetXmlTransformers(project);
+            var needsXml = xmlTransformers.Count > 0;
+            var consoleLock = new object();
 
             if (needsXml)
                 assembliesElement = new XElement("assemblies");
@@ -123,7 +127,7 @@ namespace Xunit.ConsoleClient
             {
                 if (parallel)
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, needsXml, teamcity, silent)));
+                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, defaultDirectory, assembly, needsXml, teamcity, silent)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -132,7 +136,7 @@ namespace Xunit.ConsoleClient
                 {
                     foreach (var assembly in project.Assemblies)
                     {
-                        var assemblyElement = ExecuteAssembly(assembly, needsXml, teamcity, silent);
+                        var assemblyElement = ExecuteAssembly(consoleLock, defaultDirectory, assembly, needsXml, teamcity, silent);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -140,6 +144,7 @@ namespace Xunit.ConsoleClient
 
                 if (completionMessages.Count > 0)
                 {
+                    Console.WriteLine();
                     Console.WriteLine("=== TEST EXECUTION SUMMARY ===");
                     int longestAssemblyName = completionMessages.Keys.Max(key => key.Length);
                     int longestTotal = completionMessages.Values.Max(summary => summary.Total.ToString().Length);
@@ -147,7 +152,7 @@ namespace Xunit.ConsoleClient
                     int longestSkipped = completionMessages.Values.Max(summary => summary.Skipped.ToString().Length);
 
                     foreach (var message in completionMessages.OrderBy(m => m.Key))
-                        Console.WriteLine("  {0}  Total: {1}, Failed: {2}, Skipped: {3}",
+                        Console.WriteLine("   {0}  Total: {1}, Failed: {2}, Skipped: {3}",
                                           message.Key.PadRight(longestAssemblyName),
                                           message.Value.Total.ToString().PadLeft(longestTotal),
                                           message.Value.Failed.ToString().PadLeft(longestFailed),
@@ -157,30 +162,20 @@ namespace Xunit.ConsoleClient
 
             Directory.SetCurrentDirectory(originalWorkingFolder);
 
-            if (needsXml)
-            {
-                //if (Xml != null)
-                //    assembliesElement.Save(Xml.GetMetadata("FullPath"));
-
-                //if (XmlV1 != null)
-                //    Transform("xUnit1.xslt", assembliesElement, XmlV1);
-
-                //if (Html != null)
-                //    Transform("HTML.xslt", assembliesElement, Html);
-            }
+            xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
             return completionMessages.Values.Sum(summary => summary.Failed);
         }
 
-        static XmlTestExecutionVisitor CreateVisitor(XElement assemblyElement, bool teamCity, bool silent)
+        static XmlTestExecutionVisitor CreateVisitor(object consoleLock, string defaultDirectory, XElement assemblyElement, bool teamCity, bool silent)
         {
             if (teamCity)
                 return new TeamCityVisitor(assemblyElement, () => cancel);
 
-            return new StandardOutputVisitor(assemblyElement, !silent, () => cancel, completionMessages);
+            return new StandardOutputVisitor(consoleLock, defaultDirectory, assemblyElement, () => cancel, completionMessages);
         }
 
-        static XElement ExecuteAssembly(XunitProjectAssembly assembly, bool needsXml, bool teamCity, bool silent)
+        static XElement ExecuteAssembly(object consoleLock, string defaultDirectory, XunitProjectAssembly assembly, bool needsXml, bool teamCity, bool silent)
         {
             if (cancel)
                 return null;
@@ -189,13 +184,16 @@ namespace Xunit.ConsoleClient
 
             try
             {
+                if (!ValidateFileExists(consoleLock, assembly.AssemblyFilename) || !ValidateFileExists(consoleLock, assembly.ConfigFilename))
+                    return null;
+
                 using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
                     discoveryVisitor.Finished.WaitOne();
 
-                    var resultsVisitor = CreateVisitor(assemblyElement, teamCity, silent);
+                    var resultsVisitor = CreateVisitor(consoleLock, defaultDirectory, assemblyElement, teamCity, silent);
                     controller.Run(discoveryVisitor.TestCases, resultsVisitor);
                     resultsVisitor.Finished.WaitOne();
                 }
@@ -217,6 +215,21 @@ namespace Xunit.ConsoleClient
             }
 
             return assemblyElement;
+        }
+
+        static bool ValidateFileExists(object consoleLock, string fileName)
+        {
+            if (String.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
+                return true;
+
+            lock (consoleLock)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("File not found: {0}", fileName);
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
+
+            return false;
         }
     }
 }
