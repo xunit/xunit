@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Cryptography;
@@ -139,6 +138,9 @@ namespace Xunit.Sdk
 
             return args;
         }
+
+        /// <inheritdoc/>
+        public void Dispose() { }
 
         /// <summary>
         /// Gets the <see cref="BeforeAfterTestAttribute"/> instances for a test method.

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting;
-using System.Security;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -70,6 +68,9 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         public string TestFrameworkDisplayName { get; private set; }
+
+        /// <inheritdoc/>
+        public void Dispose() { }
 
         /// <inheritdoc/>
         public void Find(bool includeSourceInformation, IMessageSink messageSink)

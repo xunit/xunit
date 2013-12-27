@@ -9,10 +9,10 @@ namespace Xunit.Abstractions
     public interface ITestFrameworkExecutor : IDisposable
     {
         /// <summary>
-        /// Deserializes a test case.
+        /// De-serializes a test case.
         /// </summary>
         /// <param name="value">The string representation of the test case.</param>
-        /// <returns>The deserialized test case.</returns>
+        /// <returns>The de-serialized test case.</returns>
         ITestCase Deserialize(string value);
 
         /// <summary>

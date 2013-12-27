@@ -25,6 +25,9 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
+        public void Dispose() { }
+
+        /// <inheritdoc/>
         public virtual bool OnMessage(IMessageSinkMessage message)
         {
             if (callback != null)

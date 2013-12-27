@@ -35,11 +35,7 @@ namespace Xunit.Sdk
                     if (!messageSink.OnMessage(message))
                         continueRunning = false;
                 }
-                catch
-                {
-                    if (message != null)
-                        message.Dispose();
-                }
+                catch { }
         }
         /// <summary/>
         public void Dispose()

@@ -17,6 +17,9 @@ public class SpyMessageBus<TFinalMessage> : LongLivedMarshalByRefObject, IMessag
 
     public List<IMessageSinkMessage> Messages = new List<IMessageSinkMessage>();
 
+    /// <inheritdoc/>
+    public void Dispose() { }
+
     public bool QueueMessage(IMessageSinkMessage message)
     {
         Messages.Add(message);

@@ -6,14 +6,10 @@ using Xunit.Abstractions;
 
 public class AcceptanceTest : IDisposable
 {
-    readonly List<IDisposable> ToDispose = new List<IDisposable>();
-
     protected Xunit2 Xunit2 { get; private set; }
 
     public void Dispose()
     {
-        ToDispose.ForEach(d => d.Dispose());
-
         if (Xunit2 != null)
             Xunit2.Dispose();
     }
@@ -49,8 +45,6 @@ public class AcceptanceTest : IDisposable
             discoverySink.Finished.Reset();
         }
 
-        ToDispose.AddRange(discoverySink.Messages);
-
         if (cancelled)
             return new List<IMessageSinkMessage>();
 
@@ -59,7 +53,6 @@ public class AcceptanceTest : IDisposable
         var runSink = new SpyMessageSink<ITestAssemblyFinished>(cancellationThunk);
         Xunit2.Run(testCases, runSink);
         runSink.Finished.WaitOne();
-        ToDispose.AddRange(runSink.Messages);
 
         return runSink.Messages.ToList();
     }

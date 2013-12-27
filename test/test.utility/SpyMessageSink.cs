@@ -17,11 +17,9 @@ public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessa
 
     public List<IMessageSinkMessage> Messages = new List<IMessageSinkMessage>();
 
-    public override void Dispose()
+    /// <inheritdoc/>
+    public void Dispose()
     {
-        base.Dispose();
-
-        Messages.ForEach(d => d.Dispose());
         Finished.Dispose();
     }
 

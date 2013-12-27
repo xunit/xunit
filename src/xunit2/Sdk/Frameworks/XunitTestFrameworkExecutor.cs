@@ -55,6 +55,9 @@ namespace Xunit.Sdk
             return SerializationHelper.Deserialize<ITestCase>(value);
         }
 
+        /// <inheritdoc/>
+        public void Dispose() { }
+
         static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo ordererAttribute)
         {
             var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();

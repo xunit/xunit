@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -18,6 +19,15 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         public ISourceInformationProvider SourceInformationProvider { get; set; }
+
+        /// <inheritdoc/>
+        public async void Dispose()
+        {
+            // We want to immediately return before we call DisconnectAll, since we are in the list
+            // of things that will be disconnected.
+            await Task.Delay(1);
+            LongLivedMarshalByRefObject.DisconnectAll();
+        }
 
         /// <inheritdoc/>
         public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assemblyInfo)
