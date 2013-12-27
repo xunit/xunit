@@ -78,12 +78,15 @@ namespace Xunit.Sdk
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
-                    if (!FindImpl(type, includeSourceInformation, messageSink))
-                        break;
+                using (var messageBus = new MessageBus(messageSink))
+                {
+                    foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
+                        if (!FindImpl(type, includeSourceInformation, messageBus))
+                            break;
 
-                var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                OnMessage(messageSink, new DiscoveryCompleteMessage(warnings));
+                    var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
+                    messageBus.QueueMessage(new DiscoveryCompleteMessage(warnings));
+                }
             });
         }
 
@@ -95,12 +98,15 @@ namespace Xunit.Sdk
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
-                if (typeInfo != null)
-                    FindImpl(typeInfo, includeSourceInformation, messageSink);
+                using (var messageBus = new MessageBus(messageSink))
+                {
+                    ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
+                    if (typeInfo != null)
+                        FindImpl(typeInfo, includeSourceInformation, messageBus);
 
-                var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                OnMessage(messageSink, new DiscoveryCompleteMessage(warnings));
+                    var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
+                    messageBus.QueueMessage(new DiscoveryCompleteMessage(warnings));
+                }
             });
         }
 
@@ -109,9 +115,9 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="type">The test class.</param>
         /// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
-        /// <param name="messageSink">The message sink to send discovery messages to.</param>
+        /// <param name="messageBus">The message sink to send discovery messages to.</param>
         /// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
-        protected virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        protected virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus)
         {
             string currentDirectory = Directory.GetCurrentDirectory();
             var testCollection = TestCollectionFactory.Get(type);
@@ -121,23 +127,23 @@ namespace Xunit.Sdk
                 if (!String.IsNullOrEmpty(assemblyInfo.AssemblyPath))
                     Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 
-                foreach (IMethodInfo method in type.GetMethods(includePrivateMethods: true))
+                foreach (var method in type.GetMethods(includePrivateMethods: true))
                 {
-                    IAttributeInfo factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
+                    var factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
                     if (factAttribute != null)
                     {
-                        IAttributeInfo discovererAttribute = factAttribute.GetCustomAttributes(typeof(TestCaseDiscovererAttribute)).FirstOrDefault();
+                        var discovererAttribute = factAttribute.GetCustomAttributes(typeof(TestCaseDiscovererAttribute)).FirstOrDefault();
                         if (discovererAttribute != null)
                         {
                             var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
                             var discovererType = Reflector.GetType(args[1], args[0]);
                             if (discovererType != null)
                             {
-                                IXunitDiscoverer discoverer = GetDiscoverer(discovererType);
+                                var discoverer = GetDiscoverer(discovererType);
 
                                 if (discoverer != null)
-                                    foreach (XunitTestCase testCase in discoverer.Discover(testCollection, assemblyInfo, type, method, factAttribute))
-                                        if (!OnMessage(messageSink, new TestCaseDiscoveryMessage(UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation))))
+                                    foreach (var testCase in discoverer.Discover(testCollection, assemblyInfo, type, method, factAttribute))
+                                        if (!messageBus.QueueMessage(new TestCaseDiscoveryMessage(UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation))))
                                             return false;
                             }
                             else
@@ -148,7 +154,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                messageAggregator.Add(new EnvironmentalWarning { Message = "Exception during discovery:" + Environment.NewLine + ex.ToString() });
+                messageAggregator.Add(new EnvironmentalWarning { Message = String.Format("Exception during discovery:{0}{1}", Environment.NewLine, ex) });
             }
             finally
             {
@@ -203,14 +209,6 @@ namespace Xunit.Sdk
             if (!typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)
                 return typeof(CollectionPerClassTestCollectionFactory);
 
-            return result;
-        }
-
-        [SecuritySafeCritical]
-        private static bool OnMessage(IMessageSink messageSink, IMessageSinkMessage message)
-        {
-            var result = messageSink.OnMessage(message);
-            RemotingServices.Disconnect((MarshalByRefObject)message);
             return result;
         }
 

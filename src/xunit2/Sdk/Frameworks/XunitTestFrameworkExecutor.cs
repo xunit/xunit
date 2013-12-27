@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,14 +63,6 @@ namespace Xunit.Sdk
             return (ITestCaseOrderer)Activator.CreateInstance(ordererType);
         }
 
-        [SecuritySafeCritical]
-        private static bool OnMessage(IMessageSink messageSink, IMessageSinkMessage message)
-        {
-            var result = messageSink.OnMessage(message);
-            RemotingServices.Disconnect((MarshalByRefObject)message);
-            return result;
-        }
-
         /// <inheritdoc/>
         public async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
@@ -85,40 +76,42 @@ namespace Xunit.Sdk
 
             try
             {
-                Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
-
-                if (OnMessage(messageSink, new TestAssemblyStarting(assemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
-                                                                   displayName,
-                                                                   XunitTestFrameworkDiscoverer.DisplayName)))
+                using (var messageBus = new MessageBus(messageSink))
                 {
-                    IList<RunSummary> summaries;
+                    Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 
-                    // TODO: Contract for Run() states that null "testCases" means "run everything".
-
-                    if (disableParallelization)
+                    if (messageBus.QueueMessage(new TestAssemblyStarting(assemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
+                                                                         displayName, XunitTestFrameworkDiscoverer.DisplayName)))
                     {
-                        summaries = new List<RunSummary>();
+                        IList<RunSummary> summaries;
 
-                        foreach (var collectionGroup in testCases.Cast<XunitTestCase>().GroupBy(tc => tc.TestCollection))
-                            summaries.Add(RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource));
+                        // TODO: Contract for Run() states that null "testCases" means "run everything".
+
+                        if (disableParallelization)
+                        {
+                            summaries = new List<RunSummary>();
+
+                            foreach (var collectionGroup in testCases.Cast<XunitTestCase>().GroupBy(tc => tc.TestCollection))
+                                summaries.Add(RunTestCollection(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource));
+                        }
+                        else
+                        {
+                            var tasks = testCases.Cast<XunitTestCase>()
+                                                 .GroupBy(tc => tc.TestCollection)
+                                                 .Select(collectionGroup => Task.Run(() => RunTestCollection(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource)))
+                                                 .ToArray();
+
+                            summaries = await Task.WhenAll(tasks);
+                        }
+
+                        totalSummary.Time = summaries.Sum(s => s.Time);
+                        totalSummary.Total = summaries.Sum(s => s.Total);
+                        totalSummary.Failed = summaries.Sum(s => s.Failed);
+                        totalSummary.Skipped = summaries.Sum(s => s.Skipped);
                     }
-                    else
-                    {
-                        var tasks = testCases.Cast<XunitTestCase>()
-                                             .GroupBy(tc => tc.TestCollection)
-                                             .Select(collectionGroup => Task.Run(() => RunTestCollection(messageSink, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource)))
-                                             .ToArray();
 
-                        summaries = await Task.WhenAll(tasks);
-                    }
-
-                    totalSummary.Time = summaries.Sum(s => s.Time);
-                    totalSummary.Total = summaries.Sum(s => s.Total);
-                    totalSummary.Failed = summaries.Sum(s => s.Failed);
-                    totalSummary.Skipped = summaries.Sum(s => s.Skipped);
+                    messageBus.QueueMessage(new TestAssemblyFinished(assemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
                 }
-
-                OnMessage(messageSink, new TestAssemblyFinished(assemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
             }
             finally
             {
@@ -126,7 +119,7 @@ namespace Xunit.Sdk
             }
         }
 
-        private RunSummary RunTestCollection(IMessageSink messageSink,
+        private RunSummary RunTestCollection(IMessageBus messageBus,
                                              ITestCollection collection,
                                              IEnumerable<XunitTestCase> testCases,
                                              ITestCaseOrderer orderer,
@@ -147,21 +140,21 @@ namespace Xunit.Sdk
                     orderer = GetTestCaseOrderer(ordererAttribute);
             }
 
-            if (OnMessage(messageSink, new TestCollectionStarting(collection)))
+            if (messageBus.QueueMessage(new TestCollectionStarting(collection)))
             {
                 foreach (var testCasesByClass in testCases.GroupBy(tc => tc.Class))
                 {
                     var classSummary = new RunSummary();
 
-                    if (!OnMessage(messageSink, new TestClassStarting(collection, testCasesByClass.Key.Name)))
+                    if (!messageBus.QueueMessage(new TestClassStarting(collection, testCasesByClass.Key.Name)))
                         cancellationTokenSource.Cancel();
                     else
                     {
-                        RunTestClass(messageSink, collection, collectionFixtureMappings, (IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass, orderer, classSummary, aggregator, cancellationTokenSource);
+                        RunTestClass(messageBus, collection, collectionFixtureMappings, (IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass, orderer, classSummary, aggregator, cancellationTokenSource);
                         collectionSummary.Aggregate(classSummary);
                     }
 
-                    if (!OnMessage(messageSink, new TestClassFinished(collection, testCasesByClass.Key.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
+                    if (!messageBus.QueueMessage(new TestClassFinished(collection, testCasesByClass.Key.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
                         cancellationTokenSource.Cancel();
 
                     if (cancellationTokenSource.IsCancellationRequested)
@@ -177,16 +170,16 @@ namespace Xunit.Sdk
                 }
                 catch (Exception ex)
                 {
-                    if (!OnMessage(messageSink, new ErrorMessage(ex.Unwrap())))
+                    if (!messageBus.QueueMessage(new ErrorMessage(ex.Unwrap())))
                         cancellationTokenSource.Cancel();
                 }
             }
 
-            OnMessage(messageSink, new TestCollectionFinished(collection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped));
+            messageBus.QueueMessage(new TestCollectionFinished(collection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped));
             return collectionSummary;
         }
 
-        private static void RunTestClass(IMessageSink messageSink,
+        private static void RunTestClass(IMessageBus messageBus,
                                          ITestCollection collection,
                                          Dictionary<Type, object> collectionFixtureMappings,
                                          IReflectionTypeInfo testClass,
@@ -250,12 +243,12 @@ namespace Xunit.Sdk
 
             foreach (var method in methodGroups)
             {
-                if (!OnMessage(messageSink, new TestMethodStarting(collection, testClass.Name, method.Key.Name)))
+                if (!messageBus.QueueMessage(new TestMethodStarting(collection, testClass.Name, method.Key.Name)))
                     cancellationTokenSource.Cancel();
                 else
-                    RunTestMethod(messageSink, constructorArguments.ToArray(), method, classSummary, aggregator, cancellationTokenSource);
+                    RunTestMethod(messageBus, constructorArguments.ToArray(), method, classSummary, aggregator, cancellationTokenSource);
 
-                if (!OnMessage(messageSink, new TestMethodFinished(collection, testClass.Name, method.Key.Name)))
+                if (!messageBus.QueueMessage(new TestMethodFinished(collection, testClass.Name, method.Key.Name)))
                     cancellationTokenSource.Cancel();
 
                 if (cancellationTokenSource.IsCancellationRequested)
@@ -270,13 +263,13 @@ namespace Xunit.Sdk
                 }
                 catch (Exception ex)
                 {
-                    if (!OnMessage(messageSink, new ErrorMessage(ex.Unwrap())))
+                    if (!messageBus.QueueMessage(new ErrorMessage(ex.Unwrap())))
                         cancellationTokenSource.Cancel();
                 }
             }
         }
 
-        private static void RunTestMethod(IMessageSink messageSink,
+        private static void RunTestMethod(IMessageBus messageBus,
                                           object[] constructorArguments,
                                           IEnumerable<XunitTestCase> testCases,
                                           RunSummary classSummary,
@@ -285,15 +278,15 @@ namespace Xunit.Sdk
         {
             foreach (XunitTestCase testCase in testCases)
             {
-                using (var delegatingSink = new DelegatingMessageSink<ITestCaseFinished>(messageSink))
+                using (var delegatingBus = new DelegatingMessageBus<ITestCaseFinished>(messageBus))
                 {
-                    testCase.Run(delegatingSink, constructorArguments, aggregator, cancellationTokenSource);
-                    delegatingSink.Finished.WaitOne();
+                    testCase.Run(delegatingBus, constructorArguments, aggregator, cancellationTokenSource);
+                    delegatingBus.Finished.WaitOne();
 
-                    classSummary.Total += delegatingSink.FinalMessage.TestsRun;
-                    classSummary.Failed += delegatingSink.FinalMessage.TestsFailed;
-                    classSummary.Skipped += delegatingSink.FinalMessage.TestsSkipped;
-                    classSummary.Time += delegatingSink.FinalMessage.ExecutionTime;
+                    classSummary.Total += delegatingBus.FinalMessage.TestsRun;
+                    classSummary.Failed += delegatingBus.FinalMessage.TestsFailed;
+                    classSummary.Skipped += delegatingBus.FinalMessage.TestsSkipped;
+                    classSummary.Time += delegatingBus.FinalMessage.ExecutionTime;
                 }
 
                 if (cancellationTokenSource.IsCancellationRequested)
@@ -303,10 +296,10 @@ namespace Xunit.Sdk
 
         class RunSummary
         {
-            public int Total = 0;
-            public int Failed = 0;
-            public int Skipped = 0;
-            public decimal Time = 0M;
+            public int Total;
+            public int Failed;
+            public int Skipped;
+            public decimal Time;
 
             public void Aggregate(RunSummary other)
             {

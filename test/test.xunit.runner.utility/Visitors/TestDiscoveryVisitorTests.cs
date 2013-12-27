@@ -34,5 +34,7 @@ public class TestDiscoveryVisitorTests
 
         public ITestCase TestCase { get; private set; }
         public ITestCollection TestCollection { get; private set; }
+
+        public void Dispose() { }
     }
 }

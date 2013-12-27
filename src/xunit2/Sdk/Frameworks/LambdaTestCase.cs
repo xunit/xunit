@@ -34,9 +34,9 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void RunTests(IMessageSink messageSink, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        protected override void RunTests(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
-            if (!OnMessage(messageSink, new TestStarting(this, DisplayName)))
+            if (!messageBus.QueueMessage(new TestStarting(this, DisplayName)))
                 cancellationTokenSource.Cancel();
             else
             {
@@ -44,17 +44,17 @@ namespace Xunit.Sdk
                 {
                     lambda();
 
-                    if (!OnMessage(messageSink, new TestPassed(this, DisplayName, 0, null)))
+                    if (!messageBus.QueueMessage(new TestPassed(this, DisplayName, 0, null)))
                         cancellationTokenSource.Cancel();
                 }
                 catch (Exception ex)
                 {
-                    if (!OnMessage(messageSink, new TestFailed(this, DisplayName, 0, null, ex)))
+                    if (!messageBus.QueueMessage(new TestFailed(this, DisplayName, 0, null, ex)))
                         cancellationTokenSource.Cancel();
                 }
             }
 
-            if (!OnMessage(messageSink, new TestFinished(this, DisplayName, 0, null)))
+            if (!messageBus.QueueMessage(new TestFinished(this, DisplayName, 0, null)))
                 cancellationTokenSource.Cancel();
         }
     }

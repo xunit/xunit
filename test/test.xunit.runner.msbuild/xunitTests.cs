@@ -356,6 +356,8 @@ public class xunitTests
             public ITestCase TestCase { get; set; }
 
             public ITestCollection TestCollection { get; set; }
+
+            public void Dispose() { }
         }
 
         class DiscoveryCompleteMessage : IDiscoveryCompleteMessage
@@ -366,6 +368,8 @@ public class xunitTests
             }
 
             public IEnumerable<string> Warnings { get; set; }
+
+            public void Dispose() { }
         }
     }
 }

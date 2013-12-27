@@ -30,7 +30,7 @@ namespace Xunit.Sdk
         protected XunitTheoryTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         /// <inheritdoc />
-        protected override void RunTestsOnMethod(IMessageSink messageSink,
+        protected override void RunTestsOnMethod(IMessageBus messageBus,
                                                  Type classUnderTest,
                                                  object[] constructorArguments,
                                                  MethodInfo methodUnderTest,
@@ -49,11 +49,11 @@ namespace Xunit.Sdk
                     var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                     var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
                     var discovererType = Reflector.GetType(args[1], args[0]);
-                    IDataDiscoverer discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
+                    var discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
 
                     foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
                     {
-                        RunTestWithArguments(messageSink, classUnderTest, constructorArguments, methodUnderTest, dataRow, GetDisplayNameWithArguments(DisplayName, dataRow), beforeAfterAttributes, aggregator, cancellationTokenSource, ref executionTime);
+                        RunTestWithArguments(messageBus, classUnderTest, constructorArguments, methodUnderTest, dataRow, GetDisplayNameWithArguments(DisplayName, dataRow), beforeAfterAttributes, aggregator, cancellationTokenSource, ref executionTime);
                         if (cancellationTokenSource.IsCancellationRequested)
                             return;
                     }
@@ -61,15 +61,15 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                if (!OnMessage(messageSink, new TestStarting(this, DisplayName)))
+                if (!messageBus.QueueMessage(new TestStarting(this, DisplayName)))
                     cancellationTokenSource.Cancel();
                 else
                 {
-                    if (!OnMessage(messageSink, new TestFailed(this, DisplayName, executionTime, null, ex.Unwrap())))
+                    if (!messageBus.QueueMessage(new TestFailed(this, DisplayName, executionTime, null, ex.Unwrap())))
                         cancellationTokenSource.Cancel();
                 }
 
-                if (!OnMessage(messageSink, new TestFinished(this, DisplayName, executionTime, null)))
+                if (!messageBus.QueueMessage(new TestFinished(this, DisplayName, executionTime, null)))
                     cancellationTokenSource.Cancel();
             }
         }

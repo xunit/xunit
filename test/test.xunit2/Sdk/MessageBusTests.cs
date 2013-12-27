@@ -47,16 +47,6 @@ public class MessageBusTests
     }
 
     [Fact]
-    public void DisposingMessageBusDisposesMessageSink()
-    {
-        var sink = SpySink();
-
-        new MessageBus(sink).Dispose();
-
-        sink.Received(1).Dispose();
-    }
-
-    [Fact]
     public void TryingToQueueMessageAfterDisposingThrows()
     {
         var bus = new MessageBus(SpySink());

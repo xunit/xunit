@@ -8,8 +8,9 @@ namespace Xunit.Sdk
     /// <summary>
     /// This is an internal class, and is not intended to be called from end-user code.
     /// </summary>
-    public class MessageBus : IMessageBus, IDisposable
+    public class MessageBus : IMessageBus
     {
+        volatile bool continueRunning = true;
         readonly IMessageSink messageSink;
         readonly ConcurrentQueue<IMessageSinkMessage> reporterQueue = new ConcurrentQueue<IMessageSinkMessage>();
         readonly Thread reporterThread;
@@ -31,9 +32,15 @@ namespace Xunit.Sdk
             while (reporterQueue.TryDequeue(out message))
                 try
                 {
-                    messageSink.OnMessage(message);
+                    if (!messageSink.OnMessage(message))
+                        continueRunning = false;
                 }
-                catch (Exception) { }
+                catch { }
+                finally
+                {
+                    if (message != null)
+                        message.Dispose();
+                }
         }
         /// <summary/>
         public void Dispose()
@@ -47,10 +54,14 @@ namespace Xunit.Sdk
         }
 
         /// <summary/>
-        public void QueueMessage(IMessageSinkMessage message)
+        public bool QueueMessage(IMessageSinkMessage message)
         {
+            if (shutdownRequested)
+                throw new ObjectDisposedException("MessageBus");
+
             reporterQueue.Enqueue(message);
             reporterWorkEvent.Set();
+            return continueRunning;
         }
 
         void ReporterWorker()
@@ -61,12 +72,8 @@ namespace Xunit.Sdk
                 DispatchMessages();
             }
 
-            try
-            {
-                DispatchMessages();
-                messageSink.Dispose();
-            }
-            catch (Exception) { }
+            // One final dispatch pass
+            DispatchMessages();
         }
     }
 }

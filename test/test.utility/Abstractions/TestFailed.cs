@@ -24,4 +24,6 @@ public class TestFailed : ITestFailed
     public ITestCase TestCase { get; set; }
     public ITestCollection TestCollection { get; set; }
     public string TestDisplayName { get; set; }
+
+    public void Dispose() { }
 }

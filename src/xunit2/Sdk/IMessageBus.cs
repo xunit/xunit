@@ -9,6 +9,6 @@ namespace Xunit.Sdk
     public interface IMessageBus : IDisposable
     {
         /// <summary/>
-        void QueueMessage(IMessageSinkMessage message);
+        bool QueueMessage(IMessageSinkMessage message);
     }
 }

@@ -117,6 +117,7 @@
     <Compile Include="Abstractions\TypeWrapper.cs" />
     <Compile Include="SerializationUtility.cs" />
     <Compile Include="SpyBeforeAfterTest.cs" />
+    <Compile Include="SpyMessageBus.cs" />
     <Compile Include="TheoryData.cs" />
     <Compile Include="AcceptanceTest.cs" />
     <Compile Include="AcceptanceTestAssembly.cs" />

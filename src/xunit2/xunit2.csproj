@@ -115,6 +115,7 @@
     <Compile Include="Sdk\Messages\BeforeTestStarting.cs" />
     <Compile Include="Sdk\Messages\AfterTestFinished.cs" />
     <Compile Include="Sdk\Messages\AfterTestStarting.cs" />
+    <Compile Include="Sdk\Messages\DelegatingMessageBus.cs" />
     <Compile Include="Sdk\Messages\DelegatingMessageSink.cs" />
     <Compile Include="Sdk\Messages\TestClassConstructionFinished.cs" />
     <Compile Include="Sdk\Messages\TestClassConstructionStarting.cs" />

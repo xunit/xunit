@@ -515,10 +515,11 @@ public class XunitTestFrameworkDiscovererTests
 
         public virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation = false)
         {
-            return base.FindImpl(type, includeSourceInformation, Visitor);
+            using (var messageBus = new MessageBus(Visitor))
+                return base.FindImpl(type, includeSourceInformation, messageBus);
         }
 
-        protected sealed override bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageSink messageSink)
+        protected sealed override bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus)
         {
             return FindImpl(type, includeSourceInformation);
         }
