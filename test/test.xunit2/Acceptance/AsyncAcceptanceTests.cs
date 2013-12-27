@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 public class AsyncAcceptanceTests : AcceptanceTest
 {
-    [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+    [Fact]
     public void AsyncTaskTestsRunCorrectly()
     {
         var results = Run<ITestResultMessage>(typeof(ClassWithAsyncTask));
@@ -14,7 +14,7 @@ public class AsyncAcceptanceTests : AcceptanceTest
         Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionType);
     }
 
-    [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+    [Fact]
     public void AsyncVoidTestsRunCorrectly()
     {
         var results = Run<ITestResultMessage>(typeof(ClassWithAsyncVoid));

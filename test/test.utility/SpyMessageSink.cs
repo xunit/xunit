@@ -6,7 +6,7 @@ using Xunit.Sdk;
 
 public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessageSink
 {
-    Func<IMessageSinkMessage, bool> cancellationThunk;
+    readonly Func<IMessageSinkMessage, bool> cancellationThunk;
 
     public SpyMessageSink(Func<IMessageSinkMessage, bool> cancellationThunk = null)
     {
@@ -16,6 +16,14 @@ public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessa
     public ManualResetEvent Finished = new ManualResetEvent(initialState: false);
 
     public List<IMessageSinkMessage> Messages = new List<IMessageSinkMessage>();
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        Messages.ForEach(d => d.Dispose());
+        Finished.Dispose();
+    }
 
     public bool OnMessage(IMessageSinkMessage message)
     {

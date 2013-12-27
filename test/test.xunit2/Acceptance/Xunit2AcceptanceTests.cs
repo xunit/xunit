@@ -9,7 +9,7 @@ public class Xunit2AcceptanceTests
 {
     public class EndToEndMessageInspection : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void NoTests()
         {
             List<IMessageSinkMessage> results = Run(typeof(NoTestsClass));
@@ -27,7 +27,7 @@ public class Xunit2AcceptanceTests
             );
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void SinglePassingTest()
         {
             List<IMessageSinkMessage> results = Run(typeof(SinglePassingTestClass));
@@ -128,7 +128,7 @@ public class Xunit2AcceptanceTests
 
     public class SkippedTests : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void SingleSkippedTest()
         {
             List<IMessageSinkMessage> results = Run(typeof(SingleSkippedTestClass));
@@ -147,7 +147,7 @@ public class Xunit2AcceptanceTests
 
     public class FailingTests : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void SingleFailingTest()
         {
             List<IMessageSinkMessage> results = Run(typeof(SingleFailingTestClass));
@@ -163,756 +163,9 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class Cancellation : AcceptanceTest
-    {
-        [Fact]
-        public void ReturningFalseFromMessageSinkCancelsDiscovery()
-        {
-            bool alreadyCancelled = false;
-
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg =>
-            {
-                if (msg is ITestCaseDiscoveryMessage)
-                {
-                    Assert.False(alreadyCancelled);
-                    alreadyCancelled = true;
-                    return false;
-                }
-
-                return true;
-            });
-
-            Assert.Empty(results);  // Should not have run any tests
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringIAfterTestFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IAfterTestFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringIAfterTestStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IAfterTestStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringIBeforeTestFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IBeforeTestFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringIBeforeTestStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is IBeforeTestStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestAssemblyStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestAssemblyStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestAssemblyFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestAssemblyFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                // TestMethod2
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestCaseFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCaseFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestCaseStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCaseStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestClassConstructionFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassConstructionFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestClassConstructionStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassConstructionStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestClassDisposeFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassDisposeFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestClassDisposeStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassDisposeStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestClassFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                // TestMethod2
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestClassStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestClassStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestCollectionFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCollectionFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                // TestMethod2
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestCollectionStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestCollectionStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestFailed()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(FailingClassUnderTest), msg => !(msg is ITestFailed));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestFailed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestMethodFinished()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestMethodFinished));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestMethodStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestMethodStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestPassed()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestPassed));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestStarting>(message),
-                message => Assert.IsAssignableFrom<IBeforeTestFinished>(message),
-                message => Assert.IsAssignableFrom<IAfterTestStarting>(message),
-                message => Assert.IsAssignableFrom<IAfterTestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassDisposeFinished>(message),
-                message => Assert.IsAssignableFrom<ITestPassed>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestSkipped()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(SkippingClassUnderTest), msg => !(msg is ITestSkipped));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestSkipped>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
-        public void CancelDuringITestStarting()
-        {
-            List<IMessageSinkMessage> results = Run(typeof(PassingClassUnderTest), msg => !(msg is ITestStarting));
-
-            Assert.Collection(results,
-                message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-                message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-
-                // TestMethod1
-                message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-                message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-                message => Assert.IsAssignableFrom<ITestStarting>(message),
-                message => Assert.IsAssignableFrom<ITestFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-                message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-
-                message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-                message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-                message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
-            );
-        }
-
-        class MyBeforeAfter : BeforeAfterTestAttribute { }
-
-        class FailingClassUnderTest : IDisposable
-        {
-            public void Dispose() { }
-
-            [Fact, MyBeforeAfter]
-            public void TestMethod1() { Assert.True(false); }
-
-            [Fact, MyBeforeAfter]
-            public void TestMethod2() { Assert.True(false); }
-        }
-
-        class PassingClassUnderTest : IDisposable
-        {
-            public void Dispose() { }
-
-            [Fact, MyBeforeAfter]
-            public void TestMethod1() { }
-
-            [Fact, MyBeforeAfter]
-            public void TestMethod2() { }
-        }
-
-        class SkippingClassUnderTest : IDisposable
-        {
-            public void Dispose() { }
-
-            [Fact(Skip = "No bueno"), MyBeforeAfter]
-            public void TestMethod1() { Assert.True(false); }
-
-            [Fact(Skip = "No soup for you!"), MyBeforeAfter]
-            public void TestMethod2() { Assert.True(false); }
-        }
-    }
-
     public class ClassFailures : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestFailureResultsFromThrowingCtorInTestClass()
         {
             var messages = Run<ITestFailed>(typeof(ClassUnderTest_CtorFailure));
@@ -922,7 +175,7 @@ public class Xunit2AcceptanceTests
             );
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestFailureResultsFromThrowingDisposeInTestClass()
         {
             var messages = Run<ITestFailed>(typeof(ClassUnderTest_DisposeFailure));
@@ -932,7 +185,7 @@ public class Xunit2AcceptanceTests
             );
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void CompositeTestFailureResultsFromFailingTestsPlusThrowingDisposeInTestClass()
         {
             var messages = Run<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
@@ -985,7 +238,7 @@ public class Xunit2AcceptanceTests
 
     public class StaticClassSupport : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestsCanBeInStaticClasses()
         {
             var testMessages = Run<ITestResultMessage>(typeof(StaticClassUnderTest));
@@ -1004,7 +257,7 @@ public class Xunit2AcceptanceTests
 
     public class ErrorAggregation : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void EachTestMethodHasIndividualExceptionMessage()
         {
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
@@ -1034,7 +287,7 @@ public class Xunit2AcceptanceTests
 
     public class TestOrdering : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void OverrideOfOrderingAtCollectionLevel()
         {
             var testMessages = Run<ITestPassed>(typeof(TestClassUsingCollection));
@@ -1063,7 +316,7 @@ public class Xunit2AcceptanceTests
             public void Test2() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void OverrideOfOrderingAtClassLevel()
         {
             var testMessages = Run<ITestPassed>(typeof(TestClassWithoutCollection));

@@ -961,20 +961,27 @@ public class XunitTestCaseTests
         [Fact]
         public void UniqueIDIsStable_NoArguments()
         {
+            var value = Create(typeof(ClassUnderTest), "TestMethod").UniqueID;
+
             for (int x = 0; x < 5; x++)
-            {
-                Assert.Equal("15872073f38f376aa47628c286c5dc3f7ea18ac2", Create(typeof(ClassUnderTest), "TestMethod").UniqueID);
-            }
+                Assert.Equal(value, Create(typeof(ClassUnderTest), "TestMethod").UniqueID);
         }
 
         [Fact]
         public void UniqueIDIsStable_WithArguments()
         {
+            var value42 = Create(typeof(ClassUnderTest), "TestMethod", 42).UniqueID;
+            var valueHelloWorld = Create(typeof(ClassUnderTest), "TestMethod", "Hello, world!").UniqueID;
+            var valueNull = Create(typeof(ClassUnderTest), "TestMethod", (string)null).UniqueID;
+
+            Assert.NotEqual(value42, valueHelloWorld);
+            Assert.NotEqual(value42, valueNull);
+
             for (int x = 0; x < 5; x++)
             {
-                Assert.Equal("7781c6832e3aedf3d625962e5fb2956356477e19", Create(typeof(ClassUnderTest), "TestMethod", 42).UniqueID);
-                Assert.Equal("b4c40947d156ed21cf546082a811d6e7f8a7bab0", Create(typeof(ClassUnderTest), "TestMethod", "Hello, world!").UniqueID);
-                Assert.Equal("3f592619e86e2b74c079836b8c5689d51aaeb58e", Create(typeof(ClassUnderTest), "TestMethod", (string)null).UniqueID);
+                Assert.Equal(value42, Create(typeof(ClassUnderTest), "TestMethod", 42).UniqueID);
+                Assert.Equal(valueHelloWorld, Create(typeof(ClassUnderTest), "TestMethod", "Hello, world!").UniqueID);
+                Assert.Equal(valueNull, Create(typeof(ClassUnderTest), "TestMethod", (string)null).UniqueID);
             }
         }
 

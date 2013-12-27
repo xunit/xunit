@@ -34,7 +34,7 @@ public class Xunit2Tests
             }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void SingleTestMethod()
         {
             string code = @"
@@ -61,7 +61,7 @@ public class Xunit2Tests
             }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void FactAcceptanceTest()
         {
             string code = @"
@@ -123,7 +123,7 @@ public class Xunit2Tests
             }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TheoryWithInlineData()
         {
             string code = @"

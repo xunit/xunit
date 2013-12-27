@@ -7,7 +7,7 @@ public class FixtureAcceptanceTests
 {
     public class Constructors : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassMustHaveSinglePublicConstructor()
         {
             var messages = Run(typeof(ClassWithTooManyConstructors));
@@ -66,7 +66,7 @@ public class FixtureAcceptanceTests
 
     public class ClassFixture : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassWithExtraArgumentToConstructorResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithExtraCtorArg));
@@ -84,7 +84,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassWithMissingArgumentToConstructorIsAcceptable()
         {
             var messages = Run<ITestPassed>(typeof(ClassWithMissingCtorArg));
@@ -100,7 +100,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassWithThrowingFixtureConstructorResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
@@ -115,7 +115,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassWithThrowingFixtureDisposeResultsInFailedTest()
         {
             var messages = Run<IErrorMessage>(typeof(ClassWithThrowingFixtureDispose));
@@ -130,7 +130,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void FixtureDataIsPassedToConstructor()
         {
             var messages = Run<ITestPassed>(typeof(FixtureSpy));
@@ -152,7 +152,7 @@ public class FixtureAcceptanceTests
 
     public class CollectionFixture : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassCannotBeDecoratedWithICollectionFixture()
         {
             var messages = Run<ITestFailed>(typeof(TestClassWithCollectionFixture));
@@ -168,7 +168,7 @@ public class FixtureAcceptanceTests
             public void TestMethod() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassWithExtraArgumentToConstructorResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithExtraCtorArg));
@@ -192,7 +192,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassWithMissingArgumentToConstructorIsAcceptable()
         {
             var messages = Run<ITestPassed>(typeof(ClassWithMissingCtorArg));
@@ -209,7 +209,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassWithThrowingFixtureConstructorResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
@@ -230,7 +230,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void TestClassWithThrowingFixtureDisposeResultsInFailedTest()
         {
             var messages = Run<IErrorMessage>(typeof(ClassWithThrowingFixtureDispose));
@@ -251,7 +251,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void FixtureDataIsPassedToConstructor()
         {
             var messages = Run<ITestPassed>(typeof(FixtureSpy));
@@ -271,7 +271,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void FixtureDataIsSameInstanceAcrossClasses()
         {
             Run<ITestPassed>(new[] { typeof(FixtureSaver1), typeof(FixtureSaver2) });
@@ -305,7 +305,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void ClassFixtureOnCollectionDecorationWorks()
         {
             var messages = Run<ITestPassed>(typeof(FixtureSpy_ClassFixture));
@@ -328,7 +328,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void ClassFixtureOnTestClassTakesPrecedenceOverClassFixtureOnCollection()
         {
             var messages = Run<ITestPassed>(typeof(ClassWithCountedFixture));

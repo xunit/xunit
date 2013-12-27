@@ -9,7 +9,7 @@ using Xunit.Sdk;
 
 public class TheoryDiscovererTests : AcceptanceTest
 {
-    [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+    [Fact]
     public void NoDataAttributes()
     {
         var failures = Run<ITestFailed>(typeof(NoDataAttributesClass));
@@ -25,7 +25,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         public void TheoryMethod(int x) { }
     }
 
-    [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+    [Fact]
     public void EmptyTheoryData()
     {
         var failures = Run<ITestFailed>(typeof(EmptyTheoryDataClass));
@@ -49,7 +49,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         public void TheoryMethod(int x) { }
     }
 
-    [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+    [Fact]
     public void MultipleDataRowsFromSingleDataAttribute()
     {
         var passes = Run<ITestPassed>(typeof(MultipleDataClass)).Select(tc => tc.TestDisplayName).ToList();
@@ -155,7 +155,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         public void TheoryMethod(object a) { }
     }
 
-    [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+    [Fact]
     public void SkippedTheoryWithNoData()
     {
         var skips = Run<ITestSkipped>(typeof(SkippedWithNoData));
@@ -171,7 +171,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         public void TestMethod(int value) { }
     }
 
-    [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+    [Fact]
     public void SkippedTheoryWithData()
     {
         var skips = Run<ITestSkipped>(typeof(SkippedWithData));

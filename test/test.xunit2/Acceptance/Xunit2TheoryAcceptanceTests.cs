@@ -6,7 +6,7 @@ public class Xunit2TheoryAcceptanceTests
 {
     public class TheoryTests : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void Skipped()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
@@ -39,7 +39,7 @@ public class Xunit2TheoryAcceptanceTests
 
     public class InlineDataTests : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
@@ -76,7 +76,7 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void SingleNullValuesWork()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForNullValues));
@@ -99,7 +99,7 @@ public class Xunit2TheoryAcceptanceTests
             public void TestMethod(string value) { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void ArraysWork()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForArrays));
@@ -125,7 +125,7 @@ public class Xunit2TheoryAcceptanceTests
 
     public class PropertyDataTests : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void RunsForEachDataElement()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfPropertyData));
@@ -170,7 +170,7 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void CanUsePropertyDataFromOtherClass()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithImportedPropertyData));
@@ -190,7 +190,7 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void MissingPropertyDataThrows()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithMissingPropertyData));
@@ -214,7 +214,7 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaPropertyData(int x, double y, string z) { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void NonStaticPropertyDataThrows()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithNonStaticPropertyData));
@@ -240,7 +240,7 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaPropertyData(int x, double y, string z) { }
         }
 
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void CanUsePropertyDataFromBaseType()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithBaseClassData));
@@ -271,7 +271,7 @@ public class Xunit2TheoryAcceptanceTests
 
     public class ErrorAggregation : AcceptanceTest
     {
-        [Fact(Skip = "Temporarily skipped test broken by the memory leak fixes")]
+        [Fact]
         public void EachTheoryHasIndividualExceptionMessage()
         {
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
