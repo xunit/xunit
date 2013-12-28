@@ -266,11 +266,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             finally
             {
                 if (!shuttingDown)
-                    ThreadPool.QueueUserWorkItem(_ =>
-                    {
-                        Thread.Sleep(5000);  // Try to prevent erroneous "unloaded app domain" errors in Visual Studio
-                        toDispose.ForEach(disposable => disposable.Dispose());
-                    });
+                    toDispose.ForEach(disposable => disposable.Dispose());
             }
 
             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
