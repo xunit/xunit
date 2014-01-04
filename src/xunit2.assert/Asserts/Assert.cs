@@ -29,7 +29,7 @@ namespace Xunit
         /// <summary>Do not call this method.</summary>
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "a", Justification = "We do not control the signature of this method.")]
         [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "b", Justification = "We do not control the signature of this method.")]
-        [Obsolete("This is an override of Object.ReferenceEquals(). Call Assert.Equal() instead.", true)]
+        [Obsolete("This is an override of Object.ReferenceEquals(). Call Assert.Same() instead.", true)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public new static bool ReferenceEquals(object a, object b)
         {
