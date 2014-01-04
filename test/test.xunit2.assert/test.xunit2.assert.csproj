@@ -53,6 +53,9 @@
     <Compile Include="Asserts\NullAssertsTests.cs" />
     <Compile Include="Asserts\PropertyAssertsTests.cs" />
     <Compile Include="Asserts\RangeAssertsTests.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\AssertActualExpectedExceptionTests.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\EqualExceptionTests.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\XunitExceptionTests.cs" />
     <Compile Include="Asserts\StringAssertsTests.cs" />
     <Compile Include="Asserts\TypeAssertsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

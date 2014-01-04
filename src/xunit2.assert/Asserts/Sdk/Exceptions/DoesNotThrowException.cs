@@ -1,7 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
-using System.Security;
 
 namespace Xunit.Sdk
 {
@@ -9,7 +7,6 @@ namespace Xunit.Sdk
     /// Exception thrown when Assert.DoesNotThrow fails.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class DoesNotThrowException : AssertActualExpectedException
     {
         readonly string stackTrace;
@@ -37,13 +34,6 @@ namespace Xunit.Sdk
             this.stackTrace = stackTrace;
         }
 
-        /// <inheritdoc/>
-        protected DoesNotThrowException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            stackTrace = info.GetString("CustomStackTrace2");
-        }
-
         /// <summary>
         /// Gets a string representation of the frames on the call stack at the time the current exception was thrown.
         /// </summary>
@@ -51,18 +41,6 @@ namespace Xunit.Sdk
         public override string StackTrace
         {
             get { return stackTrace ?? base.StackTrace; }
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            Assert.GuardArgumentNotNull("info", info);
-
-            info.AddValue("CustomStackTrace2", stackTrace);
-
-            base.GetObjectData(info, context);
         }
     }
 }

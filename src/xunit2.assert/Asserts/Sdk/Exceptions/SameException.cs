@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
 
 namespace Xunit.Sdk
 {
@@ -8,7 +7,6 @@ namespace Xunit.Sdk
     /// Exception thrown when two object references are unexpectedly not the same instance.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class SameException : AssertActualExpectedException
     {
         /// <summary>
@@ -19,9 +17,5 @@ namespace Xunit.Sdk
         public SameException(object expected,
                              object actual)
             : base(expected, actual, "Assert.Same() Failure") { }
-
-        /// <inheritdoc/>
-        protected SameException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
     }
 }

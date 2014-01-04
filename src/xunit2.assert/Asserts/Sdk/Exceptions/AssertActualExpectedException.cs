@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Security;
+using System.Reflection;
 
 namespace Xunit.Sdk
 {
@@ -13,7 +12,6 @@ namespace Xunit.Sdk
     /// Base class for exceptions that have actual and expected values
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class AssertActualExpectedException : XunitException
     {
         /// <summary>
@@ -36,14 +34,6 @@ namespace Xunit.Sdk
                 Actual += String.Format(CultureInfo.CurrentCulture, " ({0})", actual.GetType().FullName);
                 Expected += String.Format(CultureInfo.CurrentCulture, " ({0})", expected.GetType().FullName);
             }
-        }
-
-        /// <inheritdoc/>
-        protected AssertActualExpectedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            Actual = info.GetString("Actual");
-            Expected = info.GetString("Expected");
         }
 
         /// <summary>
@@ -74,17 +64,17 @@ namespace Xunit.Sdk
             }
         }
 
-        static string ConvertToSimpleTypeName(Type type)
+        static string ConvertToSimpleTypeName(TypeInfo typeInfo)
         {
-            if (!type.IsGenericType)
-                return type.Name;
+            if (!typeInfo.IsGenericType)
+                return typeInfo.Name;
 
-            var simpleNames = type.GetGenericArguments().Select(ConvertToSimpleTypeName);
-            var backTickIdx = type.Name.IndexOf('`');
+            var simpleNames = typeInfo.GenericTypeArguments.Select(type => ConvertToSimpleTypeName(type.GetTypeInfo()));
+            var backTickIdx = typeInfo.Name.IndexOf('`');
             if (backTickIdx < 0)
-                backTickIdx = type.Name.Length;  // F# doesn't use backticks for generic type names
+                backTickIdx = typeInfo.Name.Length;  // F# doesn't use backticks for generic type names
 
-            return type.Name.Substring(0, backTickIdx) + "<" + String.Join(", ", simpleNames) + ">";
+            return String.Format("{0}<{1}>", typeInfo.Name.Substring(0, backTickIdx), String.Join(", ", simpleNames));
         }
 
         static string ConvertToString(object value)
@@ -109,7 +99,7 @@ namespace Xunit.Sdk
                 {
                     var stringValueObject = valueObject as string;
                     if (stringValueObject != null)
-                        displayName = "\"" + stringValueObject + "\"";
+                        displayName = String.Format("\"{0}\"", stringValueObject);
                     else
                         displayName = valueObject.ToString();
                 }
@@ -117,19 +107,9 @@ namespace Xunit.Sdk
                 valueStrings.Add(displayName);
             }
 
-            return ConvertToSimpleTypeName(value.GetType()) + " { " + String.Join(", ", valueStrings.ToArray()) + " }";
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            Assert.GuardArgumentNotNull("info", info);
-
-            info.AddValue("Actual", Actual);
-            info.AddValue("Expected", Expected);
-
-            base.GetObjectData(info, context);
+            return String.Format("{0} {{ {1} }}",
+                                 ConvertToSimpleTypeName(value.GetType().GetTypeInfo()),
+                                 String.Join(", ", valueStrings.ToArray()));
         }
     }
 }

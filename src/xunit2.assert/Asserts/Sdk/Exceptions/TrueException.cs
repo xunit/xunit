@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
 
 namespace Xunit.Sdk
 {
@@ -8,7 +7,6 @@ namespace Xunit.Sdk
     /// Exception thrown when a value is unexpectedly false.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class TrueException : XunitException
     {
         /// <summary>
@@ -17,9 +15,5 @@ namespace Xunit.Sdk
         /// <param name="userMessage">The user message to be displayed, or null for the default message</param>
         public TrueException(string userMessage)
             : base(userMessage ?? "Assert.True() Failure") { }
-
-        /// <inheritdoc/>
-        protected TrueException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Xunit.Sdk
 {
@@ -10,13 +11,15 @@ namespace Xunit.Sdk
     /// <typeparam name="T">The type that is being compared.</typeparam>
     internal class AssertComparer<T> : IComparer<T> where T : IComparable
     {
+        static readonly TypeInfo NullableTypeInfo = typeof(Nullable<>).GetTypeInfo();
+
         /// <inheritdoc/>
         public int Compare(T x, T y)
         {
-            Type type = typeof(T);
+            var typeInfo = typeof(T).GetTypeInfo();
 
             // Null?
-            if (!type.IsValueType || (type.IsGenericType && type.GetGenericTypeDefinition().IsAssignableFrom(typeof(Nullable<>))))
+            if (!typeInfo.IsValueType || (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(NullableTypeInfo)))
             {
                 if (Equals(x, default(T)))
                 {
@@ -34,7 +37,7 @@ namespace Xunit.Sdk
                 return -1;
 
             // Implements IComparable<T>?
-            IComparable<T> comparable1 = x as IComparable<T>;
+            var comparable1 = x as IComparable<T>;
             if (comparable1 != null)
                 return comparable1.CompareTo(y);
 

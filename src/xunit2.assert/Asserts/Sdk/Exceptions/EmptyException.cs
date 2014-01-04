@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
 
 namespace Xunit.Sdk
 {
@@ -8,7 +7,6 @@ namespace Xunit.Sdk
     /// Exception thrown when a collection is unexpectedly not empty.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class EmptyException : XunitException
     {
         /// <summary>
@@ -16,9 +14,5 @@ namespace Xunit.Sdk
         /// </summary>
         public EmptyException()
             : base("Assert.Empty() Failure") { }
-
-        /// <inheritdoc/>
-        protected EmptyException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
     }
 }

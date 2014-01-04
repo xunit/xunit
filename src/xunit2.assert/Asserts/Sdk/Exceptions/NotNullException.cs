@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
 
 namespace Xunit.Sdk
 {
@@ -8,7 +7,6 @@ namespace Xunit.Sdk
     /// Exception thrown when an object is unexpectedly null.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class NotNullException : XunitException
     {
         /// <summary>
@@ -16,9 +14,5 @@ namespace Xunit.Sdk
         /// </summary>
         public NotNullException()
             : base("Assert.NotNull() Failure") { }
-
-        /// <inheritdoc/>
-        protected NotNullException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
     }
 }

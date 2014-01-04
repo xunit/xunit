@@ -12,8 +12,4 @@
         <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
     </metadata>
-    <files>
-        <file src="bin\Release\xunit2.assert.dll" target="lib\net45\xunit2.assert.dll" />
-        <file src="bin\Release\xunit2.assert.xml" target="lib\net45\xunit2.assert.xml" />
-    </files>
 </package>

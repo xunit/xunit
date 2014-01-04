@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Runtime.Serialization;
 
 namespace Xunit.Sdk
 {
@@ -9,7 +8,6 @@ namespace Xunit.Sdk
     /// Exception thrown when a collection unexpectedly contains the expected value.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class DoesNotContainException : XunitException
     {
         /// <summary>
@@ -18,9 +16,5 @@ namespace Xunit.Sdk
         /// <param name="expected">The expected object value</param>
         public DoesNotContainException(object expected)
             : base(String.Format(CultureInfo.CurrentCulture, "Assert.DoesNotContain() Failure: Found: {0}", expected)) { }
-
-        /// <inheritdoc/>
-        protected DoesNotContainException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
     }
 }

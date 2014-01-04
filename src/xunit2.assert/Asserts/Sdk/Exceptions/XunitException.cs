@@ -1,14 +1,11 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
-using System.Security;
 
 namespace Xunit.Sdk
 {
     /// <summary>
     /// The base assert exception class
     /// </summary>
-    [Serializable]
     public class XunitException : Exception
     {
         readonly string stackTrace;
@@ -48,14 +45,6 @@ namespace Xunit.Sdk
             this.stackTrace = stackTrace;
         }
 
-        /// <inheritdoc/>
-        protected XunitException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            stackTrace = info.GetString("CustomStackTrace");
-            UserMessage = info.GetString("UserMessage");
-        }
-
         /// <summary>
         /// Gets a string representation of the frames on the call stack at the time the current exception was thrown.
         /// </summary>
@@ -69,18 +58,6 @@ namespace Xunit.Sdk
         /// Gets the user message
         /// </summary>
         public string UserMessage { get; protected set; }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            Assert.GuardArgumentNotNull("info", info);
-
-            info.AddValue("CustomStackTrace", stackTrace);
-            info.AddValue("UserMessage", UserMessage);
-
-            base.GetObjectData(info, context);
-        }
 
         /// <inheritdoc/>
         public override string ToString()

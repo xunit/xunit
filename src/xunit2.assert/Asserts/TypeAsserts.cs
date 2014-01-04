@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -29,7 +30,7 @@ namespace Xunit
         {
             Assert.GuardArgumentNotNull("expectedType", expectedType);
 
-            if (@object == null || !expectedType.IsAssignableFrom(@object.GetType()))
+            if (@object == null || !expectedType.GetTypeInfo().IsAssignableFrom(@object.GetType().GetTypeInfo()))
                 throw new IsAssignableFromException(expectedType, @object);
         }
 
@@ -93,8 +94,8 @@ namespace Xunit
 
                 if (expectedTypeName == actualTypeName)
                 {
-                    expectedTypeName += " (" + new Uri(expectedType.Assembly.CodeBase).LocalPath + ")";
-                    actualTypeName += " (" + new Uri(actualType.Assembly.CodeBase).LocalPath + ")";
+                    expectedTypeName += String.Format(" ({0})", expectedType.GetTypeInfo().Assembly.GetName().FullName);
+                    actualTypeName += String.Format(" ({0})", actualType.GetTypeInfo().Assembly.GetName().FullName);
                 }
 
                 throw new IsTypeException(expectedTypeName, actualTypeName);

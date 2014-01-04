@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Runtime.Serialization;
-using System.Security;
 using System.Text;
 
 namespace Xunit.Sdk
@@ -12,7 +10,6 @@ namespace Xunit.Sdk
     /// Exception thrown when two values are unexpectedly not equal.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class EqualException : AssertActualExpectedException
     {
         static readonly Dictionary<char, string> Encodings = new Dictionary<char, string>
@@ -49,14 +46,6 @@ namespace Xunit.Sdk
         {
             ActualIndex = actualIndex;
             ExpectedIndex = expectedIndex;
-        }
-
-        /// <inheritdoc/>
-        protected EqualException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            ActualIndex = info.GetInt32("ActualIndex");
-            ExpectedIndex = info.GetInt32("ExpectedIndex");
         }
 
         /// <summary>
@@ -101,18 +90,6 @@ namespace Xunit.Sdk
                 printedActual.Item1 ?? "(null)",
                 printedActual.Item2
             );
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            Assert.GuardArgumentNotNull("info", info);
-
-            info.AddValue("ActualIndex", ActualIndex);
-            info.AddValue("ExpectedIndex", ExpectedIndex);
-
-            base.GetObjectData(info, context);
         }
 
         static Tuple<string, string> ShortenAndEncode(string value, int position, char pointer)

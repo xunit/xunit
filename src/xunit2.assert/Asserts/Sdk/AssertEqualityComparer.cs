@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Xunit.Sdk
 {
@@ -12,6 +13,7 @@ namespace Xunit.Sdk
     internal class AssertEqualityComparer<T> : IEqualityComparer<T>
     {
         static readonly IEqualityComparer DefaultInnerComparer = new AssertEqualityComparerAdapter<object>(new AssertEqualityComparer<object>());
+        static readonly TypeInfo NullableTypeInfo = typeof(Nullable<>).GetTypeInfo();
 
         readonly Func<IEqualityComparer> innerComparerFactory;
         readonly bool skipTypeCheck;
@@ -26,16 +28,16 @@ namespace Xunit.Sdk
             this.skipTypeCheck = skipTypeCheck;
 
             // Use a thunk to delay evaluation of DefaultInnerComparer
-            this.innerComparerFactory = () => innerComparer ?? DefaultInnerComparer;
+            innerComparerFactory = () => innerComparer ?? DefaultInnerComparer;
         }
 
         /// <inheritdoc/>
         public bool Equals(T x, T y)
         {
-            Type type = typeof(T);
+            var typeInfo = typeof(T).GetTypeInfo();
 
             // Null?
-            if (!type.IsValueType || (type.IsGenericType && type.GetGenericTypeDefinition().IsAssignableFrom(typeof(Nullable<>))))
+            if (!typeInfo.IsValueType || (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(NullableTypeInfo)))
             {
                 if (Object.Equals(x, default(T)))
                     return Object.Equals(y, default(T));

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Security;
 
 namespace Xunit.Sdk
 {
     /// <summary>
     /// Exception thrown when Assert.Collection fails.
     /// </summary>
-    [Serializable]
     public class CollectionException : XunitException
     {
         readonly string innerException;
@@ -30,17 +27,6 @@ namespace Xunit.Sdk
             IndexFailurePoint = indexFailurePoint;
             this.innerException = FormatInnerException(innerException);
             innerStackTrace = innerException == null ? null : innerException.StackTrace;
-        }
-
-        /// <inheritdoc/>
-        protected CollectionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            ActualCount = info.GetInt32("ActualCount");
-            ExpectedCount = info.GetInt32("ExpectedCount");
-            IndexFailurePoint = info.GetInt32("IndexFailurePoint");
-            innerException = info.GetString("__innerException");
-            innerStackTrace = info.GetString("__innerStackTrace");
         }
 
         /// <summary>
@@ -103,21 +89,6 @@ namespace Xunit.Sdk
                                       .Select((value, idx) => idx > 0 ? "        " + value : value);
 
             return String.Join(Environment.NewLine, lines);
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            Assert.GuardArgumentNotNull("info", info);
-
-            info.AddValue("ActualCount", ActualCount);
-            info.AddValue("ExpectedCount", ExpectedCount);
-            info.AddValue("IndexFailurePoint", IndexFailurePoint);
-            info.AddValue("__innerException", innerException);
-            info.AddValue("__innerStackTrace", innerStackTrace);
-
-            base.GetObjectData(info, context);
         }
     }
 }

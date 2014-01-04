@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Runtime.Serialization;
-using System.Security;
 
 namespace Xunit.Sdk
 {
@@ -10,7 +8,6 @@ namespace Xunit.Sdk
     /// Exception thrown when a value is unexpectedly not in the given range.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class InRangeException : XunitException
     {
         readonly string actual;
@@ -29,15 +26,6 @@ namespace Xunit.Sdk
             this.low = low == null ? null : low.ToString();
             this.high = high == null ? null : high.ToString();
             this.actual = actual == null ? null : actual.ToString();
-        }
-
-        /// <inheritdoc/>
-        protected InRangeException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            actual = info.GetString("Actual");
-            high = info.GetString("High");
-            low = info.GetString("Low");
         }
 
         /// <summary>
@@ -76,20 +64,6 @@ namespace Xunit.Sdk
                                      "{0}\r\nRange:  ({1} - {2})\r\nActual: {3}",
                                      base.Message, Low, High, Actual ?? "(null)");
             }
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            Assert.GuardArgumentNotNull("info", info);
-
-            info.AddValue("Actual", actual);
-            info.AddValue("High", high);
-            info.AddValue("Low", low);
-
-            base.GetObjectData(info, context);
         }
     }
 }

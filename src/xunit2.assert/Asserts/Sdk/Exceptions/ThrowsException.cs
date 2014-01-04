@@ -1,7 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Serialization;
-using System.Security;
 
 namespace Xunit.Sdk
 {
@@ -9,7 +7,6 @@ namespace Xunit.Sdk
     /// Exception thrown when code unexpectedly fails to throw an exception.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
     public class ThrowsException : AssertActualExpectedException
     {
         readonly string stackTrace = null;
@@ -32,13 +29,6 @@ namespace Xunit.Sdk
         public ThrowsException(Type expectedType, Exception actual)
             : this(expectedType, actual.GetType().FullName, actual.Message, actual.StackTrace) { }
 
-        /// <inheritdoc/>
-        protected ThrowsException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            stackTrace = info.GetString("CustomStackTrace2");
-        }
-
         /// <summary>
         /// THIS CONSTRUCTOR IS FOR UNIT TESTING PURPOSES ONLY.
         /// </summary>
@@ -57,18 +47,6 @@ namespace Xunit.Sdk
         public override string StackTrace
         {
             get { return stackTrace ?? base.StackTrace; }
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Protected with the Guard class")]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            Assert.GuardArgumentNotNull("info", info);
-
-            info.AddValue("CustomStackTrace2", stackTrace);
-
-            base.GetObjectData(info, context);
         }
     }
 }
