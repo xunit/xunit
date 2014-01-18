@@ -73,7 +73,8 @@ namespace Xunit.Sdk
             Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             TestCollection = testCollection;
 
-            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute)))
+            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute))
+                                                            .Concat(Class.GetCustomAttributes(typeof(TraitAttribute))))
             {
                 var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
                 Traits.Add((string)ctorArgs[0], (string)ctorArgs[1]);

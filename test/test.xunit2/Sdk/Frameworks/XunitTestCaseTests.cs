@@ -62,6 +62,23 @@ public class XunitTestCaseTests
         Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
     }
 
+    [Fact]
+    public void TraitsOnClass()
+    {
+        var testCollection = new XunitTestCollection();
+        var fact = Mocks.FactAttribute();
+        var trait1 = Mocks.TraitAttribute("Trait1", "Value1");
+        var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
+        var method = Mocks.MethodInfo();
+        var type = Mocks.TypeInfo(methods: new[] { method }, attributes: new[] { trait1, trait2 });
+        var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
+
+        var testCase = new XunitTestCase(testCollection, assmInfo, type, method, fact);
+
+        Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
+        Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
+    }
+
     public class DisplayName
     {
         [Fact]
