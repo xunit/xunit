@@ -33,9 +33,24 @@ public class TypeWrapper : ITypeInfo
         get { return inner.IsAbstract; }
     }
 
+    public bool IsGenericParameter
+    {
+        get { return inner.IsGenericParameter; }
+    }
+
+    public bool IsGenericType
+    {
+        get { return inner.IsGenericType; }
+    }
+
     public bool IsSealed
     {
         get { return inner.IsSealed; }
+    }
+
+    public bool IsValueType
+    {
+        get { return inner.IsValueType; }
     }
 
     public string Name
@@ -46,6 +61,11 @@ public class TypeWrapper : ITypeInfo
     public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
     {
         return inner.GetCustomAttributes(assemblyQualifiedAttributeTypeName);
+    }
+
+    public IEnumerable<ITypeInfo> GetGenericArguments()
+    {
+        return inner.GetGenericArguments();
     }
 
     public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)

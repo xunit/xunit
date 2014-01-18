@@ -35,6 +35,59 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.NotNull(z);
             }
         }
+
+        [Fact]
+        public void GenericTheoryWithSerializableData()
+        {
+            var results = Run<ITestPassed>(typeof(GenericWithSerializableData));
+
+            Assert.Collection(results,
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: 21.12)", result.TestDisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.TestDisplayName),
+                // TODO: The parameter values here should eventually read: '[1, 2, 3]' and '["a", "b", "c"]'
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32[], List<String>>(value1: System.Int32[], value2: System.Collections.Generic.List`1[System.String])", result.TestDisplayName)
+            );
+        }
+
+        public class GenericWithSerializableData
+        {
+            public static IEnumerable<object[]> GenericData
+            {
+                get
+                {
+                    yield return new object[] { 42, null };
+                    yield return new object[] { "Hello, world!", 21.12 };
+                    yield return new object[] { new int[] { 1, 2, 3 }, new List<string> { "a", "b", "c" } };
+                }
+            }
+
+            [Theory, PropertyData("GenericData")]
+            public void GenericTest<T1, T2>(T1 value1, T2 value2) { }
+        }
+
+        [Fact]
+        public void GenericTheoryWithNonSerializableData()
+        {
+            var results = Run<ITestPassed>(typeof(GenericWithNonSerializableData));
+
+            Assert.Collection(results,
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData)", result.TestDisplayName)
+            );
+        }
+
+        public class GenericWithNonSerializableData
+        {
+            public static IEnumerable<object[]> GenericData
+            {
+                get
+                {
+                    yield return new object[] { new GenericWithNonSerializableData() };
+                }
+            }
+
+            [Theory, PropertyData("GenericData")]
+            public void GenericTest<T>(T value) { }
+        }
     }
 
     public class InlineDataTests : AcceptanceTest

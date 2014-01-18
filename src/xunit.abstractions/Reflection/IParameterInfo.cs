@@ -1,4 +1,6 @@
-﻿namespace Xunit.Abstractions
+﻿using System;
+
+namespace Xunit.Abstractions
 {
     /// <summary>
     /// Represents information about a method parameter. The primary implementation is based on runtime
@@ -11,5 +13,10 @@
         /// The name of the parameter.
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Gets the type of the parameter.
+        /// </summary>
+        ITypeInfo ParameterType { get; }
     }
 }

@@ -15,6 +15,11 @@ namespace Xunit.Abstractions
         bool IsAbstract { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the method is a generic definition (i.e., an open generic).
+        /// </summary>
+        bool IsGenericMethodDefinition { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the method is public.
         /// </summary>
         bool IsPublic { get; }
@@ -48,9 +53,22 @@ namespace Xunit.Abstractions
         IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
         /// <summary>
+        /// Gets the types of the generic arguments for generic methods.
+        /// </summary>
+        /// <returns>The argument types.</returns>
+        IEnumerable<ITypeInfo> GetGenericArguments();
+
+        /// <summary>
         /// Gets information about the parameters to the method.
         /// </summary>
         /// <returns>The method's parameters.</returns>
         IEnumerable<IParameterInfo> GetParameters();
+
+        /// <summary>
+        /// Converts an open generic method into a closed generic method, using the provided type arguments.
+        /// </summary>
+        /// <param name="typeArguments">The type arguments to be used in the generic definition.</param>
+        /// <returns>A new <see cref="IMethodInfo"/> that represents the closed generic method.</returns>
+        IMethodInfo MakeGenericMethod(params ITypeInfo[] typeArguments);
     }
 }

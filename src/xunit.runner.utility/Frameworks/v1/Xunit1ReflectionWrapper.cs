@@ -85,6 +85,11 @@ namespace Xunit
             get { return false; }
         }
 
+        bool IMethodInfo.IsGenericMethodDefinition
+        {
+            get { return false; }
+        }
+
         bool IMethodInfo.IsPublic
         {
             get { return true; }
@@ -115,9 +120,19 @@ namespace Xunit
             return Enumerable.Empty<IAttributeInfo>();
         }
 
+        IEnumerable<ITypeInfo> IMethodInfo.GetGenericArguments()
+        {
+            return Enumerable.Empty<ITypeInfo>();
+        }
+
         IEnumerable<IParameterInfo> IMethodInfo.GetParameters()
         {
             return Enumerable.Empty<IParameterInfo>();
+        }
+
+        IMethodInfo IMethodInfo.MakeGenericMethod(params ITypeInfo[] typeArguments)
+        {
+            throw new NotImplementedException();
         }
 
         // ITypeInfo
@@ -142,7 +157,22 @@ namespace Xunit
             get { return false; }
         }
 
+        bool ITypeInfo.IsGenericParameter
+        {
+            get { return false; }
+        }
+
+        bool ITypeInfo.IsGenericType
+        {
+            get { return false; }
+        }
+
         bool ITypeInfo.IsSealed
+        {
+            get { return false; }
+        }
+
+        bool ITypeInfo.IsValueType
         {
             get { return false; }
         }
@@ -155,6 +185,11 @@ namespace Xunit
         IEnumerable<IAttributeInfo> ITypeInfo.GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
             return Enumerable.Empty<IAttributeInfo>();
+        }
+
+        IEnumerable<ITypeInfo> ITypeInfo.GetGenericArguments()
+        {
+            return Enumerable.Empty<ITypeInfo>();
         }
 
         IEnumerable<IMethodInfo> ITypeInfo.GetMethods(bool includePrivateMethods)

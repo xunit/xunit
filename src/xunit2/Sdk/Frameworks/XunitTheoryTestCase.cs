@@ -53,7 +53,26 @@ namespace Xunit.Sdk
 
                     foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
                     {
-                        RunTestWithArguments(messageBus, classUnderTest, constructorArguments, methodUnderTest, dataRow, GetDisplayNameWithArguments(DisplayName, dataRow), beforeAfterAttributes, aggregator, cancellationTokenSource, ref executionTime);
+                        var methodToRun = methodUnderTest;
+                        ITypeInfo[] resolvedTypes = null;
+
+                        if (methodToRun.IsGenericMethodDefinition)
+                        {
+                            resolvedTypes = ResolveGenericTypes(testMethod, dataRow);
+                            methodToRun = methodToRun.MakeGenericMethod(resolvedTypes.Select(t => ((IReflectionTypeInfo)t).Type).ToArray());
+                        }
+
+                        RunTestWithArguments(messageBus,
+                                             classUnderTest,
+                                             constructorArguments,
+                                             methodToRun,
+                                             dataRow,
+                                             GetDisplayNameWithArguments(DisplayName, dataRow, resolvedTypes),
+                                             beforeAfterAttributes,
+                                             aggregator,
+                                             cancellationTokenSource,
+                                             ref executionTime);
+
                         if (cancellationTokenSource.IsCancellationRequested)
                             return;
                     }

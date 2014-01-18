@@ -31,6 +31,12 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
+        public bool IsGenericMethodDefinition
+        {
+            get { return MethodInfo.IsGenericMethodDefinition; }
+        }
+
+        /// <inheritdoc/>
         public bool IsPublic
         {
             get { return MethodInfo.IsPublic; }
@@ -97,6 +103,12 @@ namespace Xunit.Sdk
             return results;
         }
 
+        /// <inheritdoc/>
+        public IEnumerable<ITypeInfo> GetGenericArguments()
+        {
+            return MethodInfo.GetGenericArguments().Select(Reflector.Wrap).ToArray();
+        }
+
         static MethodInfo GetParent(MethodInfo method)
         {
             if (!method.IsVirtual)
@@ -113,6 +125,13 @@ namespace Xunit.Sdk
                            .SingleOrDefault(m => m.Name == method.Name
                                               && m.GetGenericArguments().Length == methodGenericArgCount
                                               && TypeListComparer.Equals(m.GetParameters().Select(p => p.ParameterType).ToArray(), methodParameters));
+        }
+
+        /// <inheritdoc/>
+        public IMethodInfo MakeGenericMethod(params ITypeInfo[] typeArguments)
+        {
+            var unwrapedTypeArguments = typeArguments.Select(t => ((IReflectionTypeInfo)t).Type).ToArray();
+            return Reflector.Wrap(MethodInfo.MakeGenericMethod(unwrapedTypeArguments));
         }
 
         /// <inheritdoc/>

@@ -18,6 +18,11 @@ public class MethodWrapper : IMethodInfo
         get { return inner.IsAbstract; }
     }
 
+    public bool IsGenericMethodDefinition
+    {
+        get { return inner.IsGenericMethodDefinition; }
+    }
+
     public bool IsPublic
     {
         get { return inner.IsPublic; }
@@ -48,8 +53,18 @@ public class MethodWrapper : IMethodInfo
         return inner.GetCustomAttributes(assemblyQualifiedAttributeTypeName);
     }
 
+    public IEnumerable<ITypeInfo> GetGenericArguments()
+    {
+        return inner.GetGenericArguments();
+    }
+
     public IEnumerable<IParameterInfo> GetParameters()
     {
         return inner.GetParameters();
+    }
+
+    public IMethodInfo MakeGenericMethod(params ITypeInfo[] typeArguments)
+    {
+        return inner.MakeGenericMethod(typeArguments);
     }
 }

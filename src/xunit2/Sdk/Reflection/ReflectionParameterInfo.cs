@@ -25,5 +25,11 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         public ParameterInfo ParameterInfo { get; private set; }
+
+        /// <inheritdoc/>
+        public ITypeInfo ParameterType
+        {
+            get { return Reflector.Wrap(ParameterInfo.ParameterType); }
+        }
     }
 }

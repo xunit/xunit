@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 
 namespace Xunit.Abstractions
 {
@@ -30,12 +31,28 @@ namespace Xunit.Abstractions
         bool IsAbstract { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the type represents a generic parameter.
+        /// </summary>
+        bool IsGenericParameter { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the type is a generic type.
+        /// </summary>
+        bool IsGenericType { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the type is sealed.
         /// </summary>
         bool IsSealed { get; }
 
         /// <summary>
-        /// Gets the fully qualified type name.
+        /// Gets a value indicating whether the type is a value type.
+        /// </summary>
+        bool IsValueType { get; }
+
+        /// <summary>
+        /// Gets the fully qualified type name (for non-generic parameters), or the
+        /// simple type name (for generic parameters).
         /// </summary>
         string Name { get; }
 
@@ -45,6 +62,12 @@ namespace Xunit.Abstractions
         /// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly qualified form</param>
         /// <returns>The matching attributes that decorate the type</returns>
         IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
+
+        /// <summary>
+        /// Gets the generic type arguments for a generic type.
+        /// </summary>
+        /// <returns>The list of generic types.</returns>
+        IEnumerable<ITypeInfo> GetGenericArguments();
 
         /// <summary>
         /// Gets all the methods in this type.

@@ -93,7 +93,18 @@ namespace Xunit.Runner.TdNet
 
         public virtual TestRunState RunMethod(MethodInfo method, TestRunState initialRunState = TestRunState.NoTests)
         {
-            var testCases = Discover(method.ReflectedType).Where(tc => tc.GetMethod() == method);
+            var testCases = Discover(method.ReflectedType).Where(tc =>
+            {
+                var methodInfo = tc.GetMethod();
+                if (methodInfo == method)
+                    return true;
+
+                if (methodInfo.IsGenericMethod)
+                    return methodInfo.GetGenericMethodDefinition() == method;
+
+                return false;
+            }).ToList();
+
             return Run(testCases, initialRunState);
         }
     }

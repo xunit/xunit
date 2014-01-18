@@ -26,6 +26,7 @@ namespace Xunit.Sdk
         readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
         readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
         readonly static HashAlgorithm Hasher = new SHA1Managed();
+        readonly static ITypeInfo ObjectTypeInfo = Reflector.Wrap(typeof(object));
 
         Lazy<string> uniqueID;
 
@@ -63,12 +64,19 @@ namespace Xunit.Sdk
         void Initialize(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments)
         {
             string displayNameBase = factAttribute.GetNamedArgument<string>("DisplayName") ?? type.Name + "." + method.Name;
+            ITypeInfo[] resolvedTypes = null;
+
+            if (arguments != null && method.IsGenericMethodDefinition)
+            {
+                resolvedTypes = ResolveGenericTypes(method, arguments);
+                method = method.MakeGenericMethod(resolvedTypes);
+            }
 
             Assembly = assembly;
             Class = type;
             Method = method;
             Arguments = arguments;
-            DisplayName = GetDisplayNameWithArguments(displayNameBase, arguments);
+            DisplayName = GetDisplayNameWithArguments(displayNameBase, arguments, resolvedTypes);
             SkipReason = factAttribute.GetNamedArgument<string>("Skip");
             Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             TestCollection = testCollection;
@@ -161,9 +169,12 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="displayName">The base display name.</param>
         /// <param name="arguments">The test method's arguments.</param>
+        /// <param name="genericTypes">The generic types for the test method.</param>
         /// <returns>The supplemented display name.</returns>
-        protected string GetDisplayNameWithArguments(string displayName, object[] arguments)
+        protected string GetDisplayNameWithArguments(string displayName, object[] arguments, ITypeInfo[] genericTypes)
         {
+            displayName += ResolveGenericDisplay(genericTypes);
+
             if (arguments == null)
                 return displayName;
 
@@ -205,6 +216,10 @@ namespace Xunit.Sdk
         /// <returns>The type under test, if possible; null, if not available.</returns>
         protected Type GetRuntimeClass()
         {
+            var reflectionTypeInfo = Class as IReflectionTypeInfo;
+            if (reflectionTypeInfo != null)
+                return reflectionTypeInfo.Type;
+
             return Reflector.GetType(Assembly.Name, Class.Name);
         }
 
@@ -215,6 +230,10 @@ namespace Xunit.Sdk
         /// <returns>The method under test, if possible; null, if not available.</returns>
         protected MethodInfo GetRuntimeMethod(Type type)
         {
+            var reflectionMethodInfo = Method as IReflectionMethodInfo;
+            if (reflectionMethodInfo != null)
+                return reflectionMethodInfo.MethodInfo;
+
             if (type == null)
                 return null;
 
@@ -251,15 +270,15 @@ namespace Xunit.Sdk
                 return "null";
 
             if (parameterValue is char)
-                return "'" + parameterValue + "'";
+                return String.Format("'{0}'", parameterValue);
 
             string stringParameter = parameterValue as string;
             if (stringParameter != null)
             {
                 if (stringParameter.Length > 50)
-                    return "\"" + stringParameter.Substring(0, 50) + "\"...";
+                    return String.Format("\"{0}\"...", stringParameter.Substring(0, 50));
 
-                return "\"" + stringParameter + "\"";
+                return String.Format("\"{0}\"", stringParameter);
             }
 
             return Convert.ToString(parameterValue, CultureInfo.CurrentCulture);
@@ -267,7 +286,85 @@ namespace Xunit.Sdk
 
         static string ParameterToDisplayValue(string parameterName, object parameterValue)
         {
-            return parameterName + ": " + ParameterToDisplayValue(parameterValue);
+            return String.Format("{0}: {1}", parameterName, ParameterToDisplayValue(parameterValue));
+        }
+
+        static string ConvertToSimpleTypeName(ITypeInfo type)
+        {
+            var baseTypeName = type.Name;
+
+            int backTickIdx = baseTypeName.IndexOf('`');
+            if (backTickIdx >= 0)
+                baseTypeName = baseTypeName.Substring(0, backTickIdx);
+
+            var lastIndex = baseTypeName.LastIndexOf('.');
+            if (lastIndex >= 0)
+                baseTypeName = baseTypeName.Substring(lastIndex + 1);
+
+            if (!type.IsGenericType)
+                return baseTypeName;
+
+            ITypeInfo[] genericTypes = type.GetGenericArguments().ToArray();
+            string[] simpleNames = new string[genericTypes.Length];
+
+            for (int idx = 0; idx < genericTypes.Length; idx++)
+                simpleNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
+
+            return String.Format("{0}<{1}>", baseTypeName, String.Join(", ", simpleNames));
+        }
+
+        static string ResolveGenericDisplay(ITypeInfo[] genericTypes)
+        {
+            if (genericTypes == null || genericTypes.Length == 0)
+                return String.Empty;
+
+            string[] typeNames = new string[genericTypes.Length];
+            for (var idx = 0; idx < genericTypes.Length; idx++)
+                typeNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
+
+            return String.Format("<{0}>", String.Join(", ", typeNames));
+        }
+
+        static ITypeInfo ResolveGenericType(ITypeInfo genericType, object[] parameters, IParameterInfo[] parameterInfos)
+        {
+            bool sawNullValue = false;
+            ITypeInfo matchedType = null;
+
+            for (int idx = 0; idx < parameterInfos.Length; ++idx)
+            {
+                var parameterType = parameterInfos[idx].ParameterType;
+                if (parameterType.IsGenericParameter && parameterType.Name == genericType.Name)
+                {
+                    object parameterValue = parameters[idx];
+
+                    if (parameterValue == null)
+                        sawNullValue = true;
+                    else if (matchedType == null)
+                        matchedType = Reflector.Wrap(parameterValue.GetType());
+                    else if (matchedType.Name != parameterValue.GetType().FullName)
+                        return ObjectTypeInfo;
+                }
+            }
+
+            if (matchedType == null)
+                return ObjectTypeInfo;
+
+            return sawNullValue && matchedType.IsValueType ? ObjectTypeInfo : matchedType;
+        }
+
+        /// <summary>
+        /// FOR INTERNAL USE ONLY.
+        /// </summary>
+        protected static ITypeInfo[] ResolveGenericTypes(IMethodInfo method, object[] parameters)
+        {
+            ITypeInfo[] genericTypes = method.GetGenericArguments().ToArray();
+            ITypeInfo[] resolvedTypes = new ITypeInfo[genericTypes.Length];
+            IParameterInfo[] parameterInfos = method.GetParameters().ToArray();
+
+            for (int idx = 0; idx < genericTypes.Length; ++idx)
+                resolvedTypes[idx] = ResolveGenericType(genericTypes[idx], parameters, parameterInfos);
+
+            return resolvedTypes;
         }
 
         /// <summary>

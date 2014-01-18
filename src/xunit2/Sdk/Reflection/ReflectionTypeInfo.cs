@@ -48,15 +48,33 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
+        public bool IsGenericParameter
+        {
+            get { return Type.IsGenericParameter; }
+        }
+
+        /// <inheritdoc/>
+        public bool IsGenericType
+        {
+            get { return Type.IsGenericType; }
+        }
+
+        /// <inheritdoc/>
         public bool IsSealed
         {
             get { return Type.IsSealed; }
         }
 
         /// <inheritdoc/>
+        public bool IsValueType
+        {
+            get { return Type.IsValueType; }
+        }
+
+        /// <inheritdoc/>
         public string Name
         {
-            get { return Type.FullName; }
+            get { return Type.FullName ?? Type.Name; }
         }
 
         /// <inheritdoc/>
@@ -66,6 +84,14 @@ namespace Xunit.Sdk
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
             return ReflectionAttributeInfo.GetCustomAttributes(Type, assemblyQualifiedAttributeTypeName).ToList();
+        }
+
+        /// <inheritdoc/>
+        public IEnumerable<ITypeInfo> GetGenericArguments()
+        {
+            return Type.GetGenericArguments()
+                       .Select(Reflector.Wrap)
+                       .ToList();
         }
 
         /// <inheritdoc/>
