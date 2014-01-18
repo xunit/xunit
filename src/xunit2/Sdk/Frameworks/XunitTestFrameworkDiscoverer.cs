@@ -81,7 +81,7 @@ namespace Xunit.Sdk
             {
                 using (var messageBus = new MessageBus(messageSink))
                 {
-                    foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false))
+                    foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false).Where(type => !type.IsAbstract || type.IsSealed))
                         if (!FindImpl(type, includeSourceInformation, messageBus))
                             break;
 
@@ -102,7 +102,7 @@ namespace Xunit.Sdk
                 using (var messageBus = new MessageBus(messageSink))
                 {
                     ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
-                    if (typeInfo != null)
+                    if (typeInfo != null && (!typeInfo.IsAbstract || typeInfo.IsSealed))
                         FindImpl(typeInfo, includeSourceInformation, messageBus);
 
                     var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();

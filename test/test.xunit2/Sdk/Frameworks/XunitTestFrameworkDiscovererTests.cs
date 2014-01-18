@@ -106,10 +106,10 @@ public class XunitTestFrameworkDiscovererTests
         }
     }
 
-    public class FindByAssembly
+    public static class FindByAssembly
     {
         [Fact]
-        public void GuardClause()
+        public static void GuardClause()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
 
@@ -120,7 +120,7 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void AssemblyWithNoTypes_ReturnsNoTestCases()
+        public static void AssemblyWithNoTypes_ReturnsNoTestCases()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
 
@@ -130,7 +130,7 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void RequestsOnlyPublicTypesFromAssembly()
+        public static void RequestsOnlyPublicTypesFromAssembly()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create(collectionFactory: Substitute.For<IXunitTestCollectionFactory>());
 
@@ -140,7 +140,21 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void CallsFindImplWhenTypesAreFoundInAssembly()
+        public static void ExcludesAbstractTypesFromDiscovery()
+        {
+            var abstractClassTypeInfo = Reflector.Wrap(typeof(AbstractClass));
+            var assembly = Mocks.AssemblyInfo(types: new[] { abstractClassTypeInfo });
+            var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>(assembly);
+            framework.FindImpl(null).ReturnsForAnyArgs(true);
+
+            framework.Find();
+            framework.Visitor.Finished.WaitOne();
+
+            framework.Received(0).FindImpl(abstractClassTypeInfo, Arg.Any<bool>());
+        }
+
+        [Fact]
+        public static void CallsFindImplWhenTypesAreFoundInAssembly()
         {
             var objectTypeInfo = Reflector.Wrap(typeof(object));
             var intTypeInfo = Reflector.Wrap(typeof(int));
@@ -156,7 +170,7 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void DoesNotCallSourceProviderWhenNotAskedFor()
+        public static void DoesNotCallSourceProviderWhenNotAskedFor()
         {
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
@@ -170,7 +184,7 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void CallsSourceProviderWhenTypesAreFoundInAssembly()
+        public static void CallsSourceProviderWhenTypesAreFoundInAssembly()
         {
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
             sourceProvider.GetSourceInformation(null)
@@ -239,6 +253,20 @@ public class XunitTestFrameworkDiscovererTests
             framework.Visitor.Finished.WaitOne();
 
             framework.Received(1).FindImpl(type, false);
+        }
+
+        [Fact]
+        public static void ExcludesAbstractTypesFromDiscovery()
+        {
+            var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>();
+            var type = Substitute.For<ITypeInfo>();
+            type.IsAbstract.Returns(true);
+            framework.Assembly.GetType("abc").Returns(type);
+
+            framework.Find("abc");
+            framework.Visitor.Finished.WaitOne();
+
+            framework.Received(0).FindImpl(type, Arg.Any<bool>());
         }
 
         [Fact]
@@ -459,6 +487,12 @@ public class XunitTestFrameworkDiscovererTests
         public void TestMethod() { }
     }
 
+    abstract class AbstractClass
+    {
+        [Fact]
+        public void ATestNotToBeRun() { }
+    }
+    
     public class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer
     {
         protected TestableXunitTestFrameworkDiscoverer()
