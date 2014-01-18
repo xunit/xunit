@@ -35,7 +35,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             var settings = SettingsProvider.Load();
             var stopwatch = Stopwatch.StartNew();
-            var sourceSinks = new List<SourceSink<VsDiscoveryVisitor>>();
 
             try
             {
@@ -46,58 +45,41 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
                 using (AssemblyHelper.SubscribeResolve())
                 {
-                    try
+                    foreach (string assemblyFileName in sources)
                     {
-                        foreach (string assemblyFileName in sources)
+                        var fileName = Path.GetFileName(assemblyFileName);
+
+                        try
                         {
-                            try
+                            if (cancelled)
+                                break;
+
+                            if (!IsXunitTestAssembly(assemblyFileName))
                             {
-                                if (cancelled)
-                                    break;
+                                if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1}", stopwatch.Elapsed, fileName));
+                            }
+                            else
+                            {
+                                if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
 
-                                if (!IsXunitTestAssembly(assemblyFileName))
+                                using (var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true))
+                                using (var sink = new VsDiscoveryVisitor(assemblyFileName, framework, logger, discoverySink, () => cancelled))
                                 {
-                                    if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                        logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
-                                }
-                                else
-                                {
-                                    if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                        logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
-
-                                    var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true);
-                                    var sink = new VsDiscoveryVisitor(assemblyFileName, framework, logger, discoverySink, () => cancelled);
-                                    sourceSinks.Add(new SourceSink<VsDiscoveryVisitor> { Framework = framework, Sink = sink, AssemblyFileName = assemblyFileName });
                                     framework.Find(includeSourceInformation: true, messageSink: sink);
+                                    sink.Finished.WaitOne();
+
+                                    if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                        logger.SendMessage(TestMessageLevel.Informational,
+                                                           String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, fileName, sink.TotalTests));
                                 }
                             }
-                            catch (Exception e)
-                            {
-                                logger.SendMessage(TestMessageLevel.Error,
-                                                   String.Format("[xUnit.net {0}] Exception discovering tests from {1}: {2}", stopwatch.Elapsed, assemblyFileName, e));
-                            }
                         }
-
-                        var toFinish = new List<SourceSink<VsDiscoveryVisitor>>(sourceSinks);
-
-                        while (toFinish.Count > 0)
+                        catch (Exception e)
                         {
-                            var finishedIdx = WaitHandle.WaitAny(sourceSinks.Select(sink => sink.Sink.Finished).ToArray());
-                            var sourceSink = toFinish[finishedIdx];
-
-                            if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                logger.SendMessage(TestMessageLevel.Informational,
-                                                   String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, Path.GetFileName(sourceSink.AssemblyFileName), sourceSink.Sink.TotalTests));
-
-                            toFinish.RemoveAt(finishedIdx);
-                        }
-                    }
-                    finally
-                    {
-                        foreach (var sourceSink in sourceSinks)
-                        {
-                            sourceSink.Sink.Dispose();
-                            sourceSink.Framework.Dispose();
+                            logger.SendMessage(TestMessageLevel.Error,
+                                               String.Format("[xUnit.net {0}] Exception discovering tests from {1}: {2}", stopwatch.Elapsed, fileName, e));
                         }
                     }
                 }

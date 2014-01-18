@@ -9,6 +9,7 @@ namespace Xunit.Runner.TdNet
 {
     public class TdNetRunnerHelper : IDisposable
     {
+        readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
         readonly XunitFrontController frontController;
         readonly ITestListener testListener;
 
@@ -22,6 +23,7 @@ namespace Xunit.Runner.TdNet
             this.testListener = testListener;
 
             frontController = new XunitFrontController(new Uri(assembly.CodeBase).LocalPath);
+            toDispose.Push(frontController);
         }
 
         public virtual IEnumerable<ITestCase> Discover()
@@ -39,6 +41,7 @@ namespace Xunit.Runner.TdNet
             try
             {
                 var visitor = new TestDiscoveryVisitor();
+                toDispose.Push(visitor);
                 discoveryAction(visitor);
                 visitor.Finished.WaitOne();
                 return visitor.TestCases.ToList();
@@ -52,8 +55,8 @@ namespace Xunit.Runner.TdNet
 
         public void Dispose()
         {
-            if (frontController != null)
-                frontController.Dispose();
+            foreach (var disposable in toDispose)
+                disposable.Dispose();
         }
 
         public virtual TestRunState Run(IEnumerable<ITestCase> testCases, TestRunState initialRunState = TestRunState.NoTests)
@@ -61,6 +64,7 @@ namespace Xunit.Runner.TdNet
             try
             {
                 var visitor = new ResultVisitor(testListener) { TestRunState = initialRunState };
+                toDispose.Push(visitor);
                 frontController.Run(testCases.ToList(), visitor);
                 visitor.Finished.WaitOne();
 

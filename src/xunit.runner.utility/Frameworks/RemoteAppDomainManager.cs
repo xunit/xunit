@@ -70,10 +70,10 @@ namespace Xunit
             {
                 string cachePath = AppDomain.SetupInformation.CachePath;
 
-                //System.AppDomain.Unload(AppDomain);
-
                 try
                 {
+                    System.AppDomain.Unload(AppDomain);
+
                     if (cachePath != null)
                         Directory.Delete(cachePath, true);
                 }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Security;
-using System.Security.Permissions;
 
 namespace Xunit
 {
@@ -9,7 +6,7 @@ namespace Xunit
     // discover when a test is an async test (since that requires special handling by DIA).
     internal class DiaSessionWrapper : IDisposable
     {
-        readonly AppDomain appDomain;
+        readonly RemoteAppDomainManager appDomainManager;
         readonly DiaSessionWrapperHelper helper;
         readonly DiaSession session;
 
@@ -17,30 +14,10 @@ namespace Xunit
         {
             session = new DiaSession(assemblyFilename);
 
-            var setup = new AppDomainSetup
-            {
-                ApplicationBase = Path.GetDirectoryName(new Uri(typeof(DiaSessionWrapperHelper).Assembly.CodeBase).LocalPath),
-                ApplicationName = Guid.NewGuid().ToString(),
-                LoaderOptimization = LoaderOptimization.MultiDomainHost,
-                ShadowCopyFiles = "true",
-            };
+            var assemblyFileName = new Uri(typeof(DiaSessionWrapperHelper).Assembly.CodeBase).LocalPath;
 
-            setup.ShadowCopyDirectories = setup.ApplicationBase;
-            setup.CachePath = Path.Combine(Path.GetTempPath(), setup.ApplicationName);
-
-            appDomain = AppDomain.CreateDomain(setup.ApplicationName, null, setup, new PermissionSet(PermissionState.Unrestricted));
-
-            helper = (DiaSessionWrapperHelper)appDomain.CreateInstanceAndUnwrap(
-                assemblyName: typeof(DiaSessionWrapperHelper).Assembly.FullName,
-                typeName: typeof(DiaSessionWrapperHelper).FullName,
-                ignoreCase: false,
-                bindingAttr: 0,
-                binder: null,
-                args: new[] { assemblyFilename },
-                culture: null,
-                activationAttributes: null,
-                securityAttributes: null
-            );
+            appDomainManager = new RemoteAppDomainManager(assemblyFileName, null, true);
+            helper = appDomainManager.CreateObject<DiaSessionWrapperHelper>(typeof(DiaSessionWrapperHelper).Assembly.FullName, typeof(DiaSessionWrapperHelper).FullName, assemblyFilename);
         }
 
         public DiaNavigationData GetNavigationData(string typeName, string methodName)
@@ -51,11 +28,9 @@ namespace Xunit
 
         public void Dispose()
         {
-            helper.SafeDispose();
-            session.SafeDispose();
-
-            if (appDomain != null)
-                AppDomain.Unload(appDomain);
+            helper.Dispose();
+            session.Dispose();
+            appDomainManager.Dispose();
         }
     }
 }

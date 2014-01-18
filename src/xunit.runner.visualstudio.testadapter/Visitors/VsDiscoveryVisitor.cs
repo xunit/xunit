@@ -121,6 +121,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         protected override bool Visit(IDiscoveryCompleteMessage discoveryComplete)
         {
+            foreach (var message in discoveryComplete.Warnings)
+                logger.SendMessage(TestMessageLevel.Warning, message);
+
             SendExistingTestCases();
 
             return !cancelThunk();
