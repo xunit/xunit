@@ -188,12 +188,14 @@ namespace Xunit.Runner.MSBuild
                     controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
                     discoveryVisitor.Finished.WaitOne();
 
-                    var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement);
-                    controller.Run(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor);
-                    resultsVisitor.Finished.WaitOne();
+                    using (var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement))
+                    {
+                        controller.Run(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor);
+                        resultsVisitor.Finished.WaitOne();
 
-                    if (resultsVisitor.Failed != 0)
-                        ExitCode = 1;
+                        if (resultsVisitor.Failed != 0)
+                            ExitCode = 1;
+                    }
                 }
 
             }
