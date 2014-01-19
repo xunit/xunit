@@ -16,7 +16,7 @@ namespace Xunit.Runner.TdNet
         public TestRunState RunAssembly(ITestListener testListener, Assembly assembly)
         {
             using (var helper = CreateHelper(testListener, assembly))
-                return helper.Run(helper.Discover());
+                return helper.Run();
         }
 
         public TestRunState RunMember(ITestListener testListener, Assembly assembly, MemberInfo member)

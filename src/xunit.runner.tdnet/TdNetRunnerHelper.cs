@@ -59,13 +59,16 @@ namespace Xunit.Runner.TdNet
                 disposable.Dispose();
         }
 
-        public virtual TestRunState Run(IEnumerable<ITestCase> testCases, TestRunState initialRunState = TestRunState.NoTests)
+        public virtual TestRunState Run(IEnumerable<ITestCase> testCases = null, TestRunState initialRunState = TestRunState.NoTests)
         {
             try
             {
+                if (testCases != null)
+                    testCases = testCases.ToList();
+
                 var visitor = new ResultVisitor(testListener) { TestRunState = initialRunState };
                 toDispose.Push(visitor);
-                frontController.Run(testCases.ToList(), visitor);
+                frontController.Run(testCases, visitor);
                 visitor.Finished.WaitOne();
 
                 return visitor.TestRunState;

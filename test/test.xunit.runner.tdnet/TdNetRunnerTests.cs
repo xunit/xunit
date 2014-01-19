@@ -11,45 +11,6 @@ public class TdNetRunnerTests
 {
     private static readonly Assembly thisAssembly = typeof(TdNetRunnerTests).Assembly;
 
-    public class RunAssembly
-    {
-        [Fact]
-        public void DiscoversTestsInAssemblyAndRunsThem()
-        {
-            var listener = Substitute.For<ITestListener>();
-            var runner = new TestableTdNetRunner();
-
-            runner.RunAssembly(listener, thisAssembly);
-
-            Assert.Collection(runner.Operations,
-                msg => Assert.Equal("Discovery()", msg),
-                msg => Assert.Equal("Run(initialRunState: NoTests)", msg)
-            );
-        }
-
-        //[Fact]
-        //public void CallsDiscoverToGetListOfTestsInAssembly()
-        //{
-        //    var listener = Substitute.For<ITestListener>();
-        //    var runner = new TestableTdNetRunner();
-
-        //    runner.RunAssembly(listener, thisAssembly);
-
-        //    runner.Controller.Verify(c => c.Find(false, It.IsAny<IMessageSink>()));
-        //}
-
-        //[Fact]
-        //public void CallsRunToRunTheListOfTests()
-        //{
-        //    var listener = Substitute.For<ITestListener>();
-        //    var runner = new TestableTdNetRunner();
-
-        //    runner.RunAssembly(listener, thisAssembly);
-
-        //    Assert.Equal(runner.Controller.TestCasesToRun, runner.Controller.TestCasesRan);
-        //}
-    }
-
     public class RunMember
     {
         class TypeUnderTest
