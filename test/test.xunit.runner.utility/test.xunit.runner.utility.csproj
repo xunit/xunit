@@ -48,9 +48,103 @@
     <Compile Include="..\..\src\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\AfterTestFinished.cs">
+      <Link>Common\Messages\AfterTestFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\AfterTestStarting.cs">
+      <Link>Common\Messages\AfterTestStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestCaseMessage.cs">
+      <Link>Common\Messages\BaseMessages\TestCaseMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestClassMessage.cs">
+      <Link>Common\Messages\BaseMessages\TestClassMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestCollectionMessage.cs">
+      <Link>Common\Messages\BaseMessages\TestCollectionMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestMessage.cs">
+      <Link>Common\Messages\BaseMessages\TestMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestResultMessage.cs">
+      <Link>Common\Messages\BaseMessages\TestResultMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\BeforeTestFinished.cs">
+      <Link>Common\Messages\BeforeTestFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\BeforeTestStarting.cs">
+      <Link>Common\Messages\BeforeTestStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\DiscoveryCompleteMessage.cs">
+      <Link>Common\Messages\DiscoveryCompleteMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\ErrorMessage.cs">
+      <Link>Common\Messages\ErrorMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestAssemblyFinished.cs">
+      <Link>Common\Messages\TestAssemblyFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestAssemblyStarting.cs">
+      <Link>Common\Messages\TestAssemblyStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCaseDiscoveryMessage.cs">
+      <Link>Common\Messages\TestCaseDiscoveryMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCaseFinished.cs">
+      <Link>Common\Messages\TestCaseFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCaseStarting.cs">
+      <Link>Common\Messages\TestCaseStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassConstructionFinished.cs">
+      <Link>Common\Messages\TestClassConstructionFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassConstructionStarting.cs">
+      <Link>Common\Messages\TestClassConstructionStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassDisposeFinished.cs">
+      <Link>Common\Messages\TestClassDisposeFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassDisposeStarting.cs">
+      <Link>Common\Messages\TestClassDisposeStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassFinished.cs">
+      <Link>Common\Messages\TestClassFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassStarting.cs">
+      <Link>Common\Messages\TestClassStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCollectionFinished.cs">
+      <Link>Common\Messages\TestCollectionFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCollectionStarting.cs">
+      <Link>Common\Messages\TestCollectionStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestFailed.cs">
+      <Link>Common\Messages\TestFailed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestFinished.cs">
+      <Link>Common\Messages\TestFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestMethodFinished.cs">
+      <Link>Common\Messages\TestMethodFinished.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestMethodStarting.cs">
+      <Link>Common\Messages\TestMethodStarting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestPassed.cs">
+      <Link>Common\Messages\TestPassed.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestSkipped.cs">
+      <Link>Common\Messages\TestSkipped.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestStarting.cs">
+      <Link>Common\Messages\TestStarting.cs</Link>
+    </Compile>
     <Compile Include="Frameworks\v1\TestClassCallbackHandlerTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCaseTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1Tests.cs" />
+    <Compile Include="Frameworks\XunitFrontControllerTests.cs" />
     <Compile Include="Project\XunitFiltersTests.cs" />
     <Compile Include="Project\XunitProjectTests.cs" />
     <Compile Include="SpyTestMessageVisitor.cs" />

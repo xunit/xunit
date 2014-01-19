@@ -11,8 +11,12 @@ namespace Xunit
     /// </summary>
     public class XunitFrontController : IFrontController
     {
-        readonly IDisposable createdSourceInformationProvider;
-        readonly IFrontController innerController;
+        readonly string assemblyFileName;
+        readonly string configFileName;
+        IFrontController innerController;
+        readonly bool shadowCopy;
+        readonly ISourceInformationProvider sourceInformationProvider;
+        readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 
         /// <summary>
         /// This constructor is for unit testing purposes only.
@@ -29,65 +33,103 @@ namespace Xunit
         /// tests to be discovered and run without locking assembly files on disk.</param>
         public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true, ISourceInformationProvider sourceInformationProvider = null)
         {
+            this.assemblyFileName = assemblyFileName;
+            this.configFileName = configFileName;
+            this.shadowCopy = shadowCopy;
+            this.sourceInformationProvider = sourceInformationProvider;
+
             Guard.FileExists("assemblyFileName", assemblyFileName);
-            var xunit1Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
-            var xunit2Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit2.dll");
 
-            if (sourceInformationProvider == null)
+            if (this.sourceInformationProvider == null)
             {
-                sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
-                createdSourceInformationProvider = sourceInformationProvider;
+                this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
+                toDispose.Push(this.sourceInformationProvider);
             }
+        }
 
-            if (File.Exists(xunit2Path))
-                innerController = new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
-            else if (File.Exists(xunit1Path))
-                innerController = new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
-            else
-                throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit2.dll.", assemblyFileName);
+        private IFrontController InnerController
+        {
+            get
+            {
+                if (innerController == null)
+                {
+                    innerController = CreateInnerController();
+                    toDispose.Push(innerController);
+                }
+
+                return innerController;
+            }
         }
 
         /// <inheritdoc/>
         public string TestFrameworkDisplayName
         {
-            get { return innerController.TestFrameworkDisplayName; }
+            get { return InnerController.TestFrameworkDisplayName; }
+        }
+
+        /// <summary>
+        /// FOR INTERNAL USE ONLY.
+        /// </summary>
+        protected virtual IFrontController CreateInnerController()
+        {
+            var xunit1Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
+            var xunit2Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit2.dll");
+
+            if (File.Exists(xunit2Path))
+                return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+            if (File.Exists(xunit1Path))
+                return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+
+            throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit2.dll.", assemblyFileName);
         }
 
         /// <inheritdoc/>
         public ITestCase Deserialize(string value)
         {
-            return innerController.Deserialize(value);
+            return InnerController.Deserialize(value);
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            createdSourceInformationProvider.SafeDispose();
-            innerController.SafeDispose();
+            foreach (var disposable in toDispose)
+                disposable.Dispose();
         }
 
         /// <inheritdoc/>
         public virtual void Find(bool includeSourceInformation, IMessageSink messageSink)
         {
-            innerController.Find(includeSourceInformation, messageSink);
+            InnerController.Find(includeSourceInformation, messageSink);
         }
 
         /// <inheritdoc/>
         public virtual void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
         {
-            innerController.Find(typeName, includeSourceInformation, messageSink);
+            InnerController.Find(typeName, includeSourceInformation, messageSink);
         }
 
         /// <inheritdoc/>
         public virtual void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
         {
-            innerController.Run(testMethods, messageSink);
+            var controller = InnerController; // Call this first so he gets disposed AFTER the discovery sink
+
+            if (testMethods == null)
+            {
+                var discoverySink = new TestDiscoveryVisitor();
+                toDispose.Push(discoverySink);
+
+                controller.Find(false, discoverySink);
+                discoverySink.Finished.WaitOne();
+                testMethods = discoverySink.TestCases;
+            }
+
+            controller.Run(testMethods, messageSink);
         }
 
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
         {
-            return innerController.Serialize(testCase);
+            return InnerController.Serialize(testCase);
         }
     }
 }
