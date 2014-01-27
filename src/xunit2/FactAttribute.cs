@@ -24,11 +24,5 @@ namespace Xunit
         /// Marks the test so that it will not be run, and gets or sets the skip reason
         /// </summary>
         public virtual string Skip { get; set; }
-
-        /// <summary>
-        /// Marks the test as failing if it does not finish running within the given time
-        /// period, in milliseconds; set to 0 or less to indicate the method has no timeout
-        /// </summary>
-        public virtual int Timeout { get; set; }
     }
 }

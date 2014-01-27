@@ -50,13 +50,12 @@ public static class Mocks
         return result;
     }
 
-    public static IReflectionAttributeInfo FactAttribute(string displayName = null, string skip = null, int timeout = 0)
+    public static IReflectionAttributeInfo FactAttribute(string displayName = null, string skip = null)
     {
         var result = Substitute.For<IReflectionAttributeInfo>();
-        result.Attribute.Returns(new FactAttribute { DisplayName = displayName, Skip = skip, Timeout = timeout });
+        result.Attribute.Returns(new FactAttribute { DisplayName = displayName, Skip = skip });
         result.GetNamedArgument<string>("DisplayName").Returns(displayName);
         result.GetNamedArgument<string>("Skip").Returns(skip);
-        result.GetNamedArgument<int>("Timeout").Returns(timeout);
         return result;
     }
 
@@ -130,13 +129,12 @@ public static class Mocks
         return result;
     }
 
-    public static IReflectionAttributeInfo TheoryAttribute(string displayName = null, string skip = null, int timeout = 0)
+    public static IReflectionAttributeInfo TheoryAttribute(string displayName = null, string skip = null)
     {
         var result = Substitute.For<IReflectionAttributeInfo>();
-        result.Attribute.Returns(new TheoryAttribute { DisplayName = displayName, Skip = skip, Timeout = timeout });
+        result.Attribute.Returns(new TheoryAttribute { DisplayName = displayName, Skip = skip });
         result.GetNamedArgument<string>("DisplayName").Returns(displayName);
         result.GetNamedArgument<string>("Skip").Returns(skip);
-        result.GetNamedArgument<int>("Timeout").Returns(timeout);
         return result;
     }
 
