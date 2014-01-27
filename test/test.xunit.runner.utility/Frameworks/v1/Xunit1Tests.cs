@@ -99,7 +99,8 @@ public class Xunit1Tests
                     Assert.Equal("MethodWithTraits", testCase.Method.Name);
                     Assert.Equal("SpecialType.MethodWithTraits", testCase.DisplayName);
                     Assert.Collection(testCase.Traits.Keys,
-                        key => {
+                        key =>
+                        {
                             Assert.Equal("Trait1", key);
                             Assert.Collection(testCase.Traits[key],
                                 value => Assert.Equal("Value1", value)
@@ -377,11 +378,6 @@ public class Xunit1Tests
                     Assert.Equal(1, assemblyFinished.TestsSkipped);
                 }
             );
-        }
-
-        [Fact(Skip = "Not yet implemented")]
-        public void RunWithNoTestCases_RunsAllTestsInAssembly()
-        {
         }
 
         [Fact]

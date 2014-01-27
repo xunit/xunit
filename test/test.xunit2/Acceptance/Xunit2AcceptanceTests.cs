@@ -22,7 +22,6 @@ public class Xunit2AcceptanceTests
                     Assert.Equal(0, finished.TestsRun);
                     Assert.Equal(0, finished.TestsFailed);
                     Assert.Equal(0, finished.TestsSkipped);
-                    Assert.Equal(0M, finished.ExecutionTime);
                 }
             );
         }

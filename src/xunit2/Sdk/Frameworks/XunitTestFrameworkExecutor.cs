@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -76,9 +77,9 @@ namespace Xunit.Sdk
             var ordererAttribute = assemblyInfo.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             var orderer = ordererAttribute != null ? GetTestCaseOrderer(ordererAttribute) : new DefaultTestCaseOrderer();
 
-            try
+            using (var messageBus = new MessageBus(messageSink))
             {
-                using (var messageBus = new MessageBus(messageSink))
+                try
                 {
                     Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 
@@ -88,6 +89,8 @@ namespace Xunit.Sdk
                         IList<RunSummary> summaries;
 
                         // TODO: Contract for Run() states that null "testCases" means "run everything".
+
+                        var masterStopwatch = Stopwatch.StartNew();
 
                         if (disableParallelization)
                         {
@@ -106,18 +109,17 @@ namespace Xunit.Sdk
                             summaries = await Task.WhenAll(tasks);
                         }
 
-                        totalSummary.Time = summaries.Sum(s => s.Time);
+                        totalSummary.Time = (decimal)masterStopwatch.Elapsed.TotalSeconds;
                         totalSummary.Total = summaries.Sum(s => s.Total);
                         totalSummary.Failed = summaries.Sum(s => s.Failed);
                         totalSummary.Skipped = summaries.Sum(s => s.Skipped);
                     }
-
-                    messageBus.QueueMessage(new TestAssemblyFinished(assemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
                 }
-            }
-            finally
-            {
-                Directory.SetCurrentDirectory(currentDirectory);
+                finally
+                {
+                    messageBus.QueueMessage(new TestAssemblyFinished(assemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
+                    Directory.SetCurrentDirectory(currentDirectory);
+                }
             }
         }
 
@@ -232,7 +234,7 @@ namespace Xunit.Sdk
                         if (fixtureMappings.TryGetValue(paramInfo.ParameterType, out fixture) || collectionFixtureMappings.TryGetValue(paramInfo.ParameterType, out fixture))
                             constructorArguments.Add(fixture);
                         else
-                            unusedArguments.Add(paramInfo.ParameterType.Name + " " + paramInfo.Name);
+                            unusedArguments.Add(String.Format("{0} {1}", paramInfo.ParameterType.Name, paramInfo.Name));
                     }
 
                     if (unusedArguments.Count > 0)
@@ -278,7 +280,7 @@ namespace Xunit.Sdk
                                           ExceptionAggregator aggregator,
                                           CancellationTokenSource cancellationTokenSource)
         {
-            foreach (XunitTestCase testCase in testCases)
+            foreach (var testCase in testCases)
             {
                 using (var delegatingBus = new DelegatingMessageBus<ITestCaseFinished>(messageBus))
                 {

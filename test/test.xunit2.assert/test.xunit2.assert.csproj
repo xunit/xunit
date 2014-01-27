@@ -58,7 +58,9 @@
     <Compile Include="Asserts\Sdk\Exceptions\XunitExceptionTests.cs" />
     <Compile Include="Asserts\StringAssertsTests.cs" />
     <Compile Include="Asserts\TypeAssertsTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\GlobalTestAssemblyInfo.cs">
+      <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.abstractions\xunit.abstractions.csproj">

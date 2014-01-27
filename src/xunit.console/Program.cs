@@ -150,13 +150,15 @@ namespace Xunit.ConsoleClient
                     int longestTotal = completionMessages.Values.Max(summary => summary.Total.ToString().Length);
                     int longestFailed = completionMessages.Values.Max(summary => summary.Failed.ToString().Length);
                     int longestSkipped = completionMessages.Values.Max(summary => summary.Skipped.ToString().Length);
+                    int longestTime = completionMessages.Values.Max(summary => summary.Time.ToString("0.000s").Length);
 
                     foreach (var message in completionMessages.OrderBy(m => m.Key))
-                        Console.WriteLine("   {0}  Total: {1}, Failed: {2}, Skipped: {3}",
+                        Console.WriteLine("   {0}  Total: {1}, Failed: {2}, Skipped: {3}, Time: {4}",
                                           message.Key.PadRight(longestAssemblyName),
                                           message.Value.Total.ToString().PadLeft(longestTotal),
                                           message.Value.Failed.ToString().PadLeft(longestFailed),
-                                          message.Value.Skipped.ToString().PadLeft(longestSkipped));
+                                          message.Value.Skipped.ToString().PadLeft(longestSkipped),
+                                          message.Value.Time.ToString("0.000s").PadLeft(longestTime));
                 }
             }
 

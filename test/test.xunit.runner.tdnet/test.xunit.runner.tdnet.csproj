@@ -40,7 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TdNetRunnerTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\GlobalTestAssemblyInfo.cs">
+      <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Visitors\ResultVisitorTests.cs" />
     <Compile Include="Extensions\TestResultMessageExtensionsTests.cs" />
   </ItemGroup>

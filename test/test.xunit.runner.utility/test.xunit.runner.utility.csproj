@@ -149,7 +149,9 @@
     <Compile Include="Project\XunitProjectTests.cs" />
     <Compile Include="SpyTestMessageVisitor.cs" />
     <Compile Include="Frameworks\v2\Xunit2Tests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\GlobalTestAssemblyInfo.cs">
+      <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Visitors\TestDiscoveryVisitorTests.cs" />
     <Compile Include="Visitors\TestMessageVisitorTests.cs" />
   </ItemGroup>

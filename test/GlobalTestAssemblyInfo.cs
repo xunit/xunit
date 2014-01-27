@@ -2,3 +2,4 @@
 using Xunit.Runner.TdNet;
 
 [assembly: CustomTestRunner(typeof(TdNetRunner))]
+//[assembly: Xunit.CollectionBehavior(DisableTestParallelization = true)]

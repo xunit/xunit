@@ -84,7 +84,9 @@
     <Compile Include="Common\XmlTestExecutionVisitorTests.cs" />
     <Compile Include="Extensions\AssumeIdentityAttributeTests.cs" />
     <Compile Include="Extensions\UseCultureAttributeTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\GlobalTestAssemblyInfo.cs">
+      <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="RecordTests.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />
     <Compile Include="Sdk\ExceptionUtilityTests.cs" />
