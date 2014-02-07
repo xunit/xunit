@@ -46,7 +46,20 @@ namespace Xunit.ConsoleClient
             return true;
         }
 
-        protected override void TestFailed(TestMethod testMethod, TestFailedResult result)
+	    public override bool TestStart(TestMethod method)
+	    {
+		    try
+		    {
+			    Console.Title = method.DisplayName.Length > 1024 ? method.DisplayName.Substring(0, 1024) : method.DisplayName;
+		    }
+		    catch (Exception)
+		    {
+		    }
+
+		    return base.TestStart(method);
+	    }
+
+	    protected override void TestFailed(TestMethod testMethod, TestFailedResult result)
         {
             if (!silent)
                 Console.Write("\r");
