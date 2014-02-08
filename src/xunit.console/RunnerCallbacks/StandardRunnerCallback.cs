@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 
 namespace Xunit.ConsoleClient
 {
@@ -48,6 +49,13 @@ namespace Xunit.ConsoleClient
 
 	    public override bool TestStart(TestMethod method)
 	    {
+		    try
+		    {
+			    File.WriteAllText("last-test.txt", method.DisplayName);
+		    }
+		    catch (Exception)
+		    {
+		    }			
 		    try
 		    {
 			    Console.Title = method.DisplayName.Length > 1024 ? method.DisplayName.Substring(0, 1024) : method.DisplayName;

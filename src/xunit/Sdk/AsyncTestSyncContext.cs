@@ -1,15 +1,22 @@
 ﻿﻿using System;
-using System.Threading;
+﻿using System.Reflection;
+﻿using System.Threading;
 
 namespace Xunit.Sdk
 {
     internal class AsyncTestSyncContext : SynchronizationContext, IDisposable
     {
-        readonly ManualResetEvent @event = new ManualResetEvent(initialState: true);
+	    private readonly MethodInfo _method;
+	    readonly ManualResetEvent @event = new ManualResetEvent(initialState: true);
         Exception exception;
         int operationCount;
 
-        public void Dispose()
+	    public AsyncTestSyncContext(MethodInfo method)
+	    {
+		    _method = method;
+	    }
+
+	    public void Dispose()
         {
             ((IDisposable)@event).Dispose();
         }
@@ -17,14 +24,36 @@ namespace Xunit.Sdk
         public override void OperationCompleted()
         {
             var result = Interlocked.Decrement(ref operationCount);
-            if (result == 0)
-                @event.Set();
+	        if (result == 0)
+	        {
+		        try
+		        {
+			        @event.Set();
+		        }
+		        catch (Exception e)
+		        {
+			        var name = _method.Name;
+			        if (_method.DeclaringType != null)
+				        name = _method.DeclaringType.FullName + "." + name;
+			        Console.Error.WriteLine("Error when trying to set operation in: {1}, probably a leaked task?\r\n{0}", e, name);
+		        }
+	        }
         }
 
         public override void OperationStarted()
         {
             Interlocked.Increment(ref operationCount);
-            @event.Reset();
+	        try
+	        {
+		        @event.Reset();
+	        }
+	        catch (Exception e)
+	        {
+				var name = _method.Name;
+				if (_method.DeclaringType != null)
+					name = _method.DeclaringType.FullName + "." + name;
+				Console.Error.WriteLine("Error when trying to reset operation in: {1}, probably a leaked task?\r\n{0}", e, name);
+	        }
         }
 
         public override void Post(SendOrPostCallback d, object state)
@@ -61,7 +90,17 @@ namespace Xunit.Sdk
 
         public Exception WaitForCompletion()
         {
-            @event.WaitOne();
+	        try
+	        {
+		        @event.WaitOne();
+	        }
+	        catch (Exception e)
+			{
+				var name = _method.Name;
+				if (_method.DeclaringType != null)
+					name = _method.DeclaringType.FullName + "." + name;
+				Console.Error.WriteLine("Error when trying to wait on operation in: {1}, probably a leaked task?\r\n{0}", e, name);
+			}
             return exception;
         }
     }
