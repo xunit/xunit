@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
@@ -145,15 +146,15 @@ public class XunitTestCaseTests
         }
     }
 
-    public class Run
+    public class RunAsync
     {
         [Fact]
-        public void IssuesTestCaseMessagesAndCallsRunTests()
+        public async void IssuesTestCaseMessagesAndCallsRunTests()
         {
             var testCase = TestableXunitTestCase.Create();
             var bus = new SpyMessageBus<ITestCaseFinished>();
 
-            testCase.Run(bus);
+            await testCase.RunAsync(bus);
             bus.Finished.WaitOne();
 
             Assert.Collection(bus.Messages,
@@ -176,7 +177,7 @@ public class XunitTestCaseTests
         }
 
         [Fact]
-        public void CountsTestResultMessages()
+        public async void CountsTestResultMessages()
         {
             var testCase = TestableXunitTestCase.Create(msgBus =>
             {
@@ -187,7 +188,7 @@ public class XunitTestCaseTests
             });
             var bus = new SpyMessageBus<ITestCaseFinished>();
 
-            testCase.Run(bus);
+            await testCase.RunAsync(bus);
             bus.Finished.WaitOne();
 
             var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(bus.Messages.Last());
@@ -195,7 +196,7 @@ public class XunitTestCaseTests
         }
 
         [Fact]
-        public void CountsTestsFailed()
+        public async void CountsTestsFailed()
         {
             var testCase = TestableXunitTestCase.Create(msgBus =>
             {
@@ -204,7 +205,7 @@ public class XunitTestCaseTests
             });
             var bus = new SpyMessageBus<ITestCaseFinished>();
 
-            testCase.Run(bus);
+            await testCase.RunAsync(bus);
             bus.Finished.WaitOne();
 
             var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(bus.Messages.Last());
@@ -212,7 +213,7 @@ public class XunitTestCaseTests
         }
 
         [Fact]
-        public void CountsTestsSkipped()
+        public async void CountsTestsSkipped()
         {
             var testCase = TestableXunitTestCase.Create(msgBus =>
             {
@@ -221,7 +222,7 @@ public class XunitTestCaseTests
             });
             var bus = new SpyMessageBus<ITestCaseFinished>();
 
-            testCase.Run(bus);
+            await testCase.RunAsync(bus);
             bus.Finished.WaitOne();
 
             var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(bus.Messages.Last());
@@ -229,7 +230,7 @@ public class XunitTestCaseTests
         }
 
         [Fact]
-        public void AggregatesTestRunTime()
+        public async void AggregatesTestRunTime()
         {
             var testCase = TestableXunitTestCase.Create(msgBus =>
             {
@@ -238,7 +239,7 @@ public class XunitTestCaseTests
             });
             var bus = new SpyMessageBus<ITestCaseFinished>();
 
-            testCase.Run(bus);
+            await testCase.RunAsync(bus);
             bus.Finished.WaitOne();
 
             var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(bus.Messages.Last());
@@ -246,16 +247,16 @@ public class XunitTestCaseTests
         }
     }
 
-    public class RunTests
+    public class RunTestsAsync
     {
         public class StaticTestMethods
         {
             [Fact]
-            public void Skipped()
+            public async void Skipped()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "SkippedMethod");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -265,11 +266,11 @@ public class XunitTestCaseTests
             }
 
             [Fact]
-            public void NonSkipped()
+            public async void NonSkipped()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "NonSkippedMethod");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -294,11 +295,11 @@ public class XunitTestCaseTests
         public class ConstructorWithoutDispose
         {
             [Fact]
-            public void Skipped()
+            public async void Skipped()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "SkippedMethod");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -308,11 +309,11 @@ public class XunitTestCaseTests
             }
 
             [Fact]
-            public void NonSkipped()
+            public async void NonSkipped()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "NonSkippedMethod");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -336,11 +337,11 @@ public class XunitTestCaseTests
             }
 
             [Fact]
-            public void ThrowingConstructor()
+            public async void ThrowingConstructor()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ThrowingCtorClassUnderTest), "NonSkippedMethod");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -373,11 +374,11 @@ public class XunitTestCaseTests
         public class ConstructorWithDispose
         {
             [Fact]
-            public void Skipped()
+            public async void Skipped()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "SkippedMethod");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -387,11 +388,11 @@ public class XunitTestCaseTests
             }
 
             [Fact]
-            public void NonSkipped()
+            public async void NonSkipped()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "NonSkippedMethod");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -419,11 +420,11 @@ public class XunitTestCaseTests
             }
 
             [Fact]
-            public void ThrowingConstructor()
+            public async void ThrowingConstructor()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ThrowingCtorClassUnderTest), "NonSkippedMethod");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -458,11 +459,11 @@ public class XunitTestCaseTests
             }
 
             [Fact]
-            public void ThrowingDispose_SuccessfulTest()
+            public async void ThrowingDispose_SuccessfulTest()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ThrowingDisposeClassUnderTest), "PassingTest");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -480,11 +481,11 @@ public class XunitTestCaseTests
             }
 
             [Fact]
-            public void ThrowingDispose_FailingTest()
+            public async void ThrowingDispose_FailingTest()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(ThrowingDisposeClassUnderTest), "FailingTest");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -524,11 +525,11 @@ public class XunitTestCaseTests
         public class BeforeAfter_OnTestMethod
         {
             [Fact]
-            public void Skipped()
+            public async void Skipped()
             {
                 var testCase = TestableXunitTestCase.Create(typeof(SkippedClassUnderTest), "SkippedMethod");
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -550,11 +551,11 @@ public class XunitTestCaseTests
             public class SingleBeforeAfterAttribute
             {
                 [Fact]
-                public void Success()
+                public async void Success()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "PassingTestMethod");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -570,11 +571,11 @@ public class XunitTestCaseTests
                 }
 
                 [Fact]
-                public void BeforeThrows()
+                public async void BeforeThrows()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInBefore");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -592,11 +593,11 @@ public class XunitTestCaseTests
                 }
 
                 [Fact]
-                public void AfterThrows()
+                public async void AfterThrows()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInAfter");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -616,11 +617,11 @@ public class XunitTestCaseTests
                 }
 
                 [Fact]
-                public void AfterAndTestMethodThrows()
+                public async void AfterAndTestMethodThrows()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInAfterAndTest");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -672,11 +673,11 @@ public class XunitTestCaseTests
             public class MultipleBeforeAfterAttributes
             {
                 [Fact]
-                public void Success()
+                public async void Success()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "PassingTestMethod");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -696,11 +697,11 @@ public class XunitTestCaseTests
                 }
 
                 [Fact]
-                public void EarlyFailurePreventsLaterBeforeAfter()
+                public async void EarlyFailurePreventsLaterBeforeAfter()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInBefore");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -714,11 +715,11 @@ public class XunitTestCaseTests
                 }
 
                 [Fact]
-                public void EarlyAfterFailureDoesNotPreventLaterAfterRun()
+                public async void EarlyAfterFailureDoesNotPreventLaterAfterRun()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "ThrowInAfter");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -771,11 +772,11 @@ public class XunitTestCaseTests
             public class Skipped
             {
                 [Fact]
-                public void SkippedMethod()
+                public async void SkippedMethod()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "SkippedMethod");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -785,11 +786,11 @@ public class XunitTestCaseTests
                 }
 
                 [Fact]
-                public void NonSkippedMethod()
+                public async void NonSkippedMethod()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "NonSkippedMethod");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -805,11 +806,11 @@ public class XunitTestCaseTests
                 }
 
                 [Fact]
-                public void BeforeAfterOnBothClassAndMethod()
+                public async void BeforeAfterOnBothClassAndMethod()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "MethodWithBeforeAfter");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -829,11 +830,11 @@ public class XunitTestCaseTests
                 }
 
                 [Fact]
-                public void ClassBeforeAfterRunsBeforeMethodBeforeAfter()
+                public async void ClassBeforeAfterRunsBeforeMethodBeforeAfter()
                 {
                     var testCase = TestableXunitTestCase.Create(typeof(ClassUnderTest), "MethodWithDummyBeforeAfter");
 
-                    testCase.RunTests();
+                    await testCase.RunTestsAsync();
 
                     Assert.Collection(testCase.Messages,
                         message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -884,7 +885,7 @@ public class XunitTestCaseTests
         public class NonReflectionDiscovery
         {
             [Fact]
-            public void CanRunTestThatWasDiscoveredWithoutReflection()
+            public async void CanRunTestThatWasDiscoveredWithoutReflection()
             {
                 var typeUnderTest = typeof(ClassUnderTest);
                 var methodUnderTest = typeUnderTest.GetMethod("TestMethod");
@@ -896,7 +897,7 @@ public class XunitTestCaseTests
                 var attribute = new AttributeWrapper(Reflector.Wrap(factAttributeUnderTest));
                 var testCase = TestableXunitTestCase.Create(assembly, type, method, attribute);
 
-                testCase.RunTests();
+                await testCase.RunTestsAsync();
 
                 Assert.Collection(testCase.Messages,
                     message => Assert.IsAssignableFrom<ITestStarting>(message),
@@ -1077,24 +1078,25 @@ public class XunitTestCaseTests
             return base.GetBeforeAfterAttributes(classUnderTest, methodUnderTest).OrderBy(a => a.GetType().Name);
         }
 
-        public bool Run(IMessageBus messageBus)
+        public async Task<bool> RunAsync(IMessageBus messageBus)
         {
             var cancellationTokenSource = new CancellationTokenSource();
-            Run(messageBus, new object[0], new ExceptionAggregator(), cancellationTokenSource);
+            await RunAsync(messageBus, new object[0], new ExceptionAggregator(), cancellationTokenSource);
             return cancellationTokenSource.IsCancellationRequested;
         }
 
-        public void RunTests()
+        public Task RunTestsAsync()
         {
-            RunTests(bus, new object[0], new ExceptionAggregator(), new CancellationTokenSource());
+            return RunTestsAsync(bus, new object[0], new ExceptionAggregator(), new CancellationTokenSource());
         }
 
-        protected override void RunTests(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        protected override Task RunTestsAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             if (callback == null)
-                base.RunTests(messageBus, constructorArguments, aggregator, cancellationTokenSource);
-            else
-                callback(messageBus);
+                return base.RunTestsAsync(messageBus, constructorArguments, aggregator, cancellationTokenSource);
+
+            callback(messageBus);
+            return Task.FromResult(0);
         }
     }
 }

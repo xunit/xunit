@@ -2,6 +2,7 @@ using System;
 using System.Runtime.Remoting;
 using System.Security;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -34,7 +35,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void RunTests(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        protected override Task RunTestsAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             if (!messageBus.QueueMessage(new TestStarting(this, DisplayName)))
                 cancellationTokenSource.Cancel();
@@ -56,6 +57,8 @@ namespace Xunit.Sdk
 
             if (!messageBus.QueueMessage(new TestFinished(this, DisplayName, 0, null)))
                 cancellationTokenSource.Cancel();
+
+            return Task.FromResult(0);
         }
     }
 }

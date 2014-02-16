@@ -374,7 +374,7 @@ namespace Xunit.Sdk
         /// <param name="constructorArguments">The arguments to pass to the constructor.</param>
         /// <param name="aggregator">The error aggregator to use for catching exception.</param>
         /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
-        public virtual void Run(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        public virtual async Task RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             int totalFailed = 0;
             int totalRun = 0;
@@ -385,19 +385,22 @@ namespace Xunit.Sdk
                 cancellationTokenSource.Cancel();
             else
             {
-                using (var delegatingBus = new DelegatingMessageBus(messageBus, msg =>
-                {
-                    if (msg is ITestResultMessage)
+                using (var delegatingBus = new DelegatingMessageBus(messageBus,
+                    msg =>
                     {
-                        totalRun++;
-                        executionTime += ((ITestResultMessage)msg).ExecutionTime;
-                    }
-                    if (msg is ITestFailed)
-                        totalFailed++;
-                    if (msg is ITestSkipped)
-                        totalSkipped++;
-                }))
-                    RunTests(delegatingBus, constructorArguments, aggregator, cancellationTokenSource);
+                        if (msg is ITestResultMessage)
+                        {
+                            totalRun++;
+                            executionTime += ((ITestResultMessage)msg).ExecutionTime;
+                        }
+                        if (msg is ITestFailed)
+                            totalFailed++;
+                        if (msg is ITestSkipped)
+                            totalSkipped++;
+                    }))
+                {
+                    await RunTestsAsync(delegatingBus, constructorArguments, aggregator, cancellationTokenSource);
+                }
             }
 
             if (!messageBus.QueueMessage(new TestCaseFinished(this, executionTime, totalRun, totalFailed, totalSkipped)))
@@ -411,14 +414,13 @@ namespace Xunit.Sdk
         /// <param name="constructorArguments">The arguments to pass to the constructor.</param>
         /// <param name="aggregator">The error aggregator to use for catching exception.</param>
         /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
-        protected virtual void RunTests(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        protected virtual Task RunTestsAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             var classUnderTest = GetRuntimeClass();
             var methodUnderTest = GetRuntimeMethod(classUnderTest);
             var beforeAfterAttributes = GetBeforeAfterAttributes(classUnderTest, methodUnderTest).ToList();
-            decimal executionTime = 0M;
 
-            RunTestsOnMethod(messageBus, classUnderTest, constructorArguments, methodUnderTest, beforeAfterAttributes, aggregator, cancellationTokenSource, ref executionTime);
+            return RunTestsOnMethodAsync(messageBus, classUnderTest, constructorArguments, methodUnderTest, beforeAfterAttributes, aggregator, cancellationTokenSource);
         }
 
         /// <summary>
@@ -431,17 +433,15 @@ namespace Xunit.Sdk
         /// <param name="beforeAfterAttributes">The <see cref="BeforeAfterTestAttribute"/> instances attached to the test.</param>
         /// <param name="aggregator">The error aggregator to use for catching exception.</param>
         /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
-        /// <param name="executionTime">The time spent executing the tests.</param>
-        protected virtual void RunTestsOnMethod(IMessageBus messageBus,
-                                                Type classUnderTest,
-                                                object[] constructorArguments,
-                                                MethodInfo methodUnderTest,
-                                                List<BeforeAfterTestAttribute> beforeAfterAttributes,
-                                                ExceptionAggregator aggregator,
-                                                CancellationTokenSource cancellationTokenSource,
-                                                ref decimal executionTime)
+        protected virtual Task RunTestsOnMethodAsync(IMessageBus messageBus,
+                                                     Type classUnderTest,
+                                                     object[] constructorArguments,
+                                                     MethodInfo methodUnderTest,
+                                                     List<BeforeAfterTestAttribute> beforeAfterAttributes,
+                                                     ExceptionAggregator aggregator,
+                                                     CancellationTokenSource cancellationTokenSource)
         {
-            RunTestWithArguments(messageBus, classUnderTest, constructorArguments, methodUnderTest, Arguments, DisplayName, beforeAfterAttributes, aggregator, cancellationTokenSource, ref executionTime);
+            return RunTestWithArgumentsAsync(messageBus, classUnderTest, constructorArguments, methodUnderTest, Arguments, DisplayName, beforeAfterAttributes, aggregator, cancellationTokenSource);
         }
 
         /// <summary>
@@ -456,18 +456,17 @@ namespace Xunit.Sdk
         /// <param name="beforeAfterAttributes">The <see cref="BeforeAfterTestAttribute"/> instances attached to the test.</param>
         /// <param name="parentAggregator">The parent aggregator that contains the exceptions up to this point.</param>
         /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
-        /// <param name="executionTime">The time spent executing the tests.</param>
-        protected void RunTestWithArguments(IMessageBus messageBus,
-                                            Type classUnderTest,
-                                            object[] constructorArguments,
-                                            MethodInfo methodUnderTest,
-                                            object[] testMethodArguments,
-                                            string displayName,
-                                            List<BeforeAfterTestAttribute> beforeAfterAttributes,
-                                            ExceptionAggregator parentAggregator,
-                                            CancellationTokenSource cancellationTokenSource,
-                                            ref decimal executionTime)
+        protected async Task<decimal> RunTestWithArgumentsAsync(IMessageBus messageBus,
+                                                                Type classUnderTest,
+                                                                object[] constructorArguments,
+                                                                MethodInfo methodUnderTest,
+                                                                object[] testMethodArguments,
+                                                                string displayName,
+                                                                List<BeforeAfterTestAttribute> beforeAfterAttributes,
+                                                                ExceptionAggregator parentAggregator,
+                                                                CancellationTokenSource cancellationTokenSource)
         {
+            var executionTime = 0M;
             var aggregator = new ExceptionAggregator(parentAggregator);
             var output = String.Empty;  // TODO: Add output facilities for v2
 
@@ -486,7 +485,7 @@ namespace Xunit.Sdk
                     var stopwatch = Stopwatch.StartNew();
 
                     if (!aggregator.HasExceptions)
-                        aggregator.Run(() =>
+                        await aggregator.RunAsync(async () =>
                         {
                             object testClass = null;
 
@@ -509,7 +508,7 @@ namespace Xunit.Sdk
 
                             if (!cancellationTokenSource.IsCancellationRequested)
                             {
-                                aggregator.Run(() =>
+                                await aggregator.RunAsync(async () =>
                                 {
                                     foreach (var beforeAfterAttribute in beforeAfterAttributes)
                                     {
@@ -544,12 +543,12 @@ namespace Xunit.Sdk
                                             var asyncSyncContext = new AsyncTestSyncContext();
                                             SetSynchronizationContext(asyncSyncContext);
 
-                                            aggregator.Run(() =>
+                                            await aggregator.RunAsync(async () =>
                                             {
                                                 var result = methodUnderTest.Invoke(testClass, ConvertArguments(testMethodArguments ?? EmptyArray, parameterTypes));
                                                 var task = result as Task;
                                                 if (task != null)
-                                                    task.GetAwaiter().GetResult();
+                                                    await task;
                                                 else
                                                 {
                                                     var ex = asyncSyncContext.WaitForCompletion();
@@ -616,6 +615,8 @@ namespace Xunit.Sdk
 
             if (!messageBus.QueueMessage(new TestFinished(this, displayName, executionTime, output)))
                 cancellationTokenSource.Cancel();
+
+            return executionTime;
         }
 
         [SecuritySafeCritical]

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Xunit.Sdk
 {
@@ -61,8 +62,25 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Runs the code, catching the exception that is thrown and adding it to
+        /// the aggregate.
+        /// </summary>
+        /// <param name="code">The code to be run.</param>
+        public async Task RunAsync(Func<Task> code)
+        {
+            try
+            {
+                await code();
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex.Unwrap());
+            }
+        }
+
+        /// <summary>
         /// Returns an exception that represents the exceptions thrown by the code
-        /// passed to the <see cref="Run"/> method.
+        /// passed to the <see cref="Run"/> or <see cref="RunAsync"/> method.
         /// </summary>
         /// <returns>Returns <c>null</c> if no exceptions were thrown; returns the
         /// exact exception is a single exception was thrown; returns <see cref="AggregateException"/>

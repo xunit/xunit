@@ -1,50 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
-using NSubstitute;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 public class XunitTheoryTestCaseTests
 {
-    public class Run
+    public class RunAsync
     {
         [Fact]
-        public void EnumeratesDataAtRuntimeAndExecutesOneTestForEachDataRow()
+        public async void EnumeratesDataAtRuntimeAndExecutesOneTestForEachDataRow()
         {
             var testCase = TestableXunitTheoryTestCase.Create(typeof(ClassUnderTest), "TestWithData");
             var bus = new SpyMessageBus<ITestCaseFinished>();
 
-            testCase.Run(bus);
+            await testCase.RunAsync(bus);
             bus.Finished.WaitOne();
 
             var resultMessages = bus.Messages.OfType<ITestResultMessage>();
             Assert.Equal(2, resultMessages.Count());
             var passed = (ITestPassed)Assert.Single(resultMessages, msg => msg is ITestPassed);
-            Assert.Equal("XunitTheoryTestCaseTests+Run+ClassUnderTest.TestWithData(x: 42, y: 21.12, z: \"Hello\")", passed.TestDisplayName);
+            Assert.Equal("XunitTheoryTestCaseTests+RunAsync+ClassUnderTest.TestWithData(x: 42, y: 21.12, z: \"Hello\")", passed.TestDisplayName);
             var failed = (ITestFailed)Assert.Single(resultMessages, msg => msg is ITestFailed);
-            Assert.Equal("XunitTheoryTestCaseTests+Run+ClassUnderTest.TestWithData(x: 0, y: 0, z: \"World!\")", failed.TestDisplayName);
+            Assert.Equal("XunitTheoryTestCaseTests+RunAsync+ClassUnderTest.TestWithData(x: 0, y: 0, z: \"World!\")", failed.TestDisplayName);
         }
 
         [Fact]
-        public void DiscovererWhichThrowsReturnsASingleFailedTest()
+        public async void DiscovererWhichThrowsReturnsASingleFailedTest()
         {
             var testCase = TestableXunitTheoryTestCase.Create(typeof(ClassUnderTest), "TestWithThrowingData");
             var bus = new SpyMessageBus<ITestCaseFinished>();
 
-            testCase.Run(bus);
+            await testCase.RunAsync(bus);
             bus.Finished.WaitOne();
 
             var resultMessages = bus.Messages.OfType<ITestResultMessage>();
             var failed = (ITestFailed)Assert.Single(resultMessages);
-            Assert.Equal("XunitTheoryTestCaseTests+Run+ClassUnderTest.TestWithThrowingData", failed.TestDisplayName);
+            Assert.Equal("XunitTheoryTestCaseTests+RunAsync+ClassUnderTest.TestWithThrowingData", failed.TestDisplayName);
             Assert.Equal("System.DivideByZeroException : Attempted to divide by zero.", failed.Message);
-            Assert.Contains("XunitTheoryTestCaseTests.Run.ClassUnderTest.get_ThrowingData()", failed.StackTrace);
+            Assert.Contains("XunitTheoryTestCaseTests.RunAsync.ClassUnderTest.get_ThrowingData()", failed.StackTrace);
         }
 
         class ClassUnderTest
@@ -131,24 +129,25 @@ public class XunitTheoryTestCaseTests
                 return base.GetBeforeAfterAttributes(classUnderTest, methodUnderTest).OrderBy(a => a.GetType().Name);
             }
 
-            public bool Run(IMessageBus messageBus)
+            public async Task<bool> RunAsync(IMessageBus messageBus)
             {
                 var cancellationTokenSource = new CancellationTokenSource();
-                Run(messageBus, new object[0], new ExceptionAggregator(), cancellationTokenSource);
+                await RunAsync(messageBus, new object[0], new ExceptionAggregator(), cancellationTokenSource);
                 return cancellationTokenSource.IsCancellationRequested;
             }
 
-            public void RunTests()
+            public Task RunTestsAsync()
             {
-                RunTests(bus, new object[0], new ExceptionAggregator(), new CancellationTokenSource());
+                return RunTestsAsync(bus, new object[0], new ExceptionAggregator(), new CancellationTokenSource());
             }
 
-            protected override void RunTests(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+            protected override Task RunTestsAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
             {
                 if (callback == null)
-                    base.RunTests(messageBus, constructorArguments, aggregator, cancellationTokenSource);
-                else
-                    callback(messageBus);
+                    return base.RunTestsAsync(messageBus, constructorArguments, aggregator, cancellationTokenSource);
+
+                callback(messageBus);
+                return Task.FromResult(0);
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -30,15 +31,16 @@ namespace Xunit.Sdk
         protected XunitTheoryTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         /// <inheritdoc />
-        protected override void RunTestsOnMethod(IMessageBus messageBus,
-                                                 Type classUnderTest,
-                                                 object[] constructorArguments,
-                                                 MethodInfo methodUnderTest,
-                                                 List<BeforeAfterTestAttribute> beforeAfterAttributes,
-                                                 ExceptionAggregator aggregator,
-                                                 CancellationTokenSource cancellationTokenSource,
-                                                 ref decimal executionTime)
+        protected override async Task RunTestsOnMethodAsync(IMessageBus messageBus,
+                                                            Type classUnderTest,
+                                                            object[] constructorArguments,
+                                                            MethodInfo methodUnderTest,
+                                                            List<BeforeAfterTestAttribute> beforeAfterAttributes,
+                                                            ExceptionAggregator aggregator,
+                                                            CancellationTokenSource cancellationTokenSource)
         {
+            var executionTime = 0M;
+
             try
             {
                 var testMethod = Reflector.Wrap(methodUnderTest);
@@ -62,16 +64,16 @@ namespace Xunit.Sdk
                             methodToRun = methodToRun.MakeGenericMethod(resolvedTypes.Select(t => ((IReflectionTypeInfo)t).Type).ToArray());
                         }
 
-                        RunTestWithArguments(messageBus,
-                                             classUnderTest,
-                                             constructorArguments,
-                                             methodToRun,
-                                             dataRow,
-                                             GetDisplayNameWithArguments(DisplayName, dataRow, resolvedTypes),
-                                             beforeAfterAttributes,
-                                             aggregator,
-                                             cancellationTokenSource,
-                                             ref executionTime);
+                        executionTime +=
+                            await RunTestWithArgumentsAsync(messageBus,
+                                                            classUnderTest,
+                                                            constructorArguments,
+                                                            methodToRun,
+                                                            dataRow,
+                                                            GetDisplayNameWithArguments(DisplayName, dataRow, resolvedTypes),
+                                                            beforeAfterAttributes,
+                                                            aggregator,
+                                                            cancellationTokenSource);
 
                         if (cancellationTokenSource.IsCancellationRequested)
                             return;

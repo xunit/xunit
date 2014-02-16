@@ -97,13 +97,13 @@ namespace Xunit.Sdk
                             summaries = new List<RunSummary>();
 
                             foreach (var collectionGroup in testCases.Cast<XunitTestCase>().GroupBy(tc => tc.TestCollection))
-                                summaries.Add(RunTestCollection(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource));
+                                summaries.Add(await RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource));
                         }
                         else
                         {
                             var tasks = testCases.Cast<XunitTestCase>()
                                                  .GroupBy(tc => tc.TestCollection)
-                                                 .Select(collectionGroup => Task.Run(() => RunTestCollection(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource)))
+                                                 .Select(collectionGroup => Task.Run(() => RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource)))
                                                  .ToArray();
 
                             summaries = await Task.WhenAll(tasks);
@@ -123,11 +123,11 @@ namespace Xunit.Sdk
             }
         }
 
-        private RunSummary RunTestCollection(IMessageBus messageBus,
-                                             ITestCollection collection,
-                                             IEnumerable<XunitTestCase> testCases,
-                                             ITestCaseOrderer orderer,
-                                             CancellationTokenSource cancellationTokenSource)
+        private async Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus,
+                                                              ITestCollection collection,
+                                                              IEnumerable<XunitTestCase> testCases,
+                                                              ITestCaseOrderer orderer,
+                                                              CancellationTokenSource cancellationTokenSource)
         {
             var collectionSummary = new RunSummary();
             var collectionFixtureMappings = new Dictionary<Type, object>();
@@ -154,7 +154,7 @@ namespace Xunit.Sdk
                         cancellationTokenSource.Cancel();
                     else
                     {
-                        RunTestClass(messageBus, collection, collectionFixtureMappings, (IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass, orderer, classSummary, aggregator, cancellationTokenSource);
+                        await RunTestClassAsync(messageBus, collection, collectionFixtureMappings, (IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass, orderer, classSummary, aggregator, cancellationTokenSource);
                         collectionSummary.Aggregate(classSummary);
                     }
 
@@ -183,15 +183,15 @@ namespace Xunit.Sdk
             return collectionSummary;
         }
 
-        private static void RunTestClass(IMessageBus messageBus,
-                                         ITestCollection collection,
-                                         Dictionary<Type, object> collectionFixtureMappings,
-                                         IReflectionTypeInfo testClass,
-                                         IEnumerable<XunitTestCase> testCases,
-                                         ITestCaseOrderer orderer,
-                                         RunSummary classSummary,
-                                         ExceptionAggregator aggregator,
-                                         CancellationTokenSource cancellationTokenSource)
+        private static async Task RunTestClassAsync(IMessageBus messageBus,
+                                                    ITestCollection collection,
+                                                    Dictionary<Type, object> collectionFixtureMappings,
+                                                    IReflectionTypeInfo testClass,
+                                                    IEnumerable<XunitTestCase> testCases,
+                                                    ITestCaseOrderer orderer,
+                                                    RunSummary classSummary,
+                                                    ExceptionAggregator aggregator,
+                                                    CancellationTokenSource cancellationTokenSource)
         {
             var testClassType = testClass.Type;
             var fixtureMappings = new Dictionary<Type, object>();
@@ -250,7 +250,7 @@ namespace Xunit.Sdk
                 if (!messageBus.QueueMessage(new TestMethodStarting(collection, testClass.Name, method.Key.Name)))
                     cancellationTokenSource.Cancel();
                 else
-                    RunTestMethod(messageBus, constructorArguments.ToArray(), method, classSummary, aggregator, cancellationTokenSource);
+                    await RunTestMethodAsync(messageBus, constructorArguments.ToArray(), method, classSummary, aggregator, cancellationTokenSource);
 
                 if (!messageBus.QueueMessage(new TestMethodFinished(collection, testClass.Name, method.Key.Name)))
                     cancellationTokenSource.Cancel();
@@ -273,18 +273,18 @@ namespace Xunit.Sdk
             }
         }
 
-        private static void RunTestMethod(IMessageBus messageBus,
-                                          object[] constructorArguments,
-                                          IEnumerable<XunitTestCase> testCases,
-                                          RunSummary classSummary,
-                                          ExceptionAggregator aggregator,
-                                          CancellationTokenSource cancellationTokenSource)
+        private static async Task RunTestMethodAsync(IMessageBus messageBus,
+                                                     object[] constructorArguments,
+                                                     IEnumerable<XunitTestCase> testCases,
+                                                     RunSummary classSummary,
+                                                     ExceptionAggregator aggregator,
+                                                     CancellationTokenSource cancellationTokenSource)
         {
             foreach (var testCase in testCases)
             {
                 using (var delegatingBus = new DelegatingMessageBus<ITestCaseFinished>(messageBus))
                 {
-                    testCase.Run(delegatingBus, constructorArguments, aggregator, cancellationTokenSource);
+                    await testCase.RunAsync(delegatingBus, constructorArguments, aggregator, cancellationTokenSource);
                     delegatingBus.Finished.WaitOne();
 
                     classSummary.Total += delegatingBus.FinalMessage.TestsRun;
