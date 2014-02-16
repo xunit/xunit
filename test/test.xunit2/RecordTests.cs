@@ -27,18 +27,18 @@ public class RecordTests
     public class MethodsReturningTask
     {
         [Fact]
-        public void Exception()
+        public async void Exception()
         {
-            Exception ex = Record.Exception(() => Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
+            Exception ex = await Record.ExceptionAsync(() => Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidOperationException>(ex);
         }
 
         [Fact]
-        public void NoException()
+        public async void NoException()
         {
-            Exception ex = Record.Exception(() => Task.Factory.StartNew(() => { }));
+            Exception ex = await Record.ExceptionAsync(() => Task.Factory.StartNew(() => { }));
 
             Assert.Null(ex);
         }
@@ -46,6 +46,17 @@ public class RecordTests
 
     public class MethodsWithReturnValues
     {
+        [Fact]
+        public void GuardClause()
+        {
+            var ex = Record.Exception(
+                () => Record.Exception(
+                    () => Task.Run(() => { })));
+
+            Assert.IsType<InvalidOperationException>(ex);
+            Assert.Equal("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.", ex.Message);
+        }
+
         [Fact]
         public void Exception()
         {
