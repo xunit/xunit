@@ -70,6 +70,7 @@
     <Compile Include="IClassFixture.cs" />
     <Compile Include="ICollectionFixture.cs" />
     <Compile Include="Sdk\AsyncTestSyncContext.cs" />
+    <Compile Include="Sdk\MaxConcurrencyTaskScheduler.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrderer.cs" />
     <Compile Include="Sdk\EnvironmentalWarning.cs" />
     <Compile Include="Sdk\ExceptionUtility.cs" />

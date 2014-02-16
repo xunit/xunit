@@ -19,6 +19,7 @@ namespace Xunit.Sdk
         readonly string assemblyFileName;
         readonly IAssemblyInfo assemblyInfo;
         readonly bool disableParallelization;
+        readonly int maxParallelism;
         readonly string displayName;
 
         /// <summary>
@@ -34,7 +35,10 @@ namespace Xunit.Sdk
 
             var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
             if (collectionBehaviorAttribute != null)
+            {
                 disableParallelization = collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+                maxParallelism = collectionBehaviorAttribute.GetNamedArgument<int>("MaxDegreeOfParallelism");
+            }
 
             var testCollectionFactory = XunitTestFrameworkDiscoverer.GetTestCollectionFactory(assemblyInfo, collectionBehaviorAttribute);
             displayName = String.Format("{0}-bit .NET {1} [{2}, {3}]",
@@ -71,6 +75,7 @@ namespace Xunit.Sdk
         {
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
+            var scheduler = maxParallelism > 0 ? new MaxConcurrencyTaskScheduler(maxParallelism) : TaskScheduler.Current;
 
             string currentDirectory = Directory.GetCurrentDirectory();
 
@@ -103,10 +108,13 @@ namespace Xunit.Sdk
                         {
                             var tasks = testCases.Cast<XunitTestCase>()
                                                  .GroupBy(tc => tc.TestCollection)
-                                                 .Select(collectionGroup => Task.Run(() => RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource)))
+                                                 .Select(collectionGroup => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource),
+                                                                                                  cancellationTokenSource.Token,
+                                                                                                  TaskCreationOptions.None,
+                                                                                                  scheduler))
                                                  .ToArray();
 
-                            summaries = await Task.WhenAll(tasks);
+                            summaries = await Task.WhenAll(tasks.Select(t => t.Unwrap()));
                         }
 
                         totalSummary.Time = (decimal)masterStopwatch.Elapsed.TotalSeconds;
