@@ -551,7 +551,7 @@ namespace Xunit.Sdk
                                                     await task;
                                                 else
                                                 {
-                                                    var ex = asyncSyncContext.WaitForCompletion();
+                                                    var ex = await asyncSyncContext.WaitForCompletionAsync();
                                                     if (ex != null)
                                                         aggregator.Add(ex);
                                                 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xunit.Sdk
 {
@@ -55,10 +56,20 @@ namespace Xunit.Sdk
             }
         }
 
-        public Exception WaitForCompletion()
+        public Task<Exception> WaitForCompletionAsync()
         {
-            @event.WaitOne();
-            return exception;
+            var tcs = new TaskCompletionSource<Exception>();
+
+            // Registering callback to wait till WaitHandle changes its state
+
+            ThreadPool.RegisterWaitForSingleObject(
+                waitObject: @event,
+                callBack: (o, timeout) => { tcs.SetResult(exception); },
+                state: null,
+                timeout: TimeSpan.FromMilliseconds(Int32.MaxValue - 2),
+                executeOnlyOnce: true);
+
+            return tcs.Task;
         }
     }
 }
