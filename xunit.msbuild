@@ -10,6 +10,8 @@
 
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <ParallelizeAssemblies Condition="'$(ParallelizeAssemblies)' == ''">true</ParallelizeAssemblies>
+    <MaxParallelThreads Condition="'$(MaxParallelThreads)' == ''">0</MaxParallelThreads>
     <TrackFileAccess>false</TrackFileAccess>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\</SolutionDir>
     <NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(SolutionDir).nuget\nuget.exe</NuGetExePath>
@@ -39,9 +41,16 @@
 
   <!-- Build server targets -->
 
-  <Target Name="TeamCity" DependsOnTargets="Clean;PackageRestore;SetVersionNumber;Test;Packages;Zip" />
+  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;Zip" />
 
   <!-- Individiual targets -->
+
+  <Target Name="DisableParallelization">
+    <PropertyGroup>
+      <ParallelizeAssemblies>false</ParallelizeAssemblies>
+      <MaxParallelThreads>1</MaxParallelThreads>
+    </PropertyGroup>
+  </Target>
 
   <Target Name="Clean">
     <ItemGroup>
@@ -101,13 +110,13 @@
   <Target Name="_Test32" DependsOnTargets="Build">
     <MSBuild
         Projects="tools\xunit.tests.msbuild"
-        Properties="Configuration=$(Configuration)" />
+        Properties="Configuration=$(Configuration);ParallelizeAssemblies=$(ParallelizeAssemblies);MaxParallelThreads=$(MaxParallelThreads)" />
   </Target>
 
   <Target Name="_Test64" DependsOnTargets="Build">
     <Exec
         Condition="'$(PROCESSOR_ARCHITEW6432)' != ''"
-        Command="$(SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe tools\xunit.tests.msbuild /nologo /p:Configuration=$(Configuration) /v:$(RequestedVerbosity)" />
+        Command="$(SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe tools\xunit.tests.msbuild /nologo /p:Configuration=$(Configuration);ParallelizeAssemblies=$(ParallelizeAssemblies);MaxParallelThreads=$(MaxParallelThreads) /v:$(RequestedVerbosity)" />
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build;_Test32;_Test64" />

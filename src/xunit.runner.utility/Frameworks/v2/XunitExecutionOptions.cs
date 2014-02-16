@@ -20,10 +20,10 @@ namespace Xunit
             set { SetValue(TestOptionsNames.Execution.DisableParallelization, value); }
         }
 
-        public int MaxDegreeOfParallelism
+        public int MaxParallelThreads
         {
-            get { return GetValue<int>(TestOptionsNames.Execution.MaxDegreeOfParallelism, 0); }
-            set { SetValue(TestOptionsNames.Execution.MaxDegreeOfParallelism, value); }
+            get { return GetValue<int>(TestOptionsNames.Execution.MaxParallelThreads, 0); }
+            set { SetValue(TestOptionsNames.Execution.MaxParallelThreads, value); }
         }
     }
 }

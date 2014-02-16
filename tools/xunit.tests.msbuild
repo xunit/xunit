@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <ParallelizeAssemblies Condition="'$(ParallelizeAssemblies)' == ''">true</ParallelizeAssemblies>
+    <MaxParallelThreads Condition="'$(MaxParallelThreads)' == ''">0</MaxParallelThreads>
   </PropertyGroup>
 
   <UsingTask
@@ -20,9 +22,11 @@
         Xml="..\TestResults-v1-$(PROCESSOR_ARCHITECTURE).xml"
         Html="..\TestResults-v1-$(PROCESSOR_ARCHITECTURE).html"
     />
+    <!-- Uses MaxParallelThreads at 1 to help catch any improper Task waiting in the framework itself. -->
     <xunit
         Assemblies="@(TestAssemblies)"
-        ParallelizeAssemblies="true"
+        ParallelizeAssemblies="$(ParallelizeAssemblies)"
+        MaxParallelThreads="$(MaxParallelThreads)"
         Xml="..\TestResults-$(PROCESSOR_ARCHITECTURE).xml"
         Html="..\TestResults-$(PROCESSOR_ARCHITECTURE).html"
     />

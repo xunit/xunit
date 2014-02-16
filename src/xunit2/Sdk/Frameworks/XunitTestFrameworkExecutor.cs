@@ -18,9 +18,6 @@ namespace Xunit.Sdk
     {
         readonly string assemblyFileName;
         readonly IAssemblyInfo assemblyInfo;
-        readonly bool disableParallelizationAttributeValue;
-        readonly int maxParallelismAttributeValue;
-        readonly string displayName;
         readonly ISourceInformationProvider sourceInformationProvider;
 
         /// <summary>
@@ -34,21 +31,6 @@ namespace Xunit.Sdk
 
             var assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
             assemblyInfo = Reflector.Wrap(assembly);
-
-            var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
-            if (collectionBehaviorAttribute != null)
-            {
-                disableParallelizationAttributeValue = collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
-                maxParallelismAttributeValue = collectionBehaviorAttribute.GetNamedArgument<int>("MaxDegreeOfParallelism");
-            }
-
-            var testCollectionFactory = XunitTestFrameworkDiscoverer.GetTestCollectionFactory(assemblyInfo, collectionBehaviorAttribute);
-            displayName = String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
-                                        IntPtr.Size * 8,
-                                        Environment.Version,
-                                        testCollectionFactory.DisplayName,
-                                        disableParallelizationAttributeValue ? "non-parallel" : "parallel",
-                                        maxParallelismAttributeValue > 0 ? String.Format(" (max {0} threads)", maxParallelismAttributeValue) : "");
         }
 
         static void CreateFixture(Type interfaceType, ExceptionAggregator aggregator, Dictionary<Type, object> mappings)
@@ -65,6 +47,18 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         public void Dispose() { }
+
+        string GetDisplayName(IAttributeInfo collectionBehaviorAttribute, bool disableParallelization, int maxParallelism)
+        {
+            var testCollectionFactory = XunitTestFrameworkDiscoverer.GetTestCollectionFactory(assemblyInfo, collectionBehaviorAttribute);
+
+            return String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
+                                        IntPtr.Size * 8,
+                                        Environment.Version,
+                                        testCollectionFactory.DisplayName,
+                                        disableParallelization ? "non-parallel" : "parallel",
+                                        maxParallelism > 0 ? String.Format(" (max {0} threads)", maxParallelism) : "");
+        }
 
         static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo ordererAttribute)
         {
@@ -94,12 +88,25 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("messageSink", messageSink);
             Guard.ArgumentNotNull("executionOptions", executionOptions);
 
-            var disableParallelization = executionOptions.GetValue<bool>(TestOptionsNames.Execution.DisableParallelization, disableParallelizationAttributeValue);
-            var maxParallelism = executionOptions.GetValue<int>(TestOptionsNames.Execution.MaxDegreeOfParallelism, maxParallelismAttributeValue);
+            var disableParallelization = false;
+            var maxParallelThreads = 0;
 
+            var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
+            if (collectionBehaviorAttribute != null)
+            {
+                disableParallelization = collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+                maxParallelThreads = collectionBehaviorAttribute.GetNamedArgument<int>("MaxParallelThreads");
+            }
+
+            disableParallelization = executionOptions.GetValue<bool>(TestOptionsNames.Execution.DisableParallelization, disableParallelization);
+            var maxParallelThreadsOption = executionOptions.GetValue<int>(TestOptionsNames.Execution.MaxParallelThreads, 0);
+            if (maxParallelThreadsOption > 0)
+                maxParallelThreads = maxParallelThreadsOption;
+
+            var displayName = GetDisplayName(collectionBehaviorAttribute, disableParallelization, maxParallelThreads);
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
-            var scheduler = maxParallelism > 0 ? new MaxConcurrencyTaskScheduler(maxParallelism) : TaskScheduler.Current;
+            var scheduler = maxParallelThreads > 0 ? new MaxConcurrencyTaskScheduler(maxParallelThreads) : TaskScheduler.Current;
 
             string currentDirectory = Directory.GetCurrentDirectory();
 

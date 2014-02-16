@@ -20,6 +20,7 @@ namespace Xunit.Runner.MSBuild
 
         public xunit()
         {
+            ParallelizeTestCollections = true;
             ShadowCopy = true;
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
         }
@@ -36,12 +37,16 @@ namespace Xunit.Runner.MSBuild
 
         public string IncludeTraits { get; set; }
 
+        public int MaxParallelThreads { get; set; }
+
         protected bool NeedsXml
         {
             get { return Xml != null || XmlV1 != null || Html != null; }
         }
 
         public bool ParallelizeAssemblies { get; set; }
+
+        public bool ParallelizeTestCollections { get; set; }
 
         public bool ShadowCopy { get; set; }
 
@@ -188,12 +193,18 @@ namespace Xunit.Runner.MSBuild
                 using (var controller = CreateFrontController(assemblyFileName, configFileName))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
-                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, options: new TestFrameworkOptions());
+                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, options: new XunitDiscoveryOptions());
                     discoveryVisitor.Finished.WaitOne();
 
                     using (var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement))
                     {
-                        controller.Run(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor, new TestFrameworkOptions());
+                        var executionOptions = new XunitExecutionOptions
+                        {
+                            DisableParallelization = !ParallelizeTestCollections,
+                            MaxParallelThreads = MaxParallelThreads
+                        };
+
+                        controller.Run(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor, executionOptions);
                         resultsVisitor.Finished.WaitOne();
 
                         if (resultsVisitor.Failed != 0)

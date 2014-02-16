@@ -22,7 +22,7 @@ namespace Xunit
         public CollectionBehaviorAttribute(CollectionBehavior collectionBehavior) { }
 
         /// <summary>
-        /// This method is here as an allowance to Enum-issues related to CustomAttributeData.
+        /// This method is here as an allowance to issues related enums and CustomAttributeData.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public CollectionBehaviorAttribute(int collectionBehavior) { }
@@ -42,6 +42,6 @@ namespace Xunit
         /// <summary>
         /// Determines how many tests can run in parallel with each other.
         /// </summary>
-        public int MaxDegreeOfParallelism { get; set; }
+        public int MaxParallelThreads { get; set; }
     }
 }
