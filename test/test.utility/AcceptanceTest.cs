@@ -40,7 +40,7 @@ public class AcceptanceTest : IDisposable
         var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>(wrapper);
         foreach (Type type in types)
         {
-            Xunit2.Find(type.FullName, includeSourceInformation: false, messageSink: discoverySink);
+            Xunit2.Find(type.FullName, includeSourceInformation: false, messageSink: discoverySink, options: new XunitDiscoveryOptions());
             discoverySink.Finished.WaitOne();
             discoverySink.Finished.Reset();
         }
@@ -51,7 +51,7 @@ public class AcceptanceTest : IDisposable
         var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
 
         var runSink = new SpyMessageSink<ITestAssemblyFinished>(cancellationThunk);
-        Xunit2.Run(testCases, runSink);
+        Xunit2.Run(testCases, runSink, new XunitExecutionOptions());
         runSink.Finished.WaitOne();
 
         return runSink.Messages.ToList();

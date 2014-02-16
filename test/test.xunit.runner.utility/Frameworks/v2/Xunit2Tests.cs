@@ -26,7 +26,7 @@ public class Xunit2Tests
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-                controller.Find(includeSourceInformation: false, messageSink: sink);
+                controller.Find(includeSourceInformation: false, messageSink: sink, options: new XunitDiscoveryOptions());
 
                 sink.Finished.WaitOne();
 
@@ -52,7 +52,7 @@ public class Xunit2Tests
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-                controller.Find(includeSourceInformation: false, messageSink: sink);
+                controller.Find(includeSourceInformation: false, messageSink: sink, options: new XunitDiscoveryOptions());
 
                 sink.Finished.WaitOne();
 
@@ -102,7 +102,7 @@ public class Xunit2Tests
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-                controller.Find(includeSourceInformation: false, messageSink: sink);
+                controller.Find(includeSourceInformation: false, messageSink: sink, options: new XunitDiscoveryOptions());
 
                 sink.Finished.WaitOne();
                 ITestCase[] testCases = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase).ToArray();
@@ -145,7 +145,7 @@ public class Xunit2Tests
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-                controller.Find(includeSourceInformation: false, messageSink: sink);
+                controller.Find(includeSourceInformation: false, messageSink: sink, options: new XunitDiscoveryOptions());
 
                 sink.Finished.WaitOne();
                 string[] testCaseNames = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase.DisplayName).ToArray();

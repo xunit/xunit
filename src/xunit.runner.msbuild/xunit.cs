@@ -7,6 +7,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using Microsoft.Build.Framework;
+using Xunit.Abstractions;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.Runner.MSBuild
@@ -187,19 +188,18 @@ namespace Xunit.Runner.MSBuild
                 using (var controller = CreateFrontController(assemblyFileName, configFileName))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
-                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
+                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, options: new TestFrameworkOptions());
                     discoveryVisitor.Finished.WaitOne();
 
                     using (var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement))
                     {
-                        controller.Run(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor);
+                        controller.Run(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor, new TestFrameworkOptions());
                         resultsVisitor.Finished.WaitOne();
 
                         if (resultsVisitor.Failed != 0)
                             ExitCode = 1;
                     }
                 }
-
             }
             catch (Exception ex)
             {

@@ -10,7 +10,7 @@ namespace Xunit.Runner.TdNet
     public class TdNetRunnerHelper : IDisposable
     {
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
-        readonly XunitFrontController frontController;
+        readonly Xunit2 xunit;
         readonly ITestListener testListener;
 
         /// <summary>
@@ -22,18 +22,18 @@ namespace Xunit.Runner.TdNet
         {
             this.testListener = testListener;
 
-            frontController = new XunitFrontController(new Uri(assembly.CodeBase).LocalPath);
-            toDispose.Push(frontController);
+            xunit = new Xunit2(new NullSourceInformationProvider(), new Uri(assembly.CodeBase).LocalPath);
+            toDispose.Push(xunit);
         }
 
         public virtual IEnumerable<ITestCase> Discover()
         {
-            return Discover(sink => frontController.Find(false, sink));
+            return Discover(sink => xunit.Find(false, sink, new XunitDiscoveryOptions()));
         }
 
         private IEnumerable<ITestCase> Discover(Type type)
         {
-            return Discover(sink => frontController.Find(type.FullName, false, sink));
+            return Discover(sink => xunit.Find(type.FullName, false, sink, new XunitDiscoveryOptions()));
         }
 
         private IEnumerable<ITestCase> Discover(Action<IMessageSink> discoveryAction)
@@ -68,7 +68,12 @@ namespace Xunit.Runner.TdNet
 
                 var visitor = new ResultVisitor(testListener) { TestRunState = initialRunState };
                 toDispose.Push(visitor);
-                frontController.Run(testCases, visitor);
+
+                if (testCases == null)
+                    xunit.Run(visitor, new XunitDiscoveryOptions(), new XunitExecutionOptions());
+                else
+                    xunit.Run(testCases, visitor, new XunitExecutionOptions());
+
                 visitor.Finished.WaitOne();
 
                 return visitor.TestRunState;

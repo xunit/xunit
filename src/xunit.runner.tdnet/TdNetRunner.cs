@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using TestDriven.Framework;
-using Xunit.Abstractions;
 
 namespace Xunit.Runner.TdNet
 {

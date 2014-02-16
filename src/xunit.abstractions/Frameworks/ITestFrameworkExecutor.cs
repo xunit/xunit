@@ -16,10 +16,20 @@ namespace Xunit.Abstractions
         ITestCase Deserialize(string value);
 
         /// <summary>
-        /// Starts the process of running tests.
+        /// Starts the process of running all the tests in the assembly.
         /// </summary>
         /// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
         /// <param name="messageSink">The message sink to report results back to.</param>
-        void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink);
+        /// <param name="discoveryOptions">The options to be used during test discovery.</param>
+        /// <param name="executionOptions">The options to be used during test execution.</param>
+        void Run(IMessageSink messageSink, TestFrameworkOptions discoveryOptions, TestFrameworkOptions executionOptions);
+
+        /// <summary>
+        /// Starts the process of running selected tests in the assembly.
+        /// </summary>
+        /// <param name="testCases">The test cases to run.</param>
+        /// <param name="messageSink">The message sink to report results back to.</param>
+        /// <param name="executionOptions">The options to be used during test execution.</param>
+        void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, TestFrameworkOptions executionOptions);
     }
 }

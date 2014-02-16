@@ -39,10 +39,38 @@ namespace Xunit
             base.Dispose();
         }
 
-        /// <inheritdoc/>
-        public void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
+
+        /// <summary>
+        /// Starts the process of running all the xUnit.net v2 tests in the assembly.
+        /// </summary>
+        /// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
+        /// <param name="messageSink">The message sink to report results back to.</param>
+        /// <param name="discoveryOptions">The options to be used during test discovery.</param>
+        /// <param name="executionOptions">The options to be used during test execution.</param>
+        public void Run(IMessageSink messageSink, XunitDiscoveryOptions discoveryOptions, XunitExecutionOptions executionOptions)
         {
-            executor.Run(testMethods, messageSink);
+            executor.Run(messageSink, discoveryOptions, executionOptions);
+        }
+
+        void ITestFrameworkExecutor.Run(IMessageSink messageSink, TestFrameworkOptions discoveryOptions, TestFrameworkOptions executionOptions)
+        {
+            executor.Run(messageSink, discoveryOptions, executionOptions);
+        }
+
+        /// <summary>
+        /// Starts the process of running the selected xUnit.net v2 tests.
+        /// </summary>
+        /// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
+        /// <param name="messageSink">The message sink to report results back to.</param>
+        /// <param name="executionOptions">The options to be used during test execution.</param>
+        public void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, XunitExecutionOptions executionOptions)
+        {
+            executor.Run(testCases, messageSink, executionOptions);
+        }
+
+        void ITestFrameworkExecutor.Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, TestFrameworkOptions options)
+        {
+            executor.Run(testCases, messageSink, options);
         }
     }
 }

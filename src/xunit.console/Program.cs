@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
@@ -192,14 +193,13 @@ namespace Xunit.ConsoleClient
                 using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
-                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor);
+                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, options: new TestFrameworkOptions());
                     discoveryVisitor.Finished.WaitOne();
 
                     var resultsVisitor = CreateVisitor(consoleLock, defaultDirectory, assemblyElement, teamCity, silent);
-                    controller.Run(discoveryVisitor.TestCases, resultsVisitor);
+                    controller.Run(discoveryVisitor.TestCases, resultsVisitor, new TestFrameworkOptions());
                     resultsVisitor.Finished.WaitOne();
                 }
-
             }
             catch (Exception ex)
             {

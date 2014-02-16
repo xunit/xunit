@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Runner.VisualStudio.Settings;
+using Xunit.Abstractions;
 
 namespace Xunit.Runner.VisualStudio.TestAdapter
 {
@@ -67,7 +68,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                 using (var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true))
                                 using (var sink = new VsDiscoveryVisitor(assemblyFileName, framework, logger, discoverySink, () => cancelled))
                                 {
-                                    framework.Find(includeSourceInformation: true, messageSink: sink);
+                                    framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
                                     sink.Finished.WaitOne();
 
                                     if (settings.MessageDisplay == MessageDisplay.Diagnostic)
@@ -134,7 +135,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                             var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true);
                             var sink = new TestDiscoveryVisitor();
                             sourceSinks.Add(new SourceSink<TestDiscoveryVisitor> { Framework = framework, Sink = sink, AssemblyFileName = assemblyFileName });
-                            framework.Find(includeSourceInformation: true, messageSink: sink);
+                            framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
                         }
                     }
                     catch (Exception e)
@@ -279,7 +280,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             using (var executionVisitor = new VsExecutionVisitor(frameworkHandle, xunitTestCases, () => cancelled))
             {
-                controller.Run(xunitTestCases.Keys.ToList(), executionVisitor);
+                controller.Run(xunitTestCases.Keys.ToList(), executionVisitor, new TestFrameworkOptions());
                 executionVisitor.Finished.WaitOne();
             }
 

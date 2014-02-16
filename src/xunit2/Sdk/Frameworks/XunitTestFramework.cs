@@ -38,7 +38,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITestFrameworkExecutor GetExecutor(string assemblyFileName)
         {
-            return new XunitTestFrameworkExecutor(assemblyFileName);
+            return new XunitTestFrameworkExecutor(assemblyFileName, SourceInformationProvider);
         }
 
         class NullSourceInformationProvider : ISourceInformationProvider

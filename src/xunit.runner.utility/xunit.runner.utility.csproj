@@ -63,6 +63,9 @@
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\common\TestOptionsNames.cs">
+      <Link>Common\TestOptionsNames.cs</Link>
+    </Compile>
     <Compile Include="..\xunit2\Sdk\Messages\BaseMessages\TestCaseMessage.cs">
       <Link>Frameworks\Messages\BaseMessages\TestCaseMessage.cs</Link>
     </Compile>
@@ -133,6 +136,8 @@
       <Link>Frameworks\Messages\TestStarting.cs</Link>
     </Compile>
     <Compile Include="Frameworks\AppDomainTestFramework.cs" />
+    <Compile Include="Frameworks\v2\XunitDiscoveryOptions.cs" />
+    <Compile Include="Frameworks\v2\XunitExecutionOptions.cs" />
     <Compile Include="Project\XunitFilters.cs" />
     <Compile Include="Project\XunitProjectAssembly.cs" />
     <Compile Include="Utility\DiaNavigationData.cs" />

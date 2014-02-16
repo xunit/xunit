@@ -109,11 +109,12 @@ public class XunitTestFrameworkDiscovererTests
     public static class FindByAssembly
     {
         [Fact]
-        public static void GuardClause()
+        public static void GuardClauses()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
 
-            Assert.Throws<ArgumentNullException>("messageSink", () => framework.Find(includeSourceInformation: false, messageSink: null));
+            Assert.Throws<ArgumentNullException>("messageSink", () => framework.Find(includeSourceInformation: false, messageSink: null, options: new TestFrameworkOptions()));
+            Assert.Throws<ArgumentNullException>("options", () => framework.Find(includeSourceInformation: false, messageSink: Substitute.For<IMessageSink>(), options: null));
         }
 
         [Fact]
@@ -211,10 +212,12 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var typeName = typeof(Object).FullName;
             var sink = Substitute.For<IMessageSink>();
+            var options = new TestFrameworkOptions();
 
-            Assert.Throws<ArgumentNullException>("typeName", () => framework.Find(typeName: null, includeSourceInformation: false, messageSink: sink));
-            Assert.Throws<ArgumentException>("typeName", () => framework.Find(typeName: "", includeSourceInformation: false, messageSink: sink));
-            Assert.Throws<ArgumentNullException>("messageSink", () => framework.Find(typeName, includeSourceInformation: false, messageSink: null));
+            Assert.Throws<ArgumentNullException>("typeName", () => framework.Find(typeName: null, includeSourceInformation: false, messageSink: sink, options: options));
+            Assert.Throws<ArgumentException>("typeName", () => framework.Find(typeName: "", includeSourceInformation: false, messageSink: sink, options: options));
+            Assert.Throws<ArgumentNullException>("messageSink", () => framework.Find(typeName, includeSourceInformation: false, messageSink: null, options: options));
+            Assert.Throws<ArgumentNullException>("options", () => framework.Find(typeName, includeSourceInformation: false, messageSink: sink, options: null));
         }
 
         [Fact]
@@ -525,13 +528,13 @@ public class XunitTestFrameworkDiscovererTests
 
         public void Find(bool includeSourceInformation = false)
         {
-            base.Find(includeSourceInformation, Visitor);
+            base.Find(includeSourceInformation, Visitor, new TestFrameworkOptions());
             Visitor.Finished.WaitOne();
         }
 
         public void Find(string typeName, bool includeSourceInformation = false)
         {
-            base.Find(typeName, includeSourceInformation, Visitor);
+            base.Find(typeName, includeSourceInformation, Visitor, new TestFrameworkOptions());
             Visitor.Finished.WaitOne();
         }
 

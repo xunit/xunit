@@ -97,33 +97,27 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public virtual void Find(bool includeSourceInformation, IMessageSink messageSink)
+        public virtual void Find(bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
         {
-            InnerController.Find(includeSourceInformation, messageSink);
+            InnerController.Find(includeSourceInformation, messageSink, options);
         }
 
         /// <inheritdoc/>
-        public virtual void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
+        public virtual void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
         {
-            InnerController.Find(typeName, includeSourceInformation, messageSink);
+            InnerController.Find(typeName, includeSourceInformation, messageSink, options);
         }
 
         /// <inheritdoc/>
-        public virtual void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink)
+        public void Run(IMessageSink messageSink, TestFrameworkOptions discoveryOptions, TestFrameworkOptions executionOptions)
         {
-            var controller = InnerController; // Call this first so he gets disposed AFTER the discovery sink
+            InnerController.Run(messageSink, discoveryOptions, executionOptions);
+        }
 
-            if (testMethods == null)
-            {
-                var discoverySink = new TestDiscoveryVisitor();
-                toDispose.Push(discoverySink);
-
-                controller.Find(false, discoverySink);
-                discoverySink.Finished.WaitOne();
-                testMethods = discoverySink.TestCases;
-            }
-
-            controller.Run(testMethods, messageSink);
+        /// <inheritdoc/>
+        public virtual void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink, TestFrameworkOptions options)
+        {
+            InnerController.Run(testMethods, messageSink, options);
         }
 
         /// <inheritdoc/>

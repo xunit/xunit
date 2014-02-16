@@ -73,9 +73,10 @@ namespace Xunit.Sdk
         public void Dispose() { }
 
         /// <inheritdoc/>
-        public void Find(bool includeSourceInformation, IMessageSink messageSink)
+        public void Find(bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
         {
             Guard.ArgumentNotNull("messageSink", messageSink);
+            Guard.ArgumentNotNull("options", options);
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
@@ -92,10 +93,11 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
+        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
         {
             Guard.ArgumentNotNullOrEmpty("typeName", typeName);
             Guard.ArgumentNotNull("messageSink", messageSink);
+            Guard.ArgumentNotNull("options", options);
 
             ThreadPool.QueueUserWorkItem(_ =>
             {

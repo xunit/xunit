@@ -224,7 +224,7 @@ public class xunitTests
 
             xunit._ExecuteAssembly("assemblyFilename", "configFilename");
 
-            xunit.FrontController.Received().Find(false, Arg.Any<IMessageSink>());
+            xunit.FrontController.Received().Find(false, Arg.Any<IMessageSink>(), Arg.Any<TestFrameworkOptions>());
         }
 
         [Fact]
@@ -233,7 +233,7 @@ public class xunitTests
             var xunit = new Testable_xunit();
             xunit.DiscoveryTestCases.Add(Substitute.For<ITestCase>());
             var runTestCases = new List<ITestCase>();
-            xunit.FrontController.WhenAny(fc => fc.Run(null, null))
+            xunit.FrontController.WhenAny(fc => fc.Run((IEnumerable<ITestCase>)null, null, null))
                                  .Do(callInfo =>
                                  {
                                      runTestCases.AddRange((IEnumerable<ITestCase>)callInfo[0]);
@@ -258,7 +258,7 @@ public class xunitTests
             xunit.DiscoveryTestCases.Add(testCase2);
 
             var runTestCases = new List<ITestCase>();
-            xunit.FrontController.WhenAny(fc => fc.Run(null, null))
+            xunit.FrontController.WhenAny(fc => fc.Run((IEnumerable<ITestCase>)null, null, null))
                                  .Do(callInfo =>
                                  {
                                      runTestCases.AddRange((IEnumerable<ITestCase>)callInfo[0]);
@@ -287,11 +287,11 @@ public class xunitTests
             BuildEngine = Substitute.For<IBuildEngine>();
 
             FrontController = Substitute.For<IFrontController>();
-            FrontController.WhenAny(fc => fc.Find(false, null))
+            FrontController.WhenAny(fc => fc.Find(false, null, null))
                            .Do<bool, IMessageSink>((_, sink) => ReturnDiscoveryMessages(sink));
-            FrontController.WhenAny(fc => fc.Find("", false, null))
+            FrontController.WhenAny(fc => fc.Find("", false, null, null))
                            .Do<string, bool, IMessageSink>((_, __, sink) => ReturnDiscoveryMessages(sink));
-            FrontController.WhenAny(fc => fc.Run(null, null))
+            FrontController.WhenAny(fc => fc.Run((IEnumerable<ITestCase>)null, null, null))
                            .Do<object, IMessageSink>((_, sink) =>
                                {
                                    var testAssemblyStarting = Substitute.For<ITestAssemblyStarting>();

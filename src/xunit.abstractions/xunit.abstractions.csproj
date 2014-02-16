@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\ReflectionAbstractionExtensions.cs" />
+    <Compile Include="Frameworks\TestFrameworkOptions.cs" />
     <Compile Include="Frameworks\ISourceInformationProvider.cs" />
     <Compile Include="Frameworks\ITestFramework.cs" />
     <Compile Include="Frameworks\ITestFrameworkDiscoverer.cs" />

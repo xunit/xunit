@@ -24,6 +24,7 @@ namespace Xunit
         readonly IXunit1Executor executor;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly ITestCollection testCollection;
+        readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit1"/> class.
@@ -75,17 +76,41 @@ namespace Xunit
         /// <inheritdoc/>
         public void Dispose()
         {
+            foreach (var disposable in toDispose)
+                disposable.Dispose();
+
             executor.SafeDispose();
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Starts the process of finding all xUnit.net v1 tests in an assembly.
+        /// </summary>
+        /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
+        /// <param name="messageSink">The message sink to report results back to.</param>
         public void Find(bool includeSourceInformation, IMessageSink messageSink)
         {
             Find(msg => true, includeSourceInformation, messageSink);
         }
 
         /// <inheritdoc/>
+        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
+        {
+            Find(msg => true, includeSourceInformation, messageSink);
+        }
+
+        /// <summary>
+        /// Starts the process of finding all xUnit.net v1 tests in a class.
+        /// </summary>
+        /// <param name="typeName">The fully qualified type name to find tests in.</param>
+        /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
+        /// <param name="messageSink">The message sink to report results back to.</param>
         public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
+        {
+            Find(msg => msg.TestCase.Class.Name == typeName, includeSourceInformation, messageSink);
+        }
+
+        /// <inheritdoc/>
+        void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
         {
             Find(msg => msg.TestCase.Class.Name == typeName, includeSourceInformation, messageSink);
         }
@@ -121,13 +146,35 @@ namespace Xunit
             }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Starts the process of running all the xUnit.net v1 tests in the assembly.
+        /// </summary>
+        /// <param name="messageSink">The message sink to report results back to.</param>
+        public void Run(IMessageSink messageSink)
+        {
+            var discoverySink = new TestDiscoveryVisitor();
+            toDispose.Push(discoverySink);
+
+            Find(false, discoverySink);
+            discoverySink.Finished.WaitOne();
+
+            Run(discoverySink.TestCases, messageSink);
+        }
+
+        void ITestFrameworkExecutor.Run(IMessageSink messageSink, TestFrameworkOptions discoveryOptions, TestFrameworkOptions executionOptions)
+        {
+            Run(messageSink);
+        }
+
+        /// <summary>
+        /// Starts the process of running all the xUnit.net v1 tests.
+        /// </summary>
+        /// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
+        /// <param name="messageSink">The message sink to report results back to.</param>
         public void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
             var results = new RunSummary();
             var environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
-
-            // TODO: Contract for Run() states that null "testCases" means "run everything".
 
             if (messageSink.OnMessage(new TestAssemblyStarting(assemblyFileName, configFileName, DateTime.Now, environment, TestFrameworkDisplayName)))
                 foreach (var testCollectionGroup in testCases.Cast<Xunit1TestCase>().GroupBy(tc => tc.TestCollection))
@@ -139,6 +186,11 @@ namespace Xunit
                 }
 
             messageSink.OnMessage(new TestAssemblyFinished(new Xunit1AssemblyInfo(assemblyFileName), results.Time, results.Total, results.Failed, results.Skipped));
+        }
+
+        void ITestFrameworkExecutor.Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, TestFrameworkOptions options)
+        {
+            Run(testCases, messageSink);
         }
 
         RunSummary RunTestCollection(ITestCollection testCollection, IEnumerable<Xunit1TestCase> testCases, IMessageSink messageSink)

@@ -18,17 +18,19 @@ namespace Xunit.Sdk
     {
         readonly string assemblyFileName;
         readonly IAssemblyInfo assemblyInfo;
-        readonly bool disableParallelization;
-        readonly int maxParallelism;
+        readonly bool disableParallelizationAttributeValue;
+        readonly int maxParallelismAttributeValue;
         readonly string displayName;
+        readonly ISourceInformationProvider sourceInformationProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
         /// </summary>
         /// <param name="assemblyFileName">Path of the test assembly.</param>
-        public XunitTestFrameworkExecutor(string assemblyFileName)
+        public XunitTestFrameworkExecutor(string assemblyFileName, ISourceInformationProvider sourceInformationProvider)
         {
             this.assemblyFileName = assemblyFileName;
+            this.sourceInformationProvider = sourceInformationProvider;
 
             var assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
             assemblyInfo = Reflector.Wrap(assembly);
@@ -36,16 +38,17 @@ namespace Xunit.Sdk
             var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
             if (collectionBehaviorAttribute != null)
             {
-                disableParallelization = collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
-                maxParallelism = collectionBehaviorAttribute.GetNamedArgument<int>("MaxDegreeOfParallelism");
+                disableParallelizationAttributeValue = collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+                maxParallelismAttributeValue = collectionBehaviorAttribute.GetNamedArgument<int>("MaxDegreeOfParallelism");
             }
 
             var testCollectionFactory = XunitTestFrameworkDiscoverer.GetTestCollectionFactory(assemblyInfo, collectionBehaviorAttribute);
-            displayName = String.Format("{0}-bit .NET {1} [{2}, {3}]",
+            displayName = String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
                                         IntPtr.Size * 8,
                                         Environment.Version,
                                         testCollectionFactory.DisplayName,
-                                        disableParallelization ? "non-parallel" : "parallel");
+                                        disableParallelizationAttributeValue ? "non-parallel" : "parallel",
+                                        maxParallelismAttributeValue > 0 ? String.Format(" (max {0} threads)", maxParallelismAttributeValue) : "");
         }
 
         static void CreateFixture(Type interfaceType, ExceptionAggregator aggregator, Dictionary<Type, object> mappings)
@@ -71,8 +74,29 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
+        public void Run(IMessageSink messageSink, TestFrameworkOptions discoveryOptions, TestFrameworkOptions executionOptions)
         {
+            var discoverySink = new TestDiscoveryVisitor();
+
+            using (var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceInformationProvider))
+            {
+                discoverer.Find(false, discoverySink, discoveryOptions);
+                discoverySink.Finished.WaitOne();
+            }
+
+            Run(discoverySink.TestCases, messageSink, executionOptions);
+        }
+
+        /// <inheritdoc/>
+        public async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, TestFrameworkOptions executionOptions)
+        {
+            Guard.ArgumentNotNull("testCases", testCases);
+            Guard.ArgumentNotNull("messageSink", messageSink);
+            Guard.ArgumentNotNull("executionOptions", executionOptions);
+
+            var disableParallelization = executionOptions.GetValue<bool>(TestOptionsNames.Execution.DisableParallelization, disableParallelizationAttributeValue);
+            var maxParallelism = executionOptions.GetValue<int>(TestOptionsNames.Execution.MaxDegreeOfParallelism, maxParallelismAttributeValue);
+
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
             var scheduler = maxParallelism > 0 ? new MaxConcurrencyTaskScheduler(maxParallelism) : TaskScheduler.Current;
