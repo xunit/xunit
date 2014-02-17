@@ -22,10 +22,11 @@ namespace Xunit.Runner.VisualStudio.Settings
     [Guid(Guids.PropertyPage)]
     public class XunitVisualStudioSettings : DialogPage, INotifyPropertyChanged
     {
+        int maxParallelThreads;
         MessageDisplay messageDisplay;
         NameDisplay nameDisplay;
         bool parallelizeAssemblies;
-        //bool parallelizeCollections;
+        bool parallelizeTestCollections;
         bool shutdownAfterRun;
 
         public XunitVisualStudioSettings()
@@ -34,6 +35,21 @@ namespace Xunit.Runner.VisualStudio.Settings
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        [Browsable(true)]
+        [Category("General")]
+        [DisplayName("Maximum parallel threads")]
+        [Description("Limits the number of parallel threads used when running test collections in parallel (set to 0 for unlimited threads)")]
+        public int MaxParallelThreads
+        {
+            get { return maxParallelThreads; }
+            set
+            {
+                maxParallelThreads = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("MaxParallelThreads"));
+            }
+        }
 
         [Browsable(true)]
         [Category("General")]
@@ -80,20 +96,20 @@ namespace Xunit.Runner.VisualStudio.Settings
             }
         }
 
-        //[Browsable(true)]
-        //[Category("General")]
-        //[DisplayName("Parallelize Collections")]
-        //[Description("Enables or disables running test collections in parallel")]
-        //public bool ParallelizeCollections
-        //{
-        //    get { return parallelizeCollections; }
-        //    set
-        //    {
-        //        parallelizeCollections = value;
-        //        if (PropertyChanged != null)
-        //            PropertyChanged(this, new PropertyChangedEventArgs("ParallelizeCollections"));
-        //    }
-        //}
+        [Browsable(true)]
+        [Category("General")]
+        [DisplayName("Parallelize Collections")]
+        [Description("Enables or disables running test collections in parallel")]
+        public bool ParallelizeTestCollections
+        {
+            get { return parallelizeTestCollections; }
+            set
+            {
+                parallelizeTestCollections = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("ParallelizeTestCollections"));
+            }
+        }
 
         [Browsable(true)]
         [Category("General")]
@@ -112,10 +128,11 @@ namespace Xunit.Runner.VisualStudio.Settings
 
         public void Reset()
         {
+            MaxParallelThreads = 0;
             MessageDisplay = MessageDisplay.None;
             NameDisplay = NameDisplay.Short;
             ParallelizeAssemblies = false;
-            //ParallelizeCollections = false;
+            ParallelizeTestCollections = true;
             ShutdownAfterRun = false;
         }
 

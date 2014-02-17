@@ -93,6 +93,9 @@
       <Link>Application.ico</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="..\xunit.runner.visualstudio.nuspec">
+      <Link>xunit.runner.visualstudio.nuspec</Link>
+    </None>
     <None Include="extension.vsixmanifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

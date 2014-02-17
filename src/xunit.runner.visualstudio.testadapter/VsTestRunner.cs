@@ -227,7 +227,16 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
                 lock (stopwatch)
+                {
                     frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution started", stopwatch.Elapsed));
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Settings: MaxParallelThreads = {1}, NameDisplay = {2}, ParallelizeAssemblies = {3}, ParallelizeTestCollections = {4}, ShutdownAfterRun = {5}",
+                                                                                              stopwatch.Elapsed,
+                                                                                              settings.MaxParallelThreads,
+                                                                                              settings.NameDisplay,
+                                                                                              settings.ParallelizeAssemblies,
+                                                                                              settings.ParallelizeTestCollections,
+                                                                                              settings.ShutdownAfterRun));
+                }
 
             try
             {
@@ -280,7 +289,13 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             using (var executionVisitor = new VsExecutionVisitor(frameworkHandle, xunitTestCases, () => cancelled))
             {
-                controller.Run(xunitTestCases.Keys.ToList(), executionVisitor, new TestFrameworkOptions());
+                var executionOptions = new XunitExecutionOptions
+                {
+                    DisableParallelization = !settings.ParallelizeTestCollections,
+                    MaxParallelThreads = settings.MaxParallelThreads
+                };
+
+                controller.Run(xunitTestCases.Keys.ToList(), executionVisitor, executionOptions);
                 executionVisitor.Finished.WaitOne();
             }
 

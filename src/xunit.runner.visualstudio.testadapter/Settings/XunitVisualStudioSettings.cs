@@ -18,9 +18,11 @@ namespace Xunit.Runner.VisualStudio.Settings
 
     public class XunitVisualStudioSettings
     {
+        public int MaxParallelThreads { get; set; }
         public MessageDisplay MessageDisplay { get; set; }
         public NameDisplay NameDisplay { get; set; }
         public bool ParallelizeAssemblies { get; set; }
+        public bool ParallelizeTestCollections { get; set; }
         public bool ShutdownAfterRun { get; set; }
     }
 }

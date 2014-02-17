@@ -6,7 +6,7 @@ namespace Xunit.Runner.VisualStudio.Settings
 {
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideOptionPage(typeof(XunitVisualStudioSettings), "xUnit.net", "xUnit.net Settings", 115, 116, true)]
-    [InstalledProductRegistration("#110", "#112", "0.99.3", IconResourceID = 400)]
+    [InstalledProductRegistration("#110", "#112", "0.99.4", IconResourceID = 400)]
     [Guid(Guids.Package)]
     public sealed class XunitVisualStudioPackage : Package
     {

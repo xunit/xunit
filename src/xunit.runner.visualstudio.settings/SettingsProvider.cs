@@ -7,9 +7,11 @@ namespace Xunit.Runner.VisualStudio.Settings
 {
     public static class SettingsProvider
     {
+        private const string REGVALUE_MaxParallelThreads = "MaxParallelThreads";
         private const string REGVALUE_MessageDisplay = "MessageDisplay";
         private const string REGVALUE_NameDisplay = "NameDisplay";
         private const string REGVALUE_ParallelizeAssemblies = "ParallelizeAssemblies";
+        private const string REGVALUE_ParallelizeTestCollections = "ParallelizeTestCollections";
         private const string REGVALUE_ShutdownAfterRun = "ShutdownAfterRun";
 
         public static XunitVisualStudioSettings Load()
@@ -21,9 +23,11 @@ namespace Xunit.Runner.VisualStudio.Settings
             using (var xunit = outercurve.CreateOrOpen("xUnit.net"))
             using (var vsrunner = xunit.CreateOrOpen("Visual Studio Test Plugin"))
             {
+                result.MaxParallelThreads = vsrunner.GetValue<int>(REGVALUE_MaxParallelThreads);
                 result.MessageDisplay = vsrunner.GetValue<string>(REGVALUE_MessageDisplay, MessageDisplay.None.ToString()).ToEnum<MessageDisplay>();
                 result.NameDisplay = vsrunner.GetValue<string>(REGVALUE_NameDisplay, NameDisplay.Short.ToString()).ToEnum<NameDisplay>();
                 result.ParallelizeAssemblies = vsrunner.GetValue<int>(REGVALUE_ParallelizeAssemblies) != 0;
+                result.ParallelizeTestCollections = vsrunner.GetValue<int>(REGVALUE_ParallelizeTestCollections) != 0;
                 result.ShutdownAfterRun = vsrunner.GetValue<int>(REGVALUE_ShutdownAfterRun) != 0;
             }
 
@@ -37,9 +41,11 @@ namespace Xunit.Runner.VisualStudio.Settings
             using (var xunit = outercurve.CreateOrOpen("xUnit.net"))
             using (var vsrunner = xunit.CreateOrOpen("Visual Studio Test Plugin"))
             {
+                vsrunner.SetValue(REGVALUE_MaxParallelThreads, settings.MaxParallelThreads);
                 vsrunner.SetValue(REGVALUE_MessageDisplay, settings.MessageDisplay.ToString());
                 vsrunner.SetValue(REGVALUE_NameDisplay, settings.NameDisplay.ToString());
                 vsrunner.SetValue(REGVALUE_ParallelizeAssemblies, settings.ParallelizeAssemblies ? 1 : 0);
+                vsrunner.SetValue(REGVALUE_ParallelizeTestCollections, settings.ParallelizeTestCollections ? 1 : 0);
                 vsrunner.SetValue(REGVALUE_ShutdownAfterRun, settings.ShutdownAfterRun ? 1 : 0);
             }
         }
