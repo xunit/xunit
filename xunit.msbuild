@@ -10,7 +10,7 @@
 
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-    <ParallelizeAssemblies Condition="'$(ParallelizeAssemblies)' == ''">true</ParallelizeAssemblies>
+    <ParallelizeTests Condition="'$(ParallelizeTests)' == ''">true</ParallelizeTests>
     <MaxParallelThreads Condition="'$(MaxParallelThreads)' == ''">0</MaxParallelThreads>
     <TrackFileAccess>false</TrackFileAccess>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\</SolutionDir>
@@ -47,8 +47,7 @@
 
   <Target Name="DisableParallelization">
     <PropertyGroup>
-      <ParallelizeAssemblies>false</ParallelizeAssemblies>
-      <MaxParallelThreads>1</MaxParallelThreads>
+      <ParallelizeTests>false</ParallelizeTests>
     </PropertyGroup>
   </Target>
 
@@ -110,13 +109,13 @@
   <Target Name="_Test32" DependsOnTargets="Build">
     <MSBuild
         Projects="tools\xunit.tests.msbuild"
-        Properties="Configuration=$(Configuration);ParallelizeAssemblies=$(ParallelizeAssemblies);MaxParallelThreads=$(MaxParallelThreads)" />
+        Properties="Configuration=$(Configuration);ParallelizeTests=$(ParallelizeTests);MaxParallelThreads=$(MaxParallelThreads)" />
   </Target>
 
   <Target Name="_Test64" DependsOnTargets="Build">
     <Exec
         Condition="'$(PROCESSOR_ARCHITEW6432)' != ''"
-        Command="$(SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe tools\xunit.tests.msbuild /nologo /p:Configuration=$(Configuration);ParallelizeAssemblies=$(ParallelizeAssemblies);MaxParallelThreads=$(MaxParallelThreads) /v:$(RequestedVerbosity)" />
+        Command="$(SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe tools\xunit.tests.msbuild /nologo /p:Configuration=$(Configuration);ParallelizeTests=$(ParallelizeTests);MaxParallelThreads=$(MaxParallelThreads) /v:$(RequestedVerbosity)" />
   </Target>
 
   <Target Name="Test" DependsOnTargets="Build;_Test32;_Test64" />
