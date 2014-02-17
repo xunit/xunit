@@ -85,7 +85,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
+        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             discoverer.Find(includeSourceInformation, messageSink, options);
         }
@@ -103,7 +103,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
+        void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             discoverer.Find(typeName, includeSourceInformation, messageSink, options);
         }

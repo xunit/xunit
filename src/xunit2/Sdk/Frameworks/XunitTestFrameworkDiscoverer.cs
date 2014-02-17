@@ -73,7 +73,7 @@ namespace Xunit.Sdk
         public void Dispose() { }
 
         /// <inheritdoc/>
-        public void Find(bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
+        public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             Guard.ArgumentNotNull("messageSink", messageSink);
             Guard.ArgumentNotNull("options", options);
@@ -93,7 +93,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
+        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             Guard.ArgumentNotNullOrEmpty("typeName", typeName);
             Guard.ArgumentNotNull("messageSink", messageSink);

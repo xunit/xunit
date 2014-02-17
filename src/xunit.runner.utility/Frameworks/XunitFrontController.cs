@@ -97,25 +97,25 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public virtual void Find(bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
+        public virtual void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             InnerController.Find(includeSourceInformation, messageSink, options);
         }
 
         /// <inheritdoc/>
-        public virtual void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
+        public virtual void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             InnerController.Find(typeName, includeSourceInformation, messageSink, options);
         }
 
         /// <inheritdoc/>
-        public void Run(IMessageSink messageSink, TestFrameworkOptions discoveryOptions, TestFrameworkOptions executionOptions)
+        public virtual void Run(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
         {
             InnerController.Run(messageSink, discoveryOptions, executionOptions);
         }
 
         /// <inheritdoc/>
-        public virtual void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink, TestFrameworkOptions options)
+        public virtual void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             InnerController.Run(testMethods, messageSink, options);
         }

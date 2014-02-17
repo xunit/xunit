@@ -93,7 +93,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
+        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             Find(msg => true, includeSourceInformation, messageSink);
         }
@@ -110,7 +110,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, TestFrameworkOptions options)
+        void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             Find(msg => msg.TestCase.Class.Name == typeName, includeSourceInformation, messageSink);
         }
@@ -161,7 +161,7 @@ namespace Xunit
             Run(discoverySink.TestCases, messageSink);
         }
 
-        void ITestFrameworkExecutor.Run(IMessageSink messageSink, TestFrameworkOptions discoveryOptions, TestFrameworkOptions executionOptions)
+        void ITestFrameworkExecutor.Run(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
         {
             Run(messageSink);
         }
@@ -188,7 +188,7 @@ namespace Xunit
             messageSink.OnMessage(new TestAssemblyFinished(new Xunit1AssemblyInfo(assemblyFileName), results.Time, results.Total, results.Failed, results.Skipped));
         }
 
-        void ITestFrameworkExecutor.Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, TestFrameworkOptions options)
+        void ITestFrameworkExecutor.Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             Run(testCases, messageSink);
         }

@@ -68,7 +68,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Run(IMessageSink messageSink, TestFrameworkOptions discoveryOptions, TestFrameworkOptions executionOptions)
+        public void Run(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
         {
             var discoverySink = new TestDiscoveryVisitor();
 
@@ -82,7 +82,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, TestFrameworkOptions executionOptions)
+        public async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions)
         {
             Guard.ArgumentNotNull("testCases", testCases);
             Guard.ArgumentNotNull("messageSink", messageSink);

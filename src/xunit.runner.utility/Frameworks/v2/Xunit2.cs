@@ -39,7 +39,6 @@ namespace Xunit
             base.Dispose();
         }
 
-
         /// <summary>
         /// Starts the process of running all the xUnit.net v2 tests in the assembly.
         /// </summary>
@@ -52,7 +51,7 @@ namespace Xunit
             executor.Run(messageSink, discoveryOptions, executionOptions);
         }
 
-        void ITestFrameworkExecutor.Run(IMessageSink messageSink, TestFrameworkOptions discoveryOptions, TestFrameworkOptions executionOptions)
+        void ITestFrameworkExecutor.Run(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
         {
             executor.Run(messageSink, discoveryOptions, executionOptions);
         }
@@ -68,7 +67,7 @@ namespace Xunit
             executor.Run(testCases, messageSink, executionOptions);
         }
 
-        void ITestFrameworkExecutor.Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, TestFrameworkOptions options)
+        void ITestFrameworkExecutor.Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             executor.Run(testCases, messageSink, options);
         }
