@@ -75,6 +75,7 @@
     <Compile Include="CollectionDefinitionAttribute.cs" />
     <Compile Include="Extensions\AssumeIdentityAttribute.cs" />
     <Compile Include="Extensions\AutoRollbackAttribute.cs" />
+    <Compile Include="Extensions\ReflectionAbstractionExtensions.cs" />
     <Compile Include="Extensions\UseCultureAttribute.cs" />
     <Compile Include="IClassFixture.cs" />
     <Compile Include="ICollectionFixture.cs" />

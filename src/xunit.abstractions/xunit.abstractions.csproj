@@ -39,7 +39,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\ReflectionAbstractionExtensions.cs" />
     <Compile Include="Frameworks\ISourceInformation.cs" />
     <Compile Include="Frameworks\ISourceInformationProvider.cs" />
     <Compile Include="Frameworks\ITestFramework.cs" />
