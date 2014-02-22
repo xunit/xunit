@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory),xunit.sln))\tools\xunit.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -39,12 +40,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\ReflectionAbstractionExtensions.cs" />
+    <Compile Include="Frameworks\ISourceInformation.cs" />
     <Compile Include="Frameworks\ISourceInformationProvider.cs" />
     <Compile Include="Frameworks\ITestFramework.cs" />
     <Compile Include="Frameworks\ITestFrameworkDiscoverer.cs" />
     <Compile Include="Frameworks\ITestFrameworkExecutor.cs" />
     <Compile Include="Frameworks\ITestFrameworkOptions.cs" />
-    <Compile Include="Frameworks\SourceInformation.cs" />
     <Compile Include="Messages\BaseInterfaces\ITestClassMessage.cs" />
     <Compile Include="Messages\BaseInterfaces\ITestMessage.cs" />
     <Compile Include="Messages\IAfterTestFinished.cs" />

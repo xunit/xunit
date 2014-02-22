@@ -112,7 +112,7 @@ namespace Xunit.Sdk
         public string SkipReason { get; private set; }
 
         /// <inheritdoc/>
-        public SourceInformation SourceInformation { get; internal set; }
+        public ISourceInformation SourceInformation { get; internal set; }
 
         /// <inheritdoc/>
         public ITestCollection TestCollection { get; private set; }

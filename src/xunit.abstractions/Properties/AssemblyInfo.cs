@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 // This file does not use GlobalAssemblyInfo.cs because its version should not change over time.
 // Once 2.0 ships, this assembly will be considered to be frozen.
@@ -11,7 +10,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("xUnit.net Testing Framework")]
 [assembly: AssemblyCopyright("Copyright (C) Outercurve Foundation")]
 [assembly: CLSCompliant(true)]
-[assembly: ComVisible(false)]
 [assembly: AssemblyVersion("2.0.0.0")]
 
 [assembly: SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "xunit")]

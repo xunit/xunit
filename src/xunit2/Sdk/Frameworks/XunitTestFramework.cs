@@ -43,7 +43,7 @@ namespace Xunit.Sdk
 
         class NullSourceInformationProvider : ISourceInformationProvider
         {
-            public SourceInformation GetSourceInformation(ITestCase testCase)
+            public ISourceInformation GetSourceInformation(ITestCase testCase)
             {
                 return new SourceInformation();
             }

@@ -23,7 +23,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public SourceInformation GetSourceInformation(ITestCase testCase)
+        public ISourceInformation GetSourceInformation(ITestCase testCase)
         {
             var navData = session.GetNavigationData(testCase.Class.Name, testCase.Method.Name);
             if (navData == null)

@@ -24,6 +24,7 @@ namespace Xunit.Sdk
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
         /// </summary>
         /// <param name="assemblyFileName">Path of the test assembly.</param>
+        /// <param name="sourceInformationProvider">The source line number information provider.</param>
         public XunitTestFrameworkExecutor(string assemblyFileName, ISourceInformationProvider sourceInformationProvider)
         {
             this.assemblyFileName = assemblyFileName;

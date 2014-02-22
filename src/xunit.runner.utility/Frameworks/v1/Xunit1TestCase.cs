@@ -79,7 +79,7 @@ namespace Xunit
         public string SkipReason { get; private set; }
 
         /// <inheritdoc/>
-        public SourceInformation SourceInformation { get; set; }
+        public ISourceInformation SourceInformation { get; set; }
 
         /// <inheritdoc/>
         public ITestCollection TestCollection { get; set; }

@@ -24,7 +24,7 @@ public class TestCase : ITestCase
     public IMethodInfo Method { get; set; }
     public string MethodName { get; set; }
     public string SkipReason { get; set; }
-    public SourceInformation SourceInformation { get; set; }
+    public ISourceInformation SourceInformation { get; set; }
     public ITestCollection TestCollection { get; set; }
     public Dictionary<string, List<string>> Traits { get; set; }
     public string UniqueID { get; set; }

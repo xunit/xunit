@@ -34,7 +34,7 @@ namespace Xunit.Abstractions
         /// <summary>
         /// Get the source file name and line where the test is defined, if requested (and known).
         /// </summary>
-        SourceInformation SourceInformation { get; }
+        ISourceInformation SourceInformation { get; }
 
         /// <summary>
         /// Gets the test collection this test case belongs to.

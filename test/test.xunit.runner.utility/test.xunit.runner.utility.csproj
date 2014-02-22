@@ -45,6 +45,9 @@
     <Compile Include="..\..\src\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\SourceInformation.cs">
+      <Link>Common\SourceInformation.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>

@@ -18,7 +18,6 @@ namespace Xunit.Abstractions
         /// <summary>
         /// Starts the process of running all the tests in the assembly.
         /// </summary>
-        /// <param name="testCases">The test cases to run; if null, all tests in the assembly are run.</param>
         /// <param name="messageSink">The message sink to report results back to.</param>
         /// <param name="discoveryOptions">The options to be used during test discovery.</param>
         /// <param name="executionOptions">The options to be used during test execution.</param>

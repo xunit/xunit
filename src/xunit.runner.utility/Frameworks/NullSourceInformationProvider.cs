@@ -11,7 +11,7 @@ namespace Xunit
     public class NullSourceInformationProvider : LongLivedMarshalByRefObject, ISourceInformationProvider
     {
         /// <inheritdoc/>
-        public SourceInformation GetSourceInformation(ITestCase testCase)
+        public ISourceInformation GetSourceInformation(ITestCase testCase)
         {
             return new SourceInformation();
         }
