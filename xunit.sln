@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DAED8494-AC8A-4C67-A8F1-616D95ECC302}"
 EndProject
@@ -44,6 +44,21 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.visualstudio.testadapter", "src\xunit.runner.visualstudio.testadapter\xunit.runner.visualstudio.testadapter.csproj", "{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit2.assert", "test\test.xunit2.assert\test.xunit2.assert.csproj", "{B1875255-91B8-4B17-A6B3-7A96A49004D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{3AD1513F-07B7-4C14-AB10-83682616ACE5}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		build.ps1 = build.ps1
+		xunit-debug.xunit2 = xunit-debug.xunit2
+		xunit-release.xunit2 = xunit-release.xunit2
+		xunit.msbuild = xunit.msbuild
+		tools\xunit.targets = tools\xunit.targets
+		tools\xunit.tests.msbuild = tools\xunit.tests.msbuild
+		tools\xunit.vsix.msbuild = tools\xunit.vsix.msbuild
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.abstractions.pcl", "src\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj", "{77743589-F177-4007-97B8-50B82A1C7044}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,6 +142,10 @@ Global
 		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77743589-F177-4007-97B8-50B82A1C7044}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77743589-F177-4007-97B8-50B82A1C7044}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77743589-F177-4007-97B8-50B82A1C7044}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77743589-F177-4007-97B8-50B82A1C7044}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -141,6 +160,7 @@ Global
 		{924678EB-03AF-4513-827F-8D311CAFDAD7} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
 		{80B04AFE-4331-4CDD-B247-864AC6482F7C} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
 		{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
+		{77743589-F177-4007-97B8-50B82A1C7044} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
 		{4FEC8604-E544-43C2-979C-F0815B5770E2} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{C32639C0-50EB-49AB-9681-C3334E5DEAE7} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{8CFA4522-D8B4-4BE9-A01A-A7F7124B5FCC} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
