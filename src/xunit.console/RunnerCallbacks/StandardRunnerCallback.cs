@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 
@@ -6,24 +7,30 @@ namespace Xunit.ConsoleClient
 {
     public class StandardRunnerCallback : RunnerCallback
     {
-        readonly bool silent;
+	    readonly bool silent;
         int testCount = 0;
         readonly int totalCount;
+		private Stopwatch testTimer = new Stopwatch();
+	    private TextWriter timing;
 
-        public StandardRunnerCallback(bool silent, int totalCount)
+	    public StandardRunnerCallback(string timingReport, bool silent, int totalCount)
         {
-            this.silent = silent;
+	        timing = File.CreateText(timingReport);
+	        this.silent = silent;
             this.totalCount = totalCount;
         }
 
         public override void AssemblyFinished(TestAssembly testAssembly, int total, int failed, int skipped, double time)
         {
-            base.AssemblyFinished(testAssembly, total, failed, skipped, time);
+			timing.Dispose();
+			
+			base.AssemblyFinished(testAssembly, total, failed, skipped, time);
 
             if (!silent)
                 Console.Write("\r");
 
             Console.WriteLine("{0} total, {1} failed, {2} skipped, took {3} seconds", total, failed, skipped, time.ToString("0.000", CultureInfo.InvariantCulture));
+
         }
 
         public override bool ClassFailed(TestClass testClass, string exceptionType, string message, string stackTrace)
@@ -49,6 +56,8 @@ namespace Xunit.ConsoleClient
 
 	    public override bool TestStart(TestMethod method)
 	    {
+			testTimer.Reset();
+			testTimer.Start();
 		    try
 		    {
 			    File.WriteAllText("last-test.txt", method.DisplayName);
@@ -92,6 +101,9 @@ namespace Xunit.ConsoleClient
 
         protected override bool TestFinished(TestMethod testMethod, TestResult testResult)
         {
+	        testTimer.Stop();
+			timing.WriteLine("{0}\t{1}", testMethod.DisplayName,testTimer.ElapsedMilliseconds);
+			
             if (!silent)
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;

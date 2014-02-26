@@ -110,6 +110,7 @@ namespace Xunit.ConsoleClient
                 List<IResultXmlTransform> transforms = TransformFactory.GetAssemblyTransforms(assembly);
 
                 Console.WriteLine();
+				Console.WriteLine("Custom Hibernating Rhinos build - source available at http://github.com/ayende/xunit");
                 Console.WriteLine("xunit.dll:     Version {0}", testAssembly.XunitVersion);
                 Console.WriteLine("Test assembly: {0}", testAssembly.AssemblyFilename);
                 Console.WriteLine();
@@ -117,6 +118,9 @@ namespace Xunit.ConsoleClient
                 try
                 {
                     var methods = new List<TestMethod>(testAssembly.EnumerateTestMethods(project.Filters.Filter));
+
+	                SortByTiming(assembly, methods);
+
                     if (methods.Count == 0)
                     {
                         Console.WriteLine("Skipping assembly (no tests match the specified filter).");
@@ -125,7 +129,7 @@ namespace Xunit.ConsoleClient
 
                     var callback =
                         teamcity ? (RunnerCallback)new TeamCityRunnerCallback()
-                                 : new StandardRunnerCallback(silent, methods.Count);
+								 : new StandardRunnerCallback(assembly.AssemblyFilename +".test-metrics.txt", silent, methods.Count);
                     var assemblyXml = testAssembly.Run(methods, callback);
 
                     ++totalAssemblies;
@@ -154,5 +158,35 @@ namespace Xunit.ConsoleClient
 
             return totalFailures;
         }
+
+	    private static void SortByTiming(XunitProjectAssembly assembly, List<TestMethod> methods)
+	    {
+		    var file = assembly.AssemblyFilename + ".test-metrics.txt";
+		    if (File.Exists(file) == false)
+			    return;
+
+		    var timings = new Dictionary<string, int>();
+			foreach (var line in File.ReadAllLines(file))
+			{
+				var strings = line.Split('\t');
+				if (strings.Length != 2)
+					continue;
+				int val;
+				if (int.TryParse(strings[1], out val) == false)
+					continue;
+				timings[strings[0]] = val;
+			}
+
+			methods.Sort((x, y) =>
+			{
+				int xTime;
+				if (timings.TryGetValue(x.DisplayName, out xTime) == false)
+					xTime = -1;
+				int yTime;
+				if (timings.TryGetValue(y.DisplayName, out yTime) == false)
+					yTime = -1;
+				return xTime - yTime;
+			});
+	    }
     }
 }
