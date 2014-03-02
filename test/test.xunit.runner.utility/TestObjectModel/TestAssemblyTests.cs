@@ -174,7 +174,7 @@ public class TestAssemblyTests
                                .Returns("<class2/>")
                                .Verifiable();
 
-            testAssembly.Run(testAssembly.EnumerateTestMethods(), callback.Object);
+            testAssembly.Run(testAssembly.EnumerateTestMethods().ToList(), callback.Object);
 
             testAssembly.Class1.Verify();
             testAssembly.Class2.Verify();
@@ -214,7 +214,7 @@ public class TestAssemblyTests
                                .Returns("<class2/>")
                                .Verifiable();
 
-            var result = testAssembly.Run(testAssembly.EnumerateTestMethods(), callback.Object);
+            var result = testAssembly.Run(testAssembly.EnumerateTestMethods().ToList(), callback.Object);
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(result);

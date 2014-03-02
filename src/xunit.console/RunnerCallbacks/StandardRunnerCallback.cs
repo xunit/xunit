@@ -11,11 +11,16 @@ namespace Xunit.ConsoleClient
         int testCount = 0;
         readonly int totalCount;
 		private Stopwatch testTimer = new Stopwatch();
-	    private TextWriter timing;
+	    private StreamWriter timing, log;
 
 	    public StandardRunnerCallback(string timingReport, bool silent, int totalCount)
         {
 	        timing = File.CreateText(timingReport);
+		    timing.AutoFlush = true;
+
+		    log = File.CreateText("test.log");
+		    log.AutoFlush = true;
+
 	        this.silent = silent;
             this.totalCount = totalCount;
         }
@@ -30,7 +35,7 @@ namespace Xunit.ConsoleClient
                 Console.Write("\r");
 
             Console.WriteLine("{0} total, {1} failed, {2} skipped, took {3} seconds", total, failed, skipped, time.ToString("0.000", CultureInfo.InvariantCulture));
-
+			log.WriteLine("{0} total, {1} failed, {2} skipped, took {3} seconds", total, failed, skipped, time.ToString("0.000", CultureInfo.InvariantCulture));
         }
 
         public override bool ClassFailed(TestClass testClass, string exceptionType, string message, string stackTrace)
@@ -40,6 +45,7 @@ namespace Xunit.ConsoleClient
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("{0} [FIXTURE FAIL]", testClass.TypeName);
+			log.WriteLine("{0} [FIXTURE FAIL]", testClass.TypeName);
             Console.ResetColor();
 
             Console.WriteLine(Indent(message));
@@ -47,10 +53,13 @@ namespace Xunit.ConsoleClient
             if (stackTrace != null)
             {
                 Console.WriteLine(Indent("Stack Trace:"));
+				log.WriteLine(Indent("Stack Trace:"));
                 Console.WriteLine(Indent(StackFrameTransformer.TransformStack(stackTrace)));
+				log.WriteLine(Indent(StackFrameTransformer.TransformStack(stackTrace)));
             }
 
             Console.WriteLine();
+			log.WriteLine();
             return true;
         }
 
@@ -83,6 +92,7 @@ namespace Xunit.ConsoleClient
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("{0} [FAIL]", result.DisplayName);
+			log.WriteLine("{0} [FAIL]", result.DisplayName);
             Console.ResetColor();
 
             Console.WriteLine(Indent(result.ExceptionMessage));
@@ -91,12 +101,15 @@ namespace Xunit.ConsoleClient
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine(Indent("Stack Trace:"));
+				log.WriteLine(Indent("Stack Trace:"));
                 Console.ResetColor();
 
                 Console.WriteLine(Indent(StackFrameTransformer.TransformStack(result.ExceptionStackTrace)));
+				log.WriteLine(Indent(StackFrameTransformer.TransformStack(result.ExceptionStackTrace)));
             }
 
             Console.WriteLine();
+			log.WriteLine();
         }
 
         protected override bool TestFinished(TestMethod testMethod, TestResult testResult)
@@ -108,6 +121,7 @@ namespace Xunit.ConsoleClient
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.Write("\rTests complete: {0} of {1}", ++testCount, totalCount);
+				log.Write("\rTests complete: {0} of {1}", ++testCount, totalCount);
                 Console.ResetColor();
             }
 
@@ -121,10 +135,13 @@ namespace Xunit.ConsoleClient
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("{0} [SKIP]", result.DisplayName);
+			log.WriteLine("{0} [SKIP]", result.DisplayName);
             Console.ResetColor();
 
             Console.WriteLine(Indent(result.Reason));
+			log.WriteLine(Indent(result.Reason));
             Console.WriteLine();
+			log.WriteLine();
         }
 
         // Helpers

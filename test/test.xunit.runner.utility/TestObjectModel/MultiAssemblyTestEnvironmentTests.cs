@@ -255,7 +255,7 @@ public class MultiAssemblyTestEnvironmentTests
             mate.Run(new[] { assembly1Method1 }, callback.Object);
 
             mate.Assembly1.Verify();
-            mate.Assembly2.Verify(c => c.Run(It.IsAny<IEnumerable<TestMethod>>(), callback.Object), Times.Never());
+            mate.Assembly2.Verify(c => c.Run(It.IsAny<IEnumerable<TestMethod>>().ToList(), callback.Object), Times.Never());
         }
 
         [Fact]

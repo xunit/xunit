@@ -127,9 +127,10 @@ namespace Xunit.ConsoleClient
                         continue;
                     }
 
-                    var callback =
+	                var timingReport = assembly.AssemblyFilename + "." + DateTime.UtcNow.ToString("O").Replace(":","-")  +".test-metrics.txt";
+	                var callback =
                         teamcity ? (RunnerCallback)new TeamCityRunnerCallback()
-								 : new StandardRunnerCallback(assembly.AssemblyFilename +".test-metrics.txt", silent, methods.Count);
+								 : new StandardRunnerCallback(timingReport, silent, methods.Count);
                     var assemblyXml = testAssembly.Run(methods, callback);
 
                     ++totalAssemblies;
@@ -161,12 +162,13 @@ namespace Xunit.ConsoleClient
 
 	    private static void SortByTiming(XunitProjectAssembly assembly, List<TestMethod> methods)
 	    {
-		    var file = assembly.AssemblyFilename + ".test-metrics.txt";
-		    if (File.Exists(file) == false)
+			var fileMask = Path.GetFileName(assembly.AssemblyFilename) + ".*.test-metrics.txt";
+		    var results = Directory.GetFileSystemEntries(Path.GetDirectoryName(assembly.AssemblyFilename), fileMask);
+			if (results.Length == 0)
 			    return;
 
 		    var timings = new Dictionary<string, int>();
-			foreach (var line in File.ReadAllLines(file))
+			foreach (var line in File.ReadAllLines(results[results.Length-1]))
 			{
 				var strings = line.Split('\t');
 				if (strings.Length != 2)
