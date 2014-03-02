@@ -121,7 +121,6 @@ namespace Xunit.ConsoleClient
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.Write("\rTests complete: {0} of {1}", ++testCount, totalCount);
-				log.Write("\rTests complete: {0} of {1}", ++testCount, totalCount);
                 Console.ResetColor();
             }
 
