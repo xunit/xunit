@@ -49,6 +49,7 @@ namespace Xunit.ConsoleClient
             Console.ResetColor();
 
             Console.WriteLine(Indent(message));
+            log.WriteLine(Indent(message));
 
             if (stackTrace != null)
             {
@@ -96,6 +97,7 @@ namespace Xunit.ConsoleClient
             Console.ResetColor();
 
             Console.WriteLine(Indent(result.ExceptionMessage));
+            log.WriteLine(Indent(result.ExceptionMessage));
 
             if (result.ExceptionStackTrace != null)
             {
@@ -116,7 +118,7 @@ namespace Xunit.ConsoleClient
         {
 	        testTimer.Stop();
 			timing.WriteLine("{0}\t{1}", testMethod.DisplayName,testTimer.ElapsedMilliseconds);
-			
+			log.WriteLine("{0} passed", testMethod.DisplayName);
             if (!silent)
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;

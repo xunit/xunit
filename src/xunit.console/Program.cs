@@ -13,7 +13,8 @@ namespace Xunit.ConsoleClient
         {
             Console.WriteLine("xUnit.net console test runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
             Console.WriteLine("Copyright (C) 2013 Outercurve Foundation.");
-
+            Console.WriteLine("Custom Hibernating Rhinos build - source available at http://github.com/ayende/xunit");
+               
             if (args.Length == 0 || args[0] == "/?")
             {
                 PrintUsage();
