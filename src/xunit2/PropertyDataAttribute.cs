@@ -36,7 +36,7 @@ namespace Xunit
         /// <inheritdoc/>
         public override IEnumerable<object[]> GetData(MethodInfo testMethod)
         {
-            Guard.ArgumentNotNull("methodUnderTest", testMethod);
+            Guard.ArgumentNotNull("testMethod", testMethod);
 
             Type type = PropertyType ?? testMethod.DeclaringType;
             PropertyInfo propInfo = type.GetProperty(PropertyName, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
