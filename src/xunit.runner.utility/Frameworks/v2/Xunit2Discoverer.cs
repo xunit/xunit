@@ -38,12 +38,12 @@ namespace Xunit
         internal Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName, bool shadowCopy)
             : this(sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName), configFileName, shadowCopy) { }
 
-        Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, IAssemblyInfo assemblyInfo, string assemblyFileName, string xunit2AssemblyPath, string configFileName, bool shadowCopy)
+        Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, IAssemblyInfo assemblyInfo, string assemblyFileName, string xunitExecutionAssemblyPath, string configFileName, bool shadowCopy)
         {
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
-            Guard.ArgumentValid("xunit2AssemblyPath", "File not found: " + xunit2AssemblyPath, File.Exists(xunit2AssemblyPath));
+            Guard.ArgumentValid("xunitExecutionAssemblyPath", "File not found: " + xunitExecutionAssemblyPath, File.Exists(xunitExecutionAssemblyPath));
 
-            framework = new AppDomainTestFramework(sourceInformationProvider, assemblyFileName, xunit2AssemblyPath, "Xunit.Sdk.XunitTestFramework", configFileName, shadowCopy);
+            framework = new AppDomainTestFramework(sourceInformationProvider, assemblyFileName, xunitExecutionAssemblyPath, "Xunit.Sdk.XunitTestFramework", configFileName, shadowCopy);
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
             if (assemblyInfo == null)

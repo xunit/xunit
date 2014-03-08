@@ -188,9 +188,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         static bool IsXunitTestAssembly(string assemblyFileName)
         {
-            string xunit1Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
-            string xunit2Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
-            return File.Exists(xunit1Path) || File.Exists(xunit2Path);
+            string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
+            string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
+            return File.Exists(xunitPath) || File.Exists(xunitExecutionPath);
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)

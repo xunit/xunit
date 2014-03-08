@@ -72,12 +72,12 @@ namespace Xunit
         /// </summary>
         protected virtual IFrontController CreateInnerController()
         {
-            var xunit1Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
-            var xunit2Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
+            var xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
+            var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
 
-            if (File.Exists(xunit2Path))
+            if (File.Exists(xunitExecutionPath))
                 return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
-            if (File.Exists(xunit1Path))
+            if (File.Exists(xunitPath))
                 return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
 
             throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit.execution.dll.", assemblyFileName);

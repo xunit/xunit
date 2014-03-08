@@ -1,11 +1,11 @@
 <xunit2>
     <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.abstractions\bin\Release\test.xunit.abstractions.dll" />
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.assert\bin\Release\test.xunit.assert.dll" />
     <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.console\bin\Release\test.xunit.console.dll" />
+    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.execution\bin\Release\test.xunit.execution.dll" />
     <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.runner.msbuild\bin\Release\test.xunit.runner.msbuild.dll" />
     <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.runner.tdnet\bin\Release\test.xunit.runner.tdnet.dll" />
     <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.runner.utility\bin\Release\test.xunit.runner.utility.dll" />
     <assembly filename="C:\Dev\xunit\xunit\test\test.xunit.runner.visualstudio.testadapter\bin\Release\test.xunit.runner.visualstudio.testadapter.dll" />
     <assembly filename="C:\Dev\xunit\xunit\test\test.xunit1\bin\Release\test.xunit1.dll" />
-    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit2\bin\Release\test.xunit2.dll" />
-    <assembly filename="C:\Dev\xunit\xunit\test\test.xunit2.assert\bin\Release\test.xunit2.assert.dll" />
 </xunit2>

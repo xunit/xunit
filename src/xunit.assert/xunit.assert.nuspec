@@ -5,7 +5,7 @@
         <version>2.0.0-alpha</version>
         <title>xUnit.net [Assertion Library]</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>Includes the current assertion library from xUnit.net (xunit2.assert.dll).</description>
+        <description>Includes the current assertion library from xUnit.net (xunit.assert.dll).</description>
         <language>en-US</language>
         <projectUrl>http://xunit.codeplex.com</projectUrl>
         <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>

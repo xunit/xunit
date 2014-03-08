@@ -5,7 +5,7 @@
         <version>2.0.0-alpha</version>
         <title>xUnit.net [Test Execution Library]</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>Includes the execution framework for xUnit.net (xunit2.execution.dll).</description>
+        <description>Includes the execution framework for xUnit.net (xunit.execution.dll).</description>
         <language>en-US</language>
         <projectUrl>http://xunit.codeplex.com</projectUrl>
         <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>
