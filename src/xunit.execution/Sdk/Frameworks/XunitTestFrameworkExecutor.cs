@@ -19,6 +19,7 @@ namespace Xunit.Sdk
         readonly string assemblyFileName;
         readonly IAssemblyInfo assemblyInfo;
         readonly ISourceInformationProvider sourceInformationProvider;
+        readonly List<IDisposable> toDispose = new List<IDisposable>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
@@ -47,7 +48,10 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Dispose() { }
+        public void Dispose()
+        {
+            toDispose.ForEach(x => x.Dispose());
+        }
 
         string GetDisplayName(IAttributeInfo collectionBehaviorAttribute, bool disableParallelization, int maxParallelism)
         {
@@ -59,6 +63,18 @@ namespace Xunit.Sdk
                                         testCollectionFactory.DisplayName,
                                         disableParallelization ? "non-parallel" : "parallel",
                                         maxParallelism > 0 ? String.Format(" (max {0} threads)", maxParallelism) : "");
+        }
+
+        TaskScheduler GetScheduler(int maxParallelThreads)
+        {
+            if (maxParallelThreads > 0)
+            {
+                var scheduler = new MaxConcurrencyTaskScheduler(maxParallelThreads);
+                toDispose.Add(scheduler);
+                return scheduler;
+            }
+
+            return TaskScheduler.Current;
         }
 
         static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo ordererAttribute)
@@ -107,7 +123,7 @@ namespace Xunit.Sdk
             var displayName = GetDisplayName(collectionBehaviorAttribute, disableParallelization, maxParallelThreads);
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
-            var scheduler = maxParallelThreads > 0 ? new MaxConcurrencyTaskScheduler(maxParallelThreads) : TaskScheduler.Current;
+            var scheduler = GetScheduler(maxParallelThreads);
 
             string currentDirectory = Directory.GetCurrentDirectory();
 

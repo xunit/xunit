@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -9,6 +11,8 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFramework : LongLivedMarshalByRefObject, ITestFramework
     {
+        List<IDisposable> toDispose = new List<IDisposable>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFramework"/> class.
         /// </summary>
@@ -26,19 +30,26 @@ namespace Xunit.Sdk
             // We want to immediately return before we call DisconnectAll, since we are in the list
             // of things that will be disconnected.
             await Task.Delay(1);
+
+            toDispose.ForEach(x => x.Dispose());
+
             LongLivedMarshalByRefObject.DisconnectAll();
         }
 
         /// <inheritdoc/>
         public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assemblyInfo)
         {
-            return new XunitTestFrameworkDiscoverer(assemblyInfo, SourceInformationProvider);
+            var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, SourceInformationProvider);
+            toDispose.Add(discoverer);
+            return discoverer;
         }
 
         /// <inheritdoc/>
         public ITestFrameworkExecutor GetExecutor(string assemblyFileName)
         {
-            return new XunitTestFrameworkExecutor(assemblyFileName, SourceInformationProvider);
+            var executor = new XunitTestFrameworkExecutor(assemblyFileName, SourceInformationProvider);
+            toDispose.Add(executor);
+            return executor;
         }
 
         class NullSourceInformationProvider : ISourceInformationProvider
