@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -41,11 +42,11 @@ public class Xunit2TheoryAcceptanceTests
         {
             var results = Run<ITestPassed>(typeof(GenericWithSerializableData));
 
-            Assert.Collection(results,
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: 21.12)", result.TestDisplayName),
+            Assert.Collection(results.OrderBy(r => r.TestDisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.TestDisplayName),
                 // TODO: The parameter values here should eventually read: '[1, 2, 3]' and '["a", "b", "c"]'
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32[], List<String>>(value1: System.Int32[], value2: System.Collections.Generic.List`1[System.String])", result.TestDisplayName),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.TestDisplayName)
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: 21.12)", result.TestDisplayName)
             );
         }
 
