@@ -42,7 +42,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         {
             var serializedTestCase = discoverer.Serialize(xunitTestCase);
             var fqTestMethodName = String.Format("{0}.{1}", xunitTestCase.Class.Name, xunitTestCase.Method.Name);
-            var displayName = GetDisplayName(xunitTestCase.DisplayName, xunitTestCase.Method.Name, fqTestMethodName, settings);
+            var displayName = settings.GetDisplayName(xunitTestCase.DisplayName, xunitTestCase.Method.Name, fqTestMethodName);
             var uniqueName = forceUniqueNames ? String.Format("{0} ({1})", fqTestMethodName, xunitTestCase.UniqueID) : fqTestMethodName;
 
             var result = new TestCase(uniqueName, uri, source) { DisplayName = Escape(displayName) };
@@ -94,15 +94,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             {
                 return null;
             }
-        }
-
-        static string GetDisplayName(string displayName, string shortMethodName, string fullyQualifiedMethodName, XunitVisualStudioSettings settings)
-        {
-            if (settings.NameDisplay == NameDisplay.Full)
-                return displayName;
-            if (displayName == fullyQualifiedMethodName || displayName.StartsWith(fullyQualifiedMethodName + "("))
-                return shortMethodName + displayName.Substring(fullyQualifiedMethodName.Length);
-            return displayName;
         }
 
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)

@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Abstractions;
+using Xunit.Runner.VisualStudio.Settings;
 using VsTestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 
 namespace Xunit.Runner.VisualStudio.TestAdapter
@@ -13,12 +14,15 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         readonly Func<bool> cancelledThunk;
         readonly ITestExecutionRecorder recorder;
         readonly Dictionary<ITestCase, TestCase> testCases;
+        readonly XunitVisualStudioSettings settings;
 
         public VsExecutionVisitor(ITestExecutionRecorder recorder, Dictionary<ITestCase, TestCase> testCases, Func<bool> cancelledThunk)
         {
             this.recorder = recorder;
             this.testCases = testCases;
             this.cancelledThunk = cancelledThunk;
+
+            settings = SettingsProvider.Load();
         }
 
         protected override bool Visit(IErrorMessage error)
@@ -68,11 +72,13 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         private VsTestResult MakeVsTestResult(ITestResultMessage testResult, TestOutcome outcome)
         {
             var testCase = testCases[testResult.TestCase];
+            var fqTestMethodName = String.Format("{0}.{1}", testResult.TestCase.Class.Name, testResult.TestCase.Method.Name);
+            var displayName = settings.GetDisplayName(testResult.TestDisplayName, testResult.TestCase.Method.Name, fqTestMethodName);
 
             var result = new VsTestResult(testCase)
             {
                 ComputerName = Environment.MachineName,
-                DisplayName = testResult.TestDisplayName,
+                DisplayName = displayName,
                 Duration = TimeSpan.FromSeconds((double)testResult.ExecutionTime),
                 Outcome = outcome,
             };

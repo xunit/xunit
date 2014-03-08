@@ -24,5 +24,14 @@ namespace Xunit.Runner.VisualStudio.Settings
         public bool ParallelizeAssemblies { get; set; }
         public bool ParallelizeTestCollections { get; set; }
         public bool ShutdownAfterRun { get; set; }
+
+        public string GetDisplayName(string displayName, string shortMethodName, string fullyQualifiedMethodName)
+        {
+            if (NameDisplay == NameDisplay.Full)
+                return displayName;
+            if (displayName == fullyQualifiedMethodName || displayName.StartsWith(fullyQualifiedMethodName + "("))
+                return shortMethodName + displayName.Substring(fullyQualifiedMethodName.Length);
+            return displayName;
+        }
     }
 }
