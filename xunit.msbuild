@@ -2,9 +2,6 @@
   <UsingTask
       AssemblyFile="packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
       TaskName="CodePlex.MSBuildTasks.RegexReplace"/>
-  <UsingTask
-      AssemblyFile="packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
-      TaskName="CodePlex.MSBuildTasks.Zip"/>
 
   <!-- Settings -->
 
@@ -40,7 +37,7 @@
 
   <!-- Build server targets -->
 
-  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;Zip" />
+  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages" />
 
   <!-- Individiual targets -->
 
@@ -52,7 +49,7 @@
 
   <Target Name="Clean">
     <ItemGroup>
-      <CleanFileList Include="xunit-build-*.zip;xunit-symbols-*.zip;*.html;*.xml;*.nupkg;.nuget\NuGet.exe"/>
+      <CleanFileList Include="*.html;*.xml;*.nupkg;.nuget\NuGet.exe"/>
       <CleanFolderList Include="xunit.console\bin\$(Configuration).x86"/>
     </ItemGroup>
     <MSBuild
@@ -148,41 +145,6 @@
       <NupkgFiles Include="*.nupkg" Exclude="*.symbols.nupkg" />
     </ItemGroup>
     <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive" />
-  </Target>
-
-  <Target Name="Zip">
-    <ItemGroup>
-      <ZipFileList Include="license.txt"/>
-      <ZipFileList Include="src\xunit\bin\$(Configuration)\xunit.??l"/>
-      <ZipFileList Include="src\xunit\bin\$(Configuration)\xunit.dll.tdnet"/>
-      <ZipFileList Include="src\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.??l"/>
-      <ZipFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.exe*"/>
-      <ZipFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe*"/>
-      <ZipFileList Include="src\xunit.console\bin\$(Configuration)\*.xslt"/>
-      <ZipFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.??l"/>
-      <ZipFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.dll"/>
-      <ZipFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"/>
-    </ItemGroup>
-    <Delete Files="xunit-build-$(BuildNumber).zip"/>
-    <Zip
-        ZipFileName="xunit-build-$(BuildNumber).zip"
-        Files="@(ZipFileList)"
-        StripPath="true"/>
-
-    <ItemGroup>
-      <ZipPdbFileList Include="src\xunit\bin\$(Configuration)\xunit.pdb"/>
-      <ZipPdbFileList Include="src\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.pdb"/>
-      <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.pdb"/>
-      <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.pdb"/>
-      <ZipPdbFileList Include="src\xunit.runner.utility\bin\$(Configuration)\xunit.runner.utility.pdb"/>
-      <ZipPdbFileList Include="src\xunit.runner.tdnet\bin\$(Configuration)\xunit.runner.tdnet.pdb"/>
-      <ZipPdbFileList Include="src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.pdb"/>
-    </ItemGroup>
-    <Delete Files="xunit-symbols-$(BuildNumber).zip"/>
-    <Zip
-        ZipFileName="xunit-symbols-$(BuildNumber).zip"
-        Files="@(ZipPdbFileList)"
-        StripPath="true"/>
   </Target>
 
   <Target Name="_DownloadNuGet">
