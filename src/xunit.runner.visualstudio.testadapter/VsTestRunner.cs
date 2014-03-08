@@ -103,17 +103,19 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         IEnumerable<IGrouping<string, TestCase>> GetTests(IEnumerable<string> sources, IMessageLogger logger, XunitVisualStudioSettings settings, Stopwatch stopwatch)
         {
-            var sourceSinks = new List<SourceSink<TestDiscoveryVisitor>>();
             var result = new List<IGrouping<string, TestCase>>();
 
-            try
+            RemotingUtility.CleanUpRegisteredChannels();
+
+            using (AssemblyHelper.SubscribeResolve())
             {
                 if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                    lock (stopwatch)
-                        logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery started", stopwatch.Elapsed));
+                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery started", stopwatch.Elapsed));
 
                 foreach (string assemblyFileName in sources)
                 {
+                    var fileName = Path.GetFileName(assemblyFileName);
+
                     try
                     {
                         if (cancelled)
@@ -122,68 +124,47 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                         if (!IsXunitTestAssembly(assemblyFileName))
                         {
                             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                lock (stopwatch)
-                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
+                                logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1}", stopwatch.Elapsed, fileName));
                         }
                         else
                         {
                             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                lock (stopwatch)
-                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
+                                logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
 
-                            var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true);
-                            var sink = new TestDiscoveryVisitor();
-                            sourceSinks.Add(new SourceSink<TestDiscoveryVisitor> { Framework = framework, Sink = sink, AssemblyFileName = assemblyFileName });
-                            framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
+                            using (var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true))
+                            using (var sink = new TestDiscoveryVisitor())
+                            {
+                                framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
+                                sink.Finished.WaitOne();
+
+                                result.Add(
+                                    new Grouping<string, TestCase>(
+                                        assemblyFileName,
+                                        sink.TestCases
+                                            .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
+                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
+                                            .ToList()
+                                    )
+                                );
+
+                                if (settings.MessageDisplay != MessageDisplay.None)
+                                    logger.SendMessage(TestMessageLevel.Informational,
+                                                       String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, Path.GetFileName(assemblyFileName), sink.TestCases.Count));
+                            }
                         }
                     }
                     catch (Exception e)
                     {
-                        lock (stopwatch)
-                            logger.SendMessage(TestMessageLevel.Error,
-                                           String.Format("[xUnit.net {0}] Exception discovering tests from {1}: {2}", stopwatch.Elapsed, assemblyFileName, e));
+                        logger.SendMessage(TestMessageLevel.Error,
+                                       String.Format("[xUnit.net {0}] Exception discovering tests from {1}: {2}", stopwatch.Elapsed, assemblyFileName, e));
                     }
                 }
 
-                var toFinish = new List<SourceSink<TestDiscoveryVisitor>>(sourceSinks);
-
-                while (toFinish.Count > 0)
-                {
-                    var finishedIdx = WaitHandle.WaitAny(sourceSinks.Select(sink => sink.Sink.Finished).ToArray());
-                    var sourceSink = toFinish[finishedIdx];
-
-                    result.Add(
-                        new Grouping<string, TestCase>(
-                            sourceSink.AssemblyFileName,
-                            sourceSink.Sink.TestCases
-                                           .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
-                                           .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(sourceSink.AssemblyFileName, sourceSink.Framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
-                                           .ToList()
-                        )
-                    );
-
-                    if (settings.MessageDisplay != MessageDisplay.None)
-                        lock (stopwatch)
-                            logger.SendMessage(TestMessageLevel.Informational,
-                                           String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, Path.GetFileName(sourceSink.AssemblyFileName), sourceSink.Sink.TestCases.Count));
-
-                    toFinish.RemoveAt(finishedIdx);
-                }
-            }
-            finally
-            {
-                foreach (var sourceSink in sourceSinks)
-                {
-                    sourceSink.Sink.Dispose();
-                    sourceSink.Framework.Dispose();
-                }
-            }
-
-            if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                lock (stopwatch)
+                if (settings.MessageDisplay == MessageDisplay.Diagnostic)
                     logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery complete", stopwatch.Elapsed));
 
-            return result;
+                return result;
+            }
         }
 
         static bool IsXunitTestAssembly(string assemblyFileName)
