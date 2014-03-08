@@ -31,12 +31,15 @@ namespace Xunit.Sdk
 
         static IEnumerable<object> Convert(IEnumerable<CustomAttributeTypedArgument> arguments)
         {
-            foreach (CustomAttributeTypedArgument argument in arguments)
+            foreach (var argument in arguments)
             {
-                object value = argument.Value;
-                IEnumerable<CustomAttributeTypedArgument> valueAsEnumeration = value as IEnumerable<CustomAttributeTypedArgument>;
+                var value = argument.Value;
+
+                // Collections are recursively IEnumerable<CustomAttributeTypedArgument> rather than
+                // being the exact matching typing, so the inner values must be converted.
+                var valueAsEnumeration = value as IEnumerable<CustomAttributeTypedArgument>;
                 if (valueAsEnumeration != null)
-                    value = Convert(valueAsEnumeration).ToList();
+                    value = Convert(valueAsEnumeration).ToArray();
 
                 yield return value;
             }

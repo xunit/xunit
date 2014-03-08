@@ -57,7 +57,7 @@
     <Compile Include="IClassFixture.cs" />
     <Compile Include="ICollectionFixture.cs" />
     <Compile Include="InlineDataAttribute.cs" />
-    <Compile Include="PropertyDataAttribute.cs" />
+    <Compile Include="MemberDataAttribute.cs" />
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
     <Compile Include="Sdk\DataAttribute.cs" />
     <Compile Include="Sdk\DataDiscovererAttribute.cs" />

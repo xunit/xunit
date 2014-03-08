@@ -57,7 +57,7 @@ public class XunitTheoryTestCaseTests
             }
 
             [Theory]
-            [PropertyData("SomeData")]
+            [MemberData("SomeData")]
             public void TestWithData(int x, double y, string z)
             {
                 Assert.NotEqual(x, 0);
@@ -72,7 +72,7 @@ public class XunitTheoryTestCaseTests
             }
 
             [Theory]
-            [PropertyData("ThrowingData")]
+            [MemberData("ThrowingData")]
             public void TestWithThrowingData(int x) { }
         }
 

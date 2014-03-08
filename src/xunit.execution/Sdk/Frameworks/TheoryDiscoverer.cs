@@ -24,7 +24,7 @@ namespace Xunit.Sdk
             {
                 using (var memoryStream = new MemoryStream())
                 {
-                    List<XunitTestCase> results = new List<XunitTestCase>();
+                    var results = new List<XunitTestCase>();
 
                     var dataAttributes = testMethod.GetCustomAttributes(typeof(DataAttribute));
                     foreach (var dataAttribute in dataAttributes)

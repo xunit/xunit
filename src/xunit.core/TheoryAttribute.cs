@@ -9,7 +9,7 @@ namespace Xunit
     /// If the data source contains multiple rows, then the test method is executed
     /// multiple times (once with each data row). Data is provided by attributes which
     /// derive from <see cref="DataAttribute"/> (notably, <see cref="InlineDataAttribute"/> and
-    /// <see cref="PropertyDataAttribute"/>).
+    /// <see cref="MemberDataAttribute"/>).
     /// </summary>
     [TestCaseDiscoverer("Xunit.Sdk.TheoryDiscoverer", "xunit.execution")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]

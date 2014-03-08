@@ -388,7 +388,7 @@ public class XunitTestFrameworkDiscovererTests
             }
 
             [Theory]
-            [PropertyData("TheData")]
+            [MemberData("TheData")]
             public void TheoryMethod(int value) { }
         }
 
