@@ -20,8 +20,8 @@
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
     <NuGetNuspecTargets Include="src\*.nuspec" />
-    <NuGetCsprojTargets Include="src\xunit2\xunit2.csproj;
-                                 src\xunit2.assert\xunit2.assert.csproj;
+    <NuGetCsprojTargets Include="src\xunit.assert\xunit.assert.csproj;
+                                 src\xunit.execution\xunit.execution.csproj;
                                  src\xunit.runner.utility\xunit.runner.utility.csproj" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
@@ -153,8 +153,8 @@
   <Target Name="Zip">
     <ItemGroup>
       <ZipFileList Include="license.txt"/>
-      <ZipFileList Include="src\xunit2\bin\$(Configuration)\xunit2.??l"/>
-      <ZipFileList Include="src\xunit2\bin\$(Configuration)\xunit2.dll.tdnet"/>
+      <ZipFileList Include="src\xunit\bin\$(Configuration)\xunit.??l"/>
+      <ZipFileList Include="src\xunit\bin\$(Configuration)\xunit.dll.tdnet"/>
       <ZipFileList Include="src\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.??l"/>
       <ZipFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.exe*"/>
       <ZipFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe*"/>
@@ -170,7 +170,7 @@
         StripPath="true"/>
 
     <ItemGroup>
-      <ZipPdbFileList Include="src\xunit2\bin\$(Configuration)\xunit2.pdb"/>
+      <ZipPdbFileList Include="src\xunit\bin\$(Configuration)\xunit.pdb"/>
       <ZipPdbFileList Include="src\xunit.abstractions\bin\$(Configuration)\xunit.abstractions.pdb"/>
       <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration)\xunit.console.pdb"/>
       <ZipPdbFileList Include="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.pdb"/>

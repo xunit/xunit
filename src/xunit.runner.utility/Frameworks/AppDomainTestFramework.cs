@@ -20,7 +20,7 @@ namespace Xunit
         /// </summary>
         /// <param name="sourceInformationProvider">The source code information provider.</param>
         /// <param name="assemblyFileName">The test assembly.</param>
-        /// <param name="testFrameworkFileName">The file path of the test framework assembly (i.e., xunit2.dll).</param>
+        /// <param name="testFrameworkFileName">The file path of the test framework assembly (i.e., xunit.execution.dll).</param>
         /// <param name="testFrameworkTypeName">The fully qualified type name of the implementation of <see cref="ITestFramework"/>
         /// in the test framework assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>

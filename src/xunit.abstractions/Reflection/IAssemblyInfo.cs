@@ -17,7 +17,7 @@ namespace Xunit.Abstractions
         /// </summary>
         /// <remarks>
         /// This is used by the test framework wrappers to find the co-located unit test framework
-        /// assembly (f.e., xunit.dll or xunit2.dll). AST-based runners will need to directly create
+        /// assembly (f.e., xunit.dll or xunit.execution.dll). AST-based runners will need to directly create
         /// instances of <see cref="Xunit.Xunit1"/> and <see cref="Xunit.Xunit2"/> (using the constructors that
         /// support an explicit path to the test framework DLL) rather than relying on the
         /// use of <see cref="Xunit.XunitFrontController"/>.

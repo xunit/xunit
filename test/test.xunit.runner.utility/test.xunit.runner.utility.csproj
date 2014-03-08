@@ -51,97 +51,97 @@
     <Compile Include="..\..\src\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\AfterTestFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\AfterTestFinished.cs">
       <Link>Common\Messages\AfterTestFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\AfterTestStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\AfterTestStarting.cs">
       <Link>Common\Messages\AfterTestStarting.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestCaseMessage.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\BaseMessages\TestCaseMessage.cs">
       <Link>Common\Messages\BaseMessages\TestCaseMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestClassMessage.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\BaseMessages\TestClassMessage.cs">
       <Link>Common\Messages\BaseMessages\TestClassMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestCollectionMessage.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\BaseMessages\TestCollectionMessage.cs">
       <Link>Common\Messages\BaseMessages\TestCollectionMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestMessage.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\BaseMessages\TestMessage.cs">
       <Link>Common\Messages\BaseMessages\TestMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\BaseMessages\TestResultMessage.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\BaseMessages\TestResultMessage.cs">
       <Link>Common\Messages\BaseMessages\TestResultMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\BeforeTestFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\BeforeTestFinished.cs">
       <Link>Common\Messages\BeforeTestFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\BeforeTestStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\BeforeTestStarting.cs">
       <Link>Common\Messages\BeforeTestStarting.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\DiscoveryCompleteMessage.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\DiscoveryCompleteMessage.cs">
       <Link>Common\Messages\DiscoveryCompleteMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\ErrorMessage.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\ErrorMessage.cs">
       <Link>Common\Messages\ErrorMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestAssemblyFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestAssemblyFinished.cs">
       <Link>Common\Messages\TestAssemblyFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestAssemblyStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestAssemblyStarting.cs">
       <Link>Common\Messages\TestAssemblyStarting.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCaseDiscoveryMessage.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestCaseDiscoveryMessage.cs">
       <Link>Common\Messages\TestCaseDiscoveryMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCaseFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestCaseFinished.cs">
       <Link>Common\Messages\TestCaseFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCaseStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestCaseStarting.cs">
       <Link>Common\Messages\TestCaseStarting.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassConstructionFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestClassConstructionFinished.cs">
       <Link>Common\Messages\TestClassConstructionFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassConstructionStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestClassConstructionStarting.cs">
       <Link>Common\Messages\TestClassConstructionStarting.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassDisposeFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestClassDisposeFinished.cs">
       <Link>Common\Messages\TestClassDisposeFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassDisposeStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestClassDisposeStarting.cs">
       <Link>Common\Messages\TestClassDisposeStarting.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestClassFinished.cs">
       <Link>Common\Messages\TestClassFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestClassStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestClassStarting.cs">
       <Link>Common\Messages\TestClassStarting.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCollectionFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestCollectionFinished.cs">
       <Link>Common\Messages\TestCollectionFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestCollectionStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestCollectionStarting.cs">
       <Link>Common\Messages\TestCollectionStarting.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestFailed.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestFailed.cs">
       <Link>Common\Messages\TestFailed.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestFinished.cs">
       <Link>Common\Messages\TestFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestMethodFinished.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestMethodFinished.cs">
       <Link>Common\Messages\TestMethodFinished.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestMethodStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestMethodStarting.cs">
       <Link>Common\Messages\TestMethodStarting.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestPassed.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestPassed.cs">
       <Link>Common\Messages\TestPassed.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestSkipped.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestSkipped.cs">
       <Link>Common\Messages\TestSkipped.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit2\Sdk\Messages\TestStarting.cs">
+    <Compile Include="..\..\src\xunit.execution\Sdk\Messages\TestStarting.cs">
       <Link>Common\Messages\TestStarting.cs</Link>
     </Compile>
     <Compile Include="Frameworks\v1\TestClassCallbackHandlerTests.cs" />
@@ -173,13 +173,17 @@
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
       <Name>xunit.runner.utility</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit2.assert\xunit2.assert.csproj">
+    <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">
       <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>
-      <Name>xunit2.assert</Name>
+      <Name>xunit.assert</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit2\xunit2.csproj">
+    <ProjectReference Include="..\..\src\xunit.core\xunit.core.csproj">
+      <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>
+      <Name>xunit.core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.execution\xunit.execution.csproj">
       <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
-      <Name>xunit2</Name>
+      <Name>xunit.execution</Name>
     </ProjectReference>
     <ProjectReference Include="..\test.utility\test.utility.csproj">
       <Project>{4fec8604-e544-43c2-979c-f0815b5770e2}</Project>

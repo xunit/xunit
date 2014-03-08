@@ -1,17 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{ED6810B4-7745-4FD4-86D3-ABCB2D1CB2AB}</ProjectGuid>
+    <ProjectGuid>{B1875255-91B8-4B17-A6B3-7A96A49004D5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xunit.Abstractions</RootNamespace>
-    <AssemblyName>test.xunit.abstractions</AssemblyName>
+    <RootNamespace>Xunit</RootNamespace>
+    <AssemblyName>test.xunit2.assert</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +28,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NSubstitute">
@@ -38,15 +35,32 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
     <Reference Include="TestDriven.Framework">
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Asserts\BooleanAssertsTests.cs" />
+    <Compile Include="Asserts\CollectionAssertsTests.cs" />
+    <Compile Include="Asserts\EqualityAssertsTests.cs" />
+    <Compile Include="Asserts\ExceptionAssertsTests.cs" />
+    <Compile Include="Asserts\IdentityAssertsTests.cs" />
+    <Compile Include="Asserts\NullAssertsTests.cs" />
+    <Compile Include="Asserts\PropertyAssertsTests.cs" />
+    <Compile Include="Asserts\RangeAssertsTests.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\AssertActualExpectedExceptionTests.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\EqualExceptionTests.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\XunitExceptionTests.cs" />
+    <Compile Include="Asserts\StringAssertsTests.cs" />
+    <Compile Include="Asserts\TypeAssertsTests.cs" />
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Reflection\ReflectorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.abstractions\xunit.abstractions.csproj">
@@ -62,7 +76,7 @@
       <Name>xunit.runner.utility</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">
-      <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>
+      <Project>{80b04afe-4331-4cdd-b247-864ac6482f7c}</Project>
       <Name>xunit.assert</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.core\xunit.core.csproj">

@@ -1,22 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory),xunit.sln))\tools\xunit.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7AFFADA0-8F38-4D95-841E-A224B87A0011}</ProjectGuid>
+    <ProjectGuid>{C32639C0-50EB-49AB-9681-C3334E5DEAE7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xunit.ConsoleClient</RootNamespace>
-    <AssemblyName>test.xunit.console</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <RootNamespace>Xunit</RootNamespace>
+    <AssemblyName>test.xunit.execution</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -29,7 +30,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile />
@@ -42,11 +42,12 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -58,27 +59,60 @@
       <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="TestDriven.Framework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=50ecb853f8c6b8d2">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandLineTests.cs" />
+    <Compile Include="..\..\src\common\SourceInformation.cs">
+      <Link>Common\SourceInformation.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\common\TestDiscoveryVisitor.cs">
+      <Link>Common\TestDiscoveryVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\common\XmlTestExecutionVisitor.cs">
+      <Link>Common\XmlTestExecutionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="Acceptance\AsyncAcceptanceTests.cs" />
+    <Compile Include="Acceptance\CollectionAcceptanceTests.cs" />
+    <Compile Include="Acceptance\FixtureAcceptanceTests.cs" />
+    <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
+    <Compile Include="Acceptance\Xunit2TheoryAcceptanceTests.cs" />
+    <Compile Include="Common\XmlTestExecutionVisitorTests.cs" />
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Utility\StackFrameTransformerTests.cs" />
-    <Compile Include="Utility\TransformFactoryFacts.cs" />
+    <Compile Include="RecordTests.cs" />
+    <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />
+    <Compile Include="Sdk\ExceptionUtilityTests.cs" />
+    <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactoryTests.cs" />
+    <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactoryTests.cs" />
+    <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />
+    <Compile Include="Sdk\Frameworks\XunitTestFrameworkDiscovererTests.cs" />
+    <Compile Include="Sdk\Frameworks\XunitTheoryTestCaseTests.cs" />
+    <Compile Include="Sdk\MessageBusTests.cs" />
+    <Compile Include="Sdk\Frameworks\TheoryDiscovererTests.cs" />
+    <Compile Include="Sdk\TestCaseSerializerTests.cs" />
+    <Compile Include="SerializationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.abstractions\xunit.abstractions.csproj">
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
+      <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
+      <Name>xunit.runner.tdnet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj">
+      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
+      <Name>xunit.runner.utility</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">
       <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>
@@ -88,25 +122,13 @@
       <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>
       <Name>xunit.core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.execution\xunit.execution.csproj">
+      <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
+      <Name>xunit.execution</Name>
+    </ProjectReference>
     <ProjectReference Include="..\test.utility\test.utility.csproj">
       <Project>{4FEC8604-E544-43C2-979C-F0815B5770E2}</Project>
       <Name>test.utility</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.console\xunit.console.csproj">
-      <Project>{19C75545-5E0E-4E38-9995-511ED2DF6D30}</Project>
-      <Name>xunit.console</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
-      <Project>{C9B3978D-DA2C-4F3B-8FC5-1E024EF2F6E8}</Project>
-      <Name>xunit.runner.tdnet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj">
-      <Project>{2CE5D729-2E2A-4D36-8161-0F215B1C46AF}</Project>
-      <Name>xunit.runner.utility</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.execution\xunit.execution.csproj">
-      <Project>{09EF9917-4B00-4646-8C3F-96EFACC8BF51}</Project>
-      <Name>xunit.execution</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -115,21 +137,32 @@
       <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
+      <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Runner.VisualStudio.Settings;
-using Xunit.Abstractions;
 
 namespace Xunit.Runner.VisualStudio.TestAdapter
 {
@@ -190,7 +189,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         static bool IsXunitTestAssembly(string assemblyFileName)
         {
             string xunit1Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
-            string xunit2Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit2.dll");
+            string xunit2Path = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
             return File.Exists(xunit1Path) || File.Exists(xunit2Path);
         }
 

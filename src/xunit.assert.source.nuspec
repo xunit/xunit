@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+    <metadata>
+        <id>xunit.assert.source</id>
+        <version>2.0.0-alpha</version>
+        <title>xUnit.net [Assertion Library, as source]</title>
+        <authors>James Newkirk, Brad Wilson</authors>
+        <description>Includes the current assertion library from xUnit.net, as source into your project.</description>
+        <language>en-US</language>
+        <projectUrl>http://xunit.codeplex.com</projectUrl>
+        <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>
+        <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    </metadata>
+    <files>
+        <file src="xunit.assert\Asserts\*.cs" target="Content\Asserts" />
+        <file src="xunit.assert\Asserts\Sdk\*.cs" target="Content\Asserts\Sdk" />
+        <file src="xunit.assert\Asserts\Sdk\Exceptions\*.cs" target="Content\Asserts\Sdk\Exceptions" />
+    </files>
+</package>

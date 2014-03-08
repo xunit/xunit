@@ -8,11 +8,9 @@ using Xunit.Abstractions;
 
 public class Xunit2Tests
 {
-    static readonly AssemblyName XunitAssemblyName = GetXunitAssemblyName();
-
     static AssemblyName GetXunitAssemblyName()
     {
-        string path = Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), "xunit2.dll");
+        string path = Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), "xunit.execution.dll");
         return Assembly.LoadFile(path).GetName();
     }
 

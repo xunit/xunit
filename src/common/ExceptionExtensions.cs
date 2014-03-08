@@ -16,7 +16,7 @@ internal static class ExceptionExtensions
     /// </remarks>
     public static void RethrowWithNoStackTraceLoss(this Exception ex)
     {
-#if XUNIT2_DLL
+#if XUNIT_CORE_DLL
         System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex).Throw();
 #else
         FieldInfo remoteStackTraceString =

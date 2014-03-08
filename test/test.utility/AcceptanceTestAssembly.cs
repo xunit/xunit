@@ -14,9 +14,11 @@ public class AcceptanceTestAssembly : IDisposable
     {
         filename = Path.Combine(BasePath, Path.GetRandomFileName() + ".dll");
 
-        assemblyName = new AssemblyName();
-        assemblyName.Name = Path.GetFileNameWithoutExtension(filename);
-        assemblyName.CodeBase = Path.GetDirectoryName(Path.GetFullPath(filename));
+        assemblyName = new AssemblyName()
+        {
+            Name = Path.GetFileNameWithoutExtension(filename),
+            CodeBase = Path.GetDirectoryName(Path.GetFullPath(filename))
+        };
 
         Compile(code, references);
     }
@@ -36,23 +38,32 @@ public class AcceptanceTestAssembly : IDisposable
         get { return filename; }
     }
 
-    public string XunitDllFilename
+    public string XunitCoreDllFilename
     {
-        get { return Path.Combine(BasePath, "xunit2.dll"); }
+        get { return Path.Combine(BasePath, "xunit.core.dll"); }
+    }
+
+    public string XunitExecutionDllFilename
+    {
+        get { return Path.Combine(BasePath, "xunit.execution.dll"); }
     }
 
     void Compile(string code, string[] references)
     {
-        CompilerParameters parameters = new CompilerParameters();
-        parameters.OutputAssembly = filename;
-        parameters.IncludeDebugInformation = true;
+        var parameters = new CompilerParameters()
+        {
+            OutputAssembly = filename,
+            IncludeDebugInformation = true
+        };
 
         parameters.ReferencedAssemblies.Add("mscorlib.dll");
         parameters.ReferencedAssemblies.Add("System.dll");
         parameters.ReferencedAssemblies.Add("System.Core.dll");
         parameters.ReferencedAssemblies.Add("System.Data.dll");
+        parameters.ReferencedAssemblies.Add("System.Runtime.dll");
         parameters.ReferencedAssemblies.Add("System.Xml.dll");
-        parameters.ReferencedAssemblies.Add(XunitDllFilename);
+        parameters.ReferencedAssemblies.Add(XunitCoreDllFilename);
+        parameters.ReferencedAssemblies.Add(XunitExecutionDllFilename);
 
         if (references != null)
             foreach (string reference in references)
@@ -65,18 +76,18 @@ public class AcceptanceTestAssembly : IDisposable
                     parameters.ReferencedAssemblies.Add(reference);
             }
 
-        Dictionary<string, string> compilerOptions = new Dictionary<string, string> { { "CompilerVersion", "v4.0" } };
-        CSharpCodeProvider provider = new CSharpCodeProvider(compilerOptions);
-        CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
+        var compilerOptions = new Dictionary<string, string> { { "CompilerVersion", "v4.0" } };
+        var provider = new CSharpCodeProvider(compilerOptions);
+        var results = provider.CompileAssemblyFromSource(parameters, code);
 
         if (results.Errors.Count != 0)
         {
-            List<string> errors = new List<string>();
+            var errors = new List<string>();
 
             foreach (CompilerError error in results.Errors)
                 errors.Add(String.Format("{0}({1},{2}): error {3}: {4}", error.FileName, error.Line, error.Column, error.ErrorNumber, error.ErrorText));
 
-            throw new InvalidOperationException("Compilation Failed:" + Environment.NewLine + string.Join(Environment.NewLine, errors.ToArray()));
+            throw new InvalidOperationException(String.Format("Compilation Failed:{0}{1}", Environment.NewLine, string.Join(Environment.NewLine, errors.ToArray())));
         }
     }
 
