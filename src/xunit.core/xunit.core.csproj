@@ -61,7 +61,9 @@
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
     <Compile Include="Sdk\DataAttribute.cs" />
     <Compile Include="Sdk\DataDiscovererAttribute.cs" />
+    <Compile Include="Sdk\ITraitAttribute.cs" />
     <Compile Include="Sdk\TestCaseDiscovererAttribute.cs" />
+    <Compile Include="Sdk\TraitDiscovererAttribute.cs" />
     <Compile Include="TestCaseOrdererAttribute.cs" />
     <Compile Include="TheoryAttribute.cs" />
     <Compile Include="TraitAttribute.cs" />

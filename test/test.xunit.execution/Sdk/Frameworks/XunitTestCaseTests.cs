@@ -46,38 +46,85 @@ public class XunitTestCaseTests
         Assert.Equal("Skip Reason", testCase.SkipReason);
     }
 
-    [Fact]
-    public void Traits()
+    public class Traits : AcceptanceTest
     {
-        var testCollection = new XunitTestCollection();
-        var fact = Mocks.FactAttribute();
-        var trait1 = Mocks.TraitAttribute("Trait1", "Value1");
-        var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
-        var method = Mocks.MethodInfo(attributes: new[] { trait1, trait2 });
-        var type = Mocks.TypeInfo(methods: new[] { method });
-        var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
+        [Fact]
+        public void TraitsOnTestMethod()
+        {
+            var testCollection = new XunitTestCollection();
+            var fact = Mocks.FactAttribute();
+            var trait1 = Mocks.TraitAttribute("Trait1", "Value1");
+            var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
+            var method = Mocks.MethodInfo(attributes: new[] { trait1, trait2 });
+            var type = Mocks.TypeInfo(methods: new[] { method });
+            var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
 
-        var testCase = new XunitTestCase(testCollection, assmInfo, type, method, fact);
+            var testCase = new XunitTestCase(testCollection, assmInfo, type, method, fact);
 
-        Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
-        Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
-    }
+            Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
+            Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
+        }
 
-    [Fact]
-    public void TraitsOnClass()
-    {
-        var testCollection = new XunitTestCollection();
-        var fact = Mocks.FactAttribute();
-        var trait1 = Mocks.TraitAttribute("Trait1", "Value1");
-        var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
-        var method = Mocks.MethodInfo();
-        var type = Mocks.TypeInfo(methods: new[] { method }, attributes: new[] { trait1, trait2 });
-        var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
+        [Fact]
+        public void TraitsOnTestClass()
+        {
+            var testCollection = new XunitTestCollection();
+            var fact = Mocks.FactAttribute();
+            var trait1 = Mocks.TraitAttribute("Trait1", "Value1");
+            var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
+            var method = Mocks.MethodInfo();
+            var type = Mocks.TypeInfo(methods: new[] { method }, attributes: new[] { trait1, trait2 });
+            var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
 
-        var testCase = new XunitTestCase(testCollection, assmInfo, type, method, fact);
+            var testCase = new XunitTestCase(testCollection, assmInfo, type, method, fact);
 
-        Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
-        Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
+            Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
+            Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
+        }
+
+        [Fact]
+        public void CustomTrait()
+        {
+            var passingTests = Run<ITestPassed>(typeof(ClassWithCustomTraitTest));
+
+            Assert.Collection(passingTests,
+                passingTest => Assert.Collection(passingTest.TestCase.Traits.OrderBy(x => x.Key),
+                    namedTrait =>
+                    {
+                        Assert.Equal("Author", namedTrait.Key);
+                        Assert.Collection(namedTrait.Value, value => Assert.Equal("Some Schmoe", value));
+                    },
+                    namedTrait =>
+                    {
+                        Assert.Equal("Bug", namedTrait.Key);
+                        Assert.Collection(namedTrait.Value, value => Assert.Equal("2112", value));
+                    }
+                )
+            );
+        }
+
+        class ClassWithCustomTraitTest
+        {
+            [Fact]
+            [Bug(2112)]
+            [Trait("Author", "Some Schmoe")]
+            public void BugFix() { }
+        }
+
+        public class BugDiscoverer : ITraitDiscoverer
+        {
+            public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
+            {
+                var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
+                yield return new KeyValuePair<string, string>("Bug", ctorArgs[0].ToString());
+            }
+        }
+
+        [TraitDiscoverer("XunitTestCaseTests+Traits+BugDiscoverer", "test.xunit.execution")]
+        class BugAttribute : Attribute, ITraitAttribute
+        {
+            public BugAttribute(int id) { }
+        }
     }
 
     public class DisplayName

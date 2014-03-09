@@ -81,11 +81,16 @@ namespace Xunit.Sdk
             Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             TestCollection = testCollection;
 
-            foreach (IAttributeInfo traitAttribute in Method.GetCustomAttributes(typeof(TraitAttribute))
-                                                            .Concat(Class.GetCustomAttributes(typeof(TraitAttribute))))
+            foreach (var traitAttribute in Method.GetCustomAttributes(typeof(ITraitAttribute))
+                                                 .Concat(Class.GetCustomAttributes(typeof(ITraitAttribute))))
             {
-                var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
-                Traits.Add((string)ctorArgs[0], (string)ctorArgs[1]);
+                var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).First();
+                var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                var discovererType = Reflector.GetType(args[1], args[0]);
+                var discoverer = (ITraitDiscoverer)Activator.CreateInstance(discovererType);
+
+                foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
+                    Traits.Add(keyValuePair.Key, keyValuePair.Value);
             }
 
             uniqueID = new Lazy<string>(GetUniqueID, true);

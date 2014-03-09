@@ -75,6 +75,7 @@
     <Compile Include="Sdk\AsyncTestSyncContext.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrderer.cs" />
     <Compile Include="Sdk\ITestCaseOrderer.cs" />
+    <Compile Include="Sdk\ITraitDiscoverer.cs" />
     <Compile Include="Sdk\MaxConcurrencyTaskScheduler.cs" />
     <Compile Include="Sdk\EnvironmentalWarning.cs" />
     <Compile Include="Sdk\ExceptionUtility.cs" />
@@ -144,6 +145,7 @@
     <Compile Include="Sdk\SerializationHelper.cs" />
     <Compile Include="Sdk\TestClassException.cs" />
     <Compile Include="Sdk\TestMessageVisitor.cs" />
+    <Compile Include="Sdk\TraitDiscoverer.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml" />

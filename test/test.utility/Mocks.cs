@@ -141,8 +141,18 @@ public static class Mocks
     public static IReflectionAttributeInfo TraitAttribute(string name, string value)
     {
         var result = Substitute.For<IReflectionAttributeInfo>();
+        var traitDiscovererAttributes = new[] { Mocks.TraitDiscovererAttribute() };
+        result.GetCustomAttributes(typeof(TraitDiscovererAttribute)).Returns(traitDiscovererAttributes);
         result.Attribute.Returns(new TraitAttribute(name, value));
         result.GetConstructorArguments().Returns(new object[] { name, value });
+        return result;
+    }
+
+    public static IAttributeInfo TraitDiscovererAttribute(string typeName = "Xunit.Sdk.TraitDiscoverer", string assemblyName = "xunit.execution")
+    {
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        result.Attribute.Returns(new TraitDiscovererAttribute(typeName, assemblyName));
+        result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
         return result;
     }
 
