@@ -14,6 +14,7 @@ namespace Xunit
     /// 3. A static method (with parameters)
     /// The member must return something compatible with IEnumerable&lt;object[]&gt; with the test data.
     /// </summary>
+    [CLSCompliant(false)]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public sealed class MemberDataAttribute : DataAttribute
     {

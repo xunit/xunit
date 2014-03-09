@@ -1,6 +1,7 @@
-﻿using System;
+﻿#pragma warning disable 1574    // XDOC reference to xunit.execution types will be fixed up post-compilation
+
+using System;
 using System.ComponentModel;
-using Xunit.Sdk;
 
 namespace Xunit
 {

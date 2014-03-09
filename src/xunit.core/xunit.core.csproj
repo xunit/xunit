@@ -80,12 +80,6 @@
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">
-      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
-      <Name>xunit.abstractions</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

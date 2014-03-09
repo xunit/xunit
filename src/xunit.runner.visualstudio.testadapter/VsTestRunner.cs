@@ -308,13 +308,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             return @event;
         }
 
-        class SourceSink<TSink> where TSink : IDisposable
-        {
-            public string AssemblyFileName;
-            public XunitFrontController Framework;
-            public TSink Sink;
-        }
-
         class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
         {
             readonly IEnumerable<TElement> elements;
