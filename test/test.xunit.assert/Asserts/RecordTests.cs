@@ -9,7 +9,9 @@ public class RecordTests
         [Fact]
         public void Exception()
         {
-            Exception ex = Record.Exception(delegate { throw new InvalidOperationException(); });
+            Action testCode = () => { throw new InvalidOperationException(); };
+
+            var ex = Record.Exception(testCode);
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidOperationException>(ex);
@@ -18,7 +20,9 @@ public class RecordTests
         [Fact]
         public void NoException()
         {
-            Exception ex = Record.Exception(delegate { });
+            Action testCode = () => { };
+
+            var ex = Record.Exception(testCode);
 
             Assert.Null(ex);
         }
@@ -29,7 +33,9 @@ public class RecordTests
         [Fact]
         public async void Exception()
         {
-            Exception ex = await Record.ExceptionAsync(() => Task.Factory.StartNew(() => { throw new InvalidOperationException(); }));
+            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+
+            var ex = await Record.ExceptionAsync(testCode);
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidOperationException>(ex);
@@ -38,7 +44,9 @@ public class RecordTests
         [Fact]
         public async void NoException()
         {
-            Exception ex = await Record.ExceptionAsync(() => Task.Factory.StartNew(() => { }));
+            Func<Task> testCode = () => Task.Factory.StartNew(() => { });
+
+            var ex = await Record.ExceptionAsync(testCode);
 
             Assert.Null(ex);
         }
@@ -49,9 +57,9 @@ public class RecordTests
         [Fact]
         public void GuardClause()
         {
-            var ex = Record.Exception(
-                () => Record.Exception(
-                    () => Task.Run(() => { })));
+            Func<object> testCode = () => Task.Run(() => { });
+
+            var ex = Record.Exception(() => Record.Exception(testCode));
 
             Assert.IsType<InvalidOperationException>(ex);
             Assert.Equal("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.", ex.Message);
@@ -60,9 +68,9 @@ public class RecordTests
         [Fact]
         public void Exception()
         {
-            StubAccessor accessor = new StubAccessor();
+            var accessor = new StubAccessor();
 
-            Exception ex = Record.Exception(() => accessor.FailingProperty);
+            var ex = Record.Exception(() => accessor.FailingProperty);
 
             Assert.NotNull(ex);
             Assert.IsType<InvalidOperationException>(ex);
@@ -71,9 +79,9 @@ public class RecordTests
         [Fact]
         public void NoException()
         {
-            StubAccessor accessor = new StubAccessor();
+            var accessor = new StubAccessor();
 
-            Exception ex = Record.Exception(() => accessor.SuccessfulProperty);
+            var ex = Record.Exception(() => accessor.SuccessfulProperty);
 
             Assert.Null(ex);
         }

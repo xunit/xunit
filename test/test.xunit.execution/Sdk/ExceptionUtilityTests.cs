@@ -60,7 +60,8 @@ public class ExceptionUtilityTests
         [Fact]
         public void XunitException()
         {
-            var ex = Record.Exception(() => { throw new XunitException(); });
+            Action testCode = () => { throw new XunitException(); };
+            var ex = Record.Exception(testCode);
 
             var result = ExceptionUtility.GetStackTrace(ex);
 
@@ -72,7 +73,8 @@ public class ExceptionUtilityTests
         [Fact]
         public void NonXunitException()
         {
-            var ex = Record.Exception(() => { throw new Exception(); });
+            Action testCode = () => { throw new Exception(); };
+            var ex = Record.Exception(testCode);
 
             var result = ExceptionUtility.GetStackTrace(ex);
 
@@ -84,8 +86,10 @@ public class ExceptionUtilityTests
         [Fact]
         public void NonXunitExceptionWithInnerExceptions()
         {
-            var inner = Record.Exception(() => { throw new DivideByZeroException(); });
-            var outer = Record.Exception(() => { throw new Exception("message", inner); });
+            Action innerTestCode = () => { throw new DivideByZeroException(); };
+            var inner = Record.Exception(innerTestCode);
+            Action outerTestCode = () => { throw new Exception("message", inner); };
+            var outer = Record.Exception(outerTestCode);
 
             var result = ExceptionUtility.GetStackTrace(outer);
 
@@ -99,10 +103,14 @@ public class ExceptionUtilityTests
         [Fact]
         public void AggregateException()
         {
-            var inner1 = Record.Exception(() => { throw new DivideByZeroException(); });
-            var inner2 = Record.Exception(() => { throw new NotImplementedException("inner #2"); });
-            var inner3 = Record.Exception(() => { throw new XunitException("this is crazy"); });
-            var outer = Record.Exception(() => { throw new AggregateException(inner1, inner2, inner3); });
+            Action inner1TestCode = () => { throw new DivideByZeroException(); };
+            var inner1 = Record.Exception(inner1TestCode);
+            Action inner2TestCode = () => { throw new NotImplementedException("inner #2"); };
+            var inner2 = Record.Exception(inner2TestCode);
+            Action inner3TestCode = () => { throw new XunitException("this is crazy"); };
+            var inner3 = Record.Exception(inner3TestCode);
+            Action outerTestCode = () => { throw new AggregateException(inner1, inner2, inner3); };
+            var outer = Record.Exception(outerTestCode);
 
             var result = ExceptionUtility.GetStackTrace(outer);
 

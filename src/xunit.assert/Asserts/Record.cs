@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace Xunit
 {
@@ -57,6 +58,11 @@ namespace Xunit
 
             return null;
         }
+
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
+        public static Exception Exception(Func<Task> testCode) { throw new NotImplementedException(); }
 
         /// <summary>
         /// Records any exception which is thrown by the given task.

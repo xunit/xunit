@@ -11,9 +11,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void CorrectExceptionType()
         {
-            var ex = Assert.Throws<DoesNotThrowException>(
-                () => Assert.DoesNotThrow(
-                    () => { throw new NotImplementedException("Exception Message"); }));
+            Action testCode = () => { throw new NotImplementedException("Exception Message"); };
+
+            var ex = Assert.Throws<DoesNotThrowException>(() => Assert.DoesNotThrow(testCode));
 
             Assert.Equal("Assert.DoesNotThrow() Failure", ex.UserMessage);
             Assert.Equal("(No exception)", ex.Expected);
@@ -33,9 +33,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void CodeThrows()
         {
-            var ex = Record.Exception(
-                () => Assert.DoesNotThrow(
-                    () => ThrowingMethod()));
+            Action testCode = () => ThrowingMethod();
+
+            var ex = Record.Exception(() => Assert.DoesNotThrow(testCode));
 
             Assert.IsType<DoesNotThrowException>(ex);
             Assert.Contains("NotImplementedException", ex.Message);
@@ -52,9 +52,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void GuardClause()
         {
-            var ex = Record.Exception(
-                () => Assert.DoesNotThrow(
-                    () => Task.Run(() => { })));
+            Func<object> testCode = () => Task.Run(() => { });
+
+            var ex = Record.Exception(() => Assert.DoesNotThrow(testCode));
 
             Assert.IsType<InvalidOperationException>(ex);
             Assert.Equal("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.", ex.Message);
@@ -73,9 +73,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void CodeThrows()
         {
-            var ex = Record.Exception(
-                () => Assert.DoesNotThrow(
-                    () => ThrowingMethod()));
+            Func<object> testCode = () => ThrowingMethod();
+
+            var ex = Record.Exception(() => Assert.DoesNotThrow(testCode));
 
             Assert.IsType<DoesNotThrowException>(ex);
             Assert.Contains("NotImplementedException", ex.Message);
@@ -93,10 +93,9 @@ public class ExceptionAssertsTests
         public async void CodeDoesNotThrow()
         {
             bool methodCalled = false;
+            Func<Task> testCode = () => Task.Factory.StartNew(() => methodCalled = true);
 
-            await Assert.DoesNotThrowAsync(
-                () => Task.Factory.StartNew(
-                    () => methodCalled = true));
+            await Assert.DoesNotThrowAsync(testCode);
 
             Assert.True(methodCalled);
         }
@@ -104,9 +103,9 @@ public class ExceptionAssertsTests
         [Fact]
         public async void CodeThrows()
         {
-            var ex = await Record.ExceptionAsync(
-                () => Assert.DoesNotThrowAsync(
-                    () => Task.Factory.StartNew(ThrowingMethod)));
+            Func<Task> testCode = () => Task.Factory.StartNew(ThrowingMethod);
+
+            var ex = await Record.ExceptionAsync(() => Assert.DoesNotThrowAsync(testCode));
 
             Assert.IsType<DoesNotThrowException>(ex);
             Assert.Contains("NotImplementedException", ex.Message);
@@ -138,7 +137,9 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Assert.Throws<Exception>(() => { throw new InvalidOperationException(); });
+                Action testCode = () => { throw new InvalidOperationException(); };
+
+                Assert.Throws<Exception>(testCode);
             }
             catch (XunitException exception)
             {
@@ -169,7 +170,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void GotExpectedException()
         {
-            var ex = Assert.Throws<ArgumentException>(() => { throw new ArgumentException(); });
+            Action testCode = () => { throw new ArgumentException(); };
+
+            var ex = Assert.Throws<ArgumentException>(testCode);
 
             Assert.NotNull(ex);
         }
@@ -180,9 +183,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void GuardClause()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<Exception>(
-                    () => Task.Run(() => { })));
+            Func<object> testCode = () => Task.Run(() => 0);
+
+            var ex = Record.Exception(() => Assert.Throws<Exception>(testCode));
 
             Assert.IsType<InvalidOperationException>(ex);
             Assert.Equal("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.", ex.Message);
@@ -265,9 +268,9 @@ public class ExceptionAssertsTests
         {
             try
             {
-                await Assert.ThrowsAsync<Exception>(
-                    () => Task.Factory.StartNew(
-                        () => { throw new InvalidOperationException(); }));
+                Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+
+                await Assert.ThrowsAsync<Exception>(testCode);
             }
             catch (XunitException exception)
             {
@@ -278,9 +281,9 @@ public class ExceptionAssertsTests
         [Fact]
         public async void GotExpectedException()
         {
-            var ex = await Assert.ThrowsAsync<ArgumentException>(
-                () => Task.Factory.StartNew(
-                    () => { throw new ArgumentException(); }));
+            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new ArgumentException(); });
+
+            var ex = await Assert.ThrowsAsync<ArgumentException>(testCode);
 
             Assert.NotNull(ex);
         }
@@ -329,10 +332,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void GuardClause()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws(
-                    typeof(Exception),
-                    () => Task.Run(() => { })));
+            Func<object> testCode = () => Task.Run(() => { });
+
+            var ex = Record.Exception(() => Assert.Throws(typeof(Exception), testCode));
 
             Assert.IsType<InvalidOperationException>(ex);
             Assert.Equal("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.", ex.Message);
@@ -387,9 +389,9 @@ public class ExceptionAssertsTests
         {
             try
             {
-                await Assert.ThrowsAsync(typeof(ArgumentException),
-                    () => Task.Factory.StartNew(
-                        () => { }));
+                Func<Task> testCode = () => Task.Factory.StartNew(() => { });
+
+                await Assert.ThrowsAsync(typeof(ArgumentException), testCode);
             }
             catch (AssertActualExpectedException exception)
             {
@@ -402,9 +404,9 @@ public class ExceptionAssertsTests
         {
             try
             {
-                await Assert.ThrowsAsync(typeof(Exception),
-                    () => Task.Factory.StartNew(
-                        () => { throw new InvalidOperationException(); }));
+                Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+
+                await Assert.ThrowsAsync(typeof(Exception), testCode);
             }
             catch (XunitException exception)
             {
@@ -415,9 +417,9 @@ public class ExceptionAssertsTests
         [Fact]
         public async void GotExpectedException()
         {
-            var ex = await Assert.ThrowsAsync(typeof(ArgumentException),
-                () => Task.Factory.StartNew(
-                    () => { throw new ArgumentException(); }));
+            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new ArgumentException(); });
+
+            var ex = await Assert.ThrowsAsync(typeof(ArgumentException), testCode);
 
             Assert.NotNull(ex);
             Assert.IsType<ArgumentException>(ex);
@@ -429,10 +431,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void ExpectExceptionButCodeDoesNotThrow()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<ArgumentException>(
-                    "paramName",
-                    () => { }));
+            Action testCode = () => { };
+
+            var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName", testCode));
 
             var throwsEx = Assert.IsType<ThrowsException>(ex);
             Assert.Equal("(No exception was thrown)", throwsEx.Actual);
@@ -441,10 +442,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void ExpectExceptionButCodeThrowsDerivedException()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<ArgumentException>(
-                    "paramName",
-                    () => { throw new InvalidOperationException(); }));
+            Action testCode = () => { throw new InvalidOperationException(); };
+
+            var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName", testCode));
 
             Assert.IsType<ThrowsException>(ex);
             Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
@@ -455,10 +455,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<ArgumentException>(
-                    "paramName",
-                    () => ThrowingMethod()));
+            Action testCode = () => ThrowingMethod();
+
+            var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName", testCode));
 
             Assert.Contains("ThrowsArgument_Action.ThrowingMethod", ex.StackTrace);
             Assert.DoesNotContain("Xunit.Assert", ex.StackTrace);
@@ -473,7 +472,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void GotExpectedException()
         {
-            var ex = Assert.Throws<ArgumentException>("paramName", () => { throw new ArgumentException("message", "paramName"); });
+            Action testCode = () => { throw new ArgumentException("message", "paramName"); };
+
+            var ex = Assert.Throws<ArgumentException>("paramName", testCode);
 
             Assert.NotNull(ex);
         }
@@ -481,10 +482,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void MismatchedParameterName()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<ArgumentException>(
-                    "paramName",
-                    () => { throw new ArgumentException("message", "paramName2"); }));
+            Action testCode = () => { throw new ArgumentException("message", "paramName2"); };
+
+            var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName", testCode));
 
             var eqEx = Assert.IsType<EqualException>(ex);
             Assert.Equal("paramName", eqEx.Expected);
@@ -497,10 +497,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void GuardClause()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<ArgumentException>(
-                    "param",
-                    () => Task.Run(() => { throw new ArgumentException("foo", "param"); })));
+            Func<object> testCode = () => Task.Run(() => { throw new ArgumentException("foo", "param"); });
+
+            var ex = Record.Exception(() => Assert.Throws<ArgumentException>("param", testCode));
 
             Assert.IsType<InvalidOperationException>(ex);
             Assert.Equal("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.", ex.Message);
@@ -512,10 +511,9 @@ public class ExceptionAssertsTests
         [Fact]
         public async void ExpectExceptionButCodeDoesNotThrow()
         {
-            var ex = await Record.ExceptionAsync(
-                () => Assert.ThrowsAsync<ArgumentException>(
-                    "paramName",
-                    () => Task.Run(() => { })));
+            Func<Task> testCode = () => Task.Run(() => { });
+
+            var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
             var throwsEx = Assert.IsType<ThrowsException>(ex);
             Assert.Equal("(No exception was thrown)", throwsEx.Actual);
@@ -524,10 +522,9 @@ public class ExceptionAssertsTests
         [Fact]
         public async void ExpectExceptionButCodeThrowsDerivedException()
         {
-            var ex = await Record.ExceptionAsync(
-                () => Assert.ThrowsAsync<ArgumentException>(
-                    "paramName",
-                    () => Task.Run(() => { throw new InvalidOperationException(); })));
+            Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
+
+            var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
             Assert.IsType<ThrowsException>(ex);
             Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
@@ -538,10 +535,9 @@ public class ExceptionAssertsTests
         [Fact]
         public async void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
-            var ex = await Record.ExceptionAsync(
-                () => Assert.ThrowsAsync<ArgumentException>(
-                    "paramName",
-                    () => Task.Run(() => ThrowingMethod())));
+            Func<Task> testCode = () => Task.Run(() => ThrowingMethod());
+
+            var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
             Assert.Contains("ThrowsArgumentAsync.ThrowingMethod", ex.StackTrace);
             Assert.DoesNotContain("Xunit.Assert", ex.StackTrace);
@@ -564,10 +560,9 @@ public class ExceptionAssertsTests
         [Fact]
         public async void MismatchedParameterName()
         {
-            var ex = await Record.ExceptionAsync(
-                () => Assert.ThrowsAsync<ArgumentException>(
-                    "paramName",
-                    () => Task.Run(() => { throw new ArgumentException("message", "paramName2"); })));
+            Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException("message", "paramName2"); });
+
+            var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
             var eqEx = Assert.IsType<EqualException>(ex);
             Assert.Equal("paramName", eqEx.Expected);
@@ -580,10 +575,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void ExpectExceptionButCodeDoesNotThrow()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<ArgumentNullException>(
-                    "paramName",
-                    () => { }));
+            Action testCode = () => { };
+
+            var ex = Record.Exception(() => Assert.Throws<ArgumentNullException>("paramName", testCode));
 
             var throwsEx = Assert.IsType<ThrowsException>(ex);
             Assert.Equal("(No exception was thrown)", throwsEx.Actual);
@@ -592,10 +586,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void ExpectExceptionButCodeThrowsDerivedException()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<ArgumentNullException>(
-                    "paramName",
-                    () => { throw new InvalidOperationException(); }));
+            Action testCode = () => { throw new InvalidOperationException(); };
+
+            var ex = Record.Exception(() => Assert.Throws<ArgumentNullException>("paramName", testCode));
 
             Assert.IsType<ThrowsException>(ex);
             Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
@@ -606,10 +599,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<ArgumentNullException>(
-                    "paramName",
-                    () => ThrowingMethod()));
+            Action testCode = () => ThrowingMethod();
+
+            var ex = Record.Exception(() => Assert.Throws<ArgumentNullException>("paramName", testCode));
 
             Assert.Contains("ThrowsArgumentNull_Action.ThrowingMethod", ex.StackTrace);
             Assert.DoesNotContain("Xunit.Assert", ex.StackTrace);
@@ -624,7 +616,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void GotExpectedException()
         {
-            var ex = Assert.Throws<ArgumentNullException>("paramName", () => { throw new ArgumentNullException("paramName"); });
+            Action testCode = () => { throw new ArgumentNullException("paramName"); };
+
+            var ex = Assert.Throws<ArgumentNullException>("paramName", testCode);
 
             Assert.NotNull(ex);
         }
@@ -632,10 +626,9 @@ public class ExceptionAssertsTests
         [Fact]
         public void MismatchedParameterName()
         {
-            var ex = Record.Exception(
-                () => Assert.Throws<ArgumentNullException>(
-                    "paramName",
-                    () => { throw new ArgumentNullException("paramName2"); }));
+            Action testCode = () => { throw new ArgumentNullException("paramName2"); };
+
+            var ex = Record.Exception(() => Assert.Throws<ArgumentNullException>("paramName", testCode));
 
             var eqEx = Assert.IsType<EqualException>(ex);
             Assert.Equal("paramName", eqEx.Expected);

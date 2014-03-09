@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 
@@ -23,6 +24,11 @@ namespace Xunit
         {
             DoesNotThrow(Record.Exception(testCode));
         }
+
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("You must call Assert.DoesNotThrowAsync (and await the result) when testing async code.", true)]
+        public static void DoesNotThrow(Func<Task> testCode) { throw new NotImplementedException(); }
 
         /// <summary>
         /// Verifies that a task does not throw any exceptions.
@@ -65,6 +71,11 @@ namespace Xunit
         {
             return (T)Throws(typeof(T), Record.Exception(testCode));
         }
+
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.", true)]
+        public static T Throws<T>(Func<Task> testCode) where T : Exception { throw new NotImplementedException(); }
 
         /// <summary>
         /// Verifies that the exact exception is thrown (and not a derived exception type).
@@ -160,6 +171,11 @@ namespace Xunit
             Assert.Equal(paramName, ex.ParamName);
             return ex;
         }
+
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.", true)]
+        public static T Throws<T>(string paramName, Func<Task> testCode) where T : ArgumentException { throw new NotImplementedException(); }
 
         /// <summary>
         /// Verifies that the exact exception is thrown (and not a derived exception type), where the exception
