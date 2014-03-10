@@ -12,10 +12,10 @@ public class EqualExample
 
         Assert.False(actual == expected);
         Assert.NotEqual(expected, actual);
-        Assert.Equal(expected, actual, (IEqualityComparer<string>)StringComparer.CurrentCultureIgnoreCase);
+        Assert.Equal(expected, actual, StringComparer.CurrentCultureIgnoreCase);
     }
 
-    public class DateComparer : IEqualityComparer<DateTime>
+    class DateComparer : IEqualityComparer<DateTime>
     {
         public bool Equals(DateTime x, DateTime y)
         {

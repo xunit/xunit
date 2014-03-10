@@ -1,9 +1,15 @@
 using System;
-using Xunit;
+using Xunit.Sdk;
 
+/// <summary>
+/// Apply this attribute to your test method to specify a category.
+/// </summary>
+[TraitDiscoverer("CategoryDiscoverer", "TraitExtensibility")]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class CategoryAttribute : TraitAttribute
+class CategoryAttribute : Attribute, ITraitAttribute
 {
-    public CategoryAttribute(string category)
-        : base("Category", category) {}
+    public CategoryAttribute(string category) { }
 }
+
+
+
