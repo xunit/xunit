@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 namespace Xunit.Abstractions
 {
@@ -23,8 +24,8 @@ namespace Xunit.Abstractions
         /// <summary>
         /// Get a test executor.
         /// </summary>
-        /// <param name="assemblyFileName">The file path of the assembly to run tests from.</param>
+        /// <param name="assemblyName">The name of the assembly to run tests from.</param>
         /// <returns>The test executor.</returns>
-        ITestFrameworkExecutor GetExecutor(string assemblyFileName);
+        ITestFrameworkExecutor GetExecutor(AssemblyName assemblyName);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
@@ -45,9 +46,9 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public ITestFrameworkExecutor GetExecutor(string assemblyFileName)
+        public ITestFrameworkExecutor GetExecutor(AssemblyName assemblyName)
         {
-            var executor = new XunitTestFrameworkExecutor(assemblyFileName, SourceInformationProvider);
+            var executor = new XunitTestFrameworkExecutor(assemblyName, SourceInformationProvider);
             toDispose.Add(executor);
             return executor;
         }
