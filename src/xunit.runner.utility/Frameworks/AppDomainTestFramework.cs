@@ -77,9 +77,9 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public ITestFrameworkExecutor GetExecutor(string assemblyFileName)
+        public ITestFrameworkExecutor GetExecutor(AssemblyName assemblyName)
         {
-            return testFramework.GetExecutor(assemblyFileName);
+            return testFramework.GetExecutor(assemblyName);
         }
     }
 }

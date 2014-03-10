@@ -24,15 +24,15 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
         /// </summary>
-        /// <param name="assemblyFileName">Path of the test assembly.</param>
+        /// <param name="assemblyName">Name of the test assembly.</param>
         /// <param name="sourceInformationProvider">The source line number information provider.</param>
-        public XunitTestFrameworkExecutor(string assemblyFileName, ISourceInformationProvider sourceInformationProvider)
+        public XunitTestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider)
         {
-            this.assemblyFileName = assemblyFileName;
             this.sourceInformationProvider = sourceInformationProvider;
 
-            var assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
+            var assembly = Assembly.Load(assemblyName);
             assemblyInfo = Reflector.Wrap(assembly);
+            assemblyFileName = assemblyInfo.AssemblyPath;
         }
 
         static void CreateFixture(Type interfaceType, ExceptionAggregator aggregator, Dictionary<Type, object> mappings)

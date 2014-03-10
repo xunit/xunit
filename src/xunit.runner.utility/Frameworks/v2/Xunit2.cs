@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -22,7 +23,8 @@ namespace Xunit
         public Xunit2(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName = null, bool shadowCopy = true)
             : base(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy)
         {
-            executor = Framework.GetExecutor(assemblyFileName);
+            AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
+            executor = Framework.GetExecutor(assemblyName);
         }
 
         /// <inheritdoc/>
