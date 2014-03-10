@@ -48,7 +48,7 @@ namespace Xunit
         /// <inheritdoc/>
         public override IEnumerable<object[]> GetData(MethodInfo testMethod)
         {
-            Guard.ArgumentNotNull("methodUnderTest", testMethod);
+            Guard.ArgumentNotNull("testMethod", testMethod);
 
             var type = MemberType ?? testMethod.DeclaringType;
             var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
