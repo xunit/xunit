@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssumeIdentity", "AssumeIde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UseCulture", "UseCulture\UseCulture.csproj", "{BB3439D2-FD99-49CE-BFEB-15E599B1784B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelDataExample", "ExcelDataExample\ExcelDataExample.csproj", "{DF0A1993-3112-4FE7-A6A0-B6DBEA017448}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{BB3439D2-FD99-49CE-BFEB-15E599B1784B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB3439D2-FD99-49CE-BFEB-15E599B1784B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB3439D2-FD99-49CE-BFEB-15E599B1784B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF0A1993-3112-4FE7-A6A0-B6DBEA017448}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF0A1993-3112-4FE7-A6A0-B6DBEA017448}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF0A1993-3112-4FE7-A6A0-B6DBEA017448}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF0A1993-3112-4FE7-A6A0-B6DBEA017448}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
