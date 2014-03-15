@@ -30,40 +30,23 @@ namespace Xunit.ConsoleClient
 
         public bool Wait { get; protected set; }
 
-        protected virtual XunitProject GetMultiAssemblyProject(string filename)
-        {
-            return XunitProject.Load(filename);
-        }
-
         static XunitProject GetSingleAssemblyProject(string assemblyFile, string configFile)
         {
-            XunitProject project = new XunitProject();
-            project.AddAssembly(
+            return new XunitProject
+            {
                 new XunitProjectAssembly
                 {
                     AssemblyFilename = assemblyFile,
                     ConfigFilename = configFile,
                     ShadowCopy = true
                 }
-            );
-            return project;
+            };
         }
 
         static void GuardNoOptionValue(KeyValuePair<string, string> option)
         {
             if (option.Value != null)
                 throw new ArgumentException(String.Format("error: unknown command line option: {0}", option.Value));
-        }
-
-        static void GuardNoProjectFile(bool passedProjectFile, KeyValuePair<string, string> option)
-        {
-            if (passedProjectFile)
-                throw new ArgumentException(String.Format("the {0} command line option isn't valid for .xunit2 projects", option.Key));
-        }
-
-        public static bool IsProjectFilename(string filename)
-        {
-            return Path.GetExtension(filename).Equals(".xunit2", StringComparison.OrdinalIgnoreCase);
         }
 
         public static CommandLine Parse(params string[] args)
@@ -78,38 +61,27 @@ namespace Xunit.ConsoleClient
 
         protected XunitProject Parse(Predicate<string> fileExists)
         {
-            Dictionary<string, string> transforms = new Dictionary<string, string>();
-            bool passedProjectFile = false;
-            XunitProject project = null;
+            var transforms = new Dictionary<string, string>();
 
-            string filename = arguments.Pop();
+            var filename = arguments.Pop();
             if (!fileExists(filename))
                 throw new ArgumentException(String.Format("file not found: {0}", filename));
 
-            if (IsProjectFilename(filename))
+            string configFile = null;
+            if (arguments.Count > 0 && !arguments.Peek().StartsWith("-"))
             {
-                project = GetMultiAssemblyProject(filename);
-                passedProjectFile = true;
+                configFile = arguments.Pop();
+
+                if (!fileExists(configFile))
+                    throw new ArgumentException(String.Format("config file not found: {0}", configFile));
             }
-            else
-            {
-                string configFile = null;
 
-                if (arguments.Count > 0 && !arguments.Peek().StartsWith("-"))
-                {
-                    configFile = arguments.Pop();
-
-                    if (!fileExists(configFile))
-                        throw new ArgumentException(String.Format("config file not found: {0}", configFile));
-                }
-
-                project = GetSingleAssemblyProject(filename, configFile);
-            }
+            var project = GetSingleAssemblyProject(filename, configFile);
 
             while (arguments.Count > 0)
             {
-                KeyValuePair<string, string> option = PopOption(arguments);
-                string optionName = option.Key.ToLowerInvariant();
+                var option = PopOption(arguments);
+                var optionName = option.Key.ToLowerInvariant();
 
                 if (!optionName.StartsWith("-"))
                     throw new ArgumentException(String.Format("unknown command line option: {0}", option.Key));
@@ -136,7 +108,6 @@ namespace Xunit.ConsoleClient
                 }
                 else if (optionName == "-noshadow")
                 {
-                    GuardNoProjectFile(passedProjectFile, option);
                     GuardNoOptionValue(option);
                     foreach (var assembly in project.Assemblies)
                         assembly.ShadowCopy = false;
@@ -146,7 +117,7 @@ namespace Xunit.ConsoleClient
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -trait");
 
-                    string[] pieces = option.Value.Split('=');
+                    var pieces = option.Value.Split('=');
                     if (pieces.Length != 2 || String.IsNullOrEmpty(pieces[0]) || String.IsNullOrEmpty(pieces[1]))
                         throw new ArgumentException("incorrect argument format for -trait (should be \"name=value\")");
 
@@ -159,7 +130,7 @@ namespace Xunit.ConsoleClient
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -notrait");
 
-                    string[] pieces = option.Value.Split('=');
+                    var pieces = option.Value.Split('=');
                     if (pieces.Length != 2 || String.IsNullOrEmpty(pieces[0]) || String.IsNullOrEmpty(pieces[1]))
                         throw new ArgumentException("incorrect argument format for -notrait (should be \"name=value\")");
 
@@ -169,8 +140,6 @@ namespace Xunit.ConsoleClient
                 }
                 else
                 {
-                    GuardNoProjectFile(passedProjectFile, option);
-
                     if (option.Value == null)
                         throw new ArgumentException(String.Format("missing filename for {0}", option.Key));
 

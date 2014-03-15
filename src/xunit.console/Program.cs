@@ -89,21 +89,18 @@ namespace Xunit.ConsoleClient
         {
             string executableName = Path.GetFileNameWithoutExtension(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 
-            Console.WriteLine("usage: {0} <xunitProjectFile> [options]", executableName);
             Console.WriteLine("usage: {0} <assemblyFile> [configFile] [options]", executableName);
             Console.WriteLine();
             Console.WriteLine("Valid options:");
             Console.WriteLine("  -parallel              : run test assemblies in parallel");
             Console.WriteLine("  -silent                : do not output running test count");
+            Console.WriteLine("  -noshadow              : do not shadow copy assemblies");
             Console.WriteLine("  -teamcity              : forces TeamCity mode (normally auto-detected)");
             Console.WriteLine("  -wait                  : wait for input after completion");
             Console.WriteLine("  -trait \"name=value\"    : only run tests with matching name/value traits");
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
             Console.WriteLine("  -notrait \"name=value\"  : do not run tests with matching name/value traits");
             Console.WriteLine("                         : if specified more than once, acts as an AND operation");
-            Console.WriteLine();
-            Console.WriteLine("Valid options for assemblies only:");
-            Console.WriteLine("  -noshadow              : do not shadow copy assemblies");
 
             TransformFactory.AvailableTransforms.ForEach(
                 transform => Console.WriteLine("  {0} : {1}",

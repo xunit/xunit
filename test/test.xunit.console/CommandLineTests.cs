@@ -60,17 +60,6 @@ public class CommandLineTests
             Assert.IsType<ArgumentException>(exception);
             Assert.Equal("unknown command line option: teamcity", exception.Message);
         }
-
-        [Fact]
-        public void SecondArgumentOptionWithoutSlashThrows()
-        {
-            var arguments = new[] { "assembly.xunit2", "teamcity" };
-
-            var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
-
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("unknown command line option: teamcity", exception.Message);
-        }
     }
 
     public class NoShadowOption
@@ -439,33 +428,6 @@ public class CommandLineTests
         }
     }
 
-    public class IsProjectFilename
-    {
-        [Fact]
-        public void IsProjectFileNameTrue()
-        {
-            var isProjectFilename = CommandLine.IsProjectFilename("xUnit.xunit2");
-
-            Assert.True(isProjectFilename);
-        }
-
-        [Fact]
-        public void IsProjectFileNameTrueIgoresCase()
-        {
-            var isProjectFilename = CommandLine.IsProjectFilename("xUnit.xuNiT2");
-
-            Assert.True(isProjectFilename);
-        }
-
-        [Fact]
-        public void IsProjectFileNameFalse()
-        {
-            var isProjectFilename = CommandLine.IsProjectFilename("xUnit.sln");
-
-            Assert.False(isProjectFilename);
-        }
-    }
-
     public class Parallel
     {
         [Fact]
@@ -499,18 +461,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void OutputOnProjectFile()
-        {
-            var arguments = new[] { "assemblyName.xunit2", "-xml", "foo.xml" };
-
-            var ex = Record.Exception(() => TestableCommandLine.Parse(arguments));
-
-            Assert.IsType<ArgumentException>(ex);
-            Assert.Equal("the -xml command line option isn't valid for .xunit2 projects", ex.Message);
-        }
-
-        [Fact]
-        public void OutputOnNonProjectFile()
+        public void Output()
         {
             var arguments = new[] { "assemblyName.dll", "-xml", "foo.xml" };
 
@@ -530,11 +481,6 @@ public class CommandLineTests
         public new static TestableCommandLine Parse(params string[] arguments)
         {
             return new TestableCommandLine(arguments);
-        }
-
-        protected override XunitProject GetMultiAssemblyProject(string filename)
-        {
-            return new XunitProject();
         }
 
         protected override XunitProject Parse()
