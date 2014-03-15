@@ -65,6 +65,7 @@
     <Compile Include="Sdk\TestCaseDiscovererAttribute.cs" />
     <Compile Include="Sdk\TraitDiscovererAttribute.cs" />
     <Compile Include="TestCaseOrdererAttribute.cs" />
+    <Compile Include="TestFrameworkAttribute.cs" />
     <Compile Include="TheoryAttribute.cs" />
     <Compile Include="TraitAttribute.cs" />
   </ItemGroup>

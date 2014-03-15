@@ -74,6 +74,7 @@
     <Compile Include="Extensions\ReflectionAbstractionExtensions.cs" />
     <Compile Include="Sdk\AsyncTestSyncContext.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrderer.cs" />
+    <Compile Include="Sdk\Frameworks\TestFrameworkProxy.cs" />
     <Compile Include="Sdk\ITestCaseOrderer.cs" />
     <Compile Include="Sdk\ITraitDiscoverer.cs" />
     <Compile Include="Sdk\MaxConcurrencyTaskScheduler.cs" />

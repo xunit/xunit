@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -11,8 +12,9 @@ namespace Xunit
     /// </summary>
     public class Xunit2Discoverer : ITestFrameworkDiscoverer
     {
+        readonly RemoteAppDomainManager appDomain;
         readonly ITestFrameworkDiscoverer discoverer;
-        readonly AppDomainTestFramework framework;
+        readonly ITestFramework framework;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class. The location
@@ -43,12 +45,15 @@ namespace Xunit
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
             Guard.ArgumentValid("xunitExecutionAssemblyPath", "File not found: " + xunitExecutionAssemblyPath, File.Exists(xunitExecutionAssemblyPath));
 
-            framework = new AppDomainTestFramework(sourceInformationProvider, assemblyFileName, xunitExecutionAssemblyPath, "Xunit.Sdk.XunitTestFramework", configFileName, shadowCopy);
+            appDomain = new RemoteAppDomainManager(assemblyFileName ?? xunitExecutionAssemblyPath, configFileName, shadowCopy);
+
+            var testFrameworkAssemblyName = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath).FullName;
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
             if (assemblyInfo == null)
-                assemblyInfo = framework.CreateRemoteObject<IAssemblyInfo>("Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
+                assemblyInfo = appDomain.CreateObject<IAssemblyInfo>(testFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
 
+            framework = appDomain.CreateObject<ITestFramework>(testFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider);
             discoverer = Framework.GetDiscoverer(assemblyInfo);
         }
 
@@ -71,6 +76,7 @@ namespace Xunit
         {
             discoverer.SafeDispose();
             Framework.SafeDispose();
+            appDomain.SafeDispose();
         }
 
         /// <summary>

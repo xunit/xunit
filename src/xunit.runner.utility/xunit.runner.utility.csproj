@@ -138,7 +138,6 @@
     <Compile Include="..\xunit.execution\Sdk\Messages\TestStarting.cs">
       <Link>Frameworks\Messages\TestStarting.cs</Link>
     </Compile>
-    <Compile Include="Frameworks\AppDomainTestFramework.cs" />
     <Compile Include="Frameworks\TestFrameworkOptions.cs" />
     <Compile Include="Frameworks\v2\XunitDiscoveryOptions.cs" />
     <Compile Include="Frameworks\v2\XunitExecutionOptions.cs" />
