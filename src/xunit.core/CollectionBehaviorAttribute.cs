@@ -1,6 +1,4 @@
-﻿#pragma warning disable 1574    // XDOC reference to xunit.execution types will be fixed up post-compilation
-
-using System;
+﻿using System;
 using System.ComponentModel;
 
 namespace Xunit
@@ -31,7 +29,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="CollectionBehaviorAttribute" /> class.
         /// </summary>
-        /// <param name="factoryTypeName">The type name of the test collection factory (that implements <see cref="IXunitTestCollectionFactory"/>).</param>
+        /// <param name="factoryTypeName">The type name of the test collection factory (that implements <see cref="T:Xunit.Sdk.IXunitTestCollectionFactory"/>).</param>
         /// <param name="factoryAssemblyName">The assembly that <paramref name="factoryTypeName"/> exists in.</param>
         public CollectionBehaviorAttribute(string factoryTypeName, string factoryAssemblyName) { }
 

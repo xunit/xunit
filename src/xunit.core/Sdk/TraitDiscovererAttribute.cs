@@ -1,13 +1,11 @@
-﻿#pragma warning disable 1574    // XDOC reference to xunit.execution types will be fixed up post-compilation
-
-using System;
+﻿using System;
 
 namespace Xunit.Sdk
 {
     /// <summary>
     /// An attribute used to decorate classes which implement <see cref="ITraitAttribute"/>,
     /// to indicate how trait values should be discovered. The discoverer type must implement
-    /// <see cref="ITraitDiscoverer"/>.
+    /// <see cref="T:Xunit.Sdk.ITraitDiscoverer"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public sealed class TraitDiscovererAttribute : Attribute
