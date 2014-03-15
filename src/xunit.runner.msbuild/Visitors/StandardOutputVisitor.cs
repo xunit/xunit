@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -11,6 +15,7 @@ namespace Xunit.Runner.MSBuild
     public class StandardOutputVisitor : MSBuildVisitor
     {
         private readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
+        private readonly static Regex stackFrameRegex = GetStackFrameRegex();
         private readonly bool verbose;
 
         private string assemblyFileName;
@@ -24,6 +29,43 @@ namespace Xunit.Runner.MSBuild
         {
             this.completionMessages = completionMessages;
             this.verbose = verbose;
+        }
+
+        private static Tuple<string, int> GetStackFrameInfo(IFailureInformation failureInfo)
+        {
+            var stackTraces = ExceptionUtility.CombineStackTraces(failureInfo);
+            if (stackTraces != null)
+            {
+                var firstFrame = stackTraces.Split(new[] { Environment.NewLine }, 2, StringSplitOptions.RemoveEmptyEntries)
+                                            .FirstOrDefault();
+
+                if (firstFrame != null)
+                {
+                    var match = stackFrameRegex.Match(firstFrame);
+                    if (match.Success)
+                        return Tuple.Create(match.Groups["file"].Value, Int32.Parse(match.Groups["line"].Value));
+                }
+            }
+
+            return Tuple.Create((string)null, 0);
+        }
+
+        private static Regex GetStackFrameRegex()
+        {
+            // Stack trace lines look like this:
+            // "   at BooleanAssertsTests.False.AssertFalse() in c:\Dev\xunit\xunit\test\test.xunit.assert\Asserts\BooleanAssertsTests.cs:line 22"
+
+            var wordAt = "at";
+            var wordsInLine = "in {0}:line {1}";
+            var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
+            if (getResourceStringMethod != null)
+            {
+                wordAt = (string)getResourceStringMethod.Invoke(null, new object[] { "Word_At" });
+                wordsInLine = (string)getResourceStringMethod.Invoke(null, new object[] { "StackTrace_InFileLineNumber" });
+            }
+            wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");
+
+            return new Regex(String.Format("{0} .* {1}", wordAt, wordsInLine));
         }
 
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
@@ -55,19 +97,22 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(IErrorMessage error)
         {
-            Log.LogError("{0}", Escape(ExceptionUtility.CombineMessages(error)));
-            Log.LogError("{0}", ExceptionUtility.CombineStackTraces(error));
+            var stackFrameInfo = GetStackFrameInfo(error);
+
+            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", Escape(ExceptionUtility.CombineMessages(error)));
+            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", ExceptionUtility.CombineStackTraces(error));
 
             return base.Visit(error);
         }
 
         protected override bool Visit(ITestFailed testFailed)
         {
-            Log.LogError("{0}: {1}", Escape(testFailed.TestDisplayName), Escape(ExceptionUtility.CombineMessages(testFailed)));
+            var stackFrameInfo = GetStackFrameInfo(testFailed);
+            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}: {1}", Escape(testFailed.TestDisplayName), Escape(ExceptionUtility.CombineMessages(testFailed)));
 
             var combinedStackTrace = ExceptionUtility.CombineStackTraces(testFailed);
             if (!String.IsNullOrWhiteSpace(combinedStackTrace))
-                Log.LogError(combinedStackTrace);
+                Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", combinedStackTrace);
 
             return base.Visit(testFailed);
         }
