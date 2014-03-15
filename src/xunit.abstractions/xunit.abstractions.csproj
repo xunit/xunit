@@ -53,6 +53,7 @@
     <Compile Include="Messages\IBeforeTestStarting.cs" />
     <Compile Include="Messages\IErrorMessage.cs" />
     <Compile Include="Messages\BaseInterfaces\IFinishedMessage.cs" />
+    <Compile Include="Messages\IFailureInformation.cs" />
     <Compile Include="Messages\ITestAssemblyFinished.cs" />
     <Compile Include="Messages\ITestAssemblyStarting.cs" />
     <Compile Include="Messages\ITestCaseFinished.cs" />

@@ -10,17 +10,21 @@ public class TestFailed : ITestFailed
     {
         TestCase = new TestCase();
         TestCollection = new TestCollection();
-        ExceptionType = ex.GetType().FullName;
         Output = String.Empty;
-        Message = ExceptionUtility.GetMessage(ex);
-        StackTrace = ExceptionUtility.GetStackTrace(ex);
+
+        var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
+        ExceptionParentIndices = failureInfo.ExceptionParentIndices;
+        ExceptionTypes = failureInfo.ExceptionTypes;
+        Messages = failureInfo.Messages;
+        StackTraces = failureInfo.StackTraces;
     }
 
-    public string ExceptionType { get; set; }
+    public int[] ExceptionParentIndices { get; set; }
+    public string[] ExceptionTypes { get; set; }
     public decimal ExecutionTime { get; set; }
-    public string Message { get; set; }
+    public string[] Messages { get; set; }
     public string Output { get; set; }
-    public string StackTrace { get; set; }
+    public string[] StackTraces { get; set; }
     public ITestCase TestCase { get; set; }
     public ITestCollection TestCollection { get; set; }
     public string TestDisplayName { get; set; }

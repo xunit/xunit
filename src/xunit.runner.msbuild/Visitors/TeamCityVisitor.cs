@@ -31,8 +31,8 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(IErrorMessage error)
         {
-            Log.LogError("{0}: {1}", error.ExceptionType, Escape(error.Message));
-            Log.LogError(error.StackTrace);
+            Log.LogError("{0}", Escape(ExceptionUtility.CombineMessages(error)));
+            Log.LogError("{0}", ExceptionUtility.CombineStackTraces(error));
 
             return base.Visit(error);
         }
@@ -62,8 +62,8 @@ namespace Xunit.Runner.MSBuild
         {
             Log.LogMessage(MessageImportance.High, "##teamcity[testFailed name='{0}' details='{1}|r|n{2}' flowId='{3}']",
                            TeamCityEscape(testFailed.TestDisplayName),
-                           TeamCityEscape(testFailed.Message),
-                           TeamCityEscape(testFailed.StackTrace),
+                           TeamCityEscape(ExceptionUtility.CombineMessages(testFailed)),
+                           TeamCityEscape(ExceptionUtility.CombineStackTraces(testFailed)),
                            ToFlowId(testFailed.TestCollection.DisplayName));
             LogFinish(testFailed);
 

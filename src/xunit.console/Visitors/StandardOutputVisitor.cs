@@ -60,11 +60,11 @@ namespace Xunit.ConsoleClient
             lock (consoleLock)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine("   {0} [FATAL]", Escape(error.ExceptionType));
+                Console.Error.WriteLine("   {0} [FATAL]", Escape(error.ExceptionTypes[0]));
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.Error.WriteLine("      {0}", Escape(error.Message));
+                Console.Error.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(error)));
 
-                WriteStackTrace(error.StackTrace);
+                WriteStackTrace(ExceptionUtility.CombineStackTraces(error));
             }
 
             return base.Visit(error);
@@ -78,9 +78,9 @@ namespace Xunit.ConsoleClient
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Error.WriteLine("   {0} [FAIL]", Escape(testFailed.TestDisplayName));
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.Error.WriteLine("      {0}", Escape(testFailed.Message));
+                Console.Error.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(testFailed)));
 
-                WriteStackTrace(testFailed.StackTrace);
+                WriteStackTrace(ExceptionUtility.CombineStackTraces(testFailed));
             }
 
             return base.Visit(testFailed);

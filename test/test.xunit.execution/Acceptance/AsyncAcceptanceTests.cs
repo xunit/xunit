@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,7 +12,7 @@ public class AsyncAcceptanceTests : AcceptanceTest
 
         var result = Assert.Single(results);
         var failed = Assert.IsAssignableFrom<ITestFailed>(result);
-        Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionType);
+        Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionTypes.Single());
     }
 
     [Fact]
@@ -21,7 +22,7 @@ public class AsyncAcceptanceTests : AcceptanceTest
 
         var result = Assert.Single(results);
         var failed = Assert.IsAssignableFrom<ITestFailed>(result);
-        Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionType);
+        Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionTypes.Single());
     }
 
     class ClassWithAsyncTask

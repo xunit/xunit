@@ -167,6 +167,7 @@
     <Compile Include="Frameworks\v2\Xunit2Discoverer.cs" />
     <Compile Include="Frameworks\v2\Xunit2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\ExceptionUtility.cs" />
     <Compile Include="Utility\ExecutionSummary.cs" />
     <Compile Include="Utility\LongLivedMarshalByRefObject.cs" />
     <Compile Include="Utility\AssemblyHelper.cs" />

@@ -232,7 +232,7 @@ namespace Xunit
                     if (rethrowIndex > -1)
                         stackTrace = stackTrace.Substring(0, rethrowIndex);
 
-                    results.Continue = messageSink.OnMessage(new ErrorMessage(ex.GetType().FullName, ex.Message, stackTrace)) && results.Continue;
+                    results.Continue = messageSink.OnMessage(new ErrorMessage(new[] { ex.GetType().FullName }, new[] { ex.Message }, new[] { stackTrace }, new[] { -1 })) && results.Continue;
                 }
             }
 

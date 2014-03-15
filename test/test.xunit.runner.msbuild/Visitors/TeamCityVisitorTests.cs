@@ -11,9 +11,9 @@ public class TeamCityVisitorTests
         public void LogsMessage()
         {
             var errorMessage = Substitute.For<IErrorMessage>();
-            errorMessage.ExceptionType.Returns("ExceptionType");
-            errorMessage.Message.Returns("This is my message \t\r\n");
-            errorMessage.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
+            errorMessage.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            errorMessage.Messages.Returns(new[] { "This is my message \t\r\n" });
+            errorMessage.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
 
             var logger = SpyLogger.Create();
             var visitor = new TeamCityVisitor(logger, null, null);
@@ -21,7 +21,7 @@ public class TeamCityVisitorTests
             var result = visitor.OnMessage(errorMessage);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal("ERROR: ExceptionType: This is my message \\t\\r\\n", msg),
+                msg => Assert.Equal("ERROR: ExceptionType : This is my message \\t\\r\\n", msg),
                 msg => Assert.Equal("ERROR: Line 1\r\nLine 2\r\nLine 3", msg));
         }
     }
@@ -73,8 +73,10 @@ public class TeamCityVisitorTests
             var testFailed = Substitute.For<ITestFailed>();
             testFailed.TestDisplayName.Returns("This is my display name \t\r\n");
             testFailed.ExecutionTime.Returns(1.2345M);
-            testFailed.Message.Returns("This is my message \t\r\n");
-            testFailed.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
+            testFailed.Messages.Returns(new[] { "This is my message \t\r\n" });
+            testFailed.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
+            testFailed.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var logger = SpyLogger.Create();
             var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
@@ -82,7 +84,7 @@ public class TeamCityVisitorTests
             visitor.OnMessage(testFailed);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFailed name='This is my display name \t|r|n' details='This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='myFlowId']", msg),
+                msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFailed name='This is my display name \t|r|n' details='ExceptionType : This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='myFlowId']", msg),
                 msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
             );
         }

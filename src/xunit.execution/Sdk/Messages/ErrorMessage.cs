@@ -11,11 +11,12 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorMessage"/> class.
         /// </summary>
-        public ErrorMessage(string exceptionType, string message, string stackTrace)
+        public ErrorMessage(string[] exceptionTypes, string[] messages, string[] stackTraces, int[] exceptionParentIndices)
         {
-            StackTrace = stackTrace;
-            Message = message;
-            ExceptionType = exceptionType;
+            StackTraces = stackTraces;
+            Messages = messages;
+            ExceptionTypes = exceptionTypes;
+            ExceptionParentIndices = exceptionParentIndices;
         }
 
 #if XUNIT_CORE_DLL
@@ -24,16 +25,25 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="ex">The exception that represents the error message.</param>
         public ErrorMessage(Exception ex)
-            : this(ex.GetType().FullName, ExceptionUtility.GetMessage(ex), ExceptionUtility.GetStackTrace(ex)) { }
+        {
+            var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
+            ExceptionTypes = failureInfo.ExceptionTypes;
+            Messages = failureInfo.Messages;
+            StackTraces = failureInfo.StackTraces;
+            ExceptionParentIndices = failureInfo.ExceptionParentIndices;
+        }
 #endif
 
         /// <inheritdoc/>
-        public string ExceptionType { get; private set; }
+        public string[] ExceptionTypes { get; private set; }
 
         /// <inheritdoc/>
-        public string Message { get; private set; }
+        public string[] Messages { get; private set; }
 
         /// <inheritdoc/>
-        public string StackTrace { get; private set; }
+        public string[] StackTraces { get; private set; }
+
+        /// <inheritdoc/>
+        public int[] ExceptionParentIndices { get; private set; }
     }
 }

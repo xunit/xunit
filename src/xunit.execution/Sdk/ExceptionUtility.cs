@@ -1,122 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
     /// <summary>
     /// Utility methods for dealing with exceptions.
     /// </summary>
-    public static class ExceptionUtility
+    internal static class ExceptionUtility
     {
-        static bool ExcludeStackFrame(string stackFrame)
-        {
-            Guard.ArgumentNotNull("stackFrame", stackFrame);
-
-            return stackFrame.StartsWith("at Xunit.", StringComparison.Ordinal);
-        }
-
-        static string FilterStackTrace(string stack)
-        {
-            if (stack == null)
-                return null;
-
-            List<string> results = new List<string>();
-
-            foreach (string line in SplitLines(stack))
-            {
-                string trimmedLine = line.TrimStart();
-                if (!ExcludeStackFrame(trimmedLine))
-                    results.Add(line);
-            }
-
-            return string.Join(Environment.NewLine, results.ToArray());
-        }
-
         /// <summary>
-        /// Gets the message for the exception, including any inner exception messages.
+        /// Unwraps exceptions and their inner exceptions.
         /// </summary>
-        /// <param name="ex">The exception</param>
-        /// <returns>The formatted message</returns>
-        public static string GetMessage(Exception ex)
+        /// <param name="ex">The exception to be converted.</param>
+        /// <returns>The failure information.</returns>
+        public static IFailureInformation ConvertExceptionToFailureInformation(Exception ex)
         {
-            return GetMessage(ex, 0);
+            var exceptionTypes = new List<string>();
+            var messages = new List<string>();
+            var stackTraces = new List<string>();
+            var indices = new List<int>();
+
+            ConvertExceptionToFailureInformation(ex, -1, exceptionTypes, messages, stackTraces, indices);
+
+            return new FailureInformation
+            {
+                ExceptionParentIndices = indices.ToArray(),
+                ExceptionTypes = exceptionTypes.ToArray(),
+                Messages = messages.ToArray(),
+                StackTraces = stackTraces.ToArray(),
+            };
         }
 
-        static string GetMessage(Exception ex, int level)
+        static void ConvertExceptionToFailureInformation(Exception ex, int parentIndex, List<string> exceptionTypes, List<string> messages, List<string> stackTraces, List<int> indices)
         {
-            string result = "";
+            var myIndex = exceptionTypes.Count;
 
-            if (level > 0)
-            {
-                for (int idx = 0; idx < level; idx++)
-                    result += "----";
-
-                result += " ";
-            }
-
-            if (ex.GetType().Namespace != "Xunit.Sdk")
-                result += ex.GetType().FullName + " : ";
-
-            result += ex.Message;
+            exceptionTypes.Add(ex.GetType().FullName);
+            messages.Add(ex.Message);
+            stackTraces.Add(ex.StackTrace);
+            indices.Add(parentIndex);
 
             var aggEx = ex as AggregateException;
             if (aggEx != null)
-            {
-                foreach (var inner in aggEx.InnerExceptions)
-                    result = result + Environment.NewLine + GetMessage(inner, level + 1);
-            }
+                foreach (var innerException in aggEx.InnerExceptions)
+                    ConvertExceptionToFailureInformation(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
             else if (ex.InnerException != null)
-                result = result + Environment.NewLine + GetMessage(ex.InnerException, level + 1);
-
-            return result;
+                ConvertExceptionToFailureInformation(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
         }
 
-        /// <summary>
-        /// Gets the stack trace for the exception, including any inner exceptions.
-        /// </summary>
-        /// <param name="ex">The exception</param>
-        /// <returns>The formatted stack trace</returns>
-        public static string GetStackTrace(Exception ex)
+        class FailureInformation : IFailureInformation
         {
-            if (ex == null)
-                return "";
-
-            string result = FilterStackTrace(ex.StackTrace);
-
-            var aggEx = ex as AggregateException;
-            if (aggEx != null)
-            {
-                for (int idx = 0; idx < aggEx.InnerExceptions.Count; ++idx)
-                    result += String.Format("{0}----- Inner Stack Trace #{1} ({2}) -----{0}{3}",
-                                            Environment.NewLine,
-                                            idx + 1,
-                                            aggEx.InnerExceptions[idx].GetType().FullName,
-                                            GetStackTrace(aggEx.InnerExceptions[idx]));
-            }
-            else if (ex.InnerException != null)
-                result += Environment.NewLine +
-                          "----- Inner Stack Trace -----" + Environment.NewLine +
-                          GetStackTrace(ex.InnerException);
-
-            return result;
-        }
-
-        // Our own custom String.Split because Silverlight/CoreCLR doesn't support the version we were using
-        static IEnumerable<string> SplitLines(string input)
-        {
-            while (true)
-            {
-                int idx = input.IndexOf(Environment.NewLine);
-
-                if (idx < 0)
-                {
-                    yield return input;
-                    break;
-                }
-
-                yield return input.Substring(0, idx);
-                input = input.Substring(idx + Environment.NewLine.Length);
-            }
+            public string[] ExceptionTypes { get; set; }
+            public string[] Messages { get; set; }
+            public string[] StackTraces { get; set; }
+            public int[] ExceptionParentIndices { get; set; }
         }
     }
 }

@@ -92,9 +92,10 @@ namespace Xunit
                         var stackTraceElement = failure.SelectSingleNode("stack-trace");
                         var exceptionTypeAttribute = failure.Attributes["exception-type"];
                         resultMessage = new TestFailed(testCase, displayName, time, output,
-                                                       exceptionTypeAttribute == null ? String.Empty : exceptionTypeAttribute.Value,
-                                                       messageElement == null ? String.Empty : messageElement.InnerText,
-                                                       stackTraceElement == null ? String.Empty : stackTraceElement.InnerText);
+                                                       exceptionTypeAttribute == null ? new string[0] : new[] { exceptionTypeAttribute.Value },
+                                                       messageElement == null ? new string[0] : new[] { messageElement.InnerText },
+                                                       stackTraceElement == null ? new string[0] : new[] { stackTraceElement.InnerText },
+                                                       new[] { -1 });
                         break;
                     }
 

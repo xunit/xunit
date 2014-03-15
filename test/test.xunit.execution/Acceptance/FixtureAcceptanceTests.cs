@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -24,8 +25,8 @@ public class FixtureAcceptanceTests
                 message =>
                 {
                     var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
-                    Assert.Equal(typeof(TestClassException).FullName, failedMessage.ExceptionType);
-                    Assert.Equal("A test class may only define a single public constructor.", failedMessage.Message);
+                    Assert.Equal(typeof(TestClassException).FullName, failedMessage.ExceptionTypes.Single());
+                    Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
                 },
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
@@ -38,8 +39,8 @@ public class FixtureAcceptanceTests
                 message =>
                 {
                     var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
-                    Assert.Equal(typeof(TestClassException).FullName, failedMessage.ExceptionType);
-                    Assert.Equal("A test class may only define a single public constructor.", failedMessage.Message);
+                    Assert.Equal(typeof(TestClassException).FullName, failedMessage.ExceptionTypes.Single());
+                    Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
                 },
                 message => Assert.IsAssignableFrom<ITestFinished>(message),
                 message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
@@ -72,8 +73,8 @@ public class FixtureAcceptanceTests
             var messages = Run<ITestFailed>(typeof(ClassWithExtraCtorArg));
 
             var msg = Assert.Single(messages);
-            Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionType);
-            Assert.Equal("The following constructor arguments did not have matching fixture data: Int32 arg1, String arg2", msg.Message);
+            Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionTypes.Single());
+            Assert.Equal("The following constructor arguments did not have matching fixture data: Int32 arg1, String arg2", msg.Messages.Single());
         }
 
         class ClassWithExtraCtorArg : IClassFixture<EmptyFixtureData>
@@ -106,7 +107,7 @@ public class FixtureAcceptanceTests
             var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
             var msg = Assert.Single(messages);
-            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionType);
+            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
         }
 
         class ClassWithThrowingFixtureCtor : IClassFixture<ThrowingCtorFixture>
@@ -121,7 +122,7 @@ public class FixtureAcceptanceTests
             var messages = Run<IErrorMessage>(typeof(ClassWithThrowingFixtureDispose));
 
             var msg = Assert.Single(messages);
-            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionType);
+            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
         }
 
         class ClassWithThrowingFixtureDispose : IClassFixture<ThrowingDisposeFixture>
@@ -158,8 +159,8 @@ public class FixtureAcceptanceTests
             var messages = Run<ITestFailed>(typeof(TestClassWithCollectionFixture));
 
             var msg = Assert.Single(messages);
-            Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionType);
-            Assert.Equal("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).", msg.Message);
+            Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionTypes.Single());
+            Assert.Equal("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).", msg.Messages.Single());
         }
 
         class TestClassWithCollectionFixture : ICollectionFixture<EmptyFixtureData>
@@ -174,8 +175,8 @@ public class FixtureAcceptanceTests
             var messages = Run<ITestFailed>(typeof(ClassWithExtraCtorArg));
 
             var msg = Assert.Single(messages);
-            Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionType);
-            Assert.Equal("The following constructor arguments did not have matching fixture data: Int32 arg1, String arg2", msg.Message);
+            Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionTypes.Single());
+            Assert.Equal("The following constructor arguments did not have matching fixture data: Int32 arg1, String arg2", msg.Messages.Single());
         }
 
         [CollectionDefinition("Collection with empty fixture data")]
@@ -215,7 +216,7 @@ public class FixtureAcceptanceTests
             var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
             var msg = Assert.Single(messages);
-            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionType);
+            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
         }
 
         [CollectionDefinition("Collection with throwing constructor")]
@@ -236,7 +237,7 @@ public class FixtureAcceptanceTests
             var messages = Run<IErrorMessage>(typeof(ClassWithThrowingFixtureDispose));
 
             var msg = Assert.Single(messages);
-            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionType);
+            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
         }
 
         [CollectionDefinition("Collection with throwing dispose")]

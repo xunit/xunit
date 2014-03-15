@@ -284,9 +284,9 @@ public class Xunit1Tests
                     var testFailed = Assert.IsAssignableFrom<ITestFailed>(message);
                     Assert.Equal("type1.failing", testFailed.TestCase.DisplayName);
                     Assert.Equal(0.234M, testFailed.ExecutionTime);
-                    Assert.Equal("Xunit.MockFailureException", testFailed.ExceptionType);
-                    Assert.Equal("Failure message", testFailed.Message);
-                    Assert.Equal("Stack trace", testFailed.StackTrace);
+                    Assert.Equal("Xunit.MockFailureException", testFailed.ExceptionTypes.Single());
+                    Assert.Equal("Failure message", testFailed.Messages.Single());
+                    Assert.Equal("Stack trace", testFailed.StackTraces.Single());
                 },
                 message =>
                 {
@@ -399,9 +399,9 @@ public class Xunit1Tests
             sink.Finished.WaitOne();
 
             var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
-            Assert.Equal("System.DivideByZeroException", errorMessage.ExceptionType);
-            Assert.Equal("Attempted to divide by zero.", errorMessage.Message);
-            Assert.Equal(exception.StackTrace, errorMessage.StackTrace);
+            Assert.Equal("System.DivideByZeroException", errorMessage.ExceptionTypes.Single());
+            Assert.Equal("Attempted to divide by zero.", errorMessage.Messages.Single());
+            Assert.Equal(exception.StackTrace, errorMessage.StackTraces.Single());
         }
     }
 

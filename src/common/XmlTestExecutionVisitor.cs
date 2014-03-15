@@ -146,9 +146,9 @@ namespace Xunit
                 var testElement = CreateTestResultElement(testFailed, "Fail");
                 testElement.Add(
                     new XElement("failure",
-                        new XAttribute("exception-type", testFailed.ExceptionType),
-                        new XElement("message", new XCData(XmlEscape(testFailed.Message))),
-                        new XElement("stack-trace", new XCData(testFailed.StackTrace ?? String.Empty))
+                        new XAttribute("exception-type", testFailed.ExceptionTypes[0]),
+                        new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(testFailed)))),
+                        new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(testFailed) ?? String.Empty))
                     )
                 );
             }

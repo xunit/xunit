@@ -41,8 +41,9 @@ public class XunitTheoryTestCaseTests
             var resultMessages = bus.Messages.OfType<ITestResultMessage>();
             var failed = (ITestFailed)Assert.Single(resultMessages);
             Assert.Equal("XunitTheoryTestCaseTests+RunAsync+ClassUnderTest.TestWithThrowingData", failed.TestDisplayName);
-            Assert.Equal("System.DivideByZeroException : Attempted to divide by zero.", failed.Message);
-            Assert.Contains("XunitTheoryTestCaseTests.RunAsync.ClassUnderTest.get_ThrowingData()", failed.StackTrace);
+            Assert.Equal("System.DivideByZeroException", failed.ExceptionTypes.Single());
+            Assert.Equal("Attempted to divide by zero.", failed.Messages.Single());
+            Assert.Contains("XunitTheoryTestCaseTests.RunAsync.ClassUnderTest.get_ThrowingData()", failed.StackTraces.Single());
         }
 
         class ClassUnderTest

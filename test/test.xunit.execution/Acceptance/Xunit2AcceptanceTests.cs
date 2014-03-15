@@ -152,7 +152,7 @@ public class Xunit2AcceptanceTests
             List<IMessageSinkMessage> results = Run(typeof(SingleFailingTestClass));
 
             var failedMessage = Assert.Single(results.OfType<ITestFailed>());
-            Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionType);
+            Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionTypes.Single());
 
             var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
             Assert.Equal(1, classFinishedMessage.TestsFailed);
@@ -170,7 +170,7 @@ public class Xunit2AcceptanceTests
             var messages = Run<ITestFailed>(typeof(ClassUnderTest_CtorFailure));
 
             Assert.Collection(messages,
-                msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionType)
+                msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
             );
         }
 
@@ -180,7 +180,7 @@ public class Xunit2AcceptanceTests
             var messages = Run<ITestFailed>(typeof(ClassUnderTest_DisposeFailure));
 
             Assert.Collection(messages,
-                msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionType)
+                msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
             );
         }
 
@@ -190,12 +190,11 @@ public class Xunit2AcceptanceTests
             var messages = Run<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
 
             var msg = Assert.Single(messages);
-            Assert.Equal(typeof(AggregateException).FullName, msg.ExceptionType);
             Assert.Equal("System.AggregateException : One or more errors occurred." + Environment.NewLine +
                          "---- Assert.Equal() Failure" + Environment.NewLine +
                          "Expected: 2" + Environment.NewLine +
                          "Actual:   3" + Environment.NewLine +
-                         "---- System.DivideByZeroException : Attempted to divide by zero.", msg.Message);
+                         "---- System.DivideByZeroException : Attempted to divide by zero.", ExceptionUtility.CombineMessages(msg));
         }
 
         class ClassUnderTest_CtorFailure
@@ -262,10 +261,10 @@ public class Xunit2AcceptanceTests
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
 
             var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.EqualFailure");
-            Assert.Contains("Assert.Equal() Failure", equalFailure.Message);
+            Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
             var notNullFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.NotNullFailure");
-            Assert.Contains("Assert.NotNull() Failure", notNullFailure.Message);
+            Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
         }
 
         class ClassUnderTest

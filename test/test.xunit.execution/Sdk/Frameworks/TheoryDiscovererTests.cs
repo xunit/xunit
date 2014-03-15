@@ -15,8 +15,8 @@ public class TheoryDiscovererTests : AcceptanceTest
         var failures = Run<ITestFailed>(typeof(NoDataAttributesClass));
 
         var failure = Assert.Single(failures);
-        Assert.Equal(typeof(InvalidOperationException).FullName, failure.ExceptionType);
-        Assert.Equal("System.InvalidOperationException : No data found for TheoryDiscovererTests+NoDataAttributesClass.TheoryMethod", failure.Message);
+        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
+        Assert.Equal("No data found for TheoryDiscovererTests+NoDataAttributesClass.TheoryMethod", failure.Messages.Single());
     }
 
     class NoDataAttributesClass
@@ -31,8 +31,8 @@ public class TheoryDiscovererTests : AcceptanceTest
         var failures = Run<ITestFailed>(typeof(EmptyTheoryDataClass));
 
         var failure = Assert.Single(failures);
-        Assert.Equal(typeof(InvalidOperationException).FullName, failure.ExceptionType);
-        Assert.Equal("System.InvalidOperationException : No data found for TheoryDiscovererTests+EmptyTheoryDataClass.TheoryMethod", failure.Message);
+        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
+        Assert.Equal("No data found for TheoryDiscovererTests+EmptyTheoryDataClass.TheoryMethod", failure.Messages.Single());
     }
 
     class EmptyTheoryDataAttribute : DataAttribute

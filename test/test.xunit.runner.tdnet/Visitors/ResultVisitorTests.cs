@@ -159,8 +159,8 @@ public class ResultVisitorTests
             Assert.Equal(TestState.Failed, testResult.State);
             Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
             Assert.Equal(1, testResult.TotalTests);
-            Assert.Equal(ExceptionUtility.GetMessage(ex), testResult.Message);
-            Assert.Equal(ExceptionUtility.GetStackTrace(ex), testResult.StackTrace);
+            Assert.Equal("System.Exception : " + ex.Message, testResult.Message);
+            Assert.Equal(ex.StackTrace, testResult.StackTrace);
         }
 
         [Fact]

@@ -11,9 +11,9 @@ public class StandardOutputVisitorTests
         public void LogsMessage()
         {
             var errorMessage = Substitute.For<IErrorMessage>();
-            errorMessage.ExceptionType.Returns("ExceptionType");
-            errorMessage.Message.Returns("This is my message \t\r\n");
-            errorMessage.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
+            errorMessage.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            errorMessage.Messages.Returns(new[] { "This is my message \t\r\n" });
+            errorMessage.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
 
             var logger = SpyLogger.Create();
             var visitor = new StandardOutputVisitor(logger, null, false, null);
@@ -21,7 +21,7 @@ public class StandardOutputVisitorTests
             visitor.OnMessage(errorMessage);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal("ERROR: ExceptionType: This is my message \\t\\r\\n", msg),
+                msg => Assert.Equal("ERROR: ExceptionType : This is my message \\t\\r\\n", msg),
                 msg => Assert.Equal("ERROR: Line 1\r\nLine 2\r\nLine 3", msg));
         }
     }
@@ -57,8 +57,10 @@ public class StandardOutputVisitorTests
         {
             var testFailed = Substitute.For<ITestFailed>();
             testFailed.TestDisplayName.Returns("This is my display name \t\r\n");
-            testFailed.Message.Returns("This is my message \t\r\n");
-            testFailed.StackTrace.Returns("Line 1\r\nLine 2\r\nLine 3");
+            testFailed.Messages.Returns(new[] { "This is my message \t\r\n" });
+            testFailed.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
+            testFailed.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var logger = SpyLogger.Create();
             var visitor = new StandardOutputVisitor(logger, null, false, null);
@@ -66,7 +68,7 @@ public class StandardOutputVisitorTests
             visitor.OnMessage(testFailed);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal("ERROR: This is my display name \\t\\r\\n: This is my message \\t\\r\\n", msg),
+                msg => Assert.Equal("ERROR: This is my display name \\t\\r\\n: ExceptionType : This is my message \\t\\r\\n", msg),
                 msg => Assert.Equal("ERROR: Line 1\r\nLine 2\r\nLine 3", msg));
         }
 
@@ -75,8 +77,10 @@ public class StandardOutputVisitorTests
         {
             var testFailed = Substitute.For<ITestFailed>();
             testFailed.TestDisplayName.Returns("1");
-            testFailed.Message.Returns("2");
-            testFailed.StackTrace.Returns((string)null);
+            testFailed.Messages.Returns(new[] { "2" });
+            testFailed.StackTraces.Returns(new[] { (string)null });
+            testFailed.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var logger = SpyLogger.Create();
             var visitor = new StandardOutputVisitor(logger, null, false, null);
@@ -84,7 +88,7 @@ public class StandardOutputVisitorTests
             visitor.OnMessage(testFailed);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal("ERROR: 1: 2", msg));
+                msg => Assert.Equal("ERROR: 1: ExceptionType : 2", msg));
         }
     }
 

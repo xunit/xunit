@@ -27,7 +27,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         protected override bool Visit(IErrorMessage error)
         {
-            recorder.SendMessage(TestMessageLevel.Error, String.Format("Catastrophic failure: {0}", error.Message));
+            recorder.SendMessage(TestMessageLevel.Error, String.Format("Catastrophic failure: {0}", ExceptionUtility.CombineMessages(error)));
 
             return !cancelledThunk();
         }
@@ -35,8 +35,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         protected override bool Visit(ITestFailed testFailed)
         {
             var result = MakeVsTestResult(testFailed, TestOutcome.Failed);
-            result.ErrorMessage = testFailed.Message;
-            result.ErrorStackTrace = testFailed.StackTrace;
+            result.ErrorMessage = ExceptionUtility.CombineMessages(testFailed);
+            result.ErrorStackTrace = ExceptionUtility.CombineStackTraces(testFailed);
 
             recorder.RecordEnd(result.TestCase, result.Outcome);
             recorder.RecordResult(result);

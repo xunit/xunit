@@ -55,18 +55,19 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(IErrorMessage error)
         {
-            Log.LogError("{0}: {1}", error.ExceptionType, Escape(error.Message));
-            Log.LogError(error.StackTrace);
+            Log.LogError("{0}", Escape(ExceptionUtility.CombineMessages(error)));
+            Log.LogError("{0}", ExceptionUtility.CombineStackTraces(error));
 
             return base.Visit(error);
         }
 
         protected override bool Visit(ITestFailed testFailed)
         {
-            Log.LogError("{0}: {1}", Escape(testFailed.TestDisplayName), Escape(testFailed.Message));
+            Log.LogError("{0}: {1}", Escape(testFailed.TestDisplayName), Escape(ExceptionUtility.CombineMessages(testFailed)));
 
-            if (!String.IsNullOrWhiteSpace(testFailed.StackTrace))
-                Log.LogError(testFailed.StackTrace);
+            var combinedStackTrace = ExceptionUtility.CombineStackTraces(testFailed);
+            if (!String.IsNullOrWhiteSpace(combinedStackTrace))
+                Log.LogError(combinedStackTrace);
 
             return base.Visit(testFailed);
         }

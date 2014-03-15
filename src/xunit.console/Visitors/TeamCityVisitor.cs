@@ -29,8 +29,8 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(IErrorMessage error)
         {
-            Console.Error.WriteLine("{0}: {1}", error.ExceptionType, Escape(error.Message));
-            Console.Error.WriteLine(error.StackTrace);
+            Console.Error.WriteLine("{0}: {1}", error.ExceptionTypes[0], Escape(ExceptionUtility.CombineMessages(error)));
+            Console.Error.WriteLine(ExceptionUtility.CombineStackTraces(error));
 
             return base.Visit(error);
         }
@@ -60,8 +60,8 @@ namespace Xunit.ConsoleClient
         {
             Console.WriteLine("##teamcity[testFailed name='{0}' details='{1}|r|n{2}' flowId='{3}']",
                               TeamCityEscape(testFailed.TestDisplayName),
-                              TeamCityEscape(testFailed.Message),
-                              TeamCityEscape(testFailed.StackTrace),
+                              TeamCityEscape(ExceptionUtility.CombineMessages(testFailed)),
+                              TeamCityEscape(ExceptionUtility.CombineStackTraces(testFailed)),
                               ToFlowId(testFailed.TestCollection.DisplayName));
             LogFinish(testFailed);
 

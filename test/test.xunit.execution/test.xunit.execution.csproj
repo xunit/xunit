@@ -89,7 +89,6 @@
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />
-    <Compile Include="Sdk\ExceptionUtilityTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />

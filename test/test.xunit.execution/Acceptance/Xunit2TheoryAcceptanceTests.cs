@@ -192,7 +192,8 @@ public class Xunit2TheoryAcceptanceTests
                     return false;
 
                 Assert.Equal("Xunit2TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData.TestViaMissingData", failed.TestDisplayName);
-                Assert.Equal("System.ArgumentException : Could not find public static member (property, field, or method) named 'Foo' on Xunit2TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData", failed.Message);
+                Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+                Assert.Equal("Could not find public static member (property, field, or method) named 'Foo' on Xunit2TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData", failed.Messages.Single());
                 return true;
             });
         }
@@ -280,7 +281,8 @@ public class Xunit2TheoryAcceptanceTests
                     return false;
 
                 Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData.TestViaFieldData", failed.TestDisplayName);
-                Assert.Equal("System.ArgumentException : Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData", failed.Message);
+                Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+                Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData", failed.Messages.Single());
                 return true;
             });
         }
@@ -401,7 +403,8 @@ public class Xunit2TheoryAcceptanceTests
                     return false;
 
                 Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithNonStaticMethodData.TestViaMethodData", failed.TestDisplayName);
-                Assert.Equal("System.ArgumentException : Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithNonStaticMethodData", failed.Message);
+                Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+                Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithNonStaticMethodData", failed.Messages.Single());
                 return true;
             });
         }
@@ -571,7 +574,8 @@ public class Xunit2TheoryAcceptanceTests
                     return false;
 
                 Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestViaPropertyData", failed.TestDisplayName);
-                Assert.Equal("System.ArgumentException : Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData", failed.Message);
+                Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+                Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData", failed.Messages.Single());
                 return true;
             });
         }
@@ -622,10 +626,10 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
 
             var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: 21.12, z: Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest)");
-            Assert.Contains("Assert.Equal() Failure", equalFailure.Message);
+            Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
             var notNullFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)");
-            Assert.Contains("Assert.NotNull() Failure", notNullFailure.Message);
+            Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
         }
 
         class ClassUnderTest

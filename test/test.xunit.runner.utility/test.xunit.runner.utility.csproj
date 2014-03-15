@@ -154,6 +154,7 @@
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Utility\ExceptionUtilityTests.cs" />
     <Compile Include="Visitors\TestDiscoveryVisitorTests.cs" />
     <Compile Include="Visitors\TestMessageVisitorTests.cs" />
   </ItemGroup>

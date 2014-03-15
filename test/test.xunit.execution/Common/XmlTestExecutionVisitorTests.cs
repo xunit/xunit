@@ -188,9 +188,9 @@ public class XmlTestExecutionVisitorTests
             testFailed.TestCase.Returns(testCase);
             testFailed.TestDisplayName.Returns("Test Display Name");
             testFailed.ExecutionTime.Returns(123.4567M);
-            testFailed.ExceptionType.Returns("Exception Type");
-            testFailed.Message.Returns("Exception Message");
-            testFailed.StackTrace.Returns("Exception Stack Trace");
+            testFailed.ExceptionTypes.Returns(new[] { "Exception Type" });
+            testFailed.Messages.Returns(new[] { "Exception Message" });
+            testFailed.StackTraces.Returns(new[] { "Exception Stack Trace" });
 
             var assemblyElement = new XElement("assembly");
             var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
@@ -206,7 +206,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("123.457", testElement.Attribute("time").Value);
             var failureElement = Assert.Single(testElement.Elements("failure"));
             Assert.Equal("Exception Type", failureElement.Attribute("exception-type").Value);
-            Assert.Equal("Exception Message", failureElement.Elements("message").Single().Value);
+            Assert.Equal("Exception Type : Exception Message", failureElement.Elements("message").Single().Value);
             Assert.Equal("Exception Stack Trace", failureElement.Elements("stack-trace").Single().Value);
             Assert.Empty(testElement.Elements("reason"));
         }
@@ -218,7 +218,10 @@ public class XmlTestExecutionVisitorTests
             var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
             var testFailed = Substitute.For<ITestFailed>();
             testFailed.TestCase.Returns(testCase);
-            testFailed.StackTrace.Returns((string)null);
+            testFailed.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            testFailed.Messages.Returns(new[] { "Exception Message" });
+            testFailed.StackTraces.Returns(new[] { (string)null });
+            testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var assemblyElement = new XElement("assembly");
             var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);

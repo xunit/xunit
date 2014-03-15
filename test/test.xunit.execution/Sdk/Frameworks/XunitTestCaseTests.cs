@@ -397,7 +397,7 @@ public class XunitTestCaseTests
                     message =>
                     {
                         ITestFailed failed = Assert.IsAssignableFrom<ITestFailed>(message);
-                        Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionType);
+                        Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
                     },
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
                 );
@@ -480,7 +480,7 @@ public class XunitTestCaseTests
                     message =>
                     {
                         ITestFailed failed = Assert.IsAssignableFrom<ITestFailed>(message);
-                        Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionType);
+                        Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
                     },
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
                 );
@@ -521,7 +521,7 @@ public class XunitTestCaseTests
                     message =>
                     {
                         ITestFailed failed = Assert.IsAssignableFrom<ITestFailed>(message);
-                        Assert.Equal(typeof(NotImplementedException).FullName, failed.ExceptionType);
+                        Assert.Equal(typeof(NotImplementedException).FullName, failed.ExceptionTypes.Single());
                     },
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
                 );
@@ -543,9 +543,12 @@ public class XunitTestCaseTests
                     message =>
                     {
                         ITestFailed failed = Assert.IsAssignableFrom<ITestFailed>(message);
-                        Assert.Equal(typeof(AggregateException).FullName, failed.ExceptionType);
-                        Assert.Contains(typeof(InvalidFilterCriteriaException).FullName, failed.Message);
-                        Assert.Contains(typeof(NotImplementedException).FullName, failed.Message);
+
+                        Assert.Collection(failed.ExceptionTypes,
+                            type => Assert.Equal(typeof(AggregateException).FullName, type),
+                            type => Assert.Equal(typeof(InvalidFilterCriteriaException).FullName, type),
+                            type => Assert.Equal(typeof(NotImplementedException).FullName, type)
+                        );
                     },
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
                 );
@@ -633,7 +636,7 @@ public class XunitTestCaseTests
                         message =>
                         {
                             var failed = Assert.IsAssignableFrom<ITestFailed>(message);
-                            Assert.Equal(typeof(SpyBeforeAfterTest.BeforeException).FullName, failed.ExceptionType);
+                            Assert.Equal(typeof(SpyBeforeAfterTest.BeforeException).FullName, failed.ExceptionTypes.Single());
                         },
                         message => Assert.IsAssignableFrom<ITestFinished>(message)
                     );
@@ -657,7 +660,7 @@ public class XunitTestCaseTests
                         message =>
                         {
                             var failed = Assert.IsAssignableFrom<ITestFailed>(message);
-                            Assert.Equal(typeof(SpyBeforeAfterTest.AfterException).FullName, failed.ExceptionType);
+                            Assert.Equal(typeof(SpyBeforeAfterTest.AfterException).FullName, failed.ExceptionTypes.Single());
                         },
                         message => Assert.IsAssignableFrom<ITestFinished>(message)
                     );
@@ -681,9 +684,12 @@ public class XunitTestCaseTests
                         message =>
                         {
                             var failed = Assert.IsAssignableFrom<ITestFailed>(message);
-                            Assert.Equal(typeof(AggregateException).FullName, failed.ExceptionType);
-                            Assert.Contains(typeof(NotImplementedException).FullName, failed.Message);
-                            Assert.Contains(typeof(SpyBeforeAfterTest.AfterException).FullName, failed.Message);
+
+                            Assert.Collection(failed.ExceptionTypes,
+                                type => Assert.Equal(typeof(AggregateException).FullName, type),
+                                type => Assert.Equal(typeof(NotImplementedException).FullName, type),
+                                type => Assert.Equal(typeof(SpyBeforeAfterTest.AfterException).FullName, type)
+                            );
                         },
                         message => Assert.IsAssignableFrom<ITestFinished>(message)
                     );
@@ -783,7 +789,7 @@ public class XunitTestCaseTests
                         message =>
                         {
                             var failed = Assert.IsAssignableFrom<ITestFailed>(message);
-                            Assert.Equal(typeof(SpyBeforeAfterTest.AfterException).FullName, failed.ExceptionType);
+                            Assert.Equal(typeof(SpyBeforeAfterTest.AfterException).FullName, failed.ExceptionTypes.Single());
                         },
                         message => Assert.IsAssignableFrom<ITestFinished>(message)
                     );
@@ -953,7 +959,7 @@ public class XunitTestCaseTests
                     message =>
                     {
                         var failed = Assert.IsAssignableFrom<ITestFailed>(message);
-                        Assert.Equal(typeof(TrueException).FullName, failed.ExceptionType);
+                        Assert.Equal(typeof(TrueException).FullName, failed.ExceptionTypes.Single());
                     },
                     message => Assert.IsAssignableFrom<ITestFinished>(message)
                 );

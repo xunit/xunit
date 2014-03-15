@@ -8,26 +8,48 @@ namespace Xunit.Sdk
     /// </summary>
     internal class TestFailed : TestResultMessage, ITestFailed
     {
-        public TestFailed(ITestCase testCase, string testDisplayName, decimal executionTime, string output, string exceptionType, string message, string stackTrace)
+        public TestFailed(ITestCase testCase,
+                          string testDisplayName,
+                          decimal executionTime,
+                          string output,
+                          string[] exceptionTypes,
+                          string[] messages,
+                          string[] stackTraces,
+                          int[] exceptionParentIndices)
             : base(testCase, testDisplayName, executionTime, output)
         {
-            StackTrace = stackTrace;
-            Message = message;
-            ExceptionType = exceptionType;
+            StackTraces = stackTraces;
+            Messages = messages;
+            ExceptionTypes = exceptionTypes;
+            ExceptionParentIndices = exceptionParentIndices;
         }
 
 #if XUNIT_CORE_DLL
-        public TestFailed(ITestCase testCase, string testDisplayName, decimal executionTime, string output, Exception ex)
-            : this(testCase, testDisplayName, executionTime, output, ex.GetType().FullName, ExceptionUtility.GetMessage(ex), ExceptionUtility.GetStackTrace(ex)) { }
+        public TestFailed(ITestCase testCase,
+                          string testDisplayName,
+                          decimal executionTime,
+                          string output,
+                          Exception ex)
+            : base(testCase, testDisplayName, executionTime, output)
+        {
+            var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
+            ExceptionTypes = failureInfo.ExceptionTypes;
+            Messages = failureInfo.Messages;
+            StackTraces = failureInfo.StackTraces;
+            ExceptionParentIndices = failureInfo.ExceptionParentIndices;
+        }
 #endif
 
         /// <inheritdoc/>
-        public string ExceptionType { get; private set; }
+        public string[] ExceptionTypes { get; private set; }
 
         /// <inheritdoc/>
-        public string Message { get; private set; }
+        public string[] Messages { get; private set; }
 
         /// <inheritdoc/>
-        public string StackTrace { get; private set; }
+        public string[] StackTraces { get; private set; }
+
+        /// <inheritdoc/>
+        public int[] ExceptionParentIndices { get; private set; }
     }
 }
