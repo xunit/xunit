@@ -1,15 +1,13 @@
-﻿#pragma warning disable 1574    // XDOC reference to Xunit.Sdk.BeforeAfterTestAttribute will be fixed up post-compilation
-
-namespace Xunit.Abstractions
+﻿namespace Xunit.Abstractions
 {
     /// <summary>
     /// This message is sent during execution to indicate that the After method of
-    /// a <see cref="Xunit.Sdk.BeforeAfterTestAttribute"/> has completed executing.
+    /// a <see cref="T:Xunit.Sdk.BeforeAfterTestAttribute"/> has completed executing.
     /// </summary>
     public interface IAfterTestFinished : ITestMessage
     {
         /// <summary>
-        /// The fully qualified type name of the <see cref="Xunit.Sdk.BeforeAfterTestAttribute"/>.
+        /// The fully qualified type name of the <see cref="T:Xunit.Sdk.BeforeAfterTestAttribute"/>.
         /// </summary>
         string AttributeName { get; }
     }
