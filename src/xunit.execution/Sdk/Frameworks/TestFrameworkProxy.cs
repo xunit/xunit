@@ -19,8 +19,11 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testAssembly">The test assembly.</param>
         /// <param name="sourceInformationProvider">The source information provider.</param>
-        public TestFrameworkProxy(IAssemblyInfo testAssembly, ISourceInformationProvider sourceInformationProvider)
+        public TestFrameworkProxy(object testAssemblyObject, object sourceInformationProviderObject)
         {
+            var testAssembly = (IAssemblyInfo)testAssemblyObject;
+            var sourceInformationProvider = (ISourceInformationProvider)sourceInformationProviderObject;
+
             Type testFrameworkType = typeof(XunitTestFramework);
 
             try
