@@ -2,20 +2,39 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
+using System.Globalization;
 using System.IO;
 using System.Linq; 
 using System.Reflection;
+using Xunit.Sdk;
 
-
-public class ExcelDataAdapter
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+public sealed class ExcelDataAttribute : DataAttribute
 {
     readonly static string connectionTemplate =
         "Provider=Microsoft.ACE.OLEDB.12.0; Data Source={0}; Extended Properties='Excel 12.0;HDR=YES;IMEX=1;';";
 
-    public static IEnumerable<object[]> DataSource(string fileName, string selectString, object[] objectTypes)
+    public ExcelDataAttribute(string fileName, string queryString)
     {
-        Type[] parameterTypes = Array.ConvertAll(objectTypes, element => (Type)element);
+        FileName = fileName;
+        QueryString = queryString;
+    }
 
+    public string FileName { get; private set; }
+
+    public string QueryString { get; private set; }
+
+    public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+    {
+        if (testMethod == null)
+            throw new ArgumentNullException("testMethod");
+
+        ParameterInfo[] pars = testMethod.GetParameters();
+        return DataSource(FileName, QueryString, pars.Select(par => par.ParameterType).ToArray());
+    }
+
+    IEnumerable<object[]> DataSource(string fileName, string selectString, Type[] parameterTypes)
+    {
         string connectionString = string.Format(connectionTemplate, GetFullFilename(fileName));
         IDataAdapter adapter = new OleDbDataAdapter(selectString, connectionString);
         DataSet dataSet = new DataSet();
@@ -30,8 +49,7 @@ public class ExcelDataAdapter
         finally
         {
             IDisposable disposable = adapter as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
+            disposable.Dispose();
         }
     }
 
@@ -59,9 +77,6 @@ public class ExcelDataAdapter
     /// <returns>The converted parameter value</returns>
     static object ConvertParameter(object parameter, Type parameterType)
     {
-        if (parameter is DBNull)
-            return null;
-
         if ((parameter is double || parameter is float) &&
             (parameterType == typeof(int) || parameterType == typeof(int?)))
         {
@@ -75,3 +90,4 @@ public class ExcelDataAdapter
         return parameter;
     }
 }
+
