@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpecificationExamples", "Sp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssertExtensions", "AssertExtensions\AssertExtensions.csproj", "{532166A3-1043-4167-9E7C-2A02AE2BB2C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrioritizedFixtureExample", "PrioritizedFixtureExample\PrioritizedFixtureExample.csproj", "{AF83CCA8-3DD0-4E64-991E-B8F0141B9322}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssumeIdentity", "AssumeIdentity\AssumeIdentity.csproj", "{0EC0B748-428D-4B1C-9790-CFBDD346ECE8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UseCulture", "UseCulture\UseCulture.csproj", "{BB3439D2-FD99-49CE-BFEB-15E599B1784B}"
@@ -24,6 +22,15 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectionFixtureExample", "CollectionFixtureExample\CollectionFixtureExample.csproj", "{5C2E77A8-EAD1-4508-BE0D-C3ED03311A7F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassFixtureExample", "ClassFixtureExample\ClassFixtureExample.csproj", "{CE72BD12-249B-4561-83B5-FCA7287D8700}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestOrderExamples", "TestOrderExamples\TestOrderExamples.csproj", "{AF83CCA8-3DD0-4E64-991E-B8F0141B9322}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{62F6AAED-169F-46A7-B93B-578B3E0E743B}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,9 +60,6 @@ Global
 		{532166A3-1043-4167-9E7C-2A02AE2BB2C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{532166A3-1043-4167-9E7C-2A02AE2BB2C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{532166A3-1043-4167-9E7C-2A02AE2BB2C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AF83CCA8-3DD0-4E64-991E-B8F0141B9322}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AF83CCA8-3DD0-4E64-991E-B8F0141B9322}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AF83CCA8-3DD0-4E64-991E-B8F0141B9322}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0EC0B748-428D-4B1C-9790-CFBDD346ECE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0EC0B748-428D-4B1C-9790-CFBDD346ECE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EC0B748-428D-4B1C-9790-CFBDD346ECE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -76,6 +80,10 @@ Global
 		{CE72BD12-249B-4561-83B5-FCA7287D8700}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE72BD12-249B-4561-83B5-FCA7287D8700}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE72BD12-249B-4561-83B5-FCA7287D8700}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF83CCA8-3DD0-4E64-991E-B8F0141B9322}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF83CCA8-3DD0-4E64-991E-B8F0141B9322}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF83CCA8-3DD0-4E64-991E-B8F0141B9322}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF83CCA8-3DD0-4E64-991E-B8F0141B9322}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
