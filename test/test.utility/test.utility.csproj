@@ -105,6 +105,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\common\AssemblyExtensions.cs">
+      <Link>Common\AssemblyExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>

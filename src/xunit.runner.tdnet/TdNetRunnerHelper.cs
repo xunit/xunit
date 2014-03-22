@@ -22,7 +22,7 @@ namespace Xunit.Runner.TdNet
         {
             this.testListener = testListener;
 
-            xunit = new Xunit2(new NullSourceInformationProvider(), new Uri(assembly.CodeBase).LocalPath);
+            xunit = new Xunit2(new NullSourceInformationProvider(), assembly.GetLocalCodeBase());
             toDispose.Push(xunit);
         }
 

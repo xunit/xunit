@@ -10,7 +10,7 @@ public class Xunit2Tests
 {
     static AssemblyName GetXunitAssemblyName()
     {
-        string path = Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), "xunit.execution.dll");
+        string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase()), "xunit.execution.dll");
         return Assembly.LoadFile(path).GetName();
     }
 

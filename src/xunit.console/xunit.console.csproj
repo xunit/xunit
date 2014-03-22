@@ -57,6 +57,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\common\AssemblyExtensions.cs">
+      <Link>Common\AssemblyExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>

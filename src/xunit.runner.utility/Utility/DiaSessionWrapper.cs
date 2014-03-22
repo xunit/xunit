@@ -14,7 +14,7 @@ namespace Xunit
         {
             session = new DiaSession(assemblyFilename);
 
-            var assemblyFileName = new Uri(typeof(DiaSessionWrapperHelper).Assembly.CodeBase).LocalPath;
+            var assemblyFileName = typeof(DiaSessionWrapperHelper).Assembly.GetLocalCodeBase();
 
             appDomainManager = new RemoteAppDomainManager(assemblyFileName, null, true);
             helper = appDomainManager.CreateObject<DiaSessionWrapperHelper>(typeof(DiaSessionWrapperHelper).Assembly.FullName, typeof(DiaSessionWrapperHelper).FullName, assemblyFilename);

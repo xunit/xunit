@@ -61,6 +61,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\common\AssemblyExtensions.cs">
+      <Link>utility\AssemblyExtensions.cs</Link>
+    </Compile>
     <Compile Include="utility\AcceptanceTest.cs" />
     <Compile Include="utility\AcceptanceTestInNewAppDomain.cs" />
     <Compile Include="utility\MockAssembly.cs" />

@@ -80,7 +80,7 @@ public class Xunit1TestCaseTests
         public void UniqueIDIsStable()
         {
             var typeUnderTest = typeof(ClassUnderTest);
-            var assemblyFileName = new Uri(typeUnderTest.Assembly.CodeBase).LocalPath;
+            var assemblyFileName = typeUnderTest.Assembly.GetLocalCodeBase();
 
             var result = Create(typeUnderTest, "TestMethod").UniqueID;
 
@@ -96,7 +96,8 @@ public class Xunit1TestCaseTests
 
     static Xunit1TestCase Create(Type typeUnderTest, string methodName, Dictionary<string, List<string>> traits = null)
     {
-        var assemblyFileName = new Uri(typeUnderTest.Assembly.CodeBase).LocalPath;
+        var assemblyFileName = typeUnderTest.Assembly.GetLocalCodeBase();
+
         return new Xunit1TestCase(assemblyFileName, typeUnderTest.FullName, methodName, null, traits);
     }
 }

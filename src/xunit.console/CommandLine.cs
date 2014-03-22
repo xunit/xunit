@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 
 namespace Xunit.ConsoleClient
 {
     public class CommandLine
     {
         readonly Stack<string> arguments = new Stack<string>();
-        readonly string executablePath;
 
         protected CommandLine(string[] args)
         {
             for (int i = args.Length - 1; i >= 0; i--)
                 arguments.Push(args[i]);
 
-            executablePath = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
             ParallelizeAssemblies = false;
             ParallelizeTestCollections = true;

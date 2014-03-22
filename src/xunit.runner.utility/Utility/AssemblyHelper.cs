@@ -56,7 +56,7 @@ namespace Xunit
         /// <returns>An object which, when disposed, un-subscribes.</returns>
         public static IDisposable SubscribeResolve()
         {
-            return new AssemblyHelper(Path.GetDirectoryName(new Uri(typeof(AssemblyHelper).Assembly.CodeBase).LocalPath));
+            return new AssemblyHelper(Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()));
         }
     }
 }

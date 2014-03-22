@@ -35,7 +35,7 @@ namespace Xunit.Sdk
         public Assembly Assembly { get; private set; }
 
         /// <inheritdoc/>
-        public string AssemblyPath { get { return new Uri(Assembly.CodeBase).LocalPath; } }
+        public string AssemblyPath { get { return Assembly.GetLocalCodeBase(); } }
 
         /// <inheritdoc/>
         public string Name { get { return Assembly.FullName; } }

@@ -86,7 +86,7 @@ namespace Xunit.ConsoleClient
 
         static void PrintUsage()
         {
-            string executableName = Path.GetFileNameWithoutExtension(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+            string executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
 
             Console.WriteLine("usage: {0} <assemblyFile> [configFile] [options]", executableName);
             Console.WriteLine();

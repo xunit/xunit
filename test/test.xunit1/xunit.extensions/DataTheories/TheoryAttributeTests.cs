@@ -20,7 +20,7 @@ namespace Xunit1.Extensions
 
             try
             {
-                string executable = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
+                string executable = Assembly.GetExecutingAssembly().GetLocalCodeBase();
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(executable));
                 MethodInfo method = typeof(TestMethodCommandClass).GetMethod("TestViaOleDb");
                 TheoryAttribute attr = (TheoryAttribute)(method.GetCustomAttributes(typeof(TheoryAttribute), false))[0];

@@ -33,7 +33,7 @@ namespace TestUtility
 
         public static string BasePath
         {
-            get { return Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath); }
+            get { return Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase()); }
         }
 
         public string FileName

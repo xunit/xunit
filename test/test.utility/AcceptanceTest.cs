@@ -21,7 +21,7 @@ public class AcceptanceTest : IDisposable
 
     public List<IMessageSinkMessage> Run(Type[] types, Func<IMessageSinkMessage, bool> cancellationThunk = null)
     {
-        Xunit2 = new Xunit2(new NullSourceInformationProvider(), new Uri(types[0].Assembly.CodeBase).LocalPath, configFileName: null, shadowCopy: true);
+        Xunit2 = new Xunit2(new NullSourceInformationProvider(), types[0].Assembly.GetLocalCodeBase(), configFileName: null, shadowCopy: true);
 
         bool cancelled = false;
         Func<IMessageSinkMessage, bool> wrapper = msg =>
