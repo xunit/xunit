@@ -154,7 +154,12 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Dispose() { }
+        public void Dispose()
+        {
+            if (Arguments != null)
+                foreach (var disposable in Arguments.OfType<IDisposable>())
+                    disposable.Dispose();
+        }
 
         /// <summary>
         /// Gets the <see cref="BeforeAfterTestAttribute"/> instances for a test method.

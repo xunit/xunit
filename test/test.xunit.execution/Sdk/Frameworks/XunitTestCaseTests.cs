@@ -46,6 +46,24 @@ public class XunitTestCaseTests
         Assert.Equal("Skip Reason", testCase.SkipReason);
     }
 
+    [Fact]
+    public void DisposesArguments()
+    {
+        var disposable1 = Substitute.For<IDisposable>();
+        var disposable2 = Substitute.For<IDisposable>();
+        var testCollection = new XunitTestCollection();
+        var fact = Mocks.FactAttribute();
+        var method = Mocks.MethodInfo();
+        var type = Mocks.TypeInfo(methods: new[] { method });
+        var assmInfo = Mocks.AssemblyInfo(types: new[] { type });
+        var testCase = new XunitTestCase(testCollection, assmInfo, type, method, fact, new[] { disposable1, disposable2 });
+
+        testCase.Dispose();
+
+        disposable1.Received(1).Dispose();
+        disposable2.Received(1).Dispose();
+    }
+
     public class Traits : AcceptanceTest
     {
         [Fact]
