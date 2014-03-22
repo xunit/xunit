@@ -2,20 +2,20 @@
 <package>
   <metadata minClientVersion="2.5">
     <id>xunit.core</id>
-    <version>2.0.0-alpha</version>
+    <version>2.0.0-beta</version>
     <title>xUnit.net [Core Library]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>Includes the core unit testing framework from xUnit.net (xunit.core.dll).</description>
     <language>en-US</language>
-    <projectUrl>http://xunit.codeplex.com</projectUrl>
-    <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>
-    <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
+    <projectUrl>https://github.com/xunit/xunit</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <references>
       <reference file="xunit.core.dll" />
     </references>
     <dependencies>
-      <dependency id="xunit.abstractions" version="[2.0.0-alpha]" />
+      <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
       <!-- FOR WHEN WE RTM: -->
       <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1)" />-->
     </dependencies>

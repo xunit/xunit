@@ -2,18 +2,18 @@
 <package>
     <metadata>
         <id>xunit</id>
-        <version>2.0.0-alpha</version>
+        <version>2.0.0-beta</version>
         <title>xUnit.net</title>
         <authors>James Newkirk, Brad Wilson</authors>
         <description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.</description>
         <language>en-US</language>
-        <projectUrl>http://xunit.codeplex.com</projectUrl>
-        <iconUrl>http://download-codeplex.sec.s-msft.com/Download?ProjectName=xunit&amp;DownloadId=662625</iconUrl>
-        <licenseUrl>http://xunit.codeplex.com/license</licenseUrl>
+        <projectUrl>https://github.com/xunit/xunit</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+        <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <dependencies>
-            <dependency id="xunit.core" version="[2.0.0-alpha]" />
-            <dependency id="xunit.assert" version="[2.0.0-alpha]" />
+            <dependency id="xunit.core" version="[2.0.0-beta]" />
+            <dependency id="xunit.assert" version="[2.0.0-beta]" />
         </dependencies>
     </metadata>
     <files />
