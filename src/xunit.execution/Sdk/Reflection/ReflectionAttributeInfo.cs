@@ -36,10 +36,12 @@ namespace Xunit.Sdk
                 var value = argument.Value;
 
                 // Collections are recursively IEnumerable<CustomAttributeTypedArgument> rather than
-                // being the exact matching typing, so the inner values must be converted.
-                var valueAsEnumeration = value as IEnumerable<CustomAttributeTypedArgument>;
-                if (valueAsEnumeration != null)
-                    value = Convert(valueAsEnumeration).ToArray();
+                // being the exact matching type, so the inner values must be converted.
+                var valueAsEnumerable = value as IEnumerable<CustomAttributeTypedArgument>;
+                if (valueAsEnumerable != null)
+                    value = Convert(valueAsEnumerable).ToArray();
+                else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.IsEnum)
+                    value = Enum.Parse(argument.ArgumentType, value.ToString());
 
                 yield return value;
             }

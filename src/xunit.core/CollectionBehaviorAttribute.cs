@@ -21,12 +21,6 @@ namespace Xunit
         public CollectionBehaviorAttribute(CollectionBehavior collectionBehavior) { }
 
         /// <summary>
-        /// This method is here as an allowance to issues related enums and CustomAttributeData.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public CollectionBehaviorAttribute(int collectionBehavior) { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="CollectionBehaviorAttribute" /> class.
         /// </summary>
         /// <param name="factoryTypeName">The type name of the test collection factory (that implements <see cref="T:Xunit.Sdk.IXunitTestCollectionFactory"/>).</param>
