@@ -13,6 +13,7 @@ namespace Xunit.ConsoleClient
     public class Program
     {
         volatile static bool cancel;
+        static bool failed;
         static readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
 
         [STAThread]
@@ -61,13 +62,11 @@ namespace Xunit.ConsoleClient
             }
             catch (ArgumentException ex)
             {
-                Console.WriteLine();
                 Console.WriteLine("error: {0}", ex.Message);
                 return 1;
             }
             catch (BadImageFormatException ex)
             {
-                Console.WriteLine();
                 Console.WriteLine("{0}", ex.Message);
                 return 1;
             }
@@ -164,7 +163,7 @@ namespace Xunit.ConsoleClient
 
             xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
-            return completionMessages.Values.Sum(summary => summary.Failed);
+            return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
         }
 
         static XmlTestExecutionVisitor CreateVisitor(object consoleLock, string defaultDirectory, XElement assemblyElement, bool teamCity, bool silent)
@@ -200,17 +199,8 @@ namespace Xunit.ConsoleClient
             }
             catch (Exception ex)
             {
-                var e = ex;
-
-                while (e != null)
-                {
-                    Console.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
-
-                    foreach (string stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
-                        Console.WriteLine(stackLine);
-
-                    e = e.InnerException;
-                }
+                Console.WriteLine("{0}: {1}", ex.GetType().FullName, ex.Message);
+                failed = true;
             }
 
             return assemblyElement;
