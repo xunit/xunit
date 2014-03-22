@@ -25,7 +25,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         string lastTestClass;
         List<ITestCase> lastTestClassTestCases = new List<ITestCase>();
 
-        public VsDiscoveryVisitor(string source, ITestFrameworkDiscoverer discoverer, IMessageLogger logger, ITestCaseDiscoverySink discoverySink, Func<bool> cancelThunk)
+        public VsDiscoveryVisitor(string source, ITestFrameworkDiscoverer discoverer, IMessageLogger logger, IDiscoveryContext discoveryContext, ITestCaseDiscoverySink discoverySink, Func<bool> cancelThunk)
         {
             this.source = source;
             this.discoverer = discoverer;
@@ -34,6 +34,10 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             this.cancelThunk = cancelThunk;
 
             settings = SettingsProvider.Load();
+
+            var settingsProvider = discoveryContext.RunSettings.GetSettings(XunitTestRunSettings.SettingsName) as XunitTestRunSettingsProvider;
+            if (settingsProvider != null && settingsProvider.Settings != null)
+                settings.Merge(settingsProvider.Settings);
         }
 
         public int TotalTests { get; private set; }

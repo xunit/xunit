@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>xunit.runner.visualstudio</id>
-        <version>0.99.4</version>
+        <version>0.99.5</version>
         <title>xUnit.net [Visual Studio/TFS Build Runner]</title>
         <authors>James Newkirk, Brad Wilson</authors>
         <description>Includes support for running xUnit.net v1 and v2 tests from Visual Studio 2012+ and TFS Build 2012+.</description>

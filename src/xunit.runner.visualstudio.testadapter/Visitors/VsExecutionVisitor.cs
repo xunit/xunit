@@ -16,13 +16,17 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         readonly Dictionary<ITestCase, TestCase> testCases;
         readonly XunitVisualStudioSettings settings;
 
-        public VsExecutionVisitor(ITestExecutionRecorder recorder, Dictionary<ITestCase, TestCase> testCases, Func<bool> cancelledThunk)
+        public VsExecutionVisitor(IDiscoveryContext discoveryContext, ITestExecutionRecorder recorder, Dictionary<ITestCase, TestCase> testCases, Func<bool> cancelledThunk)
         {
             this.recorder = recorder;
             this.testCases = testCases;
             this.cancelledThunk = cancelledThunk;
 
             settings = SettingsProvider.Load();
+
+            var settingsProvider = discoveryContext.RunSettings.GetSettings(XunitTestRunSettings.SettingsName) as XunitTestRunSettingsProvider;
+            if (settingsProvider != null && settingsProvider.Settings != null)
+                settings.Merge(settingsProvider.Settings);
         }
 
         protected override bool Visit(IErrorMessage error)

@@ -33,5 +33,21 @@ namespace Xunit.Runner.VisualStudio.Settings
                 return shortMethodName + displayName.Substring(fullyQualifiedMethodName.Length);
             return displayName;
         }
+
+        public void Merge(XunitTestRunSettings runSettings)
+        {
+            if (runSettings.MaxParallelThreads.HasValue)
+                MaxParallelThreads = runSettings.MaxParallelThreads.GetValueOrDefault();
+            if (runSettings.MessageDisplay.HasValue)
+                MessageDisplay = runSettings.MessageDisplay.GetValueOrDefault();
+            if (runSettings.NameDisplay.HasValue)
+                NameDisplay = runSettings.NameDisplay.GetValueOrDefault();
+            if (runSettings.ParallelizeAssemblies.HasValue)
+                ParallelizeAssemblies = runSettings.ParallelizeAssemblies.GetValueOrDefault();
+            if (runSettings.ParallelizeTestCollections.HasValue)
+                ParallelizeTestCollections = runSettings.ParallelizeTestCollections.GetValueOrDefault();
+            if (runSettings.ShutdownAfterRun.HasValue)
+                ShutdownAfterRun = runSettings.ShutdownAfterRun.GetValueOrDefault();
+        }
     }
 }

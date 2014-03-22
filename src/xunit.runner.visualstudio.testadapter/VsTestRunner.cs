@@ -65,7 +65,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                     logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
 
                                 using (var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true))
-                                using (var sink = new VsDiscoveryVisitor(assemblyFileName, framework, logger, discoverySink, () => cancelled))
+                                using (var sink = new VsDiscoveryVisitor(assemblyFileName, framework, logger, discoveryContext, discoverySink, () => cancelled))
                                 {
                                     framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
                                     sink.Finished.WaitOne();
@@ -227,13 +227,13 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 using (AssemblyHelper.SubscribeResolve())
                     if (settings.ParallelizeAssemblies)
                         testCaseAccessor(settings)
-                            .Select(testCaseGroup => RunTestsInAssemblyAsync(frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup, settings, stopwatch))
+                            .Select(testCaseGroup => RunTestsInAssemblyAsync(runContext, frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup, settings, stopwatch))
                             .ToList()
                             .ForEach(@event => @event.WaitOne());
                     else
                         testCaseAccessor(settings)
                             .ToList()
-                            .ForEach(testCaseGroup => RunTestsInAssembly(frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup, settings, stopwatch));
+                            .ForEach(testCaseGroup => RunTestsInAssembly(runContext, frameworkHandle, toDispose, testCaseGroup.Key, testCaseGroup, settings, stopwatch));
             }
             finally
             {
@@ -246,7 +246,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                     frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution complete", stopwatch.Elapsed));
         }
 
-        void RunTestsInAssembly(IFrameworkHandle frameworkHandle,
+        void RunTestsInAssembly(IDiscoveryContext discoveryContext,
+                                IFrameworkHandle frameworkHandle,
                                 List<IDisposable> toDispose,
                                 string assemblyFileName,
                                 IEnumerable<TestCase> testCases,
@@ -267,7 +268,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             var xunitTestCases = testCases.ToDictionary(tc => controller.Deserialize(tc.GetPropertyValue<string>(SerializedTestCaseProperty, null)));
 
-            using (var executionVisitor = new VsExecutionVisitor(frameworkHandle, xunitTestCases, () => cancelled))
+            using (var executionVisitor = new VsExecutionVisitor(discoveryContext, frameworkHandle, xunitTestCases, () => cancelled))
             {
                 var executionOptions = new XunitExecutionOptions
                 {
@@ -284,7 +285,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                     frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution finished: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
         }
 
-        ManualResetEvent RunTestsInAssemblyAsync(IFrameworkHandle frameworkHandle,
+        ManualResetEvent RunTestsInAssemblyAsync(IDiscoveryContext discoveryContext,
+                                                 IFrameworkHandle frameworkHandle,
                                                  List<IDisposable> toDispose,
                                                  string assemblyFileName,
                                                  IEnumerable<TestCase> testCases,
@@ -297,7 +299,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             {
                 try
                 {
-                    RunTestsInAssembly(frameworkHandle, toDispose, assemblyFileName, testCases, settings, stopwatch);
+                    RunTestsInAssembly(discoveryContext, frameworkHandle, toDispose, assemblyFileName, testCases, settings, stopwatch);
                 }
                 finally
                 {
