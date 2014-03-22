@@ -62,6 +62,41 @@ public class CommandLineTests
         }
     }
 
+    public class MaxThreadsOption
+    {
+        [Fact]
+        public void DefaultValueIsZero()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll");
+
+            Assert.Equal(0, commandLine.MaxParallelThreads);
+        }
+
+        [Fact]
+        public void MissingValue()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-maxthreads"));
+
+            Assert.Equal("missing argument for -maxthreads", ex.Message);
+        }
+
+        [Fact]
+        public void InvalidValue()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "abc"));
+
+            Assert.Equal("incorrect argument value for -maxthreads", ex.Message);
+        }
+
+        [Fact]
+        public void SetsMaxParallelThreads()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "16");
+
+            Assert.Equal(16, commandLine.MaxParallelThreads);
+        }
+    }
+
     public class NoShadowOption
     {
         [Fact]
@@ -428,22 +463,38 @@ public class CommandLineTests
         }
     }
 
-    public class Parallel
+    public class ParallelizationOptions
     {
         [Fact]
-        public void ParallelIsOffByDefault()
+        public void ParallelIsCollectionsOnlyByDefault()
         {
             var project = TestableCommandLine.Parse("assemblyName.dll");
 
-            Assert.False(project.Parallel);
+            Assert.False(project.ParallelizeAssemblies);
+            Assert.True(project.ParallelizeTestCollections);
         }
 
         [Fact]
-        public void ParallelCanBeTurnedOn()
+        public void FailsWithoutOptionOrWithIncorrectOptions()
         {
-            var project = TestableCommandLine.Parse("assemblyName.dll", "-parallel");
+            var aex1 = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-parallel"));
+            Assert.Equal("missing argument for -parallel", aex1.Message);
 
-            Assert.True(project.Parallel);
+            var aex2 = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-parallel", "nonsense"));
+            Assert.Equal("incorrect argument value for -parallel", aex2.Message);
+        }
+
+        [Theory]
+        [InlineData("none", false, false)]
+        [InlineData("assemblies", true, false)]
+        [InlineData("collections", false, true)]
+        [InlineData("all", true, true)]
+        public void ParallelCanBeTurnedOn(string parallelOption, bool expectedAssemblyParallelization, bool expectedCollectionsParallelization)
+        {
+            var project = TestableCommandLine.Parse("assemblyName.dll", "-parallel", parallelOption);
+
+            Assert.Equal(expectedAssemblyParallelization, project.ParallelizeAssemblies);
+            Assert.Equal(expectedCollectionsParallelization, project.ParallelizeTestCollections);
         }
     }
 

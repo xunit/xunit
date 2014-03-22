@@ -73,6 +73,7 @@
     <Compile Include="Config\TransformConfigurationElement.cs" />
     <Compile Include="Config\TransformConfigurationElementCollection.cs" />
     <Compile Include="Config\XunitConsoleConfigurationSection.cs" />
+    <Compile Include="ParallelismOption.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunnerCallbacks\RunnerCallback.cs" />

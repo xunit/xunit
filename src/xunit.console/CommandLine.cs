@@ -17,12 +17,18 @@ namespace Xunit.ConsoleClient
 
             executablePath = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
+            ParallelizeAssemblies = false;
+            ParallelizeTestCollections = true;
             Project = Parse();
         }
 
+        public int MaxParallelThreads { get; set; }
+
         public XunitProject Project { get; protected set; }
 
-        public bool Parallel { get; protected set; }
+        public bool ParallelizeAssemblies { get; protected set; }
+
+        public bool ParallelizeTestCollections { get; set; }
 
         public bool Silent { get; protected set; }
 
@@ -91,10 +97,49 @@ namespace Xunit.ConsoleClient
                     GuardNoOptionValue(option);
                     Wait = true;
                 }
+                else if (optionName == "-maxthreads")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -maxthreads");
+
+                    int threadValue;
+                    if (!Int32.TryParse(option.Value, out threadValue) || threadValue < 0)
+                        throw new ArgumentException("incorrect argument value for -maxthreads");
+
+                    MaxParallelThreads = threadValue;
+                }
                 else if (optionName == "-parallel")
                 {
-                    GuardNoOptionValue(option);
-                    Parallel = true;
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -parallel");
+
+                    ParallelismOption parallelismOption;
+                    if (!Enum.TryParse<ParallelismOption>(option.Value, out parallelismOption))
+                        throw new ArgumentException("incorrect argument value for -parallel");
+
+                    switch (parallelismOption)
+                    {
+                        case ParallelismOption.all:
+                            ParallelizeAssemblies = true;
+                            ParallelizeTestCollections = true;
+                            break;
+
+                        case ParallelismOption.assemblies:
+                            ParallelizeAssemblies = true;
+                            ParallelizeTestCollections = false;
+                            break;
+
+                        case ParallelismOption.collections:
+                            ParallelizeAssemblies = false;
+                            ParallelizeTestCollections = true;
+                            break;
+
+                        case ParallelismOption.none:
+                        default:
+                            ParallelizeAssemblies = false;
+                            ParallelizeTestCollections = false;
+                            break;
+                    }
                 }
                 else if (optionName == "-silent")
                 {
@@ -155,7 +200,7 @@ namespace Xunit.ConsoleClient
             string option = arguments.Pop();
             string value = null;
 
-            if (arguments.Count > 0 && !arguments.Peek().StartsWith("/"))
+            if (arguments.Count > 0 && !arguments.Peek().StartsWith("-"))
                 value = arguments.Pop();
 
             return new KeyValuePair<string, string>(option, value);
