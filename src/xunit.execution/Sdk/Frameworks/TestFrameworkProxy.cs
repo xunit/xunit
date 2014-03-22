@@ -17,8 +17,8 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFrameworkProxy"/> class.
         /// </summary>
-        /// <param name="testAssembly">The test assembly.</param>
-        /// <param name="sourceInformationProvider">The source information provider.</param>
+        /// <param name="testAssemblyObject">The test assembly (expected to implement <see cref="IAssemblyInfo"/>).</param>
+        /// <param name="sourceInformationProviderObject">The source information provider (expected to implement <see cref="ISourceInformationProvider"/>).</param>
         public TestFrameworkProxy(object testAssemblyObject, object sourceInformationProviderObject)
         {
             var testAssembly = (IAssemblyInfo)testAssemblyObject;

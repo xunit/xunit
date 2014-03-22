@@ -67,6 +67,7 @@
     <Compile Include="TestCaseOrdererAttribute.cs" />
     <Compile Include="TestFrameworkAttribute.cs" />
     <Compile Include="TheoryAttribute.cs" />
+    <Compile Include="TheoryData.cs" />
     <Compile Include="TraitAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
