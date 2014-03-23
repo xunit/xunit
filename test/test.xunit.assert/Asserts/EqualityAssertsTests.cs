@@ -229,4 +229,36 @@ public class EqualityAssertsTests
             Assert.Equal("Assert.NotEqual() Failure", ex.Message);
         }
     }
+
+    public class NotEqual_Decimal
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.NotEqual(0.11111M, 0.11444M, 3);
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111M, 0.11444M, 2));
+            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+        }
+    }
+
+    public class NotEqual_Double
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.NotEqual(0.11111, 0.11444, 3);
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111, 0.11444, 2));
+            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+        }
+    }
 }
