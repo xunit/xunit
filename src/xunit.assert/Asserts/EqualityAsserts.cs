@@ -102,5 +102,39 @@ namespace Xunit
             if (comparer.Equals(expected, actual))
                 throw new NotEqualException();
         }
+
+        /// <summary>
+        /// Verifies that two <see cref="double"/> values are not equal, within the number of decimal
+        /// places given by <paramref name="precision"/>.
+        /// </summary>
+        /// <param name="expected">The expected value</param>
+        /// <param name="actual">The value to be compared against</param>
+        /// <param name="precision">The number of decimal places (valid values: 0-15)</param>
+        /// <exception cref="EqualException">Thrown when the values are equal</exception>
+        public static void NotEqual(double expected, double actual, int precision)
+        {
+            var expectedRounded = Math.Round(expected, precision);
+            var actualRounded = Math.Round(actual, precision);
+
+            if (GetEqualityComparer<double>().Equals(expectedRounded, actualRounded))
+                throw new NotEqualException();
+        }
+
+        /// <summary>
+        /// Verifies that two <see cref="decimal"/> values are not equal, within the number of decimal
+        /// places given by <paramref name="precision"/>.
+        /// </summary>
+        /// <param name="expected">The expected value</param>
+        /// <param name="actual">The value to be compared against</param>
+        /// <param name="precision">The number of decimal places (valid values: 0-15)</param>
+        /// <exception cref="EqualException">Thrown when the values are equal</exception>
+        public static void NotEqual(decimal expected, decimal actual, int precision)
+        {
+            var expectedRounded = Math.Round(expected, precision);
+            var actualRounded = Math.Round(actual, precision);
+
+            if (GetEqualityComparer<decimal>().Equals(expectedRounded, actualRounded))
+                throw new NotEqualException();
+        }
     }
 }
