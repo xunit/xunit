@@ -289,6 +289,168 @@ public class ExceptionAssertsTests
         }
     }
 
+    public class ThrowsAny_Generic_Action
+    {
+        [Fact]
+        public void ExpectExceptionButCodeDoesNotThrow()
+        {
+            try
+            {
+                Assert.ThrowsAny<ArgumentException>(() => { });
+            }
+            catch (AssertActualExpectedException exception)
+            {
+                Assert.Equal("(No exception was thrown)", exception.Actual);
+            }
+        }
+
+        [Fact]
+        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        {
+            try
+            {
+                Assert.ThrowsAny<InvalidCastException>(() => ThrowingMethod());
+            }
+            catch (AssertActualExpectedException exception)
+            {
+                Assert.Contains("ThrowsAny_Generic_Action.ThrowingMethod", exception.StackTrace);
+                Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        static void ThrowingMethod()
+        {
+            throw new ArgumentException();
+        }
+
+        [Fact]
+        public void GotExpectedException()
+        {
+            Action testCode = () => { throw new ArgumentException(); };
+
+            var ex = Assert.ThrowsAny<ArgumentException>(testCode);
+
+            Assert.NotNull(ex);
+        }
+
+        [Fact]
+        public void GotDerivedException()
+        {
+            Action testCode = () => { throw new ArgumentException(); };
+
+            var ex = Assert.ThrowsAny<Exception>(testCode);
+
+            Assert.NotNull(ex);
+        }
+    }
+
+    public class ThrowsAny_Generic_Func
+    {
+        [Fact]
+        public void GuardClause()
+        {
+            Func<object> testCode = () => Task.Run(() => 0);
+
+            var ex = Record.Exception(() => Assert.ThrowsAny<Exception>(testCode));
+
+            Assert.IsType<InvalidOperationException>(ex);
+            Assert.Equal("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.", ex.Message);
+        }
+
+        [Fact]
+        public void ExpectExceptionButCodeDoesNotThrow()
+        {
+            var accessor = new StubAccessor();
+
+            try
+            {
+                Assert.ThrowsAny<ArgumentException>(() => accessor.SuccessfulProperty);
+            }
+            catch (AssertActualExpectedException exception)
+            {
+                Assert.Equal("(No exception was thrown)", exception.Actual);
+            }
+        }
+
+        [Fact]
+        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        {
+            var accessor = new StubAccessor();
+
+            try
+            {
+                Assert.ThrowsAny<InvalidCastException>(() => accessor.FailingProperty);
+            }
+            catch (AssertActualExpectedException exception)
+            {
+                Assert.Contains("StubAccessor.get_FailingProperty", exception.StackTrace);
+                Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
+            }
+        }
+
+        [Fact]
+        public void GotExpectedException()
+        {
+            var accessor = new StubAccessor();
+
+            var ex = Assert.ThrowsAny<InvalidOperationException>(() => accessor.FailingProperty);
+
+            Assert.NotNull(ex);
+        }
+
+        [Fact]
+        public void GotDerivedException()
+        {
+            var accessor = new StubAccessor();
+
+            var ex = Assert.ThrowsAny<Exception>(() => accessor.FailingProperty);
+
+            Assert.NotNull(ex);
+        }
+    }
+
+    public class ThrowsAnyAsync_Generic
+    {
+        [Fact]
+        public async void ExpectExceptionButCodeDoesNotThrow()
+        {
+            try
+            {
+                await Assert.ThrowsAnyAsync<ArgumentException>(() => Task.Factory.StartNew(() => { }));
+            }
+            catch (AssertActualExpectedException exception)
+            {
+                Assert.Equal("(No exception was thrown)", exception.Actual);
+            }
+        }
+
+        [Fact]
+        public async void GotExpectedException()
+        {
+            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new ArgumentException(); });
+
+            var ex = await Assert.ThrowsAnyAsync<ArgumentException>(testCode);
+
+            Assert.NotNull(ex);
+        }
+
+        [Fact]
+        public async void GotDerivedException()
+        {
+            try
+            {
+                Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+
+                await Assert.ThrowsAnyAsync<Exception>(testCode);
+            }
+            catch (XunitException exception)
+            {
+                Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
+            }
+        }
+    }
+
     public class Throws_NonGeneric_Action
     {
         [Fact]

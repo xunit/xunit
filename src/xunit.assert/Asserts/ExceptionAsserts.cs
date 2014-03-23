@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 
@@ -91,6 +92,46 @@ namespace Xunit
         }
 
         /// <summary>
+        /// Verifies that the exact exception or a derived exception type is thrown.
+        /// </summary>
+        /// <typeparam name="T">The type of the exception expected to be thrown</typeparam>
+        /// <param name="testCode">A delegate to the code to be tested</param>
+        /// <returns>The exception that was thrown, when successful</returns>
+        /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
+        public static T ThrowsAny<T>(Action testCode)
+            where T : Exception
+        {
+            return (T)ThrowsAny(typeof(T), Record.Exception(testCode));
+        }
+
+        /// <summary>
+        /// Verifies that the exact exception or a derived exception type is thrown.
+        /// Generally used to test property accessors.
+        /// </summary>
+        /// <typeparam name="T">The type of the exception expected to be thrown</typeparam>
+        /// <param name="testCode">A delegate to the code to be tested</param>
+        /// <returns>The exception that was thrown, when successful</returns>
+        /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
+        public static T ThrowsAny<T>(Func<object> testCode)
+            where T : Exception
+        {
+            return (T)ThrowsAny(typeof(T), Record.Exception(testCode));
+        }
+
+        /// <summary>
+        /// Verifies that the exact exception is thrown (and not a derived exception type).
+        /// </summary>
+        /// <typeparam name="T">The type of the exception expected to be thrown</typeparam>
+        /// <param name="testCode">A delegate to the task to be tested</param>
+        /// <returns>The exception that was thrown, when successful</returns>
+        /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
+        public static async Task<T> ThrowsAnyAsync<T>(Func<Task> testCode)
+            where T : Exception
+        {
+            return (T)ThrowsAny(typeof(T), await Record.ExceptionAsync(testCode));
+        }
+
+        /// <summary>
         /// Verifies that the exact exception is thrown (and not a derived exception type).
         /// </summary>
         /// <param name="exceptionType">The type of the exception expected to be thrown</param>
@@ -135,6 +176,19 @@ namespace Xunit
                 throw new ThrowsException(exceptionType);
 
             if (!exceptionType.Equals(exception.GetType()))
+                throw new ThrowsException(exceptionType, exception);
+
+            return exception;
+        }
+
+        private static Exception ThrowsAny(Type exceptionType, Exception exception)
+        {
+            Assert.GuardArgumentNotNull("exceptionType", exceptionType);
+
+            if (exception == null)
+                throw new ThrowsException(exceptionType);
+
+            if (!exceptionType.GetTypeInfo().IsAssignableFrom(exception.GetType().GetTypeInfo()))
                 throw new ThrowsException(exceptionType, exception);
 
             return exception;
