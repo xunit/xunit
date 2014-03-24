@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+
 using Xunit;
 using Xunit.Sdk;
 
@@ -193,6 +196,74 @@ public class EqualityAssertsTests
         }
     }
 
+    public class StrictEqual
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.StrictEqual(42, 42);
+        }
+
+        [Fact]
+        public void Equals()
+        {
+            Assert.StrictEqual(new DerivedClass(), new BaseClass());
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(42, 2112));
+            Assert.Equal("42", ex.Expected);
+            Assert.Equal("2112", ex.Actual);
+        }
+
+        [Fact]
+        public void Collection_Failure()
+        {
+            var expected = new EnumerableClass("ploeh");
+            var actual = new EnumerableClass("fnaah");
+
+            var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(expected, actual));
+            Assert.Equal("EnumerableClass {  }", ex.Expected);
+            Assert.Equal("EnumerableClass {  }", ex.Actual);
+        }
+    }
+
+    public class StrictEqual_Decimal
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.StrictEqual(0.11111M, 0.11444M, 2);
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(0.11111M, 0.11444M, 3));
+            Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", Math.Round(0.11111M, 3), 0.11111M), ex.Expected);
+            Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", Math.Round(0.11444M, 3), 0.11444M), ex.Actual);
+        }
+    }
+
+    public class StrictEqual_Double
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.StrictEqual(0.11111, 0.11444, 2);
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(0.11111, 0.11444, 3));
+            Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", Math.Round(0.11111, 3), 0.11111), ex.Expected);
+            Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", Math.Round(0.11444, 3), 0.11444), ex.Actual);
+        }
+    }
+
     public class NotEqual
     {
         [Fact]
@@ -227,6 +298,81 @@ public class EqualityAssertsTests
 
             Assert.IsType<NotEqualException>(ex);
             Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+        }
+    }
+
+    public class NotStrictEqual
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.NotStrictEqual("bob", "jim");
+        }
+        
+        [Fact]
+        public void Equals()
+        {
+            Assert.NotStrictEqual(new EnumerableClass("ploeh"), new EnumerableClass("fnaah"));
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Record.Exception(() => Assert.NotStrictEqual("actual", "actual"));
+
+            Assert.IsType<NotEqualException>(ex);
+            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+        }
+
+        [Fact]
+        public void Collection()
+        {
+            var ex = Assert.Throws<NotEqualException>(() => Assert.NotStrictEqual(new DerivedClass(), new BaseClass()));
+            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+        }
+    }
+
+    private class BaseClass
+    {
+    }
+
+    private class DerivedClass : BaseClass
+    {
+        public override bool Equals(object obj)
+        {
+            if (obj is BaseClass)
+            {
+                return true;
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return 0;
+        }
+    }
+
+    private class EnumerableClass : IEnumerable<BaseClass>
+    {
+        private readonly string baz;
+        private readonly IEnumerable<BaseClass> bars;
+
+        public EnumerableClass(string baz, params BaseClass[] bars)
+        {
+            this.baz = baz;
+            this.bars = bars;
+        }
+
+        public IEnumerator<BaseClass> GetEnumerator()
+        {
+            return this.bars.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }
