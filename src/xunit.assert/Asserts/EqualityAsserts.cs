@@ -76,6 +76,18 @@ namespace Xunit
         }
 
         /// <summary>
+        /// Verifies that two objects are strictly equal, using the type's default comparer.
+        /// </summary>
+        /// <typeparam name="T">The type of the objects to be compared</typeparam>
+        /// <param name="expected">The expected value</param>
+        /// <param name="actual">The value to be compared against</param>
+        /// <exception cref="EqualException">Thrown when the objects are not equal</exception>
+        public static void StrictEqual<T>(T expected, T actual)
+        {
+            Equal(expected, actual, EqualityComparer<T>.Default);
+        }
+
+        /// <summary>
         /// Verifies that two objects are not equal, using a default comparer.
         /// </summary>
         /// <typeparam name="T">The type of the objects to be compared</typeparam>
@@ -135,6 +147,18 @@ namespace Xunit
 
             if (GetEqualityComparer<decimal>().Equals(expectedRounded, actualRounded))
                 throw new NotEqualException();
+        }
+
+        /// <summary>
+        /// Verifies that two objects are strictly not equal, using the type's default comparer.
+        /// </summary>
+        /// <typeparam name="T">The type of the objects to be compared</typeparam>
+        /// <param name="expected">The expected object</param>
+        /// <param name="actual">The actual object</param>
+        /// <exception cref="NotEqualException">Thrown when the objects are equal</exception>
+        public static void NotStrictEqual<T>(T expected, T actual)
+        {
+            NotEqual(expected, actual, EqualityComparer<T>.Default);
         }
     }
 }

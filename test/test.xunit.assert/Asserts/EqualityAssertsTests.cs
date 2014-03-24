@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
@@ -193,6 +194,40 @@ public class EqualityAssertsTests
         }
     }
 
+    public class StrictEqual
+    {
+        [Fact]
+        public static void Success()
+        {
+            Assert.StrictEqual(42, 42);
+        }
+
+        [Fact]
+        public static void Equals()
+        {
+            Assert.StrictEqual(new DerivedClass(), new BaseClass());
+        }
+
+        [Fact]
+        public static void Failure()
+        {
+            var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(42, 2112));
+            Assert.Equal("42", ex.Expected);
+            Assert.Equal("2112", ex.Actual);
+        }
+
+        [Fact]
+        public static void Collection_Failure()
+        {
+            var expected = new EnumerableClass("ploeh");
+            var actual = new EnumerableClass("fnaah");
+
+            var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(expected, actual));
+            Assert.Equal("EnumerableClass {  }", ex.Expected);
+            Assert.Equal("EnumerableClass {  }", ex.Actual);
+        }
+    }
+
     public class NotEqual
     {
         [Fact]
@@ -259,6 +294,81 @@ public class EqualityAssertsTests
         {
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111, 0.11444, 2));
             Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+        }
+    }
+
+    public class NotStrictEqual
+    {
+        [Fact]
+        public static void Success()
+        {
+            Assert.NotStrictEqual("bob", "jim");
+        }
+
+        [Fact]
+        public static void Equals()
+        {
+            Assert.NotStrictEqual(new EnumerableClass("ploeh"), new EnumerableClass("fnaah"));
+        }
+
+        [Fact]
+        public static void Failure()
+        {
+            var ex = Record.Exception(() => Assert.NotStrictEqual("actual", "actual"));
+
+            Assert.IsType<NotEqualException>(ex);
+            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+        }
+
+        [Fact]
+        public static void Collection()
+        {
+            var ex = Assert.Throws<NotEqualException>(() => Assert.NotStrictEqual(new DerivedClass(), new BaseClass()));
+            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+        }
+    }
+
+    private class BaseClass
+    {
+    }
+
+    private class DerivedClass : BaseClass
+    {
+        public override bool Equals(object obj)
+        {
+            if (obj is BaseClass)
+            {
+                return true;
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return 0;
+        }
+    }
+
+    private class EnumerableClass : IEnumerable<BaseClass>
+    {
+        private readonly string baz;
+        private readonly IEnumerable<BaseClass> bars;
+
+        public EnumerableClass(string baz, params BaseClass[] bars)
+        {
+            this.baz = baz;
+            this.bars = bars;
+        }
+
+        public IEnumerator<BaseClass> GetEnumerator()
+        {
+            return this.bars.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }
