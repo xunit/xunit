@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -152,7 +153,7 @@ public class Xunit2Tests
 
                 Assert.Contains("TestClass.TestMethod(x: ???)", testCaseNames);
                 Assert.Contains("TestClass.TestMethod(x: 42)", testCaseNames);
-                Assert.Contains("TestClass.TestMethod(x: 42, ???: 21.12)", testCaseNames);
+                Assert.Contains("TestClass.TestMethod(x: 42, ???: " + 21.12.ToString(CultureInfo.CurrentCulture) + ")", testCaseNames);
             }
         }
     }

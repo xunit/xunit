@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -24,7 +25,7 @@ public class XunitTheoryTestCaseTests
             var resultMessages = bus.Messages.OfType<ITestResultMessage>();
             Assert.Equal(2, resultMessages.Count());
             var passed = (ITestPassed)Assert.Single(resultMessages, msg => msg is ITestPassed);
-            Assert.Equal("XunitTheoryTestCaseTests+RunAsync+ClassUnderTest.TestWithData(x: 42, y: 21.12, z: \"Hello\")", passed.TestDisplayName);
+            Assert.Equal("XunitTheoryTestCaseTests+RunAsync+ClassUnderTest.TestWithData(x: 42, y: " + 21.12.ToString(CultureInfo.CurrentCulture) + ", z: \"Hello\")", passed.TestDisplayName);
             var failed = (ITestFailed)Assert.Single(resultMessages, msg => msg is ITestFailed);
             Assert.Equal("XunitTheoryTestCaseTests+RunAsync+ClassUnderTest.TestWithData(x: 0, y: 0, z: \"World!\")", failed.TestDisplayName);
         }
