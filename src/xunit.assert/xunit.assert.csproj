@@ -58,6 +58,7 @@
     <Compile Include="Asserts\Sdk\Exceptions\DoesNotContainException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\DoesNotThrowException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\EmptyException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\EndsWithException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\EqualException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\FalseException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\InRangeException.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Asserts\Sdk\Exceptions\PropertyChangedException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\SameException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\SingleException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\StartsWithException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\ThrowsException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\TimeoutException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\TrueException.cs" />

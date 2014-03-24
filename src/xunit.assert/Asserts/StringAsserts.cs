@@ -54,6 +54,54 @@ namespace Xunit
         }
 
         /// <summary>
+        /// Verifies that a string starts with a given string, using the current culture.
+        /// </summary>
+        /// <param name="expectedStartString">The string expected to be at the start of the string</param>
+        /// <param name="actualString">The string to be inspected</param>
+        /// <exception cref="ContainsException">Thrown when the string does not start with the expected string</exception>
+        public static void StartsWith(string expectedStartString, string actualString)
+        {
+            StartsWith(expectedStartString, actualString, StringComparison.CurrentCulture);
+        }
+
+        /// <summary>
+        /// Verifies that a string starts with a given string, using the given comparison type.
+        /// </summary>
+        /// <param name="expectedStartString">The string expected to be at the start of the string</param>
+        /// <param name="actualString">The string to be inspected</param>
+        /// <param name="comparisonType">The type of string comparison to perform</param>
+        /// <exception cref="ContainsException">Thrown when the string does not start with the expected string</exception>
+        public static void StartsWith(string expectedStartString, string actualString, StringComparison comparisonType)
+        {
+            if (expectedStartString == null || actualString == null || !actualString.StartsWith(expectedStartString, comparisonType))
+                throw new StartsWithException(expectedStartString, actualString);
+        }
+
+        /// <summary>
+        /// Verifies that a string ends with a given string, using the current culture.
+        /// </summary>
+        /// <param name="expectedEndString">The string expected to be at the end of the string</param>
+        /// <param name="actualString">The string to be inspected</param>
+        /// <exception cref="ContainsException">Thrown when the string does not end with the expected string</exception>
+        public static void EndsWith(string expectedEndString, string actualString)
+        {
+            EndsWith(expectedEndString, actualString, StringComparison.CurrentCulture);
+        }
+
+        /// <summary>
+        /// Verifies that a string ends with a given string, using the given comparison type.
+        /// </summary>
+        /// <param name="expectedEndString">The string expected to be at the end of the string</param>
+        /// <param name="actualString">The string to be inspected</param>
+        /// <param name="comparisonType">The type of string comparison to perform</param>
+        /// <exception cref="ContainsException">Thrown when the string does not end with the expected string</exception>
+        public static void EndsWith(string expectedEndString, string actualString, StringComparison comparisonType)
+        {
+            if (expectedEndString == null || actualString == null || !actualString.EndsWith(expectedEndString, comparisonType))
+                throw new EndsWithException(expectedEndString, actualString);
+        }
+
+        /// <summary>
         /// Verifies that two strings are equivalent.
         /// </summary>
         /// <param name="expected">The expected string value.</param>
