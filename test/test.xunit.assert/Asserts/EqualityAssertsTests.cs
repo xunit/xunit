@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+
 using Xunit;
 using Xunit.Sdk;
 
@@ -171,8 +173,8 @@ public class EqualityAssertsTests
         public void Failure()
         {
             var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111M, 0.11444M, 3));
-            Assert.Equal("0.111 (rounded from 0.11111)", ex.Expected);
-            Assert.Equal("0.114 (rounded from 0.11444)", ex.Actual);
+            Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", Math.Round(0.11111M, 3), 0.11111M), ex.Expected);
+            Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", Math.Round(0.11444M, 3), 0.11444M), ex.Actual);
         }
     }
 
@@ -188,8 +190,8 @@ public class EqualityAssertsTests
         public void Failure()
         {
             var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111, 0.11444, 3));
-            Assert.Equal("0.111 (rounded from 0.11111)", ex.Expected);
-            Assert.Equal("0.114 (rounded from 0.11444)", ex.Actual);
+            Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", Math.Round(0.11111, 3), 0.11111), ex.Expected);
+            Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", Math.Round(0.11444, 3), 0.11444), ex.Actual);
         }
     }
 
