@@ -94,6 +94,9 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public object[] Arguments { get; private set; }
+
+        /// <inheritdoc/>
         public void Dispose()
         {
         }

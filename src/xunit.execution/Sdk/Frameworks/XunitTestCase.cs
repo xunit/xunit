@@ -96,9 +96,7 @@ namespace Xunit.Sdk
             uniqueID = new Lazy<string>(GetUniqueID, true);
         }
 
-        /// <summary>
-        /// The arguments that will be passed to the test method.
-        /// </summary>
+        /// <inheritdoc/>
         public object[] Arguments { get; private set; }
 
         /// <inheritdoc/>
