@@ -7,27 +7,11 @@ using Xunit.Sdk;
 
 public class MessageBusTests
 {
-    IMessageSink SpySink(List<IMessageSinkMessage> messages = null)
-    {
-        var result = Substitute.For<IMessageSink>();
-
-        result.OnMessage(null).ReturnsForAnyArgs(
-            callInfo =>
-            {
-                if (messages != null)
-                    messages.Add((IMessageSinkMessage)callInfo[0]);
-
-                return true;
-            });
-
-        return result;
-    }
-
     [Fact]
     public void QueuedMessageShowUpInMessageSink()
     {
         var messages = new List<IMessageSinkMessage>();
-        var sink = SpySink(messages);
+        var sink = SpyMessageSink.Create(messages);
         var msg1 = Substitute.For<IMessageSinkMessage>();
         var msg2 = Substitute.For<IMessageSinkMessage>();
         var msg3 = Substitute.For<IMessageSinkMessage>();
@@ -49,7 +33,7 @@ public class MessageBusTests
     [Fact]
     public void TryingToQueueMessageAfterDisposingThrows()
     {
-        var bus = new MessageBus(SpySink());
+        var bus = new MessageBus(SpyMessageSink.Create());
         bus.Dispose();
 
         var exception = Record.Exception(
