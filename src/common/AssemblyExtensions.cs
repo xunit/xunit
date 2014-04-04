@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 
 internal static class AssemblyExtensions
@@ -12,6 +13,11 @@ internal static class AssemblyExtensions
         if (!codeBase.StartsWith("file:///"))
             throw new ArgumentException(String.Format("Code base {0} in wrong format; must start with file:///", codeBase), "assembly");
 
-        return codeBase.Substring(8).Replace('/', '\\');
+        codeBase = codeBase.Substring(8);
+        if (Path.DirectorySeparatorChar == '/')
+            return "/" + codeBase;
+
+        return codeBase.Replace('/', Path.DirectorySeparatorChar);
     }
 }
+
