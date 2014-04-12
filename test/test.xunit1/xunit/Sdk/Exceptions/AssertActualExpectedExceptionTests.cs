@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Xunit;
 using Xunit.Sdk;
 
@@ -72,7 +73,7 @@ namespace Xunit1
                 "Message" + Environment.NewLine +
                 "Position: First difference is at position 1" + Environment.NewLine +
                 "Expected: <MakeEnumeration>d__2 { 1, 42, \"Hello\" }" + Environment.NewLine +
-                "Actual:   <MakeEnumeration>d__2 { 1, 2.3, \"Goodbye\" }";
+                "Actual:   <MakeEnumeration>d__2 { 1, " + 2.3.ToString(CultureInfo.CurrentCulture) + ", \"Goodbye\" }";
 
             AssertActualExpectedException ex =
                 new AssertActualExpectedException(expectedValue, actualValue, "Message");

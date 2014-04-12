@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Xunit;
 using Xunit.Sdk;
 
@@ -31,13 +32,15 @@ public class ArgumentFormatterTests
     [Fact]
     public static void DecimalValue()
     {
-        Assert.Equal("123.45", ArgumentFormatter.Format(123.45M));
+        Assert.Equal(123.45M.ToString(CultureInfo.CurrentCulture), ArgumentFormatter.Format(123.45M));
     }
 
     [Fact]
     public static void EnumerableValue()
     {
-        Assert.Equal("[1, 2.3, \"Hello, world!\"]", ArgumentFormatter.Format(new object[] { 1, 2.3M, "Hello, world!" }));
+        var expected = String.Format("[1, {0}, \"Hello, world!\"]", 2.3M.ToString(CultureInfo.CurrentCulture));
+
+        Assert.Equal(expected, ArgumentFormatter.Format(new object[] { 1, 2.3M, "Hello, world!" }));
     }
 
     [Fact]
@@ -49,7 +52,9 @@ public class ArgumentFormatterTests
     [Fact]
     public static void ComplexTypeReturnsValuesInAlphabeticalOrder()
     {
-        Assert.Equal("MyComplexType { MyPublicField = 42, MyPublicProperty = 21.12 }", ArgumentFormatter.Format(new MyComplexType()));
+        var expected = String.Format("MyComplexType {{ MyPublicField = 42, MyPublicProperty = {0} }}", 21.12M.ToString(CultureInfo.CurrentCulture));
+
+        Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexType()));
     }
 
     public class MyComplexType
@@ -73,7 +78,9 @@ public class ArgumentFormatterTests
     [Fact]
     public static void ComplexTypeInsideComplexType()
     {
-        Assert.Equal("MyComplexTypeWrapper { c = 'A', s = \"Hello, world!\", t = MyComplexType { MyPublicField = 42, MyPublicProperty = 21.12 } }", ArgumentFormatter.Format(new MyComplexTypeWrapper()));
+        var expected = String.Format("MyComplexTypeWrapper {{ c = 'A', s = \"Hello, world!\", t = MyComplexType {{ MyPublicField = 42, MyPublicProperty = {0} }} }}", 21.12M.ToString(CultureInfo.CurrentCulture));
+
+        Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexTypeWrapper()));
     }
 
     public class MyComplexTypeWrapper

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -46,7 +47,7 @@ public class Xunit2TheoryAcceptanceTests
             Assert.Collection(results.OrderBy(r => r.TestDisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.TestDisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32[], List<String>>(value1: [1, 2, 3], value2: [""a"", ""b"", ""c""])", result.TestDisplayName),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: 21.12)", result.TestDisplayName)
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: " + 21.12.ToString(CultureInfo.CurrentCulture) + ")", result.TestDisplayName)
             );
         }
 
@@ -104,7 +105,7 @@ public class Xunit2TheoryAcceptanceTests
                 if (passing == null)
                     return false;
 
-                Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: 21.12, z: \"Hello, world!\")", passing.TestDisplayName);
+                Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: " + 21.12.ToString(CultureInfo.CurrentCulture) + ", z: \"Hello, world!\")", passing.TestDisplayName);
                 return true;
             });
             Assert.Single(testMessages, msg =>
@@ -218,7 +219,7 @@ public class Xunit2TheoryAcceptanceTests
                 if (passing == null)
                     return false;
 
-                Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 42, y: 21.12, z: \"Hello, world!\")", passing.TestDisplayName);
+                Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 42, y: " + 21.12.ToString(CultureInfo.CurrentCulture) + ", z: \"Hello, world!\")", passing.TestDisplayName);
                 return true;
             });
             Assert.Single(testMessages, msg =>
@@ -337,7 +338,7 @@ public class Xunit2TheoryAcceptanceTests
                 if (passing == null)
                     return false;
 
-                Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 42, y: 21.12, z: \"Hello, world!\")", passing.TestDisplayName);
+                Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 42, y: " + 21.12.ToString(CultureInfo.CurrentCulture) + ", z: \"Hello, world!\")", passing.TestDisplayName);
                 return true;
             });
             Assert.Single(testMessages, msg =>
@@ -459,7 +460,7 @@ public class Xunit2TheoryAcceptanceTests
                 if (passing == null)
                     return false;
 
-                Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: 21.12, z: \"Hello, world!\")", passing.TestDisplayName);
+                Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: " + 21.12.ToString(CultureInfo.CurrentCulture) + ", z: \"Hello, world!\")", passing.TestDisplayName);
                 return true;
             });
             Assert.Single(testMessages, msg =>
@@ -507,7 +508,7 @@ public class Xunit2TheoryAcceptanceTests
                 if (passing == null)
                     return false;
 
-                Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 42, y: 21.12, z: \"Hello, world!\")", passing.TestDisplayName);
+                Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 42, y: " + 21.12.ToString(CultureInfo.CurrentCulture) + ", z: \"Hello, world!\")", passing.TestDisplayName);
                 return true;
             });
             Assert.Single(testMessages, msg =>
@@ -624,7 +625,7 @@ public class Xunit2TheoryAcceptanceTests
         {
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
 
-            var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: 21.12, z: ClassUnderTest { })");
+            var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: " + 21.12.ToString(CultureInfo.CurrentCulture) + ", z: ClassUnderTest { })");
             Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
             var notNullFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)");

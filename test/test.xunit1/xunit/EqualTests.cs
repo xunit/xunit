@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using Xunit;
 using Xunit.Sdk;
@@ -588,8 +589,8 @@ namespace Xunit1
             public void AssertEqualWithDoubleWithPrecisionFailure()
             {
                 var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111, 0.11444, 3));
-                Assert.Equal("0.111 (rounded from 0.11111)", ex.Expected);
-                Assert.Equal("0.114 (rounded from 0.11444)", ex.Actual);
+                Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", 0.111, 0.11111), ex.Expected);
+                Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", 0.114, 0.11444), ex.Actual);
             }
 
             [Fact]
@@ -602,8 +603,8 @@ namespace Xunit1
             public void AssertEqualWithDecimalWithPrecisionFailure()
             {
                 var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111M, 0.11444M, 3));
-                Assert.Equal("0.111 (rounded from 0.11111)", ex.Expected);
-                Assert.Equal("0.114 (rounded from 0.11444)", ex.Actual);
+                Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", 0.111M, 0.11111M), ex.Expected);
+                Assert.Equal(String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", 0.114M, 0.11444M), ex.Actual);
             }
         }
     }

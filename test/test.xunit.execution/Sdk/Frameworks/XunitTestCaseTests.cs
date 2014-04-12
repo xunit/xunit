@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -207,7 +208,7 @@ public class XunitTestCaseTests
 
             var testCase = new XunitTestCase(testCollection, assmInfo, type, method, fact, arguments);
 
-            Assert.Equal("MockType.MockMethod(p1: 42, ???: 21.12)", testCase.DisplayName);
+            Assert.Equal("MockType.MockMethod(p1: 42, ???: " + 21.12.ToString(CultureInfo.CurrentCulture) + ")", testCase.DisplayName);
         }
     }
 
