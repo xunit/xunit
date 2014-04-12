@@ -276,29 +276,9 @@ namespace Xunit.Sdk
             stream.WriteByte(0);
         }
 
-        static string ParameterToDisplayValue(object parameterValue)
-        {
-            if (parameterValue == null)
-                return "null";
-
-            if (parameterValue is char)
-                return String.Format("'{0}'", parameterValue);
-
-            string stringParameter = parameterValue as string;
-            if (stringParameter != null)
-            {
-                if (stringParameter.Length > 50)
-                    return String.Format("\"{0}\"...", stringParameter.Substring(0, 50));
-
-                return String.Format("\"{0}\"", stringParameter);
-            }
-
-            return Convert.ToString(parameterValue, CultureInfo.CurrentCulture);
-        }
-
         static string ParameterToDisplayValue(string parameterName, object parameterValue)
         {
-            return String.Format("{0}: {1}", parameterName, ParameterToDisplayValue(parameterValue));
+            return String.Format("{0}: {1}", parameterName, ArgumentFormatter.Format(parameterValue));
         }
 
         static string ConvertToSimpleTypeName(ITypeInfo type)

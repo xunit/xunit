@@ -45,8 +45,7 @@ public class Xunit2TheoryAcceptanceTests
 
             Assert.Collection(results.OrderBy(r => r.TestDisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.TestDisplayName),
-                // TODO: The parameter values here should eventually read: '[1, 2, 3]' and '["a", "b", "c"]'
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32[], List<String>>(value1: System.Int32[], value2: System.Collections.Generic.List`1[System.String])", result.TestDisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32[], List<String>>(value1: [1, 2, 3], value2: [""a"", ""b"", ""c""])", result.TestDisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: 21.12)", result.TestDisplayName)
             );
         }
@@ -73,7 +72,7 @@ public class Xunit2TheoryAcceptanceTests
             var results = Run<ITestPassed>(typeof(GenericWithNonSerializableData));
 
             Assert.Collection(results,
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData)", result.TestDisplayName)
+                result => Assert.Equal<object>(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.TestDisplayName)
             );
         }
 
@@ -625,7 +624,7 @@ public class Xunit2TheoryAcceptanceTests
         {
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
 
-            var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: 21.12, z: Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest)");
+            var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: 21.12, z: ClassUnderTest { })");
             Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
             var notNullFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)");

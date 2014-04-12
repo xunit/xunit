@@ -88,6 +88,7 @@
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Sdk\ArgumentFormatterTests.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactoryTests.cs" />
