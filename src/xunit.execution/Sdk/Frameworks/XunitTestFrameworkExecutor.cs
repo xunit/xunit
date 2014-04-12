@@ -81,7 +81,7 @@ namespace Xunit.Sdk
         {
             var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
             var ordererType = Reflector.GetType(args[1], args[0]);
-            return (ITestCaseOrderer)Activator.CreateInstance(ordererType);
+            return ExtensibilityPointFactory.GetTestCaseOrderer(ordererType);
         }
 
         /// <inheritdoc/>

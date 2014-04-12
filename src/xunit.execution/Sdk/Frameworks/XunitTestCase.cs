@@ -39,7 +39,12 @@ namespace Xunit.Sdk
         /// <param name="method">The test method.</param>
         /// <param name="factAttribute">The instance of the <see cref="FactAttribute"/>.</param>
         /// <param name="arguments">The arguments for the test method.</param>
-        public XunitTestCase(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments = null)
+        public XunitTestCase(ITestCollection testCollection,
+                             IAssemblyInfo assembly,
+                             ITypeInfo type,
+                             IMethodInfo method,
+                             IAttributeInfo factAttribute,
+                             object[] arguments = null)
         {
             Initialize(testCollection, assembly, type, method, factAttribute, arguments);
         }
@@ -90,7 +95,7 @@ namespace Xunit.Sdk
 
                 if (discovererType != null)
                 {
-                    var discoverer = (ITraitDiscoverer) Activator.CreateInstance(discovererType);
+                    var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(discovererType);
 
                     foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
                         Traits.Add(keyValuePair.Key, keyValuePair.Value);

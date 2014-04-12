@@ -32,7 +32,7 @@ namespace Xunit.Sdk
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                         var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
                         var discovererType = Reflector.GetType(args[1], args[0]);
-                        var discoverer = (IDataDiscoverer)Activator.CreateInstance(discovererType);
+                        var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererType);
 
                         // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it
                         // down below so that we get the composite test case.

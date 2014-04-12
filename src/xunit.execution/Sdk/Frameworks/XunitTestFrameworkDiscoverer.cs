@@ -1,4 +1,4 @@
-using System;
+using System;   
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -175,7 +175,7 @@ namespace Xunit.Sdk
             {
                 try
                 {
-                    result = (IXunitDiscoverer)Activator.CreateInstance(discovererType);
+                    result = ExtensibilityPointFactory.GetXunitDiscoverer(discovererType);
                 }
                 catch (Exception ex)
                 {
@@ -193,7 +193,7 @@ namespace Xunit.Sdk
         {
             var factoryType = GetTestCollectionFactoryType(collectionBehaviorAttribute);
 
-            return (IXunitTestCollectionFactory)Activator.CreateInstance(factoryType, new[] { assemblyInfo });
+            return ExtensibilityPointFactory.GetTestCollectionFactory(factoryType, assemblyInfo);
         }
 
         internal static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehavior)

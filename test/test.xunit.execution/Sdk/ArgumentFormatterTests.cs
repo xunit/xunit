@@ -48,7 +48,9 @@ public class ArgumentFormatterTests
 
     public class MyComplexType
     {
+#pragma warning disable 414
         private string MyPrivateField = "Hello, world";
+#pragma warning restore 414
 
         public static int MyPublicStaticField = 2112;
 

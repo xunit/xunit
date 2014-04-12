@@ -78,6 +78,7 @@
     <Compile Include="Sdk\AsyncTestSyncContext.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrderer.cs" />
     <Compile Include="Sdk\Frameworks\TestFrameworkProxy.cs" />
+    <Compile Include="Sdk\ExtensibilityPointFactory.cs" />
     <Compile Include="Sdk\MaxConcurrencyTaskScheduler.cs" />
     <Compile Include="Sdk\EnvironmentalWarning.cs" />
     <Compile Include="Sdk\ExceptionUtility.cs" />
