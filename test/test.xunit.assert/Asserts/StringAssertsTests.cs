@@ -130,4 +130,86 @@ public class StringAssertsTests
             Assert.Equal(actualIndex, eqEx.ActualIndex);
         }
     }
+
+    public class StartsWith
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.StartsWith("Hello", "Hello, world!");
+        }
+
+        [Fact]
+        public void IsCaseSensitiveByDefault()
+        {
+            var ex = Record.Exception(() => Assert.StartsWith("HELLO", "Hello"));
+
+            Assert.IsType<StartsWithException>(ex);
+            Assert.Equal("Assert.StartsWith() Failure:" + Environment.NewLine +
+                         "Expected: HELLO" + Environment.NewLine +
+                         "Actual:   Hello", ex.Message);
+        }
+
+        [Fact]
+        public void NotFound()
+        {
+            Assert.Throws<StartsWithException>(() => Assert.StartsWith("hey", "Hello, world!"));
+        }
+
+        [Fact]
+        public void NullActualStringThrows()
+        {
+            Assert.Throws<StartsWithException>(() => Assert.StartsWith("foo", null));
+        }
+    }
+
+    public class StartsWith_WithComparisonType
+    {
+        [Fact]
+        public void CanSearchForSubstringsCaseInsensitive()
+        {
+            Assert.StartsWith("HELLO", "Hello, world!", StringComparison.InvariantCultureIgnoreCase);
+        }
+    }
+
+    public class EndsWith
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.EndsWith("world!", "Hello, world!");
+        }
+
+        [Fact]
+        public void IsCaseSensitiveByDefault()
+        {
+            var ex = Record.Exception(() => Assert.EndsWith("WORLD!", "world!"));
+
+            Assert.IsType<EndsWithException>(ex);
+            Assert.Equal("Assert.EndsWith() Failure:" + Environment.NewLine +
+                         "Expected: WORLD!" + Environment.NewLine +
+                         "Actual:   world!", ex.Message);
+        }
+
+        [Fact]
+        public void NotFound()
+        {
+            Assert.Throws<EndsWithException>(() => Assert.EndsWith("hey", "Hello, world!"));
+        }
+
+        [Fact]
+        public void NullActualStringThrows()
+        {
+            Assert.Throws<EndsWithException>(() => Assert.EndsWith("foo", null));
+        }
+    }
+
+    public class EndsWith_WithComparisonType
+    {
+        [Fact]
+        public void CanSearchForSubstringsCaseInsensitive()
+        {
+            Assert.EndsWith("WORLD!", "Hello, world!", StringComparison.InvariantCultureIgnoreCase);
+        }
+    }
 }
