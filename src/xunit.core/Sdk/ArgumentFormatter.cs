@@ -26,6 +26,10 @@ namespace Xunit.Sdk
             if (value == null)
                 return "null";
 
+            var valueAsType = value as Type;
+            if (valueAsType != null)
+                return String.Format("typeof({0})", valueAsType.FullName);
+
             if (value is char)
                 return String.Format("'{0}'", value);
 

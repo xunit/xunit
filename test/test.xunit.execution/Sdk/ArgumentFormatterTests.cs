@@ -41,6 +41,12 @@ public class ArgumentFormatterTests
     }
 
     [Fact]
+    public static void TypeValue()
+    {
+        Assert.Equal("typeof(System.String)", ArgumentFormatter.Format(typeof(string)));
+    }
+
+    [Fact]
     public static void ComplexTypeReturnsValuesInAlphabeticalOrder()
     {
         Assert.Equal("MyComplexType { MyPublicField = 42, MyPublicProperty = 21.12 }", ArgumentFormatter.Format(new MyComplexType()));
