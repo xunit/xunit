@@ -12,6 +12,12 @@ internal static class AssemblyExtensions
         if (!codeBase.StartsWith("file:///"))
             throw new ArgumentException(String.Format("Code base {0} in wrong format; must start with file:///", codeBase), "assembly");
 
-        return codeBase.Substring(8).Replace('/', '\\');
+        codeBase = codeBase.Substring(8);
+        if (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX)
+            return "/" + codeBase;
+
+
+        return codeBase.Replace('/', '\\');
     }
 }
+
