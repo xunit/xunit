@@ -9,7 +9,7 @@ namespace Xunit
     /// Provides a data source for a data theory, with the data coming from inline values.
     /// </summary>
     [CLSCompliant(false)]
-    [DataDiscoverer("Xunit.Sdk.InlineDataDiscoverer", "xunit.execution")]
+    [DataDiscoverer("Xunit.Sdk.InlineDataDiscoverer", "xunit.core")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class InlineDataAttribute : DataAttribute
     {

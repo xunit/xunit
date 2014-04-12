@@ -6,7 +6,7 @@ namespace Xunit
     /// <summary>
     /// Attribute used to decorate a test method with arbitrary name/value pairs ("traits").
     /// </summary>
-    [TraitDiscoverer("Xunit.Sdk.TraitDiscoverer", "xunit.execution")]
+    [TraitDiscoverer("Xunit.Sdk.TraitDiscoverer", "xunit.core")]
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
     public sealed class TraitAttribute : Attribute, ITraitAttribute
     {

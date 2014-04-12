@@ -37,7 +37,7 @@ internal static class ExceptionExtensions
     {
         while (true)
         {
-            TargetInvocationException tiex = ex as TargetInvocationException;
+            var tiex = ex as TargetInvocationException;
             if (tiex == null)
                 return ex;
 

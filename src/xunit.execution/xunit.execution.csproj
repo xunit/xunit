@@ -78,32 +78,22 @@
     <Compile Include="Sdk\AsyncTestSyncContext.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrderer.cs" />
     <Compile Include="Sdk\Frameworks\TestFrameworkProxy.cs" />
-    <Compile Include="Sdk\ITestCaseOrderer.cs" />
-    <Compile Include="Sdk\ITraitDiscoverer.cs" />
     <Compile Include="Sdk\MaxConcurrencyTaskScheduler.cs" />
     <Compile Include="Sdk\EnvironmentalWarning.cs" />
     <Compile Include="Sdk\ExceptionUtility.cs" />
     <Compile Include="Sdk\MessageAggregator.cs" />
-    <Compile Include="Sdk\ExceptionAggregator.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactory.cs" />
-    <Compile Include="Sdk\Frameworks\IXunitTestCollectionFactory.cs" />
     <Compile Include="Sdk\Frameworks\LambdaTestCase.cs" />
     <Compile Include="Sdk\Frameworks\TestCollectionFactoryHelper.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCollection.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactory.cs" />
     <Compile Include="Sdk\Frameworks\XunitTheoryTestCase.cs" />
-    <Compile Include="Sdk\IMessageAggregator.cs" />
-    <Compile Include="Sdk\InlineDataDiscoverer.cs" />
-    <Compile Include="Sdk\Frameworks\DataDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\FactDiscoverer.cs" />
-    <Compile Include="Sdk\Frameworks\IDataDiscoverer.cs" />
-    <Compile Include="Sdk\Frameworks\IXunitDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\TheoryDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCase.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFramework.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkDiscoverer.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkExecutor.cs" />
-    <Compile Include="Sdk\IMessageBus.cs" />
     <Compile Include="Sdk\LongLivedMarshalByRefObject.cs" />
     <Compile Include="Sdk\MessageBus.cs" />
     <Compile Include="Sdk\Messages\BaseMessages\TestCaseMessage.cs" />
@@ -150,7 +140,6 @@
     <Compile Include="Sdk\SynchronousMessageBus.cs" />
     <Compile Include="Sdk\TestClassException.cs" />
     <Compile Include="Sdk\TestMessageVisitor.cs" />
-    <Compile Include="Sdk\TraitDiscoverer.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml" />

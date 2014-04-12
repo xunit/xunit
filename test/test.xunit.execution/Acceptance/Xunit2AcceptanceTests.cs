@@ -341,7 +341,7 @@ public class Xunit2AcceptanceTests
 
         public class AlphabeticalOrderer : ITestCaseOrderer
         {
-            public IEnumerable<XunitTestCase> OrderTestCases(IEnumerable<XunitTestCase> testCases)
+            public IEnumerable<IXunitTestCase> OrderTestCases(IEnumerable<IXunitTestCase> testCases)
             {
                 var result = testCases.ToList();
                 result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.Method.Name, y.Method.Name));

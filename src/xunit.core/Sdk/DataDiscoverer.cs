@@ -11,7 +11,7 @@ namespace Xunit.Sdk
     public class DataDiscoverer : IDataDiscoverer
     {
         /// <inheritdoc/>
-        public IEnumerable<object[]> GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod)
+        public virtual IEnumerable<object[]> GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod)
         {
             var reflectionDataAttribute = dataAttribute as IReflectionAttributeInfo;
             var reflectionTestMethod = testMethod as IReflectionMethodInfo;

@@ -16,11 +16,11 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// Default implementation of <see cref="ITestCase"/> for xUnit v2 that supports tests decorated with
+    /// Default implementation of <see cref="IXunitTestCase"/> for xUnit v2 that supports tests decorated with
     /// both <see cref="FactAttribute"/> and <see cref="TheoryAttribute"/>.
     /// </summary>
     [Serializable]
-    public class XunitTestCase : LongLivedMarshalByRefObject, ITestCase, ISerializable
+    public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable
     {
         readonly static object[] EmptyArray = new object[0];
         readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
@@ -119,7 +119,7 @@ namespace Xunit.Sdk
         public string SkipReason { get; private set; }
 
         /// <inheritdoc/>
-        public ISourceInformation SourceInformation { get; internal set; }
+        public ISourceInformation SourceInformation { get; set; }
 
         /// <inheritdoc/>
         public ITestCollection TestCollection { get; private set; }
@@ -379,13 +379,7 @@ namespace Xunit.Sdk
             return resolvedTypes;
         }
 
-        /// <summary>
-        /// Executes the test case, returning 0 or more result messages through the message sink.
-        /// </summary>
-        /// <param name="messageBus">The message bus to report results to.</param>
-        /// <param name="constructorArguments">The arguments to pass to the constructor.</param>
-        /// <param name="aggregator">The error aggregator to use for catching exception.</param>
-        /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
+        /// <inheritdoc/>
         public virtual async Task RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             int totalFailed = 0;

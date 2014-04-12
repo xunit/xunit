@@ -221,7 +221,7 @@ namespace Xunit.Sdk
             return SerializationHelper.Serialize(testCase);
         }
 
-        private ITestCase UpdateTestCaseWithSourceInfo(XunitTestCase testCase, bool includeSourceInformation)
+        private ITestCase UpdateTestCaseWithSourceInfo(IXunitTestCase testCase, bool includeSourceInformation)
         {
             if (includeSourceInformation && sourceProvider != null)
                 testCase.SourceInformation = sourceProvider.GetSourceInformation(testCase);

@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// Data source providers derive from this attribute and implement GetData
     /// to return the data for the theory.
     /// </summary>
-    [DataDiscoverer("Xunit.Sdk.DataDiscoverer", "xunit.execution")]
+    [DataDiscoverer("Xunit.Sdk.DataDiscoverer", "xunit.core")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public abstract class DataAttribute : Attribute
     {

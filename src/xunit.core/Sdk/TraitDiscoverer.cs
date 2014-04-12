@@ -12,7 +12,7 @@ namespace Xunit.Sdk
     public class TraitDiscoverer : ITraitDiscoverer
     {
         /// <inheritdoc/>
-        public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
+        public virtual IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
         {
             var ctorArgs = traitAttribute.GetConstructorArguments().Cast<string>().ToList();
             yield return new KeyValuePair<string, string>(ctorArgs[0], ctorArgs[1]);

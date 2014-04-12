@@ -7,23 +7,21 @@ namespace Xunit.Sdk
     /// </summary>
     public class SynchronousMessageBus : IMessageBus
     {
-        private IMessageSink _messageSink;
+        private readonly IMessageSink messageSink;
 
         /// <summary/>
         public SynchronousMessageBus(IMessageSink messageSink)
         {
-            _messageSink = messageSink;
+            this.messageSink = messageSink;
         }
 
-        public void Dispose()
-        {
-            
-        }
+        /// <summary/>
+        public void Dispose() { }
 
         /// <summary/>
         public bool QueueMessage(IMessageSinkMessage message)
         {
-            return _messageSink.OnMessage(message);
+            return messageSink.OnMessage(message);
         }
     }
 }

@@ -148,7 +148,7 @@ public static class Mocks
         return result;
     }
 
-    public static IAttributeInfo TraitDiscovererAttribute(string typeName = "Xunit.Sdk.TraitDiscoverer", string assemblyName = "xunit.execution")
+    public static IAttributeInfo TraitDiscovererAttribute(string typeName = "Xunit.Sdk.TraitDiscoverer", string assemblyName = "xunit.core")
     {
         var result = Substitute.For<IReflectionAttributeInfo>();
         result.Attribute.Returns(new TraitDiscovererAttribute(typeName, assemblyName));

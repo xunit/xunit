@@ -149,12 +149,12 @@ namespace Xunit.Sdk
                         {
                             summaries = new List<RunSummary>();
 
-                            foreach (var collectionGroup in testCases.Cast<XunitTestCase>().GroupBy(tc => tc.TestCollection))
+                            foreach (var collectionGroup in testCases.Cast<IXunitTestCase>().GroupBy(tc => tc.TestCollection))
                                 summaries.Add(await RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource));
                         }
                         else
                         {
-                            var tasks = testCases.Cast<XunitTestCase>()
+                            var tasks = testCases.Cast<IXunitTestCase>()
                                                  .GroupBy(tc => tc.TestCollection)
                                                  .Select(collectionGroup => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource),
                                                                                                   cancellationTokenSource.Token,
@@ -189,7 +189,7 @@ namespace Xunit.Sdk
 
         private async Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus,
                                                               ITestCollection collection,
-                                                              IEnumerable<XunitTestCase> testCases,
+                                                              IEnumerable<IXunitTestCase> testCases,
                                                               ITestCaseOrderer orderer,
                                                               CancellationTokenSource cancellationTokenSource)
         {
@@ -251,7 +251,7 @@ namespace Xunit.Sdk
                                                     ITestCollection collection,
                                                     Dictionary<Type, object> collectionFixtureMappings,
                                                     IReflectionTypeInfo testClass,
-                                                    IEnumerable<XunitTestCase> testCases,
+                                                    IEnumerable<IXunitTestCase> testCases,
                                                     ITestCaseOrderer orderer,
                                                     RunSummary classSummary,
                                                     ExceptionAggregator aggregator,
@@ -339,7 +339,7 @@ namespace Xunit.Sdk
 
         private static async Task RunTestMethodAsync(IMessageBus messageBus,
                                                      object[] constructorArguments,
-                                                     IEnumerable<XunitTestCase> testCases,
+                                                     IEnumerable<IXunitTestCase> testCases,
                                                      RunSummary classSummary,
                                                      ExceptionAggregator aggregator,
                                                      CancellationTokenSource cancellationTokenSource)
