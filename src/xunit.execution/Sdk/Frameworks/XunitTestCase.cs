@@ -87,18 +87,20 @@ namespace Xunit.Sdk
                 var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).First();
                 var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
                 var discovererType = Reflector.GetType(args[1], args[0]);
-                var discoverer = (ITraitDiscoverer)Activator.CreateInstance(discovererType);
 
-                foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
-                    Traits.Add(keyValuePair.Key, keyValuePair.Value);
+                if (discovererType != null)
+                {
+                    var discoverer = (ITraitDiscoverer) Activator.CreateInstance(discovererType);
+
+                    foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
+                        Traits.Add(keyValuePair.Key, keyValuePair.Value);
+                }
             }
 
             uniqueID = new Lazy<string>(GetUniqueID, true);
         }
 
-        /// <summary>
-        /// The arguments that will be passed to the test method.
-        /// </summary>
+        /// <inheritdoc/>
         public object[] Arguments { get; private set; }
 
         /// <inheritdoc/>

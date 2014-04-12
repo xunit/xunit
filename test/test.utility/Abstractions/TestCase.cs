@@ -28,6 +28,7 @@ public class TestCase : ITestCase
     public ITestCollection TestCollection { get; set; }
     public Dictionary<string, List<string>> Traits { get; set; }
     public string UniqueID { get; set; }
+    public object[] Arguments { get; set; }
 
     public void Dispose() { }
 }

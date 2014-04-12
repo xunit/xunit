@@ -130,7 +130,7 @@ namespace Xunit.Sdk
             var ordererAttribute = assemblyInfo.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             var orderer = ordererAttribute != null ? GetTestCaseOrderer(ordererAttribute) : new DefaultTestCaseOrderer();
 
-            using (var messageBus = new MessageBus(messageSink))
+            using (var messageBus = createMessageBus(messageSink, executionOptions))
             {
                 try
                 {
@@ -177,6 +177,14 @@ namespace Xunit.Sdk
                     Directory.SetCurrentDirectory(currentDirectory);
                 }
             }
+        }
+
+        private static IMessageBus createMessageBus(IMessageSink messageSink, ITestFrameworkOptions executionOptions)
+        {
+            if (executionOptions.GetValue(TestOptionsNames.Execution.SynchronousMessageReporting, false))
+                return new SynchronousMessageBus(messageSink);
+
+            return new MessageBus(messageSink);
         }
 
         private async Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus,

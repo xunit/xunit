@@ -147,6 +147,7 @@
     <Compile Include="Sdk\Reflection\ReflectionAttributeInfo.cs" />
     <Compile Include="Sdk\Reflection\Reflector.cs" />
     <Compile Include="Sdk\SerializationHelper.cs" />
+    <Compile Include="Sdk\SynchronousMessageBus.cs" />
     <Compile Include="Sdk\TestClassException.cs" />
     <Compile Include="Sdk\TestMessageVisitor.cs" />
     <Compile Include="Sdk\TraitDiscoverer.cs" />

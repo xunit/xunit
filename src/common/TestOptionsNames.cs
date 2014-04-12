@@ -6,6 +6,7 @@ internal static class TestOptionsNames
 
     internal static class Execution
     {
+        public static readonly string SynchronousMessageReporting = "xunit.SynchronousMessageReporting";
         public static readonly string DisableParallelization = "xunit.DisableParallelization";
         public static readonly string MaxParallelThreads = "xunit.MaxParallelThreads";
     }

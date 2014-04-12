@@ -10,6 +10,15 @@ namespace Xunit
     public class XunitExecutionOptions : TestFrameworkOptions
     {
         /// <summary>
+        /// Gets or sets a flag that determines whether xunit should report test results synchronously.
+        /// </summary>
+        public bool SynchronousMessageReporting
+        {
+            get { return GetValue<bool>(TestOptionsNames.Execution.SynchronousMessageReporting, false); }
+            set { SetValue(TestOptionsNames.Execution.SynchronousMessageReporting, value); }
+        }
+
+        /// <summary>
         /// Gets or sets a flag to disable parallelization.
         /// </summary>
         public bool DisableParallelization
