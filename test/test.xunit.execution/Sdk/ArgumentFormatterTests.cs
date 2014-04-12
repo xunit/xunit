@@ -93,4 +93,20 @@ public class ArgumentFormatterTests
     {
         public string MyThrowingProperty { get { throw new NotImplementedException(); } }
     }
+
+    [Fact]
+    public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
+    {
+        Assert.Equal("Looping { Me = Looping { Me = Looping { ... } } }", ArgumentFormatter.Format(new Looping()));
+    }
+
+    public class Looping
+    {
+        public Looping Me;
+
+        public Looping()
+        {
+            Me = this;
+        }
+    }
 }
