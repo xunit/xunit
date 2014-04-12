@@ -2,10 +2,20 @@
 using System.Linq;
 using Xunit.Abstractions;
 
+#if XUNIT_CORE_DLL
 namespace Xunit.Sdk
+#else
+namespace Xunit
+#endif
 {
-    internal class TestClassMessage : TestCollectionMessage, ITestClassMessage
+    /// <summary>
+    /// Default implementation of <see cref="ITestClassMessage"/>.
+    /// </summary>
+    public class TestClassMessage : TestCollectionMessage, ITestClassMessage
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestClassMessage"/> class.
+        /// </summary>
         public TestClassMessage(ITestCollection testCollection, string className)
             : base(testCollection)
         {

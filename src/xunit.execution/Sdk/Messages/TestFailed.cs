@@ -1,13 +1,20 @@
 ﻿using System;
 using Xunit.Abstractions;
 
+#if XUNIT_CORE_DLL
 namespace Xunit.Sdk
+#else
+namespace Xunit
+#endif
 {
     /// <summary>
     /// Default implementation of <see cref="ITestFailed"/>.
     /// </summary>
-    internal class TestFailed : TestResultMessage, ITestFailed
+    public class TestFailed : TestResultMessage, ITestFailed
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestFailed"/> class.
+        /// </summary>
         public TestFailed(ITestCase testCase,
                           string testDisplayName,
                           decimal executionTime,
@@ -25,6 +32,9 @@ namespace Xunit.Sdk
         }
 
 #if XUNIT_CORE_DLL
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestFailed"/> class.
+        /// </summary>
         public TestFailed(ITestCase testCase,
                           string testDisplayName,
                           decimal executionTime,

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace Xunit
 {

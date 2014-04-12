@@ -1,12 +1,19 @@
 ﻿using Xunit.Abstractions;
 
+#if XUNIT_CORE_DLL
 namespace Xunit.Sdk
+#else
+namespace Xunit
+#endif
 {
     /// <summary>
     /// Default implementation of <see cref="IBeforeTestStarting"/>.
     /// </summary>
-    internal class BeforeTestStarting : TestMessage, IBeforeTestStarting
+    public class BeforeTestStarting : TestMessage, IBeforeTestStarting
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BeforeTestStarting"/> class.
+        /// </summary>
         public BeforeTestStarting(ITestCase testCase, string testDisplayName, string attributeName)
             : base(testCase, testDisplayName)
         {

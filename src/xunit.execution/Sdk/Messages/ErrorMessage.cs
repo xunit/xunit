@@ -1,12 +1,16 @@
 using System;
 using Xunit.Abstractions;
 
+#if XUNIT_CORE_DLL
 namespace Xunit.Sdk
+#else
+namespace Xunit
+#endif
 {
     /// <summary>
     /// Default implementation of <see cref="IErrorMessage"/>.
     /// </summary>
-    internal class ErrorMessage : LongLivedMarshalByRefObject, IErrorMessage
+    public class ErrorMessage : LongLivedMarshalByRefObject, IErrorMessage
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorMessage"/> class.

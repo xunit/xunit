@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Abstractions;
 using Xunit.Runner.VisualStudio.Settings;
 using VsTestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
+using VsTestResultMessage = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResultMessage;
 
 namespace Xunit.Runner.VisualStudio.TestAdapter
 {
@@ -92,7 +93,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 result.Duration = TimeSpan.FromMilliseconds(1);
 
             if (!String.IsNullOrEmpty(testResult.Output))
-                result.Messages.Add(new TestResultMessage(TestResultMessage.StandardOutCategory, testResult.Output));
+                result.Messages.Add(new VsTestResultMessage(VsTestResultMessage.StandardOutCategory, testResult.Output));
 
             return result;
         }

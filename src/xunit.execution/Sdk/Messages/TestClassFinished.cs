@@ -1,12 +1,19 @@
 ﻿using Xunit.Abstractions;
 
+#if XUNIT_CORE_DLL
 namespace Xunit.Sdk
+#else
+namespace Xunit
+#endif
 {
     /// <summary>
     /// Default implementation of <see cref="ITestClassFinished"/>.
     /// </summary>
-    internal class TestClassFinished : TestClassMessage, ITestClassFinished
+    public class TestClassFinished : TestClassMessage, ITestClassFinished
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestClassFinished"/> class.
+        /// </summary>
         public TestClassFinished(ITestCollection testCollection, string className, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
             : base(testCollection, className)
         {

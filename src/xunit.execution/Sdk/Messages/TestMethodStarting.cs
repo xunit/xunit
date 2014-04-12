@@ -1,12 +1,19 @@
 ﻿using Xunit.Abstractions;
 
+#if XUNIT_CORE_DLL
 namespace Xunit.Sdk
+#else
+namespace Xunit
+#endif
 {
     /// <summary>
     /// Default implementation of <see cref="ITestMethodStarting"/>.
     /// </summary>
-    internal class TestMethodStarting : TestCollectionMessage, ITestMethodStarting
+    public class TestMethodStarting : TestCollectionMessage, ITestMethodStarting
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestMethodStarting"/> class.
+        /// </summary>
         public TestMethodStarting(ITestCollection testCollection, string className, string methodName)
             : base(testCollection)
         {

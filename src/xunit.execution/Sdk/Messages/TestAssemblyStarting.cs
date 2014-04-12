@@ -1,13 +1,20 @@
 ﻿using System;
 using Xunit.Abstractions;
 
+#if XUNIT_CORE_DLL
 namespace Xunit.Sdk
+#else
+namespace Xunit
+#endif
 {
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyStarting"/>.
     /// </summary>
-    internal class TestAssemblyStarting : LongLivedMarshalByRefObject, ITestAssemblyStarting
+    public class TestAssemblyStarting : LongLivedMarshalByRefObject, ITestAssemblyStarting
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestAssemblyStarting"/> class.
+        /// </summary>
         public TestAssemblyStarting(string assemblyFileName, string configFileName, DateTime startTime, string testEnvironment, string testFrameworkDisplayName)
         {
             AssemblyFileName = assemblyFileName;

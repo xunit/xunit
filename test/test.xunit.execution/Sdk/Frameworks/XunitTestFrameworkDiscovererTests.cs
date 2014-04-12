@@ -186,7 +186,7 @@ public class XunitTestFrameworkDiscovererTests
         {
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
             sourceProvider.GetSourceInformation(null)
-                          .ReturnsForAnyArgs(new SourceInformation { FileName = "Source File", LineNumber = 42 });
+                          .ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
             var mockAssembly = Mocks.AssemblyInfo(types: new[] { typeInfo });
             var framework = TestableXunitTestFrameworkDiscoverer.Create(mockAssembly, sourceProvider);
@@ -276,7 +276,7 @@ public class XunitTestFrameworkDiscovererTests
         {
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
             sourceProvider.GetSourceInformation(null)
-                          .ReturnsForAnyArgs(new SourceInformation { FileName = "Source File", LineNumber = 42 });
+                          .ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
             var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
             var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
             framework.Assembly.GetType("abc").Returns(typeInfo);
