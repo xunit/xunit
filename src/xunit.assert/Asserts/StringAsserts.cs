@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -99,6 +100,62 @@ namespace Xunit
         {
             if (expectedEndString == null || actualString == null || !actualString.EndsWith(expectedEndString, comparisonType))
                 throw new EndsWithException(expectedEndString, actualString);
+        }
+
+        /// <summary>
+        /// Verifies that a string matches a regular expression.
+        /// </summary>
+        /// <param name="expectedRegexPattern">The regex pattern expected to match</param>
+        /// <param name="actualString">The string to be inspected</param>
+        /// <exception cref="MatchesException">Thrown when the string does not match the regex pattern</exception>
+        public static void Matches(string expectedRegexPattern, string actualString)
+        {
+            Assert.GuardArgumentNotNull("expectedRegexPattern", expectedRegexPattern);
+
+            if (actualString == null || !Regex.IsMatch(actualString, expectedRegexPattern))
+                throw new MatchesException(expectedRegexPattern, actualString);
+        }
+
+        /// <summary>
+        /// Verifies that a string matches a regular expression.
+        /// </summary>
+        /// <param name="expectedRegex">The regex expected to match</param>
+        /// <param name="actualString">The string to be inspected</param>
+        /// <exception cref="MatchesException">Thrown when the string does not match the regex</exception>
+        public static void Matches(Regex expectedRegex, string actualString)
+        {
+            Assert.GuardArgumentNotNull("expectedRegex", expectedRegex);
+
+            if (actualString == null || !expectedRegex.IsMatch(actualString))
+                throw new MatchesException(expectedRegex.ToString(), actualString);
+        }
+
+        /// <summary>
+        /// Verifies that a string does not match a regular expression.
+        /// </summary>
+        /// <param name="expectedRegexPattern">The regex pattern expected not to match</param>
+        /// <param name="actualString">The string to be inspected</param>
+        /// <exception cref="DoesNotMatchException">Thrown when the string matches the regex pattern</exception>
+        public static void DoesNotMatch(string expectedRegexPattern, string actualString)
+        {
+            Assert.GuardArgumentNotNull("expectedRegexPattern", expectedRegexPattern);
+
+            if (actualString != null && Regex.IsMatch(actualString, expectedRegexPattern))
+                throw new DoesNotMatchException(expectedRegexPattern, actualString);
+        }
+
+        /// <summary>
+        /// Verifies that a string does not match a regular expression.
+        /// </summary>
+        /// <param name="expectedRegex">The regex expected not to match</param>
+        /// <param name="actualString">The string to be inspected</param>
+        /// <exception cref="DoesNotMatchException">Thrown when the string matches the regex</exception>
+        public static void DoesNotMatch(Regex expectedRegex, string actualString)
+        {
+            Assert.GuardArgumentNotNull("expectedRegex", expectedRegex);
+
+            if (actualString != null && expectedRegex.IsMatch(actualString))
+                throw new DoesNotMatchException(expectedRegex.ToString(), actualString);
         }
 
         /// <summary>

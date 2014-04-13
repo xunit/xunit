@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using Xunit;
 using Xunit.Sdk;
 
@@ -210,6 +211,140 @@ public class StringAssertsTests
         public void CanSearchForSubstringsCaseInsensitive()
         {
             Assert.EndsWith("WORLD!", "Hello, world!", StringComparison.InvariantCultureIgnoreCase);
+        }
+    }
+
+    public class Matches_WithString
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.Matches(@"\w", "Hello");
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Record.Exception(() => Assert.Matches(@"\d+", "Hello, world!"));
+
+            Assert.IsType<MatchesException>(ex);
+            Assert.Equal("Assert.Matches() Failure:" + Environment.NewLine +
+                         @"Regex: \d+" + Environment.NewLine +
+                          "Value: Hello, world!", ex.Message);
+        }
+
+        [Fact]
+        public void NullRegexPatternThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.Matches((string)null, "Hello, world!"));
+        }
+
+        [Fact]
+        public void NullActualStringThrows()
+        {
+            Assert.Throws<MatchesException>(() => Assert.Matches(@"\w+", (string)null));
+        }
+    }
+
+    public class Matches_WithRegex
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.Matches(new Regex(@"\w+"), "Hello");
+        }
+
+        [Fact]
+        public void UsesRegexOptions()
+        {
+            Assert.Matches(new Regex(@"[a-z]+", RegexOptions.IgnoreCase), "HELLO");
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Record.Exception(() => Assert.Matches(new Regex(@"\d+"), "Hello, world!"));
+
+            Assert.IsType<MatchesException>(ex);
+            Assert.Equal("Assert.Matches() Failure:" + Environment.NewLine +
+                         @"Regex: \d+" + Environment.NewLine +
+                          "Value: Hello, world!", ex.Message);
+        }
+
+        [Fact]
+        public void NullRegexThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.Matches((Regex)null, "Hello, world!"));
+        }
+
+        [Fact]
+        public void NullActualStringThrows()
+        {
+            Assert.Throws<MatchesException>(() => Assert.Matches(new Regex(@"\w+"), (string)null));
+        }
+    }
+    
+    public class DoesNotMatch_WithString
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.DoesNotMatch(@"\d", "Hello");
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Record.Exception(() => Assert.DoesNotMatch(@"\w", "Hello, world!"));
+
+            Assert.IsType<DoesNotMatchException>(ex);
+            Assert.Equal("Assert.DoesNotMatch() Failure:" + Environment.NewLine +
+                         @"Regex: \w" + Environment.NewLine +
+                          "Value: Hello, world!", ex.Message);
+        }
+
+        [Fact]
+        public void NullRegexPatternThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((string)null, "Hello, world!"));
+        }
+
+        [Fact]
+        public void NullActualStringDoesNotThrow()
+        {
+            Assert.DoesNotThrow(() => Assert.DoesNotMatch(@"\w+", (string)null));
+        }
+    }
+
+    public class DoesNotMatch_WithRegex
+    {
+        [Fact]
+        public void Success()
+        {
+            Assert.DoesNotMatch(new Regex(@"\d"), "Hello");
+        }
+
+        [Fact]
+        public void Failure()
+        {
+            var ex = Record.Exception(() => Assert.DoesNotMatch(new Regex(@"\w"), "Hello, world!"));
+
+            Assert.IsType<DoesNotMatchException>(ex);
+            Assert.Equal("Assert.DoesNotMatch() Failure:" + Environment.NewLine +
+                         @"Regex: \w" + Environment.NewLine +
+                          "Value: Hello, world!", ex.Message);
+        }
+
+        [Fact]
+        public void NullRegexThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.DoesNotMatch((Regex)null, "Hello, world!"));
+        }
+
+        [Fact]
+        public void NullActualStringDoesNotThrow()
+        {
+            Assert.DoesNotThrow(() => Assert.DoesNotMatch(new Regex(@"\w+"), (string)null));
         }
     }
 }
