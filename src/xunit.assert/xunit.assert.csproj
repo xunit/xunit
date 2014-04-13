@@ -75,10 +75,14 @@
     <Compile Include="Asserts\Sdk\Exceptions\NotSameException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\NullException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\ParameterCountMismatchException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\ProperSubsetException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\ProperSupersetException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\PropertyChangedException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\SameException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\SingleException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\StartsWithException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\SubsetException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\SupersetException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\ThrowsException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\TimeoutException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\TrueException.cs" />
@@ -87,6 +91,7 @@
     <Compile Include="Asserts\NullAsserts.cs" />
     <Compile Include="Asserts\PropertyAsserts.cs" />
     <Compile Include="Asserts\RangeAsserts.cs" />
+    <Compile Include="Asserts\SetAsserts.cs" />
     <Compile Include="Asserts\StringAsserts.cs" />
     <Compile Include="Asserts\TypeAsserts.cs" />
     <Compile Include="..\common\GlobalAssemblyInfo.cs">

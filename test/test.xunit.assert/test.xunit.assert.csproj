@@ -59,6 +59,7 @@
     <Compile Include="Asserts\Sdk\Exceptions\EqualExceptionTests.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\StartsWithExceptionTests.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\XunitExceptionTests.cs" />
+    <Compile Include="Asserts\SetAssertsTests.cs" />
     <Compile Include="Asserts\StringAssertsTests.cs" />
     <Compile Include="Asserts\TypeAssertsTests.cs" />
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
