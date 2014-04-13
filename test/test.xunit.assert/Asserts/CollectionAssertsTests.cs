@@ -678,4 +678,124 @@ public class CollectionAssertsTests
             Assert.Equal("The collection contained 2 matching element(s) instead of 1.", ex.Message);
         }
     }
+    
+    public class Subset
+    {
+        [Fact]
+        public void IsSubset()
+        {
+            HashSet<int> expectedSuperset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 3 };
+
+            Assert.Subset(expectedSuperset, actual);
+        }
+
+        [Fact]
+        public void IsProperSubset()
+        {
+            HashSet<int> expectedSuperset = new HashSet<int> { 1, 2, 3, 4 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 3 };
+
+            Assert.Subset(expectedSuperset, actual);
+        }
+
+        [Fact]
+        public void IsNoSubset()
+        {
+            HashSet<int> expectedSuperset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 7 };
+
+            Assert.Throws<SubsetException>(() => Assert.Subset(expectedSuperset, actual));
+        }
+    }
+
+    public class ProperSubset
+    {
+        [Fact]
+        public void IsSubset()
+        {
+            HashSet<int> expectedSuperset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 3 };
+
+            Assert.Throws<ProperSubsetException>(() => Assert.ProperSubset(expectedSuperset, actual));
+        }
+
+        [Fact]
+        public void IsProperSubset()
+        {
+            HashSet<int> expectedSuperset = new HashSet<int> { 1, 2, 3, 4 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 3 };
+
+            Assert.ProperSubset(expectedSuperset, actual);
+        }
+
+        [Fact]
+        public void IsNoSubset()
+        {
+            HashSet<int> expectedSuperset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 7 };
+
+            Assert.Throws<ProperSubsetException>(() => Assert.ProperSubset(expectedSuperset, actual));
+        }
+    }
+
+    public class Superset
+    {
+        [Fact]
+        public void IsSuperset()
+        {
+            HashSet<int> expectedSubset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 3 };
+
+            Assert.Superset(expectedSubset, actual);
+        }
+
+        [Fact]
+        public void IsProperSuperset()
+        {
+            HashSet<int> expectedSubset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 3, 4 };
+
+            Assert.Superset(expectedSubset, actual);
+        }
+
+        [Fact]
+        public void IsNoSuperset()
+        {
+            HashSet<int> expectedSubset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 7 };
+
+            Assert.Throws<SupersetException>(() => Assert.Superset(expectedSubset, actual));
+        }
+    }
+
+    public class ProperSuperset
+    {
+        [Fact]
+        public void IsSuperset()
+        {
+            HashSet<int> expectedSubset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 3 };
+
+            Assert.Throws<ProperSupersetException>(() => Assert.ProperSuperset(expectedSubset, actual));
+        }
+
+        [Fact]
+        public void IsProperSuperset()
+        {
+            HashSet<int> expectedSubset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 3, 4 };
+
+            Assert.ProperSuperset(expectedSubset, actual);
+        }
+
+        [Fact]
+        public void IsNoSuperset()
+        {
+            HashSet<int> expectedSubset = new HashSet<int> { 1, 2, 3 };
+            HashSet<int> actual = new HashSet<int> { 1, 2, 7 };
+
+            Assert.Throws<ProperSupersetException>(() => Assert.ProperSuperset(expectedSubset, actual));
+        }
+    }
 }
