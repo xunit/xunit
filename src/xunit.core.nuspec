@@ -21,12 +21,12 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.core\build\xunit.core.props" target="build\portable-net45+wp80+win\xunit.core.props" />
-    <file src="xunit.core\bin\Release\xunit.core.dll" target="lib\portable-net45+wp80+win\xunit.core.dll" />
-    <file src="xunit.core\bin\Release\xunit.core.dll.tdnet" target="lib\portable-net45+wp80+win\xunit.core.dll.tdnet" />
-    <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\portable-net45+wp80+win\xunit.core.xml" />
-    <file src="xunit.execution\bin\Release\xunit.execution.dll" target="lib\portable-net45+wp80+win\xunit.execution.dll" />
-    <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll" target="lib\portable-net45+wp80+win\xunit.runner.tdnet.dll" />
-    <file src="xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="lib\portable-net45+wp80+win\xunit.runner.utility.dll" />
+    <file src="xunit.core\build\xunit.core.props" target="build\portable-net45+win+wpa81+wp80\xunit.core.props" />
+    <file src="xunit.core\bin\Release\xunit.core.dll" target="lib\portable-net45+win+wpa81+wp80\xunit.core.dll" />
+    <file src="xunit.core\bin\Release\xunit.core.dll.tdnet" target="lib\portable-net45+win+wpa81+wp80\xunit.core.dll.tdnet" />
+    <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\portable-net45+win+wpa81+wp80\xunit.core.xml" />
+    <file src="xunit.execution\bin\Release\xunit.execution.dll" target="lib\portable-net45+win+wpa81+wp80\xunit.execution.dll" />
+    <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll" target="lib\portable-net45+win+wpa81+wp80\xunit.runner.tdnet.dll" />
+    <file src="xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="lib\portable-net45+win+wpa81+wp80\xunit.runner.utility.dll" />
   </files>
 </package>
