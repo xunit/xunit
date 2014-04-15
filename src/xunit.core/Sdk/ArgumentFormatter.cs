@@ -3,6 +3,7 @@ using System.Collections;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace Xunit.Sdk
 {
@@ -11,6 +12,10 @@ namespace Xunit.Sdk
     /// </summary>
     public static class ArgumentFormatter
     {
+        const int MAX_ENUMERABLE_LENGTH = 5;
+        const int MAX_OBJECT_DEPTH = 3;
+        const int MAX_STRING_LENGTH = 50;
+
         /// <summary>
         /// Format the value for presentation.
         /// </summary>
@@ -36,21 +41,21 @@ namespace Xunit.Sdk
             string stringParameter = value as string;
             if (stringParameter != null)
             {
-                if (stringParameter.Length > 50)
-                    return String.Format("\"{0}\"...", stringParameter.Substring(0, 50));
+                if (stringParameter.Length > MAX_STRING_LENGTH)
+                    return String.Format("\"{0}\"...", stringParameter.Substring(0, MAX_STRING_LENGTH));
 
                 return String.Format("\"{0}\"", stringParameter);
             }
 
             var enumerable = value as IEnumerable;
             if (enumerable != null)
-                return String.Format("[{0}]", String.Join(", ", enumerable.Cast<object>().Select(x => Format(x, depth + 1))));
+                return FormatEnumerable(enumerable.Cast<object>(), depth);
 
             var type = value.GetType();
             if (type.GetTypeInfo().IsValueType)
                 return Convert.ToString(value, CultureInfo.CurrentCulture);
 
-            if (depth == 3)
+            if (depth == MAX_OBJECT_DEPTH)
                 return String.Format("{0} {{ ... }}", type.Name);
 
             var fields = type.GetRuntimeFields()
@@ -68,6 +73,20 @@ namespace Xunit.Sdk
             var parameterValues = formattedParameters.Count == 0 ? "{ }" : String.Format("{{ {0} }}", String.Join(", ", formattedParameters));
 
             return String.Format("{0} {1}", type.Name, parameterValues);
+        }
+
+        private static string FormatEnumerable(IEnumerable<object> enumerableValues, int depth)
+        {
+            if (depth == MAX_OBJECT_DEPTH)
+                return "[...]";
+
+            var values = enumerableValues.Take(MAX_ENUMERABLE_LENGTH + 1).ToList();
+            var printedValues = String.Join(", ", values.Take(MAX_ENUMERABLE_LENGTH).Select(x => Format(x, depth + 1)));
+
+            if (values.Count > MAX_ENUMERABLE_LENGTH)
+                printedValues += ", ...";
+
+            return String.Format("[{0}]", printedValues);
         }
 
         private static string WrapAndGetFormattedValue(Func<object> getter, int depth)
