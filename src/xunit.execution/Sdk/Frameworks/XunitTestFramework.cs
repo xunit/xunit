@@ -12,7 +12,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFramework : LongLivedMarshalByRefObject, ITestFramework
     {
-        List<IDisposable> toDispose = new List<IDisposable>();
+        protected List<IDisposable> toDispose = new List<IDisposable>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFramework"/> class.
@@ -38,7 +38,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assemblyInfo)
+        public virtual ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assemblyInfo)
         {
             var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, SourceInformationProvider);
             toDispose.Add(discoverer);
@@ -46,7 +46,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public ITestFrameworkExecutor GetExecutor(AssemblyName assemblyName)
+        public virtual ITestFrameworkExecutor GetExecutor(AssemblyName assemblyName)
         {
             var executor = new XunitTestFrameworkExecutor(assemblyName, SourceInformationProvider);
             toDispose.Add(executor);

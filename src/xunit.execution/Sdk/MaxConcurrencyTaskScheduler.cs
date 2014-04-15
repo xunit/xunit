@@ -13,7 +13,7 @@ namespace Xunit.Sdk
     // the async state to the task during creation. CallContext data is used to flow the
     // stopwatch lookup key throughout the process (when it's not present, it pulls the key
     // from the Task's AsyncState).
-    internal class MaxConcurrencyTaskScheduler : TaskScheduler, IDisposable
+    public class MaxConcurrencyTaskScheduler : TaskScheduler, IDisposable
     {
         readonly int maximumConcurrencyLevel;
         readonly ManualResetEvent terminate = new ManualResetEvent(false);

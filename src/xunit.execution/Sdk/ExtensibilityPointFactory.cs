@@ -11,7 +11,7 @@ namespace Xunit.Sdk
     {
         static readonly ConcurrentDictionary<Type, object> instances = new ConcurrentDictionary<Type, object>();
 
-        private static TInterface Get<TInterface>(Type type, object[] ctorArgs = null)
+        public static TInterface Get<TInterface>(Type type, object[] ctorArgs = null)
         {
             return (TInterface)instances.GetOrAdd(type, () => Activator.CreateInstance(type, ctorArgs ?? new object[0]));
         }
