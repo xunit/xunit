@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -10,6 +11,42 @@ namespace Xunit.Sdk
     /// </summary>
     public static class Reflector
     {
+        readonly static object[] EmptyArgs = new object[0];
+        readonly static Type[] EmptyTypes = new Type[0];
+        readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
+        readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
+
+        /// <summary>
+        /// Converts arguments into their target types. Can be particularly useful when pulling attribute
+        /// constructor arguments, whose types may not strictly match the parameter types.
+        /// </summary>
+        /// <param name="args">The arguments to be converted.</param>
+        /// <param name="types">The target types for the conversion.</param>
+        /// <returns>The converted arguments.</returns>
+        public static object[] ConvertArguments(object[] args, Type[] types)
+        {
+            if (args == null)
+                args = EmptyArgs;
+            if (types == null)
+                types = EmptyTypes;
+
+            if (args.Length == types.Length)
+                for (int idx = 0; idx < args.Length; idx++)
+                {
+                    var type = types[idx];
+                    if (type.IsArray && args[idx] != null && args[idx].GetType() != type)
+                    {
+                        var elementType = type.GetElementType();
+                        var arg = (IEnumerable<object>)args[idx];
+                        var castMethod = EnumerableCast.MakeGenericMethod(elementType);
+                        var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
+                        args[idx] = toArrayMethod.Invoke(null, new object[] { castMethod.Invoke(null, new object[] { arg }) });
+                    }
+                }
+
+            return args;
+        }
+
         /// <summary>
         /// Converts an <see cref="Assembly"/> into an <see cref="IReflectionAssemblyInfo"/>.
         /// </summary>

@@ -104,9 +104,11 @@ namespace Xunit.Sdk
 
         Attribute Instantiate(CustomAttributeData attributeData)
         {
-            Attribute attribute = (Attribute)Activator.CreateInstance(attributeData.Constructor.ReflectedType, GetConstructorArguments().ToArray());
+            var ctorArgs = GetConstructorArguments().ToArray();
+            var ctorArgTypes = attributeData.Constructor.GetParameters().Select(p => p.ParameterType).ToArray();
+            var attribute = (Attribute)Activator.CreateInstance(attributeData.Constructor.ReflectedType, Reflector.ConvertArguments(ctorArgs, ctorArgTypes));
 
-            foreach (CustomAttributeNamedArgument namedArg in attributeData.NamedArguments)
+            foreach (var namedArg in attributeData.NamedArguments)
                 ((PropertyInfo)namedArg.MemberInfo).SetValue(attribute, namedArg.TypedValue.Value, index: null);
 
             return attribute;

@@ -22,9 +22,6 @@ namespace Xunit.Sdk
     [Serializable]
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable
     {
-        readonly static object[] EmptyArray = new object[0];
-        readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
-        readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
         readonly static HashAlgorithm Hasher = new SHA1Managed();
         readonly static ITypeInfo ObjectTypeInfo = Reflector.Wrap(typeof(object));
 
@@ -134,31 +131,6 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         public string UniqueID { get { return uniqueID.Value; } }
-
-        /// <summary>
-        /// Converts arguments into their target types.
-        /// </summary>
-        /// <param name="args">The arguments to be converted.</param>
-        /// <param name="types">The target types for the conversion.</param>
-        /// <returns>The converted arguments.</returns>
-        protected object[] ConvertArguments(object[] args, Type[] types)
-        {
-            if (args.Length == types.Length)
-                for (int idx = 0; idx < args.Length; idx++)
-                {
-                    Type type = types[idx];
-                    if (type.IsArray && args[idx] != null && args[idx].GetType() != type)
-                    {
-                        var elementType = type.GetElementType();
-                        var arg = (IEnumerable<object>)args[idx];
-                        var castMethod = EnumerableCast.MakeGenericMethod(elementType);
-                        var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
-                        args[idx] = toArrayMethod.Invoke(null, new object[] { castMethod.Invoke(null, new object[] { arg }) });
-                    }
-                }
-
-            return args;
-        }
 
         /// <inheritdoc/>
         public void Dispose()
@@ -536,7 +508,7 @@ namespace Xunit.Sdk
 
                                             await aggregator.RunAsync(async () =>
                                             {
-                                                var result = methodUnderTest.Invoke(testClass, ConvertArguments(testMethodArguments ?? EmptyArray, parameterTypes));
+                                                var result = methodUnderTest.Invoke(testClass, Reflector.ConvertArguments(testMethodArguments, parameterTypes));
                                                 var task = result as Task;
                                                 if (task != null)
                                                     await task;

@@ -350,6 +350,48 @@ public class Xunit2AcceptanceTests
         }
     }
 
+    public class CustomFacts : AcceptanceTest
+    {
+        [Fact]
+        public void CanUseCustomFactAttribute()
+        {
+            var msgs = Run<ITestPassed>(typeof(ClassWithCustomFact));
+
+            Assert.Collection(msgs,
+                msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", msg.TestDisplayName)
+            );
+        }
+
+        class MyCustomFact : FactAttribute { }
+
+        class ClassWithCustomFact
+        {
+            [MyCustomFact]
+            public void Passing() { }
+        }
+
+        [Fact]
+        public void CanUseCustomFactWithArrayParameters()
+        {
+            var msgs = Run<ITestPassed>(typeof(ClassWithCustomArrayFact));
+
+            Assert.Collection(msgs,
+                msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", msg.TestDisplayName)
+            );
+        }
+
+        class MyCustomArrayFact : FactAttribute
+        {
+            public MyCustomArrayFact(params string[] values) { }
+        }
+
+        class ClassWithCustomArrayFact
+        {
+            [MyCustomArrayFact("1", "2", "3")]
+            public void Passing() { }
+        }
+    }
+
     class NoTestsClass { }
 
     class SinglePassingTestClass
