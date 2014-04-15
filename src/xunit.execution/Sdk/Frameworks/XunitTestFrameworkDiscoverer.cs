@@ -19,10 +19,10 @@ namespace Xunit.Sdk
         /// </summary>
         public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
 
-        readonly IAssemblyInfo assemblyInfo;
-        readonly Dictionary<Type, IXunitDiscoverer> discoverers = new Dictionary<Type, IXunitDiscoverer>();
-        readonly IMessageAggregator messageAggregator;
-        readonly ISourceInformationProvider sourceProvider;
+        protected readonly IAssemblyInfo assemblyInfo;
+        protected readonly Dictionary<Type, IXunitDiscoverer> discoverers = new Dictionary<Type, IXunitDiscoverer>();
+        protected readonly IMessageAggregator messageAggregator;
+        protected readonly ISourceInformationProvider sourceProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
@@ -221,7 +221,7 @@ namespace Xunit.Sdk
             return SerializationHelper.Serialize(testCase);
         }
 
-        private ITestCase UpdateTestCaseWithSourceInfo(IXunitTestCase testCase, bool includeSourceInformation)
+        protected virtual ITestCase UpdateTestCaseWithSourceInfo(IXunitTestCase testCase, bool includeSourceInformation)
         {
             if (includeSourceInformation && sourceProvider != null)
                 testCase.SourceInformation = sourceProvider.GetSourceInformation(testCase);

@@ -5,7 +5,7 @@ namespace Xunit
     /// <summary>
     /// Used to declare a specific test collection for a test class.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class CollectionAttribute : Attribute
     {
         /// <summary>

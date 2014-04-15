@@ -16,10 +16,10 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFrameworkExecutor : LongLivedMarshalByRefObject, ITestFrameworkExecutor
     {
-        readonly string assemblyFileName;
-        readonly IAssemblyInfo assemblyInfo;
-        readonly ISourceInformationProvider sourceInformationProvider;
-        readonly List<IDisposable> toDispose = new List<IDisposable>();
+        protected readonly string assemblyFileName;
+        protected readonly IAssemblyInfo assemblyInfo;
+        protected readonly ISourceInformationProvider sourceInformationProvider;
+        protected readonly List<IDisposable> toDispose = new List<IDisposable>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
@@ -35,7 +35,7 @@ namespace Xunit.Sdk
             assemblyFileName = assemblyInfo.AssemblyPath;
         }
 
-        static void CreateFixture(Type interfaceType, ExceptionAggregator aggregator, Dictionary<Type, object> mappings)
+        protected static void CreateFixture(Type interfaceType, ExceptionAggregator aggregator, Dictionary<Type, object> mappings)
         {
             var fixtureType = interfaceType.GetGenericArguments().Single();
             aggregator.Run(() => mappings[fixtureType] = Activator.CreateInstance(fixtureType));
@@ -53,7 +53,7 @@ namespace Xunit.Sdk
             toDispose.ForEach(x => x.Dispose());
         }
 
-        string GetDisplayName(IAttributeInfo collectionBehaviorAttribute, bool disableParallelization, int maxParallelism)
+        protected virtual string GetDisplayName(IAttributeInfo collectionBehaviorAttribute, bool disableParallelization, int maxParallelism)
         {
             var testCollectionFactory = XunitTestFrameworkDiscoverer.GetTestCollectionFactory(assemblyInfo, collectionBehaviorAttribute);
 
@@ -65,7 +65,7 @@ namespace Xunit.Sdk
                                         maxParallelism > 0 ? String.Format(" (max {0} threads)", maxParallelism) : "");
         }
 
-        TaskScheduler GetScheduler(int maxParallelThreads)
+        protected TaskScheduler GetScheduler(int maxParallelThreads)
         {
             if (maxParallelThreads > 0)
             {
@@ -77,7 +77,7 @@ namespace Xunit.Sdk
             return TaskScheduler.Current;
         }
 
-        static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo ordererAttribute)
+        protected static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo ordererAttribute)
         {
             var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
             var ordererType = Reflector.GetType(args[1], args[0]);
@@ -85,7 +85,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Run(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
+        public virtual void Run(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
         {
             var discoverySink = new TestDiscoveryVisitor();
 
@@ -99,7 +99,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions)
+        public virtual async void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions)
         {
             Guard.ArgumentNotNull("testCases", testCases);
             Guard.ArgumentNotNull("messageSink", messageSink);
@@ -179,7 +179,7 @@ namespace Xunit.Sdk
             }
         }
 
-        private static IMessageBus createMessageBus(IMessageSink messageSink, ITestFrameworkOptions executionOptions)
+        protected static IMessageBus createMessageBus(IMessageSink messageSink, ITestFrameworkOptions executionOptions)
         {
             if (executionOptions.GetValue(TestOptionsNames.Execution.SynchronousMessageReporting, false))
                 return new SynchronousMessageBus(messageSink);
@@ -362,7 +362,7 @@ namespace Xunit.Sdk
             }
         }
 
-        class RunSummary
+        protected class RunSummary
         {
             public int Total;
             public int Failed;
