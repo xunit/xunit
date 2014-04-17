@@ -39,6 +39,22 @@ public class ArgumentFormatterTests
         }
 
         [Fact]
+        public static void DateTimeValue()
+        {
+            var now = DateTime.UtcNow;
+
+            Assert.Equal<object>(now.ToString("o"), ArgumentFormatter.Format(now));
+        }
+
+        [Fact]
+        public static void DateTimeOffsetValue()
+        {
+            var now = DateTimeOffset.UtcNow;
+
+            Assert.Equal<object>(now.ToString("o"), ArgumentFormatter.Format(now));
+        }
+
+        [Fact]
         public static void TypeValue()
         {
             Assert.Equal("typeof(System.String)", ArgumentFormatter.Format(typeof(string)));
@@ -75,7 +91,7 @@ public class ArgumentFormatterTests
     public class ComplexTypes
     {
         [Fact]
-        public static void ComplexTypeReturnsValuesInAlphabeticalOrder()
+        public static void ReturnsValuesInAlphabeticalOrder()
         {
             var expected = String.Format("MyComplexType {{ MyPublicField = 42, MyPublicProperty = {0} }}", 21.12M.ToString(CultureInfo.CurrentCulture));
 
@@ -116,13 +132,13 @@ public class ArgumentFormatterTests
         }
 
         [Fact]
-        public static void EmptyComplexType()
+        public static void Empty()
         {
             Assert.Equal("Object { }", ArgumentFormatter.Format(new object()));
         }
 
         [Fact]
-        public static void ComplexTypeWithThrowingPropertyGetter()
+        public static void WithThrowingPropertyGetter()
         {
             Assert.Equal("ThrowingGetter { MyThrowingProperty = (throws NotImplementedException) }", ArgumentFormatter.Format(new ThrowingGetter()));
         }
@@ -130,6 +146,35 @@ public class ArgumentFormatterTests
         public class ThrowingGetter
         {
             public string MyThrowingProperty { get { throw new NotImplementedException(); } }
+        }
+
+        [Fact]
+        public static void LimitsOutputToFirstFewValues()
+        {
+            Assert.Equal(@"Big { MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = 21.12, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ... }", ArgumentFormatter.Format(new Big()));
+        }
+
+        public class Big
+        {
+            public string MyField2 = "Hello, world!";
+
+            public decimal MyProp1 { get; set; }
+
+            public object MyProp4 { get; set; }
+
+            public object MyProp3 { get; set; }
+
+            public int MyField1 = 42;
+
+            public Type MyProp2 { get; set; }
+
+            public Big()
+            {
+                MyProp1 = 21.12M;
+                MyProp2 = typeof(Big);
+                MyProp3 = new DateTimeOffset(2014, 04, 17, 07, 45, 23, TimeSpan.Zero);
+                MyProp4 = "Should not be shown";
+            }
         }
 
         [Fact]

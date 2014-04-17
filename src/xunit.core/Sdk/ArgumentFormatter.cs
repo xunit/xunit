@@ -12,8 +12,9 @@ namespace Xunit.Sdk
     /// </summary>
     public static class ArgumentFormatter
     {
+        const int MAX_DEPTH = 3;
         const int MAX_ENUMERABLE_LENGTH = 5;
-        const int MAX_OBJECT_DEPTH = 3;
+        const int MAX_OBJECT_PARAMETER_COUNT = 5;
         const int MAX_STRING_LENGTH = 50;
 
         /// <summary>
@@ -38,6 +39,9 @@ namespace Xunit.Sdk
             if (value is char)
                 return String.Format("'{0}'", value);
 
+            if (value is DateTime || value is DateTimeOffset)
+                return String.Format("{0:o}", value);
+
             string stringParameter = value as string;
             if (stringParameter != null)
             {
@@ -55,29 +59,40 @@ namespace Xunit.Sdk
             if (type.GetTypeInfo().IsValueType)
                 return Convert.ToString(value, CultureInfo.CurrentCulture);
 
-            if (depth == MAX_OBJECT_DEPTH)
+            return FormatCompledValue(value, depth, type);
+        }
+
+        private static string FormatCompledValue(object value, int depth, Type type)
+        {
+            if (depth == MAX_DEPTH)
                 return String.Format("{0} {{ ... }}", type.Name);
 
             var fields = type.GetRuntimeFields()
                              .Where(f => f.IsPublic && !f.IsStatic)
-                             .Select(f => new { name = f.Name, value = WrapAndGetFormattedValue(() => f.GetValue(value), depth) })
-                             .ToList();
+                             .Select(f => new { name = f.Name, value = WrapAndGetFormattedValue(() => f.GetValue(value), depth) });
             var properties = type.GetRuntimeProperties()
                                  .Where(p => p.GetMethod != null && p.GetMethod.IsPublic && !p.GetMethod.IsStatic)
-                                 .Select(p => new { name = p.Name, value = WrapAndGetFormattedValue(() => p.GetValue(value), depth) })
-                                 .ToList();
-            var formattedParameters = fields.Concat(properties)
-                                            .OrderBy(p => p.name)
-                                            .Select(p => String.Format("{0} = {1}", p.name, p.value))
-                                            .ToList();
-            var parameterValues = formattedParameters.Count == 0 ? "{ }" : String.Format("{{ {0} }}", String.Join(", ", formattedParameters));
+                                 .Select(p => new { name = p.Name, value = WrapAndGetFormattedValue(() => p.GetValue(value), depth) });
+            var parameters = fields.Concat(properties)
+                                   .OrderBy(p => p.name)
+                                   .Take(MAX_OBJECT_PARAMETER_COUNT + 1)
+                                   .ToList();
 
-            return String.Format("{0} {1}", type.Name, parameterValues);
+            if (parameters.Count == 0)
+                return String.Format("{0} {{ }}", type.Name);
+
+            var formattedParameters = String.Join(", ", parameters.Take(MAX_OBJECT_PARAMETER_COUNT)
+                                                                  .Select(p => String.Format("{0} = {1}", p.name, p.value)));
+
+            if (parameters.Count > MAX_OBJECT_PARAMETER_COUNT)
+                formattedParameters += ", ...";
+
+            return String.Format("{0} {{ {1} }}", type.Name, formattedParameters);
         }
 
         private static string FormatEnumerable(IEnumerable<object> enumerableValues, int depth)
         {
-            if (depth == MAX_OBJECT_DEPTH)
+            if (depth == MAX_DEPTH)
                 return "[...]";
 
             var values = enumerableValues.Take(MAX_ENUMERABLE_LENGTH + 1).ToList();
