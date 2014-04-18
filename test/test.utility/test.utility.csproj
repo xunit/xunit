@@ -111,10 +111,16 @@
     <Compile Include="..\..\src\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\ExceptionExtensions.cs">
+      <Link>Common\ExceptionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\xunit.execution\Sdk\ExceptionUtility.cs">
       <Link>Common\ExceptionUtility.cs</Link>
     </Compile>
     <Compile Include="Abstractions\TestCollection.cs" />
+    <Compile Include="CulturedFactAttribute.cs" />
+    <Compile Include="CulturedFactAttributeDiscoverer.cs" />
+    <Compile Include="CulturedXunitTestCase.cs" />
     <Compile Include="NSubstituteExtensions.cs" />
     <Compile Include="PreserveWorkingDirectoryAttribute.cs" />
     <Compile Include="Abstractions\AssemblyWrapper.cs" />

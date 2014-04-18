@@ -70,10 +70,7 @@ namespace Xunit1
             var actualValue = MakeEnumeration(1, 2.3, "Goodbye");
 
             string expectedMessage =
-                "Message" + Environment.NewLine +
-                "Position: First difference is at position 1" + Environment.NewLine +
-                "Expected: <MakeEnumeration>d__2 { 1, 42, \"Hello\" }" + Environment.NewLine +
-                "Actual:   <MakeEnumeration>d__2 { 1, " + 2.3.ToString(CultureInfo.CurrentCulture) + ", \"Goodbye\" }";
+                String.Format("Message{0}Position: First difference is at position 1{0}Expected: <MakeEnumeration>d__2 {{ 1, 42, \"Hello\" }}{0}Actual:   <MakeEnumeration>d__2 {{ 1, {1}, \"Goodbye\" }}", Environment.NewLine, 2.3);
 
             AssertActualExpectedException ex =
                 new AssertActualExpectedException(expectedValue, actualValue, "Message");

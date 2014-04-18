@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
 using Xunit;
 using Xunit.Sdk;
@@ -8,37 +7,37 @@ public class ArgumentFormatterTests
 {
     public class SimpleValues
     {
-        [Fact]
+        [CulturedFact]
         public static void NullValue()
         {
             Assert.Equal("null", ArgumentFormatter.Format(null));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void StringValue()
         {
             Assert.Equal("\"Hello, world!\"", ArgumentFormatter.Format("Hello, world!"));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void StringValueTruncated()
         {
             Assert.Equal("\"----|----1----|----2----|----3----|----4----|----5\"...", ArgumentFormatter.Format("----|----1----|----2----|----3----|----4----|----5-"));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void CharacterValue()
         {
             Assert.Equal("'a'", ArgumentFormatter.Format('a'));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void DecimalValue()
         {
-            Assert.Equal(123.45M.ToString(CultureInfo.CurrentCulture), ArgumentFormatter.Format(123.45M));
+            Assert.Equal(123.45M.ToString(), ArgumentFormatter.Format(123.45M));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void DateTimeValue()
         {
             var now = DateTime.UtcNow;
@@ -46,7 +45,7 @@ public class ArgumentFormatterTests
             Assert.Equal<object>(now.ToString("o"), ArgumentFormatter.Format(now));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void DateTimeOffsetValue()
         {
             var now = DateTimeOffset.UtcNow;
@@ -54,7 +53,7 @@ public class ArgumentFormatterTests
             Assert.Equal<object>(now.ToString("o"), ArgumentFormatter.Format(now));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void TypeValue()
         {
             Assert.Equal("typeof(System.String)", ArgumentFormatter.Format(typeof(string)));
@@ -63,21 +62,21 @@ public class ArgumentFormatterTests
 
     public class Enumerables
     {
-        [Fact]
+        [CulturedFact]
         public static void EnumerableValue()
         {
-            var expected = String.Format("[1, {0}, \"Hello, world!\"]", 2.3M.ToString(CultureInfo.CurrentCulture));
+            var expected = String.Format("[1, {0}, \"Hello, world!\"]", 2.3M);
 
             Assert.Equal(expected, ArgumentFormatter.Format(new object[] { 1, 2.3M, "Hello, world!" }));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void OnlyFirstFewValuesOfEnumerableAreRendered()
         {
             Assert.Equal("[0, 1, 2, 3, 4, ...]", ArgumentFormatter.Format(Enumerable.Range(0, Int32.MaxValue)));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void EnumerablesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
         {
             object[] looping = new object[2];
@@ -90,10 +89,10 @@ public class ArgumentFormatterTests
 
     public class ComplexTypes
     {
-        [Fact]
+        [CulturedFact]
         public static void ReturnsValuesInAlphabeticalOrder()
         {
-            var expected = String.Format("MyComplexType {{ MyPublicField = 42, MyPublicProperty = {0} }}", 21.12M.ToString(CultureInfo.CurrentCulture));
+            var expected = String.Format("MyComplexType {{ MyPublicField = 42, MyPublicProperty = {0} }}", 21.12M);
 
             Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexType()));
         }
@@ -116,10 +115,10 @@ public class ArgumentFormatterTests
             }
         }
 
-        [Fact]
+        [CulturedFact]
         public static void ComplexTypeInsideComplexType()
         {
-            var expected = String.Format("MyComplexTypeWrapper {{ c = 'A', s = \"Hello, world!\", t = MyComplexType {{ MyPublicField = 42, MyPublicProperty = {0} }} }}", 21.12M.ToString(CultureInfo.CurrentCulture));
+            var expected = String.Format("MyComplexTypeWrapper {{ c = 'A', s = \"Hello, world!\", t = MyComplexType {{ MyPublicField = 42, MyPublicProperty = {0} }} }}", 21.12M);
 
             Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexTypeWrapper()));
         }
@@ -131,13 +130,13 @@ public class ArgumentFormatterTests
             public string s = "Hello, world!";
         }
 
-        [Fact]
+        [CulturedFact]
         public static void Empty()
         {
             Assert.Equal("Object { }", ArgumentFormatter.Format(new object()));
         }
 
-        [Fact]
+        [CulturedFact]
         public static void WithThrowingPropertyGetter()
         {
             Assert.Equal("ThrowingGetter { MyThrowingProperty = (throws NotImplementedException) }", ArgumentFormatter.Format(new ThrowingGetter()));
@@ -148,10 +147,12 @@ public class ArgumentFormatterTests
             public string MyThrowingProperty { get { throw new NotImplementedException(); } }
         }
 
-        [Fact]
+        [CulturedFact]
         public static void LimitsOutputToFirstFewValues()
         {
-            Assert.Equal(@"Big { MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = 21.12, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ... }", ArgumentFormatter.Format(new Big()));
+            var expected = String.Format(@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {0}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ... }}", 21.12);
+
+            Assert.Equal(expected, ArgumentFormatter.Format(new Big()));
         }
 
         public class Big
@@ -177,7 +178,7 @@ public class ArgumentFormatterTests
             }
         }
 
-        [Fact]
+        [CulturedFact]
         public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
         {
             Assert.Equal("Looping { Me = Looping { Me = Looping { ... } } }", ArgumentFormatter.Format(new Looping()));

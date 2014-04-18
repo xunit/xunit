@@ -153,7 +153,7 @@ public class Xunit2Tests
 
                 Assert.Contains("TestClass.TestMethod(x: ???)", testCaseNames);
                 Assert.Contains("TestClass.TestMethod(x: 42)", testCaseNames);
-                Assert.Contains("TestClass.TestMethod(x: 42, ???: " + 21.12.ToString(CultureInfo.CurrentCulture) + ")", testCaseNames);
+                Assert.Contains(String.Format("TestClass.TestMethod(x: 42, ???: {0})", 21.12), testCaseNames);
             }
         }
     }

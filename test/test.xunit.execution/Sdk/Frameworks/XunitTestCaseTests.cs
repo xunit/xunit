@@ -195,7 +195,7 @@ public class XunitTestCaseTests
             Assert.Equal("MockType.MockMethod(p1: ???)", testCase.DisplayName);
         }
 
-        [Fact]
+        [CulturedFact]
         public void TooManyTestArguments()
         {
             var testCollection = new XunitTestCollection();
@@ -208,7 +208,7 @@ public class XunitTestCaseTests
 
             var testCase = new XunitTestCase(testCollection, assmInfo, type, method, fact, arguments);
 
-            Assert.Equal("MockType.MockMethod(p1: 42, ???: " + 21.12.ToString(CultureInfo.CurrentCulture) + ")", testCase.DisplayName);
+            Assert.Equal(String.Format("MockType.MockMethod(p1: 42, ???: {0})", 21.12), testCase.DisplayName);
         }
     }
 

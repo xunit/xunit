@@ -90,6 +90,10 @@
       <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
       <Name>xunit.execution</Name>
     </ProjectReference>
+    <ProjectReference Include="..\test.utility\test.utility.csproj">
+      <Project>{4fec8604-e544-43c2-979c-f0815b5770e2}</Project>
+      <Name>test.utility</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

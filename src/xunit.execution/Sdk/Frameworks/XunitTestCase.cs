@@ -112,7 +112,7 @@ namespace Xunit.Sdk
         public ITypeInfo Class { get; private set; }
 
         /// <inheritdoc/>
-        public string DisplayName { get; private set; }
+        public virtual string DisplayName { get; private set; }
 
         /// <inheritdoc/>
         public IMethodInfo Method { get; private set; }
@@ -182,7 +182,7 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         [SecurityCritical]
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("AssemblyName", Assembly.Name);
             info.AddValue("TypeName", Class.Name);
