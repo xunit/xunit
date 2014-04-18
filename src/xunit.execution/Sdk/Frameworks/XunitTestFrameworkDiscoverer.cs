@@ -20,7 +20,7 @@ namespace Xunit.Sdk
         public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
 
         readonly IAssemblyInfo assemblyInfo;
-        readonly Dictionary<Type, IXunitDiscoverer> discoverers = new Dictionary<Type, IXunitDiscoverer>();
+        readonly Dictionary<Type, IXunitTestCaseDiscoverer> discoverers = new Dictionary<Type, IXunitTestCaseDiscoverer>();
         readonly IMessageAggregator messageAggregator;
         readonly ISourceInformationProvider sourceProvider;
 
@@ -135,7 +135,7 @@ namespace Xunit.Sdk
                     var factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
                     if (factAttribute != null)
                     {
-                        var discovererAttribute = factAttribute.GetCustomAttributes(typeof(TestCaseDiscovererAttribute)).FirstOrDefault();
+                        var discovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitTestCaseDiscovererAttribute)).FirstOrDefault();
                         if (discovererAttribute != null)
                         {
                             var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
@@ -167,15 +167,15 @@ namespace Xunit.Sdk
             return true;
         }
 
-        IXunitDiscoverer GetDiscoverer(Type discovererType)
+        IXunitTestCaseDiscoverer GetDiscoverer(Type discovererType)
         {
-            IXunitDiscoverer result;
+            IXunitTestCaseDiscoverer result;
 
             if (!discoverers.TryGetValue(discovererType, out result))
             {
                 try
                 {
-                    result = ExtensibilityPointFactory.GetXunitDiscoverer(discovererType);
+                    result = ExtensibilityPointFactory.GetXunitTestCaseDiscoverer(discovererType);
                 }
                 catch (Exception ex)
                 {

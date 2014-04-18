@@ -51,9 +51,9 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets an xUnit.net v2 test discoverer.
         /// </summary>
-        public static IXunitDiscoverer GetXunitDiscoverer(Type discovererType)
+        public static IXunitTestCaseDiscoverer GetXunitTestCaseDiscoverer(Type discovererType)
         {
-            return Get<IXunitDiscoverer>(discovererType);
+            return Get<IXunitTestCaseDiscoverer>(discovererType);
         }
     }
 }

@@ -74,10 +74,10 @@
     <Compile Include="Sdk\ITestCaseOrderer.cs" />
     <Compile Include="Sdk\ITraitAttribute.cs" />
     <Compile Include="Sdk\ITraitDiscoverer.cs" />
-    <Compile Include="Sdk\IXunitDiscoverer.cs" />
+    <Compile Include="Sdk\IXunitTestCaseDiscoverer.cs" />
     <Compile Include="Sdk\IXunitTestCase.cs" />
     <Compile Include="Sdk\IXunitTestCollectionFactory.cs" />
-    <Compile Include="Sdk\TestCaseDiscovererAttribute.cs" />
+    <Compile Include="Sdk\XunitTestCaseDiscovererAttribute.cs" />
     <Compile Include="Sdk\TraitDiscoverer.cs" />
     <Compile Include="Sdk\TraitDiscovererAttribute.cs" />
     <Compile Include="TestCaseOrdererAttribute.cs" />

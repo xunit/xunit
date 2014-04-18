@@ -7,7 +7,7 @@ namespace Xunit.Sdk
     /// Interface to be implemented by classes which are used to discover tests cases attached
     /// to test methods that are attributed with <see cref="FactAttribute"/> (or a subclass).
     /// </summary>
-    public interface IXunitDiscoverer
+    public interface IXunitTestCaseDiscoverer
     {
         /// <summary>
         /// Discover test cases from a test method.
