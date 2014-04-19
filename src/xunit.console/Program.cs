@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
@@ -19,29 +17,33 @@ namespace Xunit.ConsoleClient
         [STAThread]
         public static int Main(string[] args)
         {
-            Console.WriteLine("xUnit.net console test runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
-            Console.WriteLine("Copyright (C) 2014 Outercurve Foundation.");
-            Console.WriteLine();
-
-            if (args.Length == 0 || args[0] == "-?")
-            {
-                PrintUsage();
-                return 1;
-            }
-
-            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-            Console.CancelKeyPress += (sender, e) =>
-            {
-                if (!cancel)
-                {
-                    Console.WriteLine("Canceling... (Press Ctrl+C again to terminate)");
-                    cancel = true;
-                    e.Cancel = true;
-                }
-            };
+            var originalForegroundColor = Console.ForegroundColor;
 
             try
             {
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("xUnit.net console test runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
+                Console.WriteLine("Copyright (C) 2014 Outercurve Foundation.");
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Gray;
+
+                if (args.Length == 0 || args[0] == "-?")
+                {
+                    PrintUsage();
+                    return 1;
+                }
+
+                AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+                Console.CancelKeyPress += (sender, e) =>
+                {
+                    if (!cancel)
+                    {
+                        Console.WriteLine("Canceling... (Press Ctrl+C again to terminate)");
+                        cancel = true;
+                        e.Cancel = true;
+                    }
+                };
+
                 var defaultDirectory = Directory.GetCurrentDirectory();
                 if (!defaultDirectory.EndsWith(new String(new[] { Path.DirectorySeparatorChar })))
                     defaultDirectory += Path.DirectorySeparatorChar;
@@ -69,6 +71,10 @@ namespace Xunit.ConsoleClient
             {
                 Console.WriteLine("{0}", ex.Message);
                 return 1;
+            }
+            finally
+            {
+                Console.ForegroundColor = originalForegroundColor;
             }
         }
 
@@ -148,8 +154,11 @@ namespace Xunit.ConsoleClient
 
                 if (completionMessages.Count > 0)
                 {
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine();
                     Console.WriteLine("=== TEST EXECUTION SUMMARY ===");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+
                     int longestAssemblyName = completionMessages.Keys.Max(key => key.Length);
                     int longestTotal = completionMessages.Values.Max(summary => summary.Total.ToString().Length);
                     int longestFailed = completionMessages.Values.Max(summary => summary.Failed.ToString().Length);
