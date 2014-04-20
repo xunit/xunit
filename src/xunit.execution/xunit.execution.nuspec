@@ -5,7 +5,10 @@
         <version>2.0.0-beta</version>
         <title>xUnit.net [Test Execution Library]</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>Includes the execution framework for xUnit.net (xunit.execution.dll).</description>
+        <description>
+            Includes the execution framework for xUnit.net (xunit.execution.dll).
+            Supported platforms: Desktop .NET 4.5+.
+        </description>
         <language>en-US</language>
         <projectUrl>https://github.com/xunit/xunit</projectUrl>
         <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>

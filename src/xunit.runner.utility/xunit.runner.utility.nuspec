@@ -5,7 +5,10 @@
         <version>2.0.0-beta</version>
         <title>xUnit.net [Runner Utility]</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>Includes the version-independent runner for xUnit.net to run both v1 and v2 tests (xunit.runner.utility.dll).</description>
+        <description>
+            Includes the version-independent runner for xUnit.net to run both v1 and v2 tests (xunit.runner.utility.dll).
+            Supported platforms: Desktop .NET 3.5+.
+        </description>
         <language>en-US</language>
         <projectUrl>https://github.com/xunit/xunit</projectUrl>
         <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>

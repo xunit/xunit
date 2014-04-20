@@ -5,7 +5,10 @@
     <version>2.0.0-beta</version>
     <title>xUnit.net [Core Library]</title>
     <authors>James Newkirk, Brad Wilson</authors>
-    <description>Includes the core unit testing framework from xUnit.net (xunit.core.dll).</description>
+    <description>
+        Includes the core unit testing framework from xUnit.net (xunit.core.dll).
+        Supported platforms: Desktop .NET 4.5+, Modern Windows 8+, Windows Phone 8+ (Silverlight), Windows Phone 8.1+ (Universal), Portable Libraries (supporting Profile259).
+    </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>

@@ -5,7 +5,10 @@
         <version>2.0.0-beta</version>
         <title>xUnit.net [Runners]</title>
         <authors>James Newkirk, Brad Wilson</authors>
-        <description>Runners for the xUnit.net framework, including Console and MSBuild.</description>
+        <description>
+            Runners for the xUnit.net framework, including Console and MSBuild.
+            Supported platforms: Desktop .NET 4.5+.
+        </description>
         <language>en-US</language>
         <projectUrl>https://github.com/xunit/xunit</projectUrl>
         <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
