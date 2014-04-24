@@ -403,6 +403,70 @@ public class Xunit1Tests
             Assert.Equal("Attempted to divide by zero.", errorMessage.Messages.Single());
             Assert.Equal(exception.StackTrace, errorMessage.StackTraces.Single());
         }
+
+        [Fact]
+        public void ExceptionThrownDuringClassStart_ResultsInErrorMessage()
+        {
+            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
+            var testCases = new[] {
+                new Xunit1TestCase("assembly", "type1", "failingclass", "type1.failingclass") { TestCollection = testCollection }
+            };
+            var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
+            var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+            xunit1.Executor.TestFrameworkDisplayName.Returns("Test framework display name");
+            xunit1.Executor
+                  .When(x => x.RunTests("type1", Arg.Any<List<string>>(),
+                    Arg.Any<ICallbackEventHandler>()))
+                  .Do(callInfo =>
+                  {
+                      // Ensure the exception has a callstack
+                      try { throw exception; } catch{}
+                      var callback = callInfo.Arg<ICallbackEventHandler>();
+                      callback.RaiseCallbackEvent(string.Format("<class name='type1' time='0.000' total='0' passed='0' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{0}]]></stack-trace></failure></class>", exception.StackTrace));
+                  });
+            var sink = new SpyMessageSink<ITestAssemblyFinished>();
+
+            xunit1.Run(testCases, sink);
+            sink.Finished.WaitOne();
+
+            var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
+            Assert.Equal("System.InvalidOperationException", errorMessage.ExceptionTypes.Single());
+            Assert.Equal("Cannot use a test class as its own fixture data", errorMessage.Messages.Single());
+            Assert.Equal(exception.StackTrace, errorMessage.StackTraces.Single());
+        }
+
+        [Fact]
+        public void ExceptionThrownDuringClassFinish_ResultsInErrorMessage()
+        {
+            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
+            var testCases = new[] {
+                new Xunit1TestCase("assembly", "failingtype", "passingmethod", "failingtype.passingmethod") { TestCollection = testCollection }
+            };
+            var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
+            var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+            xunit1.Executor.TestFrameworkDisplayName.Returns("Test framework display name");
+            xunit1.Executor
+                  .When(x => x.RunTests("failingtype", Arg.Any<List<string>>(),
+                    Arg.Any<ICallbackEventHandler>()))
+                  .Do(callInfo =>
+                  {
+                      // Ensure the exception has a callstack
+                      try { throw exception; } catch{}
+                      var callback = callInfo.Arg<ICallbackEventHandler>();
+                      callback.RaiseCallbackEvent("<start name='failingtype.passingmethod' type='failingtype' method='passingmethod'/>");
+                      callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
+                      callback.RaiseCallbackEvent(string.Format("<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{0}]]></stack-trace></failure></class>", exception.StackTrace));
+                  });
+            var sink = new SpyMessageSink<ITestAssemblyFinished>();
+
+            xunit1.Run(testCases, sink);
+            sink.Finished.WaitOne();
+
+            var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
+            Assert.Equal("System.InvalidOperationException", errorMessage.ExceptionTypes.Single());
+            Assert.Equal("Cannot use a test class as its own fixture data", errorMessage.Messages.Single());
+            Assert.Equal(exception.StackTrace, errorMessage.StackTraces.Single());
+        }
     }
 
     class TestableXunit1 : Xunit1
