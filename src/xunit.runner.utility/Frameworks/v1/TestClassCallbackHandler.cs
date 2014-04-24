@@ -49,11 +49,26 @@ namespace Xunit
         {
             SendTestCaseMessagesWhenAppropriate(null);
 
+            bool @continue = true;
+            XmlNode failure;
+            if ((failure = xml.SelectSingleNode("failure")) != null)
+            {
+                // exception-type was added in xunit 1.1
+                var attribute = failure.Attributes["exception-type"];
+                var exceptionType = attribute != null ? attribute.Value : null;
+                var message = failure.SelectSingleNode("message").InnerText;
+                var stackTrace = failure.SelectSingleNode("stack-trace").InnerText;
+
+                var errorMessage = new ErrorMessage(new[] {exceptionType}, new[] {message}, new[] {stackTrace},
+                    new[] {-1});
+                @continue = messageSink.OnMessage(errorMessage);
+            }
+
             TestClassResults.Time = Decimal.Parse(xml.Attributes["time"].Value, CultureInfo.InvariantCulture);
             TestClassResults.Total = Int32.Parse(xml.Attributes["total"].Value, CultureInfo.InvariantCulture);
             TestClassResults.Failed = Int32.Parse(xml.Attributes["failed"].Value, CultureInfo.InvariantCulture);
             TestClassResults.Skipped = Int32.Parse(xml.Attributes["skipped"].Value, CultureInfo.InvariantCulture);
-            return TestClassResults.Continue;
+            return @continue && TestClassResults.Continue;
         }
 
         bool OnStart(XmlNode xml)
