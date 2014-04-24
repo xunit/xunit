@@ -99,14 +99,12 @@ namespace Xunit
                     {
                         testCaseResults.Failed++;
                         var failure = xml.SelectSingleNode("failure");
-                        var messageElement = failure.SelectSingleNode("message");
-                        var stackTraceElement = failure.SelectSingleNode("stack-trace");
-                        var exceptionTypeAttribute = failure.Attributes["exception-type"];
+                        var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failure);
                         resultMessage = new TestFailed(testCase, displayName, time, output,
-                                                       exceptionTypeAttribute == null ? new string[0] : new[] { exceptionTypeAttribute.Value },
-                                                       messageElement == null ? new string[0] : new[] { messageElement.InnerText },
-                                                       stackTraceElement == null ? new string[0] : new[] { stackTraceElement.InnerText },
-                                                       new[] { -1 });
+                                                       failureInformation.ExceptionTypes,
+                                                       failureInformation.Messages,
+                                                       failureInformation.StackTraces,
+                                                       failureInformation.ExceptionParentIndices);
                         break;
                     }
 

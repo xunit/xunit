@@ -432,6 +432,39 @@ public class Xunit1Tests
         }
 
         [Fact]
+        public void NestedExceptionResultFromTests_ResultsInErrorMessage()
+        {
+            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
+            var testCases = new[] {
+                new Xunit1TestCase("assembly", "type1", "failing", "type1.failing") { TestCollection = testCollection }
+            };
+            var exception = GetNestedExceptions();
+            var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+            xunit1.Executor.TestFrameworkDisplayName.Returns("Test framework display name");
+            xunit1.Executor
+                  .WhenForAnyArgs(x => x.RunTests(null, null, null))
+                  .Do(callInfo =>
+                  {
+                      var callback = callInfo.Arg<ICallbackEventHandler>();
+                      callback.RaiseCallbackEvent("<start name='type1.failing' type='type1' method='failing'/>");
+                      callback.RaiseCallbackEvent(string.Format("<test name='type1.failing' type='type1' method='failing' result='Fail' time='0.234'><failure exception-type='{0}'><message>{1}</message><stack-trace><![CDATA[{2}]]></stack-trace></failure></test>", exception.GetType().FullName, GetMessage(exception), GetStackTrace(exception)));
+                      callback.RaiseCallbackEvent("<class name='type1' time='1.234' total='1' failed='1' skipped='0'/>");
+                  });
+            var sink = new SpyMessageSink<ITestAssemblyFinished>();
+
+            xunit1.Run(testCases, sink);
+            sink.Finished.WaitOne();
+
+            var testFailed = Assert.Single(sink.Messages.OfType<ITestFailed>());
+            Assert.Equal(exception.GetType().FullName, testFailed.ExceptionTypes[0]);
+            Assert.Equal(exception.InnerException.GetType().FullName, testFailed.ExceptionTypes[1]);
+            Assert.Equal(exception.Message, testFailed.Messages[0]);
+            Assert.Equal(exception.InnerException.Message, testFailed.Messages[1]);
+            Assert.Equal(exception.StackTrace, testFailed.StackTraces[0]);
+            Assert.Equal(exception.InnerException.StackTrace, testFailed.StackTraces[1]);
+        }
+
+        [Fact]
         public void ExceptionThrownDuringClassStart_ResultsInErrorMessage()
         {
             var testCollection = new Xunit1TestCollection("AssemblyName.dll");
