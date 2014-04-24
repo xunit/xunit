@@ -142,6 +142,7 @@
       <Link>Frameworks\Messages\TestStarting.cs</Link>
     </Compile>
     <Compile Include="Frameworks\TestFrameworkOptions.cs" />
+    <Compile Include="Frameworks\v1\Xunit1ExceptionUtility.cs" />
     <Compile Include="Frameworks\v2\XunitDiscoveryOptions.cs" />
     <Compile Include="Frameworks\v2\XunitExecutionOptions.cs" />
     <Compile Include="Project\XunitFilters.cs" />
