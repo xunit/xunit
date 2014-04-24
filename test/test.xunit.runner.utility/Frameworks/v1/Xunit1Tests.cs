@@ -467,6 +467,124 @@ public class Xunit1Tests
             Assert.Equal("Cannot use a test class as its own fixture data", errorMessage.Messages.Single());
             Assert.Equal(exception.StackTrace, errorMessage.StackTraces.Single());
         }
+
+        [Fact]
+        public void NestedExceptionsThrownDuringClassStart_ResultsInErrorMessage()
+        {
+            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
+            var testCases = new[] {
+                new Xunit1TestCase("assembly", "failingtype", "passingmethod", "failingtype.passingmethod") { TestCollection = testCollection }
+            };
+            var exception = GetNestedExceptions();
+            var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+            xunit1.Executor.TestFrameworkDisplayName.Returns("Test framework display name");
+            xunit1.Executor
+                  .When(x => x.RunTests("failingtype", Arg.Any<List<string>>(),
+                    Arg.Any<ICallbackEventHandler>()))
+                  .Do(callInfo =>
+                  {
+                      var callback = callInfo.Arg<ICallbackEventHandler>();
+                      callback.RaiseCallbackEvent("<start name='failingtype.passingmethod' type='failingtype' method='passingmethod'/>");
+                      callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
+                      callback.RaiseCallbackEvent(string.Format("<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>{0}</message><stack-trace><![CDATA[{1}]]></stack-trace></failure></class>", GetMessage(exception), GetStackTrace(exception)));
+                  });
+            var sink = new SpyMessageSink<ITestAssemblyFinished>();
+
+            xunit1.Run(testCases, sink);
+            sink.Finished.WaitOne();
+
+            var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
+            Assert.Equal(exception.GetType().FullName, errorMessage.ExceptionTypes[0]);
+            Assert.Equal(exception.InnerException.GetType().FullName, errorMessage.ExceptionTypes[1]);
+            Assert.Equal(exception.Message, errorMessage.Messages[0]);
+            Assert.Equal(exception.InnerException.Message, errorMessage.Messages[1]);
+            Assert.Equal(exception.StackTrace, errorMessage.StackTraces[0]);
+            Assert.Equal(exception.InnerException.StackTrace, errorMessage.StackTraces[1]);
+        }
+
+        private Exception GetNestedExceptions()
+        {
+            try
+            {
+                ThrowOuterException();
+                return null;
+            }
+            catch (Exception e)
+            {
+                return e;
+            }
+        }
+
+        private void ThrowOuterException()
+        {
+            try
+            {
+                ThrowInnerException();
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Message from outer exception", e);
+            }
+        }
+
+        private void ThrowInnerException()
+        {
+            throw new DivideByZeroException();
+        }
+
+        // From xunit1's ExceptionUtility
+        private static string GetMessage(Exception ex)
+        {
+            return GetMessage(ex, 0);
+        }
+
+        static string GetMessage(Exception ex, int level)
+        {
+            string result = "";
+
+            if (level > 0)
+            {
+                for (int idx = 0; idx < level; idx++)
+                    result += "----";
+
+                result += " ";
+            }
+
+            // We won't have any AssertExceptions - we're testing failure in class start/finish
+            //if (!(ex is AssertException))
+                result += ex.GetType().FullName + " : ";
+
+            result += ex.Message;
+
+            if (ex.InnerException != null)
+                result = result + Environment.NewLine + GetMessage(ex.InnerException, level + 1);
+
+            return result;
+        }
+
+        const string RETHROW_MARKER = "$$RethrowMarker$$";
+        
+        private static string GetStackTrace(Exception ex)
+        {
+            if (ex == null)
+                return "";
+
+            string result = ex.StackTrace;
+
+            if (result != null)
+            {
+                int idx = result.IndexOf(RETHROW_MARKER);
+                if (idx >= 0)
+                    result = result.Substring(0, idx);
+            }
+
+            if (ex.InnerException != null)
+                result = result + Environment.NewLine +
+                         "----- Inner Stack Trace -----" + Environment.NewLine +
+                         GetStackTrace(ex.InnerException);
+
+            return result;
+        }
     }
 
     class TestableXunit1 : Xunit1

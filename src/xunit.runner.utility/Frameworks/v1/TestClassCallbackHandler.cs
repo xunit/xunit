@@ -50,17 +50,14 @@ namespace Xunit
             SendTestCaseMessagesWhenAppropriate(null);
 
             bool @continue = true;
-            XmlNode failure;
-            if ((failure = xml.SelectSingleNode("failure")) != null)
+            XmlNode failureNode;
+            if ((failureNode = xml.SelectSingleNode("failure")) != null)
             {
-                // exception-type was added in xunit 1.1
-                var attribute = failure.Attributes["exception-type"];
-                var exceptionType = attribute != null ? attribute.Value : null;
-                var message = failure.SelectSingleNode("message").InnerText;
-                var stackTrace = failure.SelectSingleNode("stack-trace").InnerText;
+                var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failureNode);
 
-                var errorMessage = new ErrorMessage(new[] {exceptionType}, new[] {message}, new[] {stackTrace},
-                    new[] {-1});
+                var errorMessage = new ErrorMessage(failureInformation.ExceptionTypes,
+                    failureInformation.Messages, failureInformation.StackTraces,
+                    failureInformation.ExceptionParentIndices);
                 @continue = messageSink.OnMessage(errorMessage);
             }
 
