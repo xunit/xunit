@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Xunit.Abstractions;
@@ -10,6 +11,39 @@ namespace Xunit
         static readonly Regex NestedMessagesRegex = new Regex(@"-*\s*(?<type>.*?) :\s*(?<message>.*?)((\r\n-)|\z)",
             RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Singleline);
         static readonly Regex NestedStackTracesRegex = new Regex(@"\r*\n----- Inner Stack Trace -----\r*\n", RegexOptions.Compiled);
+
+        public static IFailureInformation ConvertToFailureInformation(Exception exception)
+        {
+            var exceptionTypes = new List<string>();
+            var messages = new List<string>();
+            var stackTraces = new List<string>();
+            var indices = new List<int>();
+            var parentIndex = -1;
+
+            do
+            {
+                var stackTrace = exception.StackTrace;
+                var rethrowIndex = stackTrace.IndexOf("$$RethrowMarker$$");
+                if (rethrowIndex > -1)
+                    stackTrace = stackTrace.Substring(0, rethrowIndex);
+
+                exceptionTypes.Add(exception.GetType().FullName);
+                messages.Add(exception.Message);
+                stackTraces.Add(stackTrace);
+                indices.Add(parentIndex);
+
+                parentIndex++;
+                exception = exception.InnerException;
+            } while (exception != null);
+
+            return new FailureInformation
+            {
+                ExceptionParentIndices = indices.ToArray(),
+                ExceptionTypes = exceptionTypes.ToArray(),
+                Messages = messages.ToArray(),
+                StackTraces = stackTraces.ToArray(),
+            };
+        }
 
         public static IFailureInformation ConvertToFailureInformation(XmlNode failureNode)
         {

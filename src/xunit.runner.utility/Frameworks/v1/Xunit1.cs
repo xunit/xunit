@@ -226,12 +226,9 @@ namespace Xunit
                 }
                 catch (Exception ex)
                 {
-                    var stackTrace = ex.StackTrace;
-                    var rethrowIndex = stackTrace.IndexOf("$$RethrowMarker$$");
-                    if (rethrowIndex > -1)
-                        stackTrace = stackTrace.Substring(0, rethrowIndex);
+                    var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(ex);
 
-                    results.Continue = messageSink.OnMessage(new ErrorMessage(new[] { ex.GetType().FullName }, new[] { ex.Message }, new[] { stackTrace }, new[] { -1 })) && results.Continue;
+                    results.Continue = messageSink.OnMessage(new ErrorMessage(failureInformation.ExceptionTypes, failureInformation.Messages, failureInformation.StackTraces, failureInformation.ExceptionParentIndices)) && results.Continue;
                 }
             }
 

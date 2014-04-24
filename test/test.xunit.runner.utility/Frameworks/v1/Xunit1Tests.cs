@@ -405,6 +405,33 @@ public class Xunit1Tests
         }
 
         [Fact]
+        public void NestedExceptionsThrownDuringRunTests_ResultsInErrorMessage()
+        {
+            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
+            var testCases = new[] {
+                new Xunit1TestCase("assembly", "type1", "passing", "type1.passing") { TestCollection = testCollection }
+            };
+            var exception = GetNestedExceptions();
+            var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+            xunit1.Executor.TestFrameworkDisplayName.Returns("Test framework display name");
+            xunit1.Executor
+                  .WhenForAnyArgs(x => x.RunTests(null, null, null))
+                  .Do(callInfo => { throw exception; });
+            var sink = new SpyMessageSink<ITestAssemblyFinished>();
+
+            xunit1.Run(testCases, sink);
+            sink.Finished.WaitOne();
+
+            var errorMessage = Assert.Single(sink.Messages.OfType<IErrorMessage>());
+            Assert.Equal(exception.GetType().FullName, errorMessage.ExceptionTypes[0]);
+            Assert.Equal(exception.InnerException.GetType().FullName, errorMessage.ExceptionTypes[1]);
+            Assert.Equal(exception.Message, errorMessage.Messages[0]);
+            Assert.Equal(exception.InnerException.Message, errorMessage.Messages[1]);
+            Assert.Equal(exception.StackTrace, errorMessage.StackTraces[0]);
+            Assert.Equal(exception.InnerException.StackTrace, errorMessage.StackTraces[1]);
+        }
+
+        [Fact]
         public void ExceptionThrownDuringClassStart_ResultsInErrorMessage()
         {
             var testCollection = new Xunit1TestCollection("AssemblyName.dll");
