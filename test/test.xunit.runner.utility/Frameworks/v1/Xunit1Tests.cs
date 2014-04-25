@@ -184,7 +184,8 @@ public class Xunit1Tests
             var testCases = new[] {
                 new Xunit1TestCase("assembly", "type1", "passing", "type1.passing") { TestCollection = testCollection },
                 new Xunit1TestCase("assembly", "type1", "failing", "type1.failing") { TestCollection = testCollection },
-                new Xunit1TestCase("assembly", "type2", "skipping", "type2.skipping") { TestCollection = testCollection }
+                new Xunit1TestCase("assembly", "type2", "skipping", "type2.skipping") { TestCollection = testCollection },
+                new Xunit1TestCase("assembly", "type2", "skipping_with_start", "type2.skipping_with_start") { TestCollection = testCollection }
             };
             var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
             xunit1.Executor.TestFrameworkDisplayName.Returns("Test framework display name");
@@ -204,8 +205,10 @@ public class Xunit1Tests
                   .Do(callInfo =>
                   {
                       var callback = callInfo.Arg<ICallbackEventHandler>();
-                      callback.RaiseCallbackEvent("<start name='type2.skipping' type='type2' method='skipping'/>");
+                      // Note. Skip does not send a start packet, unless you use a custom Fact
                       callback.RaiseCallbackEvent("<test name='type2.skipping' type='type2' method='skipping' result='Skip'><reason><message>Skip message</message></reason></test>");
+                      callback.RaiseCallbackEvent("<start name='type2.skipping_with_start' type='type2' method='skipping_with_start'/>");
+                      callback.RaiseCallbackEvent("<test name='type2.skipping_with_start' type='type2' method='skipping_with_start' result='Skip'><reason><message>Skip message</message></reason></test>");
                       callback.RaiseCallbackEvent("<class name='type2' time='0.000' total='1' failed='0' skipped='1'/>");
                   });
             var sink = new SpyMessageSink<ITestAssemblyFinished>();
@@ -386,6 +389,52 @@ public class Xunit1Tests
                     var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
                     Assert.Equal("type2", testMethodFinished.ClassName);
                     Assert.Equal("skipping", testMethodFinished.MethodName);
+                },
+                message =>
+                {
+                    var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+                    Assert.Equal("type2", testMethodStarting.ClassName);
+                    Assert.Equal("skipping_with_start", testMethodStarting.MethodName);
+                },
+                message =>
+                {
+                    var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
+                    Assert.Equal("type2.skipping_with_start", testCaseStarting.TestCase.DisplayName);
+                },
+                message =>
+                {
+                    var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
+                    Assert.Equal("type2.skipping_with_start", testStarting.TestCase.DisplayName);
+                    Assert.Equal("type2", testStarting.TestCase.Class.Name);
+                    Assert.Equal("skipping_with_start", testStarting.TestCase.Method.Name);
+                    Assert.Same(testCollection, testStarting.TestCase.TestCollection);
+                },
+                message =>
+                {
+                    var testSkipped = Assert.IsAssignableFrom<ITestSkipped>(message);
+                    Assert.Equal("type2.skipping_with_start", testSkipped.TestCase.DisplayName);
+                    Assert.Equal(0M, testSkipped.ExecutionTime);
+                    Assert.Equal("Skip message", testSkipped.Reason);
+                },
+                message =>
+                {
+                    var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
+                    Assert.Equal("type2.skipping_with_start", testFinished.TestCase.DisplayName);
+                },
+                message =>
+                {
+                    var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+                    Assert.Equal("type2.skipping_with_start", testCaseFinished.TestCase.DisplayName);
+                    Assert.Equal(0M, testCaseFinished.ExecutionTime);
+                    Assert.Equal(0, testCaseFinished.TestsFailed);
+                    Assert.Equal(1, testCaseFinished.TestsRun);
+                    Assert.Equal(1, testCaseFinished.TestsSkipped);
+                },
+                message =>
+                {
+                    var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+                    Assert.Equal("type2", testMethodFinished.ClassName);
+                    Assert.Equal("skipping_with_start", testMethodFinished.MethodName);
                 },
                 message =>
                 {
