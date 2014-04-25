@@ -110,6 +110,11 @@ namespace Xunit
 
                 case "Skip":
                     testCaseResults.Skipped++;
+                    if (testCase != lastTestCase)
+                    {
+                        SendTestCaseMessagesWhenAppropriate(testCase);
+                        @continue = messageSink.OnMessage(new TestStarting(testCase, displayName)) && @continue;
+                    }
                     resultMessage = new TestSkipped(testCase, displayName, xml.SelectSingleNode("reason/message").InnerText);
                     break;
             }
