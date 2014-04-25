@@ -137,12 +137,24 @@ namespace Xunit
             {
                 TestClassResults.Continue = messageSink.OnMessage(new TestCaseFinished(lastTestCase, testCaseResults.Time, testCaseResults.Total, testCaseResults.Failed, testCaseResults.Skipped)) && TestClassResults.Continue;
                 testCaseResults.Reset();
+
+                if (current == null || (lastTestCase.Class.Name == current.Class.Name && lastTestCase.Method.Name != current.Class.Name))
+                {
+                    TestClassResults.Continue = messageSink.OnMessage(new TestMethodFinished(lastTestCase.TestCollection, lastTestCase.Class.Name, lastTestCase.Method.Name)) && TestClassResults.Continue;
+                }
+            }
+
+            if (current != null)
+            {
+                if (lastTestCase == null || (lastTestCase.Class.Name == current.Class.Name && lastTestCase.Method.Name != current.Method.Name))
+                {
+                    TestClassResults.Continue = messageSink.OnMessage(new TestMethodStarting(current.TestCollection, current.Class.Name, current.Method.Name)) && TestClassResults.Continue;
+                }
+
+                TestClassResults.Continue = messageSink.OnMessage(new TestCaseStarting(current)) && TestClassResults.Continue;
             }
 
             lastTestCase = current;
-
-            if (current != null)
-                TestClassResults.Continue = messageSink.OnMessage(new TestCaseStarting(current)) && TestClassResults.Continue;
         }
     }
 }
