@@ -146,9 +146,9 @@
     <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\xunit.abstractions\xunit.abstractions.csproj">
+    <ProjectReference Include="..\xunit.abstractions.net35\xunit.abstractions.net35.csproj">
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
-      <Name>xunit.abstractions</Name>
+      <Name>xunit.abstractions.net35</Name>
     </ProjectReference>
     <ProjectReference Include="..\xunit.core\xunit.core.csproj">
       <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>

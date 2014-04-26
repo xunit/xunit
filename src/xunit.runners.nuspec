@@ -22,7 +22,7 @@
         <file src="xunit.console\bin\Release\xunit.console.exe.config" target="tools\xunit.console.exe.config" />
         <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe" target="tools\xunit.console.x86.exe" />
         <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe.config" target="tools\xunit.console.x86.exe.config" />
-        <file src="xunit.abstractions\bin\Release\xunit.abstractions.dll" target="tools\xunit.abstractions.dll" />
+        <file src="xunit.abstractions.net35\bin\Release\xunit.abstractions.dll" target="tools\xunit.abstractions.dll" />
         <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll" target="tools\xunit.runner.msbuild.dll" />
         <file src="xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="tools\xunit.runner.utility.dll" />
         <file src="xunit.runner.utility\bin\Release\xunit.runner.utility.xml" target="tools\xunit.runner.utility.xml" />

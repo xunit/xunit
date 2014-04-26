@@ -53,9 +53,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\xunit.abstractions\xunit.abstractions.csproj">
+    <ProjectReference Include="..\..\src\xunit.abstractions.net35\xunit.abstractions.net35.csproj">
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
-      <Name>xunit.abstractions</Name>
+      <Name>xunit.abstractions.net35</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
       <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
