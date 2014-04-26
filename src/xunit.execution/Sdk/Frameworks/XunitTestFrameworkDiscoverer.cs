@@ -205,8 +205,13 @@ namespace Xunit.Sdk
             if (ctorArgs.Count == 0)
                 return typeof(CollectionPerClassTestCollectionFactory);
 
-            if (ctorArgs.Count == 1 && (CollectionBehavior)ctorArgs[0] == CollectionBehavior.CollectionPerAssembly)
-                return typeof(CollectionPerAssemblyTestCollectionFactory);
+            if (ctorArgs.Count == 1)
+            {
+                if ((CollectionBehavior)ctorArgs[0] == CollectionBehavior.CollectionPerAssembly)
+                    return typeof(CollectionPerAssemblyTestCollectionFactory);
+
+                return typeof(CollectionPerClassTestCollectionFactory);
+            }
 
             var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
             if (!typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)

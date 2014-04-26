@@ -11,7 +11,7 @@ public class XunitTestFrameworkDiscovererTests
     public class Construction
     {
         [Fact]
-        public void GuardClause()
+        public static void GuardClause()
         {
             var assembly = Substitute.For<IAssemblyInfo>();
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
@@ -21,7 +21,7 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void DefaultTestCollectionFactoryIsCollectionPerClass()
+        public static void DefaultTestCollectionFactoryIsCollectionPerClass()
         {
             var assembly = Mocks.AssemblyInfo();
             var sourceInfoProvider = Substitute.For<ISourceInformationProvider>();
@@ -32,21 +32,23 @@ public class XunitTestFrameworkDiscovererTests
             Assert.Equal(XunitTestFrameworkDiscoverer.DisplayName + " [collection-per-class, parallel]", discoverer.TestFrameworkDisplayName);
         }
 
-        [Fact]
-        public void UserCanChooseFromBuiltInCollectionFactories_NonParallel()
+        [Theory]
+        [InlineData(CollectionBehavior.CollectionPerAssembly, typeof(CollectionPerAssemblyTestCollectionFactory), "collection-per-assembly")]
+        [InlineData(CollectionBehavior.CollectionPerClass, typeof(CollectionPerClassTestCollectionFactory), "collection-per-class")]
+        public static void UserCanChooseFromBuiltInCollectionFactories_NonParallel(CollectionBehavior behavior, Type expectedType, string expectedDisplayText)
         {
-            var attr = Mocks.CollectionBehaviorAttribute(CollectionBehavior.CollectionPerAssembly, disableTestParallelization: true);
+            var attr = Mocks.CollectionBehaviorAttribute(behavior, disableTestParallelization: true);
             var assembly = Mocks.AssemblyInfo(attributes: new[] { attr });
             var sourceInfoProvider = Substitute.For<ISourceInformationProvider>();
 
             var discoverer = new XunitTestFrameworkDiscoverer(assembly, sourceInfoProvider);
 
-            Assert.IsType<CollectionPerAssemblyTestCollectionFactory>(discoverer.TestCollectionFactory);
-            Assert.Equal(XunitTestFrameworkDiscoverer.DisplayName + " [collection-per-assembly, non-parallel]", discoverer.TestFrameworkDisplayName);
+            Assert.IsType(expectedType, discoverer.TestCollectionFactory);
+            Assert.Equal(String.Format("{0} [{1}, non-parallel]", XunitTestFrameworkDiscoverer.DisplayName, expectedDisplayText), discoverer.TestFrameworkDisplayName);
         }
 
         [Fact]
-        public void UserCanChooseCustomCollectionFactory()
+        public static void UserCanChooseCustomCollectionFactory()
         {
             var factoryType = typeof(MyTestCollectionFactory);
             var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName, factoryType.Assembly.FullName);
@@ -75,7 +77,7 @@ public class XunitTestFrameworkDiscovererTests
         [InlineData("XunitTestFrameworkDiscovererTests+Construction+TestCollectionFactory_NoCompatibleConstructor")]
         [InlineData("XunitTestFrameworkDiscovererTests+Construction+TestCollectionFactory_DoesNotImplementInterface")]
         [InlineData("ThisIsNotARealType")]
-        public void IncompatibleOrInvalidTypesGetDefaultBehavior(string factoryTypeName)
+        public static void IncompatibleOrInvalidTypesGetDefaultBehavior(string factoryTypeName)
         {
             var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "test.xunit.execution");
             var assembly = Mocks.AssemblyInfo(attributes: new[] { attr });
@@ -207,7 +209,7 @@ public class XunitTestFrameworkDiscovererTests
     public class FindByTypeName
     {
         [Fact]
-        public void GuardClauses()
+        public static void GuardClauses()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var typeName = typeof(Object).FullName;
@@ -221,7 +223,7 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void RequestsPublicAndPrivateMethodsFromType()
+        public static void RequestsPublicAndPrivateMethodsFromType()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Substitute.For<ITypeInfo>();
@@ -234,7 +236,7 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void CallsFindImplWhenMethodsAreFoundOnType()
+        public static void CallsFindImplWhenMethodsAreFoundOnType()
         {
             var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>();
             var type = Substitute.For<ITypeInfo>();
@@ -261,7 +263,7 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void DoesNotCallSourceProviderWhenNotAskedFor()
+        public static void DoesNotCallSourceProviderWhenNotAskedFor()
         {
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
             var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
@@ -272,7 +274,7 @@ public class XunitTestFrameworkDiscovererTests
         }
 
         [Fact]
-        public void CallsSourceProviderWhenTypesAreFoundInAssembly()
+        public static void CallsSourceProviderWhenTypesAreFoundInAssembly()
         {
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
             sourceProvider.GetSourceInformation(null)
@@ -298,11 +300,11 @@ public class XunitTestFrameworkDiscovererTests
     {
         class ClassWithNoTests
         {
-            public void NonTestMethod() { }
+            public static void NonTestMethod() { }
         }
 
         [Fact]
-        public void ClassWithNoTests_ReturnsNoTestCases()
+        public static void ClassWithNoTests_ReturnsNoTestCases()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithNoTests));
@@ -315,11 +317,11 @@ public class XunitTestFrameworkDiscovererTests
         class ClassWithOneFact
         {
             [Fact]
-            public void TestMethod() { }
+            public static void TestMethod() { }
         }
 
         [Fact]
-        public void AssemblyWithFact_ReturnsOneTestCaseOfTypeXunitTestCase()
+        public static void AssemblyWithFact_ReturnsOneTestCaseOfTypeXunitTestCase()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithOneFact));
@@ -334,16 +336,16 @@ public class XunitTestFrameworkDiscovererTests
         class ClassWithMixOfFactsAndNonFacts
         {
             [Fact]
-            public void TestMethod1() { }
+            public static void TestMethod1() { }
 
             [Fact]
-            public void TestMethod2() { }
+            public static void TestMethod2() { }
 
-            public void NonTestMethod() { }
+            public static void NonTestMethod() { }
         }
 
         [Fact]
-        public void AssemblyWithMixOfFactsAndNonTests_ReturnsTestCasesOnlyForFacts()
+        public static void AssemblyWithMixOfFactsAndNonTests_ReturnsTestCasesOnlyForFacts()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithMixOfFactsAndNonFacts));
@@ -360,11 +362,11 @@ public class XunitTestFrameworkDiscovererTests
             [Theory]
             [InlineData("Hello world")]
             [InlineData(42)]
-            public void TheoryMethod(object value) { }
+            public static void TheoryMethod(object value) { }
         }
 
         [Fact]
-        public void AssemblyWithTheoryWithInlineData_ReturnsOneTestCasePerDataRecord()
+        public static void AssemblyWithTheoryWithInlineData_ReturnsOneTestCasePerDataRecord()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(TheoryWithInlineData));
@@ -389,11 +391,11 @@ public class XunitTestFrameworkDiscovererTests
 
             [Theory]
             [MemberData("TheData")]
-            public void TheoryMethod(int value) { }
+            public static void TheoryMethod(int value) { }
         }
 
         [Fact]
-        public void AssemblyWithTheoryWithPropertyData_ReturnsOneTestCasePerDataRecord()
+        public static void AssemblyWithTheoryWithPropertyData_ReturnsOneTestCasePerDataRecord()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(TheoryWithPropertyData));
@@ -408,11 +410,11 @@ public class XunitTestFrameworkDiscovererTests
         class ClassWithNoCollection
         {
             [Fact]
-            public void TestMethod() { }
+            public static void TestMethod() { }
         }
 
         [Fact]
-        public void DefaultTestCollection()
+        public static void DefaultTestCollection()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithNoCollection));
@@ -429,11 +431,11 @@ public class XunitTestFrameworkDiscovererTests
         class ClassWithUndeclaredCollection
         {
             [Fact]
-            public void TestMethod() { }
+            public static void TestMethod() { }
         }
 
         [Fact]
-        public void UndeclaredTestCollection()
+        public static void UndeclaredTestCollection()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithUndeclaredCollection));
@@ -453,11 +455,11 @@ public class XunitTestFrameworkDiscovererTests
         class ClassWithDefinedCollection
         {
             [Fact]
-            public void TestMethod() { }
+            public static void TestMethod() { }
         }
 
         [Fact]
-        public void DefinedTestCollection()
+        public static void DefinedTestCollection()
         {
             var type = Reflector.Wrap(typeof(ClassWithDefinedCollection));
             var framework = TestableXunitTestFrameworkDiscoverer.Create(type.Assembly);
@@ -475,13 +477,13 @@ public class XunitTestFrameworkDiscovererTests
     class ClassWithSingleTest
     {
         [Fact]
-        public void TestMethod() { }
+        public static void TestMethod() { }
     }
 
     abstract class AbstractClass
     {
         [Fact]
-        public void ATestNotToBeRun() { }
+        public static void ATestNotToBeRun() { }
     }
 
     public class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer
