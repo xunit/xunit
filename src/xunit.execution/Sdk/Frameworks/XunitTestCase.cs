@@ -445,7 +445,7 @@ namespace Xunit.Sdk
                 else
                 {
                     var beforeAttributesRun = new Stack<BeforeAfterTestAttribute>();
-                    var stopwatch = Stopwatch.StartNew();
+                    Stopwatch stopwatch = null;
 
                     if (!aggregator.HasExceptions)
                         await aggregator.RunAsync(async () =>
@@ -508,6 +508,7 @@ namespace Xunit.Sdk
 
                                             await aggregator.RunAsync(async () =>
                                             {
+                                                stopwatch = Stopwatch.StartNew();
                                                 var result = methodUnderTest.Invoke(testClass, Reflector.ConvertArguments(testMethodArguments, parameterTypes));
                                                 var task = result as Task;
                                                 if (task != null)
@@ -518,6 +519,8 @@ namespace Xunit.Sdk
                                                     if (ex != null)
                                                         aggregator.Add(ex);
                                                 }
+
+                                                stopwatch.Stop();
                                             });
                                         }
                                         finally
@@ -560,8 +563,6 @@ namespace Xunit.Sdk
                                 }
                             });
                         });
-
-                    stopwatch.Stop();
 
                     if (!cancellationTokenSource.IsCancellationRequested)
                     {
