@@ -1,3 +1,5 @@
+using System;
+
 namespace Xunit.Abstractions
 {
     /// <summary>
@@ -17,5 +19,10 @@ namespace Xunit.Abstractions
         /// Gets the display name of the test collection.
         /// </summary>
         string DisplayName { get; }
+
+        /// <summary>
+        /// Gets the test collection ID. Test collection equality is determined by comparing IDs.
+        /// </summary>
+        Guid ID { get; }
     }
 }

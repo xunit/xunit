@@ -16,6 +16,7 @@ namespace Xunit
         public Xunit1TestCollection(string assemblyFileName)
         {
             DisplayName = String.Format("xUnit.net v1 Tests for {0}", assemblyFileName);
+            ID = Guid.NewGuid();
         }
 
         /// <inheritdoc/>
@@ -23,5 +24,8 @@ namespace Xunit
 
         /// <inheritdoc/>
         public string DisplayName { get; private set; }
+
+        /// <inheritdoc/>
+        public Guid ID { get; private set; }
     }
 }

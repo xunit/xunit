@@ -149,13 +149,13 @@ namespace Xunit.Sdk
                         {
                             summaries = new List<RunSummary>();
 
-                            foreach (var collectionGroup in testCases.Cast<IXunitTestCase>().GroupBy(tc => tc.TestCollection))
+                            foreach (var collectionGroup in testCases.Cast<IXunitTestCase>().GroupBy(tc => tc.TestCollection, TestCollectionComparer.Instance))
                                 summaries.Add(await RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource));
                         }
                         else
                         {
                             var tasks = testCases.Cast<IXunitTestCase>()
-                                                 .GroupBy(tc => tc.TestCollection)
+                                                 .GroupBy(tc => tc.TestCollection, TestCollectionComparer.Instance)
                                                  .Select(collectionGroup => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, orderer, cancellationTokenSource),
                                                                                                   cancellationTokenSource.Token,
                                                                                                   TaskCreationOptions.None,

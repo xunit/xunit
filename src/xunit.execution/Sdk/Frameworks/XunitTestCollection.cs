@@ -14,12 +14,16 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCollection"/> class.
         /// </summary>
-        public XunitTestCollection() { }
+        public XunitTestCollection()
+        {
+            ID = Guid.NewGuid();
+        }
 
         /// <inheritdoc/>
         protected XunitTestCollection(SerializationInfo info, StreamingContext context)
         {
             DisplayName = info.GetString("DisplayName");
+            ID = Guid.Parse(info.GetString("ID"));
 
             var assemblyName = info.GetString("DeclarationAssemblyName");
             var typeName = info.GetString("DeclarationTypeName");
@@ -35,10 +39,14 @@ namespace Xunit.Sdk
         public string DisplayName { get; set; }
 
         /// <inheritdoc/>
+        public Guid ID { get; set; }
+
+        /// <inheritdoc/>
         [SecurityCritical]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("DisplayName", DisplayName);
+            info.AddValue("ID", ID.ToString());
 
             if (CollectionDefinition != null)
             {
