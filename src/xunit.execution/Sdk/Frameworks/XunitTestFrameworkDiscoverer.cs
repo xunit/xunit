@@ -1,9 +1,7 @@
-using System;   
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -12,17 +10,14 @@ namespace Xunit.Sdk
     /// The implementation of <see cref="ITestFrameworkDiscoverer"/> that supports discovery
     /// of unit tests linked against xunit.core.dll, using xunit.execution.dll.
     /// </summary>
-    public class XunitTestFrameworkDiscoverer : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer
+    public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer
     {
         /// <summary>
         /// Gets the display name of the xUnit.net v2 test framework.
         /// </summary>
         public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
 
-        readonly IAssemblyInfo assemblyInfo;
-        readonly Dictionary<Type, IXunitTestCaseDiscoverer> discoverers = new Dictionary<Type, IXunitTestCaseDiscoverer>();
-        readonly IMessageAggregator messageAggregator;
-        readonly ISourceInformationProvider sourceProvider;
+        readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
@@ -30,7 +25,7 @@ namespace Xunit.Sdk
         /// <param name="assemblyInfo">The test assembly.</param>
         /// <param name="sourceProvider">The source information provider.</param>
         public XunitTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo, ISourceInformationProvider sourceProvider)
-            : this(assemblyInfo, sourceProvider, null, MessageAggregator.Instance) { }
+            : this(assemblyInfo, sourceProvider, null, null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
@@ -43,18 +38,12 @@ namespace Xunit.Sdk
                                             ISourceInformationProvider sourceProvider,
                                             IXunitTestCollectionFactory collectionFactory,
                                             IMessageAggregator messageAggregator)
+            : base(assemblyInfo, sourceProvider, messageAggregator)
         {
-            Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
-            Guard.ArgumentNotNull("sourceProvider", sourceProvider);
-
-            this.assemblyInfo = assemblyInfo;
-            this.sourceProvider = sourceProvider;
-            this.messageAggregator = messageAggregator ?? MessageAggregator.Instance;
-
             var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
             var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
-            TestCollectionFactory = collectionFactory ?? GetTestCollectionFactory(this.assemblyInfo, collectionBehaviorAttribute);
+            TestCollectionFactory = collectionFactory ?? GetTestCollectionFactory(this.AssemblyInfo, collectionBehaviorAttribute);
             TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",
                                                      DisplayName,
                                                      TestCollectionFactory.DisplayName,
@@ -66,112 +55,64 @@ namespace Xunit.Sdk
         /// </summary>
         public IXunitTestCollectionFactory TestCollectionFactory { get; private set; }
 
-        /// <inheritdoc/>
-        public string TestFrameworkDisplayName { get; private set; }
-
-        /// <inheritdoc/>
-        public void Dispose() { }
-
-        /// <inheritdoc/>
-        public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
-        {
-            Guard.ArgumentNotNull("messageSink", messageSink);
-            Guard.ArgumentNotNull("options", options);
-
-            ThreadPool.QueueUserWorkItem(_ =>
-            {
-                using (var messageBus = new MessageBus(messageSink))
-                {
-                    foreach (var type in assemblyInfo.GetTypes(includePrivateTypes: false).Where(type => !type.IsAbstract || type.IsSealed))
-                        if (!FindImpl(type, includeSourceInformation, messageBus))
-                            break;
-
-                    var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                    messageBus.QueueMessage(new DiscoveryCompleteMessage(warnings));
-                }
-            });
-        }
-
-        /// <inheritdoc/>
-        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
-        {
-            Guard.ArgumentNotNullOrEmpty("typeName", typeName);
-            Guard.ArgumentNotNull("messageSink", messageSink);
-            Guard.ArgumentNotNull("options", options);
-
-            ThreadPool.QueueUserWorkItem(_ =>
-            {
-                using (var messageBus = new MessageBus(messageSink))
-                {
-                    ITypeInfo typeInfo = assemblyInfo.GetType(typeName);
-                    if (typeInfo != null && (!typeInfo.IsAbstract || typeInfo.IsSealed))
-                        FindImpl(typeInfo, includeSourceInformation, messageBus);
-
-                    var warnings = messageAggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                    messageBus.QueueMessage(new DiscoveryCompleteMessage(warnings));
-                }
-            });
-        }
-
         /// <summary>
-        /// Core implementation to discover unit tests in a given test class.
+        /// Finds the tests on a test method.
         /// </summary>
-        /// <param name="type">The test class.</param>
-        /// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
-        /// <param name="messageBus">The message sink to send discovery messages to.</param>
-        /// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
-        protected virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus)
+        /// <param name="testCollection">The test collection that the test method belongs to.</param>
+        /// <param name="type">The test class that the test method belongs to.</param>
+        /// <param name="method">The test method.</param>
+        /// <param name="includeSourceInformation">Set to <c>true</c> to indicate that source information should be included.</param>
+        /// <param name="messageBus">The message bus to report discovery messages to.</param>
+        /// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
+        protected virtual bool FindTestsForMethod(ITestCollection testCollection, ITypeInfo type, IMethodInfo method, bool includeSourceInformation, IMessageBus messageBus)
         {
-            string currentDirectory = Directory.GetCurrentDirectory();
-            var testCollection = TestCollectionFactory.Get(type);
+            var factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
+            if (factAttribute == null)
+                return true;
 
-            try
-            {
-                if (!String.IsNullOrEmpty(assemblyInfo.AssemblyPath))
-                    Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
+            var testCaseDiscovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitTestCaseDiscovererAttribute)).FirstOrDefault();
+            if (testCaseDiscovererAttribute == null)
+                return true;
 
-                foreach (var method in type.GetMethods(includePrivateMethods: true))
-                {
-                    var factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
-                    if (factAttribute != null)
-                    {
-                        var discovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitTestCaseDiscovererAttribute)).FirstOrDefault();
-                        if (discovererAttribute != null)
-                        {
-                            var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                            var discovererType = Reflector.GetType(args[1], args[0]);
-                            if (discovererType != null)
-                            {
-                                var discoverer = GetDiscoverer(discovererType);
+            var args = testCaseDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+            var discovererType = Reflector.GetType(args[1], args[0]);
+            if (discovererType == null)
+                return true;
 
-                                if (discoverer != null)
-                                    foreach (var testCase in discoverer.Discover(testCollection, assemblyInfo, type, method, factAttribute))
-                                        if (!messageBus.QueueMessage(new TestCaseDiscoveryMessage(UpdateTestCaseWithSourceInfo(testCase, includeSourceInformation))))
-                                            return false;
-                            }
-                            else
-                                messageAggregator.Add(new EnvironmentalWarning { Message = String.Format("Could not create discoverer type '{0}, {1}'", args[0], args[1]) });
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                messageAggregator.Add(new EnvironmentalWarning { Message = String.Format("Exception during discovery:{0}{1}", Environment.NewLine, ex) });
-            }
-            finally
-            {
-                Directory.SetCurrentDirectory(currentDirectory);
-            }
+            var discoverer = GetDiscoverer(discovererType);
+            if (discoverer == null)
+                return true;
+
+            foreach (var testCase in discoverer.Discover(testCollection, AssemblyInfo, type, method, factAttribute))
+                if (!ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus))
+                    return false;
 
             return true;
         }
 
-        IXunitTestCaseDiscoverer GetDiscoverer(Type discovererType)
+        /// <inheritdoc/>
+        protected override bool FindTestsForType(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus)
+        {
+            var testCollection = TestCollectionFactory.Get(type);
+
+            foreach (var method in type.GetMethods(includePrivateMethods: true))
+                if (!FindTestsForMethod(testCollection, type, method, includeSourceInformation, messageBus))
+                    return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the test case discover instance for the given discoverer type. The instances are cached
+        /// and reused, since they should not be stateful.
+        /// </summary>
+        /// <param name="discovererType">The discoverer type.</param>
+        /// <returns>Returns the test case discoverer instance.</returns>
+        protected IXunitTestCaseDiscoverer GetDiscoverer(Type discovererType)
         {
             IXunitTestCaseDiscoverer result;
 
-            if (!discoverers.TryGetValue(discovererType, out result))
+            if (!discovererCache.TryGetValue(discovererType, out result))
             {
                 try
                 {
@@ -180,10 +121,10 @@ namespace Xunit.Sdk
                 catch (Exception ex)
                 {
                     result = null;
-                    messageAggregator.Add(new EnvironmentalWarning { Message = String.Format("Discoverer type '{0}' could not be created or does not implement IXunitDiscoverer: {1}", discovererType.FullName, ex) });
+                    Aggregator.Add(new EnvironmentalWarning { Message = String.Format("Discoverer type '{0}' could not be created or does not implement IXunitDiscoverer: {1}", discovererType.FullName, ex) });
                 }
 
-                discoverers[discovererType] = result;
+                discovererCache[discovererType] = result;
             }
 
             return result;
@@ -193,7 +134,7 @@ namespace Xunit.Sdk
         {
             var factoryType = GetTestCollectionFactoryType(collectionBehaviorAttribute);
 
-            return ExtensibilityPointFactory.GetTestCollectionFactory(factoryType, assemblyInfo);
+            return ExtensibilityPointFactory.GetXunitTestCollectionFactory(factoryType, assemblyInfo);
         }
 
         internal static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehavior)
@@ -218,20 +159,6 @@ namespace Xunit.Sdk
                 return typeof(CollectionPerClassTestCollectionFactory);
 
             return result;
-        }
-
-        /// <inheritdoc/>
-        public string Serialize(ITestCase testCase)
-        {
-            return SerializationHelper.Serialize(testCase);
-        }
-
-        private ITestCase UpdateTestCaseWithSourceInfo(IXunitTestCase testCase, bool includeSourceInformation)
-        {
-            if (includeSourceInformation && sourceProvider != null)
-                testCase.SourceInformation = sourceProvider.GetSourceInformation(testCase);
-
-            return testCase;
         }
     }
 }

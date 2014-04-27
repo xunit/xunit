@@ -109,15 +109,15 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public virtual void Run(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
+        public virtual void RunAll(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
         {
-            InnerController.Run(messageSink, discoveryOptions, executionOptions);
+            InnerController.RunAll(messageSink, discoveryOptions, executionOptions);
         }
 
         /// <inheritdoc/>
-        public virtual void Run(IEnumerable<ITestCase> testMethods, IMessageSink messageSink, ITestFrameworkOptions options)
+        public virtual void RunTests(IEnumerable<ITestCase> testMethods, IMessageSink messageSink, ITestFrameworkOptions options)
         {
-            InnerController.Run(testMethods, messageSink, options);
+            InnerController.RunTests(testMethods, messageSink, options);
         }
 
         /// <inheritdoc/>

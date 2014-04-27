@@ -13,14 +13,16 @@ namespace Xunit.Sdk
     public class DefaultTestCaseOrderer : ITestCaseOrderer
     {
         /// <inheritdoc/>
-        public IEnumerable<IXunitTestCase> OrderTestCases(IEnumerable<IXunitTestCase> testCases)
+        public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+            where TTestCase : ITestCase
         {
             var result = testCases.ToList();
             result.Sort(Compare);
             return result;
         }
 
-        int Compare(ITestCase x, ITestCase y)
+        int Compare<TTestCase>(TTestCase x, TTestCase y)
+            where TTestCase : ITestCase
         {
             var xHash = x.UniqueID.GetHashCode();
             var yHash = y.UniqueID.GetHashCode();

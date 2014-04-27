@@ -160,7 +160,7 @@ namespace Xunit
             Run(discoverySink.TestCases, messageSink);
         }
 
-        void ITestFrameworkExecutor.Run(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
+        void ITestFrameworkExecutor.RunAll(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
         {
             Run(messageSink);
         }
@@ -187,7 +187,7 @@ namespace Xunit
             messageSink.OnMessage(new TestAssemblyFinished(new Xunit1AssemblyInfo(assemblyFileName), results.Time, results.Total, results.Failed, results.Skipped));
         }
 
-        void ITestFrameworkExecutor.Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions options)
+        void ITestFrameworkExecutor.RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions options)
         {
             Run(testCases, messageSink);
         }

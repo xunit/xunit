@@ -276,7 +276,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                     MaxParallelThreads = settings.MaxParallelThreads
                 };
 
-                controller.Run(xunitTestCases.Keys.ToList(), executionVisitor, executionOptions);
+                controller.RunTests(xunitTestCases.Keys.ToList(), executionVisitor, executionOptions);
                 executionVisitor.Finished.WaitOne();
             }
 

@@ -210,7 +210,7 @@ namespace Xunit.ConsoleClient
 
                     var executionOptions = new XunitExecutionOptions { DisableParallelization = !parallelizeTestCollections, MaxParallelThreads = maxThreadCount };
                     var resultsVisitor = CreateVisitor(consoleLock, defaultDirectory, assemblyElement, teamCity, silent);
-                    controller.Run(discoveryVisitor.TestCases, resultsVisitor, executionOptions);
+                    controller.RunTests(discoveryVisitor.TestCases, resultsVisitor, executionOptions);
                     resultsVisitor.Finished.WaitOne();
                 }
             }

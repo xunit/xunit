@@ -145,12 +145,12 @@ public class XunitTestFrameworkDiscovererTests
             var abstractClassTypeInfo = Reflector.Wrap(typeof(AbstractClass));
             var assembly = Mocks.AssemblyInfo(types: new[] { abstractClassTypeInfo });
             var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>(assembly);
-            framework.FindImpl(null).ReturnsForAnyArgs(true);
+            framework.FindTestsForClass(null).ReturnsForAnyArgs(true);
 
             framework.Find();
             framework.Visitor.Finished.WaitOne();
 
-            framework.Received(0).FindImpl(abstractClassTypeInfo, Arg.Any<bool>());
+            framework.Received(0).FindTestsForClass(abstractClassTypeInfo, Arg.Any<bool>());
         }
 
         [Fact]
@@ -160,13 +160,13 @@ public class XunitTestFrameworkDiscovererTests
             var intTypeInfo = Reflector.Wrap(typeof(int));
             var assembly = Mocks.AssemblyInfo(types: new[] { objectTypeInfo, intTypeInfo });
             var framework = Substitute.For<TestableXunitTestFrameworkDiscoverer>(assembly);
-            framework.FindImpl(null).ReturnsForAnyArgs(true);
+            framework.FindTestsForClass(null).ReturnsForAnyArgs(true);
 
             framework.Find();
             framework.Visitor.Finished.WaitOne();
 
-            framework.Received(1).FindImpl(objectTypeInfo, false);
-            framework.Received(1).FindImpl(intTypeInfo, false);
+            framework.Received(1).FindTestsForClass(objectTypeInfo, false);
+            framework.Received(1).FindTestsForClass(intTypeInfo, false);
         }
 
         [Fact]
@@ -245,7 +245,7 @@ public class XunitTestFrameworkDiscovererTests
             framework.Find("abc");
             framework.Visitor.Finished.WaitOne();
 
-            framework.Received(1).FindImpl(type, false);
+            framework.Received(1).FindTestsForClass(type, false);
         }
 
         [Fact]
@@ -259,7 +259,7 @@ public class XunitTestFrameworkDiscovererTests
             framework.Find("abc");
             framework.Visitor.Finished.WaitOne();
 
-            framework.Received(0).FindImpl(type, Arg.Any<bool>());
+            framework.Received(0).FindTestsForClass(type, Arg.Any<bool>());
         }
 
         [Fact]
@@ -309,7 +309,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithNoTests));
 
-            framework.FindImpl(type);
+            framework.FindTestsForClass(type);
 
             Assert.False(framework.Visitor.Finished.WaitOne(0));
         }
@@ -326,7 +326,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithOneFact));
 
-            framework.FindImpl(type);
+            framework.FindTestsForClass(type);
 
             Assert.Collection(framework.Visitor.TestCases,
                 testCase => Assert.IsType<XunitTestCase>(testCase)
@@ -350,7 +350,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithMixOfFactsAndNonFacts));
 
-            framework.FindImpl(type);
+            framework.FindTestsForClass(type);
 
             Assert.Equal(2, framework.Visitor.TestCases.Count);
             Assert.Single(framework.Visitor.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+ClassWithMixOfFactsAndNonFacts.TestMethod1");
@@ -371,7 +371,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(TheoryWithInlineData));
 
-            framework.FindImpl(type);
+            framework.FindTestsForClass(type);
 
             Assert.Equal(2, framework.Visitor.TestCases.Count);
             Assert.Single(framework.Visitor.TestCases, t => t.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithInlineData.TheoryMethod(value: \"Hello world\")");
@@ -400,7 +400,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(TheoryWithPropertyData));
 
-            framework.FindImpl(type);
+            framework.FindTestsForClass(type);
 
             Assert.Equal(2, framework.Visitor.TestCases.Count);
             Assert.Single(framework.Visitor.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
@@ -419,7 +419,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithNoCollection));
 
-            framework.FindImpl(type);
+            framework.FindTestsForClass(type);
 
             var testCase = Assert.Single(framework.Visitor.TestCases);
             Assert.NotNull(testCase.TestCollection);
@@ -440,7 +440,7 @@ public class XunitTestFrameworkDiscovererTests
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
             var type = Reflector.Wrap(typeof(ClassWithUndeclaredCollection));
 
-            framework.FindImpl(type);
+            framework.FindTestsForClass(type);
 
             var testCase = Assert.Single(framework.Visitor.TestCases);
             Assert.NotNull(testCase.TestCollection);
@@ -464,7 +464,7 @@ public class XunitTestFrameworkDiscovererTests
             var type = Reflector.Wrap(typeof(ClassWithDefinedCollection));
             var framework = TestableXunitTestFrameworkDiscoverer.Create(type.Assembly);
 
-            framework.FindImpl(type);
+            framework.FindTestsForClass(type);
 
             var testCase = Assert.Single(framework.Visitor.TestCases);
             Assert.NotNull(testCase.TestCollection);
@@ -540,15 +540,20 @@ public class XunitTestFrameworkDiscovererTests
             Visitor.Finished.WaitOne();
         }
 
-        public virtual bool FindImpl(ITypeInfo type, bool includeSourceInformation = false)
+        public virtual bool FindTestsForClass(ITypeInfo type, bool includeSourceInformation = false)
         {
             using (var messageBus = new MessageBus(Visitor))
-                return base.FindImpl(type, includeSourceInformation, messageBus);
+                return base.FindTestsForType(type, includeSourceInformation, messageBus);
         }
 
-        protected sealed override bool FindImpl(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus)
+        protected sealed override bool FindTestsForType(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus)
         {
-            return FindImpl(type, includeSourceInformation);
+            return FindTestsForClass(type, includeSourceInformation);
+        }
+
+        protected sealed override bool IsValidTestClass(ITypeInfo type)
+        {
+            return base.IsValidTestClass(type);
         }
     }
 }

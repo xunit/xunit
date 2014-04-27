@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -15,6 +16,6 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testCases">The test cases to be ordered.</param>
         /// <returns>The test cases in the order to be run.</returns>
-        IEnumerable<IXunitTestCase> OrderTestCases(IEnumerable<IXunitTestCase> testCases);
+        IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase;
     }
 }

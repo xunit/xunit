@@ -97,7 +97,7 @@ namespace Xunit.Sdk
             return new ReflectionTypeInfo(type);
         }
 
-        internal static Type GetType(string assemblyQualifiedAttributeTypeName)
+        public static Type GetType(string assemblyQualifiedAttributeTypeName)
         {
             var parts = assemblyQualifiedAttributeTypeName.Split(new[] { ',' }, 2).Select(x => x.Trim()).ToList();
             if (parts.Count == 0)
@@ -109,7 +109,7 @@ namespace Xunit.Sdk
             return GetType(parts[1], parts[0]);
         }
 
-        internal static Type GetType(string assemblyName, string typeName)
+        public static Type GetType(string assemblyName, string typeName)
         {
             // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);

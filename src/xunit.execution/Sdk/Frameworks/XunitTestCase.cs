@@ -337,12 +337,9 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public virtual async Task RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        public virtual async Task<RunSummary> RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
-            int totalFailed = 0;
-            int totalRun = 0;
-            int totalSkipped = 0;
-            decimal executionTime = 0M;
+            var summary = new RunSummary();
 
             if (!messageBus.QueueMessage(new TestCaseStarting(this)))
                 cancellationTokenSource.Cancel();
@@ -353,21 +350,23 @@ namespace Xunit.Sdk
                     {
                         if (msg is ITestResultMessage)
                         {
-                            totalRun++;
-                            executionTime += ((ITestResultMessage)msg).ExecutionTime;
+                            summary.Total++;
+                            summary.Time += ((ITestResultMessage)msg).ExecutionTime;
                         }
                         if (msg is ITestFailed)
-                            totalFailed++;
+                            summary.Failed++;
                         if (msg is ITestSkipped)
-                            totalSkipped++;
+                            summary.Skipped++;
                     }))
                 {
                     await RunTestsAsync(delegatingBus, constructorArguments, aggregator, cancellationTokenSource);
                 }
             }
 
-            if (!messageBus.QueueMessage(new TestCaseFinished(this, executionTime, totalRun, totalFailed, totalSkipped)))
+            if (!messageBus.QueueMessage(new TestCaseFinished(this, summary.Time, summary.Total, summary.Failed, summary.Skipped)))
                 cancellationTokenSource.Cancel();
+
+            return summary;
         }
 
         /// <summary>

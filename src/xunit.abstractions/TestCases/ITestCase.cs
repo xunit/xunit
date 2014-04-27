@@ -32,9 +32,9 @@ namespace Xunit.Abstractions
         string SkipReason { get; }
 
         /// <summary>
-        /// Get the source file name and line where the test is defined, if requested (and known).
+        /// Get or sets the source file name and line where the test is defined, if requested (and known).
         /// </summary>
-        ISourceInformation SourceInformation { get; }
+        ISourceInformation SourceInformation { get; set; }
 
         /// <summary>
         /// Gets the test collection this test case belongs to.

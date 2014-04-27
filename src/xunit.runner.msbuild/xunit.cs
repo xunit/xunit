@@ -203,7 +203,7 @@ namespace Xunit.Runner.MSBuild
                             MaxParallelThreads = MaxParallelThreads
                         };
 
-                        controller.Run(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor, executionOptions);
+                        controller.RunTests(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor, executionOptions);
                         resultsVisitor.Finished.WaitOne();
 
                         if (resultsVisitor.Failed != 0)

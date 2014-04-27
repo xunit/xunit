@@ -49,12 +49,12 @@ namespace Xunit
         /// <param name="executionOptions">The options to be used during test execution.</param>
         public void Run(IMessageSink messageSink, XunitDiscoveryOptions discoveryOptions, XunitExecutionOptions executionOptions)
         {
-            executor.Run(messageSink, discoveryOptions, executionOptions);
+            executor.RunAll(messageSink, discoveryOptions, executionOptions);
         }
 
-        void ITestFrameworkExecutor.Run(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
+        void ITestFrameworkExecutor.RunAll(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
         {
-            executor.Run(messageSink, discoveryOptions, executionOptions);
+            executor.RunAll(messageSink, discoveryOptions, executionOptions);
         }
 
         /// <summary>
@@ -65,12 +65,12 @@ namespace Xunit
         /// <param name="executionOptions">The options to be used during test execution.</param>
         public void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, XunitExecutionOptions executionOptions)
         {
-            executor.Run(testCases, messageSink, executionOptions);
+            executor.RunTests(testCases, messageSink, executionOptions);
         }
 
-        void ITestFrameworkExecutor.Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions options)
+        void ITestFrameworkExecutor.RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions options)
         {
-            executor.Run(testCases, messageSink, options);
+            executor.RunTests(testCases, messageSink, options);
         }
     }
 }

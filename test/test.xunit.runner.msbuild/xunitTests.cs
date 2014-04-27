@@ -233,7 +233,7 @@ public class xunitTests
             var xunit = new Testable_xunit();
             xunit.DiscoveryTestCases.Add(Substitute.For<ITestCase>());
             var runTestCases = new List<ITestCase>();
-            xunit.FrontController.WhenAny(fc => fc.Run((IEnumerable<ITestCase>)null, null, null))
+            xunit.FrontController.WhenAny(fc => fc.RunTests((IEnumerable<ITestCase>)null, null, null))
                                  .Do(callInfo =>
                                  {
                                      runTestCases.AddRange((IEnumerable<ITestCase>)callInfo[0]);
@@ -258,7 +258,7 @@ public class xunitTests
             xunit.DiscoveryTestCases.Add(testCase2);
 
             var runTestCases = new List<ITestCase>();
-            xunit.FrontController.WhenAny(fc => fc.Run((IEnumerable<ITestCase>)null, null, null))
+            xunit.FrontController.WhenAny(fc => fc.RunTests((IEnumerable<ITestCase>)null, null, null))
                                  .Do(callInfo =>
                                  {
                                      runTestCases.AddRange((IEnumerable<ITestCase>)callInfo[0]);
@@ -291,7 +291,7 @@ public class xunitTests
                            .Do<bool, IMessageSink>((_, sink) => ReturnDiscoveryMessages(sink));
             FrontController.WhenAny(fc => fc.Find("", false, null, null))
                            .Do<string, bool, IMessageSink>((_, __, sink) => ReturnDiscoveryMessages(sink));
-            FrontController.WhenAny(fc => fc.Run((IEnumerable<ITestCase>)null, null, null))
+            FrontController.WhenAny(fc => fc.RunTests((IEnumerable<ITestCase>)null, null, null))
                            .Do<object, IMessageSink>((_, sink) =>
                                {
                                    var testAssemblyStarting = Substitute.For<ITestAssemblyStarting>();
