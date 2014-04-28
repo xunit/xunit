@@ -2,6 +2,9 @@
   <UsingTask
       AssemblyFile="packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
       TaskName="CodePlex.MSBuildTasks.RegexReplace"/>
+  <UsingTask
+      AssemblyFile="packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
+      TaskName="CodePlex.MSBuildTasks.Zip"/>
 
   <!-- Settings -->
 
@@ -37,7 +40,7 @@
 
   <!-- Build server targets -->
 
-  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages" />
+  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts" />
 
   <!-- Individiual targets -->
 
@@ -138,6 +141,20 @@
   <Target Name='Packages'>
     <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
     <Exec Command='.nuget\NuGet.exe pack %(NuGetCsProjTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet -Symbols' />
+  </Target>
+
+  <Target Name='ZipArtifacts'>
+    <ItemGroup>
+      <TestResults Include="TestResults*.*" />
+      <Binaries Include="*.nupkg" />
+      <Binaries Include="src/xunit.runner.visualstudio.settings/bin/Release/*.vsix" />
+    </ItemGroup>
+
+    <Delete Files="test-results.zip" />
+    <Zip Files="@(TestResults)" ZipFileName="test-results.zip" />
+
+    <Delete Files="binaries.zip" />
+    <Zip Files="@(Binaries)" ZipFileName="binaries.zip" StripPath="true" />
   </Target>
 
   <Target Name="PushPackages">
