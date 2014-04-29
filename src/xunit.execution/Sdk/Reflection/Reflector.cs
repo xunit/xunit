@@ -97,9 +97,14 @@ namespace Xunit.Sdk
             return new ReflectionTypeInfo(type);
         }
 
-        public static Type GetType(string assemblyQualifiedAttributeTypeName)
+        /// <summary>
+        /// Converts an assembly qualified type name into a <see cref="Type"/> object.
+        /// </summary>
+        /// <param name="assemblyQualifiedTypeName">The assembly qualified type name.</param>
+        /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
+        public static Type GetType(string assemblyQualifiedTypeName)
         {
-            var parts = assemblyQualifiedAttributeTypeName.Split(new[] { ',' }, 2).Select(x => x.Trim()).ToList();
+            var parts = assemblyQualifiedTypeName.Split(new[] { ',' }, 2).Select(x => x.Trim()).ToList();
             if (parts.Count == 0)
                 return null;
 
@@ -109,6 +114,12 @@ namespace Xunit.Sdk
             return GetType(parts[1], parts[0]);
         }
 
+        /// <summary>
+        /// Converts an assembly name + type name into a <see cref="Type"/> object.
+        /// </summary>
+        /// <param name="assemblyName">The assembly name.</param>
+        /// <param name="typeName">The type name.</param>
+        /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
             // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")

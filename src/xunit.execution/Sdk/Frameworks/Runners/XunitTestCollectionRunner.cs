@@ -7,19 +7,27 @@ using System.Threading.Tasks;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// The test collection runner for xUnit.net v2 tests.
+    /// </summary>
     public class XunitTestCollectionRunner : TestCollectionRunner<IXunitTestCase>
     {
         readonly Dictionary<Type, object> collectionFixtureMappings = new Dictionary<Type, object>();
 
-        public XunitTestCollectionRunner(IMessageBus messageBus,
-                                         ITestCollection testCollection,
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitTestCollectionRunner"/> class.
+        /// </summary>
+        /// <param name="testCollection">The test collection that contains the tests to be run.</param>
+        /// <param name="testCases">The test cases to be run.</param>
+        /// <param name="messageBus">The message bus to report run status to.</param>
+        /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
+        /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+        public XunitTestCollectionRunner(ITestCollection testCollection,
                                          IEnumerable<IXunitTestCase> testCases,
+                                         IMessageBus messageBus,
                                          ITestCaseOrderer testCaseOrderer,
                                          CancellationTokenSource cancellationTokenSource)
-            : base(messageBus, testCollection, testCases, testCaseOrderer, cancellationTokenSource)
-        {
-            
-        }
+            : base(testCollection, testCases, messageBus, testCaseOrderer, cancellationTokenSource) { }
 
         void CreateFixture(Type fixtureGenericInterfaceType)
         {
@@ -27,13 +35,7 @@ namespace Xunit.Sdk
             Aggregator.Run(() => collectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
         }
 
-        static ITestCaseOrderer GetXunitTestCaseOrderer(IAttributeInfo ordererAttribute)
-        {
-            var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var ordererType = Reflector.GetType(args[1], args[0]);
-            return ExtensibilityPointFactory.GetTestCaseOrderer(ordererType);
-        }
-        
+        /// <inheritdoc/>
         protected override void OnTestCollectionStarting()
         {
             if (TestCollection.CollectionDefinition != null)
@@ -44,10 +46,11 @@ namespace Xunit.Sdk
 
                 var ordererAttribute = TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
                 if (ordererAttribute != null)
-                    TestCaseOrderer = GetXunitTestCaseOrderer(ordererAttribute);
+                    TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
             }
         }
 
+        /// <inheritdoc/>
         protected override void OnTestCollectionFinished()
         {
             foreach (var fixture in collectionFixtureMappings.Values.OfType<IDisposable>())
@@ -64,9 +67,10 @@ namespace Xunit.Sdk
             }
         }
 
+        /// <inheritdoc/>
         protected override Task<RunSummary> RunTestClassAsync(IReflectionTypeInfo testClass, IEnumerable<IXunitTestCase> testCases)
         {
-            var testClassRunner = new XunitTestClassRunner(MessageBus, TestCollection, testClass, testCases, TestCaseOrderer, Aggregator, CancellationTokenSource, collectionFixtureMappings);
+            var testClassRunner = new XunitTestClassRunner(TestCollection, testClass, testCases, MessageBus, TestCaseOrderer, Aggregator, CancellationTokenSource, collectionFixtureMappings);
             return testClassRunner.RunAsync();
         }
     }

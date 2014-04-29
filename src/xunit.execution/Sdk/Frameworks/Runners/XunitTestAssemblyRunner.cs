@@ -7,6 +7,9 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// The test assembly runner for xUnit.net v2 tests.
+    /// </summary>
     public class XunitTestAssemblyRunner : TestAssemblyRunner<IXunitTestCase>
     {
         IAttributeInfo collectionBehaviorAttribute;
@@ -14,14 +17,20 @@ namespace Xunit.Sdk
         int maxParallelThreads;
         TaskScheduler scheduler;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitTestAssemblyRunner"/> class.
+        /// </summary>
+        /// <param name="assemblyInfo">The assembly that contains the tests to be run.</param>
+        /// <param name="testCases">The test cases to be run.</param>
+        /// <param name="messageSink">The message sink to report run status to.</param>
+        /// <param name="executionOptions">The user's requested execution options.</param>
         public XunitTestAssemblyRunner(IAssemblyInfo assemblyInfo,
-                                       IEnumerable<ITestCase> testCases,
+                                       IEnumerable<IXunitTestCase> testCases,
                                        IMessageSink messageSink,
                                        ITestFrameworkOptions executionOptions)
-            : base(assemblyInfo, testCases, messageSink, executionOptions)
-        {
-        }
+            : base(assemblyInfo, testCases, messageSink, executionOptions) { }
 
+        /// <inheritdoc/>
         public override void Dispose()
         {
             var disposable = scheduler as IDisposable;
@@ -29,14 +38,16 @@ namespace Xunit.Sdk
                 disposable.Dispose();
         }
 
+        /// <inheritdoc/>
         protected override string GetTestFrameworkDisplayName()
         {
             return XunitTestFrameworkDiscoverer.DisplayName;
         }
 
+        /// <inheritdoc/>
         protected override string GetTestFrameworkEnvironment()
         {
-            var testCollectionFactory = XunitTestFrameworkDiscoverer.GetTestCollectionFactory(AssemblyInfo, collectionBehaviorAttribute);
+            var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, AssemblyInfo);
 
             return String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
                                  IntPtr.Size * 8,
@@ -63,13 +74,7 @@ namespace Xunit.Sdk
             return TaskScheduler.Current;
         }
 
-        static ITestCaseOrderer GetXunitTestCaseOrderer(IAttributeInfo ordererAttribute)
-        {
-            var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var ordererType = Reflector.GetType(args[1], args[0]);
-            return ExtensibilityPointFactory.GetTestCaseOrderer(ordererType);
-        }
-
+        /// <inheritdoc/>
         protected override void OnAssemblyStarting()
         {
             collectionBehaviorAttribute = AssemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
@@ -88,9 +93,10 @@ namespace Xunit.Sdk
 
             var ordererAttribute = AssemblyInfo.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (ordererAttribute != null)
-                TestCaseOrderer = GetXunitTestCaseOrderer(ordererAttribute);
+                TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
         }
 
+        /// <inheritdoc/>
         protected override async Task<RunSummary> RunTestCollectionsAsync(IMessageBus messageBus, CancellationTokenSource cancellationTokenSource)
         {
             if (disableParallelization)
@@ -114,9 +120,10 @@ namespace Xunit.Sdk
             };
         }
 
+        /// <inheritdoc/>
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
         {
-            var collectionRunner = new XunitTestCollectionRunner(messageBus, testCollection, testCases, TestCaseOrderer, cancellationTokenSource);
+            var collectionRunner = new XunitTestCollectionRunner(testCollection, testCases, messageBus, TestCaseOrderer, cancellationTokenSource);
             return collectionRunner.RunAsync();
         }
     }

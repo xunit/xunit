@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -33,7 +34,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets an instance of the given type, casting it to <see cref="TInterface"/>, using the provided
+        /// Gets an instance of the given type, casting it to <typeparamref name="TInterface"/>, using the provided
         /// constructor arguments. There is a single instance of a given type that is cached and reused,
         /// so classes retrieved from this factory must be stateless and thread-safe.
         /// </summary>
@@ -55,6 +56,21 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Gets a data discoverer, as specified in a reflected <see cref="DataDiscovererAttribute"/>.
+        /// </summary>
+        /// <param name="dataDiscovererAttribute">The data discoverer attribute</param>
+        /// <returns>The data discoverer, if the type is loadable; <c>null</c>, otherwise.</returns>
+        public static IDataDiscoverer GetDataDiscoverer(IAttributeInfo dataDiscovererAttribute)
+        {
+            var args = dataDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+            var discovererType = Reflector.GetType(args[1], args[0]);
+            if (discovererType == null)
+                return null;
+
+            return GetDataDiscoverer(discovererType);
+        }
+
+        /// <summary>
         /// Gets a test case orderer.
         /// </summary>
         public static ITestCaseOrderer GetTestCaseOrderer(Type ordererType)
@@ -63,11 +79,41 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Gets a test case orderer, as specified in a reflected <see cref="TestCaseOrdererAttribute"/>.
+        /// </summary>
+        /// <param name="testCaseOrdererAttribute">The test case orderer attribute.</param>
+        /// <returns>The test case orderer, if the type is loadable; <c>null</c>, otherwise.</returns>
+        public static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo testCaseOrdererAttribute)
+        {
+            var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
+            var ordererType = Reflector.GetType(args[1], args[0]);
+            if (ordererType == null)
+                return null;
+
+            return GetTestCaseOrderer(ordererType);
+        }
+
+        /// <summary>
         /// Gets a trait discoverer.
         /// </summary>
         public static ITraitDiscoverer GetTraitDiscoverer(Type discovererType)
         {
             return Get<ITraitDiscoverer>(discovererType);
+        }
+
+        /// <summary>
+        /// Gets a trait discoverer, as specified in a reflected <see cref="TraitDiscovererAttribute"/>.
+        /// </summary>
+        /// <param name="traitDiscovererAttribute">The trait discoverer attribute.</param>
+        /// <returns>The trait discoverer, if the type is loadable; <c>null</c>, otherwise.</returns>
+        public static ITraitDiscoverer GetTraitDiscoverer(IAttributeInfo traitDiscovererAttribute)
+        {
+            var args = traitDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+            var discovererType = Reflector.GetType(args[1], args[0]);
+            if (discovererType == null)
+                return null;
+
+            return GetTraitDiscoverer(discovererType);
         }
 
         /// <summary>
@@ -84,6 +130,41 @@ namespace Xunit.Sdk
         public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(Type factoryType, IAssemblyInfo assemblyInfo)
         {
             return Get<IXunitTestCollectionFactory>(factoryType, new[] { assemblyInfo });
+        }
+
+        /// <summary>
+        /// Gets an xUnit.net v2 test collection factory, as specified in a reflected <see cref="CollectionBehaviorAttribute"/>.
+        /// </summary>
+        /// <param name="collectionBehaviorAttribute">The collection behavior attribute.</param>
+        /// <param name="assemblyInfo">The test assembly.</param>
+        /// <returns>The collection factory.</returns>
+        public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(IAttributeInfo collectionBehaviorAttribute, IAssemblyInfo assemblyInfo)
+        {
+            return GetXunitTestCollectionFactory(GetTestCollectionFactoryType(collectionBehaviorAttribute), assemblyInfo);
+        }
+
+        static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehaviorAttribute)
+        {
+            if (collectionBehaviorAttribute == null)
+                return typeof(CollectionPerClassTestCollectionFactory);
+
+            var ctorArgs = collectionBehaviorAttribute.GetConstructorArguments().ToList();
+            if (ctorArgs.Count == 0)
+                return typeof(CollectionPerClassTestCollectionFactory);
+
+            if (ctorArgs.Count == 1)
+            {
+                if ((CollectionBehavior)ctorArgs[0] == CollectionBehavior.CollectionPerAssembly)
+                    return typeof(CollectionPerAssemblyTestCollectionFactory);
+
+                return typeof(CollectionPerClassTestCollectionFactory);
+            }
+
+            var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
+            if (result == null || !typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)
+                return typeof(CollectionPerClassTestCollectionFactory);
+
+            return result;
         }
     }
 }

@@ -8,40 +8,83 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// A base class that provides default behavior when running tests in a test class. It groups the tests
+    /// by test method, and then runs the individual test methods.
+    /// </summary>
+    /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
+    /// derive from <see cref="ITestCase"/>.</typeparam>
     public abstract class TestClassRunner<TTestCase>
         where TTestCase : ITestCase
     {
-        public TestClassRunner(IMessageBus messageBus,
-                               ITestCollection testCollection,
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestClassRunner{TTestCase}"/> class.
+        /// </summary>
+        /// <param name="testCollection">The test collection that contains the test class.</param>
+        /// <param name="testClass">The test class that contains the tests to be run.</param>
+        /// <param name="testCases">The test cases to be run.</param>
+        /// <param name="messageBus">The message bus to report run status to.</param>
+        /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+        public TestClassRunner(ITestCollection testCollection,
                                IReflectionTypeInfo testClass,
                                IEnumerable<TTestCase> testCases,
+                               IMessageBus messageBus,
                                ITestCaseOrderer testCaseOrderer,
                                ExceptionAggregator aggregator,
                                CancellationTokenSource cancellationTokenSource)
         {
-            MessageBus = messageBus;
             TestCollection = testCollection;
             TestClass = testClass;
             TestCases = testCases;
+            MessageBus = messageBus;
             TestCaseOrderer = testCaseOrderer;
             Aggregator = aggregator;
             CancellationTokenSource = cancellationTokenSource;
         }
 
+        /// <summary>
+        /// Gets or sets the exception aggregator used to run code and collection exceptions.
+        /// </summary>
         protected ExceptionAggregator Aggregator { get; set; }
 
+        /// <summary>
+        /// Gets or sets he task cancellation token source, used to cancel the test run.
+        /// </summary>
         protected CancellationTokenSource CancellationTokenSource { get; set; }
 
+        /// <summary>
+        /// Gets or sets the message bus to report run status to.
+        /// </summary>
         protected IMessageBus MessageBus { get; set; }
 
+        /// <summary>
+        /// Gets or sets the test case orderer that will be used to decide how to order the test.
+        /// </summary>
         protected ITestCaseOrderer TestCaseOrderer { get; set; }
 
+        /// <summary>
+        /// Gets or sets the test cases to be run.
+        /// </summary>
         protected IEnumerable<TTestCase> TestCases { get; set; }
 
+        /// <summary>
+        /// Gets or sets the test class that contains the tests to be run.
+        /// </summary>
         protected IReflectionTypeInfo TestClass { get; set; }
 
+        /// <summary>
+        /// Gets or sets the test collection that contains the test class.
+        /// </summary>
         protected ITestCollection TestCollection { get; set; }
 
+        /// <summary>
+        /// Creates the arguments for the test class constructor. Attempts to resolve each parameter
+        /// individually, and adds an error when the constructor arguments cannot all be provided.
+        /// If the class is static, does not look for constructor, since one will not be needed.
+        /// </summary>
+        /// <returns>The test class constructor arguments.</returns>
         protected virtual object[] CreateTestClassConstructorArguments()
         {
             var constructorArguments = new List<object>();
@@ -49,7 +92,6 @@ namespace Xunit.Sdk
             var isStaticClass = TestClass.Type.IsAbstract && TestClass.Type.IsSealed;
             if (!isStaticClass)
             {
-
                 var ctor = SelectTestClassConstructor();
                 if (ctor != null)
                 {
@@ -75,44 +117,78 @@ namespace Xunit.Sdk
             return constructorArguments.ToArray();
         }
 
+        /// <summary>
+        /// Override this method to run code just before the test class is run.
+        /// </summary>
         protected virtual void OnTestClassStarting() { }
 
+        /// <summary>
+        /// Override this method to run code just after the test class run has finished.
+        /// </summary>
         protected virtual void OnTestClassFinished() { }
 
+        /// <summary>
+        /// Runs the tests in the test class.
+        /// </summary>
+        /// <returns>Returns summary information about the tests that were run.</returns>
         public async Task<RunSummary> RunAsync()
         {
             OnTestClassStarting();
 
             var classSummary = new RunSummary();
 
-            if (!MessageBus.QueueMessage(new TestClassStarting(TestCollection, TestClass.Name)))
-                CancellationTokenSource.Cancel();
-            else
+            try
             {
-                var orderedTestCases = TestCaseOrderer.OrderTestCases(TestCases);
-                var methodGroups = orderedTestCases.GroupBy(tc => tc.Method);
-                var constructorArguments = CreateTestClassConstructorArguments();
-
-                foreach (var method in methodGroups)
-                {
-                    var methodSummary = await RunTestMethodAsync(constructorArguments, (IReflectionMethodInfo)method.Key, method);
-                    classSummary.Aggregate(methodSummary);
-
-                    if (CancellationTokenSource.IsCancellationRequested)
-                        break;
-                }
+                if (!MessageBus.QueueMessage(new TestClassStarting(TestCollection, TestClass.Name)))
+                    CancellationTokenSource.Cancel();
+                else
+                    classSummary = await RunTestMethodsAsync();
             }
+            finally
+            {
+                if (!MessageBus.QueueMessage(new TestClassFinished(TestCollection, TestClass.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
+                    CancellationTokenSource.Cancel();
 
-            if (!MessageBus.QueueMessage(new TestClassFinished(TestCollection, TestClass.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
-                CancellationTokenSource.Cancel();
-
-            OnTestClassFinished();
+                OnTestClassFinished();
+            }
 
             return classSummary;
         }
 
-        protected abstract Task<RunSummary> RunTestMethodAsync(object[] constructorArguments, IReflectionMethodInfo method, IEnumerable<TTestCase> testCases);
+        /// <summary>
+        /// Runs the list of test methods. By default, orders the tests, groups them by method and runs them synchronously.
+        /// </summary>
+        /// <returns>Returns summary information about the tests that were run.</returns>
+        protected virtual async Task<RunSummary> RunTestMethodsAsync()
+        {
+            var summary = new RunSummary();
+            var orderedTestCases = TestCaseOrderer.OrderTestCases(TestCases);
+            var constructorArguments = CreateTestClassConstructorArguments();
 
+            foreach (var method in orderedTestCases.GroupBy(tc => tc.Method))
+            {
+                summary.Aggregate(await RunTestMethodAsync((IReflectionMethodInfo)method.Key, method, constructorArguments));
+                if (CancellationTokenSource.IsCancellationRequested)
+                    break;
+            }
+
+            return summary;
+        }
+
+        /// <summary>
+        /// Override this method to run the tests in an individual test method.
+        /// </summary>
+        /// <param name="testMethod">The test method that contains the tests to be run.</param>
+        /// <param name="testCases">The test cases to be run.</param>
+        /// <param name="constructorArguments">The constructor arguments that will be used to create the test class.</param>
+        /// <returns>Returns summary information about the tests that were run.</returns>
+        protected abstract Task<RunSummary> RunTestMethodAsync(IReflectionMethodInfo testMethod, IEnumerable<TTestCase> testCases, object[] constructorArguments);
+
+        /// <summary>
+        /// Selects the constructor to be used for the test class. By default, chooses the parameterless
+        /// constructor. Override to change the constructor selection logic.
+        /// </summary>
+        /// <returns>The constructor to be used for creating the test class.</returns>
         protected virtual ConstructorInfo SelectTestClassConstructor()
         {
             var result = TestClass.Type.GetConstructor(new Type[0]);
@@ -122,6 +198,15 @@ namespace Xunit.Sdk
             return result;
         }
 
+        /// <summary>
+        /// Tries to supply a test class constructor argument. By default, always fails. Override to
+        /// change the argument lookup logic.
+        /// </summary>
+        /// <param name="constructor">The constructor that will be used to create the test class.</param>
+        /// <param name="index">The parameter index.</param>
+        /// <param name="parameter">The parameter information.</param>
+        /// <param name="argumentValue">The argument value that should be used for the parameter.</param>
+        /// <returns>Returns <c>true</c> if the argument was supplied; <c>false</c>, otherwise.</returns>
         protected virtual bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, out object argumentValue)
         {
             argumentValue = null;

@@ -43,7 +43,7 @@ namespace Xunit.Sdk
             var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
             var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
-            TestCollectionFactory = collectionFactory ?? GetTestCollectionFactory(this.AssemblyInfo, collectionBehaviorAttribute);
+            TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, AssemblyInfo);
             TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",
                                                      DisplayName,
                                                      TestCollectionFactory.DisplayName,
@@ -121,42 +121,11 @@ namespace Xunit.Sdk
                 catch (Exception ex)
                 {
                     result = null;
-                    Aggregator.Add(new EnvironmentalWarning { Message = String.Format("Discoverer type '{0}' could not be created or does not implement IXunitDiscoverer: {1}", discovererType.FullName, ex) });
+                    Aggregator.Add(new EnvironmentalWarning { Message = String.Format("Discoverer type '{0}' could not be created or does not implement IXunitTestCaseDiscoverer: {1}", discovererType.FullName, ex) });
                 }
 
                 discovererCache[discovererType] = result;
             }
-
-            return result;
-        }
-
-        internal static IXunitTestCollectionFactory GetTestCollectionFactory(IAssemblyInfo assemblyInfo, IAttributeInfo collectionBehaviorAttribute)
-        {
-            var factoryType = GetTestCollectionFactoryType(collectionBehaviorAttribute);
-
-            return ExtensibilityPointFactory.GetXunitTestCollectionFactory(factoryType, assemblyInfo);
-        }
-
-        internal static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehavior)
-        {
-            if (collectionBehavior == null)
-                return typeof(CollectionPerClassTestCollectionFactory);
-
-            var ctorArgs = collectionBehavior.GetConstructorArguments().ToList();
-            if (ctorArgs.Count == 0)
-                return typeof(CollectionPerClassTestCollectionFactory);
-
-            if (ctorArgs.Count == 1)
-            {
-                if ((CollectionBehavior)ctorArgs[0] == CollectionBehavior.CollectionPerAssembly)
-                    return typeof(CollectionPerAssemblyTestCollectionFactory);
-
-                return typeof(CollectionPerClassTestCollectionFactory);
-            }
-
-            var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
-            if (!typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)
-                return typeof(CollectionPerClassTestCollectionFactory);
 
             return result;
         }

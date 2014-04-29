@@ -1,18 +1,25 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
+    /// <summary>
+    /// A reusable implementation of <see cref="ITestFrameworkExecutor"/> which contains the basic behavior
+    /// for running tests.
+    /// </summary>
+    /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
+    /// derive from <see cref="ITestCase"/>.</typeparam>
     public abstract class TestFrameworkExecutor<TTestCase> : LongLivedMarshalByRefObject, ITestFrameworkExecutor
         where TTestCase : ITestCase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestFrameworkExecutor"/> class.
+        /// Initializes a new instance of the <see cref="TestFrameworkExecutor{TTestCase}"/> class.
         /// </summary>
         /// <param name="assemblyName">Name of the test assembly.</param>
         /// <param name="sourceInformationProvider">The source line number information provider.</param>
-        public TestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider)
+        protected TestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider)
         {
             DisposalTracker = new DisposalTracker();
 
@@ -67,7 +74,7 @@ namespace Xunit.Sdk
                 discoverySink.Finished.WaitOne();
             }
 
-            RunTests(discoverySink.TestCases, messageSink, executionOptions);
+            RunTestCases(discoverySink.TestCases.Cast<TTestCase>(), messageSink, executionOptions);
 
         }
 
@@ -78,9 +85,15 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("messageSink", messageSink);
             Guard.ArgumentNotNull("executionOptions", executionOptions);
 
-            RunTestCases(testCases, messageSink, executionOptions);
+            RunTestCases(testCases.Cast<TTestCase>(), messageSink, executionOptions);
         }
 
-        protected abstract void RunTestCases(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions);
+        /// <summary>
+        /// Override to run test cases.
+        /// </summary>
+        /// <param name="testCases">The test cases to be run.</param>
+        /// <param name="messageSink">The message sink to report run status to.</param>
+        /// <param name="executionOptions">The user's requested execution options.</param>
+        protected abstract void RunTestCases(IEnumerable<TTestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions);
     }
 }

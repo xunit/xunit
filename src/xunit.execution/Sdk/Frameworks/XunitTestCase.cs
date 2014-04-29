@@ -87,16 +87,10 @@ namespace Xunit.Sdk
                                                  .Concat(Class.GetCustomAttributes(typeof(ITraitAttribute))))
             {
                 var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).First();
-                var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                var discovererType = Reflector.GetType(args[1], args[0]);
-
-                if (discovererType != null)
-                {
-                    var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(discovererType);
-
+                var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(discovererAttribute);
+                if (discoverer != null)
                     foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
                         Traits.Add(keyValuePair.Key, keyValuePair.Value);
-                }
             }
 
             uniqueID = new Lazy<string>(GetUniqueID, true);

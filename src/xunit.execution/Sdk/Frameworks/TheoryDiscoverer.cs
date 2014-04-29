@@ -30,13 +30,11 @@ namespace Xunit.Sdk
                     foreach (var dataAttribute in dataAttributes)
                     {
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
-                        var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        var discovererType = Reflector.GetType(args[1], args[0]);
-                        var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererType);
+                        var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererAttribute);
 
                         // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it
                         // down below so that we get the composite test case.
-                        foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
+                        foreach (var dataRow in discoverer.GetData(dataAttribute, testMethod))
                         {
                             // Attempt to serialize the test case, since we need a way to uniquely identify a test
                             // and serialization is the best way to do that. If it's not serializable, this will
@@ -50,7 +48,8 @@ namespace Xunit.Sdk
 
                     // REVIEW: Could we re-write LambdaTestCase to just be for exceptions?
                     if (results.Count == 0)
-                        results.Add(new LambdaTestCase(testCollection, assembly, testClass, testMethod, factAttribute, () => { throw new InvalidOperationException("No data found for " + testClass.Name + "." + testMethod.Name); }));
+                        results.Add(new LambdaTestCase(testCollection, assembly, testClass, testMethod, factAttribute,
+                                                       () => { throw new InvalidOperationException(String.Format("No data found for {0}.{1}", testClass.Name, testMethod.Name)); }));
 
                     return results;
                 }
