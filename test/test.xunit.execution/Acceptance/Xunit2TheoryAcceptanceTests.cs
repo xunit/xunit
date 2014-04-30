@@ -652,4 +652,50 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
     }
+
+    public class OverloadedMethodTests : AcceptanceTest
+    {
+        [Fact]
+        public void TestMethodMessagesOnlySentOnce()
+        {
+            var testMessages = Run<IMessageSinkMessage>(typeof(ClassUnderTest));
+
+            Assert.Single(testMessages, msg =>
+            {
+                var methodStarting = msg as ITestMethodStarting;
+                if (methodStarting == null)
+                    return false;
+
+                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodStarting.ClassName);
+                Assert.Equal("Theory", methodStarting.MethodName);
+                return true;
+            });
+
+            Assert.Single(testMessages, msg =>
+            {
+                var methodFinished = msg as ITestMethodFinished;
+                if (methodFinished == null)
+                    return false;
+
+                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodFinished.ClassName);
+                Assert.Equal("Theory", methodFinished.MethodName);
+                return true;
+            });
+        }
+
+        class ClassUnderTest
+        {
+            [Theory]
+            [InlineData(42)]
+            public void Theory(int value)
+            {
+            }
+
+            [Theory]
+            [InlineData("42")]
+            public void Theory(string value)
+            {
+            }
+        }
+    }
 }
