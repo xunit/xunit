@@ -165,7 +165,7 @@ namespace Xunit.Sdk
             var orderedTestCases = TestCaseOrderer.OrderTestCases(TestCases);
             var constructorArguments = CreateTestClassConstructorArguments();
 
-            foreach (var method in orderedTestCases.GroupBy(tc => tc.Method))
+            foreach (var method in orderedTestCases.GroupBy(tc => tc.Method, MethodInfoNameEqualityComparer.Instance))
             {
                 summary.Aggregate(await RunTestMethodAsync((IReflectionMethodInfo)method.Key, method, constructorArguments));
                 if (CancellationTokenSource.IsCancellationRequested)
@@ -211,6 +211,21 @@ namespace Xunit.Sdk
         {
             argumentValue = null;
             return false;
+        }
+
+        private class MethodInfoNameEqualityComparer : IEqualityComparer<IMethodInfo>
+        {
+            public static readonly MethodInfoNameEqualityComparer Instance = new MethodInfoNameEqualityComparer();
+
+            public bool Equals(IMethodInfo x, IMethodInfo y)
+            {
+                return x.Name == y.Name;
+            }
+
+            public int GetHashCode(IMethodInfo obj)
+            {
+                return obj.Name.GetHashCode();
+            }
         }
     }
 }
