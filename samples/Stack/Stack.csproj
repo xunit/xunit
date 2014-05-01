@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-  <Import Project="..\packages\xunit.core.2.0.0-beta-build2616\build\portable-net45+wp80+win\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.0.0-beta-build2616\build\portable-net45+wp80+win\xunit.core.props')" />
+  <Import Project="..\packages\xunit.core.2.0.0-beta-build2650\build\portable-net45+win+wpa81+wp80\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.0.0-beta-build2650\build\portable-net45+win+wpa81+wp80\xunit.core.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory),xunit.sln))\tools\xunit.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -31,6 +31,7 @@
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>f7adb510</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -57,14 +58,17 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit.abstractions">
-      <HintPath>..\packages\xunit.abstractions.2.0.0-beta-build2616\lib\net35\xunit.abstractions.dll</HintPath>
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\xunit.abstractions.2.0.0-beta-build2650\lib\net35\xunit.abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="xunit.assert">
-      <HintPath>..\packages\xunit.assert.2.0.0-beta-build2616\lib\portable-net45+wp80+win\xunit.assert.dll</HintPath>
+    <Reference Include="xunit.assert, Version=2.0.0.2650, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\xunit.assert.2.0.0-beta-build2650\lib\portable-net45+win+wpa81+wp80\xunit.assert.dll</HintPath>
     </Reference>
-    <Reference Include="xunit.core">
-      <HintPath>..\packages\xunit.core.2.0.0-beta-build2616\lib\portable-net45+wp80+win\xunit.core.dll</HintPath>
+    <Reference Include="xunit.core, Version=2.0.0.2650, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\xunit.core.2.0.0-beta-build2650\lib\portable-net45+win+wpa81+wp80\xunit.core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -100,7 +104,7 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\xunit.core.2.0.0-beta-build2616\build\portable-net45+wp80+win\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.0.0-beta-build2616\build\portable-net45+wp80+win\xunit.core.props'))" />
+    <Error Condition="!Exists('..\packages\xunit.core.2.0.0-beta-build2650\build\portable-net45+win+wpa81+wp80\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.0.0-beta-build2650\build\portable-net45+win+wpa81+wp80\xunit.core.props'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

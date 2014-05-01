@@ -6,11 +6,11 @@ using Xunit.Sdk;
 
 public class PriorityOrderer : ITestCaseOrderer
 {
-    public IEnumerable<XunitTestCase> OrderTestCases(IEnumerable<XunitTestCase> testCases)
+    public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
     {
-        var sortedMethods = new SortedDictionary<int, List<XunitTestCase>>();
+        var sortedMethods = new SortedDictionary<int, List<TTestCase>>();
 
-        foreach (XunitTestCase testCase in testCases)
+        foreach (TTestCase testCase in testCases)
         {
             int priority = 0;
 
@@ -23,7 +23,7 @@ public class PriorityOrderer : ITestCaseOrderer
         foreach (var list in sortedMethods.Keys.Select(priority => sortedMethods[priority]))
         {
             list.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.Method.Name, y.Method.Name));
-            foreach (XunitTestCase testCase in list)
+            foreach (TTestCase testCase in list)
                 yield return testCase;
         }
     }
