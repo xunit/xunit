@@ -40,11 +40,17 @@ namespace Xunit
 
             Guard.FileExists("assemblyFileName", assemblyFileName);
 
+
             if (this.sourceInformationProvider == null)
             {
+#if !XAMARIN
                 this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
+#else
+                this.sourceInformationProvider = new NullSourceInformationProvider();
+#endif
                 toDispose.Push(this.sourceInformationProvider);
             }
+
         }
 
         private IFrontController InnerController
@@ -72,15 +78,23 @@ namespace Xunit
         /// </summary>
         protected virtual IFrontController CreateInnerController()
         {
+#if !XAMARIN
             var xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
+#endif
             var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
 
             if (File.Exists(xunitExecutionPath))
                 return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+#if !XAMARIN
             if (File.Exists(xunitPath))
                 return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+#endif
 
+#if XAMARIN
+            throw new ArgumentException("Unknown test framework: Could not find xunit.execution.dll.", assemblyFileName);
+#else
             throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit.execution.dll.", assemblyFileName);
+#endif
         }
 
         /// <inheritdoc/>

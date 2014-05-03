@@ -74,6 +74,57 @@
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
     </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\IXunit1Executor.cs">
+      <Link>Frameworks\v1\IXunit1Executor.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\RunSummary.cs">
+      <Link>Frameworks\v1\RunSummary.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\TestClassCallbackHandler.cs">
+      <Link>Frameworks\v1\TestClassCallbackHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\XmlNodeCallbackHandler.cs">
+      <Link>Frameworks\v1\XmlNodeCallbackHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\XmlNodeExtensions.cs">
+      <Link>Frameworks\v1\XmlNodeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\Xunit1.cs">
+      <Link>Frameworks\v1\Xunit1.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\Xunit1AssemblyInfo.cs">
+      <Link>Frameworks\v1\Xunit1AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs">
+      <Link>Frameworks\v1\Xunit1ExceptionUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\Xunit1Executor.cs">
+      <Link>Frameworks\v1\Xunit1Executor.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\Xunit1ReflectionWrapper.cs">
+      <Link>Frameworks\v1\Xunit1ReflectionWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\Xunit1TestCase.cs">
+      <Link>Frameworks\v1\Xunit1TestCase.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\v1\Xunit1TestCollection.cs">
+      <Link>Frameworks\v1\Xunit1TestCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Frameworks\VisualStudioSourceInformationProvider.cs">
+      <Link>Frameworks\VisualStudioSourceInformationProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Utility\DiaNavigationData.cs">
+      <Link>Utility\DiaNavigationData.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Utility\DiaSession.cs">
+      <Link>Utility\DiaSession.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Utility\DiaSessionWrapper.cs">
+      <Link>Utility\DiaSessionWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.utility\Utility\DiaSessionWrapperHelper.cs">
+      <Link>Utility\DiaSessionWrapperHelper.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml">
@@ -86,6 +137,7 @@
       <Name>xunit.abstractions.net35</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

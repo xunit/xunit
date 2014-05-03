@@ -47,7 +47,11 @@ namespace Xunit
 
             setup.ConfigurationFile = configFilename;
 
+#if !XAMARIN
             return AppDomain.CreateDomain(setup.ApplicationName, null, setup, new PermissionSet(PermissionState.Unrestricted));
+#else
+            return AppDomain.CreateDomain(setup.ApplicationName, null, setup);
+#endif
         }
 
         public TObject CreateObject<TObject>(string assemblyName, string typeName, params object[] args)
