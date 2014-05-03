@@ -11,8 +11,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "xunit.abstractions", "src\x
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.abstractions.net35", "src\xunit.abstractions.net35\xunit.abstractions.net35.csproj", "{53012549-D81B-4E40-B626-67C19265AA6F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution", "src\xunit.execution\xunit.execution.csproj", "{09EF9917-4B00-4646-8C3F-96EFACC8BF51}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.utility", "test\test.utility\test.utility.csproj", "{4FEC8604-E544-43C2-979C-F0815B5770E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.execution", "test\test.xunit.execution\test.xunit.execution.csproj", "{C32639C0-50EB-49AB-9681-C3334E5DEAE7}"
@@ -89,11 +87,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{AE42309B-B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "v1", "v1", "{C86F3A8E-8D96-4B0C-AA02-0293F278F1B3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "execution", "execution", "{72690AF2-D51A-4FD2-BD59-17FADACC29A1}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "xunit.execution", "src\xunit.execution\xunit.execution.shproj", "{CD3185A0-FB26-4923-8421-19A01DA67999}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.net45", "src\xunit.execution.net45\xunit.execution.net45.csproj", "{09EF9917-4B00-4646-8C3F-96EFACC8BF51}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\xunit.execution\xunit.execution.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{77743589-f177-4007-97b8-50b82a1c7044}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{53012549-d81b-4e40-b626-67c19265aa6f}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{ef8381db-7aa0-41b8-99c5-7a69f1a61f18}*SharedItemsImports = 13
+		src\xunit.execution\xunit.execution.projitems*{cd3185a0-fb26-4923-8421-19a01da67999}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,10 +110,6 @@ Global
 		{53012549-D81B-4E40-B626-67C19265AA6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53012549-D81B-4E40-B626-67C19265AA6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53012549-D81B-4E40-B626-67C19265AA6F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{09EF9917-4B00-4646-8C3F-96EFACC8BF51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{09EF9917-4B00-4646-8C3F-96EFACC8BF51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{09EF9917-4B00-4646-8C3F-96EFACC8BF51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{09EF9917-4B00-4646-8C3F-96EFACC8BF51}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -180,6 +182,10 @@ Global
 		{1B843C0F-8E08-4BA9-8C85-EEAF779A0774}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B843C0F-8E08-4BA9-8C85-EEAF779A0774}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B843C0F-8E08-4BA9-8C85-EEAF779A0774}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09EF9917-4B00-4646-8C3F-96EFACC8BF51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09EF9917-4B00-4646-8C3F-96EFACC8BF51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09EF9917-4B00-4646-8C3F-96EFACC8BF51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09EF9917-4B00-4646-8C3F-96EFACC8BF51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -187,7 +193,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{EF8381DB-7AA0-41B8-99C5-7A69F1A61F18} = {C987FBEE-4FE7-46CA-8175-9531F5DEBB29}
 		{53012549-D81B-4E40-B626-67C19265AA6F} = {C987FBEE-4FE7-46CA-8175-9531F5DEBB29}
-		{09EF9917-4B00-4646-8C3F-96EFACC8BF51} = {A727699B-E50A-4F83-8627-8BE64237582C}
 		{4FEC8604-E544-43C2-979C-F0815B5770E2} = {AE42309B-BFBE-4253-8AD6-BBFD676152ED}
 		{C32639C0-50EB-49AB-9681-C3334E5DEAE7} = {AE42309B-BFBE-4253-8AD6-BBFD676152ED}
 		{EFC3F529-3686-416B-9C67-36EC914C776A} = {A727699B-E50A-4F83-8627-8BE64237582C}
@@ -214,5 +219,8 @@ Global
 		{A727699B-E50A-4F83-8627-8BE64237582C} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
 		{AE42309B-BFBE-4253-8AD6-BBFD676152ED} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{C86F3A8E-8D96-4B0C-AA02-0293F278F1B3} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
+		{72690AF2-D51A-4FD2-BD59-17FADACC29A1} = {A727699B-E50A-4F83-8627-8BE64237582C}
+		{CD3185A0-FB26-4923-8421-19A01DA67999} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
+		{09EF9917-4B00-4646-8C3F-96EFACC8BF51} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 	EndGlobalSection
 EndGlobal
