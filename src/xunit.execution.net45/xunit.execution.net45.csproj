@@ -25,14 +25,14 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XUNIT_CORE_DLL</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XUNIT_CORE_DLL;NET45</DefineConstants>
     <DocumentationFile>bin\Debug\xunit.execution.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;XUNIT_CORE_DLL</DefineConstants>
+    <DefineConstants>TRACE;XUNIT_CORE_DLL;NET45</DefineConstants>
     <DocumentationFile>bin\Release\xunit.execution.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
