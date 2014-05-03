@@ -23,5 +23,11 @@
   <files>
     <file src="xunit.execution.net45\bin\Release\xunit.execution.dll" target="lib\net45\xunit.execution.dll" />
     <file src="xunit.execution.net45\bin\Release\xunit.execution.xml" target="lib\net45\xunit.execution.xml" />
+
+    <file src="xunit.execution.iOS\bin\iPhone\Release\xunit.execution.dll" target="lib\monotouch\xunit.execution.dll" />
+    <file src="xunit.execution.iOS\bin\iPhone\Release\xunit.execution.xml" target="lib\monotouch\xunit.execution.xml" />
+    
+    <file src="xunit.execution.android\bin\Release\xunit.execution.dll" target="lib\monoandroid\xunit.execution.dll" />
+    <file src="xunit.execution.android\bin\Release\xunit.execution.xml" target="lib\monoandroid\xunit.execution.xml" />
   </files>
 </package>
