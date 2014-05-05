@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -176,11 +177,18 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             {
                 // Check for Xamarin
                 var assm = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
-                var references = assm.GetReferencedAssemblies();
+                var attrib = assm.GetCustomAttributes(typeof(TargetFrameworkAttribute))
+                                 .Cast<TargetFrameworkAttribute>()
+                                 .FirstOrDefault();
 
-                var xamFound = references.Any(an => an.Name.Equals("monotouch", StringComparison.OrdinalIgnoreCase) || 
-                                                    an.Name.Equals("mono.android", StringComparison.OrdinalIgnoreCase));
-                return !xamFound;
+                if (attrib != null)
+                {
+                    // We found the TargetFramework attribute, check for xamarin
+                    var xamFound = (attrib.FrameworkName != null && attrib.FrameworkName.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase)) ||
+                                    (attrib.FrameworkName != null && attrib.FrameworkName.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase));
+                    return xamFound;
+                }
+                return true;
             }
             return false;
         }
