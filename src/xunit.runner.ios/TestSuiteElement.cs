@@ -36,9 +36,9 @@ using MonoTouch.Dialog;
 namespace Xunit.Runners.UI {
 
 	class TestSuiteElement : TestElement {
-	    private readonly IEnumerable<ITestCase> testCases;
+	    private readonly IEnumerable<MonoTestCase> testCases;
 
-	    public TestSuiteElement (string sourceName, IEnumerable<ITestCase> testCases, TouchRunner runner)
+        public TestSuiteElement(string sourceName, IEnumerable<MonoTestCase> testCases, TouchRunner runner)
 			: base (runner)
 		{
 		    this.testCases = testCases;

@@ -16,11 +16,10 @@ namespace Xunit.Runner.iOS
         Skipped
     }
 
-    enum TestRunState
+
+    public enum NameDisplay
     {
-        Success,
-        Failure,
-        Error,
-        NoTests,
+        Short = 1,
+        Full = 2,
     }
 }

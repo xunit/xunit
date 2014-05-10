@@ -20,6 +20,7 @@
 
 using System;
 using Xunit.Abstractions;
+using Xunit.Runner.iOS;
 #if XAMCORE_2_0
 using UIKit;
 #else
@@ -33,8 +34,8 @@ namespace Xunit.Runners.UI {
 	
 	class TestResultElement : StyledMultilineElement {
 
-        public TestResultElement(ITestResultMessage result) : 
-			base (result.Output ?? "Unknown error", "StackTrace Goes Here.", UITableViewCellStyle.Subtitle)
+        public TestResultElement(MonoTestCase result) : 
+			base (result.Message ?? "Unknown error", result.StackTrace, UITableViewCellStyle.Subtitle)
 		{
 		}
 	}

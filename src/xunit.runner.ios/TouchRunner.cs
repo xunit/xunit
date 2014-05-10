@@ -97,6 +97,7 @@ namespace Xunit.Runners.UI {
 	    public void AddExecutionAssembly(Assembly assembly)
 	    {
 	        if (assembly == null) throw new ArgumentNullException("assembly");
+	        executionAssembly = assembly;
 	    }
 
 	    IEnumerable<IGrouping<string, MonoTestCase>> DiscoverTestsInAssemblies()
@@ -151,12 +152,7 @@ namespace Xunit.Runners.UI {
             return result;
 	    }
 
-        private TestCaseElement CreateTestCaseElement(string fileName, ITestFrameworkDiscoverer framework, ITestCase testCase, bool forceUniqueNames)
-        {
-            var ele = new TestCaseElement(testCase, this);
-
-            return ele;
-        }
+      
 		
 		static void TerminateWithSuccess ()
 		{
@@ -196,7 +192,7 @@ namespace Xunit.Runners.UI {
 			menu.Add (main);
 			
 			Section options = new Section () {
-				//new StyledStringElement ("Options", Options) { Accessory = UITableViewCellAccessory.DisclosureIndicator },
+				new StyledStringElement ("Options", Options) { Accessory = UITableViewCellAccessory.DisclosureIndicator },
 				new StyledStringElement ("Credits", Credits) { Accessory = UITableViewCellAccessory.DisclosureIndicator }
 			};
 			menu.Add (options);
@@ -335,59 +331,59 @@ namespace Xunit.Runners.UI {
 		
 		public bool OpenWriter (string message)
 		{
-			TouchOptions options = TouchOptions.Current;
-			DateTime now = DateTime.Now;
-			// let the application provide it's own TextWriter to ease automation with AutoStart property
-			if (Writer == null) {
-				if (options.ShowUseNetworkLogger) {
-					var hostname = SelectHostName (options.HostName.Split (','), options.HostPort);
+            //TouchOptions options = TouchOptions.Current;
+            //DateTime now = DateTime.Now;
+            //// let the application provide it's own TextWriter to ease automation with AutoStart property
+            //if (Writer == null) {
+            //    if (options.ShowUseNetworkLogger) {
+            //        var hostname = SelectHostName (options.HostName.Split (','), options.HostPort);
 					
-					if (hostname != null) {
-						Console.WriteLine ("[{0}] Sending '{1}' results to {2}:{3}", now, message, hostname, options.HostPort);
-						try {
-							Writer = new TcpTextWriter (hostname, options.HostPort);
-						}
-						catch (SocketException) {
-							UIAlertView alert = new UIAlertView ("Network Error", 
-								String.Format ("Cannot connect to {0}:{1}. Continue on console ?", hostname, options.HostPort), 
-								null, "Cancel", "Continue");
-							int button = -1;
-							alert.Clicked += delegate(object sender, UIButtonEventArgs e) {
-								button = (int)e.ButtonIndex;
-							};
-							alert.Show ();
-							while (button == -1)
-								NSRunLoop.Current.RunUntil (NSDate.FromTimeIntervalSinceNow (0.5));
-							Console.WriteLine (button);
-							Console.WriteLine ("[Host unreachable: {0}]", button == 0 ? "Execution cancelled" : "Switching to console output");
-							if (button == 0)
-								return false;
-							else
-								Writer = Console.Out;
-						}
-					}
-				} else {
-					Writer = Console.Out;
-				}
-			}
+            //        if (hostname != null) {
+            //            Console.WriteLine ("[{0}] Sending '{1}' results to {2}:{3}", now, message, hostname, options.HostPort);
+            //            try {
+            //                Writer = new TcpTextWriter (hostname, options.HostPort);
+            //            }
+            //            catch (SocketException) {
+            //                UIAlertView alert = new UIAlertView ("Network Error", 
+            //                    String.Format ("Cannot connect to {0}:{1}. Continue on console ?", hostname, options.HostPort), 
+            //                    null, "Cancel", "Continue");
+            //                int button = -1;
+            //                alert.Clicked += delegate(object sender, UIButtonEventArgs e) {
+            //                    button = (int)e.ButtonIndex;
+            //                };
+            //                alert.Show ();
+            //                while (button == -1)
+            //                    NSRunLoop.Current.RunUntil (NSDate.FromTimeIntervalSinceNow (0.5));
+            //                Console.WriteLine (button);
+            //                Console.WriteLine ("[Host unreachable: {0}]", button == 0 ? "Execution cancelled" : "Switching to console output");
+            //                if (button == 0)
+            //                    return false;
+            //                else
+            //                    Writer = Console.Out;
+            //            }
+            //        }
+            //    } else {
+            //        Writer = Console.Out;
+            //    }
+            //}
 			
-			Writer.WriteLine ("[Runner executing:\t{0}]", message);
-			Writer.WriteLine ("[MonoTouch Version:\t{0}]", Constants.Version);
-			Writer.WriteLine ("[GC:\t{0}{1}]", GC.MaxGeneration == 0 ? "Boehm": "sgen", 
-				NSObject.IsNewRefcountEnabled () ? "+NewRefCount" : String.Empty);
-			UIDevice device = UIDevice.CurrentDevice;
-			Writer.WriteLine ("[{0}:\t{1} v{2}]", device.Model, device.SystemName, device.SystemVersion);
-			Writer.WriteLine ("[Device Name:\t{0}]", device.Name);
-			Writer.WriteLine ("[Device UDID:\t{0}]", UniqueIdentifier);
-			Writer.WriteLine ("[Device Locale:\t{0}]", NSLocale.CurrentLocale.Identifier);
-			Writer.WriteLine ("[Device Date/Time:\t{0}]", now); // to match earlier C.WL output
+            //Writer.WriteLine ("[Runner executing:\t{0}]", message);
+            //Writer.WriteLine ("[MonoTouch Version:\t{0}]", Constants.Version);
+            //Writer.WriteLine ("[GC:\t{0}{1}]", GC.MaxGeneration == 0 ? "Boehm": "sgen", 
+            //    NSObject.IsNewRefcountEnabled () ? "+NewRefCount" : String.Empty);
+            //UIDevice device = UIDevice.CurrentDevice;
+            //Writer.WriteLine ("[{0}:\t{1} v{2}]", device.Model, device.SystemName, device.SystemVersion);
+            //Writer.WriteLine ("[Device Name:\t{0}]", device.Name);
+            //Writer.WriteLine ("[Device UDID:\t{0}]", UniqueIdentifier);
+            //Writer.WriteLine ("[Device Locale:\t{0}]", NSLocale.CurrentLocale.Identifier);
+            //Writer.WriteLine ("[Device Date/Time:\t{0}]", now); // to match earlier C.WL output
 
-			Writer.WriteLine ("[Bundle:\t{0}]", NSBundle.MainBundle.BundleIdentifier);
-			// FIXME: add data about how the app was compiled (e.g. ARMvX, LLVM, GC and Linker options)
-			passed = 0;
-			ignored = 0;
-			failed = 0;
-			inconclusive = 0;
+            //Writer.WriteLine ("[Bundle:\t{0}]", NSBundle.MainBundle.BundleIdentifier);
+            //// FIXME: add data about how the app was compiled (e.g. ARMvX, LLVM, GC and Linker options)
+            //passed = 0;
+            //ignored = 0;
+            //failed = 0;
+            //inconclusive = 0;
 			return true;
 		}
 
@@ -427,7 +423,7 @@ namespace Xunit.Runners.UI {
 
         TestSuiteElement SetupSource(IGrouping<string, MonoTestCase> testSource)
 		{
-			var tse = new TestSuiteElement (testSource.Key, testSource.Select(t => t.TestCase), this);
+			var tse = new TestSuiteElement (testSource.Key, testSource, this);
 			suite_elements.Add (testSource.Key, tse);
 			
 			var root = new RootElement ("Tests");
