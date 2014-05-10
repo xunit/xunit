@@ -27,7 +27,7 @@ namespace Xunit.Runners.UI {
 		
 		const string XunitExceptionPrefix = "Xunit.";
 
-		static public bool IsIgnored (this ITestResultMessage result)
+		static public bool IsSkipped (this ITestResultMessage result)
 		{
 			return  result is ITestSkipped;
 		}
@@ -41,11 +41,6 @@ namespace Xunit.Runners.UI {
         {
             return result is ITestFailed;
         }
-
-        static public bool IsInconclusive(this ITestResultMessage result)
-		{
-			return (result.ResultState.Status == TestStatus.Inconclusive);
-		}
 
 		// remove the nunit exception message from the "real" message
         static public string GetMessage(this ITestResultMessage result)

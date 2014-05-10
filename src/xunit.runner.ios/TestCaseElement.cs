@@ -19,86 +19,99 @@
 //
 
 using System;
-using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MonoTouch.Dialog;
 using Xunit.Abstractions;
+using Xunit.Runner.iOS;
 #if XAMCORE_2_0
 using UIKit;
 #else
 using MonoTouch.UIKit;
 #endif
 
-using MonoTouch.Dialog;
+namespace Xunit.Runners.UI
+{
+    internal class TestCaseElement : TestElement
+    {
+        public TestCaseElement(ITestCase testCase, TouchRunner runner)
+            : base(runner)
+        {
+            Caption = testCase.DisplayName;
+            Value = "NotExecuted";
+            //Tapped += delegate
+            //{
+            //    if (!Runner.OpenWriter(Test.DisplayName))
+            //        return;
 
-using NUnit.Framework;
-using NUnit.Framework.Internal;
-using NUnit.Framework.Api;
+            //    Run();
+                
+            //    Runner.CloseWriter();
+            //    // display more details on (any) failure (but not when ignored)
+            //    if ((TestCase.SkipReason != null) && !Result.IsSuccess())
+            //    {
+            //        var root = new RootElement("Results")
+            //        {
+            //            new Section()
+            //            {
+            //                new TestResultElement(Result)
+            //            }
+            //        };
+            //        var dvc = new DialogViewController(root, true)
+            //        {
+            //            Autorotate = true
+            //        };
+            //        runner.NavigationController.PushViewController(dvc, true);
+            //    }
+            //    else if (GetContainerTableView() != null)
+            //    {
+            //        var root = GetImmediateRootElement();
+            //        root.Reload(this, UITableViewRowAnimation.Fade);
+            //    }
+            //};
+        }
 
-namespace Xunit.Runners.UI {
-	
-	class TestCaseElement : TestElement {
-		
-		public TestCaseElement (ITestCase testCase, TouchRunner runner)
-			: base (testCase, runner)
-		{
-			Caption = testCase.DisplayName;
-			Value = "NotExecuted";
-			this.Tapped += delegate {
-				if (!Runner.OpenWriter (Test.FullName))
-					return;
+        //public ITestCase TestCase
+        //{
+        //    get { return Test; }
+        //}
 
-				var suite = testCase.TestCollection;
-				var context = TestExecutionContext.CurrentContext;
-				context.TestObject = Reflect.Construct (testCase.Method.ReflectedType, null);
+        //public void Run()
+        //{
+        //    Update(Runner.Run(TestCase));
+        //}
 
-				suite.GetOneTimeSetUpCommand ().Execute (context);
-				Run ();
-				suite.GetOneTimeTearDownCommand ().Execute (context);
-
-				Runner.CloseWriter ();
-				// display more details on (any) failure (but not when ignored)
-				if ((TestCase.RunState == RunState.Runnable) && !Result.IsSuccess ()) {
-					var root = new RootElement ("Results") {
-						new Section () {
-							new TestResultElement (Result)
-						}
-					};
-					var dvc = new DialogViewController (root, true) { Autorotate = true };
-					runner.NavigationController.PushViewController (dvc, true);
-				} else if (GetContainerTableView () != null) {
-					var root = GetImmediateRootElement ();
-					root.Reload (this, UITableViewRowAnimation.Fade);
-				}
-			};
-		}
-		
-		public ITestCase TestCase {
-			get { return Test; }
-		}
-		
-		public void Run ()
-		{
-			Update (Runner.Run (TestCase));
-		}
-		
-		public override void Update ()
-		{
-			if (Result.IsIgnored ()) {
-				Value = Result.GetMessage ();
-				DetailColor = UIColor.Orange;
-			} else if (Result.IsSuccess () || Result.IsInconclusive ()) {
-				int counter = Result.AssertCount;
-				Value = String.Format ("{0} {1} ms for {2} assertion{3}",
-					Result.IsInconclusive () ? "Inconclusive." : "Success!",
-					Result.ExecutionTime * 1000, counter,
-					counter == 1 ? String.Empty : "s");
-				DetailColor = DarkGreen;
-			} else if (Result.IsFailure ()) {
-				Value = Result.GetMessage ();
-				DetailColor = UIColor.Red;
-			} else {
-				// Assert.Ignore falls into this
-				Value = Result.GetMessage ();
-			}
-		}
-	}
+        //public override void Update()
+        //{
+        //    if (Result.IsSkipped())
+        //    {
+        //        Value = Result.GetMessage();
+        //        DetailColor = UIColor.Orange;
+        //    }
+        //    else if (Result.IsSuccess() || Result.IsInconclusive())
+        //    {
+        //        int counter = Result.AssertCount;
+        //        Value = String.Format("{0} {1} ms for {2} assertion{3}",
+        //                              Result.IsInconclusive() ? "Inconclusive." : "Success!",
+        //                              Result.ExecutionTime*1000, counter,
+        //                              counter == 1 ? String.Empty : "s");
+        //        DetailColor = DarkGreen;
+        //    }
+        //    else if (Result.IsFailure())
+        //    {
+        //        Value = Result.GetMessage();
+        //        DetailColor = UIColor.Red;
+        //    }
+        //    else
+        //    {
+        //        // Assert.Ignore falls into this
+        //        Value = Result.GetMessage();
+        //    }
+        //}
+        public override TestState Result
+        {
+            get { return TestState.NotRun; }
+        }
+    }
 }

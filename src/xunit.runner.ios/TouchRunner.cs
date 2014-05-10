@@ -19,13 +19,16 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
 using Xunit.Abstractions;
+using Xunit.Runner.iOS;
 #if XAMCORE_2_0
 using Foundation;
 using ObjCRuntime;
@@ -50,8 +53,8 @@ namespace Xunit.Runners.UI {
 		int failed;
 		int ignored;
 		int inconclusive;
-		TestSuite suite = new TestSuite (String.Empty);
-		ITestFilter filter;
+	//	TestSuite suite = new TestSuite (String.Empty);
+		
 
 		[CLSCompliant (false)]
 		public TouchRunner (UIWindow window)
@@ -60,19 +63,14 @@ namespace Xunit.Runners.UI {
 				throw new ArgumentNullException ("window");
 			
 			this.window = window;
-			filter = TestFilter.Empty;
+			
 		}
 		
 		public bool AutoStart {
 			get { return TouchOptions.Current.AutoStart; }
 			set { TouchOptions.Current.AutoStart = value; }
 		}
-		
-		public ITestFilter Filter {
-			get { return filter; }
-			set { filter = value; }
-		}
-		
+
 		public bool TerminateAfterExecution {
 			get { return TouchOptions.Current.TerminateAfterExecution; }
 			set { TouchOptions.Current.TerminateAfterExecution = value; }
@@ -93,13 +91,95 @@ namespace Xunit.Runners.UI {
 			
 			assemblies.Add (assembly);
 		}
+
+        IEnumerable<IGrouping<string, MonoTestCase>> DiscoverTestsInAssemblies()
+	    {
+	        var stopwatch = Stopwatch.StartNew();
+            var result = new List<IGrouping<string, MonoTestCase>>();
+
+	        try
+	        {
+	            using (AssemblyHelper.SubscribeResolve())
+	            {
+	                foreach (var assm in assemblies)
+	                {
+	                    // Xunit needs the file name
+	                    var fileName = assm.GetName()
+	                                       .Name + ".dll";
+	                    try
+	                    {
+                            using (var framework = new XunitFrontController(fileName, configFileName: null, shadowCopy: true))
+                             using (var sink = new TestDiscoveryVisitor())
+                             {
+                                 framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
+                                 sink.Finished.WaitOne();
+
+                                 result.Add(
+                                     new Grouping<string, MonoTestCase>(
+                                         fileName,
+                                         sink.TestCases
+                                             .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
+                                             .SelectMany(group => 
+                                                 group.Select(testCase => 
+                                                     new MonoTestCase(fileName, testCase, forceUniqueNames: group.Count() > 1) ))
+                                             .ToList()
+                                         )
+                                     );
+                             }
+	                    }
+	                    catch (Exception e)
+	                    {
+	                        Debug.WriteLine(e);
+	                    }
+	                }
+	            }
+	        }
+	        catch (Exception e)
+	        {
+                Debug.WriteLine(e);
+	        }
+
+            stopwatch.Stop();
+
+            return result;
+	    }
+
+        private TestCaseElement CreateTestCaseElement(string fileName, ITestFrameworkDiscoverer framework, ITestCase testCase, bool forceUniqueNames)
+        {
+            var ele = new TestCaseElement(testCase, this);
+
+            return ele;
+        }
 		
 		static void TerminateWithSuccess ()
 		{
 			Selector selector = new Selector ("terminateWithSuccess");
 			UIApplication.SharedApplication.PerformSelector (selector, UIApplication.SharedApplication, 0);						
 		}
-		
+
+
+        class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
+        {
+            readonly IEnumerable<TElement> elements;
+
+            public Grouping(TKey key, IEnumerable<TElement> elements)
+            {
+                Key = key;
+                this.elements = elements;
+            }
+
+            public TKey Key { get; private set; }
+
+            public IEnumerator<TElement> GetEnumerator()
+            {
+                return elements.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return elements.GetEnumerator();
+            }
+        }
 		[CLSCompliant (false)]
 		public UIViewController GetViewController ()
 		{
@@ -116,14 +196,20 @@ namespace Xunit.Runners.UI {
 
 			// large unit tests applications can take more time to initialize
 			// than what the iOS watchdog will allow them on devices
-			ThreadPool.QueueUserWorkItem (delegate {
-				foreach (Assembly assembly in assemblies)
-					Load (assembly, null);
+			ThreadPool.QueueUserWorkItem (delegate
+			{
+			    var tests = DiscoverTestsInAssemblies();
 
-				window.InvokeOnMainThread (delegate {
-					foreach (TestSuite ts in suite.Tests) {
-						main.Add (Setup (ts));
-					}
+
+				window.InvokeOnMainThread (
+                    delegate 
+                    {
+                        foreach (var group in tests)
+                        {
+                            
+                        }
+
+                        
 					mre.Set ();
 					
 					main.Caption = null;
@@ -155,14 +241,14 @@ namespace Xunit.Runners.UI {
 		
 		void Run ()
 		{
-			if (!OpenWriter ("Run Everything"))
-				return;
-			try {
-				Run (suite);
-			}
-			finally {
-				CloseWriter ();
-			}
+            //if (!OpenWriter ("Run Everything"))
+            //    return;
+            //try {
+            //    Run (suite);
+            //}
+            //finally {
+            //    CloseWriter ();
+            //}
 		}
 				
 		void Options ()
@@ -172,16 +258,16 @@ namespace Xunit.Runners.UI {
 		
 		void Credits ()
 		{
-			var title = new MultilineElement ("Touch.Unit Runner\nCopyright 2011-2012 Xamarin Inc.\nAll rights reserved.");
+			var title = new MultilineElement ("xUnit MonoTouch Runner\nCopyright 2014 Outercurve Foundation\nAll rights reserved.");
 			title.Alignment = UITextAlignment.Center;
-			
-			var root = new RootElement ("Credits") {
+
+            var root = new RootElement("Credits") {
 				new Section () { title },
 				new Section () {
 					new HtmlElement ("About Xamarin", "http://www.xamarin.com"),
 					new HtmlElement ("About MonoTouch", "http://ios.xamarin.com"),
 					new HtmlElement ("About MonoTouch.Dialog", "https://github.com/migueldeicaza/MonoTouch.Dialog"),
-					new HtmlElement ("About NUnitLite", "http://www.nunitlite.org"),
+					new HtmlElement ("About xUnit", "https://github.com/xunit/xunit"),
 					new HtmlElement ("About Font Awesome", "http://fortawesome.github.com/Font-Awesome")
 				}
 			};
@@ -192,7 +278,7 @@ namespace Xunit.Runners.UI {
 		
 		#region writer
 		
-		public TestResult Result { get; set; }
+	//	public TestResult Result { get; set; }
 
 		public TextWriter Writer { get; set; }
 		
@@ -322,167 +408,145 @@ namespace Xunit.Runners.UI {
 		}
 		
 		#endregion
-		
-		Dictionary<TestSuite, TouchViewController> suites_dvc = new Dictionary<TestSuite, TouchViewController> ();
-		Dictionary<TestSuite, TestSuiteElement> suite_elements = new Dictionary<TestSuite, TestSuiteElement> ();
-		Dictionary<TestMethod, TestCaseElement> case_elements = new Dictionary<TestMethod, TestCaseElement> ();
-		
-		public void Show (TestSuite suite)
+
+        Dictionary<string, TouchViewController> suites_dvc = new Dictionary<string, TouchViewController>();
+        Dictionary<string, TestSuiteElement> suite_elements = new Dictionary<string, TestSuiteElement>();
+        Dictionary<ITestCase, TestCaseElement> case_elements = new Dictionary<ITestCase, TestCaseElement>();
+
+        public void Show(string suite)
 		{
 			NavigationController.PushViewController (suites_dvc [suite], true);
 		}
-	
-		TestSuiteElement Setup (TestSuite suite)
+
+        TestSuiteElement SetupSource(IGrouping<string, MonoTestCase> testSource)
 		{
-			TestSuiteElement tse = new TestSuiteElement (suite, this);
-			suite_elements.Add (suite, tse);
+			var tse = new TestSuiteElement (testSource.Key, testSource.Select(t => t.TestCase), this);
+			suite_elements.Add (testSource.Key, tse);
 			
 			var root = new RootElement ("Tests");
 		
-			Section section = new Section (suite.Name);
-			foreach (ITest test in suite.Tests) {
-				TestSuite ts = (test as TestSuite);
-				if (ts != null) {
-					section.Add (Setup (ts));
-				} else {
-					TestMethod tc = (test as TestMethod);
-					if (tc != null) {
-						section.Add (Setup (tc));
-					} else {
-						throw new NotImplementedException (test.GetType ().ToString ());
-					}
-				}
+			var section = new Section (testSource.Key);
+			foreach (var test in testSource)
+			{
+			    section.Add(Setup(test));
 			}
 		
 			root.Add (section);
 			
-			if (section.Count > 1) {
-				Section options = new Section () {
-					new StringElement ("Run all", delegate () {
-						if (OpenWriter (suite.Name)) {
-							Run (suite);
-							CloseWriter ();
-							suites_dvc [suite].Filter ();
-						}
-					})
-				};
-				root.Add (options);
+			if (section.Count > 1)
+			{
+			    var options = new Section()
+			    {
+			        new StringElement("Run all",
+			                          delegate()
+			                          {
+			                              if (OpenWriter(testSource.Key))
+			                              {
+			                                  //Run(suite);
+			                                  CloseWriter();
+                                              suites_dvc[testSource.Key].Filter();
+			                              }
+			                          })
+			    };
+				
+                root.Add (options);
 			}
 
-			suites_dvc.Add (suite, new TouchViewController (root));
+            suites_dvc.Add(testSource.Key, new TouchViewController(root));
 			return tse;
 		}
 		
-		TestCaseElement Setup (TestMethod test)
+		TestCaseElement Setup (MonoTestCase test)
 		{
-			TestCaseElement tce = new TestCaseElement (test, this);
-			case_elements.Add (test, tce);
+			TestCaseElement tce = new TestCaseElement (test.TestCase, this);
+			case_elements.Add (test.TestCase, tce);
 			return tce;
 		}
 				
-		public void TestStarted (ITest test)
-		{
-			if (test is TestSuite) {
-				Writer.WriteLine ();
-				Writer.WriteLine (test.Name);
-			}
-		}
+        //public void TestStarted (ITestCase test)
+        //{
+        //    if (test is TestSuite) {
+        //        Writer.WriteLine ();
+        //        Writer.WriteLine (test.Name);
+        //    }
+        //}
 		
-		public void TestFinished (ITestResult r)
-		{
-			TestResult result = r as TestResult;
-			TestSuite ts = result.Test as TestSuite;
-			if (ts != null) {
-				TestSuiteElement tse;
-				if (suite_elements.TryGetValue (ts, out tse))
-					tse.Update (result);
-			} else {
-				TestMethod tc = result.Test as TestMethod;
-				if (tc != null)
-					case_elements [tc].Update (result);
-			}
+        //public void TestFinished (ITestResult r)
+        //{
+        //    TestResult result = r as TestResult;
+        //    TestSuite ts = result.Test as TestSuite;
+        //    if (ts != null) {
+        //        TestSuiteElement tse;
+        //        if (suite_elements.TryGetValue (ts, out tse))
+        //            tse.Update (result);
+        //    } else {
+        //        TestMethod tc = result.Test as TestMethod;
+        //        if (tc != null)
+        //            case_elements [tc].Update (result);
+        //    }
 			
-			if (result.Test is TestSuite) {
-				if (!result.IsFailure () && !result.IsSuccess () && !result.IsInconclusive () && !result.IsIgnored ())
-					Writer.WriteLine ("\t[INFO] {0}", result.Message);
+        //    if (result.Test is TestSuite) {
+        //        if (!result.IsFailure () && !result.IsSuccess () && !result.IsInconclusive () && !result.IsIgnored ())
+        //            Writer.WriteLine ("\t[INFO] {0}", result.Message);
 
-				string name = result.Test.Name;
-				if (!String.IsNullOrEmpty (name))
-					Writer.WriteLine ("{0} : {1} ms", name, result.Duration.TotalMilliseconds);
-			} else {
-				if (result.IsSuccess ()) {
-					Writer.Write ("\t[PASS] ");
-					passed++;
-				} else if (result.IsIgnored ()) {
-					Writer.Write ("\t[IGNORED] ");
-					ignored++;
-				} else if (result.IsFailure ()) {
-					Writer.Write ("\t[FAIL] ");
-					failed++;
-				} else if (result.IsInconclusive ()) {
-					Writer.Write ("\t[INCONCLUSIVE] ");
-					inconclusive++;
-				} else {
-					Writer.Write ("\t[INFO] ");
-				}
-				Writer.Write (result.Test.Name);
+        //        string name = result.Test.Name;
+        //        if (!String.IsNullOrEmpty (name))
+        //            Writer.WriteLine ("{0} : {1} ms", name, result.Duration.TotalMilliseconds);
+        //    } else {
+        //        if (result.IsSuccess ()) {
+        //            Writer.Write ("\t[PASS] ");
+        //            passed++;
+        //        } else if (result.IsIgnored ()) {
+        //            Writer.Write ("\t[IGNORED] ");
+        //            ignored++;
+        //        } else if (result.IsFailure ()) {
+        //            Writer.Write ("\t[FAIL] ");
+        //            failed++;
+        //        } else if (result.IsInconclusive ()) {
+        //            Writer.Write ("\t[INCONCLUSIVE] ");
+        //            inconclusive++;
+        //        } else {
+        //            Writer.Write ("\t[INFO] ");
+        //        }
+        //        Writer.Write (result.Test.Name);
 				
-				string message = result.Message;
-				if (!String.IsNullOrEmpty (message)) {
-					Writer.Write (" : {0}", message.Replace ("\r\n", "\\r\\n"));
-				}
-				Writer.WriteLine ();
+        //        string message = result.Message;
+        //        if (!String.IsNullOrEmpty (message)) {
+        //            Writer.Write (" : {0}", message.Replace ("\r\n", "\\r\\n"));
+        //        }
+        //        Writer.WriteLine ();
 						
-				string stacktrace = result.StackTrace;
-				if (!String.IsNullOrEmpty (result.StackTrace)) {
-					string[] lines = stacktrace.Split (new char [] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-					foreach (string line in lines)
-						Writer.WriteLine ("\t\t{0}", line);
-				}
-			}
-		}
+        //        string stacktrace = result.StackTrace;
+        //        if (!String.IsNullOrEmpty (result.StackTrace)) {
+        //            string[] lines = stacktrace.Split (new char [] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        //            foreach (string line in lines)
+        //                Writer.WriteLine ("\t\t{0}", line);
+        //        }
+        //    }
+        //}
 
-		NUnitLiteTestAssemblyBuilder builder = new NUnitLiteTestAssemblyBuilder ();
-		Dictionary<string, object> empty = new Dictionary<string, object> ();
 
-		public bool Load (string assemblyName, IDictionary settings)
-		{
-			return AddSuite (builder.Build (assemblyName, settings ?? empty));
-		}
+        //bool AddSuite (TestSuite ts)
+        //{
+        //    if (ts == null)
+        //        return false;
+        //    suite.Add (ts);
+        //    return true;
+        //}
 
-		public bool Load (Assembly assembly, IDictionary settings)
-		{
-			return AddSuite (builder.Build (assembly, settings ?? empty));
-		}
+        //public TestResult Run(ITestCase test)
+        //{
+        //    Result = null;
+        //    TestExecutionContext current = TestExecutionContext.CurrentContext;
+        //    current.WorkDirectory = Environment.CurrentDirectory;
+        //    current.Listener = this;
+        //    WorkItem wi = test.CreateWorkItem (filter);
+        //    wi.Execute (current);
+        //    Result = wi.Result;
+        //    return Result;
+        //}
 
-		bool AddSuite (TestSuite ts)
-		{
-			if (ts == null)
-				return false;
-			suite.Add (ts);
-			return true;
-		}
 
-        public TestResult Run(ITestCase test)
-		{
-			Result = null;
-			TestExecutionContext current = TestExecutionContext.CurrentContext;
-			current.WorkDirectory = Environment.CurrentDirectory;
-			current.Listener = this;
-			WorkItem wi = test.CreateWorkItem (filter);
-			wi.Execute (current);
-			Result = wi.Result;
-			return Result;
-		}
-
-		public ITest LoadedTest {
-			get {
-				return suite;
-			}
-		}
-
-		public void TestOutput (TestOutput testOutput)
-		{
-		}
+		
 	}
 }

@@ -19,7 +19,7 @@
 //
 
 using System;
-
+using Xunit.Runner.iOS;
 #if XAMCORE_2_0
 using UIKit;
 #else
@@ -28,7 +28,6 @@ using MonoTouch.UIKit;
 
 using MonoTouch.Dialog;
 
-using Xunit.Abstractions;
 
 namespace Xunit.Runners.UI {
 
@@ -36,37 +35,32 @@ namespace Xunit.Runners.UI {
 		
 		static internal UIColor DarkGreen = UIColor.FromRGB (0x00, 0x77, 0x00);
 
-        private ITestResultMessage result;
-		
-		public TestElement (ITestCase test, TouchRunner runner)
+		public TestElement ( TouchRunner runner)
 			: base ("?", "?", UITableViewCellStyle.Subtitle)
 		{
-			if (test == null)
-				throw new ArgumentNullException ("test");
 			if (runner == null)
 				throw new ArgumentNullException ("runner");
 		
-			Test = test;
 			Runner = runner;
 		}
 
 		protected TouchRunner Runner { get; private set; }
 
-        public ITestResultMessage Result
-        {
-			get { return result ?? new TestCaseResult (Test as TestMethod); }
-			set { result = value; }
-		}
+        //public ITestResultMessage Result
+        //{
+        //    get { return result ?? new TestCaseResult (Test as TestMethod); }
+        //    set { result = value; }
+        //}
 
-        protected ITestCase Test { get; private set; }
+        public abstract TestState Result { get; }
 
-        public void Update(ITestResultMessage result)
-		{
-			Result = result;
+        //public void Update(ITestResultMessage result)
+        //{
+        //    Result = result;
 			
-			Update ();
-		}
+        //    Update ();
+        //}
 		
-		abstract public void Update ();
+	//	abstract public void Update ();
 	}
 }

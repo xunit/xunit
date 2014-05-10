@@ -21,7 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using Xunit.Runner.iOS;
 #if XAMCORE_2_0
 using CoreGraphics;
 using Foundation;
@@ -120,13 +120,13 @@ namespace Xunit.Runners.UI {
 					add_element = true;
 					break;
 				case ResultFilter.Failed:
-					add_element = te.Result.IsFailure ();
+					add_element = te.Result == TestState.Failed;
 					break;
 				case ResultFilter.Ignored:
-					add_element = te.Result.IsIgnored ();
+					add_element = te.Result == TestState.Skipped;
 					break;
 				case ResultFilter.Success:
-					add_element = te.Result.IsSuccess () || te.Result.IsInconclusive ();
+					add_element = te.Result == TestState.Passed;
 					break;
 				}
 

@@ -21,9 +21,8 @@
 using System;
 using System.IO;
 using System.Text;
-
-using NUnitLite.Runner;
-using Xunit.Runners.UI.UI;
+using System.Xml;
+using Xunit.Runners.UI;
 
 namespace Xunit.Runners.UI {
 
@@ -31,7 +30,7 @@ namespace Xunit.Runners.UI {
 
 		bool real_time_reporting;
 
-		public NUnitOutputTextWriter (TouchRunner runner, TextWriter baseWriter, OutputWriter xmlWriter)
+        public NUnitOutputTextWriter(TouchRunner runner, TextWriter baseWriter, XmlWriter xmlWriter)
 		{
 			Runner = runner;
 			BaseWriter = baseWriter ?? Console.Out;
@@ -48,7 +47,7 @@ namespace Xunit.Runners.UI {
 
 		public TouchRunner Runner { get; private set; }
 
-		public OutputWriter XmlOutputWriter { get; private set; }
+		public XmlWriter XmlOutputWriter { get; private set; }
 
 		public override void Write (char value)
 		{
@@ -67,7 +66,8 @@ namespace Xunit.Runners.UI {
 			if (XmlOutputWriter != null) {
 				// now we want the XML report to write
 				real_time_reporting = true;
-				XmlOutputWriter.WriteResultFile (Runner.Result, BaseWriter);
+				// TODO
+                //XmlOutputWriter.WriteResultFile (Runner.Result, BaseWriter);
 				real_time_reporting = false;
 			}
 			base.Close ();

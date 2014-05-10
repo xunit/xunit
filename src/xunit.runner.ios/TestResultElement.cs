@@ -34,7 +34,7 @@ namespace Xunit.Runners.UI {
 	class TestResultElement : StyledMultilineElement {
 
         public TestResultElement(ITestResultMessage result) : 
-			base (result.Message ?? "Unknown error", result.StackTrace, UITableViewCellStyle.Subtitle)
+			base (result.Output ?? "Unknown error", "StackTrace Goes Here.", UITableViewCellStyle.Subtitle)
 		{
 		}
 	}
