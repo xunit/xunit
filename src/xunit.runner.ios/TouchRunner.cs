@@ -196,7 +196,7 @@ namespace Xunit.Runners.UI {
 			menu.Add (main);
 			
 			Section options = new Section () {
-				new StyledStringElement ("Options", Options) { Accessory = UITableViewCellAccessory.DisclosureIndicator },
+				//new StyledStringElement ("Options", Options) { Accessory = UITableViewCellAccessory.DisclosureIndicator },
 				new StyledStringElement ("Credits", Credits) { Accessory = UITableViewCellAccessory.DisclosureIndicator }
 			};
 			menu.Add (options);
