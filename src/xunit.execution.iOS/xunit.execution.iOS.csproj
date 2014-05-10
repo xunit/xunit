@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\iPhone\Debug</OutputPath>
-    <DefineConstants>DEBUG;__IOS__;__MOBILE__;XUNIT_CORE_DLL;XAMARIN</DefineConstants>
+    <DefineConstants>DEBUG;__IOS__;__MOBILE__;__IOS__;__MOBILE__;XUNIT_CORE_DLL;XAMARIN;NO_APPDOMAIN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Developer</CodesignKey>
-    <DefineConstants>__IOS__;__MOBILE__;XUNIT_CORE_DLL;XAMARIN</DefineConstants>
+    <DefineConstants>__IOS__;__MOBILE__;__IOS__;__MOBILE__;XUNIT_CORE_DLL;XAMARIN;NO_APPDOMAIN</DefineConstants>
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>

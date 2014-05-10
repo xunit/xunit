@@ -23,7 +23,9 @@ namespace Xunit
 
             AssemblyFileName = assemblyFileName;
             ConfigFileName = configFileName;
+#if !NO_APPDOMAIN
             AppDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy);
+#endif
         }
 
         public AppDomain AppDomain { get; private set; }
@@ -32,6 +34,7 @@ namespace Xunit
 
         public string ConfigFileName { get; private set; }
 
+#if !NO_APPDOMAIN
         static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy)
         {
             AppDomainSetup setup = new AppDomainSetup();
@@ -47,19 +50,23 @@ namespace Xunit
 
             setup.ConfigurationFile = configFilename;
 
-#if !XAMARIN
             return AppDomain.CreateDomain(setup.ApplicationName, null, setup, new PermissionSet(PermissionState.Unrestricted));
-#else
-            return AppDomain.CreateDomain(setup.ApplicationName, null, setup);
-#endif
+
         }
+#endif
 
         public TObject CreateObject<TObject>(string assemblyName, string typeName, params object[] args)
         {
             try
             {
+#if !NO_APPDOMAIN
                 object unwrappedObject = AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName, false, 0, null, args, null, null, null);
                 return (TObject)unwrappedObject;
+#else
+                var objHandle = Activator.CreateInstance(AppDomain.CurrentDomain, assemblyName, typeName, false, BindingFlags.Default, null, args, null, null);
+                return (TObject)objHandle.Unwrap();                    
+#endif
+                
             }
             catch (TargetInvocationException ex)
             {
@@ -70,6 +77,7 @@ namespace Xunit
 
         public virtual void Dispose()
         {
+#if !NO_APPDOMAIN
             if (AppDomain != null)
             {
                 string cachePath = AppDomain.SetupInformation.CachePath;
@@ -83,6 +91,7 @@ namespace Xunit
                 }
                 catch { }
             }
+#endif
         }
 
         static string GetDefaultConfigFile(string assemblyFile)

@@ -5,6 +5,7 @@ using System.Reflection;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using Xunit.Runners.UI;
+using Xunit.Sdk;
 
 namespace test.xunit.runner.ios
 {
@@ -31,6 +32,9 @@ namespace test.xunit.runner.ios
             window = new UIWindow(UIScreen.MainScreen.Bounds);
             runner = new TouchRunner(window);
 
+            // We need this to ensure the execution assembly is part of the app bundle
+            runner.AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);
+            
             // tests can be inside the main assembly
             runner.Add(Assembly.GetExecutingAssembly());
             // otherwise you need to ensure that the test assemblies will 

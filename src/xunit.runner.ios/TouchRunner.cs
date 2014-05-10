@@ -53,6 +53,7 @@ namespace Xunit.Runners.UI {
 		int failed;
 		int ignored;
 		int inconclusive;
+	    private Assembly executionAssembly;
 	//	TestSuite suite = new TestSuite (String.Empty);
 		
 
@@ -92,7 +93,13 @@ namespace Xunit.Runners.UI {
 			assemblies.Add (assembly);
 		}
 
-        IEnumerable<IGrouping<string, MonoTestCase>> DiscoverTestsInAssemblies()
+        // This is here due to iOS AOT. We need the assm to be in the app dir
+	    public void AddExecutionAssembly(Assembly assembly)
+	    {
+	        if (assembly == null) throw new ArgumentNullException("assembly");
+	    }
+
+	    IEnumerable<IGrouping<string, MonoTestCase>> DiscoverTestsInAssemblies()
 	    {
 	        var stopwatch = Stopwatch.StartNew();
             var result = new List<IGrouping<string, MonoTestCase>>();
@@ -104,8 +111,8 @@ namespace Xunit.Runners.UI {
 	                foreach (var assm in assemblies)
 	                {
 	                    // Xunit needs the file name
-	                    var fileName = assm.GetName()
-	                                       .Name + ".dll";
+	                    var fileName = Path.GetFileName(assm.Location);
+                       
 	                    try
 	                    {
                             using (var framework = new XunitFrontController(fileName, configFileName: null, shadowCopy: true))
@@ -206,7 +213,7 @@ namespace Xunit.Runners.UI {
                     {
                         foreach (var group in tests)
                         {
-                            
+                            main.Add(SetupSource(group));
                         }
 
                         
