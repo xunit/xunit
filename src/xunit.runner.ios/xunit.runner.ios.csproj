@@ -42,22 +42,25 @@
       <Link>Common\Guard.cs</Link>
     </Compile>
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
-      <Link>Common\TestDiscoveryVisitor.cs</Link>
+      <Link>Visitors\TestDiscoveryVisitor.cs</Link>
     </Compile>
     <Compile Include="..\common\XmlTestExecutionVisitor.cs">
-      <Link>Common\XmlTestExecutionVisitor.cs</Link>
+      <Link>Visitors\XmlTestExecutionVisitor.cs</Link>
     </Compile>
     <Compile Include="Enums.cs" />
+    <Compile Include="ITestListener.cs" />
     <Compile Include="MonoTestCase.cs" />
+    <Compile Include="MonoTestResult.cs" />
+    <Compile Include="Visitors\MonoTestExecutionVisitor.cs" />
     <Compile Include="XUnitOutputTextWriter.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TcpTextWriter.cs" />
-    <Compile Include="TestCaseElement.cs" />
-    <Compile Include="TestElement.cs" />
-    <Compile Include="TestResultElement.cs" />
+    <Compile Include="Elements\TestCaseElement.cs" />
+    <Compile Include="Elements\TestElement.cs" />
+    <Compile Include="Elements\TestResultElement.cs" />
     <Compile Include="TestRocks.cs" />
-    <Compile Include="TestSuiteElement.cs" />
+    <Compile Include="Elements\TestSuiteElement.cs" />
     <Compile Include="TouchOptions.cs" />
     <Compile Include="TouchRunner.cs" />
     <Compile Include="TouchViewController.cs" />

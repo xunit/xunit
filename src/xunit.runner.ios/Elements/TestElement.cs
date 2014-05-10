@@ -50,17 +50,22 @@ namespace Xunit.Runners.UI {
 		        {
 		            OptionsChanged();
 
-                    if (GetContainerTableView () != null) 
-                    {
-                        var root = GetImmediateRootElement();
-                        root.Reload(this, UITableViewRowAnimation.None);
-                    }
+		            Refresh();
 		        };
         }
 
 	    protected virtual void OptionsChanged()
-	    {
+        {
 	        
+	    }
+
+	    protected void Refresh()
+	    {
+            if (GetContainerTableView() != null)
+            {
+                var root = GetImmediateRootElement();
+                root.Reload(this, UITableViewRowAnimation.None);
+            }
 	    }
 
 		protected TouchRunner Runner { get; private set; }
@@ -80,6 +85,6 @@ namespace Xunit.Runners.UI {
         //    Update ();
         //}
 		
-	//	abstract public void Update ();
+		abstract public void Update ();
 	}
 }

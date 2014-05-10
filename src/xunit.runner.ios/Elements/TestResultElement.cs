@@ -19,7 +19,10 @@
 //
 
 using System;
-using Xunit.Abstractions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MonoTouch.Dialog;
 using Xunit.Runner.iOS;
 #if XAMCORE_2_0
 using UIKit;
@@ -27,16 +30,14 @@ using UIKit;
 using MonoTouch.UIKit;
 #endif
 
-using MonoTouch.Dialog;
 
-
-namespace Xunit.Runners.UI {
-	
-	class TestResultElement : StyledMultilineElement {
-
-        public TestResultElement(MonoTestCase result) : 
-			base (result.Message ?? "Unknown error", result.StackTrace, UITableViewCellStyle.Subtitle)
-		{
-		}
-	}
+namespace Xunit.Runners.UI
+{
+    internal class TestResultElement : StyledMultilineElement
+    {
+        public TestResultElement(MonoTestResult result) :
+            base(result.ErrorMessage ?? "Unknown error", result.ErrorStackTrace, UITableViewCellStyle.Subtitle)
+        {
+        }
+    }
 }

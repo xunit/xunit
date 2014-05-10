@@ -49,6 +49,7 @@ namespace Xunit.Runners.UI {
             //HostName = defaults.StringForKey ("network.host.name");
             //HostPort = (int)defaults.IntForKey ("network.host.port");
 			SortNames = defaults.BoolForKey ("display.sort");
+		    ParallelizeAssemblies = defaults.BoolForKey("exec.parallel");
 		    var dnKey = defaults.IntForKey("display.NameDisplay");
             if(dnKey == 0)
                 NameDisplay = NameDisplay.Short;
@@ -89,6 +90,8 @@ namespace Xunit.Runners.UI {
 
 		public bool SortNames { get; set; }
 		public NameDisplay NameDisplay { get; set; }
+
+        public bool ParallelizeAssemblies { get; set; }
 		
 		[CLSCompliant (false)]
 		public UIViewController GetViewController ()
@@ -106,10 +109,12 @@ namespace Xunit.Runners.UI {
             var nameDisplayShort = new RadioElement("Short", "nameDisplay");
 
 		    var nameDisplayGroup = new RadioGroup("nameDisplay", NameDisplay == NameDisplay.Short ? 1 : 0);
-            
+
+		    var par = new BooleanElement("Parallelize Assemblies", ParallelizeAssemblies);
 
 			var root = new RootElement ("Options") {
 			//	new Section ("Remote Server") { network, host, port },
+                new Section("Execution") { par },
 
 				new Section ("Display")
 				{
@@ -126,30 +131,42 @@ namespace Xunit.Runners.UI {
 			};
 				
 			var dv = new DialogViewController (root, true) { Autorotate = true };
-			dv.ViewDisappearing += delegate {
-                //EnableNetwork = network.Value;
-                //HostName = host.Value;
-				ushort p;
-                //if (UInt16.TryParse (port.Value, out p))
-                //    HostPort = p;
-                //else
-                //    HostPort = -1;
-				SortNames = sort.Value;
-			    NameDisplay = nameDisplayGroup.Selected == 1 ? NameDisplay.Short : NameDisplay.Full;
+		    dv.ViewDisappearing
+		        += delegate
+		        {
+		            //EnableNetwork = network.Value;
+		            //HostName = host.Value;
+		            ushort p;
+		            //if (UInt16.TryParse (port.Value, out p))
+		            //    HostPort = p;
+		            //else
+		            //    HostPort = -1;
+		            SortNames = sort.Value;
+		            ParallelizeAssemblies = par.Value;
+		            NameDisplay = nameDisplayGroup.Selected == 1 ? NameDisplay.Short : NameDisplay.Full;
 
-				var defaults = NSUserDefaults.StandardUserDefaults;
-			//	defaults.SetBool (EnableNetwork, "network.enabled");
-			//	defaults.SetString (HostName ?? String.Empty, "network.host.name");
-				//defaults.SetInt (HostPort, "network.host.port");
+		            var defaults = NSUserDefaults.StandardUserDefaults;
+		            //	defaults.SetBool (EnableNetwork, "network.enabled");
+		            //	defaults.SetString (HostName ?? String.Empty, "network.host.name");
+		            //defaults.SetInt (HostPort, "network.host.port");
 
-			    defaults.SetInt((int)NameDisplay, "display.nameDisplay");
-				defaults.SetBool (SortNames, "display.sort");
+		            defaults.SetInt((int)NameDisplay, "display.nameDisplay");
+		            defaults.SetBool(SortNames, "display.sort");
+		            defaults.SetBool(ParallelizeAssemblies, "exec.parallel");
 
-			    if (OptionsChanged != null)
-			        OptionsChanged(this, EventArgs.Empty);
-			};
+		            if (OptionsChanged != null)
+		                OptionsChanged(this, EventArgs.Empty);
+		        };
 			
 			return dv;
 		}
+        public string GetDisplayName(string displayName, string shortMethodName, string fullyQualifiedMethodName)
+        {
+            if (NameDisplay == NameDisplay.Full)
+                return displayName;
+            if (displayName == fullyQualifiedMethodName || displayName.StartsWith(fullyQualifiedMethodName + "("))
+                return shortMethodName + displayName.Substring(fullyQualifiedMethodName.Length);
+            return displayName;
+        }
 	}
 }

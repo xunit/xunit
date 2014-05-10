@@ -17,7 +17,7 @@ namespace Xunit.Runner.iOS
         public string AssemblyFileName { get; private set; }
         public ITestCase TestCase { get; private set; }
 
-        public string DisplayName { get { return GetDisplayName(TestCase.DisplayName, TestCase.Method.Name, fqTestMethodName); } }
+        public string DisplayName { get { return TouchOptions.Current.GetDisplayName(TestCase.DisplayName, TestCase.Method.Name, fqTestMethodName); } }
         public string UniqueName { get; private set; }
 
         public MonoTestCase(string assemblyFileName, ITestCase testCase, bool forceUniqueNames)
@@ -36,14 +36,7 @@ namespace Xunit.Runner.iOS
 
 
 
-        static string GetDisplayName(string displayName, string shortMethodName, string fullyQualifiedMethodName)
-        {
-            if (TouchOptions.Current.NameDisplay == NameDisplay.Full)
-                return displayName;
-            if (displayName == fullyQualifiedMethodName || displayName.StartsWith(fullyQualifiedMethodName + "("))
-                return shortMethodName + displayName.Substring(fullyQualifiedMethodName.Length);
-            return displayName;
-        }
+        
 
         public TestState Result { get; private set; }
 
