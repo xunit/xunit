@@ -42,7 +42,26 @@ namespace Xunit.Runners.UI {
 				throw new ArgumentNullException ("runner");
 		
 			Runner = runner;
-		}
+
+            // Normally this would be a bad thing, an event on a static class
+            // given the lifespan of these elements, it doesn't matter.
+		    TouchOptions.Current.OptionsChanged +=
+		        (sender, args) =>
+		        {
+		            OptionsChanged();
+
+                    if (GetContainerTableView () != null) 
+                    {
+                        var root = GetImmediateRootElement();
+                        root.Reload(this, UITableViewRowAnimation.None);
+                    }
+		        };
+        }
+
+	    protected virtual void OptionsChanged()
+	    {
+	        
+	    }
 
 		protected TouchRunner Runner { get; private set; }
 

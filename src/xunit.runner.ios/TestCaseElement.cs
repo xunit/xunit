@@ -35,9 +35,12 @@ namespace Xunit.Runners.UI
 {
     internal class TestCaseElement : TestElement
     {
-        public TestCaseElement(ITestCase testCase, TouchRunner runner)
+        public MonoTestCase TestCase { get; private set; }
+
+        public TestCaseElement(MonoTestCase testCase, TouchRunner runner)
             : base(runner)
         {
+            TestCase = testCase;
             Caption = testCase.DisplayName;
             Value = "NotExecuted";
             //Tapped += delegate
@@ -70,6 +73,13 @@ namespace Xunit.Runners.UI
             //        root.Reload(this, UITableViewRowAnimation.Fade);
             //    }
             //};
+        }
+
+        protected override void OptionsChanged()
+        {
+            Caption = TestCase.DisplayName;
+            base.OptionsChanged();
+
         }
 
         //public ITestCase TestCase
@@ -109,9 +119,10 @@ namespace Xunit.Runners.UI
         //        Value = Result.GetMessage();
         //    }
         //}
+
         public override TestState Result
         {
-            get { return TestState.NotRun; }
+            get { return TestCase.Result; }
         }
     }
 }

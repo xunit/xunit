@@ -414,7 +414,7 @@ namespace Xunit.Runners.UI {
 
         Dictionary<string, TouchViewController> suites_dvc = new Dictionary<string, TouchViewController>();
         Dictionary<string, TestSuiteElement> suite_elements = new Dictionary<string, TestSuiteElement>();
-        Dictionary<ITestCase, TestCaseElement> case_elements = new Dictionary<ITestCase, TestCaseElement>();
+        Dictionary<MonoTestCase, TestCaseElement> case_elements = new Dictionary<MonoTestCase, TestCaseElement>();
 
         public void Show(string suite)
 		{
@@ -461,8 +461,8 @@ namespace Xunit.Runners.UI {
 		
 		TestCaseElement Setup (MonoTestCase test)
 		{
-			TestCaseElement tce = new TestCaseElement (test.TestCase, this);
-			case_elements.Add (test.TestCase, tce);
+			TestCaseElement tce = new TestCaseElement (test, this);
+			case_elements.Add (test, tce);
 			return tce;
 		}
 				

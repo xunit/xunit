@@ -37,6 +37,10 @@ namespace Xunit.Runners.UI {
 	public class TouchOptions {
 
 		static public TouchOptions Current = new TouchOptions ();
+
+        // Normally this would be a bad thing, an event on a static class
+        // given the lifespan of these elements, it doesn't matter.
+	    public event EventHandler OptionsChanged;
 		
 		public TouchOptions ()
 		{
@@ -140,6 +144,9 @@ namespace Xunit.Runners.UI {
 
 			    defaults.SetInt((int)NameDisplay, "display.nameDisplay");
 				defaults.SetBool (SortNames, "display.sort");
+
+			    if (OptionsChanged != null)
+			        OptionsChanged(this, EventArgs.Empty);
 			};
 			
 			return dv;

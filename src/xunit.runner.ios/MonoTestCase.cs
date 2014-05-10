@@ -13,10 +13,11 @@ namespace Xunit.Runner.iOS
 {
     class MonoTestCase
     {
+        private string fqTestMethodName;
         public string AssemblyFileName { get; private set; }
         public ITestCase TestCase { get; private set; }
 
-        public string DisplayName { get; private set; }
+        public string DisplayName { get { return GetDisplayName(TestCase.DisplayName, TestCase.Method.Name, fqTestMethodName); } }
         public string UniqueName { get; private set; }
 
         public MonoTestCase(string assemblyFileName, ITestCase testCase, bool forceUniqueNames)
@@ -24,9 +25,7 @@ namespace Xunit.Runner.iOS
             if (assemblyFileName == null) throw new ArgumentNullException("assemblyFileName");
             if (testCase == null) throw new ArgumentNullException("testCase");
 
-            var fqTestMethodName = String.Format("{0}.{1}", testCase.Class.Name, testCase.Method.Name);
-
-            DisplayName = GetDisplayName(testCase.DisplayName, testCase.Method.Name, fqTestMethodName);
+            fqTestMethodName = String.Format("{0}.{1}", testCase.Class.Name, testCase.Method.Name);
             UniqueName = forceUniqueNames ? String.Format("{0} ({1})", fqTestMethodName, testCase.UniqueID) : fqTestMethodName;
             AssemblyFileName = assemblyFileName;
             TestCase = testCase;
@@ -34,6 +33,8 @@ namespace Xunit.Runner.iOS
             Result = TestState.NotRun;
 
         }
+
+
 
         static string GetDisplayName(string displayName, string shortMethodName, string fullyQualifiedMethodName)
         {
