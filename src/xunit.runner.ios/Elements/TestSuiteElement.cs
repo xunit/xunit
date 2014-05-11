@@ -38,8 +38,9 @@ namespace Xunit.Runners.UI {
 
 	class TestSuiteElement : TestElement {
         private readonly IEnumerable<TestCaseElement> testCases;
+	    private TestState result = TestState.NotRun;
 
-        public TestSuiteElement(string sourceName, IEnumerable<TestCaseElement> testCases, TouchRunner runner)
+	    public TestSuiteElement(string sourceName, IEnumerable<TestCaseElement> testCases, TouchRunner runner)
 			: base (runner)
 		{
 		    this.testCases = testCases;
@@ -58,53 +59,61 @@ namespace Xunit.Runners.UI {
 				Value = "No test was found inside this suite";
 			}
 		}
-	
-        //public void Run ()
-        //{
-        //    Result = Runner.Run (Suite);
-        //}
-
-	   
 
         public void Update()
         {
-            //int positive = Result.PassCount + Result.InconclusiveCount;
-            //int failure = Result.FailCount;
-            //int skipped = Result.SkipCount;
+            var outcomes = testCases.Select(t => t.TestResult)
+                                    .GroupBy(r => r.Outcome);
 
-            //StringBuilder sb = new StringBuilder();
-            //if (failure == 0)
-            //{
-            //    DetailColor = DarkGreen;
-            //    sb.Append("Success! ").Append(Result.Duration.TotalMilliseconds).Append(" ms for ").Append(positive).Append(" test");
-            //    if (positive > 1)
-            //        sb.Append('s');
-            //}
-            //else
-            //{
-            //    DetailColor = UIColor.Red;
-            //    if (positive > 0)
-            //        sb.Append(positive).Append(" success");
-            //    if (sb.Length > 0)
-            //        sb.Append(", ");
-            //    sb.Append(failure).Append(" failure");
-            //    if (failure > 1)
-            //        sb.Append('s');
-            //    if (skipped > 0)
-            //        sb.Append(", ").Append(skipped).Append(" ignored");
-            //}
-            //Value = sb.ToString();
+            var results = outcomes.ToDictionary(k => k.Key, v => v.Count());
 
-            //if (GetContainerTableView() != null)
-            //{
-            //    var root = GetImmediateRootElement();
-            //    root.Reload(this, UITableViewRowAnimation.Fade);
-            //}
+            int positive;
+            results.TryGetValue(TestState.Passed, out positive);
+
+            int failure;
+            results.TryGetValue(TestState.Failed, out failure);
+
+            int skipped;
+            results.TryGetValue(TestState.Skipped, out skipped);
+
+            
+            var sb = new StringBuilder();
+            if (failure == 0)
+            {
+                DetailColor = DarkGreen;
+
+                var totalTime = testCases.Select(r => r.TestResult)
+                                         .Sum(r => r.Duration.TotalMilliseconds);
+
+                sb.Append("Success! ").Append(totalTime).Append(" ms for ").Append(positive).Append(" test");
+                if (positive > 1)
+                    sb.Append('s');
+
+                result = TestState.Passed;
+            }
+            else
+            {
+                DetailColor = UIColor.Red;
+                if (positive > 0)
+                    sb.Append(positive).Append(" success");
+                if (sb.Length > 0)
+                    sb.Append(", ");
+                sb.Append(failure).Append(" failure");
+                if (failure > 1)
+                    sb.Append('s');
+                if (skipped > 0)
+                    sb.Append(", ").Append(skipped).Append(" skipped");
+
+                result = TestState.Failed;
+            }
+            Value = sb.ToString();
+
+            Refresh();
         }
 
 	    public override TestState Result
 	    {
-	        get { return TestState.NotRun; }
+	        get { return result; }
 	    }
 	}
 }

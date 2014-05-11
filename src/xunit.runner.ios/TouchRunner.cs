@@ -58,8 +58,7 @@ namespace Xunit.Runners.UI
         private readonly UIWindow window;
         private Assembly executionAssembly;
         private int failed;
-        private int ignored;
-        private int inconclusive;
+        private int skipped;
         private int passed;
         private bool cancelled;
         private IEnumerable<IGrouping<string, MonoTestCase>> allTests;
@@ -93,6 +92,19 @@ namespace Xunit.Runners.UI
             get { return (UINavigationController)window.RootViewController; }
         }
 
+        private void OnTestRunCompleted()
+        {
+            window.BeginInvokeOnMainThread(
+                () =>
+                {
+                    foreach(var ts in suite_elements.Values)
+                    {
+                        // Recalc the status
+                        ts.Update();
+                    }
+                });
+        }
+
         void ITestListener.RecordResult(MonoTestResult result)
         {
             window.BeginInvokeOnMainThread(
@@ -108,7 +120,7 @@ namespace Xunit.Runners.UI
             else if (result.Outcome == TestState.Skipped)
             {
                 Writer.Write("\t[SKIPPED] ");
-                ignored++;
+                skipped++;
             }
             else if (result.Outcome == TestState.Failed)
             {
@@ -286,23 +298,24 @@ namespace Xunit.Runners.UI
 
         private async void Run()
         {
-            if (!OpenWriter("Run Everything"))
-                return;
-            try
-            {
-                var sw = Stopwatch.StartNew();
+            var sw = Stopwatch.StartNew();
 
-                using (await executionLock.LockAsync())
+            using (await executionLock.LockAsync())
+            {
+                if (!OpenWriter("Run Everything"))
+                    return;
+                try
                 {
                     await RunTests(allTests, sw);
                 }
+                finally
+                {
+                    CloseWriter();
+                }
 
-                sw.Stop();
             }
-            finally
-            {
-                CloseWriter();
-            }
+
+            sw.Stop();
         }
 
         private void Options()
@@ -370,21 +383,18 @@ namespace Xunit.Runners.UI
                 allbtn = new StringElement("Run all",
                                            async delegate
                                            {
-                                               if (OpenWriter(testSource.Key))
-                                               {
-                                                   //var table = allbtn.GetContainerTableView();
-                                                   //var cell = allbtn.GetCell(table);
-                                                   //cell.UserInteractionEnabled = false;
-                                                   //cell.SelectionStyle = UITableViewCellSelectionStyle.None;
-                                                   //cell.
-                                                   await Run(testSource);
 
-                                                   //cell.UserInteractionEnabled = true;
-                                                   //cell.SelectionStyle = UITableViewCellSelectionStyle.Default;
-                                                   
-                                                   CloseWriter();
-                                                   suites_dvc[testSource.Key].Filter();
-                                               }
+                                               //var table = allbtn.GetContainerTableView();
+                                               //var cell = allbtn.GetCell(table);
+                                               //cell.UserInteractionEnabled = false;
+                                               //cell.SelectionStyle = UITableViewCellSelectionStyle.None;
+                                               //cell.
+                                               await Run(testSource);
+
+                                               //cell.UserInteractionEnabled = true;
+                                               //cell.SelectionStyle = UITableViewCellSelectionStyle.Default;
+
+                                               suites_dvc[testSource.Key].Filter();
                                            });
                 var options = new Section()
                 {
@@ -435,6 +445,7 @@ namespace Xunit.Runners.UI
                 finally
                 {
                     toDispose.ForEach(disposable => disposable.Dispose());
+                    OnTestRunCompleted();
                     tcs.SetResult(null);
                 }
             });
@@ -489,6 +500,7 @@ namespace Xunit.Runners.UI
 
                 controller.RunTests(xunitTestCases.Keys.ToList(), executionVisitor, executionOptions);
                 executionVisitor.Finished.WaitOne();
+
             }
 
         }
@@ -515,15 +527,24 @@ namespace Xunit.Runners.UI
             var groups = tests.GroupBy(t => t.AssemblyFileName);
             using (await executionLock.LockAsync())
             {
-                await RunTests(groups, stopWatch);
+                var message = tests.Count() > 1 ? "Run Multiple Tests" : tests.First()
+                                                                              .DisplayName;
+                if (!OpenWriter(message))
+                    return;
+                try
+                {
+                    await RunTests(groups, stopWatch);
+                }
+                finally
+                {
+                    CloseWriter();
+                }
             }
 
             stopWatch.Stop();
         }
 
         #region writer
-
-        //	public TestResult Result { get; set; }
 
         public TextWriter Writer { get; set; }
 
@@ -597,43 +618,43 @@ namespace Xunit.Runners.UI
             // let the application provide it's own TextWriter to ease automation with AutoStart property
             if (Writer == null)
             {
-                //if (options.ShowUseNetworkLogger)
-                //{
-                //    var hostname = SelectHostName(options.HostName.Split(','), options.HostPort);
+                if (options.ShowUseNetworkLogger)
+                {
+                    var hostname = SelectHostName(options.HostName.Split(','), options.HostPort);
 
-                //    if (hostname != null)
-                //    {
-                //        Console.WriteLine("[{0}] Sending '{1}' results to {2}:{3}", now, message, hostname, options.HostPort);
-                //        try
-                //        {
-                //            Writer = new TcpTextWriter(hostname, options.HostPort);
-                //        }
-                //        catch (SocketException)
-                //        {
-                //            UIAlertView alert = new UIAlertView("Network Error",
-                //                String.Format("Cannot connect to {0}:{1}. Continue on console ?", hostname, options.HostPort),
-                //                null, "Cancel", "Continue");
-                //            int button = -1;
-                //            alert.Clicked += delegate(object sender, UIButtonEventArgs e)
-                //            {
-                //                button = (int)e.ButtonIndex;
-                //            };
-                //            alert.Show();
-                //            while (button == -1)
-                //                NSRunLoop.Current.RunUntil(NSDate.FromTimeIntervalSinceNow(0.5));
-                //            Console.WriteLine(button);
-                //            Console.WriteLine("[Host unreachable: {0}]", button == 0 ? "Execution cancelled" : "Switching to console output");
-                //            if (button == 0)
-                //                return false;
-                //            else
-                //                Writer = Console.Out;
-                //        }
-                //    }
-                //}
-                //else
-                //{
+                    if (hostname != null)
+                    {
+                        Console.WriteLine("[{0}] Sending '{1}' results to {2}:{3}", now, message, hostname, options.HostPort);
+                        try
+                        {
+                            Writer = new TcpTextWriter(hostname, options.HostPort);
+                        }
+                        catch (SocketException)
+                        {
+                            UIAlertView alert = new UIAlertView("Network Error",
+                                String.Format("Cannot connect to {0}:{1}. Continue on console ?", hostname, options.HostPort),
+                                null, "Cancel", "Continue");
+                            int button = -1;
+                            alert.Clicked += delegate(object sender, UIButtonEventArgs e)
+                            {
+                                button = (int)e.ButtonIndex;
+                            };
+                            alert.Show();
+                            while (button == -1)
+                                NSRunLoop.Current.RunUntil(NSDate.FromTimeIntervalSinceNow(0.5));
+                            Console.WriteLine(button);
+                            Console.WriteLine("[Host unreachable: {0}]", button == 0 ? "Execution cancelled" : "Switching to console output");
+                            if (button == 0)
+                                return false;
+                            else
+                                Writer = Console.Out;
+                        }
+                    }
+                }
+                else
+                {
                     Writer = Console.Out;
-                //}
+                }
             }
 
             Writer.WriteLine("[Runner executing:\t{0}]", message);
@@ -650,9 +671,8 @@ namespace Xunit.Runners.UI
             Writer.WriteLine("[Bundle:\t{0}]", NSBundle.MainBundle.BundleIdentifier);
             // FIXME: add data about how the app was compiled (e.g. ARMvX, LLVM, GC and Linker options)
             passed = 0;
-            ignored = 0;
+            skipped = 0;
             failed = 0;
-            inconclusive = 0;
             return true;
         }
 
@@ -664,8 +684,8 @@ namespace Xunit.Runners.UI
 
         public void CloseWriter()
         {
-            var total = passed + inconclusive + failed; // ignored are *not* run
-            Writer.WriteLine("Tests run: {0} Passed: {1} Inconclusive: {2} Failed: {3} Ignored: {4}", total, passed, inconclusive, failed, ignored);
+            var total = passed + failed; // ignored are *not* run
+            Writer.WriteLine("Tests run: {0} Passed: {1} Failed: {2} Skipped: {3}", total, passed, failed, skipped);
 
             Writer.Close();
             Writer = null;

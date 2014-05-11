@@ -36,7 +36,7 @@ namespace Xunit.Runners.UI {
 	
 	public class TouchOptions {
 
-		static public TouchOptions Current = new TouchOptions ();
+		static public readonly TouchOptions Current = new TouchOptions ();
 
         // Normally this would be a bad thing, an event on a static class
         // given the lifespan of these elements, it doesn't matter.
@@ -45,9 +45,9 @@ namespace Xunit.Runners.UI {
 		public TouchOptions ()
 		{
 			var defaults = NSUserDefaults.StandardUserDefaults;
-            //EnableNetwork = defaults.BoolForKey ("network.enabled");
-            //HostName = defaults.StringForKey ("network.host.name");
-            //HostPort = (int)defaults.IntForKey ("network.host.port");
+            EnableNetwork = defaults.BoolForKey("network.enabled");
+            HostName = defaults.StringForKey("network.host.name");
+            HostPort = (int)defaults.IntForKey("network.host.port");
 			SortNames = defaults.BoolForKey ("display.sort");
 		    ParallelizeAssemblies = defaults.BoolForKey("exec.parallel");
 		    var dnKey = defaults.IntForKey("display.NameDisplay");
@@ -62,9 +62,9 @@ namespace Xunit.Runners.UI {
 			var os = new OptionSet () {
 				{ "autoexit", "If the app should exit once the test run has completed.", v => TerminateAfterExecution = true },
 				{ "autostart", "If the app should automatically start running the tests.", v => AutoStart = true },
-                //{ "hostname=", "Comma-separated list of host names or IP address to (try to) connect to", v => HostName = v },
-                //{ "hostport=", "TCP port to connect to.", v => HostPort = int.Parse (v) },
-                //{ "enablenetwork", "Enable the network reporter.", v => EnableNetwork = true },
+                { "hostname=", "Comma-separated list of host names or IP address to (try to) connect to", v => HostName = v },
+                { "hostport=", "TCP port to connect to.", v => HostPort = int.Parse (v) },
+                { "enablenetwork", "Enable the network reporter.", v => EnableNetwork = true },
 			};
 			
 			try {
@@ -73,20 +73,21 @@ namespace Xunit.Runners.UI {
 				Console.WriteLine ("{0} for options '{1}'", oe.Message, oe.OptionName);
 			}
 		}
-		
-        //private bool EnableNetwork { get; set; }
-		
-        //public string HostName { get; private set; }
-		
-        //public int HostPort { get; private set; }
+
+        private bool EnableNetwork { get; set; }
+
+        public string HostName { get; private set; }
+
+        public int HostPort { get; private set; }
 		
 		public bool AutoStart { get; set; }
 		
 		public bool TerminateAfterExecution { get; set; }
-		
-        //public bool ShowUseNetworkLogger {
-        //    get { return (EnableNetwork && !String.IsNullOrWhiteSpace (HostName) && (HostPort > 0)); }
-        //}
+
+        public bool ShowUseNetworkLogger
+        {
+            get { return (EnableNetwork && !String.IsNullOrWhiteSpace(HostName) && (HostPort > 0)); }
+        }
 
 		public bool SortNames { get; set; }
 		public NameDisplay NameDisplay { get; set; }
@@ -96,13 +97,13 @@ namespace Xunit.Runners.UI {
 		[CLSCompliant (false)]
 		public UIViewController GetViewController ()
 		{
-            //var network = new BooleanElement ("Enable", EnableNetwork);
+            var network = new BooleanElement("Enable", EnableNetwork);
 
-            //var host = new EntryElement ("Host Name", "name", HostName);
-            //host.KeyboardType = UIKeyboardType.ASCIICapable;
-			
-            //var port = new EntryElement ("Port", "name", HostPort.ToString ());
-            //port.KeyboardType = UIKeyboardType.NumberPad;
+            var host = new EntryElement("Host Name", "name", HostName);
+            host.KeyboardType = UIKeyboardType.ASCIICapable;
+
+            var port = new EntryElement("Port", "name", HostPort.ToString());
+            port.KeyboardType = UIKeyboardType.NumberPad;
 			
 			var sort = new BooleanElement ("Sort Names", SortNames);
             var nameDisplayFull = new RadioElement("Full", "nameDisplay");
@@ -113,7 +114,7 @@ namespace Xunit.Runners.UI {
 		    var par = new BooleanElement("Parallelize Assemblies", ParallelizeAssemblies);
 
 			var root = new RootElement ("Options") {
-			//	new Section ("Remote Server") { network, host, port },
+				new Section ("Remote Server") { network, host, port },
                 new Section("Execution") { par },
 
 				new Section ("Display")
@@ -134,21 +135,21 @@ namespace Xunit.Runners.UI {
 		    dv.ViewDisappearing
 		        += delegate
 		        {
-		            //EnableNetwork = network.Value;
-		            //HostName = host.Value;
+                    EnableNetwork = network.Value;
+                    HostName = host.Value;
 		            ushort p;
-		            //if (UInt16.TryParse (port.Value, out p))
-		            //    HostPort = p;
-		            //else
-		            //    HostPort = -1;
+                    if (UInt16.TryParse(port.Value, out p))
+                        HostPort = p;
+                    else
+                        HostPort = -1;
 		            SortNames = sort.Value;
 		            ParallelizeAssemblies = par.Value;
 		            NameDisplay = nameDisplayGroup.Selected == 1 ? NameDisplay.Short : NameDisplay.Full;
 
 		            var defaults = NSUserDefaults.StandardUserDefaults;
-		            //	defaults.SetBool (EnableNetwork, "network.enabled");
-		            //	defaults.SetString (HostName ?? String.Empty, "network.host.name");
-		            //defaults.SetInt (HostPort, "network.host.port");
+                    defaults.SetBool(EnableNetwork, "network.enabled");
+                    defaults.SetString(HostName ?? String.Empty, "network.host.name");
+                    defaults.SetInt(HostPort, "network.host.port");
 
 		            defaults.SetInt((int)NameDisplay, "display.nameDisplay");
 		            defaults.SetBool(SortNames, "display.sort");

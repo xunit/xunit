@@ -48,10 +48,7 @@ namespace Xunit.Runners.UI
             TestResult = new MonoTestResult(testCase, null);
             Tapped += async delegate
             {
-                if (!Runner.OpenWriter(TestCase.DisplayName))
-                    return;
-
-                await Run();
+               await Run();
 
                 if ( TestResult.Outcome == TestState.Failed)
                 {
@@ -69,7 +66,6 @@ namespace Xunit.Runners.UI
                     Runner.NavigationController.PushViewController(dvc, true);
                 }
 
-                Runner.CloseWriter();
             };
         }
 
