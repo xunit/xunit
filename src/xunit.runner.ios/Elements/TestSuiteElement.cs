@@ -37,9 +37,9 @@ using MonoTouch.Dialog;
 namespace Xunit.Runners.UI {
 
 	class TestSuiteElement : TestElement {
-	    private readonly IEnumerable<MonoTestCase> testCases;
+        private readonly IEnumerable<TestCaseElement> testCases;
 
-        public TestSuiteElement(string sourceName, IEnumerable<MonoTestCase> testCases, TouchRunner runner)
+        public TestSuiteElement(string sourceName, IEnumerable<TestCaseElement> testCases, TouchRunner runner)
 			: base (runner)
 		{
 		    this.testCases = testCases;
@@ -58,11 +58,7 @@ namespace Xunit.Runners.UI {
 				Value = "No test was found inside this suite";
 			}
 		}
-		
-        //public TestSuite Suite {
-        //    get { return Test as TestSuite; }
-        //}
-		
+	
         //public void Run ()
         //{
         //    Result = Runner.Run (Suite);
@@ -70,7 +66,7 @@ namespace Xunit.Runners.UI {
 
 	   
 
-        public override void Update()
+        public void Update()
         {
             //int positive = Result.PassCount + Result.InconclusiveCount;
             //int failure = Result.FailCount;
@@ -105,6 +101,7 @@ namespace Xunit.Runners.UI {
             //    root.Reload(this, UITableViewRowAnimation.Fade);
             //}
         }
+
 	    public override TestState Result
 	    {
 	        get { return TestState.NotRun; }

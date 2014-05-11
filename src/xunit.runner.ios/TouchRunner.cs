@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using MonoTouch;
 using MonoTouch.Dialog;
 using Xunit.Runner.iOS;
+using Xunit.Runner.iOS.Utilities;
 using Xunit.Runner.iOS.Visitors;
 #if XAMCORE_2_0
 using Foundation;
@@ -62,6 +63,8 @@ namespace Xunit.Runners.UI
         private int passed;
         private bool cancelled;
         private IEnumerable<IGrouping<string, MonoTestCase>> allTests;
+
+        private readonly AsyncLock executionLock = new AsyncLock();
 
         [CLSCompliant(false)]
         public TouchRunner(UIWindow window)
@@ -281,14 +284,18 @@ namespace Xunit.Runners.UI
             return dv;
         }
 
-        private void Run()
+        private async void Run()
         {
             if (!OpenWriter("Run Everything"))
                 return;
             try
             {
                 var sw = Stopwatch.StartNew();
-                RunTests(allTests, sw);
+
+                using (await executionLock.LockAsync())
+                {
+                    await RunTests(allTests, sw);
+                }
 
                 sw.Stop();
             }
@@ -338,33 +345,50 @@ namespace Xunit.Runners.UI
 
         private TestSuiteElement SetupSource(IGrouping<string, MonoTestCase> testSource)
         {
-            var tse = new TestSuiteElement(testSource.Key, testSource, this);
-            suite_elements.Add(testSource.Key, tse);
-
+            
             var root = new RootElement("Tests");
+
+            var elements = new List<TestCaseElement>();
 
             var section = new Section(testSource.Key);
             foreach (var test in testSource)
             {
-                section.Add(Setup(test));
+                var ele = Setup(test);
+                elements.Add(ele);
+                section.Add(ele);
             }
+
+            var tse = new TestSuiteElement(testSource.Key, elements, this);
+            suite_elements.Add(testSource.Key, tse);
+
 
             root.Add(section);
 
             if (section.Count > 1)
             {
+                StringElement allbtn = null;
+                allbtn = new StringElement("Run all",
+                                           async delegate
+                                           {
+                                               if (OpenWriter(testSource.Key))
+                                               {
+                                                   //var table = allbtn.GetContainerTableView();
+                                                   //var cell = allbtn.GetCell(table);
+                                                   //cell.UserInteractionEnabled = false;
+                                                   //cell.SelectionStyle = UITableViewCellSelectionStyle.None;
+                                                   //cell.
+                                                   await Run(testSource);
+
+                                                   //cell.UserInteractionEnabled = true;
+                                                   //cell.SelectionStyle = UITableViewCellSelectionStyle.Default;
+                                                   
+                                                   CloseWriter();
+                                                   suites_dvc[testSource.Key].Filter();
+                                               }
+                                           });
                 var options = new Section()
                 {
-                    new StringElement("Run all",
-                                      delegate()
-                                      {
-                                          if (OpenWriter(testSource.Key))
-                                          {
-                                              //Run(suite);
-                                              CloseWriter();
-                                              suites_dvc[testSource.Key].Filter();
-                                          }
-                                      })
+                  allbtn
                 };
 
                 root.Add(options);
@@ -381,12 +405,13 @@ namespace Xunit.Runners.UI
             return tce;
         }
 
-        void RunTests(IEnumerable<IGrouping<string, MonoTestCase>> testCaseAccessor, Stopwatch stopwatch)
+        Task RunTests(IEnumerable<IGrouping<string, MonoTestCase>> testCaseAccessor, Stopwatch stopwatch)
         {
+            var tcs = new TaskCompletionSource<object>(null);
+
             ThreadPool.QueueUserWorkItem(state =>
             {
                 var toDispose = new List<IDisposable>();
-
 
                 try
                 {
@@ -403,11 +428,18 @@ namespace Xunit.Runners.UI
                                 .ToList()
                                 .ForEach(testCaseGroup => RunTestsInAssembly(toDispose, testCaseGroup.Key, testCaseGroup, stopwatch));
                 }
+                catch (Exception e)
+                {
+                    tcs.SetException(e);
+                }
                 finally
                 {
                     toDispose.ForEach(disposable => disposable.Dispose());
+                    tcs.SetResult(null);
                 }
             });
+
+            return tcs.Task;
         }
 
         ManualResetEvent RunTestsInAssemblyAsync(List<IDisposable> toDispose,
@@ -470,11 +502,21 @@ namespace Xunit.Runners.UI
         //}
 
 
-        internal void Run(MonoTestCase test)
+        internal Task Run(MonoTestCase test)
         {
+            return Run(new[] { test });
+        }
+
+        internal async Task Run(IEnumerable<MonoTestCase> tests)
+        {
+
             var stopWatch = Stopwatch.StartNew();
-            var groupOfOne = new Grouping<string, MonoTestCase>(test.AssemblyFileName, new[]{test});
-            RunTests(new[] {groupOfOne}, stopWatch);
+
+            var groups = tests.GroupBy(t => t.AssemblyFileName);
+            using (await executionLock.LockAsync())
+            {
+                await RunTests(groups, stopWatch);
+            }
 
             stopWatch.Stop();
         }

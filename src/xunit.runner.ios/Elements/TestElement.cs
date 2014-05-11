@@ -68,23 +68,9 @@ namespace Xunit.Runners.UI {
             }
 	    }
 
-		protected TouchRunner Runner { get; private set; }
-
-        //public ITestResultMessage Result
-        //{
-        //    get { return result ?? new TestCaseResult (Test as TestMethod); }
-        //    set { result = value; }
-        //}
-
         public abstract TestState Result { get; }
 
-        //public void Update(ITestResultMessage result)
-        //{
-        //    Result = result;
-			
-        //    Update ();
-        //}
-		
-		abstract public void Update ();
+		protected TouchRunner Runner { get; private set; }
+
 	}
 }

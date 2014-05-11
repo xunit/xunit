@@ -51,6 +51,7 @@
     <Compile Include="ITestListener.cs" />
     <Compile Include="MonoTestCase.cs" />
     <Compile Include="MonoTestResult.cs" />
+    <Compile Include="Utilities\AsyncLock.cs" />
     <Compile Include="Visitors\MonoTestExecutionVisitor.cs" />
     <Compile Include="XUnitOutputTextWriter.cs" />
     <Compile Include="Options.cs" />

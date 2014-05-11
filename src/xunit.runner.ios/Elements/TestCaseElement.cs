@@ -46,12 +46,28 @@ namespace Xunit.Runners.UI
             Caption = testCase.DisplayName;
             Value = "NotExecuted";
             TestResult = new MonoTestResult(testCase, null);
-            Tapped += delegate
+            Tapped += async delegate
             {
                 if (!Runner.OpenWriter(TestCase.DisplayName))
                     return;
 
-                Run();
+                await Run();
+
+                if ( TestResult.Outcome == TestState.Failed)
+                {
+                    var root = new RootElement("Results")
+                    {
+                        new Section()
+                        {
+                            new TestResultElement(TestResult)
+                        }
+                    };
+                    var dvc = new DialogViewController(root, true)
+                    {
+                        Autorotate = true
+                    };
+                    Runner.NavigationController.PushViewController(dvc, true);
+                }
 
                 Runner.CloseWriter();
             };
@@ -64,24 +80,18 @@ namespace Xunit.Runners.UI
 
         }
 
+        public override TestState Result
+        {
+            get { return TestResult.Outcome; }
+        }
+
         public void UpdateResult(MonoTestResult result)
         {
             TestResult = result;
-            Update();
 
-            Refresh();
-        }
-      
-        public void Run()
-        {
-            Runner.Run(TestCase);
-        }
-
-        public override void Update()
-        {
             if (TestResult.Outcome == TestState.Skipped)
             {
-                Value = TestResult.ErrorMessage;
+                Value = ((ITestSkipped)TestResult.TestResultMessage).Reason;
                 DetailColor = UIColor.Orange;
             }
             else if (TestResult.Outcome == TestState.Passed)
@@ -100,27 +110,20 @@ namespace Xunit.Runners.UI
                 Value = TestResult.ErrorMessage;
             }
 
-            // display more details on (any) failure (but not when ignored)
-            if ((TestResult.TestCase.TestCase.SkipReason != null) && TestResult.Outcome != TestState.Passed)
+           
+
+            Refresh();
+        }
+      
+        public async Task Run()
+        {
+            if (TestResult.Outcome == TestState.NotRun)
             {
-                var root = new RootElement("Results")
-                    {
-                        new Section()
-                        {
-                            new TestResultElement(TestResult)
-                        }
-                    };
-                var dvc = new DialogViewController(root, true)
-                {
-                    Autorotate = true
-                };
-                Runner.NavigationController.PushViewController(dvc, true);
+                await Runner.Run(TestCase);
             }
         }
 
-        public override TestState Result
-        {
-            get { return TestCase.Result; }
-        }
+      
+
     }
 }
