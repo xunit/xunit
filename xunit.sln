@@ -62,6 +62,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{E4522B71
 		src\xunit.nuspec = src\xunit.nuspec
 		src\xunit.runner.utility.nuspec = src\xunit.runner.utility.nuspec
 		src\xunit.runner.visualstudio.nuspec = src\xunit.runner.visualstudio.nuspec
+		src\xunit.runner.xamarin.nuspec = src\xunit.runner.xamarin.nuspec
 		src\xunit.runners.nuspec = src\xunit.runners.nuspec
 	EndProjectSection
 EndProject
@@ -114,14 +115,14 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\xunit.execution\messages.projitems*{4389d7af-5f1f-416d-bf06-90f335d83ba9}*SharedItemsImports = 13
-		src\xunit.execution\messages.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
-		src\xunit.execution\messages.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
+		src\xunit.execution\messages.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
+		src\xunit.execution\messages.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
 		src\xunit.execution\messages.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
-		src\xunit.execution\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
+		src\xunit.execution\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{77743589-f177-4007-97b8-50b82a1c7044}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{53012549-d81b-4e40-b626-67c19265aa6f}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{ef8381db-7aa0-41b8-99c5-7a69f1a61f18}*SharedItemsImports = 13
@@ -784,6 +785,8 @@ Global
 		{D1F45C28-A2B8-48A2-9D06-DAB9FA0BC85F}.Debug|Mixed Platforms.Build.0 = Debug|iPhoneSimulator
 		{D1F45C28-A2B8-48A2-9D06-DAB9FA0BC85F}.Debug|Mixed Platforms.Deploy.0 = Debug|iPhoneSimulator
 		{D1F45C28-A2B8-48A2-9D06-DAB9FA0BC85F}.Release|Any CPU.ActiveCfg = Release|iPhone
+		{D1F45C28-A2B8-48A2-9D06-DAB9FA0BC85F}.Release|Any CPU.Build.0 = Release|iPhone
+		{D1F45C28-A2B8-48A2-9D06-DAB9FA0BC85F}.Release|Any CPU.Deploy.0 = Release|iPhone
 		{D1F45C28-A2B8-48A2-9D06-DAB9FA0BC85F}.Release|iPhone.ActiveCfg = Release|iPhone
 		{D1F45C28-A2B8-48A2-9D06-DAB9FA0BC85F}.Release|iPhone.Build.0 = Release|iPhone
 		{D1F45C28-A2B8-48A2-9D06-DAB9FA0BC85F}.Release|iPhone.Deploy.0 = Release|iPhone

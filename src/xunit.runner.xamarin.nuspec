@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>xunit.runner.xamarin</id>
+    <version>0.99.6</version>
+    <title>xUnit.net [Xamarin iOS/Android Runner]</title>
+    <authors>Oren Novotny</authors>
+    <description>Includes support for running xUnit.net v2 tests on iOS and Android devices</description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/xunit/xunit</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <dependencies>
+      <dependency id="xunit.runner.utility" version="[2.0.0-beta]" />
+      <!--<dependency id="xunit.runner.utility" version="[2.0.0-alpha,2.1)" />-->
+      
+      <dependency id="xunit.execution" version="[2.0.0-beta]" />
+      <!--<dependency id="xunit.execution" version="[2.0.0-alpha,2.1)" />-->
+      
+      <dependency id="xunit" version="[2.0.0-beta]" />
+      <!--<dependency id="xunit" version="[2.0.0-alpha,2.1)" />-->
+      
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="lib\MonoTouch\_._" target="lib\MonoTouch\_._" />
+    <file src="lib\MonoAndroid\_._" target="lib\MonoAndriod\_._" />
+    <file src="xunit.runner.ios\NuGet\AppDelegate.Sample.cs" target="content\MonoTouch\AppDelegate.Sample.cs.pp" />
+  </files>
+</package>

@@ -7,7 +7,7 @@
         <authors>James Newkirk, Brad Wilson</authors>
         <description>
             Includes the execution framework for xUnit.net (xunit.execution.dll).
-            Supported platforms: Desktop .NET 4.5+.
+            Supported platforms: Desktop .NET 4.5+, MonoTouch, MonoAndroid
         </description>
         <language>en-US</language>
         <projectUrl>https://github.com/xunit/xunit</projectUrl>
