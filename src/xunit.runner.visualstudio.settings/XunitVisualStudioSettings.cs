@@ -28,6 +28,8 @@ namespace Xunit.Runner.VisualStudio.Settings
         bool parallelizeAssemblies;
         bool parallelizeTestCollections;
         bool shutdownAfterRun;
+        bool doNotShadowCopy;
+        string configurationFile;
 
         public XunitVisualStudioSettings()
         {
@@ -126,6 +128,36 @@ namespace Xunit.Runner.VisualStudio.Settings
             }
         }
 
+        [Browsable(true)]
+        [Category("General")]
+        [DisplayName("Do Not Shadow Copy")]
+        [Description("Disables .Net shadow copying of assemblies when running tests. Tests with unmanaged dependencies should enable this option.")]
+        public bool DoNotShadowCopy
+        {
+            get { return doNotShadowCopy; }
+            set
+            {
+                doNotShadowCopy = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("DoNotShadowCopy"));
+            }
+        }
+
+        [Browsable(true)]
+        [Category("General")]
+        [DisplayName("Configuration File")]
+        [Description("Configuration file to use when running tests. Supports environment variables.")]
+        public string ConfigurationFile
+        {
+            get { return configurationFile; }
+            set
+            {
+                configurationFile = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("ConfigurationFile"));
+            }
+        }
+
         public void Reset()
         {
             MaxParallelThreads = 0;
@@ -134,6 +166,8 @@ namespace Xunit.Runner.VisualStudio.Settings
             ParallelizeAssemblies = false;
             ParallelizeTestCollections = true;
             ShutdownAfterRun = false;
+            DoNotShadowCopy = false;
+            ConfigurationFile = string.Empty;
         }
 
         public override void ResetSettings()
