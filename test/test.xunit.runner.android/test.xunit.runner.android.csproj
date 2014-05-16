@@ -5,33 +5,39 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{9E5809D5-4CD3-4CB0-8ABC-1B7D04176C55}</ProjectGuid>
+    <ProjectGuid>{111991DA-D822-4A9F-B57B-CEF2EFC8252E}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xunit</RootNamespace>
-    <AssemblyName>xunit.runner.utility</AssemblyName>
+    <RootNamespace>test.xunit.runner.android</RootNamespace>
+    <AssemblyName>test.xunit.runner.android</AssemblyName>
     <FileAlignment>512</FileAlignment>
+    <AndroidApplication>true</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
+    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XAMARIN;ANDROID;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
+    <AndroidLinkMode>None</AndroidLinkMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;XAMARIN;ANDROID;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
@@ -42,52 +48,55 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\common\AssemblyExtensions.cs">
-      <Link>Common\AssemblyExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\common\DictionaryExtensions.cs">
-      <Link>Common\DictionaryExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\common\DisposableExtensions.cs">
-      <Link>Common\DisposableExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\common\ExceptionExtensions.cs">
-      <Link>Common\ExceptionExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\common\GlobalAssemblyInfo.cs">
-      <Link>Properties\GlobalAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\common\Guard.cs">
-      <Link>Common\Guard.cs</Link>
-    </Compile>
-    <Compile Include="..\common\SerializationInfoExtensions.cs">
-      <Link>Common\SerializationInfoExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\common\SourceInformation.cs">
-      <Link>Common\SourceInformation.cs</Link>
-    </Compile>
-    <Compile Include="..\common\TestDiscoveryVisitor.cs">
-      <Link>Common\TestDiscoveryVisitor.cs</Link>
-    </Compile>
-    <Compile Include="..\common\TestOptionsNames.cs">
-      <Link>Common\TestOptionsNames.cs</Link>
-    </Compile>
+    <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
+    <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
+    <AndroidResource Include="Resources\layout\Main.axml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Properties\AndroidManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
       <Project>{77743589-f177-4007-97b8-50b82a1c7044}</Project>
       <Name>xunit.abstractions.pcl</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">
+      <Project>{80b04afe-4331-4cdd-b247-864ac6482f7c}</Project>
+      <Name>xunit.assert</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.core\xunit.core.csproj">
+      <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>
+      <Name>xunit.core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.execution.android\xunit.execution.android.csproj">
+      <Project>{34290da1-e5ca-4373-ba2d-1404d0c29bcd}</Project>
+      <Name>xunit.execution.android</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.android\xunit.runner.android.csproj">
+      <Project>{a0d90d0b-bc16-42aa-af74-8b49772f8406}</Project>
+      <Name>xunit.runner.android</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.utility.android\xunit.runner.utility.android.csproj">
+      <Project>{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}</Project>
+      <Name>xunit.runner.utility.android</Name>
+    </ProjectReference>
   </ItemGroup>
-  <Import Project="..\xunit.runner.utility\xunit.runner.utility.projitems" Label="Shared" Condition="Exists('..\xunit.runner.utility\xunit.runner.utility.projitems')" />
-  <Import Project="..\xunit.execution\messages.projitems" Label="Shared" Condition="Exists('..\xunit.execution\messages.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+     Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
