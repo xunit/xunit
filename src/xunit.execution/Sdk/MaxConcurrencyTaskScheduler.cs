@@ -43,7 +43,7 @@ namespace Xunit.Sdk
         public void Dispose()
         {
             terminate.Set();
-            workerThreads.ForEach(t => t.Join());
+            foreach (var t in workerThreads) t.Join();
 
             terminate.Dispose();
             workReady.Dispose();

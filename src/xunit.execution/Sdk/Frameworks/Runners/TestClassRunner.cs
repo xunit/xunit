@@ -89,7 +89,7 @@ namespace Xunit.Sdk
         {
             var constructorArguments = new List<object>();
 
-            var isStaticClass = TestClass.Type.IsAbstract && TestClass.Type.IsSealed;
+            var isStaticClass = TestClass.Type.GetTypeInfo().IsAbstract && TestClass.Type.GetTypeInfo().IsSealed;
             if (!isStaticClass)
             {
                 var ctor = SelectTestClassConstructor();

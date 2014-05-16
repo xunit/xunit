@@ -26,13 +26,13 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IAssemblyInfo Assembly
         {
-            get { return Reflector.Wrap(Type.Assembly); }
+            get { return Reflector.Wrap(Type.GetTypeInfo().Assembly); }
         }
 
         /// <inheritdoc/>
         public ITypeInfo BaseType
         {
-            get { return Reflector.Wrap(Type.BaseType); }
+            get { return Reflector.Wrap(Type.GetTypeInfo().BaseType); }
         }
 
         /// <inheritdoc/>
@@ -44,7 +44,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public bool IsAbstract
         {
-            get { return Type.IsAbstract; }
+            get { return Type.GetTypeInfo().IsAbstract; }
         }
 
         /// <inheritdoc/>
@@ -56,19 +56,19 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public bool IsGenericType
         {
-            get { return Type.IsGenericType; }
+            get { return Type.IsConstructedGenericType; }
         }
 
         /// <inheritdoc/>
         public bool IsSealed
         {
-            get { return Type.IsSealed; }
+            get { return Type.GetTypeInfo().IsSealed; }
         }
 
         /// <inheritdoc/>
         public bool IsValueType
         {
-            get { return Type.IsValueType; }
+            get { return Type.GetTypeInfo().IsValueType; }
         }
 
         /// <inheritdoc/>

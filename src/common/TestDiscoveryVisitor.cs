@@ -14,7 +14,7 @@ namespace Xunit
 
         public override void Dispose()
         {
-            TestCases.ForEach(testCase => testCase.Dispose());
+            foreach (var testCase in TestCases) testCase.Dispose();
             TestCases = null;
         }
 
