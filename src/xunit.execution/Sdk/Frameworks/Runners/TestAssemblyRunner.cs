@@ -31,7 +31,9 @@ namespace Xunit.Sdk
                                   ITestFrameworkOptions executionOptions)
         {
             AssemblyInfo = assemblyInfo;
-            AssemblyFileName = AssemblyInfo.AssemblyPath;
+            AssemblyFileName = !String.IsNullOrEmpty(AssemblyInfo.AssemblyPath)
+                ? AssemblyInfo.AssemblyPath
+                : AssemblyInfo.Name;
             TestCases = testCases;
             MessageSink = messageSink;
             ExecutionOptions = executionOptions;
@@ -126,7 +128,8 @@ namespace Xunit.Sdk
             {
                 try
                 {
-                    Directory.SetCurrentDirectory(Path.GetDirectoryName(AssemblyInfo.AssemblyPath));
+                    if (!String.IsNullOrEmpty(AssemblyInfo.AssemblyPath))
+                        Directory.SetCurrentDirectory(Path.GetDirectoryName(AssemblyInfo.AssemblyPath));
 
                     if (messageBus.QueueMessage(new TestAssemblyStarting(AssemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
                                                                          testFrameworkEnvironment, testFrameworkDisplayName)))
