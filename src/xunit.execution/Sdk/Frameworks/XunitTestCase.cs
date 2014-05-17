@@ -421,8 +421,8 @@ namespace Xunit.Sdk
                                                                 List<BeforeAfterTestAttribute> beforeAfterAttributes,
                                                                 ExceptionAggregator parentAggregator,
                                                                 CancellationTokenSource cancellationTokenSource)
-        {
-            var executionTime = 0M;
+         {
+            var executionTimeInSeconds = 0.0m;
             var aggregator = new ExceptionAggregator(parentAggregator);
             var output = String.Empty;  // TODO: Add output facilities for v2
 
@@ -438,7 +438,7 @@ namespace Xunit.Sdk
                 else
                 {
                     var beforeAttributesRun = new Stack<BeforeAfterTestAttribute>();
-                    var stopwatch = Stopwatch.StartNew();
+                    var executionTime = new ExecutionTime();
 
                     if (!aggregator.HasExceptions)
                         await aggregator.RunAsync(async () =>
@@ -453,7 +453,9 @@ namespace Xunit.Sdk
                                 try
                                 {
                                     if (!cancellationTokenSource.IsCancellationRequested)
-                                        testClass = Activator.CreateInstance(classUnderTest, constructorArguments);
+                                    {
+                                        executionTime.MeassureStep(() => testClass = Activator.CreateInstance(classUnderTest, constructorArguments));
+                                    }
                                 }
                                 finally
                                 {
@@ -475,7 +477,7 @@ namespace Xunit.Sdk
                                         {
                                             try
                                             {
-                                                beforeAfterAttribute.Before(methodUnderTest);
+                                                executionTime.MeassureStep(() => beforeAfterAttribute.Before(methodUnderTest));
                                                 beforeAttributesRun.Push(beforeAfterAttribute);
                                             }
                                             finally
@@ -501,16 +503,20 @@ namespace Xunit.Sdk
 
                                             await aggregator.RunAsync(async () =>
                                             {
-                                                var result = methodUnderTest.Invoke(testClass, Reflector.ConvertArguments(testMethodArguments, parameterTypes));
-                                                var task = result as Task;
-                                                if (task != null)
-                                                    await task;
-                                                else
+                                                executionTime.MeassureStep(async () =>
                                                 {
-                                                    var ex = await asyncSyncContext.WaitForCompletionAsync();
-                                                    if (ex != null)
-                                                        aggregator.Add(ex);
-                                                }
+                                                    var result = methodUnderTest.Invoke(testClass, Reflector.ConvertArguments(testMethodArguments, parameterTypes));
+                                                    var task = result as Task;
+                                                    if (task != null)
+                                                        await task;
+                                                    else
+                                                    {
+                                                        var ex = await asyncSyncContext.WaitForCompletionAsync();
+                                                        if (ex != null)
+                                                            aggregator.Add(ex);
+                                                    }
+
+                                                });
                                             });
                                         }
                                         finally
@@ -526,7 +532,7 @@ namespace Xunit.Sdk
                                     if (!messageBus.QueueMessage(new AfterTestStarting(this, displayName, attributeName)))
                                         cancellationTokenSource.Cancel();
 
-                                    aggregator.Run(() => beforeAfterAttribute.After(methodUnderTest));
+                                    aggregator.Run(() => executionTime.MeassureStep(() => beforeAfterAttribute.After(methodUnderTest)));
 
                                     if (!messageBus.QueueMessage(new AfterTestFinished(this, displayName, attributeName)))
                                         cancellationTokenSource.Cancel();
@@ -543,7 +549,7 @@ namespace Xunit.Sdk
 
                                     try
                                     {
-                                        disposable.Dispose();
+                                        executionTime.MeassureStep(disposable.Dispose);
                                     }
                                     finally
                                     {
@@ -554,31 +560,54 @@ namespace Xunit.Sdk
                             });
                         });
 
-                    stopwatch.Stop();
-
                     if (!cancellationTokenSource.IsCancellationRequested)
                     {
-                        executionTime = (decimal)stopwatch.Elapsed.TotalSeconds;
+                        executionTimeInSeconds = (decimal)executionTime.Total.TotalSeconds;
 
                         var exception = aggregator.ToException();
-                        var testResult = exception == null ? (TestResultMessage)new TestPassed(this, displayName, executionTime, output)
-                                                           : new TestFailed(this, displayName, executionTime, output, exception);
+                        var testResult = exception == null ? (TestResultMessage)new TestPassed(this, displayName, executionTimeInSeconds, output)
+                                                           : new TestFailed(this, displayName, executionTimeInSeconds, output, exception);
                         if (!messageBus.QueueMessage(testResult))
                             cancellationTokenSource.Cancel();
                     }
                 }
             }
 
-            if (!messageBus.QueueMessage(new TestFinished(this, displayName, executionTime, output)))
+            if (!messageBus.QueueMessage(new TestFinished(this, displayName, executionTimeInSeconds, output)))
                 cancellationTokenSource.Cancel();
 
-            return executionTime;
+            return executionTimeInSeconds;
         }
 
         [SecuritySafeCritical]
         static void SetSynchronizationContext(SynchronizationContext context)
         {
             SynchronizationContext.SetSynchronizationContext(context);
+        }
+    }
+	
+	/// <summary>
+    /// Meassurs execution time of a processes made out of set of steps
+    /// </summary>
+    public class ExecutionTime
+    {
+        private TimeSpan total;
+
+        /// <summary>
+        /// Executes a step, meassures its execution time and adds it to the current value of the total execution time.
+        /// </summary>
+        /// <param name="step"></param>
+        public void MeassureStep(Action step)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            step();
+            stopwatch.Stop();
+            total = total + stopwatch.Elapsed;
+        }
+
+        public TimeSpan Total
+        {
+            get { return total; }
         }
     }
 }
