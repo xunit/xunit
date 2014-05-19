@@ -31,9 +31,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using MonoTouch;
 using MonoTouch.Dialog;
-using Xunit.Runner.iOS;
-using Xunit.Runner.iOS.Utilities;
-using Xunit.Runner.iOS.Visitors;
+using Xunit;
+using Xunit.Runners;
+using Xunit.Runners.Utilities;
+using Xunit.Runners.Visitors;
 #if XAMCORE_2_0
 using Foundation;
 using ObjCRuntime;
@@ -76,14 +77,14 @@ namespace Xunit.Runners.UI
 
         public bool AutoStart
         {
-            get { return TouchOptions.Current.AutoStart; }
-            set { TouchOptions.Current.AutoStart = value; }
+            get { return RunnerOptions.Current.AutoStart; }
+            set { RunnerOptions.Current.AutoStart = value; }
         }
 
         public bool TerminateAfterExecution
         {
-            get { return TouchOptions.Current.TerminateAfterExecution; }
-            set { TouchOptions.Current.TerminateAfterExecution = value; }
+            get { return RunnerOptions.Current.TerminateAfterExecution; }
+            set { RunnerOptions.Current.TerminateAfterExecution = value; }
         }
 
         [CLSCompliant(false)]
@@ -266,7 +267,7 @@ namespace Xunit.Runners.UI
                         main.Caption = null;
                         menu.Reload(main, UITableViewRowAnimation.Fade);
 
-                        options.Insert(0, new StringElement("Run Everything", Run));
+                        options.Insert(0, new StringElement("Run Everything", async () => await Run()));
                         menu.Reload(options, UITableViewRowAnimation.Fade);
                     });
                 assemblies.Clear();
@@ -283,9 +284,9 @@ namespace Xunit.Runners.UI
                 ThreadPool.QueueUserWorkItem(delegate
                 {
                     mre.WaitOne();
-                    window.BeginInvokeOnMainThread(delegate
+                    window.BeginInvokeOnMainThread(async delegate
                     {
-                        Run();
+                        await Run();
                         // optionally end the process, e.g. click "Touch.Unit" -> log tests results, return to springboard...
                         // http://stackoverflow.com/questions/1978695/uiapplication-sharedapplication-terminatewithsuccess-is-not-there
                         if (TerminateAfterExecution)
@@ -296,31 +297,14 @@ namespace Xunit.Runners.UI
             return dv;
         }
 
-        private async void Run()
+        private Task Run()
         {
-            var sw = Stopwatch.StartNew();
-
-            using (await executionLock.LockAsync())
-            {
-                if (!OpenWriter("Run Everything"))
-                    return;
-                try
-                {
-                    await RunTests(allTests, sw);
-                }
-                finally
-                {
-                    CloseWriter();
-                }
-
-            }
-
-            sw.Stop();
+            return Run(allTests.SelectMany(t => t), "Run Everything");
         }
 
         private void Options()
         {
-            NavigationController.PushViewController(TouchOptions.Current.GetViewController(), true);
+            NavigationController.PushViewController(RunnerOptions.Current.GetViewController(), true);
         }
 
         private void Credits()
@@ -428,7 +412,7 @@ namespace Xunit.Runners.UI
                     cancelled = false;
 
                     using (AssemblyHelper.SubscribeResolve())
-                        if (TouchOptions.Current.ParallelizeAssemblies)
+                        if (RunnerOptions.Current.ParallelizeAssemblies)
                             testCaseAccessor
                                 .Select(testCaseGroup => RunTestsInAssemblyAsync(toDispose, testCaseGroup.Key, testCaseGroup, stopwatch))
                                 .ToList()
@@ -519,7 +503,7 @@ namespace Xunit.Runners.UI
             return Run(new[] { test });
         }
 
-        internal async Task Run(IEnumerable<MonoTestCase> tests)
+        internal async Task Run(IEnumerable<MonoTestCase> tests, string message = null)
         {
 
             var stopWatch = Stopwatch.StartNew();
@@ -527,8 +511,10 @@ namespace Xunit.Runners.UI
             var groups = tests.GroupBy(t => t.AssemblyFileName);
             using (await executionLock.LockAsync())
             {
-                var message = tests.Count() > 1 ? "Run Multiple Tests" : tests.First()
+                if(message == null)
+                    message = tests.Count() > 1 ? "Run Multiple Tests" : tests.First()
                                                                               .DisplayName;
+
                 if (!OpenWriter(message))
                     return;
                 try
@@ -613,7 +599,7 @@ namespace Xunit.Runners.UI
 
         public bool OpenWriter(string message)
         {
-            TouchOptions options = TouchOptions.Current;
+            RunnerOptions options = RunnerOptions.Current;
             DateTime now = DateTime.Now;
             // let the application provide it's own TextWriter to ease automation with AutoStart property
             if (Writer == null)

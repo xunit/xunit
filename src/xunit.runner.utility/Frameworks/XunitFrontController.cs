@@ -38,8 +38,9 @@ namespace Xunit
             this.shadowCopy = shadowCopy;
             this.sourceInformationProvider = sourceInformationProvider;
 
+#if !ANDROID
             Guard.FileExists("assemblyFileName", assemblyFileName);
-
+#endif
 
             if (this.sourceInformationProvider == null)
             {
@@ -83,7 +84,9 @@ namespace Xunit
 #endif
             var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
 
+#if !ANDROID
             if (File.Exists(xunitExecutionPath))
+#endif
                 return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
 #if !XAMARIN
             if (File.Exists(xunitPath))

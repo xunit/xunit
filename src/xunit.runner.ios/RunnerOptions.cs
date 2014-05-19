@@ -19,7 +19,7 @@
 //
 
 using System;
-using Xunit.Runner.iOS;
+using Xunit.Runners;
 #if XAMCORE_2_0
 using Foundation;
 using UIKit;
@@ -34,15 +34,15 @@ using Mono.Options;
 
 namespace Xunit.Runners.UI {
 	
-	public class TouchOptions {
+	public class RunnerOptions {
 
-		static public readonly TouchOptions Current = new TouchOptions ();
+		static public readonly RunnerOptions Current = new RunnerOptions ();
 
         // Normally this would be a bad thing, an event on a static class
         // given the lifespan of these elements, it doesn't matter.
 	    public event EventHandler OptionsChanged;
 		
-		public TouchOptions ()
+		public RunnerOptions ()
 		{
 			var defaults = NSUserDefaults.StandardUserDefaults;
             EnableNetwork = defaults.BoolForKey("network.enabled");

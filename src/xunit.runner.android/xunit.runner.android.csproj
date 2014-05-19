@@ -3,13 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A0D90D0B-BC16-42AA-AF74-8B49772F8406}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xunit.Runner.Android</RootNamespace>
+    <RootNamespace>Xunit.Runners</RootNamespace>
     <AssemblyName>xunit.runner.android</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
@@ -24,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AndroidLinkMode>None</AndroidLinkMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
@@ -42,6 +42,43 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\common\TestDiscoveryVisitor.cs">
+      <Link>Visitors\TestDiscoveryVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\common\XmlTestExecutionVisitor.cs">
+      <Link>Visitors\XmlTestExecutionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.ios\Enums.cs">
+      <Link>Enums.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.ios\ITestListener.cs">
+      <Link>ITestListener.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.ios\MonoTestCase.cs">
+      <Link>MonoTestCase.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.ios\MonoTestResult.cs">
+      <Link>MonoTestResult.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.ios\Utilities\AsyncLock.cs">
+      <Link>Utilities\AsyncLock.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.runner.ios\Visitors\MonoTestExecutionVisitor.cs">
+      <Link>Visitors\MonoTestExecutionVisitor.cs</Link>
+    </Compile>
+    <Compile Include="Activities\CreditsActivity.cs" />
+    <Compile Include="Activities\OptionsActivity.cs" />
+    <Compile Include="Activities\RunnerActivity.cs" />
+    <Compile Include="Activities\TestResultActivity.cs" />
+    <Compile Include="Activities\TestSuiteActivity.cs" />
+    <Compile Include="AndroidRunner.cs" />
+    <Compile Include="Elements\ActionElement.cs" />
+    <Compile Include="Elements\ActivityElement.cs" />
+    <Compile Include="Elements\FormattedElement.cs" />
+    <Compile Include="Elements\FormattedSection.cs" />
+    <Compile Include="Elements\TestCaseElement.cs" />
+    <Compile Include="Elements\TestElement.cs" />
+    <Compile Include="Elements\TestSuiteElement.cs" />
     <Compile Include="MonoTouch.Dialog\BindingContext.cs" />
     <Compile Include="MonoTouch.Dialog\BooleanElement.cs" />
     <Compile Include="MonoTouch.Dialog\ButtonElement.cs" />
@@ -66,19 +103,21 @@
     <Compile Include="MonoTouch.Dialog\SectionAdapter.cs" />
     <Compile Include="MonoTouch.Dialog\StringElement.cs" />
     <Compile Include="MonoTouch.Dialog\ViewElement.cs" />
+    <Compile Include="RunnerOptions.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TcpTextWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
-      <Project>{77743589-f177-4007-97b8-50b82a1c7044}</Project>
+      <Project>{77743589-F177-4007-97B8-50B82A1C7044}</Project>
       <Name>xunit.abstractions.pcl</Name>
     </ProjectReference>
     <ProjectReference Include="..\xunit.runner.utility.android\xunit.runner.utility.android.csproj">
-      <Project>{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}</Project>
+      <Project>{9E5809D5-4CD3-4CB0-8ABC-1B7D04176C55}</Project>
       <Name>xunit.runner.utility.android</Name>
     </ProjectReference>
   </ItemGroup>
@@ -91,4 +130,28 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup />
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\dialog_disclosure.png" />
+    <AndroidResource Include="Resources\drawable\dialog_expander_ic_minimized.9.png" />
+    <AndroidResource Include="Resources\layout\dialog_achievements.xml" />
+    <AndroidResource Include="Resources\layout\dialog_boolfieldleft.xml" />
+    <AndroidResource Include="Resources\layout\dialog_boolfieldright.xml" />
+    <AndroidResource Include="Resources\layout\dialog_boolfieldsubleft.xml" />
+    <AndroidResource Include="Resources\layout\dialog_boolfieldsubright.xml" />
+    <AndroidResource Include="Resources\layout\dialog_button.xml" />
+    <AndroidResource Include="Resources\layout\dialog_datefield.xml" />
+    <AndroidResource Include="Resources\layout\dialog_fieldsetlabel.xml" />
+    <AndroidResource Include="Resources\layout\dialog_floatimage.xml" />
+    <AndroidResource Include="Resources\layout\dialog_labelfieldbelow.xml" />
+    <AndroidResource Include="Resources\layout\dialog_labelfieldright.xml" />
+    <AndroidResource Include="Resources\layout\dialog_onofffieldright.xml" />
+    <AndroidResource Include="Resources\layout\dialog_panel.xml" />
+    <AndroidResource Include="Resources\layout\dialog_root.xml" />
+    <AndroidResource Include="Resources\layout\dialog_selectlist.xml" />
+    <AndroidResource Include="Resources\layout\dialog_selectlistfield.xml" />
+    <AndroidResource Include="Resources\layout\dialog_textarea.xml" />
+    <AndroidResource Include="Resources\layout\dialog_textfieldbelow.xml" />
+    <AndroidResource Include="Resources\layout\dialog_textfieldright.xml" />
+  </ItemGroup>
 </Project>

@@ -19,7 +19,7 @@
 //
 
 using System;
-using Xunit.Runner.iOS;
+
 #if XAMCORE_2_0
 using UIKit;
 #else
@@ -45,7 +45,7 @@ namespace Xunit.Runners.UI {
 
             // Normally this would be a bad thing, an event on a static class
             // given the lifespan of these elements, it doesn't matter.
-		    TouchOptions.Current.OptionsChanged +=
+		    RunnerOptions.Current.OptionsChanged +=
 		        (sender, args) =>
 		        {
 		            OptionsChanged();

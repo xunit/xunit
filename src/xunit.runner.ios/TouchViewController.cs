@@ -21,7 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Xunit.Runner.iOS;
+using Xunit.Runners;
 #if XAMCORE_2_0
 using CoreGraphics;
 using Foundation;
@@ -63,7 +63,7 @@ namespace Xunit.Runners.UI {
 			CurrentFilter = ResultFilter.All;
 			Filter ();
 			CurrentSortOrder = SortOrder.None;
-			if (TouchOptions.Current.SortNames)
+			if (RunnerOptions.Current.SortNames)
 				ChangeSort (this, EventArgs.Empty);
 		}
 

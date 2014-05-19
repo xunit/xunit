@@ -24,7 +24,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MonoTouch.Dialog;
 using Xunit.Abstractions;
-using Xunit.Runner.iOS;
+using Xunit.Runners;
 #if XAMCORE_2_0
 using UIKit;
 #else

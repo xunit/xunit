@@ -13,8 +13,9 @@ namespace Xunit
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
 
             assemblyFileName = Path.GetFullPath(assemblyFileName);
+#if !ANDROID
             Guard.ArgumentValid("assemblyFileName", "Could not find file: " + assemblyFileName, File.Exists(assemblyFileName));
-
+#endif
             if (configFileName == null)
                 configFileName = GetDefaultConfigFile(assemblyFileName);
 

@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runners.UI;
 
-namespace Xunit.Runner.iOS.Visitors
+namespace Xunit.Runners.Visitors
 {
     class MonoTestExecutionVisitor : TestMessageVisitor<ITestAssemblyFinished>
     {
@@ -58,8 +56,12 @@ namespace Xunit.Runner.iOS.Visitors
         {
             var testCase = testCases[testResult.TestCase];
             var fqTestMethodName = String.Format("{0}.{1}", testResult.TestCase.Class.Name, testResult.TestCase.Method.Name);
-            var displayName = TouchOptions.Current.GetDisplayName(testResult.TestDisplayName, testResult.TestCase.Method.Name, fqTestMethodName);
 
+#if __IOS__ || MAC
+            var displayName = RunnerOptions.Current.GetDisplayName(testResult.TestDisplayName, testResult.TestCase.Method.Name, fqTestMethodName);
+#else
+            var displayName = RunnerOptions.GetDisplayName(testResult.TestDisplayName, testResult.TestCase.Method.Name, fqTestMethodName);
+#endif
             var result = new MonoTestResult(testCase, testResult)
             {
                 DisplayName = displayName,

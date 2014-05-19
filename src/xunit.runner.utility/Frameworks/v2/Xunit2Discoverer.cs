@@ -43,11 +43,18 @@ namespace Xunit
         Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, IAssemblyInfo assemblyInfo, string assemblyFileName, string xunitExecutionAssemblyPath, string configFileName, bool shadowCopy)
         {
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
+#if !ANDROID
             Guard.ArgumentValid("xunitExecutionAssemblyPath", "File not found: " + xunitExecutionAssemblyPath, File.Exists(xunitExecutionAssemblyPath));
-
+#endif
             appDomain = new RemoteAppDomainManager(assemblyFileName ?? xunitExecutionAssemblyPath, configFileName, shadowCopy);
 
-            var testFrameworkAssemblyName = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath).FullName;
+#if !ANDROID
+            var name = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
+            var testFrameworkAssemblyName = name.FullName;
+#else
+            var name = Assembly.Load(xunitExecutionAssemblyPath);
+            var testFrameworkAssemblyName = name.FullName;
+#endif
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
             if (assemblyInfo == null)
@@ -117,7 +124,9 @@ namespace Xunit
         static string GetXunitExecutionAssemblyPath(string assemblyFileName)
         {
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
+#if !ANDROID
             Guard.ArgumentValid("assemblyFileName", "File not found: " + assemblyFileName, File.Exists(assemblyFileName));
+#endif
 
             return Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
         }

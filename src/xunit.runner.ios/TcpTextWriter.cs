@@ -6,10 +6,12 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 
+#if __IOS__ || MAC
 #if XAMCORE_2_0
 using UIKit;
 #else
 using MonoTouch.UIKit;
+#endif
 #endif
 
 namespace Xunit.Runners.UI {
@@ -29,14 +31,17 @@ namespace Xunit.Runners.UI {
 			HostName = hostName;
 			Port = port;
 			
+#if __IOS__ || MAC
 			UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
-
+#endif
 			try {
 				client = new TcpClient (hostName, port);
 				writer = new StreamWriter (client.GetStream ());
 			}
 			catch {
-				UIApplication.SharedApplication.NetworkActivityIndicatorVisible = false;
+#if __IOS__ || MAC
+                UIApplication.SharedApplication.NetworkActivityIndicatorVisible = false;
+#endif
 				throw;
 			}
 		}
@@ -54,7 +59,9 @@ namespace Xunit.Runners.UI {
 
 		public override void Close ()
 		{
+#if __IOS__ || MAC
 			UIApplication.SharedApplication.NetworkActivityIndicatorVisible = false;
+#endif
 			writer.Close ();
 		}
 		

@@ -3,21 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using MonoTouch.Foundation;
-using MonoTouch.SpriteKit;
-using MonoTouch.UIKit;
+
 using Xunit.Abstractions;
+using Xunit.Runners;
 using Xunit.Runners.UI;
 
-namespace Xunit.Runner.iOS
+namespace Xunit.Runners
 {
-    class MonoTestCase
+    public class MonoTestCase
     {
         private string fqTestMethodName;
         public string AssemblyFileName { get; private set; }
         public ITestCase TestCase { get; private set; }
 
-        public string DisplayName { get { return TouchOptions.Current.GetDisplayName(TestCase.DisplayName, TestCase.Method.Name, fqTestMethodName); } }
+#if __IOS__ || MAC
+        public string DisplayName { get { return RunnerOptions.Current.GetDisplayName(TestCase.DisplayName, TestCase.Method.Name, fqTestMethodName); } }
+#else
+        public string DisplayName { get { return RunnerOptions.GetDisplayName(TestCase.DisplayName, TestCase.Method.Name, fqTestMethodName); } }
+#endif
         public string UniqueName { get; private set; }
 
         public MonoTestCase(string assemblyFileName, ITestCase testCase, bool forceUniqueNames)

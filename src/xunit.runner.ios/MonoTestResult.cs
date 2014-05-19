@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 using Xunit.Abstractions;
 
-namespace Xunit.Runner.iOS
+namespace Xunit.Runners
 {
-    class MonoTestResult
+    public class MonoTestResult
     {
         public MonoTestCase TestCase { get; private set; }
         public ITestResultMessage TestResultMessage { get; private set; }

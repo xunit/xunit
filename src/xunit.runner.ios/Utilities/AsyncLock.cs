@@ -6,10 +6,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
 
-namespace Xunit.Runner.iOS.Utilities
+namespace Xunit.Runners.Utilities
 {
     internal class AsyncLock
     {

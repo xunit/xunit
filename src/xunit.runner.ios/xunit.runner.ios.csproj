@@ -60,7 +60,7 @@
     <Compile Include="Elements\TestElement.cs" />
     <Compile Include="Elements\TestResultElement.cs" />
     <Compile Include="Elements\TestSuiteElement.cs" />
-    <Compile Include="TouchOptions.cs" />
+    <Compile Include="RunnerOptions.cs" />
     <Compile Include="TouchRunner.cs" />
     <Compile Include="TouchViewController.cs" />
   </ItemGroup>

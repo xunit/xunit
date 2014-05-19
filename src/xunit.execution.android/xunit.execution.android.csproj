@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XAMARIN;XUNIT_CORE_DLL;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XAMARIN;XUNIT_CORE_DLL;NO_APPDOMAIN;ANDROID</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;XAMARIN;XUNIT_CORE_DLL;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>TRACE;XAMARIN;XUNIT_CORE_DLL;NO_APPDOMAIN;ANDROID</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
