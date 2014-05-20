@@ -28,8 +28,6 @@ namespace Xunit.Runners.UI
             if (runner == null) throw new ArgumentNullException("runner");
 
             Runner = runner;
-
-            Caption = GetCaption();
         }
 
      

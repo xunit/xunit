@@ -72,10 +72,5 @@ namespace Xunit.Runners.UI
             if (assembly == null) throw new ArgumentNullException("assembly");
             this.assembly = assembly;
         }
-
-        private async Task Run()
-        {
-            await AndroidRunner.Runner.Run();
-        }
     }
 }

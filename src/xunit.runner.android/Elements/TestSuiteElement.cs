@@ -41,7 +41,7 @@ namespace Xunit.Runners.UI
             if (testCases.Any())
                 Indicator = ">"; // hint there's more
 
-            //SetCaption(sourceName);
+            Refresh();
         }
 
 
@@ -52,6 +52,11 @@ namespace Xunit.Runners.UI
             if (count == 0)
             {
                 caption += "<font color='#ff7f00'>no test was found inside this suite</font>";
+            }
+            else if (Result == TestState.NotRun)
+            {
+                caption += String.Format("<font color='green'><b>{0}</b> test case{1}, <i>{2}</i></font>",
+                    count, count == 1 ? String.Empty : "s", Result);
             }
             else if (Result == TestState.Passed)
             {

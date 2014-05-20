@@ -228,9 +228,12 @@ namespace Xunit.Runners
 
             var optSect = new Section()
             {
+                new ActionElement("Run Everything", async () => await Run()),
                 new ActivityElement("Options", typeof(OptionsActivity)),
                 new ActivityElement("Credits", typeof(CreditsActivity))
             };
+
+            menu.Add(main);
             menu.Add(optSect);
 
             var a = new DialogAdapter(activity, menu);
@@ -238,6 +241,8 @@ namespace Xunit.Runners
             {
                 Adapter = a
             };
+
+            optSect.Adapter.NotifyDataSetChanged();
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
@@ -256,8 +261,10 @@ namespace Xunit.Runners
                     mre.Set();
                     main.Caption = null;
 
-                    optSect.Insert(0, new ActionElement("Run Everything", async () => await Run()));
-
+                    //TODO: WE should only show this after, but if we do, clicking brings up the credits
+                //   optSect.Insert(0, new ActionElement("Run Everything", async () => await Run()));
+                  // optSect.Adapter.NotifyDataSetChanged();
+                    
                     a.NotifyDataSetChanged();
                 });
 
@@ -265,22 +272,22 @@ namespace Xunit.Runners
             });
 
 
-            // AutoStart running the tests (with either the supplied 'writer' or the options)
-            if (AutoStart)
-            {
-                ThreadPool.QueueUserWorkItem(delegate
-                {
-                    mre.WaitOne();
-                    activity.RunOnUiThread(async () =>
-                    {
-                        await Run();
+            //// AutoStart running the tests (with either the supplied 'writer' or the options)
+            //if (AutoStart)
+            //{
+            //    ThreadPool.QueueUserWorkItem(delegate
+            //    {
+            //        mre.WaitOne();
+            //        activity.RunOnUiThread(async () =>
+            //        {
+            //            await Run();
 
-                        // optionally end the process, 
-                        if (TerminateAfterExecution)
-                            activity.Finish();
-                    });
-                });
-            }
+            //            // optionally end the process, 
+            //            if (TerminateAfterExecution)
+            //                activity.Finish();
+            //        });
+            //    });
+            //}
 
             return lv;
         }
@@ -329,10 +336,6 @@ namespace Xunit.Runners
                     Writer.WriteLine("\t\t{0}", line);
             }
         }
-
-        //static public IList<TestSuite> AssemblyLevel {
-        //    get { return top; }
-        //}
 
         internal IDictionary<string, TestSuiteElement> Suites
         {

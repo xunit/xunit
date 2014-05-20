@@ -68,9 +68,7 @@ namespace Xunit.Runners.UI
 
             await runner.Run(suiteElement.TestCases.Select(tc => tc.TestCase));
 
-            //foreach (TestElement te in main) {
-            //    te.Update ();
-            //}
+            suiteElement.Refresh();
         }
     }
 }

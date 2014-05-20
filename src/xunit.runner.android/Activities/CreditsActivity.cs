@@ -27,7 +27,7 @@ namespace Xunit.Runners.UI
 	[Activity (Label = "Credits")]
 	internal class CreditsActivity : DialogActivity {
 		
-		const string notice = "<br><b>Andr.Unit Runner</b><br>Copyright &copy; 2011 Xamarin Inc.<br>All rights reserved.<br><br>Author: Sebastien Pouliot<br>";
+		const string notice = "<br><b>xUnit Android Runner</b><br>Copyright &copy; 2014<br>Outercurve Foundation<br>All rights reserved.<br><br>Author: Oren Novotny<br>";
 
 		protected override void OnCreate (Bundle bundle)
 		{
@@ -36,7 +36,7 @@ namespace Xunit.Runners.UI
 					new HtmlElement ("About Xamarin", "http://xamarin.com"),
 					new HtmlElement ("About Mono for Android", "http://android.xamarin.com"),
 					new HtmlElement ("About MonoDroid.Dialog", "https://github.com/spouliot/MonoDroid.Dialog"),
-					new HtmlElement ("About NUnitLite", "http://www.nunitlite.org")
+					new HtmlElement("About xUnit", "https://github.com/xunit/xunit"),
 				}
 			};
 			

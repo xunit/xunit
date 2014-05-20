@@ -22,6 +22,7 @@ using Android.App;
 using Android.OS;
 using Android.Widget;
 using MonoDroid.Dialog;
+using Xunit.Abstractions;
 using Environment = System.Environment;
 
 namespace Xunit.Runners.UI
@@ -36,15 +37,25 @@ namespace Xunit.Runners.UI
             var testCaseUniqueId = Intent.GetStringExtra("TestCase");
 
             var result = AndroidRunner.Runner.Results[testCaseUniqueId];
-
-            var error = String.Format("<b>{0}<b><br><font color='grey'>{1}</font>",
-                                      result.ErrorMessage, result.ErrorStackTrace.Replace(Environment.NewLine, "<br>"));
+            
+            var message = string.Empty;
+            if (result.Outcome == TestState.Failed)
+            {
+                message = String.Format("<b>{0}<b><br><font color='grey'>{1}</font>",
+                                        result.ErrorMessage, result.ErrorStackTrace.Replace(Environment.NewLine, "<br>"));
+            }
+            else if(result.Outcome == TestState.Skipped)
+            {
+                message = String.Format("<b>{0}<b>",
+                                        ((ITestSkipped) result.TestResultMessage).Reason);
+            }
+            
 
             var menu = new RootElement(String.Empty)
             {
                 new Section(result.DisplayName)
                 {
-                    new FormattedElement(error)
+                    new FormattedElement(message)
                 }
             };
 

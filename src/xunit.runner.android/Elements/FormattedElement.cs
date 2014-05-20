@@ -29,7 +29,10 @@ namespace Xunit.Runners.UI
 		
         private new TextView _caption;
         private new TextView _text;
-		
+
+	    private string captionText;
+        
+
 		public FormattedElement (string caption) : base (caption)
 		{
 		}
@@ -48,7 +51,13 @@ namespace Xunit.Runners.UI
             parms.AddRule(LayoutRules.AlignParentLeft);
 
 			_caption = new TextView (context);
-			SetCaption (Caption);
+		    if (string.IsNullOrWhiteSpace(captionText))
+		        SetCaption(Caption);
+		    else
+		    {
+		        SetCaption(captionText);
+		        captionText = null;
+		    }
             view.AddView(_caption, parms);
 			
 			if (!String.IsNullOrWhiteSpace (Indicator)) {
@@ -69,7 +78,12 @@ namespace Xunit.Runners.UI
 		
 		public void SetCaption (string html)
 		{
-			_caption.SetText (Android.Text.Html.FromHtml (html), TextView.BufferType.Spannable);
+		    if (_caption != null)
+		        _caption.SetText(Android.Text.Html.FromHtml(html), TextView.BufferType.Spannable);
+		    else
+		    {
+		        captionText = html;
+		    }
 		}
 	}
 }

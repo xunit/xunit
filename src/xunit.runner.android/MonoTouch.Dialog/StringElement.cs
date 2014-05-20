@@ -5,6 +5,7 @@ using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Renderscripts;
 using Android.Views;
 using Android.Widget;
 using Android.Runtime;
@@ -14,11 +15,19 @@ namespace MonoDroid.Dialog
 {
     internal class StringElement : Element
     {
-		public int FontSize {get;set;}
+
+
+		public int? FontSize {get;set;}
         public string Value
         {
             get { return _value; }
-            set { _value = value; if (_text != null) _text.Text = _value; }
+            set
+            {
+                _value = value;
+                if (_text != null) 
+                    _text.Text = _value;
+
+            }
         }
         private string _value;
 
@@ -67,9 +76,14 @@ namespace MonoDroid.Dialog
             if (view != null)
             {
                 _caption.Text = Caption;
-				_caption.TextSize = FontSize;
                 _text.Text = Value;
-				_text.TextSize = FontSize;
+
+                if (FontSize.HasValue)
+                {
+                    _caption.TextSize = FontSize.Value;
+                    _text.TextSize = FontSize.Value;    
+                }
+
 				if (Click != null)
 					view.Click += Click;
             }

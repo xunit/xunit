@@ -33,12 +33,16 @@ namespace Xunit.Runners.UI
             if (testCase == null) throw new ArgumentNullException("testCase");
 
             TestCase = testCase;
-            TestResult = new MonoTestResult(testCase, null);
+
+            MonoTestResult result;
+            Runner.Results.TryGetValue(testCase.UniqueName, out result);
+            
+            TestResult = result ?? new MonoTestResult(testCase, null);
 
             if (testCase.Result == TestState.NotRun)
                 Indicator = "..."; // hint there's more
 
-            
+            Refresh();
         }
 
 
@@ -55,7 +59,7 @@ namespace Xunit.Runners.UI
         protected override string GetCaption()
         {
             if (TestResult == null)
-                return string.Empty;
+                return "Initial";
 
 
             if (TestResult.Outcome == TestState.Skipped)
@@ -66,6 +70,7 @@ namespace Xunit.Runners.UI
             }
             else if (TestResult.Outcome == TestState.Passed)
             {
+                Indicator = null;
                 return string.Format("<b>{0}</b><br><font color='green'>Success! {1} ms</font>", TestCase.DisplayName, TestResult.Duration.TotalMilliseconds);
             }
             else if (TestResult.Outcome == TestState.Failed)
@@ -84,6 +89,7 @@ namespace Xunit.Runners.UI
         public void UpdateResult(MonoTestResult result)
         {
             TestResult = result;
+
 
             Refresh();
         }
