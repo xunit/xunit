@@ -23,7 +23,12 @@ namespace Xunit.Runners
             TestResultMessage = testResult;
 
             if(testResult != null)
-                testCase.UpdateTestState(TestResultMessage);
+                testCase.UpdateTestState(this);
+        }
+
+        internal void RaiseTestUpdated()
+        {
+            TestCase.RaiseTestCaseUpdated();
         }
     }
 }

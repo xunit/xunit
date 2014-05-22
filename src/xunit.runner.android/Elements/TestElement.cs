@@ -15,6 +15,7 @@
 //
 
 using System;
+using Android.Graphics;
 
 namespace Xunit.Runners.UI
 {
@@ -43,7 +44,8 @@ namespace Xunit.Runners.UI
 
         public void Refresh()
         {
-            SetCaption(GetCaption());
+            var caption = GetCaption();
+            SetCaption(caption);
         }
 
         protected AndroidRunner Runner { get; private set; }

@@ -37,66 +37,62 @@ namespace Xunit.Runners.UI
             MonoTestResult result;
             Runner.Results.TryGetValue(testCase.UniqueName, out result);
             
-            TestResult = result ?? new MonoTestResult(testCase, null);
-
             if (testCase.Result == TestState.NotRun)
                 Indicator = "..."; // hint there's more
 
+            Refresh();
+
+            testCase.TestCaseUpdated += OnTestCaseUpdated;
+        }
+
+        private void OnTestCaseUpdated(object sender, EventArgs e)
+        {
             Refresh();
         }
 
 
         public MonoTestCase TestCase { get; private set; }
 
-        public MonoTestResult TestResult { get; private set; }
 
 
         public override TestState Result
         {
-            get { return TestResult.TestCase.Result; }
+            get { return TestCase.Result; }
         }
 
         protected override string GetCaption()
         {
-            if (TestResult == null)
-                return "Initial";
 
 
-            if (TestResult.TestCase.Result == TestState.Skipped)
+
+            if (TestCase.Result == TestState.Skipped)
             {
-                var val = ((ITestSkipped)TestResult.TestResultMessage).Reason;
+                var val = ((ITestSkipped)TestCase.TestResult.TestResultMessage).Reason;
                 return string.Format("<b>{0}</b><br><font color='#FF7700'>{1}: {2}</font>",
                                      TestCase.DisplayName, TestState.Skipped, val);
             }
-            else if (TestResult.TestCase.Result == TestState.Passed)
+            else if (TestCase.Result == TestState.Passed)
             {
                 Indicator = null;
-                return string.Format("<b>{0}</b><br><font color='green'>Success! {1} ms</font>", TestCase.DisplayName, TestResult.Duration.TotalMilliseconds);
+                return string.Format("<b>{0}</b><br><font color='green'>Success! {1} ms</font>", TestCase.DisplayName, TestCase.TestResult.Duration.TotalMilliseconds);
             }
-            else if (TestResult.TestCase.Result == TestState.Failed)
+            else if (TestCase.Result == TestState.Failed)
             {
-                var val = TestResult.ErrorMessage;
+                var val = TestCase.TestResult.ErrorMessage;
                 return string.Format("<b>{0}</b><br><font color='red'>{1}</font>", TestCase.DisplayName, val);
             }
             else
             {
                 // Assert.Ignore falls into this
-                var val = TestResult.ErrorMessage;
+                var val = TestCase.TestResult.ErrorMessage;
                 return string.Format("<b>{0}</b><br><font color='grey'>{1}</font>", TestCase.DisplayName, val);
             }
         }
-
-        public void UpdateResult(MonoTestResult result)
-        {
-            TestResult = result;
-
-
-            Refresh();
-        }
+        
 
         public async Task Run()
         {
-            if (TestResult.TestCase.Result == TestState.NotRun)
+            if (TestCase.Result == TestState.NotRun)
             {
                 await Runner.Run(TestCase);
             }
@@ -104,6 +100,7 @@ namespace Xunit.Runners.UI
 
         public override View GetView(Context context, View convertView, ViewGroup parent)
         {
+            Refresh();
             var view = base.GetView(context, convertView, parent);
             view.Click += async delegate
             {
@@ -118,6 +115,15 @@ namespace Xunit.Runners.UI
                 }
             };
             return view;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                TestCase.TestCaseUpdated -= OnTestCaseUpdated;
+            }
+            base.Dispose(disposing);
         }
     }
 }

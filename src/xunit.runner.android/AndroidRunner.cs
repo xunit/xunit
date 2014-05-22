@@ -42,7 +42,7 @@ namespace Xunit.Runners
     public class AndroidRunner : ITestListener
     {
         private static readonly AndroidRunner runner = new AndroidRunner();
-        private readonly Dictionary<MonoTestCase, TestCaseElement> case_elements = new Dictionary<MonoTestCase, TestCaseElement>();
+        
         private readonly Dictionary<string, TestSuiteElement> suite_elements = new Dictionary<string, TestSuiteElement>();
         private readonly Dictionary<string, MonoTestResult> results = new Dictionary<string, MonoTestResult>();
         
@@ -53,6 +53,8 @@ namespace Xunit.Runners
         private bool cancelled;
         readonly ManualResetEvent mre = new ManualResetEvent(false);
         private RunnerOptions options;
+
+        private Action refreshViews;
 
         private Dictionary<string, IEnumerable<MonoTestCase>> testCasesByAssembly = new Dictionary<string, IEnumerable<MonoTestCase>>();
         private int passed;
@@ -242,6 +244,12 @@ namespace Xunit.Runners
                 Adapter = a
             };
 
+            refreshViews = () =>
+            {
+                a.NotifyDataSetChanged();
+                optSect.Adapter.NotifyDataSetChanged();
+            };
+
             optSect.Adapter.NotifyDataSetChanged();
 
             ThreadPool.QueueUserWorkItem(_ =>
@@ -297,7 +305,8 @@ namespace Xunit.Runners
             Application.SynchronizationContext.Post(_ =>
             {
                 Results[result.TestCase.UniqueName] = result;
-                case_elements[result.TestCase].UpdateResult(result);
+
+                result.RaiseTestUpdated();
             }, null);
 
             if (result.TestCase.Result == TestState.Passed)
@@ -393,7 +402,7 @@ namespace Xunit.Runners
             var section = new Section(sourceName);
             foreach (var test in testSource)
             {
-                var ele = Setup(test);
+                var ele = new TestCaseElement(test, this);
                 elements.Add(ele);
                 section.Add(ele);
             }
@@ -435,12 +444,6 @@ namespace Xunit.Runners
             return tse;
         }
 
-        private TestCaseElement Setup(MonoTestCase test)
-        {
-            var tce = new TestCaseElement(test, this);
-            case_elements.Add(test, tce);
-            return tce;
-        }
 
         private Task RunTests(IEnumerable<IGrouping<string, MonoTestCase>> testCaseAccessor, Stopwatch stopwatch)
         {
@@ -539,6 +542,8 @@ namespace Xunit.Runners
                         // Recalc the status
                         ts.Refresh();
                     }
+                    if (refreshViews != null)
+                        refreshViews();
                 }, null);
         }
 

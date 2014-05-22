@@ -75,15 +75,13 @@ namespace Xunit.Runners.UI
 			}
 			return view;
 		}
-		
-		public void SetCaption (string html)
-		{
-		    if (_caption != null)
-		        _caption.SetText(Android.Text.Html.FromHtml(html), TextView.BufferType.Spannable);
-		    else
-		    {
-		        captionText = html;
-		    }
-		}
+
+	    public void SetCaption(string html)
+	    {
+	        if (_caption != null)
+	            _caption.SetText(Android.Text.Html.FromHtml(html), TextView.BufferType.Spannable);
+
+	        captionText = html;
+	    }
 	}
 }

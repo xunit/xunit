@@ -53,20 +53,9 @@ namespace Xunit.Runners.UI
             {
                 caption += "<font color='#ff7f00'>no test was found inside this suite</font>";
             }
-            else if (Result == TestState.NotRun)
-            {
-                caption += String.Format("<font color='green'><b>{0}</b> test case{1}, <i>{2}</i></font>",
-                    count, count == 1 ? String.Empty : "s", Result);
-            }
-            else if (Result == TestState.Passed)
-            {
-                caption += String.Format("<font color='green'><b>{0}</b> test case{1}, <i>{2}</i></font>",
-                                         count, count == 1 ? String.Empty : "s", Result);
-            }
             else
             {
-                var outcomes = testCases.Select(t => t.TestResult)
-                                        .GroupBy(r => r.TestCase.Result);
+                var outcomes = testCases.GroupBy(r => r.Result);
 
                 var results = outcomes.ToDictionary(k => k.Key, v => v.Count());
 
@@ -79,20 +68,31 @@ namespace Xunit.Runners.UI
                 int skipped;
                 results.TryGetValue(TestState.Skipped, out skipped);
 
-                if (failure == 0)
+                int notRun;
+                results.TryGetValue(TestState.NotRun, out notRun);
+
+                // No failures and all run
+                if (failure == 0 && notRun == 0)
                 {
                     caption += string.Format("<font color='green'><b>Success!</b> {0} test{1}</font>",
                                              positive, positive == 1 ? string.Empty : "s");
 
                     result = TestState.Passed;
                 }
-                else if (result != TestState.NotRun)
+                else if (failure > 0 || (notRun > 0 && notRun < count))
                 {
-                    caption += String.Format("<font color='green'>{0} success,</font> <font color='red'>{1} failure{2}, {3} skip{4}</font>",
+                    // we either have failures or some of the tests are not run
+                    caption += String.Format("<font color='green'>{0} success,</font> <font color='red'>{1} failure{2}, {3} skip{4}, {5} not run</font>",
                                              positive, failure, failure > 1 ? "s" : String.Empty,
-                                             skipped, skipped > 1 ? "s" : String.Empty);
+                                             skipped, skipped > 1 ? "s" : String.Empty,
+                                             notRun);
 
                     result = TestState.Failed;
+                }
+                else if (Result == TestState.NotRun)
+                {
+                    caption += String.Format("<font color='green'><b>{0}</b> test case{1}, <i>{2}</i></font>",
+                        count, count == 1 ? String.Empty : "s", Result);
                 }
             }
             return caption;
@@ -100,6 +100,7 @@ namespace Xunit.Runners.UI
 
         public override View GetView(Context context, View convertView, ViewGroup parent)
         {
+            Refresh();
             var view = base.GetView(context, convertView, parent);
             // if there are test cases inside this suite then create an activity to show them
             if (testCases.Any())
