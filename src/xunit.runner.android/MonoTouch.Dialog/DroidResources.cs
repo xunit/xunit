@@ -84,7 +84,9 @@ namespace MonoDroid.Dialog
 
         public static View LoadStringElementLayout(Context context, View convertView, ViewGroup parent, int layoutId, out TextView label, out TextView value)
         {
-            View layout = convertView ?? LoadLayout(context, parent, layoutId);
+            // We are not recycling views here because Android.Dialog is leaking anon.Click handlers
+            //View layout = convertView ?? LoadLayout(context, parent, layoutId);
+            View layout = LoadLayout(context, parent, layoutId);
             if (layout != null)
             {
                 label = layout.FindViewById<TextView>(context.Resources.GetIdentifier("dialog_LabelField", "id", context.PackageName));

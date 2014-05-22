@@ -224,13 +224,15 @@ namespace Xunit.Runners
 
             RunnerOptions.Initialize(activity);
 
+            Results.Clear();
+            suite_elements.Clear();
+
             var menu = new RootElement("Test Runner");
 
             var main = new Section("Loading test assemblies...");
 
             var optSect = new Section()
             {
-                new ActionElement("Run Everything", async () => await Run()),
                 new ActivityElement("Options", typeof(OptionsActivity)),
                 new ActivityElement("Credits", typeof(CreditsActivity))
             };
@@ -244,13 +246,13 @@ namespace Xunit.Runners
                 Adapter = a
             };
 
-            refreshViews = () =>
-            {
-                a.NotifyDataSetChanged();
-                optSect.Adapter.NotifyDataSetChanged();
-            };
+            //refreshViews = () =>
+            //{
+            //    a.NotifyDataSetChanged();
+            //    optSect.Adapter.NotifyDataSetChanged();
+            //};
 
-            optSect.Adapter.NotifyDataSetChanged();
+     //       optSect.Adapter.NotifyDataSetChanged();
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
@@ -269,11 +271,10 @@ namespace Xunit.Runners
                     mre.Set();
                     main.Caption = null;
 
-                    //TODO: WE should only show this after, but if we do, clicking brings up the credits
-                //   optSect.Insert(0, new ActionElement("Run Everything", async () => await Run()));
+                   optSect.Insert(0, new ActionElement("Run Everything", async () => await Run()));
                   // optSect.Adapter.NotifyDataSetChanged();
                     
-                    a.NotifyDataSetChanged();
+     //               a.NotifyDataSetChanged();
                 });
 
                 assemblies.Clear();
@@ -408,7 +409,7 @@ namespace Xunit.Runners
             }
 
             var tse = new TestSuiteElement(sourceName, elements, this);
-            suite_elements.Add(sourceName, tse);
+            suite_elements[sourceName] = tse;
 
 
             root.Add(section);
