@@ -25,11 +25,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
-using Android.Content;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
-using Java.Security.Acl;
 using MonoDroid.Dialog;
 using Xunit.Runners.UI;
 using Xunit.Runners.Utilities;
@@ -42,24 +40,18 @@ namespace Xunit.Runners
     public class AndroidRunner : ITestListener
     {
         private static readonly AndroidRunner runner = new AndroidRunner();
-        
-        private readonly Dictionary<string, TestSuiteElement> suite_elements = new Dictionary<string, TestSuiteElement>();
-        private readonly Dictionary<string, MonoTestResult> results = new Dictionary<string, MonoTestResult>();
-        
-
         private static readonly List<Assembly> assemblies = new List<Assembly>();
+
         private readonly AsyncLock executionLock = new AsyncLock();
-        private readonly Stack<DateTime> time = new Stack<DateTime>();
+        private readonly ManualResetEvent mre = new ManualResetEvent(false);
+        private readonly Dictionary<string, MonoTestResult> results = new Dictionary<string, MonoTestResult>();
+        private readonly Dictionary<string, TestSuiteElement> suiteElements = new Dictionary<string, TestSuiteElement>();
         private bool cancelled;
-        readonly ManualResetEvent mre = new ManualResetEvent(false);
-        private RunnerOptions options;
-
-        private Action refreshViews;
-
-        private Dictionary<string, IEnumerable<MonoTestCase>> testCasesByAssembly = new Dictionary<string, IEnumerable<MonoTestCase>>();
-        private int passed;
         private int failed;
+        private RunnerOptions options;
+        private int passed;
         private int skipped;
+        private Dictionary<string, IEnumerable<MonoTestCase>> testCasesByAssembly = new Dictionary<string, IEnumerable<MonoTestCase>>();
 
         private AndroidRunner()
         {
@@ -80,7 +72,7 @@ namespace Xunit.Runners
             set { options = value; }
         }
 
-    
+
         public static AndroidRunner Runner
         {
             get { return runner; }
@@ -89,6 +81,11 @@ namespace Xunit.Runners
         public IDictionary<string, MonoTestResult> Results
         {
             get { return results; }
+        }
+
+        internal IDictionary<string, TestSuiteElement> Suites
+        {
+            get { return suiteElements; }
         }
 
         #region writer
@@ -164,6 +161,52 @@ namespace Xunit.Runners
 
         #endregion
 
+        void ITestListener.RecordResult(MonoTestResult result)
+        {
+            Application.SynchronizationContext.Post(_ =>
+            {
+                Results[result.TestCase.UniqueName] = result;
+
+                result.RaiseTestUpdated();
+            }, null);
+
+            if (result.TestCase.Result == TestState.Passed)
+            {
+                Writer.Write("\t[PASS] ");
+                passed++;
+            }
+            else if (result.TestCase.Result == TestState.Skipped)
+            {
+                Writer.Write("\t[SKIPPED] ");
+                skipped++;
+            }
+            else if (result.TestCase.Result == TestState.Failed)
+            {
+                Writer.Write("\t[FAIL] ");
+                failed++;
+            }
+            else
+            {
+                Writer.Write("\t[INFO] ");
+            }
+            Writer.Write(result.TestCase.DisplayName);
+
+            var message = result.ErrorMessage;
+            if (!String.IsNullOrEmpty(message))
+            {
+                Writer.Write(" : {0}", message.Replace("\r\n", "\\r\\n"));
+            }
+            Writer.WriteLine();
+
+            var stacktrace = result.ErrorStackTrace;
+            if (!String.IsNullOrEmpty(result.ErrorStackTrace))
+            {
+                var lines = stacktrace.Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var line in lines)
+                    Writer.WriteLine("\t\t{0}", line);
+            }
+        }
+
         private IEnumerable<IGrouping<string, MonoTestCase>> DiscoverTestsInAssemblies()
         {
             var stopwatch = Stopwatch.StartNew();
@@ -218,14 +261,13 @@ namespace Xunit.Runners
 
         internal View GetView(Activity activity)
         {
-            
             if (Options == null)
                 Options = new RunnerOptions(activity);
 
             RunnerOptions.Initialize(activity);
 
             Results.Clear();
-            suite_elements.Clear();
+            suiteElements.Clear();
 
             var menu = new RootElement("Test Runner");
 
@@ -246,13 +288,6 @@ namespace Xunit.Runners
                 Adapter = a
             };
 
-            //refreshViews = () =>
-            //{
-            //    a.NotifyDataSetChanged();
-            //    optSect.Adapter.NotifyDataSetChanged();
-            //};
-
-     //       optSect.Adapter.NotifyDataSetChanged();
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
@@ -271,85 +306,33 @@ namespace Xunit.Runners
                     mre.Set();
                     main.Caption = null;
 
-                   optSect.Insert(0, new ActionElement("Run Everything", async () => await Run()));
-                  // optSect.Adapter.NotifyDataSetChanged();
-                    
-     //               a.NotifyDataSetChanged();
+                    optSect.Insert(0, new ActionElement("Run Everything", async () => await Run()));
+
+                    a.NotifyDataSetChanged();
                 });
 
                 assemblies.Clear();
             });
 
 
-            //// AutoStart running the tests (with either the supplied 'writer' or the options)
-            //if (AutoStart)
-            //{
-            //    ThreadPool.QueueUserWorkItem(delegate
-            //    {
-            //        mre.WaitOne();
-            //        activity.RunOnUiThread(async () =>
-            //        {
-            //            await Run();
+            // AutoStart running the tests (with either the supplied 'writer' or the options)
+            if (AutoStart)
+            {
+                ThreadPool.QueueUserWorkItem(delegate
+                {
+                    mre.WaitOne();
+                    activity.RunOnUiThread(async () =>
+                    {
+                        await Run();
 
-            //            // optionally end the process, 
-            //            if (TerminateAfterExecution)
-            //                activity.Finish();
-            //        });
-            //    });
-            //}
+                        // optionally end the process, 
+                        if (TerminateAfterExecution)
+                            activity.Finish();
+                    });
+                });
+            }
 
             return lv;
-        }
-
-        void ITestListener.RecordResult(MonoTestResult result)
-        {
-            Application.SynchronizationContext.Post(_ =>
-            {
-                Results[result.TestCase.UniqueName] = result;
-
-                result.RaiseTestUpdated();
-            }, null);
-
-            if (result.TestCase.Result == TestState.Passed)
-            {
-                Writer.Write("\t[PASS] ");
-                passed++;
-            }
-            else if (result.TestCase.Result == TestState.Skipped)
-            {
-                Writer.Write("\t[SKIPPED] ");
-                skipped++;
-            }
-            else if (result.TestCase.Result == TestState.Failed)
-            {
-                Writer.Write("\t[FAIL] ");
-                failed++;
-            }
-            else
-            {
-                Writer.Write("\t[INFO] ");
-            }
-            Writer.Write(result.TestCase.DisplayName);
-
-            var message = result.ErrorMessage;
-            if (!String.IsNullOrEmpty(message))
-            {
-                Writer.Write(" : {0}", message.Replace("\r\n", "\\r\\n"));
-            }
-            Writer.WriteLine();
-
-            var stacktrace = result.ErrorStackTrace;
-            if (!String.IsNullOrEmpty(result.ErrorStackTrace))
-            {
-                var lines = stacktrace.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var line in lines)
-                    Writer.WriteLine("\t\t{0}", line);
-            }
-        }
-
-        internal IDictionary<string, TestSuiteElement> Suites
-        {
-            get { return suite_elements; }
         }
 
         internal static void AddAssembly(Assembly testAssm)
@@ -359,7 +342,6 @@ namespace Xunit.Runners
 
         internal Task Run()
         {
-
             return Run(testCasesByAssembly.Values.SelectMany(v => v), "Run Everything");
         }
 
@@ -376,7 +358,6 @@ namespace Xunit.Runners
 
             using (await executionLock.LockAsync())
             {
-
                 if (message == null)
                     message = tests.Count() > 1 ? "Run Multiple Tests" : tests.First()
                                                                               .DisplayName;
@@ -395,7 +376,6 @@ namespace Xunit.Runners
 
         private TestSuiteElement SetupSource(string sourceName, IEnumerable<MonoTestCase> testSource)
         {
-
             var root = new RootElement("Tests");
 
             var elements = new List<TestCaseElement>();
@@ -409,7 +389,7 @@ namespace Xunit.Runners
             }
 
             var tse = new TestSuiteElement(sourceName, elements, this);
-            suite_elements[sourceName] = tse;
+            suiteElements[sourceName] = tse;
 
 
             root.Add(section);
@@ -420,28 +400,15 @@ namespace Xunit.Runners
                 allbtn = new StringElement("Run all",
                                            async delegate
                                            {
-                                               
-                                               //var table = allbtn.GetContainerTableView();
-                                               //var cell = allbtn.GetCell(table);
-                                               //cell.UserInteractionEnabled = false;
-                                               //cell.SelectionStyle = UITableViewCellSelectionStyle.None;
-                                               //cell.
                                                await Run(testSource);
-
-                                               //cell.UserInteractionEnabled = true;
-                                               //cell.SelectionStyle = UITableViewCellSelectionStyle.Default;
-
-                                           //    suites_dvc[testSource.Key].Filter();
                                            });
                 var options = new Section()
                 {
-                  allbtn
+                    allbtn
                 };
 
                 root.Add(options);
             }
-
-           // suites_dvc.Add(testSource.Key, new TouchViewController(root));
             return tse;
         }
 
@@ -537,15 +504,13 @@ namespace Xunit.Runners
         private void OnTestRunCompleted()
         {
             Application.SynchronizationContext.Post(_ =>
+            {
+                foreach (var ts in suiteElements.Values)
                 {
-                    foreach (var ts in suite_elements.Values)
-                    {
-                        // Recalc the status
-                        ts.Refresh();
-                    }
-                    if (refreshViews != null)
-                        refreshViews();
-                }, null);
+                    // Recalc the status
+                    ts.Refresh();
+                }
+            }, null);
         }
 
         private class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
