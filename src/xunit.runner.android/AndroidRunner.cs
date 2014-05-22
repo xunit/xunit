@@ -88,8 +88,6 @@ namespace Xunit.Runners
             get { return suiteElements; }
         }
 
-        #region writer
-
         public TextWriter Writer { get; set; }
 
         private bool OpenWriter(string message)
@@ -158,8 +156,6 @@ namespace Xunit.Runners
             Writer.Close();
             Writer = null;
         }
-
-        #endregion
 
         void ITestListener.RecordResult(MonoTestResult result)
         {

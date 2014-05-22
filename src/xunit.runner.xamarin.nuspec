@@ -27,5 +27,6 @@
     <file src="lib\MonoTouch\_._" target="lib\MonoTouch\_._" />
     <file src="lib\MonoAndroid\_._" target="lib\MonoAndriod\_._" />
     <file src="xunit.runner.ios\NuGet\AppDelegate.Sample.cs" target="content\MonoTouch\AppDelegate.Sample.cs.pp" />
+    <file src="xunit.runner.android\NuGet\MainActivity.Sample.cs" target="content\MonoAndroid\MainActivity.Sample.cs.pp" />
   </files>
 </package>
