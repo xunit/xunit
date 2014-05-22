@@ -39,12 +39,12 @@ namespace Xunit.Runners.UI
             var result = AndroidRunner.Runner.Results[testCaseUniqueId];
             
             var message = string.Empty;
-            if (result.Outcome == TestState.Failed)
+            if (result.TestCase.Result == TestState.Failed)
             {
                 message = String.Format("<b>{0}<b><br><font color='grey'>{1}</font>",
                                         result.ErrorMessage, result.ErrorStackTrace.Replace(Environment.NewLine, "<br>"));
             }
-            else if(result.Outcome == TestState.Skipped)
+            else if (result.TestCase.Result == TestState.Skipped)
             {
                 message = String.Format("<b>{0}<b>",
                                         ((ITestSkipped) result.TestResultMessage).Reason);
@@ -53,7 +53,7 @@ namespace Xunit.Runners.UI
 
             var menu = new RootElement(String.Empty)
             {
-                new Section(result.DisplayName)
+                new Section(result.TestCase.DisplayName)
                 {
                     new FormattedElement(message)
                 }

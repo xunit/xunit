@@ -11,10 +11,8 @@ namespace Xunit.Runners
     {
         public MonoTestCase TestCase { get; private set; }
         public ITestResultMessage TestResultMessage { get; private set; }
-        public string DisplayName { get; set; }
         public TimeSpan Duration { get; set; }
-        public TestState Outcome { get; set; }
-        public string StandardOutput { get; set; }
+
         public string ErrorMessage { get; set; }
         public string ErrorStackTrace { get; set; }
 
@@ -24,8 +22,8 @@ namespace Xunit.Runners
             TestCase = testCase;
             TestResultMessage = testResult;
 
-            Outcome = TestState.NotRun;
-            DisplayName = testCase.DisplayName;
+            if(testResult != null)
+                testCase.UpdateTestState(TestResultMessage);
         }
     }
 }

@@ -66,7 +66,7 @@ namespace Xunit.Runners.UI
             else
             {
                 var outcomes = testCases.Select(t => t.TestResult)
-                                        .GroupBy(r => r.Outcome);
+                                        .GroupBy(r => r.TestCase.Result);
 
                 var results = outcomes.ToDictionary(k => k.Key, v => v.Count());
 

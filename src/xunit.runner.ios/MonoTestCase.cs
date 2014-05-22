@@ -37,8 +37,6 @@ namespace Xunit.Runners
 
         }
 
-
-
         
 
         public TestState Result { get; private set; }

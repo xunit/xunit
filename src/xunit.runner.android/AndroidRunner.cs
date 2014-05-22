@@ -300,17 +300,17 @@ namespace Xunit.Runners
                 case_elements[result.TestCase].UpdateResult(result);
             }, null);
 
-            if (result.Outcome == TestState.Passed)
+            if (result.TestCase.Result == TestState.Passed)
             {
                 Writer.Write("\t[PASS] ");
                 passed++;
             }
-            else if (result.Outcome == TestState.Skipped)
+            else if (result.TestCase.Result == TestState.Skipped)
             {
                 Writer.Write("\t[SKIPPED] ");
                 skipped++;
             }
-            else if (result.Outcome == TestState.Failed)
+            else if (result.TestCase.Result == TestState.Failed)
             {
                 Writer.Write("\t[FAIL] ");
                 failed++;
@@ -319,7 +319,7 @@ namespace Xunit.Runners
             {
                 Writer.Write("\t[INFO] ");
             }
-            Writer.Write(result.DisplayName);
+            Writer.Write(result.TestCase.DisplayName);
 
             var message = result.ErrorMessage;
             if (!String.IsNullOrEmpty(message))

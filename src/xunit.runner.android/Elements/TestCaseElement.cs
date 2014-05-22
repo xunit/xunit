@@ -53,7 +53,7 @@ namespace Xunit.Runners.UI
 
         public override TestState Result
         {
-            get { return TestResult.Outcome; }
+            get { return TestResult.TestCase.Result; }
         }
 
         protected override string GetCaption()
@@ -62,18 +62,18 @@ namespace Xunit.Runners.UI
                 return "Initial";
 
 
-            if (TestResult.Outcome == TestState.Skipped)
+            if (TestResult.TestCase.Result == TestState.Skipped)
             {
                 var val = ((ITestSkipped)TestResult.TestResultMessage).Reason;
                 return string.Format("<b>{0}</b><br><font color='#FF7700'>{1}: {2}</font>",
                                      TestCase.DisplayName, TestState.Skipped, val);
             }
-            else if (TestResult.Outcome == TestState.Passed)
+            else if (TestResult.TestCase.Result == TestState.Passed)
             {
                 Indicator = null;
                 return string.Format("<b>{0}</b><br><font color='green'>Success! {1} ms</font>", TestCase.DisplayName, TestResult.Duration.TotalMilliseconds);
             }
-            else if (TestResult.Outcome == TestState.Failed)
+            else if (TestResult.TestCase.Result == TestState.Failed)
             {
                 var val = TestResult.ErrorMessage;
                 return string.Format("<b>{0}</b><br><font color='red'>{1}</font>", TestCase.DisplayName, val);
@@ -96,7 +96,7 @@ namespace Xunit.Runners.UI
 
         public async Task Run()
         {
-            if (TestResult.Outcome == TestState.NotRun)
+            if (TestResult.TestCase.Result == TestState.NotRun)
             {
                 await Runner.Run(TestCase);
             }

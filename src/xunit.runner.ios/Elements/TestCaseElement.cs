@@ -50,7 +50,7 @@ namespace Xunit.Runners.UI
             {
                await Run();
 
-                if ( TestResult.Outcome == TestState.Failed)
+                if ( TestResult.TestCase.Result == TestState.Failed)
                 {
                     var root = new RootElement("Results")
                     {
@@ -78,24 +78,24 @@ namespace Xunit.Runners.UI
 
         public override TestState Result
         {
-            get { return TestResult.Outcome; }
+            get { return TestResult.TestCase.Result; }
         }
 
         public void UpdateResult(MonoTestResult result)
         {
             TestResult = result;
 
-            if (TestResult.Outcome == TestState.Skipped)
+            if (TestResult.TestCase.Result == TestState.Skipped)
             {
                 Value = ((ITestSkipped)TestResult.TestResultMessage).Reason;
                 DetailColor = UIColor.Orange;
             }
-            else if (TestResult.Outcome == TestState.Passed)
+            else if (TestResult.TestCase.Result == TestState.Passed)
             {
                 Value = String.Format("Success! {0} ms", TestResult.Duration.TotalMilliseconds);
                 DetailColor = DarkGreen;
             }
-            else if (TestResult.Outcome == TestState.Failed)
+            else if (TestResult.TestCase.Result == TestState.Failed)
             {
                 Value = TestResult.ErrorMessage;
                 DetailColor = UIColor.Red;
@@ -113,7 +113,7 @@ namespace Xunit.Runners.UI
       
         public async Task Run()
         {
-            if (TestResult.Outcome == TestState.NotRun)
+            if (TestResult.TestCase.Result == TestState.NotRun)
             {
                 await Runner.Run(TestCase);
             }

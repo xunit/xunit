@@ -64,17 +64,13 @@ namespace Xunit.Runners.Visitors
 #endif
             var result = new MonoTestResult(testCase, testResult)
             {
-                DisplayName = displayName,
-                Duration = TimeSpan.FromSeconds((double)testResult.ExecutionTime),
-                Outcome = outcome,
+                Duration = TimeSpan.FromSeconds((double)testResult.ExecutionTime),        
             };
 
             // Work around VS considering a test "not run" when the duration is 0
             if (result.Duration.TotalMilliseconds == 0)
                 result.Duration = TimeSpan.FromMilliseconds(1);
 
-            if (!String.IsNullOrEmpty(testResult.Output))
-                result.StandardOutput = testResult.Output;
 
             return result;
         }
