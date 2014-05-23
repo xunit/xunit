@@ -116,24 +116,26 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.android", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.android", "test\test.xunit.runner.android\test.xunit.runner.android.csproj", "{111991DA-D822-4A9F-B57B-CEF2EFC8252E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.pcltestlib", "test\test.xunit.pcltestlib\test.xunit.pcltestlib.csproj", "{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\xunit.execution\messages.projitems*{4389d7af-5f1f-416d-bf06-90f335d83ba9}*SharedItemsImports = 13
-		src\xunit.execution\messages.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
-		src\xunit.execution\messages.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
+		src\xunit.execution\messages.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
-		src\xunit.execution\messages.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
+		src\xunit.execution\messages.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
-		src\xunit.execution\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
+		src\xunit.execution\messages.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
+		src\xunit.execution\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{77743589-f177-4007-97b8-50b82a1c7044}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{53012549-d81b-4e40-b626-67c19265aa6f}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{ef8381db-7aa0-41b8-99c5-7a69f1a61f18}*SharedItemsImports = 13
-		src\xunit.execution\messages.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
-		src\xunit.execution\messages.projitems*{f4b09674-bed9-4aa9-a9ac-6f1683b2bbf9}*SharedItemsImports = 4
+		src\xunit.execution\messages.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{f4b09674-bed9-4aa9-a9ac-6f1683b2bbf9}*SharedItemsImports = 4
+		src\xunit.execution\messages.projitems*{f4b09674-bed9-4aa9-a9ac-6f1683b2bbf9}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{cd3185a0-fb26-4923-8421-19a01da67999}*SharedItemsImports = 13
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{d746cd0d-17f7-4c3c-8a31-fbd322a5ce1d}*SharedItemsImports = 13
 	EndGlobalSection
@@ -856,6 +858,30 @@ Global
 		{111991DA-D822-4A9F-B57B-CEF2EFC8252E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{111991DA-D822-4A9F-B57B-CEF2EFC8252E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{111991DA-D822-4A9F-B57B-CEF2EFC8252E}.Release|Mixed Platforms.Deploy.0 = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|Any CPU.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|Any CPU.Build.0 = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|iPhone.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|Mixed Platforms.Build.0 = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|Any CPU.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|Any CPU.Build.0 = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|iPhone.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|Mixed Platforms.Build.0 = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -903,5 +929,6 @@ Global
 		{D1F45C28-A2B8-48A2-9D06-DAB9FA0BC85F} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
 		{A0D90D0B-BC16-42AA-AF74-8B49772F8406} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{111991DA-D822-4A9F-B57B-CEF2EFC8252E} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
+		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 	EndGlobalSection
 EndGlobal

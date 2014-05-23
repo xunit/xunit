@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
+using test.xunit.pcltestlib;
 using Xunit.Runners.UI;
 using Xunit.Sdk;
 
@@ -39,7 +40,7 @@ namespace test.xunit.runner.ios
             runner.Add(Assembly.GetExecutingAssembly());
             // otherwise you need to ensure that the test assemblies will 
             // become part of the app bundle
-       //     runner.Add(typeof(MonoTouchFixtures.Test.Test).Assembly);
+            runner.Add(typeof(PortableTests).Assembly);
 #if false
 			// you can use the default or set your own custom writer (e.g. save to web site and tweet it ;-)
 			runner.Writer = new TcpTextWriter ("10.0.1.2", 16384);

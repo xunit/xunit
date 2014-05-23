@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using test.xunit.pcltestlib;
 using Xunit;
 using Xunit.Runners.UI;
 
@@ -22,7 +23,8 @@ namespace test.xunit.runner.android
 
             AddExecutionAssembly(typeof(ExceptionUtility).Assembly);
             // or in any reference assemblies			
-          //  Add(typeof(m4a.tests.RunnerTest).Assembly);
+
+            Add(typeof(PortableTests).Assembly);
             // or in any assembly that you load (since JIT is available)
 
 #if false

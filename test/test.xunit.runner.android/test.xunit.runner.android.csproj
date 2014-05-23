@@ -101,6 +101,10 @@
       <Project>{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}</Project>
       <Name>xunit.runner.utility.android</Name>
     </ProjectReference>
+    <ProjectReference Include="..\test.xunit.pcltestlib\test.xunit.pcltestlib.csproj">
+      <Project>{b7c9bebb-26c2-483b-9be8-80a8ee523eb8}</Project>
+      <Name>test.xunit.pcltestlib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
