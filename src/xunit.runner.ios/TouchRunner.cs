@@ -52,7 +52,7 @@ namespace Xunit.Runners.UI
     public class TouchRunner : ITestListener
     {
         private readonly List<Assembly> assemblies = new List<Assembly>();
-        private readonly Dictionary<MonoTestCase, TestCaseElement> case_elements = new Dictionary<MonoTestCase, TestCaseElement>();
+        
         private readonly ManualResetEvent mre = new ManualResetEvent(false);
         private readonly Dictionary<string, TestSuiteElement> suite_elements = new Dictionary<string, TestSuiteElement>();
         private readonly Dictionary<string, TouchViewController> suites_dvc = new Dictionary<string, TouchViewController>();
@@ -108,10 +108,8 @@ namespace Xunit.Runners.UI
 
         void ITestListener.RecordResult(MonoTestResult result)
         {
-            window.BeginInvokeOnMainThread(
-                () =>
-                case_elements[result.TestCase].UpdateResult(result));
-
+            // Ensure the proeprty changes/updates are on the UI thread
+            window.BeginInvokeOnMainThread(result.RaiseTestUpdated);
 
             if (result.TestCase.Result == TestState.Passed)
             {
@@ -350,7 +348,7 @@ namespace Xunit.Runners.UI
             var section = new Section(testSource.Key);
             foreach (var test in testSource)
             {
-                var ele = Setup(test);
+                var ele = new TestCaseElement(test, this);
                 elements.Add(ele);
                 section.Add(ele);
             }
@@ -390,13 +388,6 @@ namespace Xunit.Runners.UI
 
             suites_dvc.Add(testSource.Key, new TouchViewController(root));
             return tse;
-        }
-
-        private TestCaseElement Setup(MonoTestCase test)
-        {
-            var tce = new TestCaseElement(test, this);
-            case_elements.Add(test, tce);
-            return tce;
         }
 
         Task RunTests(IEnumerable<IGrouping<string, MonoTestCase>> testCaseAccessor, Stopwatch stopwatch)

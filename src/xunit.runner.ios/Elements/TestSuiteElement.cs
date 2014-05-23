@@ -62,8 +62,7 @@ namespace Xunit.Runners.UI {
 
         public void Update()
         {
-            var outcomes = testCases.Select(t => t.TestResult)
-                                    .GroupBy(r => r.TestCase.Result);
+            var outcomes = testCases.GroupBy(r => r.TestCase.Result);
 
             var results = outcomes.ToDictionary(k => k.Key, v => v.Count());
 
@@ -82,8 +81,7 @@ namespace Xunit.Runners.UI {
             {
                 DetailColor = DarkGreen;
 
-                var totalTime = testCases.Select(r => r.TestResult)
-                                         .Sum(r => r.Duration.TotalMilliseconds);
+                var totalTime = testCases.Sum(r => r.TestCase.TestResult.Duration.TotalMilliseconds);
 
                 sb.Append("Success! ").Append(totalTime).Append(" ms for ").Append(positive).Append(" test");
                 if (positive > 1)

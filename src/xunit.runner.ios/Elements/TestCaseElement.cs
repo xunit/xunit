@@ -37,26 +37,23 @@ namespace Xunit.Runners.UI
     {
         public MonoTestCase TestCase { get; private set; }
 
-        public MonoTestResult TestResult { get; private set; }
-
         public TestCaseElement(MonoTestCase testCase, TouchRunner runner)
             : base(runner)
         {
             TestCase = testCase;
             Caption = testCase.DisplayName;
             Value = "NotExecuted";
-            TestResult = new MonoTestResult(testCase, null);
             Tapped += async delegate
             {
                await Run();
 
-                if ( TestResult.TestCase.Result == TestState.Failed)
+                if (TestCase.Result == TestState.Failed)
                 {
                     var root = new RootElement("Results")
                     {
                         new Section()
                         {
-                            new TestResultElement(TestResult)
+                            new TestResultElement(TestCase.TestResult)
                         }
                     };
                     var dvc = new DialogViewController(root, true)
@@ -65,8 +62,14 @@ namespace Xunit.Runners.UI
                     };
                     Runner.NavigationController.PushViewController(dvc, true);
                 }
-
             };
+
+            testCase.TestCaseUpdated += OnTestCaseUpdated;
+        }
+
+        private void OnTestCaseUpdated(object sender, EventArgs e)
+        {
+            UpdateResult();
         }
 
         protected override void OptionsChanged()
@@ -78,32 +81,31 @@ namespace Xunit.Runners.UI
 
         public override TestState Result
         {
-            get { return TestResult.TestCase.Result; }
+            get { return TestCase.Result; }
         }
 
-        public void UpdateResult(MonoTestResult result)
+        private void UpdateResult()
         {
-            TestResult = result;
 
-            if (TestResult.TestCase.Result == TestState.Skipped)
+            if (TestCase.Result == TestState.Skipped)
             {
-                Value = ((ITestSkipped)TestResult.TestResultMessage).Reason;
+                Value = ((ITestSkipped)TestCase.TestResult.TestResultMessage).Reason;
                 DetailColor = UIColor.Orange;
             }
-            else if (TestResult.TestCase.Result == TestState.Passed)
+            else if (TestCase.Result == TestState.Passed)
             {
-                Value = String.Format("Success! {0} ms", TestResult.Duration.TotalMilliseconds);
+                Value = String.Format("Success! {0} ms", TestCase.TestResult.Duration.TotalMilliseconds);
                 DetailColor = DarkGreen;
             }
-            else if (TestResult.TestCase.Result == TestState.Failed)
+            else if (TestCase.Result == TestState.Failed)
             {
-                Value = TestResult.ErrorMessage;
+                Value = TestCase.TestResult.ErrorMessage;
                 DetailColor = UIColor.Red;
             }
             else
             {
                 // Assert.Ignore falls into this
-                Value = TestResult.ErrorMessage;
+                Value = TestCase.TestResult.ErrorMessage;
             }
 
            
@@ -111,15 +113,22 @@ namespace Xunit.Runners.UI
             Refresh();
         }
       
-        public async Task Run()
+        private async Task Run()
         {
-            if (TestResult.TestCase.Result == TestState.NotRun)
+            if (TestCase.Result == TestState.NotRun)
             {
                 await Runner.Run(TestCase);
             }
         }
 
-      
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                TestCase.TestCaseUpdated -= OnTestCaseUpdated;
+            }
+            base.Dispose(disposing);
+        }
 
     }
 }
