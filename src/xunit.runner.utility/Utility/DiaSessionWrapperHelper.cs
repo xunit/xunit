@@ -12,12 +12,26 @@ namespace Xunit
 
         readonly Assembly assembly;
 
-        public DiaSessionWrapperHelper(string assemblyFileName)
+        public DiaSessionWrapperHelper(string assemblyFileName, string xUnitAssemblyLocation)
         {
             try
             {
                 assembly = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
                 string assemblyDirectory = Path.GetDirectoryName(assemblyFileName);
+
+                AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
+                {
+                    // Look for assembly next to the xunit assembly location
+                    AssemblyName requestedAssemblyName = new AssemblyName(args.Name);
+                    string requestedAssemblyFileName = requestedAssemblyName.Name + ".dll";
+                    string fullPath = Path.Combine(xUnitAssemblyLocation, requestedAssemblyFileName);
+                    if (File.Exists(fullPath))
+                    {
+                        return Assembly.LoadFrom(fullPath);
+                    }
+
+                    return null;
+                };
 
                 AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += (sender, args) =>
                 {
@@ -149,7 +163,10 @@ namespace Xunit
                     }
                 }
             }
-            catch { }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
     }
 }

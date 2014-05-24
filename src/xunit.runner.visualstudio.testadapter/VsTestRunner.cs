@@ -61,10 +61,15 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                             }
                             else
                             {
-                                if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
+                                string configurationFile = string.IsNullOrEmpty(settings.ConfigurationFile) ? null : Environment.ExpandEnvironmentVariables(settings.ConfigurationFile);
 
-                                using (var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true))
+                                if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                {
+                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
+                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Configuration File: {1}", stopwatch.Elapsed, configurationFile == null ? "*Default*" : configurationFile));
+                                }
+
+                                using (var framework = new XunitFrontController(assemblyFileName, configFileName: configurationFile, shadowCopy: !settings.DoNotShadowCopy))
                                 using (var sink = new VsDiscoveryVisitor(assemblyFileName, framework, logger, discoveryContext, discoverySink, () => cancelled))
                                 {
                                     framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
@@ -128,10 +133,15 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                         }
                         else
                         {
-                            if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
+                            string configurationFile = string.IsNullOrEmpty(settings.ConfigurationFile) ? null : Environment.ExpandEnvironmentVariables(settings.ConfigurationFile);
 
-                            using (var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true))
+                            if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                            {
+                                logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
+                                logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Configuration File: {1}", stopwatch.Elapsed, configurationFile == null ? "*Default*" : configurationFile));
+                            }
+
+                            using (var framework = new XunitFrontController(assemblyFileName, configFileName: configurationFile, shadowCopy: !settings.DoNotShadowCopy))
                             using (var sink = new TestDiscoveryVisitor())
                             {
                                 framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
@@ -209,13 +219,14 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 lock (stopwatch)
                 {
                     frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution started", stopwatch.Elapsed));
-                    frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Settings: MaxParallelThreads = {1}, NameDisplay = {2}, ParallelizeAssemblies = {3}, ParallelizeTestCollections = {4}, ShutdownAfterRun = {5}",
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Settings: MaxParallelThreads = {1}, NameDisplay = {2}, ParallelizeAssemblies = {3}, ParallelizeTestCollections = {4}, ShutdownAfterRun = {5}, DoNotShadowCopy = {6}",
                                                                                               stopwatch.Elapsed,
                                                                                               settings.MaxParallelThreads,
                                                                                               settings.NameDisplay,
                                                                                               settings.ParallelizeAssemblies,
                                                                                               settings.ParallelizeTestCollections,
-                                                                                              settings.ShutdownAfterRun));
+                                                                                              settings.ShutdownAfterRun,
+                                                                                              settings.DoNotShadowCopy));
                 }
 
             try
@@ -257,11 +268,16 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             if (cancelled)
                 return;
 
+            string configurationFile = string.IsNullOrEmpty(settings.ConfigurationFile) ? null : Environment.ExpandEnvironmentVariables(settings.ConfigurationFile);
+
             if (settings.MessageDisplay == MessageDisplay.Diagnostic)
                 lock (stopwatch)
+                {
                     frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution starting: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Configuration File: {1}", stopwatch.Elapsed, configurationFile == null ? "*Default*" : configurationFile));
+                }
 
-            var controller = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true);
+            var controller = new XunitFrontController(assemblyFileName, configFileName: configurationFile, shadowCopy: !settings.DoNotShadowCopy);
 
             lock (toDispose)
                 toDispose.Add(controller);

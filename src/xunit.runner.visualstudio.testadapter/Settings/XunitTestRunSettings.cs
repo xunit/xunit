@@ -19,6 +19,8 @@ namespace Xunit.Runner.VisualStudio.Settings
         public bool? ParallelizeAssemblies { get; set; }
         public bool? ParallelizeTestCollections { get; set; }
         public bool? ShutdownAfterRun { get; set; }
+        public bool? DoNotShadowCopy { get; set; }
+        public string ConfigurationFile { get; set; }
 
         public override XmlElement ToXml()
         {

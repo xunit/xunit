@@ -42,7 +42,7 @@ namespace Xunit
 
             if (this.sourceInformationProvider == null)
             {
-                this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
+                this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName, shadowCopy, configFileName);
                 toDispose.Push(this.sourceInformationProvider);
             }
         }
