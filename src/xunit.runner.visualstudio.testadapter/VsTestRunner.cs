@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -171,7 +173,23 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         {
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
             string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
-            return File.Exists(xunitPath) || File.Exists(xunitExecutionPath);
+            if (!File.Exists(xunitPath) && !File.Exists(xunitExecutionPath))
+                return false;
+
+            var assm = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
+            var attrib = assm.GetCustomAttributes(typeof(TargetFrameworkAttribute))
+                             .Cast<TargetFrameworkAttribute>()
+                             .FirstOrDefault();
+
+            if (attrib != null && attrib.FrameworkName != null)
+            {
+                // We found the TargetFramework attribute, check for Xamarin
+                var xamFound = attrib.FrameworkName.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase) ||
+                               attrib.FrameworkName.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase);
+                return !xamFound;
+            }
+
+            return true;
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
