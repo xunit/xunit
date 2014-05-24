@@ -173,24 +173,23 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         {
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
             string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
-            if (File.Exists(xunitPath) || File.Exists(xunitExecutionPath))
-            {
-                // Check for Xamarin
-                var assm = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
-                var attrib = assm.GetCustomAttributes(typeof(TargetFrameworkAttribute))
-                                 .Cast<TargetFrameworkAttribute>()
-                                 .FirstOrDefault();
+            if (!File.Exists(xunitPath) && !File.Exists(xunitExecutionPath))
+                return false;
 
-                if (attrib != null)
-                {
-                    // We found the TargetFramework attribute, check for xamarin
-                    var xamFound = (attrib.FrameworkName != null && attrib.FrameworkName.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase)) ||
-                                    (attrib.FrameworkName != null && attrib.FrameworkName.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase));
-                    return xamFound;
-                }
-                return true;
+            var assm = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
+            var attrib = assm.GetCustomAttributes(typeof(TargetFrameworkAttribute))
+                             .Cast<TargetFrameworkAttribute>()
+                             .FirstOrDefault();
+
+            if (attrib != null && attrib.FrameworkName != null)
+            {
+                // We found the TargetFramework attribute, check for Xamarin
+                var xamFound = attrib.FrameworkName.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase) ||
+                               attrib.FrameworkName.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase);
+                return !xamFound;
             }
-            return false;
+
+            return true;
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
