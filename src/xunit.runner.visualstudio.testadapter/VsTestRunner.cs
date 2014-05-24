@@ -171,6 +171,11 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         static bool IsXunitTestAssembly(string assemblyFileName)
         {
+            // Don't try to load ourselves, since we fail (issue #47). Also, Visual Studio Online is brain dead.
+            string self = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+            if (Path.GetFileNameWithoutExtension(assemblyFileName).Equals(self, StringComparison.OrdinalIgnoreCase))
+                return false;
+
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
             string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
             if (!File.Exists(xunitPath) && !File.Exists(xunitExecutionPath))

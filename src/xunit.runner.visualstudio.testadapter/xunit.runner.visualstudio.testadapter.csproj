@@ -46,6 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\common\AssemblyExtensions.cs">
+      <Link>Common\AssemblyExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
