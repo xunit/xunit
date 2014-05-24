@@ -44,11 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml">
-      <Link>CodeAnalysisDictionary.xml</Link>
-    </CodeAnalysisDictionary>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\xunit.abstractions.net35\xunit.abstractions.net35.csproj">
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions.net35</Name>

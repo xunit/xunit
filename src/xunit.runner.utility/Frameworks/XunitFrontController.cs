@@ -29,7 +29,7 @@ namespace Xunit
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
-        /// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="VisualStudioSourceInformationProvider"/>).</param>
+        /// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
         /// tests to be discovered and run without locking assembly files on disk.</param>
         public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true, ISourceInformationProvider sourceInformationProvider = null)
         {

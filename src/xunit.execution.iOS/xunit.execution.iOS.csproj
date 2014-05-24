@@ -23,6 +23,7 @@
     <ConsolePause>false</ConsolePause>
     <MtouchDebug>true</MtouchDebug>
     <CodesignKey>iPhone Developer</CodesignKey>
+    <DocumentationFile>bin\iPhone\Debug\xunit.execution.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -33,6 +34,7 @@
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Developer</CodesignKey>
     <DefineConstants>__IOS__;__MOBILE__;__IOS__;__MOBILE__;XUNIT_CORE_DLL;XAMARIN;NO_APPDOMAIN</DefineConstants>
+    <DocumentationFile>bin\iPhone\Release\xunit.execution.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>

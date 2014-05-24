@@ -108,18 +108,21 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.iOS", "src\xunit.runner.utility.iOS\xunit.runner.utility.iOS.csproj", "{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.pcltestlib", "test\test.xunit.pcltestlib\test.xunit.pcltestlib.csproj", "{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{09EF9917-4B00-4646-8C3F-96EFACC8BF51} = {09EF9917-4B00-4646-8C3F-96EFACC8BF51}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\messages\messages.projitems*{4389d7af-5f1f-416d-bf06-90f335d83ba9}*SharedItemsImports = 13
-		src\messages\messages.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
-		src\messages\messages.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
+		src\messages\messages.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
+		src\messages\messages.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
 		src\messages\messages.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
-		src\messages\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
+		src\messages\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{77743589-f177-4007-97b8-50b82a1c7044}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{53012549-d81b-4e40-b626-67c19265aa6f}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{ef8381db-7aa0-41b8-99c5-7a69f1a61f18}*SharedItemsImports = 13

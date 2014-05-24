@@ -7,7 +7,7 @@ namespace Xunit.Sdk
 {
     /// <summary>
     /// This class inherits from <see cref="MarshalByRefObject"/> and re-implements
-    /// <see cref="InitializeLifetimeService()"/> in a way that allows the object to live
+    /// InitializeLifetimeService in a way that allows the object to live
     /// longer than the remoting default lifetime (5 minutes).
     /// </summary>
     public abstract class LongLivedMarshalByRefObject
