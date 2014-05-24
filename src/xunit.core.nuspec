@@ -24,8 +24,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="build\MonoAndroid\_._" target="build\MonoAndroid\_._" />
-    <file src="build\MonoTouch\_._" target="build\MonoTouch\_._" />
+    <file src="xunit.core\build\xunit.core.empty.props" target="build\MonoAndroid\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.empty.props" target="build\MonoTouch\xunit.core.props" />    
     <file src="xunit.core\build\xunit.core.props" target="build\portable-net45+win+wpa81+wp80\xunit.core.props" />
     <file src="xunit.core\bin\Release\xunit.core.dll" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.dll" />
     <file src="xunit.core\bin\Release\xunit.core.dll.tdnet" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.dll.tdnet" />
