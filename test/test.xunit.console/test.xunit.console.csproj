@@ -88,6 +88,14 @@
       <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>
       <Name>xunit.core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.execution.net45\xunit.execution.net45.csproj">
+      <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
+      <Name>xunit.execution.net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.utility.net35\xunit.runner.utility.net35.csproj">
+      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
+      <Name>xunit.runner.utility.net35</Name>
+    </ProjectReference>
     <ProjectReference Include="..\test.utility\test.utility.csproj">
       <Project>{4FEC8604-E544-43C2-979C-F0815B5770E2}</Project>
       <Name>test.utility</Name>
@@ -99,14 +107,6 @@
     <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
       <Project>{C9B3978D-DA2C-4F3B-8FC5-1E024EF2F6E8}</Project>
       <Name>xunit.runner.tdnet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj">
-      <Project>{2CE5D729-2E2A-4D36-8161-0F215B1C46AF}</Project>
-      <Name>xunit.runner.utility</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.execution\xunit.execution.csproj">
-      <Project>{09EF9917-4B00-4646-8C3F-96EFACC8BF51}</Project>
-      <Name>xunit.execution</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

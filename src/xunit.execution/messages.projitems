@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>4389D7AF-5F1F-416D-BF06-90F335D83BA9</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Xunit</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <CodeAnalysisDictionary Include="$(MSBuildThisFileDirectory)..\CodeAnalysisDictionary.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\AfterTestFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\AfterTestStarting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\BaseMessages\TestCaseMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\BaseMessages\TestClassMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\BaseMessages\TestCollectionMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\BaseMessages\TestMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\BaseMessages\TestResultMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\BeforeTestFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\BeforeTestStarting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\DiscoveryCompleteMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\ErrorMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestAssemblyFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestAssemblyStarting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestCaseDiscoveryMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestCaseFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestCaseStarting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestClassConstructionFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestClassConstructionStarting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestClassDisposeFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestClassDisposeStarting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestClassFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestClassStarting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestCollectionFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestCollectionStarting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestFailed.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestMethodFinished.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestMethodStarting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestPassed.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestSkipped.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\TestStarting.cs" />
+  </ItemGroup>
+</Project>

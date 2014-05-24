@@ -20,9 +20,7 @@
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
     <NuGetNuspecTargets Include="src\*.nuspec" />
-    <NuGetCsprojTargets Include="src\xunit.assert\xunit.assert.csproj;
-                                 src\xunit.execution\xunit.execution.csproj;
-                                 src\xunit.runner.utility\xunit.runner.utility.csproj" />
+    <NuGetCsprojTargets Include="src\xunit.assert\xunit.assert.csproj" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
     <PackageSource Include="https://nuget.org/api/v2/" />

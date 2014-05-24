@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>CD3185A0-FB26-4923-8421-19A01DA67999</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Xunit.Execution</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <CodeAnalysisDictionary Include="$(MSBuildThisFileDirectory)..\CodeAnalysisDictionary.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\ReflectionAbstractionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\AsyncTestSyncContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\DefaultTestCaseOrderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\DisposalTracker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\EnvironmentalWarning.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\ExceptionUtility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\ExtensibilityPointFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\CollectionPerClassTestCollectionFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\ExecutionTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\FactDiscoverer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\LambdaTestCase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestAssemblyRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestClassRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestCollectionRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestMethodRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestAssemblyRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestClassRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestCollectionRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestMethodRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TestCollectionComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TestCollectionFactoryHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TestFramework.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TestFrameworkDiscoverer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TestFrameworkExecutor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TestFrameworkProxy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TheoryDiscoverer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\XunitTestCase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\XunitTestCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\XunitTestFramework.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\XunitTestFrameworkDiscoverer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\XunitTestFrameworkExecutor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\XunitTheoryTestCase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\LongLivedMarshalByRefObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\MaxConcurrencyTaskScheduler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\MessageAggregator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\MessageBus.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\DelegatingMessageBus.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\DelegatingMessageSink.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Reflection\ReflectionAssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Reflection\ReflectionAttributeInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Reflection\ReflectionMethodInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Reflection\ReflectionParameterInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Reflection\ReflectionTypeInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Reflection\Reflector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\SerializationHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\SynchronousMessageBus.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\TestClassException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\TestMessageVisitor.cs" />
+  </ItemGroup>
+</Project>

@@ -28,7 +28,11 @@ namespace Xunit.Sdk
         /// <param name="assemblyFileName">The assembly to be wrapped.</param>
         public ReflectionAssemblyInfo(string assemblyFileName)
         {
+#if !ANDROID
             Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
+#else
+            Assembly = Assembly.Load(assemblyFileName);
+#endif
         }
 
         /// <inheritdoc/>

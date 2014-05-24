@@ -23,7 +23,12 @@ namespace Xunit
         public Xunit2(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName = null, bool shadowCopy = true)
             : base(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy)
         {
+#if !ANDROID
             AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
+#else
+            var assm = Assembly.Load(assemblyFileName);
+            AssemblyName assemblyName = assm.GetName();
+#endif
             executor = Framework.GetExecutor(assemblyName);
         }
 
