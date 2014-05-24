@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<package>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata minClientVersion="2.5">
     <id>xunit.core</id>
     <version>2.0.0-beta</version>
     <title>xUnit.net [Core Library]</title>
-    <authors>James Newkirk, Brad Wilson</authors>
+    <authors>James Newkirk,Brad Wilson</authors>
     <description>
-        Includes the core unit testing framework from xUnit.net (xunit.core.dll).
-        Supported platforms: Desktop .NET 4.5+, Modern Windows 8+, Windows Phone 8+ (Silverlight), Windows Phone 8.1+ (Universal), Portable Libraries (supporting Profile259).
+      Includes the core unit testing framework from xUnit.net (xunit.core.dll).
+      Supported platforms: Desktop .NET 4.5+, Modern Windows 8+, Windows Phone 8+ (Silverlight), Windows Phone 8.1+ (Universal), MonoTouch, MonoAndroid, Portable Libraries (supporting Profile259).
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -24,12 +24,14 @@
     </dependencies>
   </metadata>
   <files>
+    <file src="build\MonoAndroid\_._" target="build\MonoAndroid\_._" />
+    <file src="build\MonoTouch\_._" target="build\MonoTouch\_._" />
     <file src="xunit.core\build\xunit.core.props" target="build\portable-net45+win+wpa81+wp80\xunit.core.props" />
-    <file src="xunit.core\bin\Release\xunit.core.dll" target="lib\portable-net45+win+wpa81+wp80\xunit.core.dll" />
-    <file src="xunit.core\bin\Release\xunit.core.dll.tdnet" target="lib\portable-net45+win+wpa81+wp80\xunit.core.dll.tdnet" />
-    <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\portable-net45+win+wpa81+wp80\xunit.core.xml" />
-    <file src="xunit.execution\bin\Release\xunit.execution.dll" target="lib\portable-net45+win+wpa81+wp80\xunit.execution.dll" />
-    <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll" target="lib\portable-net45+win+wpa81+wp80\xunit.runner.tdnet.dll" />
-    <file src="xunit.runner.utility\bin\Release\xunit.runner.utility.dll" target="lib\portable-net45+win+wpa81+wp80\xunit.runner.utility.dll" />
+    <file src="xunit.core\bin\Release\xunit.core.dll" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.dll" />
+    <file src="xunit.core\bin\Release\xunit.core.dll.tdnet" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.dll.tdnet" />
+    <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.xml" />
+    <file src="xunit.execution.net45\bin\Release\xunit.execution.dll" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.execution.dll" />
+    <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.runner.tdnet.dll" />
+    <file src="xunit.runner.utility.net35\bin\Release\xunit.runner.utility.dll" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.runner.utility.dll" />
   </files>
 </package>

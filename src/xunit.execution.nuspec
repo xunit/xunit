@@ -7,7 +7,7 @@
         <authors>James Newkirk, Brad Wilson</authors>
         <description>
             Includes the execution framework for xUnit.net (xunit.execution.dll).
-            Supported platforms: Desktop .NET 4.5+.
+            Supported platforms: Desktop .NET 4.5+, MonoTouch, MonoAndroid
         </description>
         <language>en-US</language>
         <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -20,4 +20,14 @@
             <dependency id="xunit.core" version="[2.0.0-beta]" />
         </dependencies>
     </metadata>
+  <files>
+    <file src="xunit.execution.net45\bin\Release\xunit.execution.dll" target="lib\net45\xunit.execution.dll" />
+    <file src="xunit.execution.net45\bin\Release\xunit.execution.xml" target="lib\net45\xunit.execution.xml" />
+
+    <file src="xunit.execution.iOS\bin\iPhone\Release\xunit.execution.dll" target="lib\monotouch\xunit.execution.dll" />
+    <file src="xunit.execution.iOS\bin\iPhone\Release\xunit.execution.xml" target="lib\monotouch\xunit.execution.xml" />
+    
+    <file src="xunit.execution.android\bin\Release\xunit.execution.dll" target="lib\monoandroid\xunit.execution.dll" />
+    <file src="xunit.execution.android\bin\Release\xunit.execution.xml" target="lib\monoandroid\xunit.execution.xml" />
+  </files>
 </package>

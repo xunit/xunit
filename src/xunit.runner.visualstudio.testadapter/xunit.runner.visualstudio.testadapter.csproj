@@ -75,9 +75,9 @@
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions.net35</Name>
     </ProjectReference>
-    <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj">
+    <ProjectReference Include="..\xunit.runner.utility.net35\xunit.runner.utility.net35.csproj">
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
-      <Name>xunit.runner.utility</Name>
+      <Name>xunit.runner.utility.net35</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

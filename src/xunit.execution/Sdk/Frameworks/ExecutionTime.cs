@@ -9,6 +9,9 @@ namespace Xunit.Sdk
     /// </summary>
     public class ExecutionTime
     {
+        /// <summary>
+        /// Returns the total time aggregated across all the actions.
+        /// </summary>
         public TimeSpan Total { get; private set; }
 
         /// <summary>
@@ -25,7 +28,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Executes an asynchronous action and aggregates its run time into the total.
         /// </summary>
-        /// <param name="action">The action to measure.</param>
+        /// <param name="asyncAction">The action to measure.</param>
         public async Task AggregateAsync(Func<Task> asyncAction)
         {
             var stopwatch = Stopwatch.StartNew();
