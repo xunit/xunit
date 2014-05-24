@@ -137,7 +137,7 @@ namespace Xunit.ConsoleClient
             {
                 if (parallelizeAssemblies)
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, defaultDirectory, assembly, needsXml, teamcity, silent, parallelizeTestCollections, maxThreadCount)));
+                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, defaultDirectory, assembly, needsXml, teamcity, silent, parallelizeTestCollections, maxThreadCount, project.Filters)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -146,7 +146,7 @@ namespace Xunit.ConsoleClient
                 {
                     foreach (var assembly in project.Assemblies)
                     {
-                        var assemblyElement = ExecuteAssembly(consoleLock, defaultDirectory, assembly, needsXml, teamcity, silent, parallelizeTestCollections, maxThreadCount);
+                        var assemblyElement = ExecuteAssembly(consoleLock, defaultDirectory, assembly, needsXml, teamcity, silent, parallelizeTestCollections, maxThreadCount, project.Filters);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -190,7 +190,7 @@ namespace Xunit.ConsoleClient
             return new StandardOutputVisitor(consoleLock, defaultDirectory, assemblyElement, () => cancel, completionMessages);
         }
 
-        static XElement ExecuteAssembly(object consoleLock, string defaultDirectory, XunitProjectAssembly assembly, bool needsXml, bool teamCity, bool silent, bool parallelizeTestCollections, int maxThreadCount)
+        static XElement ExecuteAssembly(object consoleLock, string defaultDirectory, XunitProjectAssembly assembly, bool needsXml, bool teamCity, bool silent, bool parallelizeTestCollections, int maxThreadCount, XunitFilters filters)
         {
             if (cancel)
                 return null;
@@ -210,7 +210,7 @@ namespace Xunit.ConsoleClient
 
                     var executionOptions = new XunitExecutionOptions { DisableParallelization = !parallelizeTestCollections, MaxParallelThreads = maxThreadCount };
                     var resultsVisitor = CreateVisitor(consoleLock, defaultDirectory, assemblyElement, teamCity, silent);
-                    controller.RunTests(discoveryVisitor.TestCases, resultsVisitor, executionOptions);
+                    controller.RunTests(discoveryVisitor.TestCases.Where(filters.Filter).ToList(), resultsVisitor, executionOptions);
                     resultsVisitor.Finished.WaitOne();
                 }
             }
