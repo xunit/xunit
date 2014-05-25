@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -12,6 +13,8 @@ namespace Xunit.Sdk
     /// </summary>
     public abstract class TestFrameworkDiscoverer : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer
     {
+        readonly Lazy<string> targetFramework;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
         /// </summary>
@@ -29,6 +32,17 @@ namespace Xunit.Sdk
             AssemblyInfo = assemblyInfo;
             DisposalTracker = new DisposalTracker();
             SourceProvider = sourceProvider;
+
+            targetFramework = new Lazy<string>(() =>
+            {
+                string result = null;
+
+                var attrib = AssemblyInfo.GetCustomAttributes(typeof(TargetFrameworkAttribute)).FirstOrDefault();
+                if (attrib != null)
+                    result = attrib.GetConstructorArguments().Cast<string>().First();
+
+                return result ?? "";
+            });
         }
 
         /// <summary>
@@ -50,6 +64,9 @@ namespace Xunit.Sdk
         /// Get the source code information provider used during discovery.
         /// </summary>
         protected ISourceInformationProvider SourceProvider { get; private set; }
+
+        /// <inheritdoc/>
+        public string TargetFramework { get { return targetFramework.Value; } }
 
         /// <inheritdoc/>
         public string TestFrameworkDisplayName { get; protected set; }

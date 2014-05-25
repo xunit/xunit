@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Versioning;
 using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -59,22 +58,32 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                             if (!IsXunitTestAssembly(assemblyFileName))
                             {
                                 if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1}", stopwatch.Elapsed, fileName));
+                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1} (could not find xUnit.net)", stopwatch.Elapsed, fileName));
                             }
                             else
                             {
-                                if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                    logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
-
                                 using (var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true))
                                 using (var sink = new VsDiscoveryVisitor(assemblyFileName, framework, logger, discoveryContext, discoverySink, () => cancelled))
                                 {
-                                    framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
-                                    sink.Finished.WaitOne();
+                                    var targetFramework = framework.TargetFramework;
+                                    if (targetFramework.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase) ||
+                                        targetFramework.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                            logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1} (unsupported target framework '{2}')", stopwatch.Elapsed, fileName, targetFramework));
+                                    }
+                                    else
+                                    {
+                                        if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                            logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1} (target framework '{2}')", stopwatch.Elapsed, fileName, targetFramework));
 
-                                    if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                        logger.SendMessage(TestMessageLevel.Informational,
-                                                           String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, fileName, sink.TotalTests));
+                                        framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
+                                        sink.Finished.WaitOne();
+
+                                        if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                            logger.SendMessage(TestMessageLevel.Informational,
+                                                               String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, fileName, sink.TotalTests));
+                                    }
                                 }
                             }
                         }
@@ -180,19 +189,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
             if (!File.Exists(xunitPath) && !File.Exists(xunitExecutionPath))
                 return false;
-
-            var assm = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
-            var attrib = assm.GetCustomAttributes(typeof(TargetFrameworkAttribute))
-                             .Cast<TargetFrameworkAttribute>()
-                             .FirstOrDefault();
-
-            if (attrib != null && attrib.FrameworkName != null)
-            {
-                // We found the TargetFramework attribute, check for Xamarin
-                var xamFound = attrib.FrameworkName.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase) ||
-                               attrib.FrameworkName.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase);
-                return !xamFound;
-            }
 
             return true;
         }
