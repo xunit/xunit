@@ -139,28 +139,38 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                         }
                         else
                         {
-                            if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
-
                             using (var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true))
                             using (var sink = new TestDiscoveryVisitor())
                             {
-                                framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
-                                sink.Finished.WaitOne();
+                                var targetFramework = framework.TargetFramework;
+                                if (targetFramework.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase) ||
+                                    targetFramework.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                        logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1} (unsupported target framework '{2}')", stopwatch.Elapsed, fileName, targetFramework));
+                                }
+                                else
+                                {
+                                    if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                        logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Discovery starting: {1} (target framework '{2}')", stopwatch.Elapsed, fileName, targetFramework));
 
-                                result.Add(
-                                    new Grouping<string, TestCase>(
-                                        assemblyFileName,
-                                        sink.TestCases
-                                            .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
-                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
-                                            .ToList()
-                                    )
-                                );
+                                    framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
+                                    sink.Finished.WaitOne();
 
-                                if (settings.MessageDisplay != MessageDisplay.None)
-                                    logger.SendMessage(TestMessageLevel.Informational,
-                                                       String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, Path.GetFileName(assemblyFileName), sink.TestCases.Count));
+                                    result.Add(
+                                        new Grouping<string, TestCase>(
+                                            assemblyFileName,
+                                            sink.TestCases
+                                                .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
+                                                .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
+                                                .ToList()
+                                        )
+                                    );
+
+                                    if (settings.MessageDisplay != MessageDisplay.None)
+                                        logger.SendMessage(TestMessageLevel.Informational,
+                                                           String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, Path.GetFileName(assemblyFileName), sink.TestCases.Count));
+                                }
                             }
                         }
                     }
