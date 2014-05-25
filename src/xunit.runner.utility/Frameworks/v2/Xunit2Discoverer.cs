@@ -73,6 +73,12 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public string TargetFramework
+        {
+            get { return discoverer.TargetFramework; }
+        }
+
+        /// <inheritdoc/>
         public string TestFrameworkDisplayName
         {
             get { return discoverer.TestFrameworkDisplayName; }

@@ -83,19 +83,29 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                 using (var framework = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true))
                                 using (var visitor = visitorFactory(assemblyFileName, framework))
                                 {
-                                    if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                        logger.SendMessage(TestMessageLevel.Informational,
-                                                           String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
+                                    var targetFramework = framework.TargetFramework;
+                                    if (targetFramework.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase) ||
+                                        targetFramework.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                            logger.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Skipping: {1} (unsupported target framework '{2}')", stopwatch.Elapsed, fileName, targetFramework));
+                                    }
+                                    else
+                                    {
+                                        if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                            logger.SendMessage(TestMessageLevel.Informational,
+                                                               String.Format("[xUnit.net {0}] Discovery starting: {1}", stopwatch.Elapsed, fileName));
 
-                                    framework.Find(includeSourceInformation: true, messageSink: visitor, options: new TestFrameworkOptions());
-                                    var totalTests = visitor.Finish();
+                                        framework.Find(includeSourceInformation: true, messageSink: visitor, options: new TestFrameworkOptions());
+                                        var totalTests = visitor.Finish();
 
-                                    if (visitComplete != null)
-                                        visitComplete(assemblyFileName, framework, visitor);
+                                        if (visitComplete != null)
+                                            visitComplete(assemblyFileName, framework, visitor);
 
-                                    if (settings.MessageDisplay == MessageDisplay.Diagnostic)
-                                        logger.SendMessage(TestMessageLevel.Informational,
-                                                           String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, fileName, totalTests));
+                                        if (settings.MessageDisplay == MessageDisplay.Diagnostic)
+                                            logger.SendMessage(TestMessageLevel.Informational,
+                                                               String.Format("[xUnit.net {0}] Discovery finished: {1} ({2} tests)", stopwatch.Elapsed, fileName, totalTests));
+                                    }
                                 }
                             }
                         }
