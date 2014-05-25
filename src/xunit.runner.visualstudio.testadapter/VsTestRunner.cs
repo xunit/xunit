@@ -22,7 +22,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
     {
         public static TestProperty SerializedTestCaseProperty = GetTestProperty();
 
-
         bool cancelled;
 
         public void Cancel()
@@ -176,23 +175,25 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             string self = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
             if (Path.GetFileNameWithoutExtension(assemblyFileName).Equals(self, StringComparison.OrdinalIgnoreCase))
                 return false;
+            
+            // skip xunit.dll and xunit.execution.dll as they won't have any tests
+            if ("xunit".Equals(Path.GetFileNameWithoutExtension(assemblyFileName), StringComparison.OrdinalIgnoreCase) ||
+                "xunit.execution".Equals(Path.GetFileNameWithoutExtension(assemblyFileName), StringComparison.OrdinalIgnoreCase))
+                return false;
 
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
             string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
             if (!File.Exists(xunitPath) && !File.Exists(xunitExecutionPath))
                 return false;
-
-
-            // skip xunit.dll and xunit.execution.dll as they won't have any tests
-            if ("xunit.dll".Equals(assemblyFileName, StringComparison.OrdinalIgnoreCase) ||
-                "xunit.execution.dll".Equals(assemblyFileName, StringComparison.OrdinalIgnoreCase))
-                return false;
+           
 
             var assm = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
 
             // As we're in a reflection-only context, we can't use GetCustomAttributes
             // Also, GetCustomAttributeData will trigger resolving of references,
             // and we don't want to deal with binding policy 
+            // 
+            // Instead, we check the references
 
             var refs = assm.GetReferencedAssemblies();
 
