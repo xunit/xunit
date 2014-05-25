@@ -22,6 +22,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
     {
         public static TestProperty SerializedTestCaseProperty = GetTestProperty();
 
+
         bool cancelled;
 
         public void Cancel()
@@ -176,20 +177,24 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             if (!File.Exists(xunitPath) && !File.Exists(xunitExecutionPath))
                 return false;
 
+
+            // skip xunit.dll and xunit.execution.dll as they won't have any tests
+            if ("xunit.dll".Equals(assemblyFileName, StringComparison.OrdinalIgnoreCase) ||
+                "xunit.execution.dll".Equals(assemblyFileName, StringComparison.OrdinalIgnoreCase))
+                return false;
+
             var assm = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
-            var attrib = assm.GetCustomAttributes(typeof(TargetFrameworkAttribute))
-                             .Cast<TargetFrameworkAttribute>()
-                             .FirstOrDefault();
 
-            if (attrib != null && attrib.FrameworkName != null)
-            {
-                // We found the TargetFramework attribute, check for Xamarin
-                var xamFound = attrib.FrameworkName.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase) ||
-                               attrib.FrameworkName.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase);
-                return !xamFound;
-            }
+            // As we're in a reflection-only context, we can't use GetCustomAttributes
+            // Also, GetCustomAttributeData will trigger resolving of references,
+            // and we don't want to deal with binding policy 
 
-            return true;
+            var refs = assm.GetReferencedAssemblies();
+
+            var xam = refs.Any(an => an.Name != null && (an.Name.StartsWith("Mono.Android", StringComparison.OrdinalIgnoreCase)
+                                               || an.Name.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase)));
+
+            return !xam;
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
