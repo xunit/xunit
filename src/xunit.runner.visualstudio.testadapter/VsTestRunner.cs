@@ -175,26 +175,32 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             string self = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
             if (Path.GetFileNameWithoutExtension(assemblyFileName).Equals(self, StringComparison.OrdinalIgnoreCase))
                 return false;
+            
+            // skip xunit.dll and xunit.execution.dll as they won't have any tests
+            if ("xunit".Equals(Path.GetFileNameWithoutExtension(assemblyFileName), StringComparison.OrdinalIgnoreCase) ||
+                "xunit.execution".Equals(Path.GetFileNameWithoutExtension(assemblyFileName), StringComparison.OrdinalIgnoreCase))
+                return false;
 
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
             string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
             if (!File.Exists(xunitPath) && !File.Exists(xunitExecutionPath))
                 return false;
+           
 
             var assm = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
-            var attrib = assm.GetCustomAttributes(typeof(TargetFrameworkAttribute))
-                             .Cast<TargetFrameworkAttribute>()
-                             .FirstOrDefault();
 
-            if (attrib != null && attrib.FrameworkName != null)
-            {
-                // We found the TargetFramework attribute, check for Xamarin
-                var xamFound = attrib.FrameworkName.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase) ||
-                               attrib.FrameworkName.StartsWith("MonoAndroid", StringComparison.OrdinalIgnoreCase);
-                return !xamFound;
-            }
+            // As we're in a reflection-only context, we can't use GetCustomAttributes
+            // Also, GetCustomAttributeData will trigger resolving of references,
+            // and we don't want to deal with binding policy 
+            // 
+            // Instead, we check the references
 
-            return true;
+            var refs = assm.GetReferencedAssemblies();
+
+            var xam = refs.Any(an => an.Name != null && (an.Name.StartsWith("Mono.Android", StringComparison.OrdinalIgnoreCase)
+                                               || an.Name.StartsWith("MonoTouch", StringComparison.OrdinalIgnoreCase)));
+
+            return !xam;
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
