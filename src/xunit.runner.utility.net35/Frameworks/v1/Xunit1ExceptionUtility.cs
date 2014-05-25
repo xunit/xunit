@@ -8,8 +8,7 @@ namespace Xunit
 {
     internal static class Xunit1ExceptionUtility
     {
-        static readonly Regex NestedMessagesRegex = new Regex(@"-*\s*(?<type>.*?) :\s*(?<message>.*?)((\r\n-)|\z)",
-            RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Singleline);
+        static readonly Regex NestedMessagesRegex = new Regex(@"-*\s*((?<type>.*?) :\s*)?(?<message>.+?)((\r\n-)|\z)", RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Singleline);
         static readonly Regex NestedStackTracesRegex = new Regex(@"\r*\n----- Inner Stack Trace -----\r*\n", RegexOptions.Compiled);
 
         public static IFailureInformation ConvertToFailureInformation(Exception exception)
@@ -69,11 +68,8 @@ namespace Xunit
                 messages.Add(match.Groups["message"].Value);
             }
 
-            if (exceptionTypes.Count == 0)
-            {
-                exceptionTypes.Add(outermostExceptionType);
-                messages.Add(nestedExceptionMessages);
-            }
+            if (exceptionTypes.Count > 0 && exceptionTypes[0] == "")
+                exceptionTypes[0] = outermostExceptionType;
 
             failureInformation.ExceptionTypes = exceptionTypes.ToArray();
             failureInformation.Messages = messages.ToArray();
