@@ -10,10 +10,7 @@ namespace Xunit.Sdk
     /// InitializeLifetimeService in a way that allows the object to live
     /// longer than the remoting default lifetime (5 minutes).
     /// </summary>
-    public abstract class LongLivedMarshalByRefObject
-#if !NO_APPDOMAIN
-        :  MarshalByRefObject
-#endif
+    public abstract class LongLivedMarshalByRefObject :  MarshalByRefObject
     {
 #if !NO_APPDOMAIN
         static ConcurrentBag<MarshalByRefObject> remoteObjects = new ConcurrentBag<MarshalByRefObject>();
