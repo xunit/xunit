@@ -38,6 +38,7 @@
     <file src="xunit.runner.utility.net35\bin\Release\xunit.runner.utility.dll" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.runner.utility.dll" />
 
     <file src="xunit.core\**\*.cs" target="src\xunit.core" />
+    <file src="xunit.assert\Asserts\Sdk\AssertEquality*.cs" target="src\xunit.assert\Asserts\Sdk\" />
     <file src="common\**\*.cs" target="src\common" />
   </files>
 </package>
