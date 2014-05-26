@@ -157,9 +157,11 @@
 
   <Target Name="PushMyGet">
     <ItemGroup>
-      <NupkgFiles Include="*.nupkg" Exclude="*.symbols*.nupkg" />
+      <NupkgSymbolsFiles Include="*.symbols.nupkg" />
+      <NupkgFiles Include="*.nupkg" Exclude="@(NupkgSymbolsFiles)" />
     </ItemGroup>
     <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive -Source https://www.myget.org/F/xunit/api/v2/package" />
+    <Exec Command=".nuget\NuGet.exe push %(NupkgSymbolsFiles.Identity) -NonInteractive -Source https://nuget.symbolsource.org/MyGet/xunit" />
   </Target>
 
   <Target Name="PushNuGet">

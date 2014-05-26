@@ -37,6 +37,7 @@
     <file src="xunit.execution.android\**\*.cs" target="src\xunit.execution.android" />
     <file src="xunit.execution.iOS\**\*.cs" target="src\xunit.execution.iOS" />
     <file src="xunit.execution.net45\**\*.cs" target="src\xunit.execution.net45" />
+    <file src="xunit.assert\Asserts\Sdk\AssertEquality*.cs" target="src\xunit.assert\Asserts\Sdk\" />
     <file src="messages\**\*.cs" target="src\messages" />
     <file src="common\**\*.cs" target="src\common" />
   </files>
