@@ -65,7 +65,9 @@
     </Compile>
     <Compile Include="Settings\XunitTestRunSettingsProvider.cs" />
     <Compile Include="Settings\XunitVisualStudioSettings.cs" />
+    <Compile Include="Visitors\IVsDiscoveryVisitor.cs" />
     <Compile Include="Visitors\VsDiscoveryVisitor.cs" />
+    <Compile Include="Visitors\VsExecutionDiscoveryVisitor.cs" />
     <Compile Include="Visitors\VsExecutionVisitor.cs" />
     <Compile Include="VsTestRunner.cs" />
     <Compile Include="Settings\XunitTestRunSettings.cs" />
