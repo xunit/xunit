@@ -38,7 +38,7 @@
 
   <!-- Build server targets -->
 
-  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts" />
+  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts;PushMyGet" />
 
   <!-- Individiual targets -->
 
@@ -155,9 +155,16 @@
     <Zip Files="@(Binaries)" ZipFileName="binaries.zip" StripPath="true" />
   </Target>
 
-  <Target Name="PushPackages">
+  <Target Name="PushMyGet">
     <ItemGroup>
-      <NupkgFiles Include="*.nupkg" Exclude="*.symbols.nupkg" />
+      <NupkgFiles Include="*.nupkg" Exclude="*.symbols*.nupkg" />
+    </ItemGroup>
+    <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive -Source https://www.myget.org/F/xunit/api/v2/package" />
+  </Target>
+
+  <Target Name="PushNuGet">
+    <ItemGroup>
+      <NupkgFiles Include="*.nupkg" Exclude="*.symbols*.nupkg" />
     </ItemGroup>
     <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive" />
   </Target>
