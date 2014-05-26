@@ -69,12 +69,6 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public string TargetFramework
-        {
-            get { return InnerController.TargetFramework; }
-        }
-
-        /// <inheritdoc/>
         public string TestFrameworkDisplayName
         {
             get { return InnerController.TestFrameworkDisplayName; }

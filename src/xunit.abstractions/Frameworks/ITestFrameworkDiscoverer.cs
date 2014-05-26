@@ -8,11 +8,6 @@ namespace Xunit.Abstractions
     public interface ITestFrameworkDiscoverer : IDisposable
     {
         /// <summary>
-        /// Gets the target framework that the test assembly is linked against.
-        /// </summary>
-        string TargetFramework { get; }
-
-        /// <summary>
         /// Returns the display name of the test framework that this discoverer is running tests for.
         /// </summary>
         string TestFrameworkDisplayName { get; }
