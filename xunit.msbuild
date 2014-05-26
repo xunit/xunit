@@ -19,8 +19,8 @@
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
-    <NuGetNuspecTargets Include="src\*.nuspec" />
-    <NuGetCsprojTargets Include="src\xunit.assert\xunit.assert.csproj" />
+    <NuGetNuspecTargets Include="src\xunit.assert.nuspec;src\xunit.core.nuspec;src\xunit.execution.nuspec;src\xunit.runner.utility.nuspec" />
+    <NuGetNuspecNoSymbolsTargets Include="src\*.nuspec" Exclude="@(NuGetNuspecTargets)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
     <PackageSource Include="https://nuget.org/api/v2/" />
@@ -137,8 +137,8 @@
   </Target>
 
   <Target Name='Packages'>
-    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
-    <Exec Command='.nuget\NuGet.exe pack %(NuGetCsProjTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet -Symbols' />
+    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecTargets.Identity) -Symbols -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
+    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecNoSymbolsTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
   </Target>
 
   <Target Name='ZipArtifacts'>

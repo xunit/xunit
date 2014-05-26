@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
-    <metadata>
-        <id>xunit.assert.source</id>
-        <version>2.0.0-beta</version>
-        <title>xUnit.net [Assertion Library, as source]</title>
-        <authors>James Newkirk, Brad Wilson</authors>
-        <description>Includes the current assertion library from xUnit.net, as source into your project.</description>
-        <language>en-US</language>
-        <projectUrl>https://github.com/xunit/xunit</projectUrl>
-        <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
-        <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
-        <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    </metadata>
-    <files>
-        <file src="xunit.assert\Asserts\*.cs" target="Content\Asserts" />
-        <file src="xunit.assert\Asserts\Sdk\*.cs" target="Content\Asserts\Sdk" />
-        <file src="xunit.assert\Asserts\Sdk\Exceptions\*.cs" target="Content\Asserts\Sdk\Exceptions" />
-    </files>
+  <metadata>
+    <id>xunit.assert.source</id>
+    <version>2.0.0-beta</version>
+    <title>xUnit.net [Assertion Library, as source]</title>
+    <authors>James Newkirk, Brad Wilson</authors>
+    <description>Includes the current assertion library from xUnit.net, as source into your project.</description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/xunit/xunit</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+  </metadata>
+  <files>
+    <file src="xunit.assert\Asserts\*.cs" target="Content\Asserts" />
+    <file src="xunit.assert\Asserts\Sdk\*.cs" target="Content\Asserts\Sdk" />
+    <file src="xunit.assert\Asserts\Sdk\Exceptions\*.cs" target="Content\Asserts\Sdk\Exceptions" />
+  </files>
 </package>
