@@ -103,9 +103,13 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                         {
                             var ex = e.Unwrap();
                             var fileNotFound = ex as FileNotFoundException;
+                            var fileLoad = ex as FileLoadException;
                             if (fileNotFound != null)
                                 logger.SendMessage(TestMessageLevel.Informational,
                                                    String.Format("[xUnit.net {0}] Skipping: {1} (could not find dependent assembly '{2}')", stopwatch.Elapsed, fileName, Path.GetFileNameWithoutExtension(fileNotFound.FileName)));
+                            else if (fileLoad != null)
+                                logger.SendMessage(TestMessageLevel.Informational,
+                                                   String.Format("[xUnit.net {0}] Skipping: {1} (could not find dependent assembly '{2}')", stopwatch.Elapsed, fileName, Path.GetFileNameWithoutExtension(fileLoad.FileName)));
                             else
                                 logger.SendMessage(TestMessageLevel.Error,
                                                    String.Format("[xUnit.net {0}] Exception discovering tests from {1}: {2}", stopwatch.Elapsed, fileName, ex));
