@@ -9,8 +9,8 @@
     <ProjectGuid>{C5B811E8-30CD-4879-A48C-664241D3EFB8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>xunit.runner.visualstudio.Win8</RootNamespace>
-    <AssemblyName>xunit.runner.visualstudio.Win8</AssemblyName>
+    <RootNamespace>test.xunit.runner.visualstudio.Win8</RootNamespace>
+    <AssemblyName>test.xunit.runner.visualstudio.Win8</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
