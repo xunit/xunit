@@ -9,12 +9,7 @@ namespace Xunit
     /// InitializeLifetimeService in a way that allows the object to live
     /// longer than the remoting default lifetime (5 minutes).
     /// </summary>
-    public abstract class LongLivedMarshalByRefObject  : 
-#if !NO_APPDOMAIN
-        MarshalByRefObject, 
-#endif
-        IDisposable
-
+    public abstract class LongLivedMarshalByRefObject  : MarshalByRefObject, IDisposable
     {
 #if !NO_APPDOMAIN
         /// <inheritdoc/>

@@ -19,8 +19,8 @@
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
-    <NuGetNuspecTargets Include="src\*.nuspec" />
-    <NuGetCsprojTargets Include="src\xunit.assert\xunit.assert.csproj" />
+    <NuGetNuspecTargets Include="src\xunit.assert.nuspec;src\xunit.core.nuspec;src\xunit.execution.nuspec;src\xunit.runner.utility.nuspec" />
+    <NuGetNuspecNoSymbolsTargets Include="src\*.nuspec" Exclude="@(NuGetNuspecTargets)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
     <PackageSource Include="https://nuget.org/api/v2/" />
@@ -38,7 +38,7 @@
 
   <!-- Build server targets -->
 
-  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts" />
+  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts;PushMyGet" />
 
   <!-- Individiual targets -->
 
@@ -137,8 +137,8 @@
   </Target>
 
   <Target Name='Packages'>
-    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
-    <Exec Command='.nuget\NuGet.exe pack %(NuGetCsProjTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet -Symbols' />
+    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecTargets.Identity) -Symbols -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
+    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecNoSymbolsTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
   </Target>
 
   <Target Name='ZipArtifacts'>
@@ -155,9 +155,18 @@
     <Zip Files="@(Binaries)" ZipFileName="binaries.zip" StripPath="true" />
   </Target>
 
-  <Target Name="PushPackages">
+  <Target Name="PushMyGet">
     <ItemGroup>
-      <NupkgFiles Include="*.nupkg" Exclude="*.symbols.nupkg" />
+      <NupkgSymbolsFiles Include="*.symbols.nupkg" />
+      <NupkgFiles Include="*.nupkg" Exclude="@(NupkgSymbolsFiles)" />
+    </ItemGroup>
+    <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive -Source https://www.myget.org/F/xunit/api/v2/package" />
+    <Exec Command=".nuget\NuGet.exe push %(NupkgSymbolsFiles.Identity) -NonInteractive -Source https://nuget.symbolsource.org/MyGet/xunit" />
+  </Target>
+
+  <Target Name="PushNuGet">
+    <ItemGroup>
+      <NupkgFiles Include="*.nupkg" Exclude="*.symbols*.nupkg" />
     </ItemGroup>
     <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive" />
   </Target>

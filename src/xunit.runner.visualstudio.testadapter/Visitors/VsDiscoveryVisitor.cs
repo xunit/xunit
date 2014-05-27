@@ -10,7 +10,7 @@ using Xunit.Runner.VisualStudio.Settings;
 
 namespace Xunit.Runner.VisualStudio.TestAdapter
 {
-    public class VsDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
+    public class VsDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>, IVsDiscoveryVisitor
     {
         static readonly Action<TestCase, string, string> addTraitThunk = GetAddTraitThunk();
         static readonly Uri uri = new Uri(Constants.ExecutorUri);
@@ -69,6 +69,12 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 return String.Empty;
 
             return value.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t");
+        }
+
+        public int Finish()
+        {
+            Finished.WaitOne();
+            return TotalTests;
         }
 
         static Action<TestCase, string, string> GetAddTraitThunk()

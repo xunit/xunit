@@ -44,6 +44,14 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public string TargetFramework
+        {
+            // This is not supported with v1, since there is no code in the remote AppDomain
+            // that would give us this information.
+            get { return String.Empty; }
+        }
+
+        /// <inheritdoc/>
         public string TestFrameworkDisplayName
         {
             get { return executor.TestFrameworkDisplayName; }
