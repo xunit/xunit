@@ -14,6 +14,10 @@ using Xunit.Runner.VisualStudio.Settings;
 
 namespace Xunit.Runner.VisualStudio.TestAdapter
 {
+
+
+
+    [FileExtension(".appx")]
     [FileExtension(".dll")]
     [FileExtension(".exe")]
     [DefaultExecutorUri(Constants.ExecutorUri)]
@@ -22,7 +26,24 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
     {
         public static TestProperty SerializedTestCaseProperty = GetTestProperty();
 
-        bool cancelled;
+        private static HashSet<string> platformAssemblies = new HashSet<string>
+            (
+            new [] {"MICROSOFT.VISUALSTUDIO.TESTPLATFORM.UNITTESTFRAMEWORK.DLL", 
+                    "MICROSOFT.VISUALSTUDIO.TESTPLATFORM.CORE.DLL", 
+                    "MICROSOFT.VISUALSTUDIO.TESTPLATFORM.TESTEXECUTOR.CORE.DLL", 
+                    "MICROSOFT.VISUALSTUDIO.TESTPLATFORM.EXTENSIONS.MSAPPCONTAINERADAPTER.DLL", 
+                    "MICROSOFT.VISUALSTUDIO.TESTPLATFORM.OBJECTMODEL.DLL", 
+                    "MICROSOFT.VISUALSTUDIO.TESTPLATFORM.UTILITIES.DLL", 
+                    "VSTEST.EXECUTIONENGINE.APPCONTAINER.EXE", 
+                    "VSTEST.EXECUTIONENGINE.APPCONTAINER.X86.EXE",
+                    "XUNIT.EXECUTION.DLL",
+                    "XUNIT.RUNNER.UTILITY.DLL",
+                    "XUNIT.RUNNER.VISUALSTUDIO.TESTADAPTER.DLL",
+                    "XUNIT.CORE.DLL",
+                    "XUNIT.ASSERT.DLL"}
+            );
+
+bool cancelled;
 
         public void Cancel()
         {
@@ -34,6 +55,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             Guard.ArgumentNotNull("sources", sources);
             Guard.ArgumentNotNull("logger", logger);
             Guard.ArgumentNotNull("discoverySink", discoverySink);
+            Guard.ArgumentValid("sources", "appx not supported for discovery", !ContainsAppX(sources));
+            
 
             DiscoverTests(
                 sources,
@@ -185,6 +208,20 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         {
             Guard.ArgumentNotNull("sources", sources);
 
+            // In this case, we need to go thru the files manually
+            if (ContainsAppX(sources))
+            {
+                var files = Directory.EnumerateFiles(Environment.CurrentDirectory, "*.dll", SearchOption.TopDirectoryOnly);
+
+                var toAdd = from file in files
+                            let system = platformAssemblies.Contains(Path.GetFileName(file)
+                                                                         .ToUpperInvariant())
+                            where !system
+                            select file;
+
+                sources = toAdd.ToList();
+            }
+
             var stopwatch = Stopwatch.StartNew();
             RunTests(runContext, frameworkHandle, stopwatch, settings => GetTests(sources, frameworkHandle, settings, stopwatch));
             stopwatch.Stop();
@@ -193,6 +230,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             Guard.ArgumentNotNull("tests", tests);
+            Guard.ArgumentValid("tests", "appx not supported in this overload", !ContainsAppX(tests.Select(t => t.Source)));
 
             var stopwatch = Stopwatch.StartNew();
             RunTests(runContext, frameworkHandle, stopwatch, settings => tests.GroupBy(testCase => testCase.Source));
@@ -321,6 +359,12 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             });
 
             return @event;
+        }
+
+
+        private static bool ContainsAppX(IEnumerable<string> sources)
+        {
+            return sources.Any(s => string.Compare(Path.GetExtension(s), ".appx", StringComparison.OrdinalIgnoreCase) == 0);
         }
 
         class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
