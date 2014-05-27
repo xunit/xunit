@@ -268,6 +268,12 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 lock (stopwatch)
                     frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution starting: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
 
+#if WIN8_STORE
+            // For store apps, the files are copied to the AppX dir, we need to load it from there
+            assemblyFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly()
+                                                    .Location), Path.GetFileName(assemblyFileName));
+#endif
+
             var controller = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true);
 
             lock (toDispose)

@@ -18,6 +18,7 @@ namespace Xunit.Runner.VisualStudio.Settings
         {
             var result = new XunitVisualStudioSettings();
 
+#if !WIN8_STORE
             using (var software = Registry.CurrentUser.OpenSubKey("Software", writable: true))
             using (var outercurve = software.CreateOrOpen("Outercurve Foundation"))
             using (var xunit = outercurve.CreateOrOpen("xUnit.net"))
@@ -30,6 +31,7 @@ namespace Xunit.Runner.VisualStudio.Settings
                 result.ParallelizeTestCollections = vsrunner.GetValue<int>(REGVALUE_ParallelizeTestCollections) != 0;
                 result.ShutdownAfterRun = vsrunner.GetValue<int>(REGVALUE_ShutdownAfterRun) != 0;
             }
+#endif
 
             return result;
         }
