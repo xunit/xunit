@@ -13,5 +13,14 @@ namespace xunit.runner.visualstudio.Win8
         {
             Assert.True(true);
         }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void TestTheory(int i)
+        {
+            
+        }
     }
 }
