@@ -110,11 +110,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.net45.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.visualstudio.testadapter.win8", "src\xunit.runner.visualstudio.testadapter.win8\xunit.runner.visualstudio.testadapter.win8.csproj", "{1ABFC6A3-114A-4771-9DBB-1F04A7EC335D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TEMP.xunit.runner.visualstudio.extensionsdk", "src\xunit.runner.visualstudio.extensionsdk\TEMP.xunit.runner.visualstudio.extensionsdk.csproj", "{6C3DDA50-66B2-464C-9EC8-B12331695C5B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.visualstudio.Win8", "test\test.xunit.runner.visualstudio.Win8\test.xunit.runner.visualstudio.Win8.csproj", "{C5B811E8-30CD-4879-A48C-664241D3EFB8}"
 	ProjectSection(ProjectDependencies) = postProject
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B} = {6C3DDA50-66B2-464C-9EC8-B12331695C5B}
+		{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51} = {4F42FE0E-04D0-4E84-9C4C-91B9C6649E51}
+		{1ABFC6A3-114A-4771-9DBB-1F04A7EC335D} = {1ABFC6A3-114A-4771-9DBB-1F04A7EC335D}
+		{141612DE-2D07-4968-ABAF-09FD05B7951E} = {141612DE-2D07-4968-ABAF-09FD05B7951E}
 	EndProjectSection
 EndProject
 Global
@@ -123,12 +123,12 @@ Global
 		src\xunit.execution\xunit.execution.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\messages\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{77743589-f177-4007-97b8-50b82a1c7044}*SharedItemsImports = 4
-		src\xunit.runner.utility\xunit.runner.utility.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
 		src\messages\messages.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
+		src\xunit.runner.utility\xunit.runner.utility.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{53012549-d81b-4e40-b626-67c19265aa6f}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{ef8381db-7aa0-41b8-99c5-7a69f1a61f18}*SharedItemsImports = 13
-		src\xunit.runner.utility\xunit.runner.utility.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
 		src\messages\messages.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
+		src\xunit.runner.utility\xunit.runner.utility.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{cd3185a0-fb26-4923-8421-19a01da67999}*SharedItemsImports = 13
 		src\xunit.execution\xunit.execution.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
 		src\messages\messages.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
@@ -385,16 +385,6 @@ Global
 		{1ABFC6A3-114A-4771-9DBB-1F04A7EC335D}.Release|ARM.ActiveCfg = Release|Any CPU
 		{1ABFC6A3-114A-4771-9DBB-1F04A7EC335D}.Release|x64.ActiveCfg = Release|Any CPU
 		{1ABFC6A3-114A-4771-9DBB-1F04A7EC335D}.Release|x86.ActiveCfg = Release|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Release|ARM.ActiveCfg = Release|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Release|x64.ActiveCfg = Release|Any CPU
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B}.Release|x86.ActiveCfg = Release|Any CPU
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
@@ -462,7 +452,6 @@ Global
 		{141612DE-2D07-4968-ABAF-09FD05B7951E} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 		{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51} = {A36A630E-A604-47E6-894E-732946960182}
 		{1ABFC6A3-114A-4771-9DBB-1F04A7EC335D} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
-		{6C3DDA50-66B2-464C-9EC8-B12331695C5B} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
 	EndGlobalSection
 EndGlobal
