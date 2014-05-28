@@ -169,6 +169,14 @@ bool cancelled;
 
         IEnumerable<IGrouping<string, TestCase>> GetTests(IEnumerable<string> sources, IMessageLogger logger, XunitVisualStudioSettings settings, Stopwatch stopwatch)
         {
+#if WIN8_STORE
+            // For store apps, the files are copied to the AppX dir, we need to load it from there
+            sources = sources.Select(s => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly()
+                                                                                     .Location), Path.GetFileName(s)));
+            
+#endif
+
+
             var result = new List<IGrouping<string, TestCase>>();
 
             DiscoverTests(
@@ -231,7 +239,7 @@ bool cancelled;
         {
             Guard.ArgumentNotNull("tests", tests);
             Guard.ArgumentValid("tests", "appx not supported in this overload", !ContainsAppX(tests.Select(t => t.Source)));
-
+            
             var stopwatch = Stopwatch.StartNew();
             RunTests(runContext, frameworkHandle, stopwatch, settings => tests.GroupBy(testCase => testCase.Source));
             stopwatch.Stop();
