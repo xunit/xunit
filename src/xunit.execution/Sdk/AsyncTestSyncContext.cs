@@ -12,6 +12,11 @@ namespace Xunit.Sdk
         Exception exception = null;
         int operationCount = 0;
 
+        public AsyncTestSyncContext()
+        {
+            @event.Set();
+        }
+
         public override void OperationCompleted()
         {
             var result = Interlocked.Decrement(ref operationCount);
@@ -25,24 +30,34 @@ namespace Xunit.Sdk
             @event.Reset();
         }
 
-        public override void Post(SendOrPostCallback d, object state)
+        public override async void Post(SendOrPostCallback d, object state)
         {
             // The call to Post() may be the state machine signaling that an exception is
             // about to be thrown, so we make sure the operation count gets incremented
             // before the QUWI, and then decrement the count when the operation is done.
             OperationStarted();
 
-            Task.Run(() =>
+            try
             {
-                try
+                // await and eat exceptions that come from this post
+                // We could get a thread abort, so we need to handle that
+                await Task.Run(() =>
                 {
-                    Send(d, state);
-                }
-                finally
-                {
-                    OperationCompleted();
-                }
-            });
+                    try
+                    {
+                        Send(d, state);
+                    }
+                    finally
+                    {
+                        OperationCompleted();
+                    }
+                }).ConfigureAwait(false);
+            }
+            catch
+            {
+                
+            }
+            
         }
 
         public override void Send(SendOrPostCallback d, object state)
@@ -59,8 +74,7 @@ namespace Xunit.Sdk
 
         public async Task<Exception> WaitForCompletionAsync()
         {
-            
-            await @event.WaitAsync().ConfigureAwait(false);
+            await @event.WaitAsync();
 
             return exception;
         }
