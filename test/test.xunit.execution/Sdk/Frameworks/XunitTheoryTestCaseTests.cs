@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -83,6 +84,7 @@ public class XunitTheoryTestCaseTests
             public void Dispose() { }
         }
 
+        [Serializable]
         public class TestableXunitTheoryTestCase : XunitTheoryTestCase
         {
             Action<IMessageBus> callback;
@@ -93,6 +95,8 @@ public class XunitTheoryTestCaseTests
             {
                 this.callback = callback;
             }
+
+            protected TestableXunitTheoryTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
             public List<IMessageSinkMessage> Messages
             {
