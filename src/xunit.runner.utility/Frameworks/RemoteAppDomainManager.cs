@@ -40,7 +40,7 @@ namespace Xunit
         {
             AppDomainSetup setup = new AppDomainSetup();
             setup.ApplicationBase = Path.GetDirectoryName(assemblyFilename);
-            setup.ApplicationName = Guid.NewGuid().ToString();
+            setup.ApplicationName =  Guid.NewGuid().ToString();
 
             if (shadowCopy)
             {
@@ -51,7 +51,7 @@ namespace Xunit
 
             setup.ConfigurationFile = configFilename;
 
-            return AppDomain.CreateDomain(setup.ApplicationName, null, setup, new PermissionSet(PermissionState.Unrestricted));
+            return AppDomain.CreateDomain(Path.GetFileNameWithoutExtension(assemblyFilename), null, setup, new PermissionSet(PermissionState.Unrestricted));
 
         }
 #endif

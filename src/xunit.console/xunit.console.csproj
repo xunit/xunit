@@ -100,6 +100,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\test\test.xunit.execution\test.xunit.execution.csproj">
+      <Project>{c32639c0-50eb-49ab-9681-c3334e5deae7}</Project>
+      <Name>test.xunit.execution</Name>
+    </ProjectReference>
     <ProjectReference Include="..\xunit.abstractions.net35\xunit.abstractions.net35.csproj">
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions.net35</Name>

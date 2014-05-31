@@ -2,6 +2,7 @@
 [Oo]bj
 packages
 help
+AppPackages
 
 *.suo
 *.user

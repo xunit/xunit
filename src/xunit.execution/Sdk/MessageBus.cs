@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -32,6 +34,9 @@ namespace Xunit.Sdk
             while (reporterQueue.TryDequeue(out message))
                 try
                 {
+                    Debug.WriteLine("Sending Message: " + message.GetType()
+                                                                   .GetTypeInfo()
+                                                                   .Name);
                     if (!messageSink.OnMessage(message))
                         continueRunning = false;
                 }
