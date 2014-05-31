@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+#if !WINDOWS_PHONE_APP
 using System.Runtime.Remoting;
+#endif
 using System.Security;
 
 namespace Xunit.Sdk
@@ -10,7 +12,10 @@ namespace Xunit.Sdk
     /// InitializeLifetimeService in a way that allows the object to live
     /// longer than the remoting default lifetime (5 minutes).
     /// </summary>
-    public abstract class LongLivedMarshalByRefObject :  MarshalByRefObject
+    public abstract class LongLivedMarshalByRefObject 
+#if !WINDOWS_PHONE_APP
+        :  MarshalByRefObject
+#endif
     {
 #if !NO_APPDOMAIN
         static ConcurrentBag<MarshalByRefObject> remoteObjects = new ConcurrentBag<MarshalByRefObject>();

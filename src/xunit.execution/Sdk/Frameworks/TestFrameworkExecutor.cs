@@ -25,7 +25,7 @@ namespace Xunit.Sdk
 
             SourceInformationProvider = sourceInformationProvider;
 
-#if !WIN8_STORE
+#if !WIN8_STORE || WINDOWS_PHONE_APP
             var assembly = Assembly.Load(assemblyName);
 #else
             var assembly = Assembly.Load(assemblyName.Name);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Xunit.Abstractions;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace Xunit.Sdk
 
         void CreateFixture(Type fixtureGenericInterfaceType)
         {
-            var fixtureType = fixtureGenericInterfaceType.GetGenericArguments().Single();
+            var fixtureType = fixtureGenericInterfaceType.GenericTypeArguments.Single();
             Aggregator.Run(() => collectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
         }
 
@@ -41,7 +42,7 @@ namespace Xunit.Sdk
             if (TestCollection.CollectionDefinition != null)
             {
                 var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
-                foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+                foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
                     CreateFixture(interfaceType);
 
                 var ordererAttribute = TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();

@@ -20,6 +20,8 @@ namespace Xunit.Sdk
             if (factAttribute.GetNamedArgument<string>("Skip") != null)
                 return new[] { new XunitTestCase(testCollection, assembly, testClass, testMethod, factAttribute) };
 
+#if !WINDOWS_PHONE_APP
+
             try
             {
                 using (var memoryStream = new MemoryStream())
@@ -58,6 +60,10 @@ namespace Xunit.Sdk
             {
                 return new XunitTestCase[] { new XunitTheoryTestCase(testCollection, assembly, testClass, testMethod, factAttribute) };
             }
+#else
+            // For WPA 81, we need to get theory data at runtime
+            return new XunitTestCase[] { new XunitTheoryTestCase(testCollection, assembly, testClass, testMethod, factAttribute) };
+#endif
         }
     }
 }

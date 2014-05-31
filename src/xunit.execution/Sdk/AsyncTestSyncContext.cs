@@ -2,12 +2,13 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Execution.Sdk.Utility;
 
 namespace Xunit.Sdk
 {
     internal class AsyncTestSyncContext : SynchronizationContext
     {
-        readonly ManualResetEvent @event = new ManualResetEvent(initialState: true);
+        readonly AsyncManualResetEvent @event = new AsyncManualResetEvent();
         Exception exception = null;
         int operationCount = 0;
 
@@ -31,7 +32,7 @@ namespace Xunit.Sdk
             // before the QUWI, and then decrement the count when the operation is done.
             OperationStarted();
 
-            ThreadPool.QueueUserWorkItem(s =>
+            Task.Run(() =>
             {
                 try
                 {
@@ -56,20 +57,12 @@ namespace Xunit.Sdk
             }
         }
 
-        public Task<Exception> WaitForCompletionAsync()
+        public async Task<Exception> WaitForCompletionAsync()
         {
-            var tcs = new TaskCompletionSource<Exception>();
+            
+            await @event.WaitAsync().ConfigureAwait(false);
 
-            // Registering callback to wait till WaitHandle changes its state
-
-            ThreadPool.RegisterWaitForSingleObject(
-                waitObject: @event,
-                callBack: (o, timeout) => { tcs.SetResult(exception); },
-                state: null,
-                timeout: TimeSpan.FromMilliseconds(Int32.MaxValue - 2),
-                executeOnlyOnce: true);
-
-            return tcs.Task;
+            return exception;
         }
     }
 }

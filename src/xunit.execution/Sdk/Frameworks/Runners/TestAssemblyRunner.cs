@@ -118,7 +118,9 @@ namespace Xunit.Sdk
 
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
+#if !WINDOWS_PHONE_APP
             var currentDirectory = Directory.GetCurrentDirectory();
+#endif
             var testFrameworkEnvironment = GetTestFrameworkEnvironment();
             var testFrameworkDisplayName = GetTestFrameworkDisplayName();
 
@@ -126,9 +128,13 @@ namespace Xunit.Sdk
             {
                 try
                 {
+                    string configFile = null;
+#if !WINDOWS_PHONE_APP
                     Directory.SetCurrentDirectory(Path.GetDirectoryName(AssemblyInfo.AssemblyPath));
+                    configFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+#endif
 
-                    if (messageBus.QueueMessage(new TestAssemblyStarting(AssemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
+                    if (messageBus.QueueMessage(new TestAssemblyStarting(AssemblyFileName, configFile, DateTime.Now,
                                                                          testFrameworkEnvironment, testFrameworkDisplayName)))
                     {
                         var masterStopwatch = Stopwatch.StartNew();
@@ -140,7 +146,9 @@ namespace Xunit.Sdk
                 finally
                 {
                     messageBus.QueueMessage(new TestAssemblyFinished(AssemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
+#if !WINDOWS_PHONE_APP
                     Directory.SetCurrentDirectory(currentDirectory);
+#endif
 
                     OnAssemblyFinished();
                 }

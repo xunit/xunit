@@ -89,7 +89,7 @@ namespace Xunit.Sdk
         {
             var constructorArguments = new List<object>();
 
-            var isStaticClass = TestClass.Type.IsAbstract && TestClass.Type.IsSealed;
+            var isStaticClass = TestClass.Type.GetTypeInfo().IsAbstract && TestClass.Type.GetTypeInfo().IsSealed;
             if (!isStaticClass)
             {
                 var ctor = SelectTestClassConstructor();
@@ -191,7 +191,7 @@ namespace Xunit.Sdk
         /// <returns>The constructor to be used for creating the test class.</returns>
         protected virtual ConstructorInfo SelectTestClassConstructor()
         {
-            var result = TestClass.Type.GetConstructor(new Type[0]);
+            var result = TestClass.Type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(ci => !ci.IsStatic && ci.GetParameters().Length == 0);
             if (result == null)
                 Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
 

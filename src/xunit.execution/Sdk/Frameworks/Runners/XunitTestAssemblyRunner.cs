@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -49,9 +51,15 @@ namespace Xunit.Sdk
         {
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, AssemblyInfo);
 
+
             return String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
                                  IntPtr.Size * 8,
+#if !WINDOWS_PHONE_APP
                                  Environment.Version,
+#else
+                                typeof(object).GetTypeInfo()
+                                    .Assembly.GetCustomAttribute<TargetFrameworkAttribute>().FrameworkDisplayName,
+#endif
                                  testCollectionFactory.DisplayName,
                                  disableParallelization ? "non-parallel" : "parallel",
                                  maxParallelThreads > 0 ? String.Format(" (max {0} threads)", maxParallelThreads) : "");

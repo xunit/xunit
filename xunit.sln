@@ -55,7 +55,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{E4522B71-86C4-4214-B57A-3FF0C31F3876}"
 	ProjectSection(SolutionItems) = preProject
 		src\xunit.abstractions.nuspec = src\xunit.abstractions.nuspec
-		src\xunit.assert\xunit.assert.nuspec = src\xunit.assert\xunit.assert.nuspec
+		src\xunit.assert.nuspec = src\xunit.assert.nuspec
 		src\xunit.assert.source.nuspec = src\xunit.assert.source.nuspec
 		src\xunit.core.nuspec = src\xunit.core.nuspec
 		src\xunit.execution.nuspec = src\xunit.execution.nuspec
@@ -125,29 +125,33 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.visualstu
 		{141612DE-2D07-4968-ABAF-09FD05B7951E} = {141612DE-2D07-4968-ABAF-09FD05B7951E}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.wpa81", "src\xunit.execution.wpa81\xunit.execution.wpa81.csproj", "{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\messages\messages.projitems*{4389d7af-5f1f-416d-bf06-90f335d83ba9}*SharedItemsImports = 13
-		src\messages\messages.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
-		src\messages\messages.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
+		src\messages\messages.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
-		src\messages\messages.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
+		src\messages\messages.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
+		src\xunit.execution\xunit.execution.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
+		src\messages\messages.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
-		src\messages\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
+		src\messages\messages.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
+		src\messages\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{77743589-f177-4007-97b8-50b82a1c7044}*SharedItemsImports = 4
-		src\messages\messages.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
+		src\messages\messages.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{53012549-d81b-4e40-b626-67c19265aa6f}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{ef8381db-7aa0-41b8-99c5-7a69f1a61f18}*SharedItemsImports = 13
-		src\messages\messages.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
-		src\messages\messages.projitems*{f4b09674-bed9-4aa9-a9ac-6f1683b2bbf9}*SharedItemsImports = 4
+		src\messages\messages.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{f4b09674-bed9-4aa9-a9ac-6f1683b2bbf9}*SharedItemsImports = 4
+		src\messages\messages.projitems*{f4b09674-bed9-4aa9-a9ac-6f1683b2bbf9}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{cd3185a0-fb26-4923-8421-19a01da67999}*SharedItemsImports = 13
-		src\messages\messages.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
+		src\messages\messages.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{d746cd0d-17f7-4c3c-8a31-fbd322a5ce1d}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1257,6 +1261,50 @@ Global
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Release|x86.ActiveCfg = Release|x86
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Release|x86.Build.0 = Release|x86
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Release|x86.Deploy.0 = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|Any CPU.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|Any CPU.Build.0 = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|ARM.ActiveCfg = Release|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|ARM.Build.0 = Release|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|iPhone.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|Mixed Platforms.ActiveCfg = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|Mixed Platforms.Build.0 = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|x64.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|x86.ActiveCfg = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Ad-Hoc|x86.Build.0 = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|Any CPU.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|Any CPU.Build.0 = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|ARM.ActiveCfg = Release|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|ARM.Build.0 = Release|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|iPhone.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|Mixed Platforms.ActiveCfg = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|Mixed Platforms.Build.0 = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|x64.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|x86.ActiveCfg = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.AppStore|x86.Build.0 = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|ARM.ActiveCfg = Debug|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|ARM.Build.0 = Debug|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|x86.ActiveCfg = Debug|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|x86.Build.0 = Debug|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|ARM.ActiveCfg = Release|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|ARM.Build.0 = Release|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|Mixed Platforms.Build.0 = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|x64.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|x86.ActiveCfg = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1305,5 +1353,6 @@ Global
 		{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51} = {A36A630E-A604-47E6-894E-732946960182}
 		{1ABFC6A3-114A-4771-9DBB-1F04A7EC335D} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 	EndGlobalSection
 EndGlobal

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-#if !NEW_REFLECTION
+#if NEW_REFLECTION
 namespace Xunit.Sdk
 {
     /// <summary>
@@ -30,9 +30,9 @@ namespace Xunit.Sdk
         /// <param name="assemblyFileName">The assembly to be wrapped.</param>
         public ReflectionAssemblyInfo(string assemblyFileName)
         {
-#if !ANDROID && !WIN8_STORE
+#if !ANDROID && !WIN8_STORE && !WINDOWS_PHONE_APP
             Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
-#elif WIN8_STORE
+#elif WIN8_STORE 
             try
             {
                 Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
@@ -42,6 +42,11 @@ namespace Xunit.Sdk
 
                 Assembly = Assembly.Load(Path.GetFileNameWithoutExtension(assemblyFileName));
             }
+#elif WINDOWS_PHONE_APP
+            Assembly = Assembly.Load(new AssemblyName
+            {
+                Name = Path.GetFileNameWithoutExtension(assemblyFileName)
+            });
 #else
             Assembly = Assembly.Load(assemblyFileName);
 #endif
@@ -51,7 +56,18 @@ namespace Xunit.Sdk
         public Assembly Assembly { get; private set; }
 
         /// <inheritdoc/>
-        public string AssemblyPath { get { return Assembly.GetLocalCodeBase(); } }
+        public string AssemblyPath 
+        {
+            get
+            {
+#if !WINDOWS_PHONE_APP
+                return Assembly.GetLocalCodeBase();
+#else
+                return Assembly.GetName()
+                               .Name; // Return the short name on WPA81 as that's all that can be loaded
+#endif
+            } 
+        }
 
         /// <inheritdoc/>
         public string Name { get { return Assembly.FullName; } }
@@ -62,12 +78,12 @@ namespace Xunit.Sdk
             Type attributeType = Type.GetType(assemblyQualifiedAttributeTypeName);
             Guard.ArgumentValid("assemblyQualifiedAttributeTypeName", "Could not locate type name", attributeType != null);
 
-            return CustomAttributeData.GetCustomAttributes(Assembly)
-                                      .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
-                                      .OrderBy(attr => attr.Constructor.ReflectedType.Name)
-                                      .Select(Reflector.Wrap)
-                                      .Cast<IAttributeInfo>()
-                                      .ToList();
+
+            return Assembly.GetCustomAttributes(attributeType)
+                           .Select(Reflector.Wrap)
+                           .Cast<IAttributeInfo>()
+                           .ToList();
+        
         }
 
         /// <inheritdoc/>
@@ -80,11 +96,11 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<ITypeInfo> GetTypes(bool includePrivateTypes)
         {
-            Func<Type[]> selector = includePrivateTypes ? (Func<Type[]>)Assembly.GetTypes : Assembly.GetExportedTypes;
+            IEnumerable<Type> selector = includePrivateTypes ? Assembly.DefinedTypes.Select(t => t.AsType()) : Assembly.ExportedTypes;
 
             try
             {
-                return selector().Select(Reflector.Wrap).Cast<ITypeInfo>();
+                return selector.Select(Reflector.Wrap).Cast<ITypeInfo>();
             }
             catch (ReflectionTypeLoadException ex)
             {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
 
-#if !NEW_REFLECTION
+#if NEW_REFLECTION
 namespace Xunit.Sdk
 {
     /// <summary>
@@ -12,9 +12,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class ReflectionTypeInfo : LongLivedMarshalByRefObject, IReflectionTypeInfo
     {
-        const BindingFlags publicBindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
-        const BindingFlags nonPublicBindingFlags = BindingFlags.NonPublic | publicBindingFlags;
-
+ 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflectionTypeInfo"/> class.
         /// </summary>
@@ -27,25 +25,25 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IAssemblyInfo Assembly
         {
-            get { return Reflector.Wrap(Type.Assembly); }
+            get { return Reflector.Wrap(Type.GetTypeInfo().Assembly); }
         }
 
         /// <inheritdoc/>
         public ITypeInfo BaseType
         {
-            get { return Reflector.Wrap(Type.BaseType); }
+            get { return Reflector.Wrap(Type.GetTypeInfo().BaseType); }
         }
 
         /// <inheritdoc/>
         public IEnumerable<ITypeInfo> Interfaces
         {
-            get { return Type.GetInterfaces().Select(Reflector.Wrap).Cast<ITypeInfo>().ToList(); }
+            get { return Type.GetTypeInfo().ImplementedInterfaces.Select(Reflector.Wrap).Cast<ITypeInfo>().ToList(); }
         }
 
         /// <inheritdoc/>
         public bool IsAbstract
         {
-            get { return Type.IsAbstract; }
+            get { return Type.GetTypeInfo().IsAbstract; }
         }
 
         /// <inheritdoc/>
@@ -57,19 +55,19 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public bool IsGenericType
         {
-            get { return Type.IsGenericType; }
+            get { return Type.GetTypeInfo().IsGenericType; }
         }
 
         /// <inheritdoc/>
         public bool IsSealed
         {
-            get { return Type.IsSealed; }
+            get { return Type.GetTypeInfo().IsSealed; }
         }
 
         /// <inheritdoc/>
         public bool IsValueType
         {
-            get { return Type.IsValueType; }
+            get { return Type.GetTypeInfo().IsValueType; }
         }
 
         /// <inheritdoc/>
@@ -90,7 +88,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<ITypeInfo> GetGenericArguments()
         {
-            return Type.GetGenericArguments()
+            return Type.GetTypeInfo().GenericTypeArguments
                        .Select(Reflector.Wrap)
                        .ToList();
         }
@@ -98,7 +96,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
         {
-            return Type.GetMethods(includePrivateMethods ? nonPublicBindingFlags : publicBindingFlags)
+            return Type.GetRuntimeMethods().Where(m => includePrivateMethods || m.IsPublic)
                        .Select(Reflector.Wrap)
                        .Cast<IMethodInfo>()
                        .ToList();

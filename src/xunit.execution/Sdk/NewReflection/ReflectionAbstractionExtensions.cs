@@ -1,57 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
 
-#if !NEW_REFLECTION
+#if NEW_REFLECTION
 /// <summary>
 /// This class represents utility methods needed to supplement the
 /// reflection capabilities provided by the CLR
 /// </summary>
 public static class ReflectionAbstractionExtensions
 {
-    /// <summary>
-    /// Gets the binding flags for finding this method via reflection.
-    /// </summary>
-    /// <param name="methodInfo">The method to get binding flags for.</param>
-    /// <returns>The binding flags.</returns>
-    public static BindingFlags GetBindingFlags(this IMethodInfo methodInfo)
+    
+    public static MethodInfo GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
     {
-        BindingFlags bindingFlags = 0;
+        // the old logic only flattened heirarchy for static methods
+        var methods = from method in methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetTypeInfo().DeclaredMethods
+                      where method.IsPublic == methodInfo.IsPublic &&
+                            method.IsStatic == methodInfo.IsStatic &&
+                            method.Name == methodInfo.Name
+                      select method;
 
-        if (methodInfo.IsPublic)
-            bindingFlags |= BindingFlags.Public;
-        else
-            bindingFlags |= BindingFlags.NonPublic;
-
-        if (methodInfo.IsStatic)
-            bindingFlags |= BindingFlags.Static | BindingFlags.FlattenHierarchy;
-        else
-            bindingFlags |= BindingFlags.Instance;
-
-        return bindingFlags;
+        return methods.SingleOrDefault();
     }
 
-    /// <summary>
-    /// Gets the binding flags for finding this method via reflection.
-    /// </summary>
-    /// <param name="methodInfo">The method to get binding flags for.</param>
-    /// <returns>The binding flags.</returns>
-    public static BindingFlags GetBindingFlags(this MethodInfo methodInfo)
+    public static IEnumerable<MethodInfo> GetMatchingMethods(this Type type, MethodInfo methodInfo)
     {
-        BindingFlags bindingFlags = 0;
+        var methods = from method in methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetTypeInfo()
+                                                                                          .DeclaredMethods
+                      where method.IsPublic == methodInfo.IsPublic &&
+                            method.IsStatic == methodInfo.IsStatic
+                      select method;
 
-        if (methodInfo.IsPublic)
-            bindingFlags |= BindingFlags.Public;
-        else
-            bindingFlags |= BindingFlags.NonPublic;
-
-        if (methodInfo.IsStatic)
-            bindingFlags |= BindingFlags.Static | BindingFlags.FlattenHierarchy;
-        else
-            bindingFlags |= BindingFlags.Instance;
-
-        return bindingFlags;
+        return methods;
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -161,7 +162,15 @@ namespace Xunit.Sdk
             }
 
             var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
-            if (result == null || !typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)
+            if (result == null || 
+                !typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(result.GetTypeInfo()) || 
+                result.GetTypeInfo().DeclaredConstructors
+                                        .Any(ci => 
+                                             ci.GetParameters()
+                                               .SingleOrDefault(pi => 
+                                                   typeof(IAssemblyInfo).GetTypeInfo().IsAssignableFrom(pi.ParameterType.GetTypeInfo())) != null)
+                )
+                
                 return typeof(CollectionPerClassTestCollectionFactory);
 
             return result;

@@ -44,9 +44,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.visualstu
 		{141612DE-2D07-4968-ABAF-09FD05B7951E} = {141612DE-2D07-4968-ABAF-09FD05B7951E}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.wpa81", "src\xunit.execution.wpa81\xunit.execution.wpa81.csproj", "{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\messages\messages.projitems*{4389d7af-5f1f-416d-bf06-90f335d83ba9}*SharedItemsImports = 13
+		src\xunit.execution\xunit.execution.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
+		src\messages\messages.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{77743589-f177-4007-97b8-50b82a1c7044}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
 		src\messages\messages.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
@@ -151,6 +155,20 @@ Global
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Release|x86.ActiveCfg = Release|x86
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Release|x86.Build.0 = Release|x86
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Release|x86.Deploy.0 = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|ARM.ActiveCfg = Debug|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|ARM.Build.0 = Debug|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|x86.ActiveCfg = Debug|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|x86.Build.0 = Debug|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|ARM.ActiveCfg = Release|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|ARM.Build.0 = Release|ARM
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|x64.ActiveCfg = Release|Any CPU
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|x86.ActiveCfg = Release|x86
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -172,5 +190,6 @@ Global
 		{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51} = {A36A630E-A604-47E6-894E-732946960182}
 		{1ABFC6A3-114A-4771-9DBB-1F04A7EC335D} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
+		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 	EndGlobalSection
 EndGlobal

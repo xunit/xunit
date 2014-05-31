@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -13,7 +14,7 @@ namespace Xunit.Sdk
         volatile bool continueRunning = true;
         readonly IMessageSink messageSink;
         readonly ConcurrentQueue<IMessageSinkMessage> reporterQueue = new ConcurrentQueue<IMessageSinkMessage>();
-        readonly Thread reporterThread;
+        readonly Task reporterThreadTask;
         readonly AutoResetEvent reporterWorkEvent = new AutoResetEvent(initialState: false);
         volatile bool shutdownRequested;
 
@@ -22,8 +23,7 @@ namespace Xunit.Sdk
         {
             this.messageSink = messageSink;
 
-            reporterThread = new Thread(ReporterWorker);
-            reporterThread.Start();
+            reporterThreadTask = Task.Run(() => ReporterWorker());
         }
 
         private void DispatchMessages()
@@ -43,7 +43,7 @@ namespace Xunit.Sdk
             shutdownRequested = true;
 
             reporterWorkEvent.Set();
-            reporterThread.Join();
+            reporterThreadTask.Wait();
 
             reporterWorkEvent.Dispose();
         }

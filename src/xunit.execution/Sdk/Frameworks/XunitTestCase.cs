@@ -7,11 +7,19 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Xunit.Abstractions;
+
+#if !WINDOWS_PHONE_APP
+using System.Security.Cryptography;
+#else
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
+using System.Runtime.InteropServices.WindowsRuntime;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -22,7 +30,11 @@ namespace Xunit.Sdk
     [Serializable]
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable
     {
+#if !WINDOWS_PHONE_APP
         readonly static HashAlgorithm Hasher = new SHA1Managed();
+#else
+        readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
+#endif
         readonly static ITypeInfo ObjectTypeInfo = Reflector.Wrap(typeof(object));
 
         Lazy<string> uniqueID;
@@ -57,10 +69,10 @@ namespace Xunit.Sdk
 
             var type = Reflector.GetType(assemblyName, typeName);
             var typeInfo = Reflector.Wrap(type);
-            var methodInfo = Reflector.Wrap(type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
+            var methodInfo = Reflector.Wrap(type.GetRuntimeMethod(methodName, new Type[]{}));
             var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-            Initialize(testCollection, Reflector.Wrap(type.Assembly), typeInfo, methodInfo, factAttribute, arguments);
+            Initialize(testCollection, Reflector.Wrap(type.GetTypeInfo().Assembly), typeInfo, methodInfo, factAttribute, arguments);
         }
 
         void Initialize(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, object[] arguments)
@@ -142,7 +154,7 @@ namespace Xunit.Sdk
         /// <returns>The list of <see cref="BeforeAfterTestAttribute"/> instances.</returns>
         protected virtual IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
         {
-            return classUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
+            return classUnderTest.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute))
                                  .Concat(methodUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
                                  .Cast<BeforeAfterTestAttribute>();
         }
@@ -220,7 +232,11 @@ namespace Xunit.Sdk
             if (type == null)
                 return null;
 
+#if !NEW_REFLECTION
             return type.GetMethod(Method.Name, Method.GetBindingFlags());
+#else
+            return type.GetMethodInfoFromIMethodInfo(Method);
+#endif
         }
 
         string GetUniqueID()
@@ -231,11 +247,19 @@ namespace Xunit.Sdk
                 Write(stream, Class.Name);
                 Write(stream, Method.Name);
 
+#if !WINDOWS_PHONE_APP // WPA Apps cannot pre-enumerate tests, so arguments aren't part of the id
                 if (Arguments != null)
                     Write(stream, SerializationHelper.Serialize(Arguments));
+#endif
 
                 stream.Position = 0;
+#if !WINDOWS_PHONE_APP
                 byte[] hash = Hasher.ComputeHash(stream);
+#else
+                var buffer = CryptographicBuffer.CreateFromByteArray(stream.ToArray());
+                var hash = Hasher.HashData(buffer).ToArray();
+                
+#endif
                 return String.Join("", hash.Select(x => x.ToString("x2")).ToArray());
             }
         }

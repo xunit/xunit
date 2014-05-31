@@ -1,10 +1,17 @@
-﻿using System;
+﻿
+using System;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Reflection;
+using System.Runtime.Serialization;
 using Xunit.Abstractions;
 
+#if !WINDOWS_PHONE_APP
+using System.Runtime.Serialization.Formatters.Binary;
+#endif
 namespace Xunit.Sdk
 {
+
+#if !WINDOWS_PHONE_APP
     /// <summary>
     /// Serializes and de-serializes <see cref="ITestCase"/> instances using <see cref="BinaryFormatter"/>,
     /// <see cref="Convert.ToBase64String(byte[])"/>, and <see cref="Convert.FromBase64String"/>.
@@ -30,4 +37,20 @@ namespace Xunit.Sdk
             }
         }
     }
+#else
+    internal static class SerializationHelper
+    {
+        public static string Serialize(object value)
+        {
+            if (value == null) throw new ArgumentNullException("value");
+            
+            return SerializationInfo.ToJson((ISerializable)value);
+        }
+
+        public static T Deserialize<T>(string serializedValue)
+        {
+            return (T)SerializationInfo.FromJson(serializedValue);
+        }
+    }
+#endif
 }
