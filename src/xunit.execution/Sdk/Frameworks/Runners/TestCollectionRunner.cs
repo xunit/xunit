@@ -68,12 +68,22 @@ namespace Xunit.Sdk
         protected ITestCollection TestCollection { get; set; }
 
         /// <summary>
-        /// Override this method to run code just before the test collection is run.
+        /// This method is called just before <see cref="ITestCollectionStarting"/> is sent.
         /// </summary>
         protected virtual void OnTestCollectionStarting() { }
 
         /// <summary>
-        /// Override this method to run code just after the test collection run has finished.
+        /// This method is called just after <see cref="ITestCollectionStarting"/> is sent, but before any test classes are run.
+        /// </summary>
+        protected virtual void OnTestCollectionStarted() { }
+
+        /// <summary>
+        /// This method is called just before <see cref="ITestCollectionFinished"/> is sent.
+        /// </summary>
+        protected virtual void OnTestCollectionFinishing() { }
+
+        /// <summary>
+        /// This method is called just after <see cref="ITestCollectionFinished"/> is sent.
         /// </summary>
         protected virtual void OnTestCollectionFinished() { }
 
@@ -92,10 +102,16 @@ namespace Xunit.Sdk
                 if (!MessageBus.QueueMessage(new TestCollectionStarting(TestCollection)))
                     CancellationTokenSource.Cancel();
                 else
+                {
+                    OnTestCollectionStarted();
+
                     collectionSummary = await RunTestClassesAsync();
+                }
             }
             finally
             {
+                OnTestCollectionFinishing();
+
                 if (!MessageBus.QueueMessage(new TestCollectionFinished(TestCollection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped)))
                     CancellationTokenSource.Cancel();
 

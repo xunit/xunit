@@ -118,12 +118,22 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Override this method to run code just before the test class is run.
+        /// This method is called just before <see cref="ITestClassStarting"/> is sent.
         /// </summary>
         protected virtual void OnTestClassStarting() { }
 
         /// <summary>
-        /// Override this method to run code just after the test class run has finished.
+        /// This method is called just after <see cref="ITestClassStarting"/> is sent, but before any test methods are run.
+        /// </summary>
+        protected virtual void OnTestClassStarted() { }
+
+        /// <summary>
+        /// This method is called just before <see cref="ITestClassFinished"/> is sent.
+        /// </summary>
+        protected virtual void OnTestClassFinishing() { }
+
+        /// <summary>
+        /// This method is called just after <see cref="ITestClassFinished"/> is sent.
         /// </summary>
         protected virtual void OnTestClassFinished() { }
 
@@ -142,10 +152,16 @@ namespace Xunit.Sdk
                 if (!MessageBus.QueueMessage(new TestClassStarting(TestCollection, TestClass.Name)))
                     CancellationTokenSource.Cancel();
                 else
+                {
+                    OnTestClassStarted();
+
                     classSummary = await RunTestMethodsAsync();
+                }
             }
             finally
             {
+                OnTestClassFinishing();
+
                 if (!MessageBus.QueueMessage(new TestClassFinished(TestCollection, TestClass.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
                     CancellationTokenSource.Cancel();
 

@@ -84,12 +84,22 @@ namespace Xunit.Sdk
         protected abstract string GetTestFrameworkEnvironment();
 
         /// <summary>
-        /// Override this method to run code just before the test assembly is run.
+        /// This method is called just before <see cref="ITestAssemblyStarting"/> is sent.
         /// </summary>
         protected virtual void OnAssemblyStarting() { }
 
         /// <summary>
-        /// Override this method to run code just after the test assembly run has finished.
+        /// This method is called just after <see cref="ITestAssemblyStarting"/> it sent, but before any test collections are run.
+        /// </summary>
+        protected virtual void OnAssemblyStarted() { }
+
+        /// <summary>
+        /// This method is called just before <see cref="ITestAssemblyFinished"/> is sent.
+        /// </summary>
+        protected virtual void OnAssemblyFinishing() { }
+
+        /// <summary>
+        /// This method is called just after <see cref="ITestAssemblyFinished"/> is sent.
         /// </summary>
         protected virtual void OnAssemblyFinished() { }
 
@@ -114,8 +124,6 @@ namespace Xunit.Sdk
         /// <returns>Returns summary information about the tests that were run.</returns>
         public async Task<RunSummary> RunAsync()
         {
-            OnAssemblyStarting();
-
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
             var currentDirectory = Directory.GetCurrentDirectory();
@@ -128,9 +136,13 @@ namespace Xunit.Sdk
                 {
                     Directory.SetCurrentDirectory(Path.GetDirectoryName(AssemblyInfo.AssemblyPath));
 
+                    OnAssemblyStarting();
+
                     if (messageBus.QueueMessage(new TestAssemblyStarting(AssemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
                                                                          testFrameworkEnvironment, testFrameworkDisplayName)))
                     {
+                        OnAssemblyStarted();
+
                         var masterStopwatch = Stopwatch.StartNew();
                         totalSummary = await RunTestCollectionsAsync(messageBus, cancellationTokenSource);
                         // Want clock time, not aggregated run time
@@ -139,6 +151,8 @@ namespace Xunit.Sdk
                 }
                 finally
                 {
+                    OnAssemblyFinishing();
+
                     messageBus.QueueMessage(new TestAssemblyFinished(AssemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
                     Directory.SetCurrentDirectory(currentDirectory);
 

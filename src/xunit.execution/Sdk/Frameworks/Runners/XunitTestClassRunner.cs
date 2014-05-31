@@ -68,7 +68,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestClassFinished()
+        protected override void OnTestClassFinishing()
         {
             foreach (var fixture in fixtureMappings.Values.OfType<IDisposable>())
             {

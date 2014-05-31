@@ -68,14 +68,24 @@ namespace Xunit.Sdk
         protected IReflectionMethodInfo TestMethod { get; set; }
 
         /// <summary>
-        /// Override this method to run code just before the test method is run.
-        /// </summary>
-        protected virtual void OnTestMethodFinished() { }
-
-        /// <summary>
-        /// Override this method to run code just after the test method run has finished.
+        /// This method is called just before <see cref="ITestMethodStarting"/> is sent.
         /// </summary>
         protected virtual void OnTestMethodStarting() { }
+
+        /// <summary>
+        /// This method is called just after <see cref="ITestMethodStarting"/> is sent, but before any test cases are run.
+        /// </summary>
+        protected virtual void OnTestMethodStarted() { }
+
+        /// <summary>
+        /// This method is called just before <see cref="ITestMethodFinished"/> is sent.
+        /// </summary>
+        protected virtual void OnTestMethodFinishing() { }
+
+        /// <summary>
+        /// This method is called just after <see cref="ITestMethodFinished"/> is sent.
+        /// </summary>
+        protected virtual void OnTestMethodFinished() { }
 
         /// <summary>
         /// Runs the tests in the test method.
@@ -92,10 +102,16 @@ namespace Xunit.Sdk
                 if (!MessageBus.QueueMessage(new TestMethodStarting(TestCollection, TestClass.Name, TestMethod.Name)))
                     CancellationTokenSource.Cancel();
                 else
+                {
+                    OnTestMethodStarted();
+
                     methodSummary = await RunTestCasesAsync();
+                }
             }
             finally
             {
+                OnTestMethodFinishing();
+
                 if (!MessageBus.QueueMessage(new TestMethodFinished(TestCollection, TestClass.Name, TestMethod.Name)))
                     CancellationTokenSource.Cancel();
 
