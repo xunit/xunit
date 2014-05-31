@@ -11,6 +11,7 @@ using Xunit.Sdk;
 
 namespace TestUtility
 {
+    [Serializable]
     public class CulturedXunitTestCase : XunitTestCase
     {
         private readonly string culture;
