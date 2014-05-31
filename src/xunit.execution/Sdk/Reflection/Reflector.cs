@@ -122,16 +122,12 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
-            // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);
-            if (assembly == null)
+            Assembly assembly = null;
+            try
             {
-                try
-                {
-                    assembly = Assembly.Load(assemblyName);
-                }
-                catch { }
+                assembly = Assembly.Load(new AssemblyName(assemblyName));
             }
+            catch { }
 
             if (assembly == null)
                 return null;

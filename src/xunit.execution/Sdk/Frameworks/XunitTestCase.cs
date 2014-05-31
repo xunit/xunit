@@ -142,7 +142,7 @@ namespace Xunit.Sdk
         /// <returns>The list of <see cref="BeforeAfterTestAttribute"/> instances.</returns>
         protected virtual IEnumerable<BeforeAfterTestAttribute> GetBeforeAfterAttributes(Type classUnderTest, MethodInfo methodUnderTest)
         {
-            return classUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
+            return classUnderTest.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute))
                                  .Concat(methodUnderTest.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
                                  .Cast<BeforeAfterTestAttribute>();
         }

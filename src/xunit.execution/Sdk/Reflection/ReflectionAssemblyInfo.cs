@@ -50,12 +50,12 @@ namespace Xunit.Sdk
             Type attributeType = Type.GetType(assemblyQualifiedAttributeTypeName);
             Guard.ArgumentValid("assemblyQualifiedAttributeTypeName", "Could not locate type name", attributeType != null);
 
-            return CustomAttributeData.GetCustomAttributes(Assembly)
-                                      .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
-                                      .OrderBy(attr => attr.Constructor.ReflectedType.Name)
-                                      .Select(Reflector.Wrap)
-                                      .Cast<IAttributeInfo>()
-                                      .ToList();
+            return Assembly.CustomAttributes
+                           .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
+                           .OrderBy(attr => attr.AttributeType.Name)
+                           .Select(Reflector.Wrap)
+                           .Cast<IAttributeInfo>()
+                           .ToList();
         }
 
         /// <inheritdoc/>

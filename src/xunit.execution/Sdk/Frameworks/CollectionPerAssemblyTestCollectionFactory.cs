@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,7 +32,10 @@ namespace Xunit.Sdk
         /// <param name="messageAggregator">The message aggregator used to report <see cref="EnvironmentalWarning"/> messages.</param>
         public CollectionPerAssemblyTestCollectionFactory(IAssemblyInfo assemblyInfo, IMessageAggregator messageAggregator)
         {
-            defaultCollection = new XunitTestCollection { DisplayName = "Test collection for " + Path.GetFileName(assemblyInfo.AssemblyPath) };
+            var assemblyFileName = !String.IsNullOrEmpty(assemblyInfo.AssemblyPath)
+                ? Path.GetFileName(assemblyInfo.AssemblyPath)
+                : assemblyInfo.Name;
+            defaultCollection = new XunitTestCollection { DisplayName = "Test collection for " + assemblyFileName };
             collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(assemblyInfo, messageAggregator);
         }
 

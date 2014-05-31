@@ -6,6 +6,9 @@ internal static class AssemblyExtensions
 {
     public static string GetLocalCodeBase(this Assembly assembly)
     {
+        if (string.IsNullOrEmpty(assembly.Location))
+            return null;
+
         string codeBase = assembly.CodeBase;
         if (codeBase == null)
             return null;

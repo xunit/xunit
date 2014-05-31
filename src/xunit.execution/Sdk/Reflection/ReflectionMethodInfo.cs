@@ -66,7 +66,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITypeInfo Type
         {
-            get { return Reflector.Wrap(MethodInfo.ReflectedType); }
+            get { return Reflector.Wrap(MethodInfo.DeclaringType); }
         }
 
         /// <inheritdoc/>
@@ -85,12 +85,12 @@ namespace Xunit.Sdk
         static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType, AttributeUsageAttribute attributeUsage)
         {
             IEnumerable<IAttributeInfo> results =
-                CustomAttributeData.GetCustomAttributes(method)
-                                   .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
-                                   .OrderBy(attr => attr.Constructor.ReflectedType.Name)
-                                   .Select(Reflector.Wrap)
-                                   .Cast<IAttributeInfo>()
-                                   .ToList();
+                method.CustomAttributes
+                      .Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
+                      .OrderBy(attr => attr.AttributeType.Name)
+                      .Select(Reflector.Wrap)
+                      .Cast<IAttributeInfo>()
+                      .ToList();
 
             if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || !results.Any()))
             {
@@ -114,7 +114,7 @@ namespace Xunit.Sdk
             if (!method.IsVirtual)
                 return null;
 
-            var baseType = method.DeclaringType.BaseType;
+            var baseType = method.DeclaringType.GetTypeInfo().BaseType;
             if (baseType == null)
                 return null;
 
