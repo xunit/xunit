@@ -33,13 +33,15 @@ namespace Xunit
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
         /// tests to be discovered and run without locking assembly files on disk.</param>
-        public Xunit1(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName = null, bool shadowCopy = true)
+        /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
+        /// will be automatically (randomly) generated</param>
+        public Xunit1(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null)
         {
             this.sourceInformationProvider = sourceInformationProvider;
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
 
-            executor = CreateExecutor(assemblyFileName, configFileName, shadowCopy);
+            executor = CreateExecutor(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
             testCollection = new Xunit1TestCollection(assemblyFileName);
         }
 
@@ -64,9 +66,11 @@ namespace Xunit
         /// <param name="configFileName">The configuration file to be used for the app domain (optional, may be <c>null</c>).</param>
         /// <param name="shadowCopy">Whether to enable shadow copy for the app domain.</param>
         /// <returns>The executor wrapper.</returns>
-        protected virtual IXunit1Executor CreateExecutor(string testAssemblyFileName, string configFileName, bool shadowCopy)
+        /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
+        /// will be automatically (randomly) generated</param>
+        protected virtual IXunit1Executor CreateExecutor(string testAssemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {
-            return new Xunit1Executor(testAssemblyFileName, configFileName, shadowCopy);
+            return new Xunit1Executor(testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
         }
 
         /// <inheritdoc/>

@@ -8,7 +8,7 @@ namespace Xunit
 {
     internal class RemoteAppDomainManager : IDisposable
     {
-        public RemoteAppDomainManager(string assemblyFileName, string configFileName, bool shadowCopy)
+        public RemoteAppDomainManager(string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
 
@@ -25,7 +25,7 @@ namespace Xunit
             AssemblyFileName = assemblyFileName;
             ConfigFileName = configFileName;
 #if !NO_APPDOMAIN
-            AppDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy);
+            AppDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #endif
         }
 
@@ -36,9 +36,9 @@ namespace Xunit
         public string ConfigFileName { get; private set; }
 
 #if !NO_APPDOMAIN
-        static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy)
+        static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy, string shadowCopyFolder)
         {
-            AppDomainSetup setup = new AppDomainSetup();
+            var setup = new AppDomainSetup();
             setup.ApplicationBase = Path.GetDirectoryName(assemblyFilename);
             setup.ApplicationName = Guid.NewGuid().ToString();
 
@@ -46,7 +46,7 @@ namespace Xunit
             {
                 setup.ShadowCopyFiles = "true";
                 setup.ShadowCopyDirectories = setup.ApplicationBase;
-                setup.CachePath = Path.Combine(Path.GetTempPath(), setup.ApplicationName);
+                setup.CachePath = shadowCopyFolder ?? Path.Combine(Path.GetTempPath(), setup.ApplicationName);
             }
 
             setup.ConfigurationFile = configFilename;

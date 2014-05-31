@@ -13,11 +13,12 @@ public class Xunit1Tests
         [Fact]
         public void UsesConstructorArgumentsToCreateExecutor()
         {
-            var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config", shadowCopy: true);
+            var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config", shadowCopy: true, shadowCopyFolder: @"C:\Path");
 
             Assert.Equal("AssemblyName.dll", xunit1.Executor_TestAssemblyFileName);
             Assert.Equal("ConfigFile.config", xunit1.Executor_ConfigFileName);
             Assert.True(xunit1.Executor_ShadowCopy);
+            Assert.Equal(@"C:\Path", xunit1.Executor_ShadowCopyFolder);
         }
     }
 
@@ -565,7 +566,8 @@ public class Xunit1Tests
                   .Do(callInfo =>
                   {
                       // Ensure the exception has a callstack
-                      try { throw exception; } catch{}
+                      try { throw exception; }
+                      catch { }
                       var callback = callInfo.Arg<ICallbackEventHandler>();
                       callback.RaiseCallbackEvent(string.Format("<class name='type1' time='0.000' total='0' passed='0' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{0}]]></stack-trace></failure></class>", exception.StackTrace));
                   });
@@ -596,7 +598,8 @@ public class Xunit1Tests
                   .Do(callInfo =>
                   {
                       // Ensure the exception has a callstack
-                      try { throw exception; } catch{}
+                      try { throw exception; }
+                      catch { }
                       var callback = callInfo.Arg<ICallbackEventHandler>();
                       callback.RaiseCallbackEvent("<start name='failingtype.passingmethod' type='failingtype' method='passingmethod'/>");
                       callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
@@ -695,10 +698,7 @@ public class Xunit1Tests
                 result += " ";
             }
 
-            // We won't have any AssertExceptions - we're testing failure in class start/finish
-            //if (!(ex is AssertException))
-                result += ex.GetType().FullName + " : ";
-
+            result += ex.GetType().FullName + " : ";
             result += ex.Message;
 
             if (ex.InnerException != null)
@@ -708,7 +708,7 @@ public class Xunit1Tests
         }
 
         const string RETHROW_MARKER = "$$RethrowMarker$$";
-        
+
         private static string GetStackTrace(Exception ex)
         {
             if (ex == null)
@@ -738,24 +738,26 @@ public class Xunit1Tests
         public string Executor_TestAssemblyFileName;
         public string Executor_ConfigFileName;
         public bool Executor_ShadowCopy;
+        public string Executor_ShadowCopyFolder;
         public readonly ISourceInformationProvider SourceInformationProvider;
 
-        public TestableXunit1(string assemblyFileName = null, string configFileName = null, bool shadowCopy = true)
-            : this(assemblyFileName ?? @"C:\Path\Assembly.dll", configFileName, shadowCopy, Substitute.For<ISourceInformationProvider>())
+        public TestableXunit1(string assemblyFileName = null, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null)
+            : this(assemblyFileName ?? @"C:\Path\Assembly.dll", configFileName, shadowCopy, shadowCopyFolder, Substitute.For<ISourceInformationProvider>())
         {
         }
 
-        TestableXunit1(string assemblyFileName, string configFileName, bool shadowCopy, ISourceInformationProvider sourceInformationProvider)
-            : base(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy)
+        TestableXunit1(string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder, ISourceInformationProvider sourceInformationProvider)
+            : base(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
         {
             SourceInformationProvider = sourceInformationProvider;
         }
 
-        protected override IXunit1Executor CreateExecutor(string testAssemblyFileName, string configFileName, bool shadowCopy)
+        protected override IXunit1Executor CreateExecutor(string testAssemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {
             Executor_TestAssemblyFileName = testAssemblyFileName;
             Executor_ConfigFileName = configFileName;
             Executor_ShadowCopy = shadowCopy;
+            Executor_ShadowCopyFolder = shadowCopyFolder;
 
             return Executor;
         }

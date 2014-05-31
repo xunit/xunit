@@ -20,8 +20,10 @@ namespace Xunit
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
         /// tests to be discovered and run without locking assembly files on disk.</param>
-        public Xunit2(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName = null, bool shadowCopy = true)
-            : base(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy)
+        /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
+        /// will be automatically (randomly) generated</param>
+        public Xunit2(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null)
+            : base(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
         {
 #if !ANDROID
             AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);

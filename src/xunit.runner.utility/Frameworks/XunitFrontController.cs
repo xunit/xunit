@@ -15,6 +15,7 @@ namespace Xunit
         readonly string configFileName;
         IFrontController innerController;
         readonly bool shadowCopy;
+        private readonly string shadowCopyFolder;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 
@@ -29,13 +30,16 @@ namespace Xunit
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
+        /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
+        /// will be automatically (randomly) generated</param>
         /// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
         /// tests to be discovered and run without locking assembly files on disk.</param>
-        public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true, ISourceInformationProvider sourceInformationProvider = null)
+        public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null, ISourceInformationProvider sourceInformationProvider = null)
         {
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
             this.shadowCopy = shadowCopy;
+            this.shadowCopyFolder = shadowCopyFolder;
             this.sourceInformationProvider = sourceInformationProvider;
 
 #if !ANDROID
@@ -93,10 +97,10 @@ namespace Xunit
 #if !ANDROID
             if (File.Exists(xunitExecutionPath))
 #endif
-                return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+                return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #if !XAMARIN
             if (File.Exists(xunitPath))
-                return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+                return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #endif
 
 #if XAMARIN
