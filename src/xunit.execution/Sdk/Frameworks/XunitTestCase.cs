@@ -69,9 +69,7 @@ namespace Xunit.Sdk
 
             var type = Reflector.GetType(assemblyName, typeName);
             var typeInfo = Reflector.Wrap(type);
-            var m = type.GetRuntimeMethods()
-                              .Single(mi => mi.Name == methodName && mi.GetParameters()
-                                                                       .Length == 0);
+            var m = type.GetRuntimeMethods().Single(mi => mi.Name == methodName); // The old Type.GetMethod() would throw if ambiguous
             var methodInfo = Reflector.Wrap(m);
             var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).Single();
 
