@@ -6,11 +6,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}</ProjectGuid>
+    <ProjectGuid>{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>xUnit.Execution</RootNamespace>
-    <AssemblyName>xunit.execution</AssemblyName>
+    <RootNamespace>xunit.runner.utility</RootNamespace>
+    <AssemblyName>xunit.runner.utility</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_PHONE_APP;NO_APPDOMAIN;NEW_REFLECTION</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -30,14 +30,14 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP;NO_APPDOMAIN;NEW_REFLECTION</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\ARM\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN;NEW_REFLECTION</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_PHONE_APP</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>ARM</PlatformTarget>
@@ -47,7 +47,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
     <OutputPath>bin\ARM\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN;NEW_REFLECTION</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -59,7 +59,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN;NEW_REFLECTION</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_PHONE_APP</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -69,7 +69,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN;NEW_REFLECTION</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -93,6 +93,9 @@
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\common\DisposableExtensions.cs">
+      <Link>Common\DisposableExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\ExceptionExtensions.cs">
       <Link>Common\ExceptionExtensions.cs</Link>
     </Compile>
@@ -101,6 +104,9 @@
     </Compile>
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
+    </Compile>
+    <Compile Include="..\common\SerializationInfoExtensions.cs">
+      <Link>Common\SerializationInfoExtensions.cs</Link>
     </Compile>
     <Compile Include="..\common\SourceInformation.cs">
       <Link>Common\SourceInformation.cs</Link>
@@ -111,13 +117,9 @@
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
     </Compile>
-    <Compile Include="..\xunit.assert\asserts\sdk\AssertEqualityComparer.cs">
-      <Link>Sdk\AssertEqualityComparer.cs</Link>
+    <Compile Include="..\xunit.execution.wpa81\EmptyTypes\Serializable.cs">
+      <Link>EmptyTypes\Serializable.cs</Link>
     </Compile>
-    <Compile Include="..\xunit.assert\asserts\sdk\AssertEqualityComparerAdapter.cs">
-      <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
-    </Compile>
-    <Compile Include="EmptyTypes\Serializable.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
@@ -134,7 +136,7 @@
     <TargetPlatformIdentifier>WindowsPhoneApp</TargetPlatformIdentifier>
   </PropertyGroup>
   <Import Project="..\messages\messages.projitems" Label="Shared" Condition="Exists('..\messages\messages.projitems')" />
-  <Import Project="..\xunit.execution\xunit.execution.projitems" Label="Shared" Condition="Exists('..\xunit.execution\xunit.execution.projitems')" />
+  <Import Project="..\xunit.runner.utility\xunit.runner.utility.projitems" Label="Shared" Condition="Exists('..\xunit.runner.utility\xunit.runner.utility.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

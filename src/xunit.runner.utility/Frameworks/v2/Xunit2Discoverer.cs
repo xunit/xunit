@@ -41,13 +41,19 @@ namespace Xunit
                          string shadowCopyFolder)
         {
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
-#if !ANDROID
+#if !ANDROID && !WINDOWS_PHONE_APP
             Guard.ArgumentValid("xunitExecutionAssemblyPath", "File not found: " + xunitExecutionAssemblyPath, File.Exists(xunitExecutionAssemblyPath));
 #endif
             appDomain = new RemoteAppDomainManager(assemblyFileName ?? xunitExecutionAssemblyPath, configFileName, shadowCopy, shadowCopyFolder);
 
-#if !ANDROID
+#if !ANDROID && !WINDOWS_PHONE_APP
             var name = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
+            var testFrameworkAssemblyName = name.FullName;
+#elif WINDOWS_PHONE_APP
+            var name = Assembly.Load(new AssemblyName
+            {
+                Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath)
+            }).GetName();
             var testFrameworkAssemblyName = name.FullName;
 #else
             var name = Assembly.Load(xunitExecutionAssemblyPath);
@@ -128,7 +134,7 @@ namespace Xunit
         static string GetXunitExecutionAssemblyPath(string assemblyFileName)
         {
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
-#if !ANDROID
+#if !ANDROID && !WINDOWS_PHONE_APP
             Guard.ArgumentValid("assemblyFileName", "File not found: " + assemblyFileName, File.Exists(assemblyFileName));
 #endif
 

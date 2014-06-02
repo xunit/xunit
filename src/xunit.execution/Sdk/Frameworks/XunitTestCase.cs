@@ -233,11 +233,8 @@ namespace Xunit.Sdk
             if (type == null)
                 return null;
 
-#if !NEW_REFLECTION
-            return type.GetMethod(Method.Name, Method.GetBindingFlags());
-#else
+
             return type.GetMethodInfoFromIMethodInfo(Method);
-#endif
         }
 
         string GetUniqueID()

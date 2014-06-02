@@ -39,9 +39,11 @@ internal static class Guard
     public static void FileExists(string argName, string fileName)
     {
         Guard.ArgumentNotNullOrEmpty(argName, fileName);
+#if !WINDOWS_PHONE_APP
         Guard.ArgumentValid("assemblyFileName",
                             String.Format("File not found: {0}", fileName),
                             File.Exists(fileName));
+#endif
     }
 #endif
 }

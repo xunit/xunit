@@ -62,9 +62,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.visualstudio.t
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.console", "src\xunit.console\xunit.console.csproj", "{19C75545-5E0E-4E38-9995-511ED2DF6D30}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.wpa81", "src\xunit.runner.utility.wpa81\xunit.runner.utility.wpa81.csproj", "{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\messages\messages.projitems*{4389d7af-5f1f-416d-bf06-90f335d83ba9}*SharedItemsImports = 13
+		src\xunit.runner.utility\xunit.runner.utility.projitems*{9d0daa1d-f2df-4a8a-9d0b-ffaa091a4ee7}*SharedItemsImports = 4
+		src\messages\messages.projitems*{9d0daa1d-f2df-4a8a-9d0b-ffaa091a4ee7}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
 		src\messages\messages.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
@@ -270,6 +274,20 @@ Global
 		{19C75545-5E0E-4E38-9995-511ED2DF6D30}.Release|ARM.ActiveCfg = Release|Any CPU
 		{19C75545-5E0E-4E38-9995-511ED2DF6D30}.Release|x64.ActiveCfg = Release|Any CPU
 		{19C75545-5E0E-4E38-9995-511ED2DF6D30}.Release|x86.ActiveCfg = Release|Any CPU
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Debug|ARM.ActiveCfg = Debug|ARM
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Debug|ARM.Build.0 = Debug|ARM
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Debug|x86.ActiveCfg = Debug|x86
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Debug|x86.Build.0 = Debug|x86
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|ARM.ActiveCfg = Release|ARM
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|ARM.Build.0 = Release|ARM
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|x64.ActiveCfg = Release|Any CPU
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|x86.ActiveCfg = Release|x86
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -300,5 +318,6 @@ Global
 		{C9B3978D-DA2C-4F3B-8FC5-1E024EF2F6E8} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{19C75545-5E0E-4E38-9995-511ED2DF6D30} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
+		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7} = {A36A630E-A604-47E6-894E-732946960182}
 	EndGlobalSection
 EndGlobal

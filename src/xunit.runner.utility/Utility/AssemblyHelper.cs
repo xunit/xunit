@@ -11,6 +11,7 @@ namespace Xunit
     /// </summary>
     public class AssemblyHelper : IDisposable
     {
+#if !WINDOWS_PHONE_APP
         string folder;
 
         AssemblyHelper(string folder)
@@ -18,12 +19,6 @@ namespace Xunit
             this.folder = folder;
 
             AppDomain.CurrentDomain.AssemblyResolve += Resolve;
-        }
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
         }
 
         Assembly LoadAssembly(AssemblyName assemblyName)
@@ -49,6 +44,7 @@ namespace Xunit
             return LoadAssembly(new AssemblyName(args.Name));
         }
 
+
         /// <summary>
         /// Subscribes to the current <see cref="AppDomain"/> <see cref="AppDomain.AssemblyResolve"/> event, to
         /// provide automatic assembly resolution for assemblies in the runner.
@@ -57,6 +53,22 @@ namespace Xunit
         public static IDisposable SubscribeResolve()
         {
             return new AssemblyHelper(Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()));
+        }
+
+#endif
+
+#if WINDOWS_PHONE_APP
+        public static IDisposable SubscribeResolve()
+        {
+            return new AssemblyHelper();
+        }
+#endif
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+#if !WINDOWS_PHONE_APP
+            AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
+#endif
         }
     }
 }

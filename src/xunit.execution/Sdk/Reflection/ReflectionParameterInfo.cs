@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using Xunit.Abstractions;
 
-#if !NEW_REFLECTION
 namespace Xunit.Sdk
 {
     /// <summary>
@@ -34,4 +33,3 @@ namespace Xunit.Sdk
         }
     }
 }
-#endif

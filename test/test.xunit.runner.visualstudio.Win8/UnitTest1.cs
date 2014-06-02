@@ -20,7 +20,7 @@ namespace xunit.runner.visualstudio.Win8
         [InlineData(3)]
         public void TestTheory(int i)
         {
-            Assert.True(i%2 == 0);
+            
         }
     }
 }

@@ -52,13 +52,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\MessageBus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\DelegatingMessageBus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Messages\DelegatingMessageSink.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sdk\NewReflection\ReflectionAbstractionExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sdk\NewReflection\ReflectionAssemblyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sdk\NewReflection\ReflectionAttributeInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sdk\NewReflection\ReflectionMethodInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sdk\NewReflection\ReflectionParameterInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sdk\NewReflection\ReflectionTypeInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sdk\NewReflection\Reflector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Reflection\ReflectionAssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Reflection\ReflectionAttributeInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Reflection\ReflectionMethodInfo.cs" />

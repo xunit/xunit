@@ -4,8 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
 
-#if !NEW_REFLECTION
-
 namespace Xunit.Sdk
 {
     /// <summary>
@@ -15,8 +13,8 @@ namespace Xunit.Sdk
     {
         readonly static object[] EmptyArgs = new object[0];
         readonly static Type[] EmptyTypes = new Type[0];
-        readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
-        readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
+        readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "Cast");
+        readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "ToArray");
 
         /// <summary>
         /// Converts arguments into their target types. Can be particularly useful when pulling attribute
@@ -124,6 +122,7 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
+#if !WINDOWS_PHONE_APP
             // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);
             if (assembly == null)
@@ -134,6 +133,19 @@ namespace Xunit.Sdk
                 }
                 catch { }
             }
+#else
+            Assembly assembly = null;
+            try
+            {
+                // make sure we only use the short form for WPA81
+                var an = new AssemblyName(assemblyName);
+                assembly = Assembly.Load(new AssemblyName{Name = an.Name});
+
+            }
+            catch 
+            {
+            }
+#endif
 
             if (assembly == null)
                 return null;
@@ -142,4 +154,3 @@ namespace Xunit.Sdk
         }
     }
 }
-#endif
