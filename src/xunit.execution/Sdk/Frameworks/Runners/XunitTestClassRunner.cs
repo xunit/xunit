@@ -96,9 +96,13 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override ConstructorInfo SelectTestClassConstructor()
         {
-            var ctor = TestClass.Type.GetTypeInfo().DeclaredConstructors.SingleOrDefault(ci => !ci.IsStatic);
-            if (ctor != null)
-                return ctor;
+            var ctors = TestClass.Type.GetTypeInfo()
+                                 .DeclaredConstructors
+                                 .Where(ci => !ci.IsStatic) // filter out static ctors
+                                 .ToList();
+
+            if (ctors.Count == 1)
+                return ctors[0];
 
             Aggregator.Add(new TestClassException("A test class may only define a single public constructor."));
             return null;

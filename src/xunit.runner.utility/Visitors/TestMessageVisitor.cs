@@ -348,10 +348,6 @@ namespace Xunit
         public override bool OnMessage(IMessageSinkMessage message)
         {
             var result = base.OnMessage(message);
-
-            Debug.WriteLine("Received Message: " + message.GetType()
-                                                                   .Name);
-
             if (message is TCompleteMessage)
                 Finished.Set();
 

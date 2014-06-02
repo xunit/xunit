@@ -162,13 +162,14 @@ namespace Xunit.Sdk
             }
 
             var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
+
             if (result == null || 
                 !typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(result.GetTypeInfo()) || 
                 result.GetTypeInfo().DeclaredConstructors
                                         .Any(ci => 
                                              ci.GetParameters()
                                                .SingleOrDefault(pi => 
-                                                   typeof(IAssemblyInfo).GetTypeInfo().IsAssignableFrom(pi.ParameterType.GetTypeInfo())) != null)
+                                                   typeof(IAssemblyInfo).GetTypeInfo().IsAssignableFrom(pi.ParameterType.GetTypeInfo())) == null)
                 )
                 
                 return typeof(CollectionPerClassTestCollectionFactory);

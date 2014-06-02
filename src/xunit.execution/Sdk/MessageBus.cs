@@ -34,9 +34,6 @@ namespace Xunit.Sdk
             while (reporterQueue.TryDequeue(out message))
                 try
                 {
-                    Debug.WriteLine("Sending Message: " + message.GetType()
-                                                                   .GetTypeInfo()
-                                                                   .Name);
                     if (!messageSink.OnMessage(message))
                         continueRunning = false;
                 }

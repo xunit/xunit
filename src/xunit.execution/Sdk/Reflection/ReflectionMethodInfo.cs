@@ -22,6 +22,7 @@ namespace Xunit.Sdk
         /// <param name="method">The method to be wrapped.</param>
         public ReflectionMethodInfo(MethodInfo method)
         {
+            Guard.ArgumentNotNull("method", method);
             MethodInfo = method;
         }
 

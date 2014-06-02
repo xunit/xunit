@@ -69,7 +69,10 @@ namespace Xunit.Sdk
 
             var type = Reflector.GetType(assemblyName, typeName);
             var typeInfo = Reflector.Wrap(type);
-            var methodInfo = Reflector.Wrap(type.GetRuntimeMethod(methodName, new Type[]{}));
+            var m = type.GetRuntimeMethods()
+                              .Single(mi => mi.Name == methodName && mi.GetParameters()
+                                                                       .Length == 0);
+            var methodInfo = Reflector.Wrap(m);
             var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).Single();
 
             Initialize(testCollection, Reflector.Wrap(type.GetTypeInfo().Assembly), typeInfo, methodInfo, factAttribute, arguments);
