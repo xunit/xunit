@@ -210,9 +210,15 @@ bool cancelled;
             // Don't try to load ourselves, since we fail (issue #47). Also, Visual Studio Online is brain dead.
 #if !WINDOWS_PHONE_APP
             string self = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+#else
+            string self = typeof(VsTestRunner).GetTypeInfo()
+                                              .Assembly.GetName()
+                                              .Name;
+#endif
+
             if (Path.GetFileNameWithoutExtension(assemblyFileName).Equals(self, StringComparison.OrdinalIgnoreCase))
                 return false;
-#endif
+
 
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
             string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");

@@ -17,7 +17,7 @@ namespace Xunit
 #if !WINDOWS_PHONE_APP
             assemblyFileName = Path.GetFullPath(assemblyFileName);
 #endif
-#if !ANDROID && !WINDOWS_PHONE_APP
+#if !ANDROID 
             Guard.ArgumentValid("assemblyFileName", "Could not find file: " + assemblyFileName, File.Exists(assemblyFileName));
 #endif
 
@@ -111,10 +111,8 @@ namespace Xunit
         {
             string configFilename = assemblyFile + ".config";
 
-#if !WINDOWS_PHONE_APP
             if (File.Exists(configFilename))
                 return configFilename;
-#endif
 
             return null;
         }

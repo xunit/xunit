@@ -94,7 +94,7 @@ namespace Xunit
 #endif
             var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
 
-#if !ANDROID && !WINDOWS_PHONE_APP
+#if !ANDROID
             if (File.Exists(xunitExecutionPath))
 #endif
                 return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
