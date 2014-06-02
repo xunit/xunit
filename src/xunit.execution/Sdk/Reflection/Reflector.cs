@@ -42,6 +42,12 @@ namespace Xunit.Sdk
                         var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
                         args[idx] = toArrayMethod.Invoke(null, new object[] { castMethod.Invoke(null, new object[] { arg }) });
                     }
+                    else if (args[idx] != null && args[idx].GetType() != type)
+                    {
+                        var arg = args[idx];
+                        if(arg.GetType().GetTypeInfo().ImplementedInterfaces.Any(t => t.FullName == "System.IConvertible"))
+                            args[idx] = Convert.ChangeType(arg, type);
+                    }
                 }
 
             return args;
