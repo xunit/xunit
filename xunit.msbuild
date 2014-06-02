@@ -13,8 +13,8 @@
     <ParallelizeTests Condition="'$(ParallelizeTests)' == ''">true</ParallelizeTests>
     <MaxParallelThreads Condition="'$(MaxParallelThreads)' == ''">0</MaxParallelThreads>
     <TrackFileAccess>false</TrackFileAccess>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\</SolutionDir>
-    <NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(SolutionDir).nuget\nuget.exe</NuGetExePath>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)</SolutionDir>
+    <NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(SolutionDir)\.nuget\nuget.exe</NuGetExePath>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">normal</RequestedVerbosity>
   </PropertyGroup>
   <ItemGroup>
@@ -63,8 +63,8 @@
 
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
-    <Exec Command="$(NuGetExePath) install xunit.buildtasks -Source @(PackageSource) -SolutionDir $(SolutionDir) -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)packages\xunit.buildtasks\')" />
-    <Exec Command="$(NuGetExePath) restore $(SolutionDir)xunit.sln -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\xunit.sln&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
@@ -172,7 +172,7 @@
   </Target>
 
   <Target Name="_DownloadNuGet">
-    <MakeDir Directories="$(SolutionDir).nuget" />
+    <MakeDir Directories="$(SolutionDir)\.nuget" />
     <DownloadNuGet OutputFilename="$(NuGetExePath)" Condition="!Exists('$(NuGetExePath)')" />
   </Target>
 

@@ -52,7 +52,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestCollectionFinished()
+        protected override void OnTestCollectionFinishing()
         {
             foreach (var fixture in collectionFixtureMappings.Values.OfType<IDisposable>())
             {
