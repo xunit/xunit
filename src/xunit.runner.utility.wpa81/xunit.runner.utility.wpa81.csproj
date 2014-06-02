@@ -117,6 +117,12 @@
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
     </Compile>
+    <Compile Include="..\common\WinRTDirectory.cs">
+      <Link>Common\WinRTDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\common\WinRTFile.cs">
+      <Link>Common\WinRTFile.cs</Link>
+    </Compile>
     <Compile Include="..\xunit.execution.wpa81\EmptyTypes\Serializable.cs">
       <Link>EmptyTypes\Serializable.cs</Link>
     </Compile>

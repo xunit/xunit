@@ -82,7 +82,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             var result = new VsTestResult(testCase)
             {
+#if !WINDOWS_PHONE_APP
                 ComputerName = Environment.MachineName,
+#endif
                 DisplayName = displayName,
                 Duration = TimeSpan.FromSeconds((double)testResult.ExecutionTime),
                 Outcome = outcome,

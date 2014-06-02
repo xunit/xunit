@@ -83,12 +83,12 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             {
                 Type testCaseType = typeof(TestCase);
                 Type stringType = typeof(string);
-                PropertyInfo property = testCaseType.GetProperty("Traits");
+                PropertyInfo property = testCaseType.GetRuntimeProperty("Traits");
 
                 if (property == null)
                     return null;
 
-                MethodInfo method = property.PropertyType.GetMethod("Add", new[] { typeof(string), typeof(string) });
+                MethodInfo method = property.PropertyType.GetRuntimeMethod("Add", new[] { typeof(string), typeof(string) });
                 if (method == null)
                     return null;
 

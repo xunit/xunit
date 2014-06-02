@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+#if !WIN8_STORE && !WINDOWS_PHONE_APP
 using Microsoft.Win32;
+#endif
 
 namespace Xunit.Runner.VisualStudio.Settings
 {
@@ -18,7 +21,7 @@ namespace Xunit.Runner.VisualStudio.Settings
         {
             var result = new XunitVisualStudioSettings();
 
-#if !WIN8_STORE
+#if !WIN8_STORE && !WINDOWS_PHONE_APP
             using (var software = Registry.CurrentUser.OpenSubKey("Software", writable: true))
             using (var outercurve = software.CreateOrOpen("Outercurve Foundation"))
             using (var xunit = outercurve.CreateOrOpen("xUnit.net"))
@@ -38,6 +41,7 @@ namespace Xunit.Runner.VisualStudio.Settings
 
         public static void Save(XunitVisualStudioSettings settings)
         {
+#if !WIN8_STORE && !WINDOWS_PHONE_APP
             using (var software = Registry.CurrentUser.OpenSubKey("Software", writable: true))
             using (var outercurve = software.CreateOrOpen("Outercurve Foundation"))
             using (var xunit = outercurve.CreateOrOpen("xUnit.net"))
@@ -50,7 +54,10 @@ namespace Xunit.Runner.VisualStudio.Settings
                 vsrunner.SetValue(REGVALUE_ParallelizeTestCollections, settings.ParallelizeTestCollections ? 1 : 0);
                 vsrunner.SetValue(REGVALUE_ShutdownAfterRun, settings.ShutdownAfterRun ? 1 : 0);
             }
+#endif
         }
+
+#if !WIN8_STORE && !WINDOWS_PHONE_APP
 
         static RegistryKey CreateOrOpen(this RegistryKey parent, string keyName)
         {
@@ -61,6 +68,7 @@ namespace Xunit.Runner.VisualStudio.Settings
         {
             return (T)key.GetValue(name, defaultValue);
         }
+#endif
 
         static T ToEnum<T>(this string value)
         {

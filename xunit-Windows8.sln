@@ -64,6 +64,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.console", "src\xunit.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.wpa81", "src\xunit.runner.utility.wpa81\xunit.runner.utility.wpa81.csproj", "{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.visualstudio.testadapter.wpa81", "src\xunit.runner.visualstudio.testadapter.wpa81\xunit.runner.visualstudio.testadapter.wpa81.csproj", "{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\messages\messages.projitems*{4389d7af-5f1f-416d-bf06-90f335d83ba9}*SharedItemsImports = 13
@@ -288,6 +290,20 @@ Global
 		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|x64.ActiveCfg = Release|Any CPU
 		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|x86.ActiveCfg = Release|x86
 		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}.Release|x86.Build.0 = Release|x86
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Debug|ARM.ActiveCfg = Debug|ARM
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Debug|ARM.Build.0 = Debug|ARM
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Debug|x86.ActiveCfg = Debug|x86
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Debug|x86.Build.0 = Debug|x86
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Release|ARM.ActiveCfg = Release|ARM
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Release|ARM.Build.0 = Release|ARM
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Release|x64.ActiveCfg = Release|Any CPU
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Release|x86.ActiveCfg = Release|x86
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -319,5 +335,6 @@ Global
 		{EBAB9937-2A6A-41EA-848B-3F7EDE2396CB} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{19C75545-5E0E-4E38-9995-511ED2DF6D30} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7} = {A36A630E-A604-47E6-894E-732946960182}
+		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 	EndGlobalSection
 EndGlobal

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -136,13 +137,17 @@ bool cancelled;
                         {
                             var ex = e.Unwrap();
                             var fileNotFound = ex as FileNotFoundException;
+#if !WINDOWS_PHONE_APP
                             var fileLoad = ex as FileLoadException;
+#endif
                             if (fileNotFound != null)
                                 logger.SendMessage(TestMessageLevel.Informational,
                                                    String.Format("[xUnit.net {0}] Skipping: {1} (could not find dependent assembly '{2}')", stopwatch.Elapsed, fileName, Path.GetFileNameWithoutExtension(fileNotFound.FileName)));
+#if !WINDOWS_PHONE_APP
                             else if (fileLoad != null)
                                 logger.SendMessage(TestMessageLevel.Informational,
                                                    String.Format("[xUnit.net {0}] Skipping: {1} (could not find dependent assembly '{2}')", stopwatch.Elapsed, fileName, Path.GetFileNameWithoutExtension(fileLoad.FileName)));
+#endif
                             else
                                 logger.SendMessage(TestMessageLevel.Error,
                                                    String.Format("[xUnit.net {0}] Exception discovering tests from {1}: {2}", stopwatch.Elapsed, fileName, ex));
@@ -203,9 +208,11 @@ bool cancelled;
         static bool IsXunitTestAssembly(string assemblyFileName)
         {
             // Don't try to load ourselves, since we fail (issue #47). Also, Visual Studio Online is brain dead.
+#if !WINDOWS_PHONE_APP
             string self = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
             if (Path.GetFileNameWithoutExtension(assemblyFileName).Equals(self, StringComparison.OrdinalIgnoreCase))
                 return false;
+#endif
 
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
             string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
@@ -219,7 +226,11 @@ bool cancelled;
             // In this case, we need to go thru the files manually
             if (ContainsAppX(sources))
             {
+#if !WINDOWS_PHONE_APP
                 var files = Directory.EnumerateFiles(Environment.CurrentDirectory, "*.dll", SearchOption.TopDirectoryOnly);
+#else
+                var files = Directory.GetFiles(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, "*.dll");
+#endif
 
                 var toAdd = from file in files
                             let system = platformAssemblies.Contains(Path.GetFileName(file)
@@ -354,7 +365,7 @@ bool cancelled;
         {
             var @event = new ManualResetEvent(initialState: false);
 
-            ThreadPool.QueueUserWorkItem(_ =>
+            Task.Run(() =>
             {
                 try
                 {
