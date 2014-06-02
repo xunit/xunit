@@ -12,10 +12,10 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Xunit.Abstractions;
-
 #if !WINDOWS_PHONE_APP
 using System.Security.Cryptography;
 #else
+using Xunit.Serialization;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -29,6 +29,9 @@ namespace Xunit.Sdk
     /// </summary>
     [Serializable]
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable
+#if JSON
+        , IGetTypeData
+#endif
     {
 #if !WINDOWS_PHONE_APP
         readonly static HashAlgorithm Hasher = new SHA1Managed();
@@ -245,10 +248,8 @@ namespace Xunit.Sdk
                 Write(stream, Class.Name);
                 Write(stream, Method.Name);
 
-#if !WINDOWS_PHONE_APP // WPA Apps cannot pre-enumerate tests, so arguments aren't part of the id
                 if (Arguments != null)
                     Write(stream, SerializationHelper.Serialize(Arguments));
-#endif
 
                 stream.Position = 0;
 #if !WINDOWS_PHONE_APP
@@ -603,5 +604,16 @@ namespace Xunit.Sdk
         {
             SynchronizationContext.SetSynchronizationContext(context);
         }
+
+#if JSON
+        public virtual void GetData(Xunit.Serialization.SerializationInfo data)
+        {
+            data.AddValue("AssemblyName", Assembly.Name);
+            data.AddValue("TypeName", Class.Name);
+            data.AddValue("MethodName", Method.Name);
+            data.AddValue("Arguments", Arguments);
+            data.AddValue("TestCollection", TestCollection);
+        }
+#endif
     }
 }

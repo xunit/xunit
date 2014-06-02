@@ -51,14 +51,17 @@ namespace Xunit.Sdk
         {
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, AssemblyInfo);
 
+            var attr = typeof(object).GetTypeInfo()
+                          .Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
+
+            var displayName = attr == null ? ".NET Framework" : attr.FrameworkDisplayName;
 
             return String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
                                  IntPtr.Size * 8,
 #if !WINDOWS_PHONE_APP
                                  Environment.Version,
 #else
-                                typeof(object).GetTypeInfo()
-                                    .Assembly.GetCustomAttribute<TargetFrameworkAttribute>().FrameworkDisplayName,
+                                displayName,
 #endif
                                  testCollectionFactory.DisplayName,
                                  disableParallelization ? "non-parallel" : "parallel",

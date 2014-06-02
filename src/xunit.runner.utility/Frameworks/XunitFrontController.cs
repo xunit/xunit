@@ -89,6 +89,8 @@ namespace Xunit
         /// </summary>
         protected virtual IFrontController CreateInnerController()
         {
+
+            // TODO: Refeactor this method -- too many ifdefs
 #if !XAMARIN && !WINDOWS_PHONE_APP
             var xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
 #endif

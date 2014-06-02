@@ -2,39 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace System.Runtime.Serialization
+
+namespace Xunit.Serialization
 {
-    internal sealed class SerializableAttribute : Attribute
-    {
-    }
-
-    internal interface ISerializable
-    {
-        void GetObjectData(SerializationInfo info, StreamingContext context);
-    }
-
     public class SerializationInfo
     {
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
-        {
-            TypeNameHandling = TypeNameHandling.All,
-        };
-
+      
+      
       
         [JsonProperty]
-        private readonly Dictionary<string, Tuple<object, Type>> data = new Dictionary<string, Tuple<object, Type>>();
-        
-        [JsonProperty]
-        private readonly Type type;
+        private IDictionary<string, Tuple<object, Type>> data = new Dictionary<string, Tuple<object, Type>>();
+      
 
-        internal SerializationInfo(Type type)
+        [JsonProperty]
+        private Type serializedType;
+
+        public SerializationInfo()
         {
-            this.type = type;
+            
+        }
+
+        internal SerializationInfo(Type serializedType)
+        {
+            this.serializedType = serializedType;
         }
 
         public string GetString(string key)
@@ -75,7 +69,7 @@ namespace System.Runtime.Serialization
 
         public void AddValue(string key, object value, Type type = null)
         {
-            var ser = value as ISerializable;
+            var ser = value as IGetTypeData;
             if (ser != null)
             {
                 data[key] = Tuple.Create<object, Type>(ObjectToSerializationInfo(ser), value.GetType());
@@ -86,11 +80,11 @@ namespace System.Runtime.Serialization
             }
         }
 
-        private static object CreateObjectFromSerializationInfo(SerializationInfo info)
+        internal static object CreateObjectFromSerializationInfo(SerializationInfo info)
         {
             // get the ctor
-            var ctor = (from ci in info.type.GetTypeInfo()
-                                      .DeclaredConstructors
+            var ctor = (from ci in info.serializedType.GetTypeInfo()
+                                       .DeclaredConstructors
                         let p = ci.GetParameters()
                         where p.Length == 2 && p[0].ParameterType == typeof(SerializationInfo) && p[1].ParameterType == typeof(StreamingContext)
                         select ci).First(); // this ctor must be present
@@ -99,32 +93,18 @@ namespace System.Runtime.Serialization
             return obj;
         }
 
-        private static SerializationInfo ObjectToSerializationInfo(ISerializable ser)
+        internal static SerializationInfo ObjectToSerializationInfo(IGetTypeData ser)
         {
-            var info = new SerializationInfo(ser.GetType());
+            
             var ctx = new StreamingContext();
-            ser.GetObjectData(info, ctx);
 
+            var info = new SerializationInfo(ser.GetType());
+            ser.GetData(info);
             return info;
         }
 
 
-        internal static string ToJson(ISerializable @object)
-        {
-            if (@object == null) throw new ArgumentNullException("object");
-
-
-            var info = ObjectToSerializationInfo(@object);
-
-            return JsonConvert.SerializeObject(info, Formatting.Indented, SerializerSettings);
-        }
-
-        internal static object FromJson(string json)
-        {
-            var info = JsonConvert.DeserializeObject<SerializationInfo>(json, SerializerSettings);
-
-            return CreateObjectFromSerializationInfo(info);
-        }
+   
 
     }
 }

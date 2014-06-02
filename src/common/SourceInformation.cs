@@ -2,6 +2,10 @@ using System;
 using System.Runtime.Serialization;
 using Xunit.Abstractions;
 
+#if WINDOWS_PHONE_APP
+using Xunit.Serialization;
+#endif
+
 #if XUNIT_CORE_DLL
 namespace Xunit.Sdk
 #else

@@ -2,13 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
-using System.Threading;
 
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-#if WINDOWS_PHONE_APP
-using Windows.System.Threading;
-#endif
 
 namespace Xunit.Sdk
 {
@@ -88,11 +85,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("messageSink", messageSink);
             Guard.ArgumentNotNull("options", options);
 
-#if WINDOWS_PHONE_APP
-            ThreadPool.RunAsync(_ =>
-#else
-            ThreadPool.QueueUserWorkItem(_ =>
-#endif
+            Task.Run(() =>
             {
                 using (var messageBus = new MessageBus(messageSink))
                 using (new PreserveWorkingFolder(AssemblyInfo))
@@ -114,11 +107,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("messageSink", messageSink);
             Guard.ArgumentNotNull("options", options);
 
-#if WINDOWS_PHONE_APP
-            ThreadPool.RunAsync(_ =>
-#else
-            ThreadPool.QueueUserWorkItem(_ =>
-#endif
+            Task.Run(() =>
             {
                 using (var messageBus = new MessageBus(messageSink))
                 using (new PreserveWorkingFolder(AssemblyInfo))

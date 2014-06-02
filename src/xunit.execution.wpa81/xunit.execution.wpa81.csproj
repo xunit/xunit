@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN;JSON</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -30,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP;XUNIT_CORE_DLL;NET45;NO_APPDOMAIN;JSON</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -123,7 +123,9 @@
     <Compile Include="..\xunit.assert\asserts\sdk\AssertEqualityComparerAdapter.cs">
       <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
     </Compile>
-    <Compile Include="EmptyTypes\Serializable.cs" />
+    <Compile Include="Serialization\IGetTypeData.cs" />
+    <Compile Include="Serialization\Serializable.cs" />
+    <Compile Include="Serialization\SerializationInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">

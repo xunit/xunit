@@ -123,8 +123,14 @@
     <Compile Include="..\common\WinRTFile.cs">
       <Link>Common\WinRTFile.cs</Link>
     </Compile>
-    <Compile Include="..\xunit.execution.wpa81\EmptyTypes\Serializable.cs">
-      <Link>EmptyTypes\Serializable.cs</Link>
+    <Compile Include="..\xunit.execution.wpa81\Serialization\IGetTypeData.cs">
+      <Link>Serialization\IGetTypeData.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.execution.wpa81\Serialization\Serializable.cs">
+      <Link>Serialization\Serializable.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.execution.wpa81\Serialization\SerializationInfo.cs">
+      <Link>Serialization\SerializationInfo.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
