@@ -33,7 +33,11 @@ namespace Xunit
             {
                 Name = Path.GetFileNameWithoutExtension(assemblyFileName)
             });
-            AssemblyName assemblyName = assm.GetName();
+            AssemblyName assemblyName = new AssemblyName
+            {
+                Name = assm.GetName()
+                           .Name
+            };
 #else
             var assm = Assembly.Load(assemblyFileName);
             AssemblyName assemblyName = assm.GetName();

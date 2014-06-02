@@ -25,13 +25,13 @@
       </xUnitLibs>
 
       <xUnitLibs Include="$(SolutionDir)src\xunit.runner.visualstudio.testadapter.wpa81\bin\$(Configuration)\xunit.runner.visualstudio.testadapter.dll">
-        <TargetPath>xunit.runner.utility.dll</TargetPath>
+        <TargetPath>xunit.runner.visualstudio.testadapter.dll</TargetPath>
       </xUnitLibs>
       <xUnitLibs Include="$(SolutionDir)src\xunit.runner.visualstudio.testadapter.wpa81\bin\$(Configuration)\xunit.runner.visualstudio.testadapter.pdb">
-        <TargetPath>xunit.runner.utility.pdb</TargetPath>
+        <TargetPath>xunit.runner.visualstudio.testadapter.pdb</TargetPath>
       </xUnitLibs>
       <xUnitLibs Include="$(SolutionDir)src\xunit.runner.visualstudio.testadapter.wpa81\bin\$(Configuration)\xunit.runner.visualstudio.testadapter.pri">
-        <TargetPath>xunit.runner.utility.pri</TargetPath>
+        <TargetPath>xunit.runner.visualstudio.testadapter.pri</TargetPath>
       </xUnitLibs>
       
       <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.execution.dll'"/>

@@ -331,10 +331,14 @@ bool cancelled;
                 lock (stopwatch)
                     frameworkHandle.SendMessage(TestMessageLevel.Informational, String.Format("[xUnit.net {0}] Execution starting: {1}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName)));
 
-#if WIN8_STORE
+#if WIN8_STORE 
             // For store apps, the files are copied to the AppX dir, we need to load it from there
             assemblyFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly()
                                                     .Location), Path.GetFileName(assemblyFileName));
+#elif WINDOWS_PHONE_APP
+
+            // For WPA Apps, use the package location
+            assemblyFileName = Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, Path.GetFileName(assemblyFileName));
 #endif
 
             var controller = new XunitFrontController(assemblyFileName, configFileName: null, shadowCopy: true);
