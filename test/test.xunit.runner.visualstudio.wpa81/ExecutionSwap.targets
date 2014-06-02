@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="SwapExecutionLibs" AfterTargets="_ComputeAppxPackagePayload" BeforeTargets="_GenerateAppxManifest" Inputs="">
+    <Message Text="Swapping Libs" />
+
+    <ItemGroup>
+      
+      <xUnitLibs Include="$(SolutionDir)src\xunit.execution.wpa81\bin\$(Configuration)\xunit.execution.dll">
+        <TargetPath>xunit.execution.dll</TargetPath>
+      </xUnitLibs>
+      <xUnitLibs Include="$(SolutionDir)src\xunit.execution.wpa81\bin\$(Configuration)\xunit.execution.pdb">
+        <TargetPath>xunit.execution.pdb</TargetPath>
+      </xUnitLibs>
+      <xUnitLibs Include="$(SolutionDir)src\xunit.execution.wpa81\bin\$(Configuration)\xunit.execution.pri">
+        <TargetPath>xunit.execution.pri</TargetPath>
+      </xUnitLibs>
+      <xUnitLibs Include="$(SolutionDir)src\xunit.runner.utility.wpa81\bin\$(Configuration)\xunit.runner.utility.dll">
+        <TargetPath>xunit.runner.utility.dll</TargetPath>
+      </xUnitLibs>
+      <xUnitLibs Include="$(SolutionDir)src\xunit.runner.utility.wpa81\bin\$(Configuration)\xunit.runner.utility.pdb">
+        <TargetPath>xunit.runner.utility.pdb</TargetPath>
+      </xUnitLibs>
+      <xUnitLibs Include="$(SolutionDir)src\xunit.runner.utility.wpa81\bin\$(Configuration)\xunit.runner.utility.pri">
+        <TargetPath>xunit.runner.utility.pri</TargetPath>
+      </xUnitLibs>
+
+      <xUnitLibs Include="$(SolutionDir)src\xunit.runner.visualstudio.testadapter.wpa81\bin\$(Configuration)\xunit.runner.visualstudio.testadapter.dll">
+        <TargetPath>xunit.runner.utility.dll</TargetPath>
+      </xUnitLibs>
+      <xUnitLibs Include="$(SolutionDir)src\xunit.runner.visualstudio.testadapter.wpa81\bin\$(Configuration)\xunit.runner.visualstudio.testadapter.pdb">
+        <TargetPath>xunit.runner.utility.pdb</TargetPath>
+      </xUnitLibs>
+      <xUnitLibs Include="$(SolutionDir)src\xunit.runner.visualstudio.testadapter.wpa81\bin\$(Configuration)\xunit.runner.visualstudio.testadapter.pri">
+        <TargetPath>xunit.runner.utility.pri</TargetPath>
+      </xUnitLibs>
+      
+      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.execution.dll'"/>
+      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.execution.pdb'"/>
+      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.utility.dll'"/>
+      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.utility.pdb'"/>
+      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.visualstudio.testadapter.dll'"/>
+      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.visualstudio.testadapter.pdb'"/>
+
+
+      <AppxPackagePayload Remove="@(xUnitLibsToRemove)" />
+      <AppxPackagePayload Include="@(xUnitLibs)" />
+    </ItemGroup>
+    
+    
+    <!--<Message Text="%(xUnitLibsToRemove.FullPath)" Importance="High" />
+    <Message Text="%(xUnitLibs.FullPath)" Importance="High" />-->
+    <Message Text="%(AppxPackagePayload.FullPath)" Importance="High" />
+  </Target>
+</Project>

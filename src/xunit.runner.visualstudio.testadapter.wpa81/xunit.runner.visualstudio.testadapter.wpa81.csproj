@@ -9,8 +9,8 @@
     <ProjectGuid>{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>xunit.runner.visualstudio.testadapter.wpa81</RootNamespace>
-    <AssemblyName>xunit.runner.visualstudio.testadapter.wpa81</AssemblyName>
+    <RootNamespace>xunit.runner.visualstudio.testadapter</RootNamespace>
+    <AssemblyName>xunit.runner.visualstudio.testadapter</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
