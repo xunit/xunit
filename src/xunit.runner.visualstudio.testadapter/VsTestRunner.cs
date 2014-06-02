@@ -57,7 +57,6 @@ bool cancelled;
             Guard.ArgumentNotNull("logger", logger);
             Guard.ArgumentNotNull("discoverySink", discoverySink);
             Guard.ArgumentValid("sources", "appx not supported for discovery", !ContainsAppX(sources));
-            
 
             DiscoverTests(
                 sources,
@@ -208,16 +207,11 @@ bool cancelled;
         static bool IsXunitTestAssembly(string assemblyFileName)
         {
             // Don't try to load ourselves, since we fail (issue #47). Also, Visual Studio Online is brain dead.
-#if !WINDOWS_PHONE_APP
-            string self = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
-#else
-            string self = typeof(VsTestRunner).GetTypeInfo()
-                                              .Assembly.GetName()
-                                              .Name;
-#endif
-
-            if (Path.GetFileNameWithoutExtension(assemblyFileName).Equals(self, StringComparison.OrdinalIgnoreCase))
+            // or any test framework assembly
+            if (platformAssemblies.Contains(Path.GetFileName(assemblyFileName)
+                                                .ToUpperInvariant()))
                 return false;
+
 
 
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
