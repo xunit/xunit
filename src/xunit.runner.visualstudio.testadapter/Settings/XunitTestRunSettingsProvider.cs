@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.Composition;
+﻿
+#if !WIN8_STORE
+using System.ComponentModel.Composition;
+#endif
 using System.Xml;
 using System.Xml.Serialization;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -6,7 +9,9 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 
 namespace Xunit.Runner.VisualStudio.Settings
 {
+#if !WIN8_STORE
     [Export(typeof(ISettingsProvider))]
+#endif
     [SettingsName(XunitTestRunSettings.SettingsName)]
     public class XunitTestRunSettingsProvider : ISettingsProvider
     {

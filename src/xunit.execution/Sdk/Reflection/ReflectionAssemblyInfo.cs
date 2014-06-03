@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -28,8 +29,18 @@ namespace Xunit.Sdk
         /// <param name="assemblyFileName">The assembly to be wrapped.</param>
         public ReflectionAssemblyInfo(string assemblyFileName)
         {
-#if !ANDROID
+#if !ANDROID && !WIN8_STORE
             Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
+#elif WIN8_STORE
+            try
+            {
+                Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
+            }
+            catch (Exception)
+            {
+
+                Assembly = Assembly.Load(Path.GetFileNameWithoutExtension(assemblyFileName));
+            }
 #else
             Assembly = Assembly.Load(assemblyFileName);
 #endif

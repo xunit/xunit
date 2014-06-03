@@ -25,7 +25,11 @@ namespace Xunit.Sdk
 
             SourceInformationProvider = sourceInformationProvider;
 
+#if !WIN8_STORE
             var assembly = Assembly.Load(assemblyName);
+#else
+            var assembly = Assembly.Load(assemblyName.Name);
+#endif
             AssemblyInfo = Reflector.Wrap(assembly);
         }
 
