@@ -9,14 +9,14 @@
       <Link>xunit.execution.pdb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\..\src\xunit.runner.utility.net45.noappdomain\bin\$(Configuration)\xunit.runner.utility.dll">
+    <!--<Content Include="..\..\src\xunit.runner.utility.net45.noappdomain\bin\$(Configuration)\xunit.runner.utility.dll">
       <Link>xunit.runner.utility.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\src\xunit.runner.utility.net45.noappdomain\bin\$(Configuration)\xunit.runner.utility.pdb">
       <Link>xunit.runner.utility.pdb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </Content>-->
     <!--<Content Include="..\..\src\xunit.runner.visualstudio.testadapter.wpa81\bin\$(Configuration)\xunit.runner.visualstudio.testadapter.dll">
       <Link>xunit.runner.visualstudio.testadapter.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

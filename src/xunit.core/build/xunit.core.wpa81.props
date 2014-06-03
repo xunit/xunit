@@ -5,9 +5,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)..\..\lib\Wpa81\xunit.runner.utility.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
   </ItemGroup>
 </Project>

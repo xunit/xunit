@@ -66,7 +66,6 @@
     <file src="xunit.core\bin\Release\xunit.core.pdb" target="lib\wpa81\xunit.core.pdb" />
     <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\wpa81\xunit.core.xml" />
     <file src="xunit.execution.net45.json\bin\Release\xunit.execution.dll" target="lib\wpa81\xunit.execution.dll" />
-    <file src="xunit.runner.utility.net45.noappdomain\bin\Release\xunit.runner.utility.dll" target="lib\wpa81\xunit.runner.utility.dll" />
 
     <!-- These version of the files are run on the device -->
     <file src="xunit.execution.wpa81\bin\Release\xunit.execution.dll" target="lib\wpa81\WinRT\xunit.execution.dll" />
