@@ -4,12 +4,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xunit.Execution.Sdk.Utility
+namespace Xunit.Sdk
 {
     /// <summary>
     /// Notifies one or more waiting awaiters that an event has occurred
     /// </summary>
-    public class AsyncManualResetEvent
+    internal class AsyncManualResetEvent
     {
         private volatile TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
 

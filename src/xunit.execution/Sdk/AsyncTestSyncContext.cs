@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Execution.Sdk.Utility;
 
 namespace Xunit.Sdk
 {
