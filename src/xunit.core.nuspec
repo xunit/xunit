@@ -18,9 +18,19 @@
       <reference file="xunit.core.dll" />
     </references>
     <dependencies>
-      <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
-      <!-- FOR WHEN WE RTM: -->
-      <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1)" />-->
+      <group>
+        <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
+        <!-- FOR WHEN WE RTM: -->
+        <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1)" />-->
+      </group>
+      <group targetFramework="Wpa81">
+        <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
+        <!-- FOR WHEN WE RTM: -->
+        <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1)" />-->
+        
+        <dependency id="Newtonsoft.Json" version="6.0.3" />
+      </group>
+
     </dependencies>
   </metadata>
   <files>
