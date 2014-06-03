@@ -21,6 +21,10 @@ namespace Xunit.Serialization
         [JsonProperty]
         private Type serializedType;
 
+        /// <summary>
+        /// DO not use. This is called by serialization logic only
+        /// </summary>
+        [Obsolete("DO NOT USE. This is for internal serialization logic only", true)]
         public SerializationInfo()
         {
             
@@ -41,7 +45,7 @@ namespace Xunit.Serialization
             return null;
         }
 
-        internal object GetValue(string key, Type type)
+        public object GetValue(string key, Type type)
         {
             Tuple<object, Type> val;
             if (data.TryGetValue(key, out val))
