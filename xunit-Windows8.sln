@@ -74,27 +74,31 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.visualstu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.net45.json", "src\xunit.execution.net45.json\xunit.execution.net45.json.csproj", "{D79B0E97-8599-4A59-A5AF-948BA91ACE21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.execution", "test\test.xunit.execution\test.xunit.execution.csproj", "{C32639C0-50EB-49AB-9681-C3334E5DEAE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.utility", "test\test.utility\test.utility.csproj", "{4FEC8604-E544-43C2-979C-F0815B5770E2}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\messages\messages.projitems*{4389d7af-5f1f-416d-bf06-90f335d83ba9}*SharedItemsImports = 13
-		src\xunit.runner.utility\xunit.runner.utility.projitems*{9d0daa1d-f2df-4a8a-9d0b-ffaa091a4ee7}*SharedItemsImports = 4
 		src\messages\messages.projitems*{9d0daa1d-f2df-4a8a-9d0b-ffaa091a4ee7}*SharedItemsImports = 4
-		src\messages\messages.projitems*{d79b0e97-8599-4a59-a5af-948ba91ace21}*SharedItemsImports = 4
+		src\xunit.runner.utility\xunit.runner.utility.projitems*{9d0daa1d-f2df-4a8a-9d0b-ffaa091a4ee7}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{d79b0e97-8599-4a59-a5af-948ba91ace21}*SharedItemsImports = 4
-		src\messages\messages.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
+		src\messages\messages.projitems*{d79b0e97-8599-4a59-a5af-948ba91ace21}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
-		src\messages\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
+		src\messages\messages.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
+		src\messages\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{77743589-f177-4007-97b8-50b82a1c7044}*SharedItemsImports = 4
-		src\xunit.runner.utility\xunit.runner.utility.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
 		src\messages\messages.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
+		src\xunit.runner.utility\xunit.runner.utility.projitems*{4f42fe0e-04d0-4e84-9c4c-91b9c6649e51}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{53012549-d81b-4e40-b626-67c19265aa6f}*SharedItemsImports = 4
 		src\xunit.abstractions\xunit.abstractions.projitems*{ef8381db-7aa0-41b8-99c5-7a69f1a61f18}*SharedItemsImports = 13
-		src\xunit.runner.utility\xunit.runner.utility.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
 		src\messages\messages.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
+		src\xunit.runner.utility\xunit.runner.utility.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{cd3185a0-fb26-4923-8421-19a01da67999}*SharedItemsImports = 13
-		src\messages\messages.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
 		src\xunit.execution\xunit.execution.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
+		src\messages\messages.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
 		src\xunit.runner.utility\xunit.runner.utility.projitems*{d746cd0d-17f7-4c3c-8a31-fbd322a5ce1d}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -400,6 +404,34 @@ Global
 		{D79B0E97-8599-4A59-A5AF-948BA91ACE21}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{D79B0E97-8599-4A59-A5AF-948BA91ACE21}.Release|x64.ActiveCfg = Release|Any CPU
 		{D79B0E97-8599-4A59-A5AF-948BA91ACE21}.Release|x86.ActiveCfg = Release|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Release|ARM.ActiveCfg = Release|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Release|x64.ActiveCfg = Release|Any CPU
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7}.Release|x86.ActiveCfg = Release|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Release|ARM.ActiveCfg = Release|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Release|x64.ActiveCfg = Release|Any CPU
+		{4FEC8604-E544-43C2-979C-F0815B5770E2}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -432,5 +464,7 @@ Global
 		{1F759DC9-82C9-45B1-A9DA-E3A7B7386CED} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{7F47544F-3F88-448E-9729-224DC057F71C} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{D79B0E97-8599-4A59-A5AF-948BA91ACE21} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
+		{4FEC8604-E544-43C2-979C-F0815B5770E2} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 	EndGlobalSection
 EndGlobal

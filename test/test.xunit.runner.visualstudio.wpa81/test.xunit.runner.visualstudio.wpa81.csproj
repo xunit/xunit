@@ -97,6 +97,10 @@
     <Content Include="Assets\WideLogo.scale-240.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
+      <Project>{77743589-f177-4007-97b8-50b82a1c7044}</Project>
+      <Name>xunit.abstractions.pcl</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">
       <Project>{80b04afe-4331-4cdd-b247-864ac6482f7c}</Project>
       <Name>xunit.assert</Name>
