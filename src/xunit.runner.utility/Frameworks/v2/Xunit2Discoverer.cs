@@ -46,19 +46,8 @@ namespace Xunit
 #endif
             appDomain = new RemoteAppDomainManager(assemblyFileName ?? xunitExecutionAssemblyPath, configFileName, shadowCopy, shadowCopyFolder);
 
-#if !ANDROID && !WINDOWS_PHONE_APP
-            var name = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
-            var testFrameworkAssemblyName = name.FullName;
-#elif WINDOWS_PHONE_APP
-            var name = Assembly.Load(new AssemblyName
-            {
-                Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath)
-            }).GetName();
-            var testFrameworkAssemblyName = name.FullName;
-#else
-            var name = Assembly.Load(xunitExecutionAssemblyPath);
-            var testFrameworkAssemblyName = name.FullName;
-#endif
+            
+            var testFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
             if (assemblyInfo == null)
@@ -67,6 +56,43 @@ namespace Xunit
             framework = appDomain.CreateObject<ITestFramework>(testFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider);
             discoverer = Framework.GetDiscoverer(assemblyInfo);
         }
+
+
+#if !ANDROID && !WINDOWS_PHONE_APP
+        private static string GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
+        {
+            // default logic for .NET 4.5/3.5
+            var name = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
+            var testFrameworkAssemblyName = name.FullName;
+
+            return testFrameworkAssemblyName;
+        }
+#endif
+
+#if WINDOWS_PHONE_APP
+        private static string GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
+        {
+            // WPA 81 needs an AssemblyName that has the assembly short name (w/o extension)
+            var name = Assembly.Load(new AssemblyName
+            {
+                Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath)
+            }).GetName();
+            var testFrameworkAssemblyName = name.FullName;
+
+            return testFrameworkAssemblyName;
+        }
+#endif
+
+#if ANDROID
+        private static string GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
+        {
+            // Android needs to just load the assembly
+            var name = Assembly.Load(xunitExecutionAssemblyPath);
+            var testFrameworkAssemblyName = name.FullName;
+
+            return testFrameworkAssemblyName;
+        }
+#endif
 
         /// <summary>
         /// Returns the test framework from the remote app domain.
