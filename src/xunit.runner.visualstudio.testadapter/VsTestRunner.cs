@@ -208,9 +208,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             Guard.ArgumentNotNull("frameworkHandle", frameworkHandle);
 
             var settings = SettingsProvider.Load();
-            var shuttingDown = !runContext.KeepAlive || settings.ShutdownAfterRun;
 
-            if (runContext.KeepAlive && settings.ShutdownAfterRun)
+            if (!runContext.KeepAlive || settings.ShutdownAfterRun)
                 frameworkHandle.EnableShutdownAfterTestRun = true;
 
             var toDispose = new List<IDisposable>();
@@ -248,7 +247,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             }
             finally
             {
-                if (!shuttingDown)
+                if (settings.ShutdownAfterRun)
                     toDispose.ForEach(disposable => disposable.Dispose());
             }
 
