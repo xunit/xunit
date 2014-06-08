@@ -81,7 +81,6 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Frameworks\v1\IXunit1Executor.cs" />
-    <Compile Include="Frameworks\v1\RunSummary.cs" />
     <Compile Include="Frameworks\v1\TestClassCallbackHandler.cs" />
     <Compile Include="Frameworks\v1\XmlNodeCallbackHandler.cs" />
     <Compile Include="Frameworks\v1\XmlNodeExtensions.cs" />
@@ -90,6 +89,7 @@
     <Compile Include="Frameworks\v1\Xunit1ExceptionUtility.cs" />
     <Compile Include="Frameworks\v1\Xunit1Executor.cs" />
     <Compile Include="Frameworks\v1\Xunit1ReflectionWrapper.cs" />
+    <Compile Include="Frameworks\v1\Xunit1RunSummary.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCase.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCollection.cs" />
     <Compile Include="Frameworks\VisualStudioSourceInformationProvider.cs" />

@@ -184,7 +184,7 @@ namespace Xunit
         /// <param name="messageSink">The message sink to report results back to.</param>
         public void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
-            var results = new RunSummary();
+            var results = new Xunit1RunSummary();
             var environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
 
             if (messageSink.OnMessage(new TestAssemblyStarting(assemblyFileName, configFileName, DateTime.Now, environment, TestFrameworkDisplayName)))
@@ -204,9 +204,9 @@ namespace Xunit
             Run(testCases, messageSink);
         }
 
-        RunSummary RunTestCollection(ITestCollection testCollection, IEnumerable<Xunit1TestCase> testCases, IMessageSink messageSink)
+        Xunit1RunSummary RunTestCollection(ITestCollection testCollection, IEnumerable<Xunit1TestCase> testCases, IMessageSink messageSink)
         {
-            var results = new RunSummary();
+            var results = new Xunit1RunSummary();
             results.Continue = messageSink.OnMessage(new TestCollectionStarting(testCollection));
 
             if (results.Continue)
@@ -222,7 +222,7 @@ namespace Xunit
             return results;
         }
 
-        RunSummary RunTestClass(ITestCollection testCollection, string className, IList<Xunit1TestCase> testCases, IMessageSink messageSink)
+        Xunit1RunSummary RunTestClass(ITestCollection testCollection, string className, IList<Xunit1TestCase> testCases, IMessageSink messageSink)
         {
             var handler = new TestClassCallbackHandler(testCases, messageSink);
             var results = handler.TestClassResults;

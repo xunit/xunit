@@ -6,7 +6,7 @@ namespace Xunit
     /// <summary>
     /// Collects statistics from running tests.
     /// </summary>
-    public class RunSummary
+    public class Xunit1RunSummary
     {
         /// <summary>
         /// A flag that indicates whether or not to continue running tests.
@@ -16,28 +16,28 @@ namespace Xunit
         /// <summary>
         /// The total number of tests run.
         /// </summary>
-        public int Total = 0;
+        public int Total;
 
         /// <summary>
         /// The number of tests that failed.
         /// </summary>
-        public int Failed = 0;
+        public int Failed;
 
         /// <summary>
         /// The number of tests that were skipped.
         /// </summary>
-        public int Skipped = 0;
+        public int Skipped;
 
         /// <summary>
         /// The time spent running the tests.
         /// </summary>
-        public decimal Time = 0M;
+        public decimal Time;
 
         /// <summary>
         /// Aggregates the current results with the other results.
         /// </summary>
         /// <param name="other">The other result.</param>
-        public void Aggregate(RunSummary other)
+        public void Aggregate(Xunit1RunSummary other)
         {
             Total += other.Total;
             Failed += other.Failed;

@@ -15,7 +15,7 @@ namespace Xunit
         readonly Dictionary<string, Predicate<XmlNode>> handlers;
         readonly IMessageSink messageSink;
         readonly IList<Xunit1TestCase> testCases;
-        readonly RunSummary testCaseResults;
+        readonly Xunit1RunSummary testCaseResults;
 
         Xunit1TestCase lastTestCase;
 
@@ -30,15 +30,15 @@ namespace Xunit
             this.handlers = new Dictionary<string, Predicate<XmlNode>> { { "class", OnClass }, { "start", OnStart }, { "test", OnTest } };
             this.messageSink = messageSink;
             this.testCases = testCases;
-            this.testCaseResults = new RunSummary();
+            this.testCaseResults = new Xunit1RunSummary();
 
-            TestClassResults = new RunSummary();
+            TestClassResults = new Xunit1RunSummary();
         }
 
         /// <summary>
         /// Gets the test class results, after the execution has completed.
         /// </summary>
-        public RunSummary TestClassResults { get; private set; }
+        public Xunit1RunSummary TestClassResults { get; private set; }
 
         Xunit1TestCase FindTestCase(string typeName, string methodName)
         {
