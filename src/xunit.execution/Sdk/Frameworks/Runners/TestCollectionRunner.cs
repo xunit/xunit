@@ -43,7 +43,7 @@ namespace Xunit.Sdk
         protected ExceptionAggregator Aggregator { get; set; }
 
         /// <summary>
-        /// Gets or sets he task cancellation token source, used to cancel the test run.
+        /// Gets or sets the task cancellation token source, used to cancel the test run.
         /// </summary>
         protected CancellationTokenSource CancellationTokenSource { get; set; }
 
@@ -61,7 +61,7 @@ namespace Xunit.Sdk
         /// Gets or sets the test cases to be run.
         /// </summary>
         protected IEnumerable<TTestCase> TestCases { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the test collection that contains the tests to be run.
         /// </summary>

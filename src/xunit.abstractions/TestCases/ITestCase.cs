@@ -65,7 +65,7 @@ namespace Xunit.Abstractions
         string UniqueID { get; }
 
         /// <summary>
-        /// The arguments that will be passed to the test method.
+        /// Gets the arguments that will be passed to the test method.
         /// </summary>
         object[] Arguments { get; }
     }

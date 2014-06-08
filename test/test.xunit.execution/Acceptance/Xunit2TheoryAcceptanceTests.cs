@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -73,7 +72,7 @@ public class Xunit2TheoryAcceptanceTests
             var results = Run<ITestPassed>(typeof(GenericWithNonSerializableData));
 
             Assert.Collection(results,
-                result => Assert.Equal<object>(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.TestDisplayName)
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.TestDisplayName)
             );
         }
 

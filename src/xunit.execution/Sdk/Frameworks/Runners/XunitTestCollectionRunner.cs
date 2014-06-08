@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Xunit.Abstractions;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {

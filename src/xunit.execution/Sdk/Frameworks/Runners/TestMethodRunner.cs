@@ -38,7 +38,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets or sets he task cancellation token source, used to cancel the test run.
+        /// Gets or sets the task cancellation token source, used to cancel the test run.
         /// </summary>
         protected CancellationTokenSource CancellationTokenSource { get; set; }
 
