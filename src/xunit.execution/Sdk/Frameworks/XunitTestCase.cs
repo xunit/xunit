@@ -438,7 +438,7 @@ namespace Xunit.Sdk
                 else
                 {
                     var beforeAttributesRun = new Stack<BeforeAfterTestAttribute>();
-                    var executionTime = new ExecutionTime();
+                    var timer = new ExecutionTimer();
 
                     if (!aggregator.HasExceptions)
                         await aggregator.RunAsync(async () =>
@@ -453,7 +453,7 @@ namespace Xunit.Sdk
                                 try
                                 {
                                     if (!cancellationTokenSource.IsCancellationRequested)
-                                        executionTime.Aggregate(() => testClass = Activator.CreateInstance(classUnderTest, constructorArguments));
+                                        timer.Aggregate(() => testClass = Activator.CreateInstance(classUnderTest, constructorArguments));
                                 }
                                 finally
                                 {
@@ -475,7 +475,7 @@ namespace Xunit.Sdk
                                         {
                                             try
                                             {
-                                                executionTime.Aggregate(() => beforeAfterAttribute.Before(methodUnderTest));
+                                                timer.Aggregate(() => beforeAfterAttribute.Before(methodUnderTest));
                                                 beforeAttributesRun.Push(beforeAfterAttribute);
                                             }
                                             finally
@@ -501,7 +501,7 @@ namespace Xunit.Sdk
 
                                             await aggregator.RunAsync(async () =>
                                             {
-                                                await executionTime.AggregateAsync(async () =>
+                                                await timer.AggregateAsync(async () =>
                                                 {
                                                     var result = methodUnderTest.Invoke(testClass, Reflector.ConvertArguments(testMethodArguments, parameterTypes));
                                                     var task = result as Task;
@@ -529,7 +529,7 @@ namespace Xunit.Sdk
                                     if (!messageBus.QueueMessage(new AfterTestStarting(this, displayName, attributeName)))
                                         cancellationTokenSource.Cancel();
 
-                                    aggregator.Run(() => executionTime.Aggregate(() => beforeAfterAttribute.After(methodUnderTest)));
+                                    aggregator.Run(() => timer.Aggregate(() => beforeAfterAttribute.After(methodUnderTest)));
 
                                     if (!messageBus.QueueMessage(new AfterTestFinished(this, displayName, attributeName)))
                                         cancellationTokenSource.Cancel();
@@ -546,7 +546,7 @@ namespace Xunit.Sdk
 
                                     try
                                     {
-                                        executionTime.Aggregate(disposable.Dispose);
+                                        timer.Aggregate(disposable.Dispose);
                                     }
                                     finally
                                     {
@@ -559,7 +559,7 @@ namespace Xunit.Sdk
 
                     if (!cancellationTokenSource.IsCancellationRequested)
                     {
-                        executionTimeInSeconds = (decimal)executionTime.Total.TotalSeconds;
+                        executionTimeInSeconds = timer.Total;
 
                         var exception = aggregator.ToException();
                         var testResult = exception == null ? (TestResultMessage)new TestPassed(this, displayName, executionTimeInSeconds, output)

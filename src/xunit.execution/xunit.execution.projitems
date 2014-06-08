@@ -22,7 +22,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\ExtensibilityPointFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\CollectionPerClassTestCollectionFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\ExecutionTime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\ExecutionTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\FactDiscoverer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\LambdaTestCase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestAssemblyRunner.cs" />
