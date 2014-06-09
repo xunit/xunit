@@ -85,6 +85,9 @@ namespace Xunit
         public ITestCollection TestCollection { get; set; }
 
         /// <inheritdoc/>
+        public object[] TestMethodArguments { get; private set; }
+
+        /// <inheritdoc/>
         public Dictionary<string, List<string>> Traits { get; private set; }
 
         /// <inheritdoc/>
@@ -92,9 +95,6 @@ namespace Xunit
         {
             get { return reflectionWrapper.UniqueID; }
         }
-
-        /// <inheritdoc/>
-        public object[] Arguments { get; private set; }
 
         /// <inheritdoc/>
         public void Dispose()

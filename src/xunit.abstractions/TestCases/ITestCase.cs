@@ -42,6 +42,11 @@ namespace Xunit.Abstractions
         ITestCollection TestCollection { get; }
 
         /// <summary>
+        /// Gets the arguments that will be passed to the test method.
+        /// </summary>
+        object[] TestMethodArguments { get; }
+
+        /// <summary>
         /// Gets the trait values associated with this test case. If
         /// there are none, or the framework does not support traits,
         /// this should return an empty dictionary (not <c>null</c>). This
@@ -63,10 +68,5 @@ namespace Xunit.Abstractions
         /// assembly.
         /// </remarks>
         string UniqueID { get; }
-
-        /// <summary>
-        /// Gets the arguments that will be passed to the test method.
-        /// </summary>
-        object[] Arguments { get; }
     }
 }

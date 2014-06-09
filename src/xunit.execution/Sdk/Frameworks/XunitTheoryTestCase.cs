@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,68 +28,9 @@ namespace Xunit.Sdk
         protected XunitTheoryTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         /// <inheritdoc />
-        protected override async Task RunTestsOnMethodAsync(IMessageBus messageBus,
-                                                            Type classUnderTest,
-                                                            object[] constructorArguments,
-                                                            MethodInfo methodUnderTest,
-                                                            List<BeforeAfterTestAttribute> beforeAfterAttributes,
-                                                            ExceptionAggregator aggregator,
-                                                            CancellationTokenSource cancellationTokenSource)
+        public override Task<RunSummary> RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
-            var executionTime = 0M;
-
-            try
-            {
-                var testMethod = Reflector.Wrap(methodUnderTest);
-
-                var dataAttributes = testMethod.GetCustomAttributes(typeof(DataAttribute));
-                foreach (var dataAttribute in dataAttributes)
-                {
-                    var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
-                    var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    var discovererType = Reflector.GetType(args[1], args[0]);
-                    var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererType);
-
-                    foreach (object[] dataRow in discoverer.GetData(dataAttribute, testMethod))
-                    {
-                        var methodToRun = methodUnderTest;
-                        ITypeInfo[] resolvedTypes = null;
-
-                        if (methodToRun.IsGenericMethodDefinition)
-                        {
-                            resolvedTypes = ResolveGenericTypes(testMethod, dataRow);
-                            methodToRun = methodToRun.MakeGenericMethod(resolvedTypes.Select(t => ((IReflectionTypeInfo)t).Type).ToArray());
-                        }
-
-                        executionTime +=
-                            await RunTestWithArgumentsAsync(messageBus,
-                                                            classUnderTest,
-                                                            constructorArguments,
-                                                            methodToRun,
-                                                            dataRow,
-                                                            GetDisplayNameWithArguments(DisplayName, dataRow, resolvedTypes),
-                                                            beforeAfterAttributes,
-                                                            aggregator,
-                                                            cancellationTokenSource);
-
-                        if (cancellationTokenSource.IsCancellationRequested)
-                            return;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                if (!messageBus.QueueMessage(new TestStarting(this, DisplayName)))
-                    cancellationTokenSource.Cancel();
-                else
-                {
-                    if (!messageBus.QueueMessage(new TestFailed(this, DisplayName, executionTime, null, ex.Unwrap())))
-                        cancellationTokenSource.Cancel();
-                }
-
-                if (!messageBus.QueueMessage(new TestFinished(this, DisplayName, executionTime, null)))
-                    cancellationTokenSource.Cancel();
-            }
+            return new XunitTheoryTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
         }
     }
 }

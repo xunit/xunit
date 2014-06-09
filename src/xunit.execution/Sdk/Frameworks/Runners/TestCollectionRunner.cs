@@ -105,6 +105,7 @@ namespace Xunit.Sdk
                 {
                     OnTestCollectionStarted();
 
+                    // TODO: Introduce TestCollectionFailed here, only calling RunTestClassesAsync if things are still okay (also harden OnXxx implementations)
                     collectionSummary = await RunTestClassesAsync();
                 }
             }

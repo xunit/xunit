@@ -103,6 +103,7 @@ namespace Xunit.Sdk
                     CancellationTokenSource.Cancel();
                 else
                 {
+                    // TODO: Introduce TestMethodFailed here, only calling RunTestMethodsAsync if things are still okay (also harden OnXxx implementations)
                     OnTestMethodStarted();
 
                     methodSummary = await RunTestCasesAsync();

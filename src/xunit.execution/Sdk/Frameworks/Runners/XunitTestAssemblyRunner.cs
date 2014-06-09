@@ -123,8 +123,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
         {
-            var collectionRunner = new XunitTestCollectionRunner(testCollection, testCases, messageBus, TestCaseOrderer, cancellationTokenSource);
-            return collectionRunner.RunAsync();
+            return new XunitTestCollectionRunner(testCollection, testCases, messageBus, TestCaseOrderer, cancellationTokenSource).RunAsync();
         }
     }
 }

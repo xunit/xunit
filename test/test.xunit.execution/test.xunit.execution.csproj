@@ -89,9 +89,15 @@
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactoryTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\LambdaTestCaseRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestCaseRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestInvokerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestCaseRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestInvokerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTheoryTestCaseRunnerTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkDiscovererTests.cs" />
-    <Compile Include="Sdk\Frameworks\XunitTheoryTestCaseTests.cs" />
     <Compile Include="Sdk\MessageBusTests.cs" />
     <Compile Include="Sdk\Frameworks\TheoryDiscovererTests.cs" />
     <Compile Include="Sdk\Reflection\ReflectorTests.cs" />

@@ -49,7 +49,7 @@ public class TestCaseSerializerTests
             Assert.Equal(testCase.Class.Name, result.Class.Name);
             Assert.Equal(testCase.Method.Name, result.Method.Name);
             Assert.Equal(testCase.DisplayName, result.DisplayName);
-            Assert.Null(result.Arguments);
+            Assert.Null(result.TestMethodArguments);
             Assert.Equal(testCase.SkipReason, result.SkipReason);
             Assert.Collection(result.Traits.Keys,
                 key =>
@@ -71,7 +71,7 @@ public class TestCaseSerializerTests
 
             var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
 
-            Assert.Collection(result.Arguments,
+            Assert.Collection(result.TestMethodArguments,
                 arg => Assert.Equal(42, arg),
                 arg => Assert.Equal(21.12, arg),
                 arg => Assert.Equal("Hello world", arg));
@@ -123,7 +123,7 @@ public class TestCaseSerializerTests
             Assert.Equal(testCase.Class.Name, result.Class.Name);
             Assert.Equal(testCase.Method.Name, result.Method.Name);
             Assert.Equal(testCase.DisplayName, result.DisplayName);
-            Assert.Null(result.Arguments);
+            Assert.Null(result.TestMethodArguments);
             Assert.Equal(testCase.SkipReason, result.SkipReason);
             Assert.Collection(result.Traits.Keys,
                 key =>

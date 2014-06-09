@@ -25,14 +25,22 @@
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\ExecutionTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\FactDiscoverer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\LambdaTestCase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\LambdaTestCaseRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestAssemblyRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestCaseRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestClassRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestCollectionRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestInvoker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestMethodRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\TestRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestAssemblyRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestCaseRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestClassRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestCollectionRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestInvoker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestMethodRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTestRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\Runners\XunitTheoryTestCaseRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TestCollectionComparer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TestCollectionFactoryHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Frameworks\TestFramework.cs" />
@@ -62,5 +70,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\SynchronousMessageBus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\TestClassException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\TestMessageVisitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sdk\TypeUtility.cs" />
   </ItemGroup>
 </Project>

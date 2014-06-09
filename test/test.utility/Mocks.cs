@@ -59,6 +59,16 @@ public static class Mocks
         return result;
     }
 
+    public static LambdaTestCase LambdaTestCase(Action lambda, string displayName = null)
+    {
+        var testCollection = Substitute.For<ITestCollection>();
+        var typeInfo = Reflector.Wrap(typeof(Object));
+        var methodInfo = Reflector.Wrap(typeof(Object).GetMethod("ToString"));
+        var factAttribute = Mocks.FactAttribute(displayName);
+
+        return new LambdaTestCase(testCollection, typeInfo.Assembly, typeInfo, methodInfo, factAttribute, lambda);
+    }
+
     public static IMethodInfo MethodInfo(string methodName = "MockMethod",
                                          IReflectionAttributeInfo[] attributes = null,
                                          IParameterInfo[] parameters = null,
@@ -177,6 +187,8 @@ public static class Mocks
         var typeInfo = Reflector.Wrap(typeUnderTest);
         var methodInfo = Reflector.Wrap(methodUnderTest);
         var factAttribute = methodInfo.GetCustomAttributes(typeof(FactAttribute)).SingleOrDefault();
+        if (factAttribute == null)
+            factAttribute = Mocks.FactAttribute();
 
         return new XunitTestCase(testCollection, assemblyInfo, typeInfo, methodInfo, factAttribute);
     }

@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Threading;
@@ -45,15 +43,8 @@ namespace TestUtility
             base.GetObjectData(info, context);
         }
 
-        protected override async Task RunTestsOnMethodAsync(IMessageBus messageBus,
-                                                            Type classUnderTest,
-                                                            object[] constructorArguments,
-                                                            MethodInfo methodUnderTest,
-                                                            List<BeforeAfterTestAttribute> beforeAfterAttributes,
-                                                            ExceptionAggregator aggregator,
-                                                            CancellationTokenSource cancellationTokenSource)
+        public override async Task<RunSummary> RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
-            var executionTime = 0M;
             var originalCulture = Thread.CurrentThread.CurrentCulture;
             var originalUICulture = Thread.CurrentThread.CurrentUICulture;
 
@@ -63,29 +54,7 @@ namespace TestUtility
                 Thread.CurrentThread.CurrentCulture = cultureInfo;
                 Thread.CurrentThread.CurrentUICulture = cultureInfo;
 
-                executionTime =
-                    await RunTestWithArgumentsAsync(messageBus,
-                                                    classUnderTest,
-                                                    constructorArguments,
-                                                    methodUnderTest,
-                                                    null,
-                                                    DisplayName,
-                                                    beforeAfterAttributes,
-                                                    aggregator,
-                                                    cancellationTokenSource);
-            }
-            catch (Exception ex)
-            {
-                if (!messageBus.QueueMessage(new Xunit.Sdk.TestStarting(this, DisplayName)))
-                    cancellationTokenSource.Cancel();
-                else
-                {
-                    if (!messageBus.QueueMessage(new Xunit.Sdk.TestFailed(this, DisplayName, executionTime, null, ex.Unwrap())))
-                        cancellationTokenSource.Cancel();
-                }
-
-                if (!messageBus.QueueMessage(new Xunit.Sdk.TestFinished(this, DisplayName, executionTime, null)))
-                    cancellationTokenSource.Cancel();
+                return await base.RunAsync(messageBus, constructorArguments, aggregator, cancellationTokenSource);
             }
             finally
             {

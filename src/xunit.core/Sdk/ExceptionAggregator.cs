@@ -79,6 +79,24 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Runs the code, catching the exception that is thrown and adding it to
+        /// the aggregate.
+        /// </summary>
+        /// <param name="code">The code to be run.</param>
+        public async Task<T> RunAsync<T>(Func<Task<T>> code)
+        {
+            try
+            {
+                return await code();
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex.Unwrap());
+                return default(T);
+            }
+        }
+
+        /// <summary>
         /// Returns an exception that represents the exceptions thrown by the code
         /// passed to the <see cref="Run"/> or <see cref="RunAsync"/> method.
         /// </summary>
