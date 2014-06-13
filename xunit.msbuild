@@ -9,6 +9,7 @@
   <!-- Settings -->
 
   <PropertyGroup>
+    <SolutionName Condition="'$(SolutionName)' == ''">xunit.sln</SolutionName>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <ParallelizeTests Condition="'$(ParallelizeTests)' == ''">true</ParallelizeTests>
     <MaxParallelThreads Condition="'$(MaxParallelThreads)' == ''">0</MaxParallelThreads>
@@ -54,7 +55,7 @@
       <CleanFolderList Include="xunit.console\bin\$(Configuration).x86"/>
     </ItemGroup>
     <MSBuild
-        Projects="xunit.sln"
+        Projects="$(SolutionName)"
         Targets="Clean"
         Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
     <Delete Files="@(CleanFileList)"/>
@@ -64,12 +65,12 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\xunit.sln&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\$(SolutionName)&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
     <MSBuild
-        Projects="xunit.sln"
+        Projects="$(SolutionName)"
         Targets="Build"
         Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
 
