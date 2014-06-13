@@ -61,6 +61,67 @@ public class CommandLineTests
         }
     }
 
+    public class AppVeyorOption
+    {
+        [Fact, AppVeyorEnvironmentRestore]
+        public static void AppVeyorOptionNotPassedAppVeyorFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.AppVeyor);
+        }
+
+        [Fact, AppVeyorEnvironmentRestore(Value = "AppVeyor")]
+        public static void AppVeyorOptionNotPassedEnvironmentSetAppVeyorTrue()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.AppVeyor);
+        }
+
+        [Fact, AppVeyorEnvironmentRestore]
+        public static void AppVeyorOptionAppVeyorTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-appveyor" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.AppVeyor);
+        }
+
+        [Fact, AppVeyorEnvironmentRestore]
+        public static void AppVeyorOptionIgnoreCaseAppVeyorTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-aPpVeyOr" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.AppVeyor);
+        }
+
+        class AppVeyorEnvironmentRestore : BeforeAfterTestAttribute
+        {
+            string originalValue;
+
+            public string Value { get; set; }
+
+            public override void Before(MethodInfo methodUnderTest)
+            {
+                originalValue = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
+                Environment.SetEnvironmentVariable("APPVEYOR_API_URL", Value);
+            }
+
+            public override void After(MethodInfo methodUnderTest)
+            {
+                Environment.SetEnvironmentVariable("APPVEYOR_API_URL", originalValue);
+            }
+        }
+    }
+
     public class MaxThreadsOption
     {
         [Fact]
