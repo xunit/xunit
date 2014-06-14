@@ -1,8 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-  <Import Project="xunit.execution.projitems" Label="Shared" Condition="Exists('xunit.execution.projitems')" />
-  <Import Project="..\xunit.execution\xunit.execution.projitems" Label="Shared" Condition="Exists('..\xunit.execution\xunit.execution.projitems')" />
-  <Import Project="..\messages\messages.projitems" Label="Shared" Condition="Exists('..\messages\messages.projitems')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory),xunit.sln))\tools\xunit.targets" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -76,6 +73,14 @@
     </Compile>
     <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs">
       <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\xunit.execution\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\messages\**\*.cs">
+      <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

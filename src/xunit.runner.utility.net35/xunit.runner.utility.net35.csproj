@@ -1,7 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\messages\messages.projitems" Label="Shared" Condition="Exists('..\messages\messages.projitems')" />
-  <Import Project="..\xunit.runner.utility\xunit.runner.utility.projitems" Label="Shared" Condition="Exists('..\xunit.runner.utility\xunit.runner.utility.projitems')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory),xunit.sln))\tools\xunit.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -98,7 +96,14 @@
     <Compile Include="Utility\DiaSessionWrapper.cs" />
     <Compile Include="Utility\DiaSessionWrapperHelper.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="..\xunit.runner.utility\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\messages\**\*.cs">
+      <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

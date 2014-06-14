@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DAED8494-AC8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D013AD79-A261-4476-93FC-9AF7E637CDB6}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "xunit.abstractions", "src\xunit.abstractions\xunit.abstractions.shproj", "{EF8381DB-7AA0-41B8-99C5-7A69F1A61F18}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.abstractions.net35", "src\xunit.abstractions.net35\xunit.abstractions.net35.csproj", "{53012549-D81B-4E40-B626-67C19265AA6F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.utility", "test\test.utility\test.utility.csproj", "{4FEC8604-E544-43C2-979C-F0815B5770E2}"
@@ -87,15 +85,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "v1", "v1", "{C86F3A8E-8D96-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "execution", "execution", "{72690AF2-D51A-4FD2-BD59-17FADACC29A1}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "xunit.execution", "src\xunit.execution\xunit.execution.shproj", "{CD3185A0-FB26-4923-8421-19A01DA67999}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.net45", "src\xunit.execution.net45\xunit.execution.net45.csproj", "{09EF9917-4B00-4646-8C3F-96EFACC8BF51}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runner.utility", "runner.utility", "{A36A630E-A604-47E6-894E-732946960182}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "messages", "src\messages\messages.shproj", "{4389D7AF-5F1F-416D-BF06-90F335D83BA9}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "xunit.runner.utility", "src\xunit.runner.utility\xunit.runner.utility.shproj", "{D746CD0D-17F7-4C3C-8A31-FBD322A5CE1D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.net35", "src\xunit.runner.utility.net35\xunit.runner.utility.net35.csproj", "{EFC3F529-3686-416B-9C67-36EC914C776A}"
 EndProject
@@ -107,32 +99,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.androi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.iOS", "src\xunit.runner.utility.iOS\xunit.runner.utility.iOS.csproj", "{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.pcltestlib", "test\test.xunit.pcltestlib\test.xunit.pcltestlib.csproj", "{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{09EF9917-4B00-4646-8C3F-96EFACC8BF51} = {09EF9917-4B00-4646-8C3F-96EFACC8BF51}
-	EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "execution", "execution", "{C50B1A3D-B2F9-468F-8280-526B0D712107}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runner.utility", "runner.utility", "{2B780476-EC2C-45FC-B04E-4CDF2EF93509}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\messages\messages.projitems*{4389d7af-5f1f-416d-bf06-90f335d83ba9}*SharedItemsImports = 13
-		src\xunit.execution\xunit.execution.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
-		src\messages\messages.projitems*{15af2955-4ead-45e5-a18d-9a12609efabb}*SharedItemsImports = 4
-		src\xunit.execution\xunit.execution.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
-		src\messages\messages.projitems*{34290da1-e5ca-4373-ba2d-1404d0c29bcd}*SharedItemsImports = 4
-		src\xunit.runner.utility\xunit.runner.utility.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
-		src\messages\messages.projitems*{9e5809d5-4cd3-4cb0-8abc-1b7d04176c55}*SharedItemsImports = 4
-		src\xunit.execution\xunit.execution.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
-		src\messages\messages.projitems*{09ef9917-4b00-4646-8c3f-96efacc8bf51}*SharedItemsImports = 4
-		src\xunit.abstractions\xunit.abstractions.projitems*{77743589-f177-4007-97b8-50b82a1c7044}*SharedItemsImports = 4
-		src\xunit.abstractions\xunit.abstractions.projitems*{53012549-d81b-4e40-b626-67c19265aa6f}*SharedItemsImports = 4
-		src\xunit.abstractions\xunit.abstractions.projitems*{ef8381db-7aa0-41b8-99c5-7a69f1a61f18}*SharedItemsImports = 13
-		src\xunit.runner.utility\xunit.runner.utility.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
-		src\messages\messages.projitems*{efc3f529-3686-416b-9c67-36ec914c776a}*SharedItemsImports = 4
-		src\xunit.runner.utility\xunit.runner.utility.projitems*{f4b09674-bed9-4aa9-a9ac-6f1683b2bbf9}*SharedItemsImports = 4
-		src\messages\messages.projitems*{f4b09674-bed9-4aa9-a9ac-6f1683b2bbf9}*SharedItemsImports = 4
-		src\xunit.execution\xunit.execution.projitems*{cd3185a0-fb26-4923-8421-19a01da67999}*SharedItemsImports = 13
-		src\xunit.runner.utility\xunit.runner.utility.projitems*{d746cd0d-17f7-4c3c-8a31-fbd322a5ce1d}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
 		Ad-Hoc|iPhone = Ad-Hoc|iPhone
@@ -728,40 +699,15 @@ Global
 		{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|Any CPU.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|Any CPU.Build.0 = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|iPhone.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Ad-Hoc|Mixed Platforms.Build.0 = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|Any CPU.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|Any CPU.Build.0 = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|iPhone.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.AppStore|Mixed Platforms.Build.0 = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{EF8381DB-7AA0-41B8-99C5-7A69F1A61F18} = {C987FBEE-4FE7-46CA-8175-9531F5DEBB29}
 		{53012549-D81B-4E40-B626-67C19265AA6F} = {C987FBEE-4FE7-46CA-8175-9531F5DEBB29}
-		{4FEC8604-E544-43C2-979C-F0815B5770E2} = {AE42309B-BFBE-4253-8AD6-BBFD676152ED}
-		{C32639C0-50EB-49AB-9681-C3334E5DEAE7} = {AE42309B-BFBE-4253-8AD6-BBFD676152ED}
-		{8CFA4522-D8B4-4BE9-A01A-A7F7124B5FCC} = {AE42309B-BFBE-4253-8AD6-BBFD676152ED}
+		{4FEC8604-E544-43C2-979C-F0815B5770E2} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
+		{C32639C0-50EB-49AB-9681-C3334E5DEAE7} = {C50B1A3D-B2F9-468F-8280-526B0D712107}
+		{8CFA4522-D8B4-4BE9-A01A-A7F7124B5FCC} = {2B780476-EC2C-45FC-B04E-4CDF2EF93509}
 		{C9B3978D-DA2C-4F3B-8FC5-1E024EF2F6E8} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{5DE631D1-860E-40CB-89D4-75D0F7F7D941} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
 		{785D4014-E42E-4E08-922F-3DE40DC7D9A0} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
@@ -784,17 +730,15 @@ Global
 		{A727699B-E50A-4F83-8627-8BE64237582C} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
 		{AE42309B-BFBE-4253-8AD6-BBFD676152ED} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{C86F3A8E-8D96-4B0C-AA02-0293F278F1B3} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
-		{72690AF2-D51A-4FD2-BD59-17FADACC29A1} = {A727699B-E50A-4F83-8627-8BE64237582C}
-		{CD3185A0-FB26-4923-8421-19A01DA67999} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
+		{72690AF2-D51A-4FD2-BD59-17FADACC29A1} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
 		{09EF9917-4B00-4646-8C3F-96EFACC8BF51} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
-		{A36A630E-A604-47E6-894E-732946960182} = {A727699B-E50A-4F83-8627-8BE64237582C}
-		{4389D7AF-5F1F-416D-BF06-90F335D83BA9} = {A727699B-E50A-4F83-8627-8BE64237582C}
-		{D746CD0D-17F7-4C3C-8A31-FBD322A5CE1D} = {A36A630E-A604-47E6-894E-732946960182}
+		{A36A630E-A604-47E6-894E-732946960182} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
 		{EFC3F529-3686-416B-9C67-36EC914C776A} = {A36A630E-A604-47E6-894E-732946960182}
 		{15AF2955-4EAD-45E5-A18D-9A12609EFABB} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 		{34290DA1-E5CA-4373-BA2D-1404D0C29BCD} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 		{9E5809D5-4CD3-4CB0-8ABC-1B7D04176C55} = {A36A630E-A604-47E6-894E-732946960182}
 		{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9} = {A36A630E-A604-47E6-894E-732946960182}
-		{B7C9BEBB-26C2-483B-9BE8-80A8EE523EB8} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
+		{C50B1A3D-B2F9-468F-8280-526B0D712107} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
+		{2B780476-EC2C-45FC-B04E-4CDF2EF93509} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 	EndGlobalSection
 EndGlobal

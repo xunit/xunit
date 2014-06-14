@@ -261,30 +261,23 @@ public class XunitTestCaseTests
     public class UniqueID
     {
         [Fact]
-        public static void UniqueIDIsStable_NoArguments()
+        public static void UniqueID_NoArguments()
         {
             var value = Create(typeof(ClassUnderTest), "TestMethod").UniqueID;
 
-            for (int x = 0; x < 5; x++)
-                Assert.Equal(value, Create(typeof(ClassUnderTest), "TestMethod").UniqueID);
+            Assert.NotEmpty(value);
         }
 
         [Fact]
-        public static void UniqueIDIsStable_WithArguments()
+        public static void UniqueID_Arguments()
         {
             var value42 = Create(typeof(ClassUnderTest), "TestMethod", 42).UniqueID;
             var valueHelloWorld = Create(typeof(ClassUnderTest), "TestMethod", "Hello, world!").UniqueID;
             var valueNull = Create(typeof(ClassUnderTest), "TestMethod", (string)null).UniqueID;
 
+            Assert.NotEmpty(value42);
             Assert.NotEqual(value42, valueHelloWorld);
             Assert.NotEqual(value42, valueNull);
-
-            for (int x = 0; x < 5; x++)
-            {
-                Assert.Equal(value42, Create(typeof(ClassUnderTest), "TestMethod", 42).UniqueID);
-                Assert.Equal(valueHelloWorld, Create(typeof(ClassUnderTest), "TestMethod", "Hello, world!").UniqueID);
-                Assert.Equal(valueNull, Create(typeof(ClassUnderTest), "TestMethod", (string)null).UniqueID);
-            }
         }
 
         class ClassUnderTest
