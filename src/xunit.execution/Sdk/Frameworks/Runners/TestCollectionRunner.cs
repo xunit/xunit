@@ -38,7 +38,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets or sets the exception aggregator used to run code and collection exceptions.
+        /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
         protected ExceptionAggregator Aggregator { get; set; }
 

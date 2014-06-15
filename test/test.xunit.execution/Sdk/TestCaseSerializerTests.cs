@@ -1,9 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using NSubstitute;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 public class TestCaseSerializerTests

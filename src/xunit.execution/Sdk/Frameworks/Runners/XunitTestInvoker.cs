@@ -24,7 +24,7 @@ namespace Xunit.Sdk
         /// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
         /// <param name="beforeAfterAttributes">The list of <see cref="BeforeAfterTestAttribute"/>s for this test invocation.</param>
         /// <param name="displayName">The display name for this test invocation.</param>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public XunitTestInvoker(XunitTestCase testCase,
                                 IMessageBus messageBus,

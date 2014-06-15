@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Xunit.Abstractions
+﻿namespace Xunit.Abstractions
 {
     /// <summary>
     /// Represents options given to an implementation of <see cref="ITestFrameworkDiscoverer"/>.Find

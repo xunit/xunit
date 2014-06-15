@@ -14,7 +14,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testCase">The test case that the lambda represents.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public LambdaTestCaseRunner(LambdaTestCase testCase,
                                     IMessageBus messageBus,

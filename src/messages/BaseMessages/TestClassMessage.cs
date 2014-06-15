@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
 namespace Xunit.Sdk

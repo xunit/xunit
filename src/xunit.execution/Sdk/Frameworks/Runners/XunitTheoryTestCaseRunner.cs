@@ -23,7 +23,7 @@ namespace Xunit.Sdk
         /// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
         /// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public XunitTheoryTestCaseRunner(XunitTestCase testCase,
                                          string displayName,

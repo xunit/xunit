@@ -26,7 +26,7 @@ namespace Xunit.Sdk
         /// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
         /// <param name="displayName">The display name for this test invocation.</param>
         /// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public TestRunner(TTestCase testCase,
                           IMessageBus messageBus,
@@ -52,7 +52,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets or sets the exception aggregator used to run code and collection exceptions.
+        /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
         protected ExceptionAggregator Aggregator { get; set; }
 
@@ -181,7 +181,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Override this method to invoke the test method.
         /// </summary>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
         protected abstract Task<decimal> InvokeTestAsync(ExceptionAggregator aggregator);
     }

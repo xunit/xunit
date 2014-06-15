@@ -24,7 +24,7 @@ namespace Xunit.Sdk
         /// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
         /// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public XunitTestCaseRunner(XunitTestCase testCase,
                                    string displayName,

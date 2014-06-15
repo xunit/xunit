@@ -65,7 +65,7 @@ public class TestCaseRunnerTests
         Assert.True(runner.OnTestCaseFinishing_Called);
         Assert.True(runner.OnTestCaseFinished_Called);
     }
-    
+
     [Theory]
     [InlineData(typeof(ITestCaseStarting))]
     [InlineData(typeof(ITestCaseFinished))]

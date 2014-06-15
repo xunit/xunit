@@ -27,7 +27,7 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method that will be invoked.</param>
         /// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
         /// <param name="displayName">The display name for this test invocation.</param>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public TestInvoker(TTestCase testCase,
                            IMessageBus messageBus,
@@ -53,7 +53,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets or sets the exception aggregator used to run code and collection exceptions.
+        /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
         protected ExceptionAggregator Aggregator { get; set; }
 

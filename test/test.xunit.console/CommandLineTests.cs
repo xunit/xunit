@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 using Xunit.ConsoleClient;
 using Xunit.Sdk;
-using System.Reflection;
 
 public class CommandLineTests
 {

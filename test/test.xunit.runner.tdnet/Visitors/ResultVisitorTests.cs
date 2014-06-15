@@ -1,10 +1,9 @@
 ﻿using System;
+using NSubstitute;
 using TestDriven.Framework;
 using Xunit;
-using Xunit.Sdk;
 using Xunit.Abstractions;
 using Xunit.Runner.TdNet;
-using NSubstitute;
 
 public class ResultVisitorTests
 {

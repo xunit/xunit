@@ -24,7 +24,7 @@ namespace Xunit.Sdk
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         /// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
         public XunitTestClassRunner(ITestCollection testCollection,

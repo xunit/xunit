@@ -25,7 +25,7 @@ namespace Xunit.Sdk
         /// <param name="displayName">The display name for this test invocation.</param>
         /// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
         /// <param name="beforeAfterAttributes">The list of <see cref="BeforeAfterTestAttribute"/>s for this test.</param>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public XunitTestRunner(XunitTestCase testCase,
                                IMessageBus messageBus,

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Xunit.Sdk
+﻿namespace Xunit.Sdk
 {
     /// <summary>
     /// Messages reported during test discovery that indicate that there is an issue with the

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -47,7 +45,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
-            Type attributeType = Type.GetType(assemblyQualifiedAttributeTypeName);
+            var attributeType = Type.GetType(assemblyQualifiedAttributeTypeName);
             Guard.ArgumentValid("assemblyQualifiedAttributeTypeName", "Could not locate type name", attributeType != null);
 
             return CustomAttributeData.GetCustomAttributes(Assembly)
@@ -61,14 +59,14 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITypeInfo GetType(string typeName)
         {
-            Type type = Assembly.GetType(typeName);
+            var type = Assembly.GetType(typeName);
             return type == null ? null : Reflector.Wrap(type);
         }
 
         /// <inheritdoc/>
         public IEnumerable<ITypeInfo> GetTypes(bool includePrivateTypes)
         {
-            Func<Type[]> selector = includePrivateTypes ? (Func<Type[]>)Assembly.GetTypes : Assembly.GetExportedTypes;
+            var selector = includePrivateTypes ? (Func<Type[]>)Assembly.GetTypes : Assembly.GetExportedTypes;
 
             try
             {
