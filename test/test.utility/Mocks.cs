@@ -8,12 +8,26 @@ using Xunit.Sdk;
 
 public static class Mocks
 {
-    public static IAssemblyInfo AssemblyInfo(ITypeInfo[] types = null, IAttributeInfo[] attributes = null)
+    public static IAssemblyInfo AssemblyInfo(ITypeInfo[] types = null, IReflectionAttributeInfo[] attributes = null)
     {
+        attributes = attributes ?? new IReflectionAttributeInfo[0];
+
         var result = Substitute.For<IAssemblyInfo>();
         result.GetType("").ReturnsForAnyArgs(types == null ? null : types.FirstOrDefault());
         result.GetTypes(true).ReturnsForAnyArgs(types ?? new ITypeInfo[0]);
-        result.GetCustomAttributes("").ReturnsForAnyArgs(attributes ?? new IAttributeInfo[0]);
+
+        result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo =>
+        {
+            var attributeType = GetType((string)callInfo[0]);
+            var attributeResults = new List<IAttributeInfo>();
+
+            foreach (var attribute in attributes)
+                if (attributeType.IsAssignableFrom(attribute.Attribute.GetType()))
+                    attributeResults.Add(attribute);
+
+            return attributeResults;
+        });
+
         return result;
     }
 
@@ -25,12 +39,43 @@ public static class Mocks
         return result;
     }
 
-    public static IReflectionAttributeInfo CollectionBehaviorAttribute(CollectionBehavior collectionBehavior, bool disableTestParallelization = false)
+    public static IReflectionAttributeInfo CollectionBehaviorAttribute(CollectionBehavior? collectionBehavior = null, bool disableTestParallelization = false, int maxParallelThreads = 0)
     {
+        CollectionBehaviorAttribute attribute;
         var result = Substitute.For<IReflectionAttributeInfo>();
-        result.Attribute.Returns(new CollectionBehaviorAttribute(collectionBehavior) { DisableTestParallelization = disableTestParallelization });
-        result.GetConstructorArguments().Returns(new object[] { collectionBehavior });
+
+        if (collectionBehavior.HasValue)
+        {
+            attribute = new CollectionBehaviorAttribute(collectionBehavior.GetValueOrDefault());
+            result.GetConstructorArguments().Returns(new object[] { collectionBehavior });
+        }
+        else
+        {
+            attribute = new CollectionBehaviorAttribute();
+            result.GetConstructorArguments().Returns(new object[0]);
+        }
+
+        attribute.DisableTestParallelization = disableTestParallelization;
+        attribute.MaxParallelThreads = maxParallelThreads;
+
+        result.Attribute.Returns(attribute);
         result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization);
+        result.GetNamedArgument<int>("MaxParallelThreads").Returns(maxParallelThreads);
+        return result;
+    }
+
+    public static IReflectionAttributeInfo CollectionBehaviorAttribute(string factoryTypeName, string factoryAssemblyName, bool disableTestParallelization = false, int maxParallelThreads = 0)
+    {
+        var attribute = new CollectionBehaviorAttribute(factoryTypeName, factoryAssemblyName)
+        {
+            DisableTestParallelization = disableTestParallelization,
+            MaxParallelThreads = maxParallelThreads
+        };
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        result.Attribute.Returns(attribute);
+        result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization);
+        result.GetNamedArgument<int>("MaxParallelThreads").Returns(maxParallelThreads);
+        result.GetConstructorArguments().Returns(new object[] { factoryTypeName, factoryAssemblyName });
         return result;
     }
 
@@ -39,14 +84,6 @@ public static class Mocks
         var result = Substitute.For<IReflectionAttributeInfo>();
         result.Attribute.Returns(new CollectionDefinitionAttribute(collectionName));
         result.GetConstructorArguments().Returns(new[] { collectionName });
-        return result;
-    }
-
-    public static IReflectionAttributeInfo CollectionBehaviorAttribute(string factoryTypeName, string factoryAssemblyName)
-    {
-        var result = Substitute.For<IReflectionAttributeInfo>();
-        result.Attribute.Returns(new CollectionBehaviorAttribute(factoryTypeName, factoryAssemblyName));
-        result.GetConstructorArguments().Returns(new object[] { factoryTypeName, factoryAssemblyName });
         return result;
     }
 
@@ -114,6 +151,13 @@ public static class Mocks
         return result;
     }
 
+    public static ITestCase TestCase(ITestCollection collection)
+    {
+        var result = Substitute.For<ITestCase>();
+        result.TestCollection.Returns(collection);
+        return result;
+    }
+
     public static ITestCase TestCase<TClassUnderTest>(string methodName)
     {
         var typeUnderTest = typeof(TClassUnderTest);
@@ -126,6 +170,13 @@ public static class Mocks
         result.Class.Returns(Reflector.Wrap(typeUnderTest));
         result.Method.Returns(methodInfoWrapper);
         result.Traits.Returns(GetTraits(methodInfoWrapper));
+        return result;
+    }
+
+    public static ITestCollection TestCollection(Guid? id = null)
+    {
+        var result = Substitute.For<ITestCollection>();
+        result.ID.Returns(id ?? Guid.NewGuid());
         return result;
     }
 

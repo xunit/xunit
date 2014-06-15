@@ -87,6 +87,7 @@
     </Compile>
     <Compile Include="Sdk\ArgumentFormatterTests.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />
+    <Compile Include="Sdk\ExtensibilityPointFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\Runners\LambdaTestCaseRunnerTests.cs" />
