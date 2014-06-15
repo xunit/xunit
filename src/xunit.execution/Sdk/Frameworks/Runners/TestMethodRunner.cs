@@ -113,7 +113,7 @@ namespace Xunit.Sdk
             {
                 OnTestMethodFinishing();
 
-                if (!MessageBus.QueueMessage(new TestMethodFinished(TestCollection, TestClass.Name, TestMethod.Name)))
+                if (!MessageBus.QueueMessage(new TestMethodFinished(TestCollection, TestClass.Name, TestMethod.Name, methodSummary.Time, methodSummary.Total, methodSummary.Failed, methodSummary.Skipped)))
                     CancellationTokenSource.Cancel();
 
                 OnTestMethodFinished();

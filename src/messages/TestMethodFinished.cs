@@ -9,22 +9,30 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestMethodFinished"/>.
     /// </summary>
-    public class TestMethodFinished : TestCollectionMessage, ITestMethodFinished
+    public class TestMethodFinished : TestMethodMessage, ITestMethodFinished
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodFinished"/> class.
         /// </summary>
-        public TestMethodFinished(ITestCollection testCollection, string className, string methodName)
-            : base(testCollection)
+        public TestMethodFinished(ITestCollection testCollection, string className, string methodName, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
+            : base(testCollection, className, methodName)
         {
-            ClassName = className;
-            MethodName = methodName;
+            ExecutionTime = executionTime;
+            TestsRun = testsRun;
+            TestsFailed = testsFailed;
+            TestsSkipped = testsSkipped;
         }
 
         /// <inheritdoc/>
-        public string ClassName { get; private set; }
+        public decimal ExecutionTime { get; private set; }
 
         /// <inheritdoc/>
-        public string MethodName { get; private set; }
+        public int TestsFailed { get; private set; }
+
+        /// <inheritdoc/>
+        public int TestsRun { get; private set; }
+
+        /// <inheritdoc/>
+        public int TestsSkipped { get; private set; }
     }
 }
