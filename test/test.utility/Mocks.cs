@@ -15,19 +15,7 @@ public static class Mocks
         var result = Substitute.For<IAssemblyInfo>();
         result.GetType("").ReturnsForAnyArgs(types == null ? null : types.FirstOrDefault());
         result.GetTypes(true).ReturnsForAnyArgs(types ?? new ITypeInfo[0]);
-
-        result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo =>
-        {
-            var attributeType = GetType((string)callInfo[0]);
-            var attributeResults = new List<IAttributeInfo>();
-
-            foreach (var attribute in attributes)
-                if (attributeType.IsAssignableFrom(attribute.Attribute.GetType()))
-                    attributeResults.Add(attribute);
-
-            return attributeResults;
-        });
-
+        result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
         return result;
     }
 
@@ -106,6 +94,15 @@ public static class Mocks
         return new LambdaTestCase(testCollection, typeInfo.Assembly, typeInfo, methodInfo, factAttribute, lambda);
     }
 
+    static IEnumerable<IAttributeInfo> LookupAttribute(string fullyQualifiedTypeName, IReflectionAttributeInfo[] attributes)
+    {
+        if (attributes == null)
+            return Enumerable.Empty<IAttributeInfo>();
+
+        var attributeType = GetType(fullyQualifiedTypeName);
+        return attributes.Where(attribute => attributeType.IsAssignableFrom(attribute.Attribute.GetType())).ToList();
+    }
+
     public static IMethodInfo MethodInfo(string methodName = "MockMethod",
                                          IReflectionAttributeInfo[] attributes = null,
                                          IParameterInfo[] parameters = null,
@@ -126,19 +123,7 @@ public static class Mocks
         result.Name.Returns(methodName);
         result.ReturnType.Returns(returnType);
         result.Type.Returns(type);
-
-        result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo =>
-        {
-            var attributeType = GetType((string)callInfo[0]);
-            var attributeResults = new List<IAttributeInfo>();
-
-            foreach (var attribute in attributes)
-                if (attributeType.IsAssignableFrom(attribute.Attribute.GetType()))
-                    attributeResults.Add(attribute);
-
-            return attributeResults;
-        });
-
+        result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
         result.GetParameters().Returns(parameters);
 
         return result;
@@ -173,10 +158,11 @@ public static class Mocks
         return result;
     }
 
-    public static ITestCollection TestCollection(Guid? id = null)
+    public static ITestCollection TestCollection(Guid? id = null, ITypeInfo definition = null)
     {
         var result = Substitute.For<ITestCollection>();
         result.ID.Returns(id ?? Guid.NewGuid());
+        result.CollectionDefinition.Returns(definition);
         return result;
     }
 
@@ -217,23 +203,22 @@ public static class Mocks
         return result;
     }
 
-    public static ITypeInfo TypeInfo(string typeName = "MockType", IMethodInfo[] methods = null, IAttributeInfo[] attributes = null)
+    public static ITypeInfo TypeInfo(string typeName = "MockType", IMethodInfo[] methods = null, IReflectionAttributeInfo[] attributes = null)
     {
         var result = Substitute.For<ITypeInfo>();
         result.Name.Returns(typeName);
         result.GetMethods(false).ReturnsForAnyArgs(methods ?? new IMethodInfo[0]);
-        result.GetCustomAttributes("").ReturnsForAnyArgs(attributes ?? new IAttributeInfo[0]);
+        result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
         return result;
     }
 
-    public static XunitTestCase XunitTestCase<TClassUnderTest>(string methodName)
+    public static XunitTestCase XunitTestCase<TClassUnderTest>(string methodName, ITestCollection testCollection = null)
     {
         var typeUnderTest = typeof(TClassUnderTest);
         var methodUnderTest = typeUnderTest.GetMethod(methodName);
         if (methodUnderTest == null)
             throw new Exception(String.Format("Unknown method: {0}.{1}", typeUnderTest.FullName, methodName));
 
-        var testCollection = new XunitTestCollection();
         var assemblyInfo = Reflector.Wrap(typeUnderTest.Assembly);
         var typeInfo = Reflector.Wrap(typeUnderTest);
         var methodInfo = Reflector.Wrap(methodUnderTest);
@@ -241,7 +226,7 @@ public static class Mocks
         if (factAttribute == null)
             factAttribute = Mocks.FactAttribute();
 
-        return new XunitTestCase(testCollection, assemblyInfo, typeInfo, methodInfo, factAttribute);
+        return new XunitTestCase(testCollection ?? TestCollection(), assemblyInfo, typeInfo, methodInfo, factAttribute);
     }
 
     private static Dictionary<string, List<string>> GetTraits(IMethodInfo method)

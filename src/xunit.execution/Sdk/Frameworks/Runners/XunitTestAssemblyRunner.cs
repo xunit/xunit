@@ -14,6 +14,7 @@ namespace Xunit.Sdk
     {
         IAttributeInfo collectionBehaviorAttribute;
         bool disableParallelization;
+        bool initialized;
         int maxParallelThreads;
         TaskScheduler scheduler;
 
@@ -47,6 +48,8 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override string GetTestFrameworkEnvironment()
         {
+            Initialize();
+
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, AssemblyInfo);
 
             return String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
@@ -54,7 +57,7 @@ namespace Xunit.Sdk
                                  Environment.Version,
                                  testCollectionFactory.DisplayName,
                                  disableParallelization ? "non-parallel" : "parallel",
-                                 maxParallelThreads > 0 ? String.Format(" (max {0} threads)", maxParallelThreads) : "");
+                                 maxParallelThreads > 0 ? String.Format(" ({0} threads)", maxParallelThreads) : "");
         }
 
         /// <summary>
@@ -74,9 +77,11 @@ namespace Xunit.Sdk
             return TaskScheduler.Current;
         }
 
-        /// <inheritdoc/>
-        protected override void OnAssemblyStarting()
+        void Initialize()
         {
+            if (initialized)
+                return;
+
             collectionBehaviorAttribute = AssemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
             if (collectionBehaviorAttribute != null)
             {
@@ -94,6 +99,14 @@ namespace Xunit.Sdk
             var ordererAttribute = AssemblyInfo.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (ordererAttribute != null)
                 TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
+
+            initialized = true;
+        }
+
+        /// <inheritdoc/>
+        protected override void OnAssemblyStarting()
+        {
+            Initialize();
         }
 
         /// <inheritdoc/>

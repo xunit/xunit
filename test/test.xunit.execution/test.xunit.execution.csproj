@@ -70,6 +70,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\common\AssemblyExtensions.cs">
+      <Link>Common\AssemblyExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
@@ -91,10 +94,17 @@
     <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\Runners\LambdaTestCaseRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestAssemblyRunnerTests.cs" />
     <Compile Include="Sdk\Frameworks\Runners\TestCaseRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestClassRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestCollectionRunnerTests.cs" />
     <Compile Include="Sdk\Frameworks\Runners\TestInvokerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestMethodRunnerTests.cs" />
     <Compile Include="Sdk\Frameworks\Runners\TestRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestAssemblyRunnerTests.cs" />
     <Compile Include="Sdk\Frameworks\Runners\XunitTestCaseRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestClassRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestCollectionRunnerTests.cs" />
     <Compile Include="Sdk\Frameworks\Runners\XunitTestInvokerTests.cs" />
     <Compile Include="Sdk\Frameworks\Runners\XunitTheoryTestCaseRunnerTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />

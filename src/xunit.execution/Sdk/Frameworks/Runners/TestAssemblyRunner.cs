@@ -147,12 +147,12 @@ namespace Xunit.Sdk
                         totalSummary = await RunTestCollectionsAsync(messageBus, cancellationTokenSource);
                         // Want clock time, not aggregated run time
                         totalSummary.Time = (decimal)masterStopwatch.Elapsed.TotalSeconds;
+
+                        OnAssemblyFinishing();
                     }
                 }
                 finally
                 {
-                    OnAssemblyFinishing();
-
                     messageBus.QueueMessage(new TestAssemblyFinished(AssemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
                     Directory.SetCurrentDirectory(currentDirectory);
 

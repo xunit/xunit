@@ -95,26 +95,35 @@ namespace Xunit.Sdk
                 var ctor = SelectTestClassConstructor();
                 if (ctor != null)
                 {
-                    var unusedArguments = new List<string>();
+                    var unusedArguments = new List<Tuple<int, ParameterInfo>>();
                     var parameters = ctor.GetParameters();
 
                     for (int idx = 0; idx < parameters.Length; ++idx)
                     {
                         var parameter = parameters[idx];
-                        object fixture;
+                        object argumentValue;
 
-                        if (TryGetConstructorArgument(ctor, idx, parameter, out fixture))
-                            constructorArguments.Add(fixture);
+                        if (TryGetConstructorArgument(ctor, idx, parameter, out argumentValue))
+                            constructorArguments.Add(argumentValue);
                         else
-                            unusedArguments.Add(String.Format("{0} {1}", parameter.ParameterType.Name, parameter.Name));
+                            unusedArguments.Add(Tuple.Create(idx, parameter));
                     }
 
                     if (unusedArguments.Count > 0)
-                        Aggregator.Add(new TestClassException("The following constructor arguments did not have matching fixture data: " + String.Join(", ", unusedArguments)));
+                        Aggregator.Add(new TestClassException(FormatConstructorArgsMissingMessage(ctor, unusedArguments)));
                 }
             }
 
             return constructorArguments.ToArray();
+        }
+
+        /// <summary>
+        /// Gets the message to be used when the constructor is missing arguments.
+        /// </summary>
+        protected virtual string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
+        {
+            var argText = String.Join(", ", unusedArguments.Select(arg => String.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
+            return String.Format("The following constructor parameters did not have matching arguments: {0}", argText);
         }
 
         /// <summary>
@@ -154,15 +163,12 @@ namespace Xunit.Sdk
                 else
                 {
                     OnTestClassStarted();
-
-                    // TODO: Introduce TestClassFailed here, only calling RunTestMethodsAsync if things are still okay (also harden OnXxx implementations)
                     classSummary = await RunTestMethodsAsync();
+                    OnTestClassFinishing();
                 }
             }
             finally
             {
-                OnTestClassFinishing();
-
                 if (!MessageBus.QueueMessage(new TestClassFinished(TestCollection, TestClass.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
                     CancellationTokenSource.Cancel();
 
@@ -182,7 +188,7 @@ namespace Xunit.Sdk
             var orderedTestCases = TestCaseOrderer.OrderTestCases(TestCases);
             var constructorArguments = CreateTestClassConstructorArguments();
 
-            foreach (var method in orderedTestCases.GroupBy(tc => tc.Method, MethodInfoNameEqualityComparer.Instance))
+            foreach (var method in orderedTestCases.GroupBy(tc => tc.Method, TestMethodComparer.Instance))
             {
                 summary.Aggregate(await RunTestMethodAsync((IReflectionMethodInfo)method.Key, method, constructorArguments));
                 if (CancellationTokenSource.IsCancellationRequested)
@@ -228,21 +234,6 @@ namespace Xunit.Sdk
         {
             argumentValue = null;
             return false;
-        }
-
-        private class MethodInfoNameEqualityComparer : IEqualityComparer<IMethodInfo>
-        {
-            public static readonly MethodInfoNameEqualityComparer Instance = new MethodInfoNameEqualityComparer();
-
-            public bool Equals(IMethodInfo x, IMethodInfo y)
-            {
-                return x.Name == y.Name;
-            }
-
-            public int GetHashCode(IMethodInfo obj)
-            {
-                return obj.Name.GetHashCode();
-            }
         }
     }
 }

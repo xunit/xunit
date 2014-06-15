@@ -10,7 +10,6 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestMethodRunner : TestMethodRunner<IXunitTestCase>
     {
-        private readonly ExceptionAggregator aggregator;
         private readonly object[] constructorArguments;
 
         /// <summary>
@@ -29,19 +28,18 @@ namespace Xunit.Sdk
                                      IReflectionMethodInfo testMethod,
                                      IEnumerable<IXunitTestCase> testCases,
                                      IMessageBus messageBus,
-                                     CancellationTokenSource cancellationTokenSource,
                                      ExceptionAggregator aggregator,
+                                     CancellationTokenSource cancellationTokenSource,
                                      object[] constructorArguments)
-            : base(testCollection, testClass, testMethod, testCases, messageBus, cancellationTokenSource)
+            : base(testCollection, testClass, testMethod, testCases, messageBus, aggregator, cancellationTokenSource)
         {
             this.constructorArguments = constructorArguments;
-            this.aggregator = aggregator;
         }
 
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestCaseAsync(IXunitTestCase testCase)
         {
-            return testCase.RunAsync(MessageBus, constructorArguments, aggregator, CancellationTokenSource);
+            return testCase.RunAsync(MessageBus, constructorArguments, Aggregator, CancellationTokenSource);
         }
     }
 }

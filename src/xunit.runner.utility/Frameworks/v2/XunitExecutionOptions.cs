@@ -6,7 +6,7 @@
     public class XunitExecutionOptions : TestFrameworkOptions
     {
         /// <summary>
-        /// Gets or sets a flag that determines whether xunit should report test results synchronously.
+        /// Gets or sets a flag that determines whether xUnit.net should report test results synchronously.
         /// </summary>
         public bool SynchronousMessageReporting
         {

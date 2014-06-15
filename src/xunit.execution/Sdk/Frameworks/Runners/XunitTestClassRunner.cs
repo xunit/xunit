@@ -14,7 +14,6 @@ namespace Xunit.Sdk
     public class XunitTestClassRunner : TestClassRunner<IXunitTestCase>
     {
         readonly IDictionary<Type, object> collectionFixtureMappings;
-        readonly IDictionary<Type, object> fixtureMappings = new Dictionary<Type, object>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
@@ -38,12 +37,26 @@ namespace Xunit.Sdk
             : base(testCollection, testClass, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
             this.collectionFixtureMappings = collectionFixtureMappings;
+
+            ClassFixtureMappings = new Dictionary<Type, object>();
         }
+
+        /// <summary>
+        /// Gets the fixture mappings that were created during <see cref="OnTestClassStarting"/>.
+        /// </summary>
+        protected Dictionary<Type, object> ClassFixtureMappings { get; private set; }
 
         void CreateFixture(Type fixtureGenericInterfaceType)
         {
             var fixtureType = fixtureGenericInterfaceType.GetGenericArguments().Single();
-            Aggregator.Run(() => fixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
+            Aggregator.Run(() => ClassFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
+        }
+
+        /// <inheritdoc/>
+        protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
+        {
+            var argText = String.Join(", ", unusedArguments.Select(arg => String.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
+            return String.Format("The following constructor parameters did not have matching fixture data: {0}", argText);
         }
 
         /// <inheritdoc/>
@@ -70,7 +83,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override void OnTestClassFinishing()
         {
-            foreach (var fixture in fixtureMappings.Values.OfType<IDisposable>())
+            foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
             {
                 try
                 {
@@ -87,8 +100,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestMethodAsync(IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
         {
-            var testMethodRunner = new XunitTestMethodRunner(TestCollection, TestClass, method, testCases, MessageBus, CancellationTokenSource, Aggregator, constructorArguments);
-            return testMethodRunner.RunAsync();
+            return new XunitTestMethodRunner(TestCollection, TestClass, method, testCases, MessageBus, Aggregator, CancellationTokenSource, constructorArguments).RunAsync();
         }
 
         /// <inheritdoc/>
@@ -105,7 +117,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, out object argumentValue)
         {
-            return fixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
+            return ClassFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
                 || collectionFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue);
         }
     }

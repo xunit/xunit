@@ -104,15 +104,12 @@ namespace Xunit.Sdk
                 else
                 {
                     OnTestCollectionStarted();
-
-                    // TODO: Introduce TestCollectionFailed here, only calling RunTestClassesAsync if things are still okay (also harden OnXxx implementations)
                     collectionSummary = await RunTestClassesAsync();
+                    OnTestCollectionFinishing();
                 }
             }
             finally
             {
-                OnTestCollectionFinishing();
-
                 if (!MessageBus.QueueMessage(new TestCollectionFinished(TestCollection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped)))
                     CancellationTokenSource.Cancel();
 
@@ -130,7 +127,7 @@ namespace Xunit.Sdk
         {
             var summary = new RunSummary();
 
-            foreach (var testCasesByClass in TestCases.GroupBy(tc => tc.Class))
+            foreach (var testCasesByClass in TestCases.GroupBy(tc => tc.Class, TestClassComparer.Instance))
             {
                 summary.Aggregate(await RunTestClassAsync((IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass));
                 if (CancellationTokenSource.IsCancellationRequested)

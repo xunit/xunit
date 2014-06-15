@@ -21,12 +21,14 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public TestMethodRunner(ITestCollection testCollection,
                                 IReflectionTypeInfo testClass,
                                 IReflectionMethodInfo testMethod,
                                 IEnumerable<TTestCase> testCases,
                                 IMessageBus messageBus,
+                                ExceptionAggregator aggregator,
                                 CancellationTokenSource cancellationTokenSource)
         {
             MessageBus = messageBus;
@@ -34,8 +36,14 @@ namespace Xunit.Sdk
             TestClass = testClass;
             TestMethod = testMethod;
             TestCases = testCases;
+            Aggregator = aggregator;
             CancellationTokenSource = cancellationTokenSource;
         }
+
+        /// <summary>
+        /// Gets or sets the exception aggregator used to run code and collect exceptions.
+        /// </summary>
+        protected ExceptionAggregator Aggregator { get; set; }
 
         /// <summary>
         /// Gets or sets the task cancellation token source, used to cancel the test run.
@@ -103,16 +111,13 @@ namespace Xunit.Sdk
                     CancellationTokenSource.Cancel();
                 else
                 {
-                    // TODO: Introduce TestMethodFailed here, only calling RunTestMethodsAsync if things are still okay (also harden OnXxx implementations)
                     OnTestMethodStarted();
-
                     methodSummary = await RunTestCasesAsync();
+                    OnTestMethodFinishing();
                 }
             }
             finally
             {
-                OnTestMethodFinishing();
-
                 if (!MessageBus.QueueMessage(new TestMethodFinished(TestCollection, TestClass.Name, TestMethod.Name, methodSummary.Time, methodSummary.Total, methodSummary.Failed, methodSummary.Skipped)))
                     CancellationTokenSource.Cancel();
 

@@ -106,7 +106,7 @@ namespace Xunit.Sdk
         {
             object testClass = null;
 
-            if (!TestMethod.IsStatic)
+            if (!TestMethod.IsStatic && !Aggregator.HasExceptions)
             {
                 if (!MessageBus.QueueMessage(new TestClassConstructionStarting(TestCase, DisplayName)))
                     CancellationTokenSource.Cancel();
