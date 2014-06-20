@@ -54,8 +54,11 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             if (addTraitThunk != null)
                 foreach (var key in xunitTestCase.Traits.Keys)
+                {
+                    KnownTraitNames.Add(key);
                     foreach (var value in xunitTestCase.Traits[key])
                         addTraitThunk(result, key, value);
+                }
 
             result.CodeFilePath = xunitTestCase.SourceInformation.FileName;
             result.LineNumber = xunitTestCase.SourceInformation.LineNumber.GetValueOrDefault();
@@ -135,5 +138,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         }
 
         public static string fqTestMethodName { get; set; }
+        public static readonly HashSet<string> KnownTraitNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     }
 }

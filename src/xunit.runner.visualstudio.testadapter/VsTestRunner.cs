@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -148,18 +149,20 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                 framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
                                 sink.Finished.WaitOne();
 
-                                var filter = runContext.GetTestCaseFilter(TestCasePropertyProvider.SupportedPropertyNames, null);
-
-                                result.Add(
-                                    new Grouping<string, TestCase>(
+                                var grouping = new Grouping<string, TestCase>(
                                         assemblyFileName,
                                         sink.TestCases
                                             .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
-                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1))
-                                            .Where(testCase => filter.MatchTestCase(testCase, (p) => TestCasePropertyProvider.PropertyProvider(testCase, p))))
-                                            .ToList()
-                                    )
-                                );
+                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
+                                            .ToList());
+
+                                var filter = TestCaseFilterHelper.GetTestCaseFilterExpression(runContext);
+                                if (filter != null)
+                                {
+                                    grouping = new Grouping<string, TestCase>(grouping.Key, grouping.Where(testCase => filter.MatchTestCase(testCase, (p) => TestCaseFilterHelper.PropertyProvider(testCase, p))).ToList());
+                                }
+
+                                result.Add(grouping);
 
                                 if (settings.MessageDisplay != MessageDisplay.None)
                                     logger.SendMessage(TestMessageLevel.Informational,
@@ -352,21 +355,62 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             }
         }
 
-        class TestCasePropertyProvider
+        class TestCaseFilterHelper
         {
             private const string TraitFilterStringSuffix = "Trait";
-            public static string[] SupportedPropertyNames = { "ContextTrait" };
+            private const string DisplayNameString = "DisplayName";
+            private const string FullyQualifiedNameString = "FullyQualifiedName";
+            public static List<string> SupportedPropertyNames = GetSupportedPropertyNames();
 
-            public static object PropertyProvider(TestCase tc, string name)
+            private static List<string> GetSupportedPropertyNames()
             {
-                // Currently only support traits filtering
+                List<string> result = new List<string>();
+                foreach(string traitName in VsDiscoveryVisitor.KnownTraitNames.ToList())
+                {
+                    result.Add(traitName + TraitFilterStringSuffix);
+                }
+                result.Add(DisplayNameString);
+                result.Add(FullyQualifiedNameString);
+                return result;
+            }
+
+            public static ITestCaseFilterExpression GetTestCaseFilterExpression(IRunContext runContext)
+            {
+                try
+                {
+                    // GetTestCaseFilter only exists in ObjectModel V12+
+                    MethodInfo getTestCaseFilterMethod = runContext.GetType().GetMethod("GetTestCaseFilter");
+                    var result = (ITestCaseFilterExpression)getTestCaseFilterMethod.Invoke(runContext, new object[] { SupportedPropertyNames, null });
+                    return result;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+
+            public static object PropertyProvider(TestCase testCase, string name)
+            {
+                // Traits filtering
                 if (name.EndsWith(TraitFilterStringSuffix))
                 {
                     var traitName = name.Substring(0, name.Length - TraitFilterStringSuffix.Length);
-                    foreach (Trait t in tc.Traits)
+                    if (!VsDiscoveryVisitor.KnownTraitNames.Contains(traitName))
+                    {
+                        return null;
+                    }
+                    foreach (Trait t in testCase.Traits)
                     {
                         if (t.Name == traitName) return t.Value;
                     }
+                }
+                else
+                {
+                    // Handle the displayName and fullyQualifierNames independently
+                    if (name == FullyQualifiedNameString)
+                        return testCase.FullyQualifiedName;
+                    if (name == DisplayNameString)
+                        return testCase.DisplayName;
                 }
 
                 return null;
