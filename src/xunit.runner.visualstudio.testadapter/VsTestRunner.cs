@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Runner.VisualStudio.Settings;
+using Xunit.Abstractions;
 
 namespace Xunit.Runner.VisualStudio.TestAdapter
 {
@@ -106,7 +107,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             return TestProperty.Register("XunitTestCase", "xUnit.net Test Case", typeof(string), typeof(VsTestRunner));
         }
 
-        IEnumerable<IGrouping<string, TestCase>> GetTests(IEnumerable<string> sources, IMessageLogger logger, XunitVisualStudioSettings settings, Stopwatch stopwatch)
+        IEnumerable<IGrouping<string, TestCase>> GetTests(IEnumerable<string> sources, IRunContext runContext, IMessageLogger logger, XunitVisualStudioSettings settings, Stopwatch stopwatch)
         {
             var result = new List<IGrouping<string, TestCase>>();
 
@@ -147,10 +148,13 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                 framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
                                 sink.Finished.WaitOne();
 
+                                TraitFilter traitFilter = new TraitFilter(GetTestFilterString(runContext));
+
                                 result.Add(
                                     new Grouping<string, TestCase>(
                                         assemblyFileName,
-                                        sink.TestCases
+                                        sink.TestCases.
+                                             Where(tc => traitFilter.Filter(tc))
                                             .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
                                             .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
                                             .ToList()
@@ -177,6 +181,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             }
         }
 
+
+
         static bool IsXunitTestAssembly(string assemblyFileName)
         {
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
@@ -189,7 +195,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             Guard.ArgumentNotNull("sources", sources);
 
             var stopwatch = Stopwatch.StartNew();
-            RunTests(runContext, frameworkHandle, stopwatch, settings => GetTests(sources, frameworkHandle, settings, stopwatch));
+            RunTests(runContext, frameworkHandle, stopwatch, settings => GetTests(sources, runContext, frameworkHandle, settings, stopwatch));
             stopwatch.Stop();
         }
 
@@ -325,6 +331,18 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             return @event;
         }
 
+        static string GetTestFilterString(IRunContext runContext)
+        {
+            var testCaseFilter = runContext.GetTestCaseFilter(new string[] { "ContextTrait", "XLegacyTrait" }, null);
+            var testCaseFilterString = string.Empty;
+            if (testCaseFilter != null)
+            {
+                testCaseFilterString = testCaseFilter.TestCaseFilterValue;
+            }
+
+            return testCaseFilterString;
+        }
+
         class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
         {
             readonly IEnumerable<TElement> elements;
@@ -345,6 +363,50 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             IEnumerator IEnumerable.GetEnumerator()
             {
                 return elements.GetEnumerator();
+            }
+        }
+
+        class TraitFilter
+        {
+            private const string TraitFilterStringSuffix = "Trait";
+            public string TraitName { get; private set; }
+            public string TraitValue { get; private set; }
+
+            public TraitFilter(string testCaseFilterString)
+            {
+                if (!string.IsNullOrEmpty(testCaseFilterString))
+                {
+                    string[] pieces = testCaseFilterString.Split('=');
+                    if (pieces.Length != 2 || String.IsNullOrEmpty(pieces[0]) || String.IsNullOrEmpty(pieces[1]))
+                        throw new ArgumentException("incorrect argument format for /trait (should be \"name=value\")");
+
+                    if (pieces[0].EndsWith(TraitFilterStringSuffix))
+                    {
+                        TraitName = pieces[0].Substring(0, pieces[0].Length - TraitFilterStringSuffix.Length);
+                        TraitValue = pieces[1];
+                    }
+                }
+            }
+
+            public bool Filter(ITestCase testCase)
+            {
+                List<string> values;
+
+                if (string.IsNullOrEmpty(TraitName))
+                {
+                    return true;
+                }
+
+                if (testCase.Traits.TryGetValue(TraitName, out values))
+                {
+                    foreach (string val in values)
+                    {
+                        if (string.Equals(val, TraitValue))
+                            return true;
+                    }
+                }
+
+                return false;
             }
         }
     }

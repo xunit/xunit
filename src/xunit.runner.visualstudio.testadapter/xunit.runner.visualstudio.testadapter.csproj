@@ -35,7 +35,8 @@
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.ObjectModel">
       <Private>False</Private>
-      <HintPath>..\..\packages\Microsoft.VisualStudio.TestPlatform.ObjectModel.0.0.4\lib\net35\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
+      <!-- Work around the change between IRunContext v11 and that of v14 -->
+      <HintPath>$(VS140COMNTOOLS)..\IDE\CommonExtensions\Microsoft\TestWindow\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />

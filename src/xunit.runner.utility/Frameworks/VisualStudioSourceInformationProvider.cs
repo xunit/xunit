@@ -17,6 +17,8 @@ namespace Xunit
         /// Initializes a new instance of the <see cref="VisualStudioSourceInformationProvider" /> class.
         /// </summary>
         /// <param name="assemblyFileName">The assembly file name.</param>
+        /// <param name="shadowCopy">Should apply Shadow Copy</param>
+        /// <param name="configFileName">Configuration File Name</param>
         public VisualStudioSourceInformationProvider(string assemblyFileName, bool shadowCopy = true, string configFileName = null)
         {
             session = new DiaSessionWrapper(assemblyFileName, shadowCopy, configFileName);

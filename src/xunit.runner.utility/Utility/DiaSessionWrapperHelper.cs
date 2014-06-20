@@ -163,7 +163,7 @@ namespace Xunit
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }
