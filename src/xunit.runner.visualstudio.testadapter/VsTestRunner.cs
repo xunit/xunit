@@ -148,15 +148,15 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                 framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
                                 sink.Finished.WaitOne();
 
-                                TraitFilter traitFilter = new TraitFilter(GetTestFilterString(runContext));
+                                var filter = runContext.GetTestCaseFilter(TestCasePropertyProvider.SupportedPropertyNames, null);
 
                                 result.Add(
                                     new Grouping<string, TestCase>(
                                         assemblyFileName,
-                                        sink.TestCases.
-                                             Where(tc => traitFilter.Filter(tc))
+                                        sink.TestCases
                                             .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
-                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
+                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1))
+                                            .Where(testCase => filter.MatchTestCase(testCase, (p) => TestCasePropertyProvider.PropertyProvider(testCase, p))))
                                             .ToList()
                                     )
                                 );
@@ -180,8 +180,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 return result;
             }
         }
-
-
 
         static bool IsXunitTestAssembly(string assemblyFileName)
         {
@@ -331,18 +329,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             return @event;
         }
 
-        static string GetTestFilterString(IRunContext runContext)
-        {
-            var testCaseFilter = runContext.GetTestCaseFilter(new string[] { "ContextTrait", "XLegacyTrait" }, null);
-            var testCaseFilterString = string.Empty;
-            if (testCaseFilter != null)
-            {
-                testCaseFilterString = testCaseFilter.TestCaseFilterValue;
-            }
-
-            return testCaseFilterString;
-        }
-
         class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
         {
             readonly IEnumerable<TElement> elements;
@@ -366,47 +352,24 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             }
         }
 
-        class TraitFilter
+        class TestCasePropertyProvider
         {
             private const string TraitFilterStringSuffix = "Trait";
-            public string TraitName { get; private set; }
-            public string TraitValue { get; private set; }
+            public static string[] SupportedPropertyNames = { "ContextTrait" };
 
-            public TraitFilter(string testCaseFilterString)
+            public static object PropertyProvider(TestCase tc, string name)
             {
-                if (!string.IsNullOrEmpty(testCaseFilterString))
+                // Currently only support traits filtering
+                if (name.EndsWith(TraitFilterStringSuffix))
                 {
-                    string[] pieces = testCaseFilterString.Split('=');
-                    if (pieces.Length != 2 || String.IsNullOrEmpty(pieces[0]) || String.IsNullOrEmpty(pieces[1]))
-                        throw new ArgumentException("incorrect argument format for /trait (should be \"name=value\")");
-
-                    if (pieces[0].EndsWith(TraitFilterStringSuffix))
+                    var traitName = name.Substring(0, name.Length - TraitFilterStringSuffix.Length);
+                    foreach (Trait t in tc.Traits)
                     {
-                        TraitName = pieces[0].Substring(0, pieces[0].Length - TraitFilterStringSuffix.Length);
-                        TraitValue = pieces[1];
-                    }
-                }
-            }
-
-            public bool Filter(ITestCase testCase)
-            {
-                List<string> values;
-
-                if (string.IsNullOrEmpty(TraitName))
-                {
-                    return true;
-                }
-
-                if (testCase.Traits.TryGetValue(TraitName, out values))
-                {
-                    foreach (string val in values)
-                    {
-                        if (string.Equals(val, TraitValue))
-                            return true;
+                        if (t.Name == traitName) return t.Value;
                     }
                 }
 
-                return false;
+                return null;
             }
         }
     }
