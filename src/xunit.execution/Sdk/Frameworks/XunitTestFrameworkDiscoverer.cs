@@ -43,7 +43,12 @@ namespace Xunit.Sdk
         {
             var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
             var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
-            var testAssembly = new XunitTestAssembly(assemblyInfo, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+
+            string config = null;
+#if !WINDOWS_PHONE_APP
+            config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+#endif
+            var testAssembly = new XunitTestAssembly(assemblyInfo, config);
 
             TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, testAssembly);
             TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",

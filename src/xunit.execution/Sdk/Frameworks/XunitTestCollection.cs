@@ -87,7 +87,8 @@ Xunit.Serialization.
 SerializationInfo info)
         {
             info.AddValue("DisplayName", DisplayName);
-            info.AddValue("ID", ID.ToString());
+            info.AddValue("TestAssembly", TestAssembly);
+            info.AddValue("UniqueID", UniqueID.ToString());
 
             if (CollectionDefinition != null)
             {

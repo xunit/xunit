@@ -23,9 +23,6 @@ namespace Xunit.Sdk
         {
             DisposalTracker = new DisposalTracker();
             SourceInformationProvider = sourceInformationProvider;
-            Assembly = Assembly.Load(assemblyName);
-            AssemblyInfo = Reflector.Wrap(Assembly);
-        }
 
 #if !WIN8_STORE || WINDOWS_PHONE_APP
             var assembly = Assembly.Load(assemblyName);
@@ -34,6 +31,9 @@ namespace Xunit.Sdk
 #endif
             AssemblyInfo = Reflector.Wrap(assembly);
         }
+
+
+        
 
         /// <summary>
         /// Gets the assembly information of the assembly under test.

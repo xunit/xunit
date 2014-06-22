@@ -132,7 +132,7 @@ namespace Xunit.Sdk
                 {
                     string configFile = null;
 #if !WINDOWS_PHONE_APP
-                    Directory.SetCurrentDirectory(Path.GetDirectoryName(AssemblyInfo.AssemblyPath));
+                    Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
                     configFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
 

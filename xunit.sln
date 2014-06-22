@@ -134,14 +134,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.wpa81", "src\xunit.runner.utility.wpa81\xunit.runner.utility.wpa81.csproj", "{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\messages\messages.projitems*{d79b0e97-8599-4a59-a5af-948ba91ace21}*SharedItemsImports = 4
-		src\xunit.execution\xunit.execution.projitems*{d79b0e97-8599-4a59-a5af-948ba91ace21}*SharedItemsImports = 4
-		src\messages\messages.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
-		src\xunit.execution\xunit.execution.projitems*{87da8400-e929-4a02-a0cc-a8dd5404e3ed}*SharedItemsImports = 4
-		src\messages\messages.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
-		src\xunit.execution\xunit.execution.projitems*{141612de-2d07-4968-abaf-09fd05b7951e}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
 		Ad-Hoc|ARM = Ad-Hoc|ARM

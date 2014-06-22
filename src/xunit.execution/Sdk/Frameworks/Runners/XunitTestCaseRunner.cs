@@ -47,7 +47,7 @@ namespace Xunit.Sdk
             TestMethodArguments = Reflector.ConvertArguments(testMethodArguments, parameterTypes);
 
             beforeAfterAttributes =
-                TestClass.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
+                TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute))  
                          .Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
                          .Cast<BeforeAfterTestAttribute>()
                          .ToList();
@@ -107,7 +107,7 @@ namespace Xunit.Sdk
             if (reflectionMethodInfo != null)
                 return reflectionMethodInfo.MethodInfo;
 
-            return TestClass.GetMethod(TestCase.Method.Name, TestCase.Method.GetBindingFlags());
+            return TestClass.GetMethodInfoFromIMethodInfo(TestCase.Method);
         }
 
         /// <inheritdoc/>

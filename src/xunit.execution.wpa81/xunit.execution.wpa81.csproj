@@ -102,6 +102,9 @@
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\common\SerializationInfoExtensions.cs">
+      <Link>Common\SerializationInfoExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\SourceInformation.cs">
       <Link>Common\SourceInformation.cs</Link>
     </Compile>
@@ -126,6 +129,14 @@
     <Compile Include="Serialization\IGetTypeData.cs" />
     <Compile Include="Serialization\Serializable.cs" />
     <Compile Include="Serialization\SerializationInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\xunit.execution\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\messages\**\*.cs">
+      <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">

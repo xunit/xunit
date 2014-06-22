@@ -172,11 +172,8 @@ namespace Xunit.Sdk
 #if JSON
         public virtual void GetData(Xunit.Serialization.SerializationInfo data)
         {
-            data.AddValue("AssemblyName", Assembly.Name);
-            data.AddValue("TypeName", Class.Name);
-            data.AddValue("MethodName", Method.Name);
-            data.AddValue("Arguments", Arguments);
-            data.AddValue("TestCollection", TestCollection);
+            data.AddValue("TestMethod", TestMethod);
+            data.AddValue("TestMethodArguments", TestMethodArguments);
         }
 #endif
     }

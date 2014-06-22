@@ -79,9 +79,6 @@
     <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\IXunit1Executor.cs">
       <Link>Frameworks\v1\IXunit1Executor.cs</Link>
     </Compile>
-    <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\RunSummary.cs">
-      <Link>Frameworks\v1\RunSummary.cs</Link>
-    </Compile>
     <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\TestClassCallbackHandler.cs">
       <Link>Frameworks\v1\TestClassCallbackHandler.cs</Link>
     </Compile>
@@ -106,11 +103,11 @@
     <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\Xunit1ReflectionWrapper.cs">
       <Link>Frameworks\v1\Xunit1ReflectionWrapper.cs</Link>
     </Compile>
+    <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\Xunit1RunSummary.cs">
+      <Link>Frameworks\v1\Xunit1RunSummary.cs</Link>
+    </Compile>
     <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\Xunit1TestCase.cs">
       <Link>Frameworks\v1\Xunit1TestCase.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\Xunit1TestCollection.cs">
-      <Link>Frameworks\v1\Xunit1TestCollection.cs</Link>
     </Compile>
     <Compile Include="..\xunit.runner.utility.net35\Frameworks\VisualStudioSourceInformationProvider.cs">
       <Link>Frameworks\VisualStudioSourceInformationProvider.cs</Link>

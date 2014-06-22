@@ -4,6 +4,11 @@ using System.Runtime.Serialization;
 using System.Security;
 using Xunit.Abstractions;
 
+#if WINDOWS_PHONE_APP
+using Xunit.Serialization;
+#endif
+
+
 namespace Xunit.Sdk
 {
     /// <summary>
@@ -12,6 +17,9 @@ namespace Xunit.Sdk
     [Serializable]
     [DebuggerDisplay(@"\{ class = {Class.Name} \}")]
     public class XunitTestClass : LongLivedMarshalByRefObject, ITestClass, ISerializable
+#if JSON
+, IGetTypeData
+#endif
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestClass"/> class.
@@ -47,5 +55,14 @@ namespace Xunit.Sdk
             info.AddValue("ClassAssemblyName", Class.Assembly.Name);
             info.AddValue("ClassTypeName", Class.Name);
         }
+
+#if JSON
+        public virtual void GetData(Xunit.Serialization.SerializationInfo info)
+        {
+            info.AddValue("TestCollection", TestCollection);
+            info.AddValue("ClassAssemblyName", Class.Assembly.Name);
+            info.AddValue("ClassTypeName", Class.Name);
+        }
+#endif
     }
 }

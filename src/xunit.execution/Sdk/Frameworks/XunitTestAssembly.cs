@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
 using Xunit.Abstractions;
+
+#if WINDOWS_PHONE_APP
+using Xunit.Serialization;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -13,6 +18,9 @@ namespace Xunit.Sdk
     [Serializable]
     [DebuggerDisplay(@"\{ assembly = {Assembly.AssemblyPath}, config = {ConfigFileName} \}")]
     public class XunitTestAssembly : LongLivedMarshalByRefObject, ITestAssembly, ISerializable
+#if JSON
+, IGetTypeData
+#endif
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestAssembly"/> class.
@@ -29,10 +37,17 @@ namespace Xunit.Sdk
             ConfigFileName = info.GetString("ConfigFileName");
 
             var assemblyPath = info.GetString("AssemblyPath");
+#if !WINDOWS_PHONE_APP
             var assembly = AppDomain.CurrentDomain
                                     .GetAssemblies()
                                     .First(a => String.Equals(a.GetLocalCodeBase(), assemblyPath, StringComparison.OrdinalIgnoreCase));
-
+#else
+            // On WPA, this will be the assemblyname
+            var assembly = System.Reflection.Assembly.Load(new AssemblyName
+            {
+                Name = assemblyPath
+            });
+#endif
             Assembly = Reflector.Wrap(assembly);
         }
 
@@ -49,5 +64,12 @@ namespace Xunit.Sdk
             info.AddValue("AssemblyPath", Assembly.AssemblyPath);
             info.AddValue("ConfigFileName", ConfigFileName);
         }
+#if JSON
+        public virtual void GetData(Xunit.Serialization.SerializationInfo info)
+        {
+            info.AddValue("AssemblyPath", Assembly.AssemblyPath);
+            info.AddValue("ConfigFileName", ConfigFileName);
+        }
+#endif
     }
 }

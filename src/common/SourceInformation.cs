@@ -17,6 +17,9 @@ namespace Xunit
     /// </summary>
     [Serializable]
     public class SourceInformation : LongLivedMarshalByRefObject, ISourceInformation, ISerializable
+#if JSON
+, IGetTypeData
+#endif
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SourceInformation"/> class.
@@ -42,5 +45,13 @@ namespace Xunit
             info.AddValue("FileName", FileName);
             info.AddValue("LineNumber", LineNumber, typeof(int?));
         }
+
+#if JSON
+        public virtual void GetData(Xunit.Serialization.SerializationInfo info)
+        {
+            info.AddValue("FileName", FileName);
+            info.AddValue("LineNumber", LineNumber, typeof(int?));
+        }
+#endif
     }
 }

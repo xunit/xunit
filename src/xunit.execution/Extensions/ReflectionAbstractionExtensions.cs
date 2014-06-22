@@ -10,7 +10,12 @@ using Xunit.Abstractions;
 /// </summary>
 public static class ReflectionAbstractionExtensions
 {
-    
+    /// <summary>
+    /// Gets a MethodInfo instance from an IMethodInfo
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="methodInfo"></param>
+    /// <returns></returns>
     public static MethodInfo GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
     {
         // the old logic only flattened heirarchy for static methods
@@ -23,6 +28,12 @@ public static class ReflectionAbstractionExtensions
         return methods.SingleOrDefault();
     }
 
+    /// <summary>
+    /// Gets methods in the target type that match the protection level of the supplied method
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="methodInfo"></param>
+    /// <returns></returns>
     public static IEnumerable<MethodInfo> GetMatchingMethods(this Type type, MethodInfo methodInfo)
     {
         var methods = from method in methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetTypeInfo()
