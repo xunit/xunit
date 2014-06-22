@@ -6,8 +6,8 @@
     public interface ITestMethodMessage : ITestClassMessage
     {
         /// <summary>
-        /// The name of the test method.
+        /// The test method that is associated with this message.
         /// </summary>
-        string MethodName { get; }
+        ITestMethod TestMethod { get; }
     }
 }

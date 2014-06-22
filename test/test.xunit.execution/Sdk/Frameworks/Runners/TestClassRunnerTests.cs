@@ -29,14 +29,14 @@ public class TestClassRunnerTests
             msg =>
             {
                 var starting = Assert.IsAssignableFrom<ITestClassStarting>(msg);
-                Assert.Same(testCase.TestCollection, starting.TestCollection);
-                Assert.Equal("TestClassRunnerTests+ClassUnderTest", starting.ClassName);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
+                Assert.Equal("TestClassRunnerTests+ClassUnderTest", starting.TestClass.Class.Name);
             },
             msg =>
             {
                 var finished = Assert.IsAssignableFrom<ITestClassFinished>(msg);
-                Assert.Same(testCase.TestCollection, finished.TestCollection);
-                Assert.Equal("TestClassRunnerTests+ClassUnderTest", finished.ClassName);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
+                Assert.Equal("TestClassRunnerTests+ClassUnderTest", finished.TestClass.Class.Name);
                 Assert.Equal(21.12m, finished.ExecutionTime);
                 Assert.Equal(4, finished.TestsRun);
                 Assert.Equal(2, finished.TestsFailed);
@@ -215,7 +215,7 @@ public class TestClassRunnerTests
         [Fact]
         public void Passing() { }
     }
-    
+
     class TestableTestClassRunner : TestClassRunner<ITestCase>
     {
         readonly object[] availableArguments;
@@ -231,8 +231,8 @@ public class TestClassRunnerTests
         public bool OnTestClassStarting_Called;
         public readonly CancellationTokenSource TokenSource;
 
-        TestableTestClassRunner(ITestCollection testCollection,
-                                IReflectionTypeInfo testClass,
+        TestableTestClassRunner(ITestClass testClass,
+                                IReflectionTypeInfo @class,
                                 IEnumerable<ITestCase> testCases,
                                 IMessageBus messageBus,
                                 ITestCaseOrderer testCaseOrderer,
@@ -242,7 +242,7 @@ public class TestClassRunnerTests
                                 object[] availableArguments,
                                 RunSummary result,
                                 bool cancelInRunTestMethodAsync)
-            : base(testCollection, testClass, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+            : base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
             Aggregator = aggregator;
             TokenSource = cancellationTokenSource;
@@ -269,8 +269,8 @@ public class TestClassRunnerTests
             var firstTest = testCases.First();
 
             return new TestableTestClassRunner(
-                firstTest.TestCollection,
-                (IReflectionTypeInfo)firstTest.Class,
+                firstTest.TestMethod.TestClass,
+                (IReflectionTypeInfo)firstTest.TestMethod.TestClass.Class,
                 testCases,
                 messageBus ?? new SpyMessageBus(),
                 orderer ?? new MockTestCaseOrderer(),
@@ -303,12 +303,12 @@ public class TestClassRunnerTests
             OnTestClassStarting_Called = true;
         }
 
-        protected override Task<RunSummary> RunTestMethodAsync(IReflectionMethodInfo testMethod, IEnumerable<ITestCase> testCases, object[] constructorArguments)
+        protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<ITestCase> testCases, object[] constructorArguments)
         {
             if (cancelInRunTestMethodAsync)
                 CancellationTokenSource.Cancel();
 
-            MethodsRun.Add(Tuple.Create(testMethod, testCases, constructorArguments));
+            MethodsRun.Add(Tuple.Create(method, testCases, constructorArguments));
             return Task.FromResult(result);
         }
 

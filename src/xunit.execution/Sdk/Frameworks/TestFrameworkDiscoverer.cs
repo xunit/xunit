@@ -48,28 +48,35 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the message aggregator used to provide environmental warnings.
         /// </summary>
-        protected IMessageAggregator Aggregator { get; private set; }
+        protected IMessageAggregator Aggregator { get; set; }
 
         /// <summary>
         /// Gets the assembly that's being discovered.
         /// </summary>
-        protected IAssemblyInfo AssemblyInfo { get; private set; }
+        protected IAssemblyInfo AssemblyInfo { get; set; }
 
         /// <summary>
         /// Gets the disposal tracker for the test framework discoverer.
         /// </summary>
-        protected DisposalTracker DisposalTracker { get; private set; }
+        protected DisposalTracker DisposalTracker { get; set; }
 
         /// <summary>
         /// Get the source code information provider used during discovery.
         /// </summary>
-        protected ISourceInformationProvider SourceProvider { get; private set; }
+        protected ISourceInformationProvider SourceProvider { get; set; }
 
         /// <inheritdoc/>
         public string TargetFramework { get { return targetFramework.Value; } }
 
         /// <inheritdoc/>
         public string TestFrameworkDisplayName { get; protected set; }
+
+        /// <summary>
+        /// Implement this method to create a test class for the given CLR type.
+        /// </summary>
+        /// <param name="class">The CLR type.</param>
+        /// <returns>The test class.</returns>
+        protected abstract ITestClass CreateTestClass(ITypeInfo @class);
 
         /// <inheritdoc/>
         public void Dispose()
@@ -89,8 +96,11 @@ namespace Xunit.Sdk
                 using (new PreserveWorkingFolder(AssemblyInfo))
                 {
                     foreach (var type in AssemblyInfo.GetTypes(includePrivateTypes: false).Where(IsValidTestClass))
-                        if (!FindTestsForTypeAndWrapExceptions(type, includeSourceInformation, messageBus))
+                    {
+                        var testClass = CreateTestClass(type);
+                        if (!FindTestsForTypeAndWrapExceptions(testClass, includeSourceInformation, messageBus))
                             break;
+                    }
 
                     var warnings = Aggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
                     messageBus.QueueMessage(new DiscoveryCompleteMessage(warnings));
@@ -112,7 +122,10 @@ namespace Xunit.Sdk
                 {
                     var typeInfo = AssemblyInfo.GetType(typeName);
                     if (typeInfo != null && IsValidTestClass(typeInfo))
-                        FindTestsForTypeAndWrapExceptions(typeInfo, includeSourceInformation, messageBus);
+                    {
+                        var testClass = CreateTestClass(typeInfo);
+                        FindTestsForTypeAndWrapExceptions(testClass, includeSourceInformation, messageBus);
+                    }
 
                     var warnings = Aggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
                     messageBus.QueueMessage(new DiscoveryCompleteMessage(warnings));
@@ -123,17 +136,17 @@ namespace Xunit.Sdk
         /// <summary>
         /// Core implementation to discover unit tests in a given test class.
         /// </summary>
-        /// <param name="type">The test class.</param>
+        /// <param name="testClass">The test class.</param>
         /// <param name="includeSourceInformation">Set to <c>true</c> to attempt to include source information.</param>
         /// <param name="messageBus">The message sink to send discovery messages to.</param>
         /// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
-        protected abstract bool FindTestsForType(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus);
+        protected abstract bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus);
 
-        private bool FindTestsForTypeAndWrapExceptions(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus)
+        private bool FindTestsForTypeAndWrapExceptions(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus)
         {
             try
             {
-                return FindTestsForType(type, includeSourceInformation, messageBus);
+                return FindTestsForType(testClass, includeSourceInformation, messageBus);
             }
             catch (Exception ex)
             {

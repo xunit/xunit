@@ -33,14 +33,14 @@ public class TestInvokerTests
             msg =>
             {
                 var starting = Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg);
-                Assert.Same(invoker.TestCase.TestCollection, starting.TestCollection);
+                Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
                 Assert.Same(invoker.TestCase, starting.TestCase);
                 Assert.Equal("Display Name", starting.TestDisplayName);
             },
             msg =>
             {
                 var finished = Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg);
-                Assert.Same(invoker.TestCase.TestCollection, finished.TestCollection);
+                Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
                 Assert.Same(invoker.TestCase, finished.TestCase);
                 Assert.Equal("Display Name", finished.TestDisplayName);
             }
@@ -61,14 +61,14 @@ public class TestInvokerTests
             msg =>
             {
                 var starting = Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg);
-                Assert.Same(invoker.TestCase.TestCollection, starting.TestCollection);
+                Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
                 Assert.Same(invoker.TestCase, starting.TestCase);
                 Assert.Equal("Display Name", starting.TestDisplayName);
             },
             msg =>
             {
                 var finished = Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg);
-                Assert.Same(invoker.TestCase.TestCollection, finished.TestCollection);
+                Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
                 Assert.Same(invoker.TestCase, finished.TestCase);
                 Assert.Equal("Display Name", finished.TestDisplayName);
             }

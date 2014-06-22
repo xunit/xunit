@@ -23,7 +23,7 @@ public class TestRunnerTests
             msg =>
             {
                 var testStarting = Assert.IsAssignableFrom<ITestStarting>(msg);
-                Assert.Same(runner.TestCase.TestCollection, testStarting.TestCollection);
+                Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testStarting.TestCollection);
                 Assert.Same(runner.TestCase, testStarting.TestCase);
                 Assert.Equal("Display Name", testStarting.TestDisplayName);
             },
@@ -31,7 +31,7 @@ public class TestRunnerTests
             msg =>
             {
                 var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
-                Assert.Same(runner.TestCase.TestCollection, testFinished.TestCollection);
+                Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testFinished.TestCollection);
                 Assert.Same(runner.TestCase, testFinished.TestCase);
                 Assert.Equal("Display Name", testFinished.TestDisplayName);
                 Assert.Equal(21.12m, testFinished.ExecutionTime);
@@ -55,7 +55,7 @@ public class TestRunnerTests
         Assert.Equal(21.12m, result.Time);
         // Pass message
         var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-        Assert.Same(runner.TestCase.TestCollection, passed.TestCollection);
+        Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, passed.TestCollection);
         Assert.Same(runner.TestCase, passed.TestCase);
         Assert.Equal("Display Name", passed.TestDisplayName);
         Assert.Equal(21.12m, passed.ExecutionTime);
@@ -77,7 +77,7 @@ public class TestRunnerTests
         Assert.Equal(21.12m, result.Time);
         // Fail message
         var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-        Assert.Same(runner.TestCase.TestCollection, failed.TestCollection);
+        Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, failed.TestCollection);
         Assert.Same(runner.TestCase, failed.TestCase);
         Assert.Equal("Display Name", failed.TestDisplayName);
         Assert.Equal(21.12m, failed.ExecutionTime);
@@ -100,7 +100,7 @@ public class TestRunnerTests
         Assert.Equal(0m, result.Time);
         // Skip message
         var failed = messageBus.Messages.OfType<ITestSkipped>().Single();
-        Assert.Same(runner.TestCase.TestCollection, failed.TestCollection);
+        Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, failed.TestCollection);
         Assert.Same(runner.TestCase, failed.TestCase);
         Assert.Equal("Display Name", failed.TestDisplayName);
         Assert.Equal(0m, failed.ExecutionTime);

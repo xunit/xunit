@@ -11,19 +11,9 @@ namespace Xunit.Abstractions
     public interface ITestCase : IDisposable
     {
         /// <summary>
-        /// Gets the class that this test case is attached to.
-        /// </summary>
-        ITypeInfo Class { get; }
-
-        /// <summary>
         /// Gets the display name of the test case.
         /// </summary>
         string DisplayName { get; }
-
-        /// <summary>
-        /// Gets the method associated with this test case.
-        /// </summary>
-        IMethodInfo Method { get; }
 
         /// <summary>
         /// Gets the display text for the reason a test is being skipped; if the test
@@ -37,9 +27,9 @@ namespace Xunit.Abstractions
         ISourceInformation SourceInformation { get; set; }
 
         /// <summary>
-        /// Gets the test collection this test case belongs to.
+        /// Gets the test method this test case belongs to.
         /// </summary>
-        ITestCollection TestCollection { get; }
+        ITestMethod TestMethod { get; }
 
         /// <summary>
         /// Gets the arguments that will be passed to the test method.

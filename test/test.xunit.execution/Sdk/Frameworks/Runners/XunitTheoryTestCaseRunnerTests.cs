@@ -109,7 +109,7 @@ public class XunitTheoryTestCaseRunnerTests
 
     class TestableXunitTheoryTestCaseRunner : XunitTheoryTestCaseRunner
     {
-        TestableXunitTheoryTestCaseRunner(XunitTestCase testCase, string displayName, string skipReason, object[] constructorArguments, IMessageBus messageBus, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        TestableXunitTheoryTestCaseRunner(IXunitTestCase testCase, string displayName, string skipReason, object[] constructorArguments, IMessageBus messageBus, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
             : base(testCase, displayName, skipReason, constructorArguments, messageBus, aggregator, cancellationTokenSource) { }
 
         public static TestableXunitTheoryTestCaseRunner Create<TClassUnderTest>(string methodName, IMessageBus messageBus, string displayName = null)

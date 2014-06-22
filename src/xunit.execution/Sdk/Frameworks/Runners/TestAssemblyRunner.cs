@@ -21,32 +21,21 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyRunner{TTestCase}"/> class.
         /// </summary>
-        /// <param name="assemblyInfo">The assembly that contains the tests to be run.</param>
+        /// <param name="testAssembly">The assembly that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="messageSink">The message sink to report run status to.</param>
         /// <param name="executionOptions">The user's requested execution options.</param>
-        public TestAssemblyRunner(IAssemblyInfo assemblyInfo,
+        public TestAssemblyRunner(ITestAssembly testAssembly,
                                   IEnumerable<TTestCase> testCases,
                                   IMessageSink messageSink,
                                   ITestFrameworkOptions executionOptions)
         {
-            AssemblyInfo = assemblyInfo;
-            AssemblyFileName = AssemblyInfo.AssemblyPath;
+            TestAssembly = testAssembly;
             TestCases = testCases;
             MessageSink = messageSink;
             ExecutionOptions = executionOptions;
             TestCaseOrderer = new DefaultTestCaseOrderer();
         }
-
-        /// <summary>
-        /// Gets the file name of the assembly under test.
-        /// </summary>
-        protected string AssemblyFileName { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the assembly that contains the tests to be run.
-        /// </summary>
-        protected IAssemblyInfo AssemblyInfo { get; set; }
 
         /// <summary>
         /// Gets or sets the user's requested execution options.
@@ -57,6 +46,11 @@ namespace Xunit.Sdk
         /// Gets or sets the message sink to report run status to.
         /// </summary>
         protected IMessageSink MessageSink { get; set; }
+
+        /// <summary>
+        /// Gets or sets the assembly that contains the tests to be run.
+        /// </summary>
+        protected ITestAssembly TestAssembly { get; set; }
 
         /// <summary>
         /// Gets or sets the test case orderer that will be used to decide how to order the test.
@@ -134,12 +128,11 @@ namespace Xunit.Sdk
             {
                 try
                 {
-                    Directory.SetCurrentDirectory(Path.GetDirectoryName(AssemblyInfo.AssemblyPath));
+                    Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
 
                     OnAssemblyStarting();
 
-                    if (messageBus.QueueMessage(new TestAssemblyStarting(AssemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
-                                                                         testFrameworkEnvironment, testFrameworkDisplayName)))
+                    if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
                     {
                         OnAssemblyStarted();
 
@@ -153,7 +146,7 @@ namespace Xunit.Sdk
                 }
                 finally
                 {
-                    messageBus.QueueMessage(new TestAssemblyFinished(AssemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
+                    messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
                     Directory.SetCurrentDirectory(currentDirectory);
 
                     OnAssemblyFinished();
@@ -173,7 +166,7 @@ namespace Xunit.Sdk
         {
             var summary = new RunSummary();
 
-            foreach (var collectionGroup in TestCases.Cast<TTestCase>().GroupBy(tc => tc.TestCollection, TestCollectionComparer.Instance))
+            foreach (var collectionGroup in TestCases.Cast<TTestCase>().GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance))
             {
                 summary.Aggregate(await RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource));
                 if (cancellationTokenSource.IsCancellationRequested)

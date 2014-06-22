@@ -28,12 +28,12 @@ public class TestCollectionRunnerTests
             msg =>
             {
                 var starting = Assert.IsAssignableFrom<ITestCollectionStarting>(msg);
-                Assert.Same(testCase.TestCollection, starting.TestCollection);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
             },
             msg =>
             {
                 var finished = Assert.IsAssignableFrom<ITestCollectionFinished>(msg);
-                Assert.Same(testCase.TestCollection, finished.TestCollection);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
                 Assert.Equal(21.12m, finished.ExecutionTime);
                 Assert.Equal(4, finished.TestsRun);
                 Assert.Equal(2, finished.TestsFailed);
@@ -163,7 +163,7 @@ public class TestCollectionRunnerTests
                 testCases = new[] { Mocks.TestCase<ClassUnderTest>("Passing") };
 
             return new TestableTestCollectionRunner(
-                testCases.First().TestCollection,
+                testCases.First().TestMethod.TestClass.TestCollection,
                 testCases,
                 messageBus ?? new SpyMessageBus(),
                 new MockTestCaseOrderer(),
@@ -193,12 +193,12 @@ public class TestCollectionRunnerTests
             OnTestCollectionStarting_Called = true;
         }
 
-        protected override Task<RunSummary> RunTestClassAsync(IReflectionTypeInfo testClass, IEnumerable<ITestCase> testCases)
+        protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<ITestCase> testCases)
         {
             if (cancelInRunTestClassAsync)
                 CancellationTokenSource.Cancel();
 
-            ClassesRun.Add(Tuple.Create(testClass, testCases));
+            ClassesRun.Add(Tuple.Create(@class, testCases));
             return Task.FromResult(result);
         }
     }

@@ -3,10 +3,10 @@
     /// <summary>
     /// Base message interface for all messages related to test collections.
     /// </summary>
-    public interface ITestCollectionMessage : IMessageSinkMessage
+    public interface ITestCollectionMessage : ITestAssemblyMessage
     {
         /// <summary>
-        /// Gets the test collection this test message is associated with.
+        /// The test collection that is associated with this message.
         /// </summary>
         ITestCollection TestCollection { get; }
     }

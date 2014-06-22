@@ -31,30 +31,30 @@ public class LambdaTestCaseRunnerTests : IDisposable
             msg =>
             {
                 var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(msg);
-                Assert.Same(testCase.TestCollection, testCaseStarting.TestCollection);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, testCaseStarting.TestCollection);
                 Assert.Same(testCase, testCaseStarting.TestCase);
             },
             msg =>
             {
                 var testStarting = Assert.IsAssignableFrom<ITestStarting>(msg);
-                Assert.Same(testCase.TestCollection, testStarting.TestCollection);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, testStarting.TestCollection);
                 Assert.Same(testCase, testStarting.TestCase);
-                Assert.Equal("System.Object.ToString", testStarting.TestDisplayName);
+                Assert.Equal("MockType.MockMethod", testStarting.TestDisplayName);
             },
             msg => { },  // Pass/fail/skip, will be tested elsewhere
             msg =>
             {
                 var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
-                Assert.Same(testCase.TestCollection, testFinished.TestCollection);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, testFinished.TestCollection);
                 Assert.Same(testCase, testFinished.TestCase);
-                Assert.Equal("System.Object.ToString", testFinished.TestDisplayName);
+                Assert.Equal("MockType.MockMethod", testFinished.TestDisplayName);
                 Assert.NotEqual(0m, testFinished.ExecutionTime);
                 Assert.Empty(testFinished.Output);
             },
             msg =>
             {
                 var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
-                Assert.Same(testCase.TestCollection, testCaseFinished.TestCollection);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, testCaseFinished.TestCollection);
                 Assert.Same(testCase, testCaseFinished.TestCase);
                 Assert.NotEqual(0m, testCaseFinished.ExecutionTime);
                 Assert.Equal(1, testCaseFinished.TestsRun);
@@ -65,7 +65,7 @@ public class LambdaTestCaseRunnerTests : IDisposable
     [Fact]
     public async void Success()
     {
-        var testCase = Mocks.LambdaTestCase(() => { }, "Display Name");
+        var testCase = Mocks.LambdaTestCase(() => { });
         var runner = new LambdaTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
 
         var result = await runner.RunAsync();
@@ -77,9 +77,8 @@ public class LambdaTestCaseRunnerTests : IDisposable
         Assert.NotEqual(0m, result.Time);
         // Pass message
         var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-        Assert.Same(testCase.TestCollection, passed.TestCollection);
+        Assert.Same(testCase.TestMethod.TestClass.TestCollection, passed.TestCollection);
         Assert.Same(testCase, passed.TestCase);
-        Assert.Equal("Display Name", passed.TestDisplayName);
         Assert.NotEqual(0m, passed.ExecutionTime);
         Assert.Empty(passed.Output);
         // Test case run summary
@@ -93,7 +92,7 @@ public class LambdaTestCaseRunnerTests : IDisposable
     [Fact]
     public async void Failure()
     {
-        var testCase = Mocks.LambdaTestCase(() => { throw new DivideByZeroException(); }, "Display Name");
+        var testCase = Mocks.LambdaTestCase(() => { throw new DivideByZeroException(); });
         var runner = new LambdaTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
 
         var result = await runner.RunAsync();
@@ -105,9 +104,8 @@ public class LambdaTestCaseRunnerTests : IDisposable
         Assert.NotEqual(0m, result.Time);
         // Fail message
         var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-        Assert.Same(testCase.TestCollection, failed.TestCollection);
+        Assert.Same(testCase.TestMethod.TestClass.TestCollection, failed.TestCollection);
         Assert.Same(testCase, failed.TestCase);
-        Assert.Equal("Display Name", failed.TestDisplayName);
         Assert.NotEqual(0m, failed.ExecutionTime);
         Assert.Empty(failed.Output);
         Assert.Collection(failed.ExceptionTypes, type => Assert.Equal("System.DivideByZeroException", type));

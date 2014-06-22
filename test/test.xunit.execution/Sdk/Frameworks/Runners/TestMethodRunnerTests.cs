@@ -27,16 +27,16 @@ public class TestMethodRunnerTests
             msg =>
             {
                 var starting = Assert.IsAssignableFrom<ITestMethodStarting>(msg);
-                Assert.Same(testCase.TestCollection, starting.TestCollection);
-                Assert.Equal("TestMethodRunnerTests+ClassUnderTest", starting.ClassName);
-                Assert.Equal("Passing", starting.MethodName);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
+                Assert.Equal("TestMethodRunnerTests+ClassUnderTest", starting.TestClass.Class.Name);
+                Assert.Equal("Passing", starting.TestMethod.Method.Name);
             },
             msg =>
             {
                 var finished = Assert.IsAssignableFrom<ITestMethodFinished>(msg);
-                Assert.Same(testCase.TestCollection, finished.TestCollection);
-                Assert.Equal("TestMethodRunnerTests+ClassUnderTest", finished.ClassName);
-                Assert.Equal("Passing", finished.MethodName);
+                Assert.Same(testCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
+                Assert.Equal("TestMethodRunnerTests+ClassUnderTest", finished.TestClass.Class.Name);
+                Assert.Equal("Passing", finished.TestMethod.Method.Name);
                 Assert.Equal(21.12m, finished.ExecutionTime);
                 Assert.Equal(4, finished.TestsRun);
                 Assert.Equal(2, finished.TestsFailed);
@@ -110,16 +110,16 @@ public class TestMethodRunnerTests
 
         public List<ITestCase> TestCasesRun = new List<ITestCase>();
 
-        TestableTestMethodRunner(ITestCollection testCollection,
-                                 IReflectionTypeInfo testClass,
-                                 IReflectionMethodInfo testMethod,
+        TestableTestMethodRunner(ITestMethod testMethod,
+                                 IReflectionTypeInfo @class,
+                                 IReflectionMethodInfo method,
                                  IEnumerable<ITestCase> testCases,
                                  IMessageBus messageBus,
                                  ExceptionAggregator aggregator,
                                  CancellationTokenSource cancellationTokenSource,
                                  RunSummary result,
                                  bool cancelInRunTestCaseAsync)
-            : base(testCollection, testClass, testMethod, testCases, messageBus, aggregator, cancellationTokenSource)
+            : base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
         {
             TokenSource = cancellationTokenSource;
 
@@ -138,9 +138,9 @@ public class TestMethodRunnerTests
             var firstTestCase = testCases.First();
 
             return new TestableTestMethodRunner(
-                firstTestCase.TestCollection,
-                (IReflectionTypeInfo)firstTestCase.Class,
-                (IReflectionMethodInfo)firstTestCase.Method,
+                firstTestCase.TestMethod,
+                (IReflectionTypeInfo)firstTestCase.TestMethod.TestClass.Class,
+                (IReflectionMethodInfo)firstTestCase.TestMethod.Method,
                 testCases,
                 messageBus ?? new SpyMessageBus(),
                 new ExceptionAggregator(),

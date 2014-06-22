@@ -1,19 +1,20 @@
 ﻿using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 public class DefaultTestCaseOrdererTests
 {
-    static readonly XunitTestCase[] TestCases = new[] {
-        Mocks.XunitTestCase<ClassUnderTest>("Test1"),
-        Mocks.XunitTestCase<ClassUnderTest>("Test2"),
-        Mocks.XunitTestCase<ClassUnderTest>("Test3"),
-        Mocks.XunitTestCase<ClassUnderTest>("Test4"),
-        Mocks.XunitTestCase<ClassUnderTest>("Test5"),
-        Mocks.XunitTestCase<ClassUnderTest>("Test6")
+    static readonly ITestCase[] TestCases = new[] {
+        Mocks.TestCase<ClassUnderTest>("Test1"),
+        Mocks.TestCase<ClassUnderTest>("Test2"),
+        Mocks.TestCase<ClassUnderTest>("Test3"),
+        Mocks.TestCase<ClassUnderTest>("Test4"),
+        Mocks.TestCase<ClassUnderTest>("Test5"),
+        Mocks.TestCase<ClassUnderTest>("Test6")
     };
 
     [Fact]
-    public void OrderIsStable()
+    public static void OrderIsStable()
     {
         var orderer = new DefaultTestCaseOrderer();
 
@@ -26,7 +27,7 @@ public class DefaultTestCaseOrdererTests
     }
 
     [Fact]
-    public void OrderIsUnpredictable()
+    public static void OrderIsUnpredictable()
     {
         var orderer = new DefaultTestCaseOrderer();
 

@@ -77,8 +77,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         private VsTestResult MakeVsTestResult(ITestResultMessage testResult, TestOutcome outcome)
         {
             var testCase = testCases[testResult.TestCase];
-            var fqTestMethodName = String.Format("{0}.{1}", testResult.TestCase.Class.Name, testResult.TestCase.Method.Name);
-            var displayName = settings.GetDisplayName(testResult.TestDisplayName, testResult.TestCase.Method.Name, fqTestMethodName);
+            var fqTestMethodName = String.Format("{0}.{1}", testResult.TestCase.TestMethod.TestClass.Class.Name, testResult.TestCase.TestMethod.Method.Name);
+            var displayName = settings.GetDisplayName(testResult.TestDisplayName, testResult.TestCase.TestMethod.Method.Name, fqTestMethodName);
 
             var result = new VsTestResult(testCase)
             {

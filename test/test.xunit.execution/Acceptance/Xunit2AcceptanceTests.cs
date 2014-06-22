@@ -42,13 +42,13 @@ public class Xunit2AcceptanceTests
                 message =>
                 {
                     var classStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
-                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", classStarting.ClassName);
+                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", classStarting.TestClass.Class.Name);
                 },
                 message =>
                 {
                     var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodStarting.ClassName);
-                    Assert.Equal("TestMethod", testMethodStarting.MethodName);
+                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodStarting.TestClass.Class.Name);
+                    Assert.Equal("TestMethod", testMethodStarting.TestMethod.Method.Name);
                 },
                 message =>
                 {
@@ -92,8 +92,8 @@ public class Xunit2AcceptanceTests
                 message =>
                 {
                     var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodFinished.ClassName);
-                    Assert.Equal("TestMethod", testMethodFinished.MethodName);
+                    Assert.Equal("Xunit2AcceptanceTests+SinglePassingTestClass", testMethodFinished.TestClass.Class.Name);
+                    Assert.Equal("TestMethod", testMethodFinished.TestMethod.Method.Name);
                 },
                 message =>
                 {
@@ -291,9 +291,9 @@ public class Xunit2AcceptanceTests
             var testMessages = Run<ITestPassed>(typeof(TestClassUsingCollection));
 
             Assert.Collection(testMessages,
-                message => Assert.Equal("Test1", message.TestCase.Method.Name),
-                message => Assert.Equal("Test2", message.TestCase.Method.Name),
-                message => Assert.Equal("Test3", message.TestCase.Method.Name)
+                message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
+                message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
+                message => Assert.Equal("Test3", message.TestCase.TestMethod.Method.Name)
             );
         }
 
@@ -320,9 +320,9 @@ public class Xunit2AcceptanceTests
             var testMessages = Run<ITestPassed>(typeof(TestClassWithoutCollection));
 
             Assert.Collection(testMessages,
-                message => Assert.Equal("Test1", message.TestCase.Method.Name),
-                message => Assert.Equal("Test2", message.TestCase.Method.Name),
-                message => Assert.Equal("Test3", message.TestCase.Method.Name)
+                message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
+                message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
+                message => Assert.Equal("Test3", message.TestCase.TestMethod.Method.Name)
             );
         }
 
@@ -345,7 +345,7 @@ public class Xunit2AcceptanceTests
                 where TTestCase : ITestCase
             {
                 var result = testCases.ToList();
-                result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.Method.Name, y.Method.Name));
+                result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod.Method.Name, y.TestMethod.Method.Name));
                 return result;
             }
         }

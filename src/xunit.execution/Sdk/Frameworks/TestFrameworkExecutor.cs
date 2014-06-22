@@ -22,27 +22,30 @@ namespace Xunit.Sdk
         protected TestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider)
         {
             DisposalTracker = new DisposalTracker();
-
             SourceInformationProvider = sourceInformationProvider;
-
-            var assembly = Assembly.Load(assemblyName);
-            AssemblyInfo = Reflector.Wrap(assembly);
+            Assembly = Assembly.Load(assemblyName);
+            AssemblyInfo = Reflector.Wrap(Assembly);
         }
+
+        /// <summary>
+        /// Gets the assembly that contains the tests.
+        /// </summary>
+        protected Assembly Assembly { get; set; }
 
         /// <summary>
         /// Gets the assembly information of the assembly under test.
         /// </summary>
-        protected IAssemblyInfo AssemblyInfo { get; private set; }
+        protected IAssemblyInfo AssemblyInfo { get; set; }
 
         /// <summary>
         /// Gets the disposal tracker for the test framework discoverer.
         /// </summary>
-        protected DisposalTracker DisposalTracker { get; private set; }
+        protected DisposalTracker DisposalTracker { get; set; }
 
         /// <summary>
         /// Gets the source information provider.
         /// </summary>
-        protected ISourceInformationProvider SourceInformationProvider { get; private set; }
+        protected ISourceInformationProvider SourceInformationProvider { get; set; }
 
         /// <summary>
         /// Override to create a test framework discoverer that can be used to discover

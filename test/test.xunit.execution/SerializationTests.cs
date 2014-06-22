@@ -41,13 +41,13 @@ public class SerializationTests
         var first = visitor.TestCases[0];
         var second = visitor.TestCases[1];
 
-        Assert.True(TestCollectionComparer.Instance.Equals(first.TestCollection, second.TestCollection));
+        Assert.True(TestCollectionComparer.Instance.Equals(first.TestMethod.TestClass.TestCollection, second.TestMethod.TestClass.TestCollection));
 
         var serializedFirst = SerializationHelper.Deserialize<ITestCase>(SerializationHelper.Serialize(first));
         var serializedSecond = SerializationHelper.Deserialize<ITestCase>(SerializationHelper.Serialize(second));
 
-        Assert.NotSame(serializedFirst.TestCollection, serializedSecond.TestCollection);
-        Assert.True(TestCollectionComparer.Instance.Equals(serializedFirst.TestCollection, serializedSecond.TestCollection));
+        Assert.NotSame(serializedFirst.TestMethod.TestClass.TestCollection, serializedSecond.TestMethod.TestClass.TestCollection);
+        Assert.True(TestCollectionComparer.Instance.Equals(serializedFirst.TestMethod.TestClass.TestCollection, serializedSecond.TestMethod.TestClass.TestCollection));
     }
 
     class ClassUnderTest

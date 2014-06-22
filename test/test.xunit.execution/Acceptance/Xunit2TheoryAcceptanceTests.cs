@@ -665,8 +665,8 @@ public class Xunit2TheoryAcceptanceTests
                 if (methodStarting == null)
                     return false;
 
-                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodStarting.ClassName);
-                Assert.Equal("Theory", methodStarting.MethodName);
+                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodStarting.TestClass.Class.Name);
+                Assert.Equal("Theory", methodStarting.TestMethod.Method.Name);
                 return true;
             });
 
@@ -676,8 +676,8 @@ public class Xunit2TheoryAcceptanceTests
                 if (methodFinished == null)
                     return false;
 
-                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodFinished.ClassName);
-                Assert.Equal("Theory", methodFinished.MethodName);
+                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodFinished.TestClass.Class.Name);
+                Assert.Equal("Theory", methodFinished.TestMethod.Method.Name);
                 return true;
             });
         }

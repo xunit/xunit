@@ -17,13 +17,13 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public bool Equals(ITestCollection x, ITestCollection y)
         {
-            return x.ID == y.ID;
+            return x.UniqueID == y.UniqueID;
         }
 
         /// <inheritdoc/>
         public int GetHashCode(ITestCollection obj)
         {
-            return obj.ID.GetHashCode();
+            return obj.UniqueID.GetHashCode();
         }
     }
 }

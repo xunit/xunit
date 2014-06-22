@@ -42,8 +42,9 @@ namespace Xunit.Sdk
         {
             var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
             var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+            var testAssembly = new XunitTestAssembly(assemblyInfo, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
 
-            TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, AssemblyInfo);
+            TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, testAssembly);
             TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",
                                                      DisplayName,
                                                      TestCollectionFactory.DisplayName,
@@ -55,18 +56,22 @@ namespace Xunit.Sdk
         /// </summary>
         public IXunitTestCollectionFactory TestCollectionFactory { get; private set; }
 
+        /// <inheritdoc/>
+        protected override ITestClass CreateTestClass(ITypeInfo @class)
+        {
+            return new XunitTestClass(TestCollectionFactory.Get(@class), @class);
+        }
+
         /// <summary>
         /// Finds the tests on a test method.
         /// </summary>
-        /// <param name="testCollection">The test collection that the test method belongs to.</param>
-        /// <param name="type">The test class that the test method belongs to.</param>
-        /// <param name="method">The test method.</param>
+        /// <param name="testMethod">The test method.</param>
         /// <param name="includeSourceInformation">Set to <c>true</c> to indicate that source information should be included.</param>
         /// <param name="messageBus">The message bus to report discovery messages to.</param>
         /// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
-        protected virtual bool FindTestsForMethod(ITestCollection testCollection, ITypeInfo type, IMethodInfo method, bool includeSourceInformation, IMessageBus messageBus)
+        protected virtual bool FindTestsForMethod(ITestMethod testMethod, bool includeSourceInformation, IMessageBus messageBus)
         {
-            var factAttribute = method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
+            var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
             if (factAttribute == null)
                 return true;
 
@@ -83,7 +88,7 @@ namespace Xunit.Sdk
             if (discoverer == null)
                 return true;
 
-            foreach (var testCase in discoverer.Discover(testCollection, AssemblyInfo, type, method, factAttribute))
+            foreach (var testCase in discoverer.Discover(testMethod, factAttribute))
                 if (!ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus))
                     return false;
 
@@ -91,13 +96,14 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override bool FindTestsForType(ITypeInfo type, bool includeSourceInformation, IMessageBus messageBus)
+        protected override bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus)
         {
-            var testCollection = TestCollectionFactory.Get(type);
-
-            foreach (var method in type.GetMethods(includePrivateMethods: true))
-                if (!FindTestsForMethod(testCollection, type, method, includeSourceInformation, messageBus))
+            foreach (var method in testClass.Class.GetMethods(includePrivateMethods: true))
+            {
+                var testMethod = new XunitTestMethod(testClass, method);
+                if (!FindTestsForMethod(testMethod, includeSourceInformation, messageBus))
                     return false;
+            }
 
             return true;
         }

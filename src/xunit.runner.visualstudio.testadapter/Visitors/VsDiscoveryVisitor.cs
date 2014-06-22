@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -18,12 +17,12 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         readonly Func<bool> cancelThunk;
         readonly ITestFrameworkDiscoverer discoverer;
         readonly ITestCaseDiscoverySink discoverySink;
+        readonly List<ITestCase> lastTestClassTestCases = new List<ITestCase>();
         readonly IMessageLogger logger;
         readonly XunitVisualStudioSettings settings;
         readonly string source;
 
         string lastTestClass;
-        List<ITestCase> lastTestClassTestCases = new List<ITestCase>();
 
         public VsDiscoveryVisitor(string source, ITestFrameworkDiscoverer discoverer, IMessageLogger logger, IDiscoveryContext discoveryContext, ITestCaseDiscoverySink discoverySink, Func<bool> cancelThunk)
         {
@@ -45,8 +44,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         public static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, XunitVisualStudioSettings settings, bool forceUniqueNames)
         {
             var serializedTestCase = discoverer.Serialize(xunitTestCase);
-            var fqTestMethodName = String.Format("{0}.{1}", xunitTestCase.Class.Name, xunitTestCase.Method.Name);
-            var displayName = settings.GetDisplayName(xunitTestCase.DisplayName, xunitTestCase.Method.Name, fqTestMethodName);
+            var fqTestMethodName = String.Format("{0}.{1}", xunitTestCase.TestMethod.TestClass.Class.Name, xunitTestCase.TestMethod.Method.Name);
+            var displayName = settings.GetDisplayName(xunitTestCase.DisplayName, xunitTestCase.TestMethod.Method.Name, fqTestMethodName);
             var uniqueName = forceUniqueNames ? String.Format("{0} ({1})", fqTestMethodName, xunitTestCase.UniqueID) : fqTestMethodName;
 
             var result = new TestCase(uniqueName, uri, source) { DisplayName = Escape(displayName) };
@@ -81,14 +80,14 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         {
             try
             {
-                Type testCaseType = typeof(TestCase);
-                Type stringType = typeof(string);
-                PropertyInfo property = testCaseType.GetProperty("Traits");
+                var testCaseType = typeof(TestCase);
+                var stringType = typeof(string);
+                var property = testCaseType.GetProperty("Traits");
 
                 if (property == null)
                     return null;
 
-                MethodInfo method = property.PropertyType.GetMethod("Add", new[] { typeof(string), typeof(string) });
+                var method = property.PropertyType.GetMethod("Add", new[] { typeof(string), typeof(string) });
                 if (method == null)
                     return null;
 
@@ -109,7 +108,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)
         {
             var testCase = discovery.TestCase;
-            string testClass = String.Format("{0}.{1}", testCase.Class.Name, testCase.Method.Name);
+            var testClass = String.Format("{0}.{1}", testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
             if (lastTestClass != testClass)
                 SendExistingTestCases();
 

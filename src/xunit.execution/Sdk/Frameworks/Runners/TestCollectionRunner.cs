@@ -99,7 +99,7 @@ namespace Xunit.Sdk
 
             try
             {
-                if (!MessageBus.QueueMessage(new TestCollectionStarting(TestCollection)))
+                if (!MessageBus.QueueMessage(new TestCollectionStarting(TestCases.Cast<ITestCase>(), TestCollection)))
                     CancellationTokenSource.Cancel();
                 else
                 {
@@ -110,7 +110,7 @@ namespace Xunit.Sdk
             }
             finally
             {
-                if (!MessageBus.QueueMessage(new TestCollectionFinished(TestCollection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped)))
+                if (!MessageBus.QueueMessage(new TestCollectionFinished(TestCases.Cast<ITestCase>(), TestCollection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped)))
                     CancellationTokenSource.Cancel();
 
                 OnTestCollectionFinished();
@@ -127,9 +127,9 @@ namespace Xunit.Sdk
         {
             var summary = new RunSummary();
 
-            foreach (var testCasesByClass in TestCases.GroupBy(tc => tc.Class, TestClassComparer.Instance))
+            foreach (var testCasesByClass in TestCases.GroupBy(tc => tc.TestMethod.TestClass, TestClassComparer.Instance))
             {
-                summary.Aggregate(await RunTestClassAsync((IReflectionTypeInfo)testCasesByClass.Key, testCasesByClass));
+                summary.Aggregate(await RunTestClassAsync(testCasesByClass.Key, (IReflectionTypeInfo)testCasesByClass.Key.Class, testCasesByClass));
                 if (CancellationTokenSource.IsCancellationRequested)
                     break;
             }
@@ -140,9 +140,10 @@ namespace Xunit.Sdk
         /// <summary>
         /// Override this method to run the tests in an individual test class.
         /// </summary>
-        /// <param name="testClass">The test class that contains the tests to be run.</param>
+        /// <param name="testClass">The test class to be run.</param>
+        /// <param name="class">The CLR class that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
         /// <returns>Returns summary information about the tests that were run.</returns>
-        protected abstract Task<RunSummary> RunTestClassAsync(IReflectionTypeInfo testClass, IEnumerable<TTestCase> testCases);
+        protected abstract Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<TTestCase> testCases);
     }
 }

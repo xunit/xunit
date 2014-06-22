@@ -10,7 +10,7 @@ public class ExtensibilityPointFactoryTests
         [Fact]
         public static void DefaultTestCollectionFactoryIsCollectionPerClass()
         {
-            var assembly = Mocks.AssemblyInfo();
+            var assembly = Mocks.TestAssembly();
 
             var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory((IAttributeInfo)null, assembly);
 
@@ -23,7 +23,7 @@ public class ExtensibilityPointFactoryTests
         public static void UserCanChooseFromBuiltInCollectionFactories_NonParallel(CollectionBehavior behavior, Type expectedType)
         {
             var attr = Mocks.CollectionBehaviorAttribute(behavior);
-            var assembly = Mocks.AssemblyInfo();
+            var assembly = Mocks.TestAssembly();
 
             var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(attr, assembly);
 
@@ -35,7 +35,7 @@ public class ExtensibilityPointFactoryTests
         {
             var factoryType = typeof(MyTestCollectionFactory);
             var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName, factoryType.Assembly.FullName);
-            var assembly = Mocks.AssemblyInfo();
+            var assembly = Mocks.TestAssembly();
 
             var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(attr, assembly);
 
@@ -45,12 +45,12 @@ public class ExtensibilityPointFactoryTests
 
         class MyTestCollectionFactory : IXunitTestCollectionFactory
         {
-            public MyTestCollectionFactory(IAssemblyInfo assembly)
+            public MyTestCollectionFactory(ITestAssembly assembly)
             {
                 Assembly = assembly;
             }
 
-            public readonly IAssemblyInfo Assembly;
+            public readonly ITestAssembly Assembly;
 
             public string DisplayName { get { return "My Factory"; } }
 
@@ -67,7 +67,7 @@ public class ExtensibilityPointFactoryTests
         public static void IncompatibleOrInvalidTypesGetDefaultBehavior(string factoryTypeName)
         {
             var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "test.xunit.execution");
-            var assembly = Mocks.AssemblyInfo();
+            var assembly = Mocks.TestAssembly();
 
             var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(attr, assembly);
 

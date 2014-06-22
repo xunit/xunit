@@ -53,7 +53,7 @@ public class XunitTestClassRunnerTests
     [Fact]
     public static async void CreatesFixturesFromClassAndCollection()
     {
-        var collection = new XunitTestCollection { CollectionDefinition = Reflector.Wrap(typeof(CollectionUnderTest)) };
+        var collection = new XunitTestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
         var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing", collection);
         var runner = TestableXunitTestClassRunner.Create(testCase);
 
@@ -139,15 +139,15 @@ public class XunitTestClassRunnerTests
         public new readonly ExceptionAggregator Aggregator;
         public List<object[]> ConstructorArguments = new List<object[]>();
 
-        TestableXunitTestClassRunner(ITestCollection testCollection,
-                                     IReflectionTypeInfo testClass,
+        TestableXunitTestClassRunner(ITestClass testClass,
+                                     IReflectionTypeInfo @class,
                                      IEnumerable<IXunitTestCase> testCases,
                                      IMessageBus messageBus,
                                      ITestCaseOrderer testCaseOrderer,
                                      ExceptionAggregator aggregator,
                                      CancellationTokenSource cancellationTokenSource,
                                      IDictionary<Type, object> collectionFixtureMappings)
-            : base(testCollection, testClass, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings)
+            : base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings)
         {
             Aggregator = aggregator;
         }
@@ -165,8 +165,8 @@ public class XunitTestClassRunnerTests
         public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures)
         {
             return new TestableXunitTestClassRunner(
-                testCase.TestCollection,
-                (IReflectionTypeInfo)testCase.Class,
+                testCase.TestMethod.TestClass,
+                (IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
                 new[] { testCase },
                 new SpyMessageBus(),
                 new MockTestCaseOrderer(),
@@ -176,7 +176,7 @@ public class XunitTestClassRunnerTests
             );
         }
 
-        protected override Task<RunSummary> RunTestMethodAsync(IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
+        protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
         {
             ConstructorArguments.Add(constructorArguments);
 

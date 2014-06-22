@@ -11,7 +11,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// The test case runner for xUnit.net v2 tests.
     /// </summary>
-    public class XunitTestCaseRunner : TestCaseRunner<XunitTestCase>
+    public class XunitTestCaseRunner : TestCaseRunner<IXunitTestCase>
     {
         readonly List<BeforeAfterTestAttribute> beforeAfterAttributes;
 
@@ -26,7 +26,7 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public XunitTestCaseRunner(XunitTestCase testCase,
+        public XunitTestCaseRunner(IXunitTestCase testCase,
                                    string displayName,
                                    string skipReason,
                                    object[] constructorArguments,
@@ -93,11 +93,12 @@ namespace Xunit.Sdk
 
         Type GetRuntimeClass()
         {
-            var reflectionTypeInfo = TestCase.Class as IReflectionTypeInfo;
+            var testClass = TestCase.TestMethod.TestClass;
+            var reflectionTypeInfo = testClass.Class as IReflectionTypeInfo;
             if (reflectionTypeInfo != null)
                 return reflectionTypeInfo.Type;
 
-            return Reflector.GetType(TestCase.Assembly.Name, TestCase.Class.Name);
+            return Reflector.GetType(testClass.TestCollection.TestAssembly.Assembly.Name, testClass.Class.Name);
         }
 
         MethodInfo GetRuntimeMethod()

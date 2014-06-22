@@ -25,7 +25,7 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public XunitTheoryTestCaseRunner(XunitTestCase testCase,
+        public XunitTheoryTestCaseRunner(IXunitTestCase testCase,
                                          string displayName,
                                          string skipReason,
                                          object[] constructorArguments,
@@ -42,7 +42,7 @@ namespace Xunit.Sdk
 
             try
             {
-                var dataAttributes = TestCase.Method.GetCustomAttributes(typeof(DataAttribute));
+                var dataAttributes = TestCase.TestMethod.Method.GetCustomAttributes(typeof(DataAttribute));
 
                 foreach (var dataAttribute in dataAttributes)
                 {
@@ -51,7 +51,7 @@ namespace Xunit.Sdk
                     var discovererType = Reflector.GetType(args[1], args[0]);
                     var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererType);
 
-                    foreach (var dataRow in discoverer.GetData(dataAttribute, TestCase.Method))
+                    foreach (var dataRow in discoverer.GetData(dataAttribute, TestCase.TestMethod.Method))
                     {
                         toDispose.AddRange(dataRow.OfType<IDisposable>());
 
@@ -60,13 +60,13 @@ namespace Xunit.Sdk
 
                         if (methodToRun.IsGenericMethodDefinition)
                         {
-                            resolvedTypes = TypeUtility.ResolveGenericTypes(TestCase.Method, dataRow);
+                            resolvedTypes = TypeUtility.ResolveGenericTypes(TestCase.TestMethod.Method, dataRow);
                             methodToRun = methodToRun.MakeGenericMethod(resolvedTypes.Select(t => ((IReflectionTypeInfo)t).Type).ToArray());
                         }
 
                         var parameterTypes = methodToRun.GetParameters().Select(p => p.ParameterType).ToArray();
                         var convertedDataRow = Reflector.ConvertArguments(dataRow, parameterTypes);
-                        var theoryDisplayName = TypeUtility.GetDisplayNameWithArguments(TestCase.Method, DisplayName, convertedDataRow, resolvedTypes);
+                        var theoryDisplayName = TypeUtility.GetDisplayNameWithArguments(TestCase.TestMethod.Method, DisplayName, convertedDataRow, resolvedTypes);
 
                         testRunners.Add(new XunitTestRunner(TestCase, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, theoryDisplayName, SkipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
                     }

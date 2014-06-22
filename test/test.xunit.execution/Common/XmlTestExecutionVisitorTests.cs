@@ -67,8 +67,8 @@ public class XmlTestExecutionVisitorTests
         public void AddsAssemblyStartingInformationToXml()
         {
             var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
-            assemblyStarting.AssemblyFileName.Returns("assembly");
-            assemblyStarting.ConfigFileName.Returns("config");
+            assemblyStarting.TestAssembly.Assembly.AssemblyPath.Returns("assembly");
+            assemblyStarting.TestAssembly.ConfigFileName.Returns("config");
             assemblyStarting.StartTime.Returns(new DateTime(2013, 7, 6, 16, 24, 32));
             assemblyStarting.TestEnvironment.Returns("256-bit MentalFloss");
             assemblyStarting.TestFrameworkDisplayName.Returns("xUnit.net v14.42");
@@ -90,7 +90,7 @@ public class XmlTestExecutionVisitorTests
         public void AssemblyStartingDoesNotIncludeNullConfigFile()
         {
             var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
-            assemblyStarting.ConfigFileName.Returns((string)null);
+            assemblyStarting.TestAssembly.ConfigFileName.Returns((string)null);
 
             var assemblyElement = new XElement("assembly");
             var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);

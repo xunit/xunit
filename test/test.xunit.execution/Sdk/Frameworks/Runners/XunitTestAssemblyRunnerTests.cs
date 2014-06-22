@@ -39,7 +39,7 @@ public class XunitTestAssemblyRunnerTests
         public static void Attribute_NonParallel()
         {
             var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true);
-            var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -51,7 +51,7 @@ public class XunitTestAssemblyRunnerTests
         public static void Attribute_MaxThreads()
         {
             var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 255);
-            var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -65,7 +65,7 @@ public class XunitTestAssemblyRunnerTests
         public static void Attribute_CollectionBehavior(CollectionBehavior behavior, string expectedDisplayText)
         {
             var attribute = Mocks.CollectionBehaviorAttribute(behavior, disableTestParallelization: true);
-            var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -78,7 +78,7 @@ public class XunitTestAssemblyRunnerTests
         {
             var factoryType = typeof(MyTestCollectionFactory);
             var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName, factoryType.Assembly.FullName, disableTestParallelization: true);
-            var assembly = Mocks.AssemblyInfo(attributes: new[] { attr });
+            var assembly = Mocks.TestAssembly(attributes: new[] { attr });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -90,7 +90,7 @@ public class XunitTestAssemblyRunnerTests
         {
             public string DisplayName { get { return "My Factory"; } }
 
-            public MyTestCollectionFactory(IAssemblyInfo assembly) { }
+            public MyTestCollectionFactory(ITestAssembly assembly) { }
 
             public ITestCollection Get(ITypeInfo testClass)
             {
@@ -125,7 +125,7 @@ public class XunitTestAssemblyRunnerTests
         {
             var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true, maxParallelThreads: 127);
             var options = new XunitExecutionOptions { DisableParallelization = false, MaxParallelThreads = 255 };
-            var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, options: options);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -192,16 +192,13 @@ public class XunitTestAssemblyRunnerTests
     {
         public ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>> TestCasesRun = new ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>>();
 
-        TestableXunitTestAssemblyRunner(IAssemblyInfo assemblyInfo,
+        TestableXunitTestAssemblyRunner(ITestAssembly testAssembly,
                                         IEnumerable<IXunitTestCase> testCases,
                                         IMessageSink messageSink,
                                         ITestFrameworkOptions executionOptions)
-            : base(assemblyInfo, testCases, messageSink, executionOptions)
-        {
+            : base(testAssembly, testCases, messageSink, executionOptions) { }
 
-        }
-
-        public static TestableXunitTestAssemblyRunner Create(IAssemblyInfo assembly = null,
+        public static TestableXunitTestAssemblyRunner Create(ITestAssembly assembly = null,
                                                              IXunitTestCase[] testCases = null,
                                                              ITestFrameworkOptions options = null)
         {
@@ -209,7 +206,7 @@ public class XunitTestAssemblyRunnerTests
                 testCases = new[] { Mocks.XunitTestCase<ClassUnderTest>("Passing") };
 
             return new TestableXunitTestAssemblyRunner(
-                assembly ?? testCases.First().Class.Assembly,
+                assembly ?? testCases.First().TestMethod.TestClass.TestCollection.TestAssembly,
                 testCases ?? new IXunitTestCase[0],
                 SpyMessageSink.Create(),
                 options ?? new TestFrameworkOptions()

@@ -8,7 +8,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// The test invoker for xUnit.net v2 tests.
     /// </summary>
-    public class XunitTestInvoker : TestInvoker<XunitTestCase>
+    public class XunitTestInvoker : TestInvoker<IXunitTestCase>
     {
         readonly IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes;
         readonly Stack<BeforeAfterTestAttribute> beforeAfterAttributesRun = new Stack<BeforeAfterTestAttribute>();
@@ -26,7 +26,7 @@ namespace Xunit.Sdk
         /// <param name="displayName">The display name for this test invocation.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public XunitTestInvoker(XunitTestCase testCase,
+        public XunitTestInvoker(IXunitTestCase testCase,
                                 IMessageBus messageBus,
                                 Type testClass,
                                 object[] constructorArguments,

@@ -12,23 +12,26 @@ namespace Xunit.Sdk
     public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFactory
     {
         readonly Dictionary<string, ITypeInfo> collectionDefinitions;
+        readonly ITestAssembly testAssembly;
         readonly ConcurrentDictionary<string, ITestCollection> testCollections = new ConcurrentDictionary<string, ITestCollection>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollectionPerClassTestCollectionFactory" /> class.
         /// </summary>
-        /// <param name="assemblyInfo">The assembly.</param>
-        public CollectionPerClassTestCollectionFactory(IAssemblyInfo assemblyInfo)
-            : this(assemblyInfo, MessageAggregator.Instance) { }
+        /// <param name="testAssembly">The assembly.</param>
+        public CollectionPerClassTestCollectionFactory(ITestAssembly testAssembly)
+            : this(testAssembly, MessageAggregator.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollectionPerClassTestCollectionFactory" /> class.
         /// </summary>
-        /// <param name="assemblyInfo">The assembly info.</param>
+        /// <param name="testAssembly">The assembly info.</param>
         /// <param name="messageAggregator">The message aggregator used to report <see cref="EnvironmentalWarning"/> messages.</param>
-        public CollectionPerClassTestCollectionFactory(IAssemblyInfo assemblyInfo, IMessageAggregator messageAggregator)
+        public CollectionPerClassTestCollectionFactory(ITestAssembly testAssembly, IMessageAggregator messageAggregator)
         {
-            collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(assemblyInfo, messageAggregator);
+            this.testAssembly = testAssembly;
+
+            collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, messageAggregator);
         }
 
         /// <inheritdoc/>
@@ -41,7 +44,7 @@ namespace Xunit.Sdk
         {
             ITypeInfo definitionType;
             collectionDefinitions.TryGetValue(name, out definitionType);
-            return new XunitTestCollection { CollectionDefinition = definitionType, DisplayName = name };
+            return new XunitTestCollection(testAssembly, definitionType, name);
         }
 
         /// <inheritdoc/>

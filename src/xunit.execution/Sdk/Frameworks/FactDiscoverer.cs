@@ -10,9 +10,9 @@ namespace Xunit.Sdk
     public class FactDiscoverer : IXunitTestCaseDiscoverer
     {
         /// <inheritdoc/>
-        public IEnumerable<IXunitTestCase> Discover(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute)
+        public IEnumerable<IXunitTestCase> Discover(ITestMethod testMethod, IAttributeInfo factAttribute)
         {
-            yield return new XunitTestCase(testCollection, assembly, testClass, testMethod, factAttribute);
+            return new IXunitTestCase[] { new XunitTestCase(testMethod) };
         }
     }
 }

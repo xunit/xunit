@@ -16,13 +16,9 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTheoryTestCase"/> class.
         /// </summary>
-        /// <param name="testCollection">The test collection this theory belongs to.</param>
-        /// <param name="assembly">The test assembly.</param>
-        /// <param name="type">The type under test.</param>
-        /// <param name="method">The method under test.</param>
-        /// <param name="theoryAttribute">The theory attribute.</param>
-        public XunitTheoryTestCase(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo theoryAttribute)
-            : base(testCollection, assembly, type, method, theoryAttribute) { }
+        /// <param name="testMethod">The method under test.</param>
+        public XunitTheoryTestCase(ITestMethod testMethod)
+            : base(testMethod) { }
 
         /// <inheritdoc />
         protected XunitTheoryTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }

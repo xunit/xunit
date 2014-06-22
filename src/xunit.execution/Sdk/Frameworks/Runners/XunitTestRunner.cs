@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// The test runner for xUnit.net v2 tests.
     /// </summary>
-    public class XunitTestRunner : TestRunner<XunitTestCase>
+    public class XunitTestRunner : TestRunner<IXunitTestCase>
     {
         readonly IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes;
 
@@ -27,7 +27,7 @@ namespace Xunit.Sdk
         /// <param name="beforeAfterAttributes">The list of <see cref="BeforeAfterTestAttribute"/>s for this test.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public XunitTestRunner(XunitTestCase testCase,
+        public XunitTestRunner(IXunitTestCase testCase,
                                IMessageBus messageBus,
                                Type testClass,
                                object[] constructorArguments,

@@ -5,7 +5,7 @@ using Xunit;
 
 internal static class XmlNodeExtensions
 {
-    public static Xunit1TestCase ToTestCase(this XmlNode xml, string assemblyFileName)
+    public static Xunit1TestCase ToTestCase(this XmlNode xml, string assemblyFileName, string configFileName)
     {
         if (xml.Name != "method")
             return null;
@@ -23,6 +23,6 @@ internal static class XmlNodeExtensions
         foreach (XmlNode traitNode in xml.SelectNodes("traits/trait"))
             traits.Add(traitNode.Attributes["name"].Value, traitNode.Attributes["value"].Value);
 
-        return new Xunit1TestCase(assemblyFileName, type, method, displayName, traits, skipReason);
+        return new Xunit1TestCase(assemblyFileName, configFileName, type, method, displayName, traits, skipReason);
     }
 }

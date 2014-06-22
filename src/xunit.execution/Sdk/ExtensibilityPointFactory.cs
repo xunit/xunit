@@ -127,20 +127,20 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets an xUnit.net v2 test collection factory.
         /// </summary>
-        public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(Type factoryType, IAssemblyInfo assemblyInfo)
+        public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(Type factoryType, ITestAssembly testAssembly)
         {
-            return Get<IXunitTestCollectionFactory>(factoryType, new[] { assemblyInfo });
+            return Get<IXunitTestCollectionFactory>(factoryType, new[] { testAssembly });
         }
 
         /// <summary>
         /// Gets an xUnit.net v2 test collection factory, as specified in a reflected <see cref="CollectionBehaviorAttribute"/>.
         /// </summary>
         /// <param name="collectionBehaviorAttribute">The collection behavior attribute.</param>
-        /// <param name="assemblyInfo">The test assembly.</param>
+        /// <param name="testAssembly">The test assembly.</param>
         /// <returns>The collection factory.</returns>
-        public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(IAttributeInfo collectionBehaviorAttribute, IAssemblyInfo assemblyInfo)
+        public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(IAttributeInfo collectionBehaviorAttribute, ITestAssembly testAssembly)
         {
-            return GetXunitTestCollectionFactory(GetTestCollectionFactoryType(collectionBehaviorAttribute), assemblyInfo);
+            return GetXunitTestCollectionFactory(GetTestCollectionFactoryType(collectionBehaviorAttribute), testAssembly);
         }
 
         static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehaviorAttribute)
@@ -161,7 +161,7 @@ namespace Xunit.Sdk
             }
 
             var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
-            if (result == null || !typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(IAssemblyInfo) }) == null)
+            if (result == null || !typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(ITestAssembly) }) == null)
                 return typeof(CollectionPerClassTestCollectionFactory);
 
             return result;

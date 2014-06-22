@@ -55,8 +55,8 @@ public class TestAssemblyRunnerTests
                 msg =>
                 {
                     var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(msg);
-                    Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.AssemblyFileName);
-                    Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, starting.ConfigFileName);
+                    Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.TestAssembly.Assembly.AssemblyPath);
+                    Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, starting.TestAssembly.ConfigFileName);
                     Assert.InRange(starting.StartTime, DateTime.Now.AddMinutes(-15), DateTime.Now);
                     Assert.Equal("The test framework environment", starting.TestEnvironment);
                     Assert.Equal("The test framework display name", starting.TestFrameworkDisplayName);
@@ -160,13 +160,13 @@ public class TestAssemblyRunnerTests
         public bool OnAssemblyStarted_Called;
         public bool OnAssemblyStarting_Called;
 
-        TestableTestAssemblyRunner(IAssemblyInfo assemblyInfo,
+        TestableTestAssemblyRunner(ITestAssembly testAssembly,
                                    IEnumerable<ITestCase> testCases,
                                    IMessageSink messageSink,
                                    ITestFrameworkOptions executionOptions,
                                    RunSummary result,
                                    bool cancelInRunTestCollectionAsync)
-            : base(assemblyInfo, testCases, messageSink, executionOptions)
+            : base(testAssembly, testCases, messageSink, executionOptions)
         {
             this.result = result;
             this.cancelInRunTestCollectionAsync = cancelInRunTestCollectionAsync;
@@ -179,7 +179,7 @@ public class TestAssemblyRunnerTests
                                                         bool cancelInRunTestCollectionAsync = false)
         {
             return new TestableTestAssemblyRunner(
-                Reflector.Wrap(Assembly.GetExecutingAssembly()),
+                Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
                 testCases ?? new[] { Substitute.For<ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
                 messageSink ?? SpyMessageSink.Create(),
                 options ?? new TestFrameworkOptions(),

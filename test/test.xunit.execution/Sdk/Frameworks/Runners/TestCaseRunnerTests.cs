@@ -22,13 +22,13 @@ public class TestCaseRunnerTests
             msg =>
             {
                 var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(msg);
-                Assert.Same(runner.TestCase.TestCollection, testCaseStarting.TestCollection);
+                Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testCaseStarting.TestCollection);
                 Assert.Same(runner.TestCase, testCaseStarting.TestCase);
             },
             msg =>
             {
                 var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
-                Assert.Same(runner.TestCase.TestCollection, testCaseFinished.TestCollection);
+                Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testCaseFinished.TestCollection);
                 Assert.Same(runner.TestCase, testCaseFinished.TestCase);
                 Assert.Equal(21.12m, testCaseFinished.ExecutionTime);
                 Assert.Equal(4, testCaseFinished.TestsRun);

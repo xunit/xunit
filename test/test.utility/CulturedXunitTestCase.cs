@@ -12,14 +12,12 @@ namespace TestUtility
     [Serializable]
     public class CulturedXunitTestCase : XunitTestCase
     {
-        private readonly string culture;
+        private string culture;
 
-        public CulturedXunitTestCase(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo type, IMethodInfo method, IAttributeInfo factAttribute, string culture)
-            : base(testCollection, assembly, type, method, factAttribute)
+        public CulturedXunitTestCase(ITestMethod testMethod, string culture)
+            : base(testMethod)
         {
-            this.culture = culture;
-
-            Traits.Add("Culture", culture);
+            Initialize(culture);
         }
 
         protected CulturedXunitTestCase(SerializationInfo info, StreamingContext context)
@@ -30,9 +28,13 @@ namespace TestUtility
             Traits.Add("Culture", culture);
         }
 
-        public override string DisplayName
+        void Initialize(string culture)
         {
-            get { return String.Format("{0} [{1}]", base.DisplayName, culture); }
+            this.culture = culture;
+
+            Traits.Add("Culture", culture);
+
+            DisplayName += String.Format(" [{0}]", culture);
         }
 
         [SecurityCritical]

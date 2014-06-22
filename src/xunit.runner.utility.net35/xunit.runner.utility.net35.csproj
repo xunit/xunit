@@ -89,7 +89,6 @@
     <Compile Include="Frameworks\v1\Xunit1ReflectionWrapper.cs" />
     <Compile Include="Frameworks\v1\Xunit1RunSummary.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCase.cs" />
-    <Compile Include="Frameworks\v1\Xunit1TestCollection.cs" />
     <Compile Include="Frameworks\VisualStudioSourceInformationProvider.cs" />
     <Compile Include="Utility\DiaNavigationData.cs" />
     <Compile Include="Utility\DiaSession.cs" />

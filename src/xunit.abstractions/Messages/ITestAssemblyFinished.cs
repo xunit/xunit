@@ -4,7 +4,7 @@
     /// This message indicates that the execution process has been completed for
     /// the requested assembly.
     /// </summary>
-    public interface ITestAssemblyFinished : IFinishedMessage
+    public interface ITestAssemblyFinished : ITestAssemblyMessage, IFinishedMessage
     {
     }
 }

@@ -33,7 +33,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the fixture mappings that were created during <see cref="OnTestCollectionStarting"/>.
         /// </summary>
-        protected Dictionary<Type, object> CollectionFixtureMappings { get; private set; }
+        protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
 
         void CreateFixture(Type fixtureGenericInterfaceType)
         {
@@ -74,9 +74,9 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override Task<RunSummary> RunTestClassAsync(IReflectionTypeInfo testClass, IEnumerable<IXunitTestCase> testCases)
+        protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
         {
-            return new XunitTestClassRunner(TestCollection, testClass, testCases, MessageBus, TestCaseOrderer, Aggregator, CancellationTokenSource, CollectionFixtureMappings).RunAsync();
+            return new XunitTestClassRunner(testClass, @class, testCases, MessageBus, TestCaseOrderer, Aggregator, CancellationTokenSource, CollectionFixtureMappings).RunAsync();
         }
     }
 }

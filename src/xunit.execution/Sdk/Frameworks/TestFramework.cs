@@ -24,7 +24,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the disposal tracker for the test framework.
         /// </summary>
-        protected DisposalTracker DisposalTracker { get; private set; }
+        protected DisposalTracker DisposalTracker { get; set; }
 
         /// <inheritdoc/>
         public ISourceInformationProvider SourceInformationProvider { get; set; }

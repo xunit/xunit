@@ -12,7 +12,7 @@ public class XunitTestCollectionRunnerTests
     [Fact]
     public static async void CreatesFixtures()
     {
-        var collection = new XunitTestCollection { CollectionDefinition = Reflector.Wrap(typeof(CollectionUnderTest)) };
+        var collection = new XunitTestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
         var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
         var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
@@ -27,7 +27,7 @@ public class XunitTestCollectionRunnerTests
     [Fact]
     public static async void DisposesFixtures()
     {
-        var collection = new XunitTestCollection { CollectionDefinition = Reflector.Wrap(typeof(CollectionUnderTest)) };
+        var collection = new XunitTestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
         var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
         var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
@@ -40,7 +40,7 @@ public class XunitTestCollectionRunnerTests
     [Fact]
     public static async void UsesCustomTestOrderer()
     {
-        var collection = new XunitTestCollection { CollectionDefinition = Reflector.Wrap(typeof(CollectionUnderTest)) };
+        var collection = new XunitTestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
         var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
         var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
@@ -83,7 +83,7 @@ public class XunitTestCollectionRunnerTests
         public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase)
         {
             return new TestableXunitTestCollectionRunner(
-                testCase.TestCollection,
+                testCase.TestMethod.TestClass.TestCollection,
                 new[] { testCase },
                 new SpyMessageBus(),
                 new MockTestCaseOrderer(),
@@ -101,7 +101,7 @@ public class XunitTestCollectionRunnerTests
             get { return base.TestCaseOrderer; }
         }
 
-        protected override Task<RunSummary> RunTestClassAsync(IReflectionTypeInfo testClass, IEnumerable<IXunitTestCase> testCases)
+        protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
         {
             return Task.FromResult(new RunSummary());
         }

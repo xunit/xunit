@@ -22,7 +22,6 @@ namespace Xunit
         readonly string configFileName;
         readonly IXunit1Executor executor;
         readonly ISourceInformationProvider sourceInformationProvider;
-        readonly ITestCollection testCollection;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 
         /// <summary>
@@ -42,7 +41,6 @@ namespace Xunit
             this.configFileName = configFileName;
 
             executor = CreateExecutor(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
-            testCollection = new Xunit1TestCollection(assemblyFileName);
         }
 
         /// <inheritdoc/>
@@ -77,11 +75,7 @@ namespace Xunit
         public ITestCase Deserialize(string value)
         {
             using (var stream = new MemoryStream(Convert.FromBase64String(value)))
-            {
-                var result = (Xunit1TestCase)BinaryFormatter.Deserialize(stream);
-                result.TestCollection = testCollection;
-                return result;
-            }
+                return (Xunit1TestCase)BinaryFormatter.Deserialize(stream);
         }
 
         /// <inheritdoc/>
@@ -117,13 +111,13 @@ namespace Xunit
         /// <param name="messageSink">The message sink to report results back to.</param>
         public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink)
         {
-            Find(msg => msg.TestCase.Class.Name == typeName, includeSourceInformation, messageSink);
+            Find(msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName, includeSourceInformation, messageSink);
         }
 
         /// <inheritdoc/>
         void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
         {
-            Find(msg => msg.TestCase.Class.Name == typeName, includeSourceInformation, messageSink);
+            Find(msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName, includeSourceInformation, messageSink);
         }
 
         void Find(Predicate<ITestCaseDiscoveryMessage> filter, bool includeSourceInformation, IMessageSink messageSink)
@@ -137,13 +131,11 @@ namespace Xunit
 
                 foreach (XmlNode method in assemblyXml.SelectNodes("//method"))
                 {
-                    var testCase = method.ToTestCase(assemblyFileName);
+                    var testCase = method.ToTestCase(assemblyFileName, configFileName);
                     if (testCase != null)
                     {
                         if (includeSourceInformation)
                             testCase.SourceInformation = sourceInformationProvider.GetSourceInformation(testCase);
-
-                        testCase.TestCollection = testCollection;
 
                         var message = new TestCaseDiscoveryMessage(testCase);
                         if (filter(message))
@@ -186,17 +178,12 @@ namespace Xunit
         {
             var results = new Xunit1RunSummary();
             var environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
+            var testCollection = testCases.First().TestMethod.TestClass.TestCollection;
 
-            if (messageSink.OnMessage(new TestAssemblyStarting(assemblyFileName, configFileName, DateTime.Now, environment, TestFrameworkDisplayName)))
-                foreach (var testCollectionGroup in testCases.Cast<Xunit1TestCase>().GroupBy(tc => tc.TestCollection))
-                {
-                    var collectionResults = RunTestCollection(testCollectionGroup.Key, testCollectionGroup, messageSink);
-                    results.Aggregate(collectionResults);
-                    if (!collectionResults.Continue)
-                        break;
-                }
+            if (messageSink.OnMessage(new TestAssemblyStarting(testCases, testCollection.TestAssembly, DateTime.Now, environment, TestFrameworkDisplayName)))
+                results = RunTestCollection(testCollection, testCases, messageSink);
 
-            messageSink.OnMessage(new TestAssemblyFinished(new Xunit1AssemblyInfo(assemblyFileName), results.Time, results.Total, results.Failed, results.Skipped));
+            messageSink.OnMessage(new TestAssemblyFinished(testCases, testCollection.TestAssembly, results.Time, results.Total, results.Failed, results.Skipped));
         }
 
         void ITestFrameworkExecutor.RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions options)
@@ -204,36 +191,36 @@ namespace Xunit
             Run(testCases, messageSink);
         }
 
-        Xunit1RunSummary RunTestCollection(ITestCollection testCollection, IEnumerable<Xunit1TestCase> testCases, IMessageSink messageSink)
+        Xunit1RunSummary RunTestCollection(ITestCollection testCollection, IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
             var results = new Xunit1RunSummary();
-            results.Continue = messageSink.OnMessage(new TestCollectionStarting(testCollection));
+            results.Continue = messageSink.OnMessage(new TestCollectionStarting(testCases, testCollection));
 
             if (results.Continue)
-                foreach (var testClassGroup in testCases.GroupBy(tc => tc.Class.Name))
+                foreach (var testClassGroup in testCases.GroupBy(tc => tc.TestMethod.TestClass, Comparer.Instance))
                 {
-                    var classResults = RunTestClass(testCollection, testClassGroup.Key, testClassGroup.ToList(), messageSink);
+                    var classResults = RunTestClass(testClassGroup.Key, testClassGroup.ToList(), messageSink);
                     results.Aggregate(classResults);
                     if (!classResults.Continue)
                         break;
                 }
 
-            results.Continue = messageSink.OnMessage(new TestCollectionFinished(testCollection, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
+            results.Continue = messageSink.OnMessage(new TestCollectionFinished(testCases, testCollection, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
             return results;
         }
 
-        Xunit1RunSummary RunTestClass(ITestCollection testCollection, string className, IList<Xunit1TestCase> testCases, IMessageSink messageSink)
+        Xunit1RunSummary RunTestClass(ITestClass testClass, IList<ITestCase> testCases, IMessageSink messageSink)
         {
             var handler = new TestClassCallbackHandler(testCases, messageSink);
             var results = handler.TestClassResults;
-            results.Continue = messageSink.OnMessage(new TestClassStarting(testCollection, className));
+            results.Continue = messageSink.OnMessage(new TestClassStarting(testCases, testClass));
 
             if (results.Continue)
             {
                 try
                 {
-                    var methodNames = testCases.Select(tc => tc.Method.Name).ToList();
-                    executor.RunTests(className, methodNames, handler);
+                    var methodNames = testCases.Select(tc => tc.TestMethod.Method.Name).ToList();
+                    executor.RunTests(testClass.Class.Name, methodNames, handler);
                     handler.LastNodeArrived.WaitOne();
                 }
                 catch (Exception ex)
@@ -244,7 +231,7 @@ namespace Xunit
                 }
             }
 
-            results.Continue = messageSink.OnMessage(new TestClassFinished(testCollection, className, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
+            results.Continue = messageSink.OnMessage(new TestClassFinished(testCases, testClass, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
             return results;
         }
 
@@ -255,6 +242,21 @@ namespace Xunit
             {
                 BinaryFormatter.Serialize(stream, testCase);
                 return Convert.ToBase64String(stream.GetBuffer());
+            }
+        }
+
+        class Comparer : IEqualityComparer<ITestClass>
+        {
+            public static readonly Comparer Instance = new Comparer();
+
+            public bool Equals(ITestClass x, ITestClass y)
+            {
+                return x.Class.Name == y.Class.Name;
+            }
+
+            public int GetHashCode(ITestClass obj)
+            {
+                return obj.Class.Name.GetHashCode();
             }
         }
     }

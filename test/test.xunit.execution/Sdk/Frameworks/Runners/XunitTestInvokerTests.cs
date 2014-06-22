@@ -27,7 +27,7 @@ public class XunitTestInvokerTests
                 msg =>
                 {
                     var beforeStarting = Assert.IsAssignableFrom<IBeforeTestStarting>(msg);
-                    Assert.Same(invoker.TestCase.TestCollection, beforeStarting.TestCollection);
+                    Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, beforeStarting.TestCollection);
                     Assert.Same(invoker.TestCase, beforeStarting.TestCase);
                     Assert.Equal("Display Name", beforeStarting.TestDisplayName);
                     Assert.Equal("SpyBeforeAfterTest", beforeStarting.AttributeName);
@@ -35,7 +35,7 @@ public class XunitTestInvokerTests
                 msg =>
                 {
                     var beforeFinished = Assert.IsAssignableFrom<IBeforeTestFinished>(msg);
-                    Assert.Same(invoker.TestCase.TestCollection, beforeFinished.TestCollection);
+                    Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, beforeFinished.TestCollection);
                     Assert.Same(invoker.TestCase, beforeFinished.TestCase);
                     Assert.Equal("Display Name", beforeFinished.TestDisplayName);
                     Assert.Equal("SpyBeforeAfterTest", beforeFinished.AttributeName);
@@ -44,7 +44,7 @@ public class XunitTestInvokerTests
                 msg =>
                 {
                     var afterStarting = Assert.IsAssignableFrom<IAfterTestStarting>(msg);
-                    Assert.Same(invoker.TestCase.TestCollection, afterStarting.TestCollection);
+                    Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, afterStarting.TestCollection);
                     Assert.Same(invoker.TestCase, afterStarting.TestCase);
                     Assert.Equal("Display Name", afterStarting.TestDisplayName);
                     Assert.Equal("SpyBeforeAfterTest", afterStarting.AttributeName);
@@ -52,7 +52,7 @@ public class XunitTestInvokerTests
                 msg =>
                 {
                     var afterFinished = Assert.IsAssignableFrom<IAfterTestFinished>(msg);
-                    Assert.Same(invoker.TestCase.TestCollection, afterFinished.TestCollection);
+                    Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, afterFinished.TestCollection);
                     Assert.Same(invoker.TestCase, afterFinished.TestCase);
                     Assert.Equal("Display Name", afterFinished.TestDisplayName);
                     Assert.Equal("SpyBeforeAfterTest", afterFinished.AttributeName);
@@ -263,10 +263,10 @@ public class XunitTestInvokerTests
         readonly Action lambda;
 
         public readonly new ExceptionAggregator Aggregator;
-        public readonly new XunitTestCase TestCase;
+        public readonly new IXunitTestCase TestCase;
         public readonly CancellationTokenSource TokenSource;
 
-        TestableXunitTestInvoker(XunitTestCase testCase, IMessageBus messageBus, Type testClass, object[] constructorArguments, MethodInfo testMethod, object[] testMethodArguments, IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes, string displayName, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource, Action lambda)
+        TestableXunitTestInvoker(IXunitTestCase testCase, IMessageBus messageBus, Type testClass, object[] constructorArguments, MethodInfo testMethod, object[] testMethodArguments, IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes, string displayName, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource, Action lambda)
             : base(testCase, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, displayName, aggregator, cancellationTokenSource)
         {
             this.lambda = lambda;
@@ -279,11 +279,11 @@ public class XunitTestInvokerTests
         public static TestableXunitTestInvoker Create(IMessageBus messageBus = null, string displayName = null, IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes = null, Action lambda = null)
         {
             return new TestableXunitTestInvoker(
-                Mocks.XunitTestCase<Object>("ToString"),
+                Mocks.XunitTestCase<ClassUnderTest>("Passing"),
                 messageBus ?? new SpyMessageBus(),
-                typeof(Object),
+                typeof(ClassUnderTest),
                 new object[0],
-                typeof(Object).GetMethod("ToString"),
+                typeof(ClassUnderTest).GetMethod("Passing"),
                 new object[0],
                 beforeAfterAttributes ?? new List<BeforeAfterTestAttribute>(),
                 displayName,
@@ -300,6 +300,12 @@ public class XunitTestInvokerTests
 
             Aggregator.Run(lambda);
             return Task.FromResult(0);
+        }
+
+        class ClassUnderTest
+        {
+            [Fact]
+            public void Passing() { }
         }
     }
 }

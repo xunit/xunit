@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System.Collections.Generic;
+using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
 namespace Xunit.Sdk
@@ -14,13 +15,13 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodMessage"/> class.
         /// </summary>
-        public TestMethodMessage(ITestCollection testCollection, string className, string methodName)
-            : base(testCollection, className)
+        public TestMethodMessage(IEnumerable<ITestCase> testCases, ITestMethod testMethod)
+            : base(testCases, testMethod.TestClass)
         {
-            MethodName = methodName;
+            TestMethod = testMethod;
         }
 
         /// <inheritdoc/>
-        public string MethodName { get; private set; }
+        public ITestMethod TestMethod { get; set; }
     }
 }

@@ -158,7 +158,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                         new Grouping<string, TestCase>(
                             source,
                             visitor.TestCases
-                                   .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
+                                   .GroupBy(tc => String.Format("{0}.{1}", tc.TestMethod.TestClass.Class.Name, tc.TestMethod.Method.Name))
                                    .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(source, discoverer, testCase, settings, forceUniqueNames: group.Count() > 1)))
                                    .ToList()
                         )
@@ -172,12 +172,12 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         static bool IsXunitTestAssembly(string assemblyFileName)
         {
             // Don't try to load ourselves, since we fail (issue #47). Also, Visual Studio Online is brain dead.
-            string self = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+            var self = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
             if (Path.GetFileNameWithoutExtension(assemblyFileName).Equals(self, StringComparison.OrdinalIgnoreCase))
                 return false;
 
-            string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
-            string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
+            var xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
+            var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
             return File.Exists(xunitPath) || File.Exists(xunitExecutionPath);
         }
 

@@ -20,23 +20,23 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestClassRunner{TTestCase}"/> class.
         /// </summary>
-        /// <param name="testCollection">The test collection that contains the test class.</param>
-        /// <param name="testClass">The test class that contains the tests to be run.</param>
+        /// <param name="testClass">The test class to be run.</param>
+        /// <param name="class">The test class that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public TestClassRunner(ITestCollection testCollection,
-                               IReflectionTypeInfo testClass,
+        public TestClassRunner(ITestClass testClass,
+                               IReflectionTypeInfo @class,
                                IEnumerable<TTestCase> testCases,
                                IMessageBus messageBus,
                                ITestCaseOrderer testCaseOrderer,
                                ExceptionAggregator aggregator,
                                CancellationTokenSource cancellationTokenSource)
         {
-            TestCollection = testCollection;
             TestClass = testClass;
+            Class = @class;
             TestCases = testCases;
             MessageBus = messageBus;
             TestCaseOrderer = testCaseOrderer;
@@ -55,6 +55,11 @@ namespace Xunit.Sdk
         protected CancellationTokenSource CancellationTokenSource { get; set; }
 
         /// <summary>
+        /// Gets or sets the CLR class that contains the tests to be run.
+        /// </summary>
+        protected IReflectionTypeInfo Class { get; set; }
+
+        /// <summary>
         /// Gets or sets the message bus to report run status to.
         /// </summary>
         protected IMessageBus MessageBus { get; set; }
@@ -70,14 +75,9 @@ namespace Xunit.Sdk
         protected IEnumerable<TTestCase> TestCases { get; set; }
 
         /// <summary>
-        /// Gets or sets the test class that contains the tests to be run.
+        /// Gets or sets the test class to be run.
         /// </summary>
-        protected IReflectionTypeInfo TestClass { get; set; }
-
-        /// <summary>
-        /// Gets or sets the test collection that contains the test class.
-        /// </summary>
-        protected ITestCollection TestCollection { get; set; }
+        protected ITestClass TestClass { get; set; }
 
         /// <summary>
         /// Creates the arguments for the test class constructor. Attempts to resolve each parameter
@@ -89,7 +89,7 @@ namespace Xunit.Sdk
         {
             var constructorArguments = new List<object>();
 
-            var isStaticClass = TestClass.Type.IsAbstract && TestClass.Type.IsSealed;
+            var isStaticClass = Class.Type.IsAbstract && Class.Type.IsSealed;
             if (!isStaticClass)
             {
                 var ctor = SelectTestClassConstructor();
@@ -158,7 +158,7 @@ namespace Xunit.Sdk
 
             try
             {
-                if (!MessageBus.QueueMessage(new TestClassStarting(TestCollection, TestClass.Name)))
+                if (!MessageBus.QueueMessage(new TestClassStarting(TestCases.Cast<ITestCase>(), TestClass)))
                     CancellationTokenSource.Cancel();
                 else
                 {
@@ -169,7 +169,7 @@ namespace Xunit.Sdk
             }
             finally
             {
-                if (!MessageBus.QueueMessage(new TestClassFinished(TestCollection, TestClass.Name, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
+                if (!MessageBus.QueueMessage(new TestClassFinished(TestCases.Cast<ITestCase>(), TestClass, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
                     CancellationTokenSource.Cancel();
 
                 OnTestClassFinished();
@@ -188,9 +188,9 @@ namespace Xunit.Sdk
             var orderedTestCases = TestCaseOrderer.OrderTestCases(TestCases);
             var constructorArguments = CreateTestClassConstructorArguments();
 
-            foreach (var method in orderedTestCases.GroupBy(tc => tc.Method, TestMethodComparer.Instance))
+            foreach (var method in orderedTestCases.GroupBy(tc => tc.TestMethod, TestMethodComparer.Instance))
             {
-                summary.Aggregate(await RunTestMethodAsync((IReflectionMethodInfo)method.Key, method, constructorArguments));
+                summary.Aggregate(await RunTestMethodAsync(method.Key, (IReflectionMethodInfo)method.Key.Method, method, constructorArguments));
                 if (CancellationTokenSource.IsCancellationRequested)
                     break;
             }
@@ -201,11 +201,12 @@ namespace Xunit.Sdk
         /// <summary>
         /// Override this method to run the tests in an individual test method.
         /// </summary>
-        /// <param name="testMethod">The test method that contains the tests to be run.</param>
+        /// <param name="testMethod">The test method that contains the test cases.</param>
+        /// <param name="method">The CLR method that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="constructorArguments">The constructor arguments that will be used to create the test class.</param>
         /// <returns>Returns summary information about the tests that were run.</returns>
-        protected abstract Task<RunSummary> RunTestMethodAsync(IReflectionMethodInfo testMethod, IEnumerable<TTestCase> testCases, object[] constructorArguments);
+        protected abstract Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<TTestCase> testCases, object[] constructorArguments);
 
         /// <summary>
         /// Selects the constructor to be used for the test class. By default, chooses the parameterless
@@ -214,7 +215,7 @@ namespace Xunit.Sdk
         /// <returns>The constructor to be used for creating the test class.</returns>
         protected virtual ConstructorInfo SelectTestClassConstructor()
         {
-            var result = TestClass.Type.GetConstructor(new Type[0]);
+            var result = Class.Type.GetConstructor(new Type[0]);
             if (result == null)
                 Aggregator.Add(new TestClassException("A test class must have a parameterless constructor."));
 
