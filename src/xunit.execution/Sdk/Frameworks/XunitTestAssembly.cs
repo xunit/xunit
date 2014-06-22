@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -37,15 +38,19 @@ namespace Xunit.Sdk
             ConfigFileName = info.GetString("ConfigFileName");
 
             var assemblyPath = info.GetString("AssemblyPath");
-#if !WINDOWS_PHONE_APP
+#if !WINDOWS_PHONE_APP && !WIN8_STORE
             var assembly = AppDomain.CurrentDomain
                                     .GetAssemblies()
-                                    .First(a => String.Equals(a.GetLocalCodeBase(), assemblyPath, StringComparison.OrdinalIgnoreCase));
+                                    .First(a => !a.IsDynamic && String.Equals(a.GetLocalCodeBase(), assemblyPath, StringComparison.OrdinalIgnoreCase));
+#elif WIN8_STORE
+            var assembly = AppDomain.CurrentDomain
+                                    .GetAssemblies()
+                                    .First(a => !a.IsDynamic && String.Equals(a.GetLocalCodeBase().ToLowerInvariant().Replace(Path.DirectorySeparatorChar + "AppX" + Path.DirectorySeparatorChar, Path.DirectorySeparatorChar+""), assemblyPath, StringComparison.OrdinalIgnoreCase)); // strip \AppX\ out of the path
 #else
             // On WPA, this will be the assemblyname
             var assembly = System.Reflection.Assembly.Load(new AssemblyName
             {
-                Name = assemblyPath
+                Name = Path.GetFileNameWithoutExtension(assemblyPath)
             });
 #endif
             Assembly = Reflector.Wrap(assembly);
