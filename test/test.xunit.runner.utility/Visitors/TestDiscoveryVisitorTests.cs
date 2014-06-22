@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System.Collections.Generic;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -29,12 +30,13 @@ public class TestDiscoveryVisitorTests
         public DiscoveryMessage(ITestCase testCase)
         {
             TestCase = testCase;
-            TestCollection = testCase.TestCollection;
         }
 
+        public ITestAssembly TestAssembly { get { return TestCase.TestMethod.TestClass.TestCollection.TestAssembly; } }
         public ITestCase TestCase { get; private set; }
-        public ITestCollection TestCollection { get; private set; }
-
-        public void Dispose() { }
+        public IEnumerable<ITestCase> TestCases { get { return new[] { TestCase }; } }
+        public ITestClass TestClass { get { return TestCase.TestMethod.TestClass; }}
+        public ITestCollection TestCollection { get { return TestCase.TestMethod.TestClass.TestCollection; } }
+        public ITestMethod TestMethod { get { return TestCase.TestMethod; }}
     }
 }

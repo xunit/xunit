@@ -44,7 +44,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                     "XUNIT.ASSERT.DLL"}
             );
 
-bool cancelled;
+        bool cancelled;
 
         public void Cancel()
         {
@@ -193,7 +193,7 @@ bool cancelled;
                         new Grouping<string, TestCase>(
                             source,
                             visitor.TestCases
-                                   .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
+                                   .GroupBy(tc => String.Format("{0}.{1}", tc.TestMethod.TestClass.Class.Name, tc.TestMethod.Method.Name))
                                    .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(source, discoverer, testCase, settings, forceUniqueNames: group.Count() > 1)))
                                    .ToList()
                         )
@@ -250,7 +250,7 @@ bool cancelled;
         {
             Guard.ArgumentNotNull("tests", tests);
             Guard.ArgumentValid("tests", "appx not supported in this overload", !ContainsAppX(tests.Select(t => t.Source)));
-            
+
             var stopwatch = Stopwatch.StartNew();
             RunTests(runContext, frameworkHandle, stopwatch, settings => tests.GroupBy(testCase => testCase.Source));
             stopwatch.Stop();

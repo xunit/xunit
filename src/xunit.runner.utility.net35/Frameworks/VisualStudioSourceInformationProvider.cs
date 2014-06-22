@@ -1,5 +1,4 @@
-﻿using System;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -25,7 +24,7 @@ namespace Xunit
         /// <inheritdoc/>
         public ISourceInformation GetSourceInformation(ITestCase testCase)
         {
-            var navData = session.GetNavigationData(testCase.Class.Name, testCase.Method.Name);
+            var navData = session.GetNavigationData(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
             if (navData == null)
                 return EmptySourceInformation;
 

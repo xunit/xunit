@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Xunit
+﻿namespace Xunit
 {
     /// <summary>
     /// Used to decorate xUnit.net test classes and collections to indicate a test which has

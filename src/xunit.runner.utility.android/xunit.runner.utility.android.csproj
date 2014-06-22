@@ -77,13 +77,19 @@
     <Compile Include="Resources\Resource.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\xunit.runner.utility\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\messages\**\*.cs">
+      <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
       <Project>{77743589-f177-4007-97b8-50b82a1c7044}</Project>
       <Name>xunit.abstractions.pcl</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="..\xunit.runner.utility\xunit.runner.utility.projitems" Label="Shared" Condition="Exists('..\xunit.runner.utility\xunit.runner.utility.projitems')" />
-  <Import Project="..\messages\messages.projitems" Label="Shared" Condition="Exists('..\messages\messages.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

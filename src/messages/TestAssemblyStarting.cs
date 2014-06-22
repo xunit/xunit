@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
@@ -10,33 +11,26 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyStarting"/>.
     /// </summary>
-    public class TestAssemblyStarting : LongLivedMarshalByRefObject, ITestAssemblyStarting
+    public class TestAssemblyStarting : TestAssemblyMessage, ITestAssemblyStarting
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyStarting"/> class.
         /// </summary>
-        public TestAssemblyStarting(string assemblyFileName, string configFileName, DateTime startTime, string testEnvironment, string testFrameworkDisplayName)
+        public TestAssemblyStarting(IEnumerable<ITestCase> testCases, ITestAssembly testAssembly, DateTime startTime, string testEnvironment, string testFrameworkDisplayName)
+            : base(testCases, testAssembly)
         {
-            AssemblyFileName = assemblyFileName;
-            ConfigFileName = configFileName;
             StartTime = startTime;
             TestEnvironment = testEnvironment;
             TestFrameworkDisplayName = testFrameworkDisplayName;
         }
 
         /// <inheritdoc/>
-        public string AssemblyFileName { get; private set; }
+        public DateTime StartTime { get; set; }
 
         /// <inheritdoc/>
-        public string ConfigFileName { get; private set; }
+        public string TestEnvironment { get; set; }
 
         /// <inheritdoc/>
-        public DateTime StartTime { get; private set; }
-
-        /// <inheritdoc/>
-        public string TestEnvironment { get; private set; }
-
-        /// <inheritdoc/>
-        public string TestFrameworkDisplayName { get; private set; }
+        public string TestFrameworkDisplayName { get; set; }
     }
 }

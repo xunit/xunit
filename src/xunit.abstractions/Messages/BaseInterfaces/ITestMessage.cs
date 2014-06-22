@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Xunit.Abstractions
+﻿namespace Xunit.Abstractions
 {
     /// <summary>
     /// Base message interface for all messages related to tests.

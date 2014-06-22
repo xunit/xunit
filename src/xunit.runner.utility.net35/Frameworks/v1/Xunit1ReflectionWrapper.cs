@@ -192,6 +192,11 @@ namespace Xunit
             return Enumerable.Empty<ITypeInfo>();
         }
 
+        IMethodInfo ITypeInfo.GetMethod(string methodName, bool includePrivateMethods)
+        {
+            return this;
+        }
+
         IEnumerable<IMethodInfo> ITypeInfo.GetMethods(bool includePrivateMethods)
         {
             yield return this;

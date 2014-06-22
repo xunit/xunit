@@ -15,48 +15,29 @@ namespace Xunit.Sdk
     /// </summary>
     public class LambdaTestCase : XunitTestCase
     {
-        readonly Action lambda;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="LambdaTestCase"/> class.
         /// </summary>
-        /// <param name="testCollection">The test collection this test case belongs to.</param>
-        /// <param name="assembly">The test assembly.</param>
-        /// <param name="testClass">The test class.</param>
         /// <param name="testMethod">The test method.</param>
-        /// <param name="factAttribute">The instance of <see cref="FactAttribute"/>.</param>
         /// <param name="lambda">The code to run for the test.</param>
-        public LambdaTestCase(ITestCollection testCollection, IAssemblyInfo assembly, ITypeInfo testClass, IMethodInfo testMethod, IAttributeInfo factAttribute, Action lambda)
-            : base(testCollection, assembly, testClass, testMethod, factAttribute)
+        public LambdaTestCase(ITestMethod testMethod, Action lambda)
+            : base(testMethod)
         {
-            this.lambda = lambda;
+            Lambda = lambda;
         }
 
+        /// <summary>
+        /// Gets the lambda that this test case will run.
+        /// </summary>
+        public Action Lambda { get; private set; }
+
         /// <inheritdoc/>
-        protected override Task RunTestsAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        public override Task<RunSummary> RunAsync(IMessageBus messageBus,
+                                                  object[] constructorArguments,
+                                                  ExceptionAggregator aggregator,
+                                                  CancellationTokenSource cancellationTokenSource)
         {
-            if (!messageBus.QueueMessage(new TestStarting(this, DisplayName)))
-                cancellationTokenSource.Cancel();
-            else
-            {
-                try
-                {
-                    lambda();
-
-                    if (!messageBus.QueueMessage(new TestPassed(this, DisplayName, 0, null)))
-                        cancellationTokenSource.Cancel();
-                }
-                catch (Exception ex)
-                {
-                    if (!messageBus.QueueMessage(new TestFailed(this, DisplayName, 0, null, ex)))
-                        cancellationTokenSource.Cancel();
-                }
-            }
-
-            if (!messageBus.QueueMessage(new TestFinished(this, DisplayName, 0, null)))
-                cancellationTokenSource.Cancel();
-
-            return Task.FromResult(0);
+            return new LambdaTestCaseRunner(this, messageBus, aggregator, cancellationTokenSource).RunAsync();
         }
     }
 }

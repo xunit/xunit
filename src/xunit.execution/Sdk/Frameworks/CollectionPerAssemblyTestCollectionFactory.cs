@@ -15,24 +15,27 @@ namespace Xunit.Sdk
     {
         readonly Dictionary<string, ITypeInfo> collectionDefinitions;
         readonly XunitTestCollection defaultCollection;
+        readonly ITestAssembly testAssembly;
         readonly ConcurrentDictionary<string, ITestCollection> testCollections = new ConcurrentDictionary<string, ITestCollection>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollectionPerAssemblyTestCollectionFactory" /> class.
         /// </summary>
-        /// <param name="assemblyInfo">The assembly.</param>
-        public CollectionPerAssemblyTestCollectionFactory(IAssemblyInfo assemblyInfo)
-            : this(assemblyInfo, MessageAggregator.Instance) { }
+        /// <param name="testAssembly">The assembly.</param>
+        public CollectionPerAssemblyTestCollectionFactory(ITestAssembly testAssembly)
+            : this(testAssembly, MessageAggregator.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollectionPerAssemblyTestCollectionFactory" /> class.
         /// </summary>
-        /// <param name="assemblyInfo">The assembly.</param>
+        /// <param name="testAssembly">The assembly.</param>
         /// <param name="messageAggregator">The message aggregator used to report <see cref="EnvironmentalWarning"/> messages.</param>
-        public CollectionPerAssemblyTestCollectionFactory(IAssemblyInfo assemblyInfo, IMessageAggregator messageAggregator)
+        public CollectionPerAssemblyTestCollectionFactory(ITestAssembly testAssembly, IMessageAggregator messageAggregator)
         {
-            defaultCollection = new XunitTestCollection { DisplayName = "Test collection for " + Path.GetFileName(assemblyInfo.AssemblyPath) };
-            collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(assemblyInfo, messageAggregator);
+            this.testAssembly = testAssembly;
+
+            defaultCollection = new XunitTestCollection(testAssembly, null, "Test collection for " + Path.GetFileName(testAssembly.Assembly.AssemblyPath));
+            collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, messageAggregator);
         }
 
         /// <inheritdoc/>
@@ -45,7 +48,7 @@ namespace Xunit.Sdk
         {
             ITypeInfo definitionType;
             collectionDefinitions.TryGetValue(name, out definitionType);
-            return new XunitTestCollection { CollectionDefinition = definitionType, DisplayName = name };
+            return new XunitTestCollection(testAssembly, definitionType, name);
         }
 
         /// <inheritdoc/>

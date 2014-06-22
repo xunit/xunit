@@ -81,23 +81,23 @@ public class Xunit1Tests
             Assert.Collection(sink.TestCases,
                 testCase =>
                 {
-                    Assert.Equal("Type1", testCase.Class.Name);
-                    Assert.Equal("Method1", testCase.Method.Name);
+                    Assert.Equal("Type1", testCase.TestMethod.TestClass.Class.Name);
+                    Assert.Equal("Method1", testCase.TestMethod.Method.Name);
                     Assert.Equal("Method1 Display Name", testCase.DisplayName);
                     Assert.Null(testCase.SkipReason);
                     Assert.Empty(testCase.Traits);
                 },
                 testCase =>
                 {
-                    Assert.Equal("SpecialType", testCase.Class.Name);
-                    Assert.Equal("SkippedMethod", testCase.Method.Name);
+                    Assert.Equal("SpecialType", testCase.TestMethod.TestClass.Class.Name);
+                    Assert.Equal("SkippedMethod", testCase.TestMethod.Method.Name);
                     Assert.Equal("SpecialType.SkippedMethod", testCase.DisplayName);
                     Assert.Equal("I am not run", testCase.SkipReason);
                 },
                 testCase =>
                 {
-                    Assert.Equal("SpecialType", testCase.Class.Name);
-                    Assert.Equal("MethodWithTraits", testCase.Method.Name);
+                    Assert.Equal("SpecialType", testCase.TestMethod.TestClass.Class.Name);
+                    Assert.Equal("MethodWithTraits", testCase.TestMethod.Method.Name);
                     Assert.Equal("SpecialType.MethodWithTraits", testCase.DisplayName);
                     Assert.Collection(testCase.Traits.Keys,
                         key =>
@@ -181,14 +181,13 @@ public class Xunit1Tests
         [Fact]
         public void RunWithTestCases()
         {
-            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
             var testCases = new[] {
-                new Xunit1TestCase("assembly", "type1", "passing", "type1.passing") { TestCollection = testCollection },
-                new Xunit1TestCase("assembly", "type1", "failing", "type1.failing") { TestCollection = testCollection },
-                new Xunit1TestCase("assembly", "type2", "skipping", "type2.skipping") { TestCollection = testCollection },
-                new Xunit1TestCase("assembly", "type2", "skipping_with_start", "type2.skipping_with_start") { TestCollection = testCollection }
+                new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing"),
+                new Xunit1TestCase("assembly", "config", "type1", "failing", "type1.failing"),
+                new Xunit1TestCase("assembly", "config", "type2", "skipping", "type2.skipping"),
+                new Xunit1TestCase("assembly", "config", "type2", "skipping_with_start", "type2.skipping_with_start")
             };
-            var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
+            var xunit1 = new TestableXunit1();
             xunit1.Executor.TestFrameworkDisplayName.Returns("Test framework display name");
             xunit1.Executor
                   .When(x => x.RunTests("type1", Arg.Any<List<string>>(), Arg.Any<ICallbackEventHandler>()))
@@ -217,59 +216,97 @@ public class Xunit1Tests
             xunit1.Run(testCases, sink);
             sink.Finished.WaitOne();
 
+            var firstTestCase = testCases[0];
+            var testCollection = firstTestCase.TestMethod.TestClass.TestCollection;
+            var testAssembly = testCollection.TestAssembly;
             Assert.Collection(sink.Messages,
                 message =>
                 {
                     var assemblyStarting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);
-                    Assert.Equal("AssemblyName.dll", assemblyStarting.AssemblyFileName);
-                    Assert.Equal("ConfigFile.config", assemblyStarting.ConfigFileName);
+                    Assert.Same(testAssembly, assemblyStarting.TestAssembly);
                     Assert.Contains("-bit .NET ", assemblyStarting.TestEnvironment);
                     Assert.Equal("Test framework display name", assemblyStarting.TestFrameworkDisplayName);
+                    Assert.Equal(testCases, assemblyStarting.TestCases);
+
+                    Assert.Equal("assembly", assemblyStarting.TestAssembly.Assembly.AssemblyPath);
+                    Assert.Equal("config", assemblyStarting.TestAssembly.ConfigFileName);
                 },
                 message =>
                 {
                     var testCollectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
+                    Assert.Same(testAssembly, testCollectionStarting.TestAssembly);
                     Assert.Same(testCollection, testCollectionStarting.TestCollection);
+                    Assert.Equal(testCases, testCollectionStarting.TestCases);
+
+                    Assert.Equal(Guid.Empty, testCollection.UniqueID);
+                    Assert.Equal("xUnit.net v1 Tests for assembly", testCollection.DisplayName);
+                    Assert.Null(testCollection.CollectionDefinition);
                 },
                 message =>
                 {
                     var testClassStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
-                    Assert.Equal("type1", testClassStarting.ClassName);
+                    Assert.Same(testAssembly, testClassStarting.TestAssembly);
                     Assert.Same(testCollection, testClassStarting.TestCollection);
+                    Assert.Equal("type1", testClassStarting.TestClass.Class.Name);
+                    Assert.Collection(testClassStarting.TestCases,
+                        testCase => Assert.Same(testCases[0], testCase),
+                        testCase => Assert.Same(testCases[1], testCase)
+                    );
                 },
                 message =>
                 {
                     var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-                    Assert.Equal("type1", testMethodStarting.ClassName);
-                    Assert.Equal("passing", testMethodStarting.MethodName);
+                    Assert.Same(testAssembly, testMethodStarting.TestAssembly);
+                    Assert.Same(testCollection, testMethodStarting.TestCollection);
+                    Assert.Equal("type1", testMethodStarting.TestClass.Class.Name);
+                    Assert.Equal("passing", testMethodStarting.TestMethod.Method.Name);
+                    Assert.Same(testCases[0], testMethodStarting.TestCases.Single());
                 },
                 message =>
                 {
                     var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
+                    Assert.Same(testAssembly, testCaseStarting.TestAssembly);
+                    Assert.Same(testCollection, testCaseStarting.TestCollection);
+                    Assert.Equal("type1", testCaseStarting.TestClass.Class.Name);
+                    Assert.Equal("passing", testCaseStarting.TestMethod.Method.Name);
                     Assert.Equal("type1.passing", testCaseStarting.TestCase.DisplayName);
                 },
                 message =>
                 {
                     var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
+                    Assert.Same(testAssembly, testStarting.TestAssembly);
+                    Assert.Same(testCollection, testStarting.TestCollection);
+                    Assert.Equal("type1", testStarting.TestClass.Class.Name);
+                    Assert.Equal("passing", testStarting.TestMethod.Method.Name);
                     Assert.Equal("type1.passing", testStarting.TestCase.DisplayName);
-                    Assert.Equal("type1", testStarting.TestCase.Class.Name);
-                    Assert.Equal("passing", testStarting.TestCase.Method.Name);
-                    Assert.Same(testCollection, testStarting.TestCase.TestCollection);
                 },
                 message =>
                 {
                     var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
+                    Assert.Same(testAssembly, testPassed.TestAssembly);
+                    Assert.Same(testCollection, testPassed.TestCollection);
+                    Assert.Equal("type1", testPassed.TestClass.Class.Name);
+                    Assert.Equal("passing", testPassed.TestMethod.Method.Name);
                     Assert.Equal("type1.passing", testPassed.TestCase.DisplayName);
                     Assert.Equal(1M, testPassed.ExecutionTime);
                 },
                 message =>
                 {
                     var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
+                    Assert.Same(testAssembly, testFinished.TestAssembly);
+                    Assert.Same(testCollection, testFinished.TestCollection);
+                    Assert.Equal("type1", testFinished.TestClass.Class.Name);
+                    Assert.Equal("passing", testFinished.TestMethod.Method.Name);
                     Assert.Equal("type1.passing", testFinished.TestCase.DisplayName);
+                    Assert.Equal(1M, testFinished.ExecutionTime);
                 },
                 message =>
                 {
                     var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+                    Assert.Same(testAssembly, testCaseFinished.TestAssembly);
+                    Assert.Same(testCollection, testCaseFinished.TestCollection);
+                    Assert.Equal("type1", testCaseFinished.TestClass.Class.Name);
+                    Assert.Equal("passing", testCaseFinished.TestMethod.Method.Name);
                     Assert.Equal("type1.passing", testCaseFinished.TestCase.DisplayName);
                     Assert.Equal(1M, testCaseFinished.ExecutionTime);
                     Assert.Equal(0, testCaseFinished.TestsFailed);
@@ -279,14 +316,20 @@ public class Xunit1Tests
                 message =>
                 {
                     var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-                    Assert.Equal("type1", testMethodFinished.ClassName);
-                    Assert.Equal("passing", testMethodFinished.MethodName);
+                    Assert.Same(testAssembly, testMethodFinished.TestAssembly);
+                    Assert.Same(testCollection, testMethodFinished.TestCollection);
+                    Assert.Equal("type1", testMethodFinished.TestClass.Class.Name);
+                    Assert.Equal("passing", testMethodFinished.TestMethod.Method.Name);
+                    Assert.Equal(1M, testMethodFinished.ExecutionTime);
+                    Assert.Equal(0, testMethodFinished.TestsFailed);
+                    Assert.Equal(1, testMethodFinished.TestsRun);
+                    Assert.Equal(0, testMethodFinished.TestsSkipped);
                 },
                 message =>
                 {
                     var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-                    Assert.Equal("type1", testMethodStarting.ClassName);
-                    Assert.Equal("failing", testMethodStarting.MethodName);
+                    Assert.Equal("type1", testMethodStarting.TestClass.Class.Name);
+                    Assert.Equal("failing", testMethodStarting.TestMethod.Method.Name);
                 },
                 message =>
                 {
@@ -297,9 +340,6 @@ public class Xunit1Tests
                 {
                     var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
                     Assert.Equal("type1.failing", testStarting.TestCase.DisplayName);
-                    Assert.Equal("type1", testStarting.TestCase.Class.Name);
-                    Assert.Equal("failing", testStarting.TestCase.Method.Name);
-                    Assert.Same(testCollection, testStarting.TestCase.TestCollection);
                 },
                 message =>
                 {
@@ -314,6 +354,7 @@ public class Xunit1Tests
                 {
                     var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
                     Assert.Equal("type1.failing", testFinished.TestCase.DisplayName);
+                    Assert.Equal(0.234M, testFinished.ExecutionTime);
                 },
                 message =>
                 {
@@ -327,13 +368,13 @@ public class Xunit1Tests
                 message =>
                 {
                     var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-                    Assert.Equal("type1", testMethodFinished.ClassName);
-                    Assert.Equal("failing", testMethodFinished.MethodName);
+                    Assert.Equal("type1", testMethodFinished.TestClass.Class.Name);
+                    Assert.Equal("failing", testMethodFinished.TestMethod.Method.Name);
                 },
                 message =>
                 {
                     var testClassFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
-                    Assert.Equal("type1", testClassFinished.ClassName);
+                    Assert.Equal("type1", testClassFinished.TestClass.Class.Name);
                     Assert.Equal(1.234M, testClassFinished.ExecutionTime);
                     Assert.Equal(1, testClassFinished.TestsFailed);
                     Assert.Equal(2, testClassFinished.TestsRun);
@@ -342,14 +383,13 @@ public class Xunit1Tests
                 message =>
                 {
                     var testClassStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
-                    Assert.Equal("type2", testClassStarting.ClassName);
-                    Assert.Same(testCollection, testClassStarting.TestCollection);
+                    Assert.Equal("type2", testClassStarting.TestClass.Class.Name);
                 },
                 message =>
                 {
                     var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-                    Assert.Equal("type2", testMethodStarting.ClassName);
-                    Assert.Equal("skipping", testMethodStarting.MethodName);
+                    Assert.Equal("type2", testMethodStarting.TestClass.Class.Name);
+                    Assert.Equal("skipping", testMethodStarting.TestMethod.Method.Name);
                 },
                 message =>
                 {
@@ -360,9 +400,6 @@ public class Xunit1Tests
                 {
                     var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
                     Assert.Equal("type2.skipping", testStarting.TestCase.DisplayName);
-                    Assert.Equal("type2", testStarting.TestCase.Class.Name);
-                    Assert.Equal("skipping", testStarting.TestCase.Method.Name);
-                    Assert.Same(testCollection, testStarting.TestCase.TestCollection);
                 },
                 message =>
                 {
@@ -375,6 +412,7 @@ public class Xunit1Tests
                 {
                     var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
                     Assert.Equal("type2.skipping", testFinished.TestCase.DisplayName);
+                    Assert.Equal(0M, testFinished.ExecutionTime);
                 },
                 message =>
                 {
@@ -388,14 +426,14 @@ public class Xunit1Tests
                 message =>
                 {
                     var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-                    Assert.Equal("type2", testMethodFinished.ClassName);
-                    Assert.Equal("skipping", testMethodFinished.MethodName);
+                    Assert.Equal("type2", testMethodFinished.TestClass.Class.Name);
+                    Assert.Equal("skipping", testMethodFinished.TestMethod.Method.Name);
                 },
                 message =>
                 {
                     var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-                    Assert.Equal("type2", testMethodStarting.ClassName);
-                    Assert.Equal("skipping_with_start", testMethodStarting.MethodName);
+                    Assert.Equal("type2", testMethodStarting.TestClass.Class.Name);
+                    Assert.Equal("skipping_with_start", testMethodStarting.TestMethod.Method.Name);
                 },
                 message =>
                 {
@@ -406,9 +444,6 @@ public class Xunit1Tests
                 {
                     var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
                     Assert.Equal("type2.skipping_with_start", testStarting.TestCase.DisplayName);
-                    Assert.Equal("type2", testStarting.TestCase.Class.Name);
-                    Assert.Equal("skipping_with_start", testStarting.TestCase.Method.Name);
-                    Assert.Same(testCollection, testStarting.TestCase.TestCollection);
                 },
                 message =>
                 {
@@ -421,6 +456,7 @@ public class Xunit1Tests
                 {
                     var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
                     Assert.Equal("type2.skipping_with_start", testFinished.TestCase.DisplayName);
+                    Assert.Equal(0M, testFinished.ExecutionTime);
                 },
                 message =>
                 {
@@ -434,13 +470,13 @@ public class Xunit1Tests
                 message =>
                 {
                     var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
-                    Assert.Equal("type2", testMethodFinished.ClassName);
-                    Assert.Equal("skipping_with_start", testMethodFinished.MethodName);
+                    Assert.Equal("type2", testMethodFinished.TestClass.Class.Name);
+                    Assert.Equal("skipping_with_start", testMethodFinished.TestMethod.Method.Name);
                 },
                 message =>
                 {
                     var testClassFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
-                    Assert.Equal("type2", testClassFinished.ClassName);
+                    Assert.Equal("type2", testClassFinished.TestClass.Class.Name);
                     Assert.Equal(0M, testClassFinished.ExecutionTime);
                     Assert.Equal(0, testClassFinished.TestsFailed);
                     Assert.Equal(1, testClassFinished.TestsRun);
@@ -469,9 +505,8 @@ public class Xunit1Tests
         [Fact]
         public void ExceptionThrownDuringRunTests_ResultsInErrorMessage()
         {
-            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
             var testCases = new[] {
-                new Xunit1TestCase("assembly", "type1", "passing", "type1.passing") { TestCollection = testCollection }
+                new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing")
             };
             var exception = new DivideByZeroException();
             var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
@@ -493,9 +528,8 @@ public class Xunit1Tests
         [Fact]
         public void NestedExceptionsThrownDuringRunTests_ResultsInErrorMessage()
         {
-            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
             var testCases = new[] {
-                new Xunit1TestCase("assembly", "type1", "passing", "type1.passing") { TestCollection = testCollection }
+                new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing")
             };
             var exception = GetNestedExceptions();
             var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
@@ -520,9 +554,8 @@ public class Xunit1Tests
         [Fact]
         public void NestedExceptionResultFromTests_ResultsInErrorMessage()
         {
-            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
             var testCases = new[] {
-                new Xunit1TestCase("assembly", "type1", "failing", "type1.failing") { TestCollection = testCollection }
+                new Xunit1TestCase("assembly", "config", "type1", "failing", "type1.failing")
             };
             var exception = GetNestedExceptions();
             var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
@@ -553,9 +586,8 @@ public class Xunit1Tests
         [Fact]
         public void ExceptionThrownDuringClassStart_ResultsInErrorMessage()
         {
-            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
             var testCases = new[] {
-                new Xunit1TestCase("assembly", "type1", "failingclass", "type1.failingclass") { TestCollection = testCollection }
+                new Xunit1TestCase("assembly", "config", "type1", "failingclass", "type1.failingclass")
             };
             var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
             var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
@@ -585,9 +617,8 @@ public class Xunit1Tests
         [Fact]
         public void ExceptionThrownDuringClassFinish_ResultsInErrorMessage()
         {
-            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
             var testCases = new[] {
-                new Xunit1TestCase("assembly", "failingtype", "passingmethod", "failingtype.passingmethod") { TestCollection = testCollection }
+                new Xunit1TestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod")
             };
             var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
             var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
@@ -619,9 +650,8 @@ public class Xunit1Tests
         [Fact]
         public void NestedExceptionsThrownDuringClassStart_ResultsInErrorMessage()
         {
-            var testCollection = new Xunit1TestCollection("AssemblyName.dll");
             var testCases = new[] {
-                new Xunit1TestCase("assembly", "failingtype", "passingmethod", "failingtype.passingmethod") { TestCollection = testCollection }
+                new Xunit1TestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod")
             };
             var exception = GetNestedExceptions();
             var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");

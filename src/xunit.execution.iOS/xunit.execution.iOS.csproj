@@ -90,7 +90,13 @@
       <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
     </Compile>
   </ItemGroup>
-  <Import Project="..\messages\messages.projitems" Label="Shared" Condition="Exists('..\messages\messages.projitems')" />
-  <Import Project="..\xunit.execution\xunit.execution.projitems" Label="Shared" Condition="Exists('..\xunit.execution\xunit.execution.projitems')" />
+  <ItemGroup>
+    <Compile Include="..\xunit.execution\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\messages\**\*.cs">
+      <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
 </Project>

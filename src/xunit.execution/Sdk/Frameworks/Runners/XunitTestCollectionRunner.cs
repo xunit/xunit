@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Xunit.Abstractions;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -13,8 +13,6 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestCollectionRunner : TestCollectionRunner<IXunitTestCase>
     {
-        readonly Dictionary<Type, object> collectionFixtureMappings = new Dictionary<Type, object>();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCollectionRunner"/> class.
         /// </summary>
@@ -28,12 +26,20 @@ namespace Xunit.Sdk
                                          IMessageBus messageBus,
                                          ITestCaseOrderer testCaseOrderer,
                                          CancellationTokenSource cancellationTokenSource)
-            : base(testCollection, testCases, messageBus, testCaseOrderer, cancellationTokenSource) { }
+            : base(testCollection, testCases, messageBus, testCaseOrderer, cancellationTokenSource)
+        {
+            CollectionFixtureMappings = new Dictionary<Type, object>();
+        }
+
+        /// <summary>
+        /// Gets the fixture mappings that were created during <see cref="OnTestCollectionStarting"/>.
+        /// </summary>
+        protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
 
         void CreateFixture(Type fixtureGenericInterfaceType)
         {
             var fixtureType = fixtureGenericInterfaceType.GenericTypeArguments.Single();
-            Aggregator.Run(() => collectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
+            Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
         }
 
         /// <inheritdoc/>
@@ -54,7 +60,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override void OnTestCollectionFinishing()
         {
-            foreach (var fixture in collectionFixtureMappings.Values.OfType<IDisposable>())
+            foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
             {
                 try
                 {
@@ -69,10 +75,9 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override Task<RunSummary> RunTestClassAsync(IReflectionTypeInfo testClass, IEnumerable<IXunitTestCase> testCases)
+        protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
         {
-            var testClassRunner = new XunitTestClassRunner(TestCollection, testClass, testCases, MessageBus, TestCaseOrderer, Aggregator, CancellationTokenSource, collectionFixtureMappings);
-            return testClassRunner.RunAsync();
+            return new XunitTestClassRunner(testClass, @class, testCases, MessageBus, TestCaseOrderer, Aggregator, CancellationTokenSource, CollectionFixtureMappings).RunAsync();
         }
     }
 }

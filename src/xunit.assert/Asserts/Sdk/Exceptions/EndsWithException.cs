@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
@@ -21,9 +21,7 @@ namespace Xunit.Sdk
         static string ShortenExpected(string expected, string actual)
         {
             if (expected == null || actual == null || actual.Length <= expected.Length)
-            {
                 return expected;
-            }
 
             return "   " + expected;
         }
@@ -31,11 +29,9 @@ namespace Xunit.Sdk
         static string ShortenActual(string expected, string actual)
         {
             if (expected == null || actual == null || actual.Length <= expected.Length)
-            {
                 return actual;
-            }
 
-            return "..." + actual.Substring(actual.Length - expected.Length);
+            return "···" + actual.Substring(actual.Length - expected.Length);
         }
     }
 }

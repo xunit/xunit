@@ -11,7 +11,7 @@ public class SynchronousMessageBusTests
     {
         var msg1 = Substitute.For<IMessageSinkMessage>();
         var dispatchedMessages = new List<IMessageSinkMessage>();
-        using (var bus = new SynchronousMessageBus(SpyMessageSink.Create(dispatchedMessages)))
+        using (var bus = new SynchronousMessageBus(SpyMessageSink.Create(messages: dispatchedMessages)))
         {
             Assert.True(bus.QueueMessage(msg1));
         }

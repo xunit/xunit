@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -16,7 +17,15 @@ namespace Xunit.Sdk
         /// <param name="assemblyName">Name of the test assembly.</param>
         /// <param name="sourceInformationProvider">The source line number information provider.</param>
         public XunitTestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider)
-            : base(assemblyName, sourceInformationProvider) { }
+            : base(assemblyName, sourceInformationProvider)
+        {
+            TestAssembly = new XunitTestAssembly(AssemblyInfo, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+        }
+
+        /// <summary>
+        /// Gets the test assembly that contains the test.
+        /// </summary>
+        protected XunitTestAssembly TestAssembly { get; set; }
 
         /// <inheritdoc/>
         protected override ITestFrameworkDiscoverer CreateDiscoverer()
@@ -27,7 +36,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions)
         {
-            using (var assemblyRunner = new XunitTestAssemblyRunner(AssemblyInfo, testCases, messageSink, executionOptions))
+            using (var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, messageSink, executionOptions))
                 await assemblyRunner.RunAsync();
         }
     }

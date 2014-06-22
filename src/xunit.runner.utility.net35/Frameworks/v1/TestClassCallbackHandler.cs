@@ -14,50 +14,52 @@ namespace Xunit
     {
         readonly Dictionary<string, Predicate<XmlNode>> handlers;
         readonly IMessageSink messageSink;
-        readonly IList<Xunit1TestCase> testCases;
-        readonly RunSummary testCaseResults;
+        readonly IList<ITestCase> testCases;
+        readonly Xunit1RunSummary testCaseResults = new Xunit1RunSummary();
+        readonly Xunit1RunSummary testMethodResults = new Xunit1RunSummary();
 
-        Xunit1TestCase lastTestCase;
+        ITestCase lastTestCase;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestClassCallbackHandler" /> class.
         /// </summary>
         /// <param name="testCases">The test cases that are being run.</param>
         /// <param name="messageSink">The message sink to call with the translated results.</param>
-        public TestClassCallbackHandler(IList<Xunit1TestCase> testCases, IMessageSink messageSink)
+        public TestClassCallbackHandler(IList<ITestCase> testCases, IMessageSink messageSink)
             : base(lastNodeName: "class")
         {
-            this.handlers = new Dictionary<string, Predicate<XmlNode>> { { "class", OnClass }, { "start", OnStart }, { "test", OnTest } };
             this.messageSink = messageSink;
             this.testCases = testCases;
-            this.testCaseResults = new RunSummary();
 
-            TestClassResults = new RunSummary();
+            handlers = new Dictionary<string, Predicate<XmlNode>> { { "class", OnClass }, { "start", OnStart }, { "test", OnTest } };
+
+            TestClassResults = new Xunit1RunSummary();
         }
 
         /// <summary>
         /// Gets the test class results, after the execution has completed.
         /// </summary>
-        public RunSummary TestClassResults { get; private set; }
+        public Xunit1RunSummary TestClassResults { get; private set; }
 
-        Xunit1TestCase FindTestCase(string typeName, string methodName)
+        ITestCase FindTestCase(string typeName, string methodName)
         {
-            return testCases.FirstOrDefault(tc => tc.Class.Name == typeName && tc.Method.Name == methodName);
+            return testCases.FirstOrDefault(tc => tc.TestMethod.TestClass.Class.Name == typeName && tc.TestMethod.Method.Name == methodName);
         }
 
         bool OnClass(XmlNode xml)
         {
             SendTestCaseMessagesWhenAppropriate(null);
 
-            bool @continue = true;
+            var @continue = true;
             XmlNode failureNode;
             if ((failureNode = xml.SelectSingleNode("failure")) != null)
             {
                 var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failureNode);
 
                 var errorMessage = new ErrorMessage(failureInformation.ExceptionTypes,
-                    failureInformation.Messages, failureInformation.StackTraces,
-                    failureInformation.ExceptionParentIndices);
+                                                    failureInformation.Messages,
+                                                    failureInformation.StackTraces,
+                                                    failureInformation.ExceptionParentIndices);
                 @continue = messageSink.OnMessage(errorMessage);
             }
 
@@ -136,27 +138,46 @@ namespace Xunit
             return TestClassResults.Continue;
         }
 
-        void SendTestCaseMessagesWhenAppropriate(Xunit1TestCase current)
+        List<ITestCase> GetTestMethodTestCases(ITestMethod testMethod)
         {
+            return testCases.Where(tc => tc.TestMethod.Method.Name == testMethod.Method.Name
+                                      && tc.TestMethod.TestClass.Class.Name == testMethod.TestClass.Class.Name)
+                            .ToList();
+        }
+
+        void SendTestCaseMessagesWhenAppropriate(ITestCase current)
+        {
+            var results = TestClassResults;
+
             if (current != lastTestCase && lastTestCase != null)
             {
-                TestClassResults.Continue = messageSink.OnMessage(new TestCaseFinished(lastTestCase, testCaseResults.Time, testCaseResults.Total, testCaseResults.Failed, testCaseResults.Skipped)) && TestClassResults.Continue;
+                results.Continue = messageSink.OnMessage(new TestCaseFinished(lastTestCase, testCaseResults.Time, testCaseResults.Total, testCaseResults.Failed, testCaseResults.Skipped)) && results.Continue;
+                testMethodResults.Aggregate(testCaseResults);
                 testCaseResults.Reset();
 
-                if (current == null || (lastTestCase.Class.Name == current.Class.Name && lastTestCase.Method.Name != current.Class.Name))
+                if (current == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
                 {
-                    TestClassResults.Continue = messageSink.OnMessage(new TestMethodFinished(lastTestCase.TestCollection, lastTestCase.Class.Name, lastTestCase.Method.Name)) && TestClassResults.Continue;
+                    var testMethodTestCases = GetTestMethodTestCases(lastTestCase.TestMethod);
+
+                    results.Continue = messageSink.OnMessage(new TestMethodFinished(testMethodTestCases,
+                                                                                    lastTestCase.TestMethod,
+                                                                                    testMethodResults.Time,
+                                                                                    testMethodResults.Total,
+                                                                                    testMethodResults.Failed,
+                                                                                    testMethodResults.Skipped)) && results.Continue;
+                    testMethodResults.Reset();
                 }
             }
 
             if (current != null)
             {
-                if (lastTestCase == null || (lastTestCase.Class.Name == current.Class.Name && lastTestCase.Method.Name != current.Method.Name))
+                if (lastTestCase == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
                 {
-                    TestClassResults.Continue = messageSink.OnMessage(new TestMethodStarting(current.TestCollection, current.Class.Name, current.Method.Name)) && TestClassResults.Continue;
+                    var testMethodTestCases = GetTestMethodTestCases(current.TestMethod);
+                    results.Continue = messageSink.OnMessage(new TestMethodStarting(testMethodTestCases, current.TestMethod)) && results.Continue;
                 }
 
-                TestClassResults.Continue = messageSink.OnMessage(new TestCaseStarting(current)) && TestClassResults.Continue;
+                results.Continue = messageSink.OnMessage(new TestCaseStarting(current)) && results.Continue;
             }
 
             lastTestCase = current;

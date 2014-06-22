@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Xunit.ConsoleClient
+﻿namespace Xunit.ConsoleClient
 {
     public enum ParallelismOption
     {

@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System.Collections.Generic;
+using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
 namespace Xunit.Sdk
@@ -14,8 +15,8 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestClassFinished"/> class.
         /// </summary>
-        public TestClassFinished(ITestCollection testCollection, string className, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
-            : base(testCollection, className)
+        public TestClassFinished(IEnumerable<ITestCase> testCases, ITestClass testClass, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
+            : base(testCases, testClass)
         {
             ExecutionTime = executionTime;
             TestsRun = testsRun;

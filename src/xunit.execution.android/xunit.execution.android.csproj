@@ -89,9 +89,14 @@
       <Name>xunit.core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="..\xunit.execution\xunit.execution.projitems" Label="Shared" Condition="Exists('..\xunit.execution\xunit.execution.projitems')" />
-  <Import Project="..\messages\messages.projitems" Label="Shared" Condition="Exists('..\messages\messages.projitems')" />
+  <ItemGroup>
+    <Compile Include="..\xunit.execution\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\messages\**\*.cs">
+      <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

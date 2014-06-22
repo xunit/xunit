@@ -93,6 +93,16 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
+        public IMethodInfo GetMethod(string methodName, bool includePrivateMethod)
+        {
+            var method = Type.GetMethod(methodName, includePrivateMethod ? nonPublicBindingFlags : publicBindingFlags);
+            if (method == null)
+                return null;
+
+            return Reflector.Wrap(method);
+        }
+
+        /// <inheritdoc/>
         public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
         {
             return Type.GetRuntimeMethods().Where(m => includePrivateMethods || m.IsPublic)

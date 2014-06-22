@@ -25,12 +25,12 @@ namespace Xunit
 
         XElement CreateTestResultElement(ITestResultMessage testResult, string resultText)
         {
-            var collectionElement = GetTestCollectionElement(testResult.TestCase.TestCollection);
+            var collectionElement = GetTestCollectionElement(testResult.TestCase.TestMethod.TestClass.TestCollection);
             var testResultElement =
                 new XElement("test",
                     new XAttribute("name", XmlEscape(testResult.TestDisplayName)),
-                    new XAttribute("type", testResult.TestCase.Class.Name),
-                    new XAttribute("method", testResult.TestCase.Method.Name),
+                    new XAttribute("type", testResult.TestCase.TestMethod.TestClass.Class.Name),
+                    new XAttribute("method", testResult.TestCase.TestMethod.Method.Name),
                     new XAttribute("time", testResult.ExecutionTime.ToString("0.000")),
                     new XAttribute("result", resultText)
                 );
@@ -107,15 +107,15 @@ namespace Xunit
             if (assemblyElement != null)
             {
                 assemblyElement.Add(
-                    new XAttribute("name", assemblyStarting.AssemblyFileName),
+                    new XAttribute("name", assemblyStarting.TestAssembly.Assembly.AssemblyPath),
                     new XAttribute("environment", assemblyStarting.TestEnvironment),
                     new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName),
                     new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd")),
                     new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss"))
                 );
 
-                if (assemblyStarting.ConfigFileName != null)
-                    assemblyElement.Add(new XAttribute("config-file", assemblyStarting.ConfigFileName));
+                if (assemblyStarting.TestAssembly.ConfigFileName != null)
+                    assemblyElement.Add(new XAttribute("config-file", assemblyStarting.TestAssembly.ConfigFileName));
             }
 
             return base.Visit(assemblyStarting);

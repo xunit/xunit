@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System.Collections.Generic;
+using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
 namespace Xunit.Sdk
@@ -14,7 +15,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCollectionStarting"/> class.
         /// </summary>
-        public TestCollectionStarting(ITestCollection testCollection)
-            : base(testCollection) { }
+        public TestCollectionStarting(IEnumerable<ITestCase> testCases, ITestCollection testCollection)
+            : base(testCases, testCollection) { }
     }
 }

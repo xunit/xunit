@@ -9,13 +9,13 @@ namespace Xunit.Runner.TdNet
     {
         public static Type GetClass(this ITestCase testCase)
         {
-            var typeInfo = testCase.Class as IReflectionTypeInfo;
+            var typeInfo = testCase.TestMethod.TestClass.Class as IReflectionTypeInfo;
             return typeInfo == null ? null : typeInfo.Type;
         }
 
         public static MethodInfo GetMethod(this ITestCase testCase)
         {
-            var methodInfo = testCase.Method as IReflectionMethodInfo;
+            var methodInfo = testCase.TestMethod.Method as IReflectionMethodInfo;
             return methodInfo == null ? null : methodInfo.MethodInfo;
         }
 

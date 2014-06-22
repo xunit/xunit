@@ -31,8 +31,9 @@ public class StandardOutputVisitorTests
         [Fact]
         public void LogsMessageWithStatitics()
         {
+            var assembly = Mocks.TestAssembly(@"C:\Assembly\File.dll");
             var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
-            assemblyStarting.AssemblyFileName.Returns(@"C:\Assembly\File.dll");
+            assemblyStarting.TestAssembly.Returns(assembly);
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             assemblyFinished.TestsRun.Returns(2112);
             assemblyFinished.TestsFailed.Returns(42);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -73,7 +72,7 @@ public class Xunit2TheoryAcceptanceTests
             var results = Run<ITestPassed>(typeof(GenericWithNonSerializableData));
 
             Assert.Collection(results,
-                result => Assert.Equal<object>(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.TestDisplayName)
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.TestDisplayName)
             );
         }
 
@@ -666,8 +665,8 @@ public class Xunit2TheoryAcceptanceTests
                 if (methodStarting == null)
                     return false;
 
-                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodStarting.ClassName);
-                Assert.Equal("Theory", methodStarting.MethodName);
+                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodStarting.TestClass.Class.Name);
+                Assert.Equal("Theory", methodStarting.TestMethod.Method.Name);
                 return true;
             });
 
@@ -677,8 +676,8 @@ public class Xunit2TheoryAcceptanceTests
                 if (methodFinished == null)
                     return false;
 
-                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodFinished.ClassName);
-                Assert.Equal("Theory", methodFinished.MethodName);
+                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodFinished.TestClass.Class.Name);
+                Assert.Equal("Theory", methodFinished.TestMethod.Method.Name);
                 return true;
             });
         }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System;
 
 namespace Xunit.Abstractions
 {
@@ -68,6 +67,14 @@ namespace Xunit.Abstractions
         /// </summary>
         /// <returns>The list of generic types.</returns>
         IEnumerable<ITypeInfo> GetGenericArguments();
+
+        /// <summary>
+        /// Gets a specific method.
+        /// </summary>
+        /// <param name="methodName">The name of the method.</param>
+        /// <param name="includePrivateMethod">Set to <c>true</c> to look for the method in both public and private.</param>
+        /// <returns>The method.</returns>
+        IMethodInfo GetMethod(string methodName, bool includePrivateMethod);
 
         /// <summary>
         /// Gets all the methods in this type.

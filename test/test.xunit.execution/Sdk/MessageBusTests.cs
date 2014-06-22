@@ -11,7 +11,7 @@ public class MessageBusTests
     public void QueuedMessageShowUpInMessageSink()
     {
         var messages = new List<IMessageSinkMessage>();
-        var sink = SpyMessageSink.Create(messages);
+        var sink = SpyMessageSink.Create(messages: messages);
         var msg1 = Substitute.For<IMessageSinkMessage>();
         var msg2 = Substitute.For<IMessageSinkMessage>();
         var msg3 = Substitute.For<IMessageSinkMessage>();

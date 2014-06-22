@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System.Collections.Generic;
+using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
 namespace Xunit.Sdk
@@ -9,22 +10,19 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyFinished"/>.
     /// </summary>
-    public class TestAssemblyFinished : LongLivedMarshalByRefObject, ITestAssemblyFinished
+    public class TestAssemblyFinished : TestAssemblyMessage, ITestAssemblyFinished
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyFinished"/> class.
         /// </summary>
-        public TestAssemblyFinished(IAssemblyInfo assembly, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
+        public TestAssemblyFinished(IEnumerable<ITestCase> testCases, ITestAssembly testAssembly, decimal executionTime, int testsRun, int testsFailed, int testsSkipped)
+            : base(testCases, testAssembly)
         {
             TestsSkipped = testsSkipped;
             TestsFailed = testsFailed;
             TestsRun = testsRun;
             ExecutionTime = executionTime;
-            Assembly = assembly;
         }
-
-        /// <inheritdoc/>
-        public IAssemblyInfo Assembly { get; private set; }
 
         /// <inheritdoc/>
         public decimal ExecutionTime { get; private set; }

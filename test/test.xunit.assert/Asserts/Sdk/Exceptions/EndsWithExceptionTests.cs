@@ -1,13 +1,12 @@
 ﻿using System;
-
 using Xunit;
 
 public class EndsWithExceptionTests
 {
     [Fact]
-    public void ActualStringNotLongerThanActualStringDoesNotTruncateActualString()
+    public static void ExpectedAndActualSameLength_NoTruncation()
     {
-        string expectedMessage =
+        var expectedMessage =
             "Assert.EndsWith() Failure:" + Environment.NewLine +
             "Expected: WORLD" + Environment.NewLine +
             "Actual:   Hello";
@@ -18,12 +17,12 @@ public class EndsWithExceptionTests
     }
 
     [Fact]
-    public void ActualStringLongerThanActualStringTruncatesActualString()
+    public static void ActualLongerThanExpected_TruncatesActual()
     {
-        string expectedMessage =
+        var expectedMessage =
             "Assert.EndsWith() Failure:" + Environment.NewLine +
             "Expected:    WORLD" + Environment.NewLine +
-            "Actual:   ...world";
+            "Actual:   ···world";
 
         var ex = Record.Exception(() => Assert.EndsWith("WORLD", "Hello, world"));
 
@@ -31,9 +30,9 @@ public class EndsWithExceptionTests
     }
 
     [Fact]
-    public void ActualStringIsNullAndExpectedIsNotShowsNullPlaceholderText()
+    public static void ActualNull()
     {
-        string expectedMessage =
+        var expectedMessage =
             "Assert.EndsWith() Failure:" + Environment.NewLine +
             "Expected: first test 1" + Environment.NewLine +
             "Actual:   (null)";
@@ -44,9 +43,9 @@ public class EndsWithExceptionTests
     }
 
     [Fact]
-    public void ExpectedStringIsNullAndActualIsNotShowsNullPlaceholderText()
+    public static void ExpectedNull()
     {
-        string expectedMessage =
+        var expectedMessage =
             "Assert.EndsWith() Failure:" + Environment.NewLine +
             "Expected: (null)" + Environment.NewLine +
             "Actual:   first test 1";

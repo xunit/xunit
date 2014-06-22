@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
@@ -15,6 +16,7 @@ namespace Xunit.Sdk
     /// The implementation of <see cref="ITestCollection"/> that is used by xUnit.net v2.
     /// </summary>
     [Serializable]
+    [DebuggerDisplay(@"\{ id = {UniqueID}, display = {DisplayName} \}")]
     public class XunitTestCollection : LongLivedMarshalByRefObject, ITestCollection, ISerializable
 #if JSON
         , IGetTypeData
@@ -23,16 +25,20 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCollection"/> class.
         /// </summary>
-        public XunitTestCollection()
+        public XunitTestCollection(ITestAssembly testAssembly, ITypeInfo collectionDefinition, string displayName)
         {
-            ID = Guid.NewGuid();
+            CollectionDefinition = collectionDefinition;
+            DisplayName = displayName;
+            TestAssembly = testAssembly;
+            UniqueID = Guid.NewGuid();
         }
 
         /// <inheritdoc/>
         protected XunitTestCollection(SerializationInfo info, StreamingContext context)
         {
             DisplayName = info.GetString("DisplayName");
-            ID = Guid.Parse(info.GetString("ID"));
+            TestAssembly = info.GetValue<ITestAssembly>("TestAssembly");
+            UniqueID = Guid.Parse(info.GetString("UniqueID"));
 
             var assemblyName = info.GetString("DeclarationAssemblyName");
             var typeName = info.GetString("DeclarationTypeName");
@@ -48,14 +54,18 @@ namespace Xunit.Sdk
         public string DisplayName { get; set; }
 
         /// <inheritdoc/>
-        public Guid ID { get; set; }
+        public ITestAssembly TestAssembly { get; set; }
+
+        /// <inheritdoc/>
+        public Guid UniqueID { get; set; }
 
         /// <inheritdoc/>
         [SecurityCritical]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("DisplayName", DisplayName);
-            info.AddValue("ID", ID.ToString());
+            info.AddValue("TestAssembly", TestAssembly);
+            info.AddValue("UniqueID", UniqueID.ToString());
 
             if (CollectionDefinition != null)
             {

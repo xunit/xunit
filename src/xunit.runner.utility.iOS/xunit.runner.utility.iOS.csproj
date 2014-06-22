@@ -70,6 +70,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\xunit.runner.utility\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\messages\**\*.cs">
+      <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
       <Project>{77743589-f177-4007-97b8-50b82a1c7044}</Project>
       <Name>xunit.abstractions.pcl</Name>
@@ -81,7 +89,5 @@
     <Reference Include="System.Core" />
     <Reference Include="monotouch" />
   </ItemGroup>
-  <Import Project="..\messages\messages.projitems" Label="Shared" Condition="Exists('..\messages\messages.projitems')" />
-  <Import Project="..\xunit.runner.utility\xunit.runner.utility.projitems" Label="Shared" Condition="Exists('..\xunit.runner.utility\xunit.runner.utility.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
 </Project>

@@ -21,11 +21,11 @@ namespace Xunit.Sdk
         {
             var attributeTypesByName =
                 assemblyInfo.GetTypes(false)
-                        .Select(type => new { Type = type, Attribute = type.GetCustomAttributes(typeof(CollectionDefinitionAttribute).AssemblyQualifiedName).FirstOrDefault() })
-                        .Where(list => list.Attribute != null)
-                        .GroupBy(list => (string)list.Attribute.GetConstructorArguments().Single(),
-                                 list => list.Type,
-                                 StringComparer.OrdinalIgnoreCase);
+                            .Select(type => new { Type = type, Attribute = type.GetCustomAttributes(typeof(CollectionDefinitionAttribute).AssemblyQualifiedName).FirstOrDefault() })
+                            .Where(list => list.Attribute != null)
+                            .GroupBy(list => (string)list.Attribute.GetConstructorArguments().Single(),
+                                     list => list.Type,
+                                     StringComparer.OrdinalIgnoreCase);
 
             var result = new Dictionary<string, ITypeInfo>();
 

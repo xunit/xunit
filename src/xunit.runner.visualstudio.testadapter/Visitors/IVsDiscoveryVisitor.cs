@@ -1,5 +1,4 @@
-﻿using System;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 namespace Xunit.Runner.VisualStudio
 {

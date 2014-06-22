@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System.Collections.Generic;
+using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
 namespace Xunit.Sdk
@@ -9,22 +10,12 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestMethodStarting"/>.
     /// </summary>
-    public class TestMethodStarting : TestCollectionMessage, ITestMethodStarting
+    public class TestMethodStarting : TestMethodMessage, ITestMethodStarting
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodStarting"/> class.
         /// </summary>
-        public TestMethodStarting(ITestCollection testCollection, string className, string methodName)
-            : base(testCollection)
-        {
-            ClassName = className;
-            MethodName = methodName;
-        }
-
-        /// <inheritdoc/>
-        public string ClassName { get; private set; }
-
-        /// <inheritdoc/>
-        public string MethodName { get; private set; }
+        public TestMethodStarting(IEnumerable<ITestCase> testCases, ITestMethod testMethod)
+            : base(testCases, testMethod) { }
     }
 }

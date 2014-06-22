@@ -21,8 +21,13 @@ namespace Xunit.Abstractions
         string DisplayName { get; }
 
         /// <summary>
+        /// Gets the test assembly this test collection belongs to.
+        /// </summary>
+        ITestAssembly TestAssembly { get; }
+
+        /// <summary>
         /// Gets the test collection ID. Test collection equality is determined by comparing IDs.
         /// </summary>
-        Guid ID { get; }
+        Guid UniqueID { get; }
     }
 }

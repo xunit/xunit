@@ -74,7 +74,7 @@ public class FixtureAcceptanceTests
 
             var msg = Assert.Single(messages);
             Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionTypes.Single());
-            Assert.Equal("The following constructor arguments did not have matching fixture data: Int32 arg1, String arg2", msg.Messages.Single());
+            Assert.Equal("The following constructor parameters did not have matching fixture data: Int32 arg1, String arg2", msg.Messages.Single());
         }
 
         class ClassWithExtraCtorArg : IClassFixture<EmptyFixtureData>
@@ -176,7 +176,7 @@ public class FixtureAcceptanceTests
 
             var msg = Assert.Single(messages);
             Assert.Equal(typeof(TestClassException).FullName, msg.ExceptionTypes.Single());
-            Assert.Equal("The following constructor arguments did not have matching fixture data: Int32 arg1, String arg2", msg.Messages.Single());
+            Assert.Equal("The following constructor parameters did not have matching fixture data: Int32 arg1, String arg2", msg.Messages.Single());
         }
 
         [CollectionDefinition("Collection with empty fixture data")]

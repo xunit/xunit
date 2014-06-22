@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
@@ -11,12 +10,13 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestCollectionMessage"/>.
     /// </summary>
-    public class TestCollectionMessage : LongLivedMarshalByRefObject, ITestCollectionMessage
+    public class TestCollectionMessage : TestAssemblyMessage, ITestCollectionMessage
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCollectionMessage"/> class.
         /// </summary>
-        public TestCollectionMessage(ITestCollection testCollection)
+        public TestCollectionMessage(IEnumerable<ITestCase> testCases, ITestCollection testCollection)
+            : base(testCases, testCollection.TestAssembly)
         {
             TestCollection = testCollection;
         }
