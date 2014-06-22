@@ -42,10 +42,7 @@ namespace Xunit.Sdk
             var assembly = AppDomain.CurrentDomain
                                     .GetAssemblies()
                                     .First(a => !a.IsDynamic && String.Equals(a.GetLocalCodeBase(), assemblyPath, StringComparison.OrdinalIgnoreCase));
-#elif WIN8_STORE
-            var assembly = AppDomain.CurrentDomain
-                                    .GetAssemblies()
-                                    .First(a => !a.IsDynamic && String.Equals(a.GetLocalCodeBase().ToLowerInvariant().Replace(Path.DirectorySeparatorChar + "AppX" + Path.DirectorySeparatorChar, Path.DirectorySeparatorChar+""), assemblyPath, StringComparison.OrdinalIgnoreCase)); // strip \AppX\ out of the path
+           
 #else
             // On WPA, this will be the assemblyname
             var assembly = System.Reflection.Assembly.Load(new AssemblyName
