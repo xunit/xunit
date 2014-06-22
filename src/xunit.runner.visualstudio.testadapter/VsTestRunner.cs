@@ -357,18 +357,13 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         class TestCaseFilterHelper
         {
-            private const string TraitFilterStringSuffix = "Trait";
             private const string DisplayNameString = "DisplayName";
             private const string FullyQualifiedNameString = "FullyQualifiedName";
             public static List<string> SupportedPropertyNames = GetSupportedPropertyNames();
 
             private static List<string> GetSupportedPropertyNames()
             {
-                List<string> result = new List<string>();
-                foreach(string traitName in VsDiscoveryVisitor.KnownTraitNames.ToList())
-                {
-                    result.Add(traitName + TraitFilterStringSuffix);
-                }
+                List<string> result = VsDiscoveryVisitor.KnownTraitNames.ToList();
                 result.Add(DisplayNameString);
                 result.Add(FullyQualifiedNameString);
                 return result;
@@ -378,9 +373,15 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             {
                 try
                 {
-                    // GetTestCaseFilter only exists in ObjectModel V12+
+                    // In Microsoft.VisualStudio.TestPlatform.ObjectModel V11 IRunContext provides a TestCaseFilter property
+                    // GetTestCaseFilter only exists in V12+
                     MethodInfo getTestCaseFilterMethod = runContext.GetType().GetMethod("GetTestCaseFilter");
-                    var result = (ITestCaseFilterExpression)getTestCaseFilterMethod.Invoke(runContext, new object[] { SupportedPropertyNames, null });
+                    ITestCaseFilterExpression result = null;
+                    if (getTestCaseFilterMethod != null)
+                    {
+                        result = (ITestCaseFilterExpression)getTestCaseFilterMethod.Invoke(runContext, new object[] { SupportedPropertyNames, null });
+                    }
+
                     return result;
                 }
                 catch (Exception)
@@ -392,16 +393,11 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             public static object PropertyProvider(TestCase testCase, string name)
             {
                 // Traits filtering
-                if (name.EndsWith(TraitFilterStringSuffix))
+                if (VsDiscoveryVisitor.KnownTraitNames.Contains(name))
                 {
-                    var traitName = name.Substring(0, name.Length - TraitFilterStringSuffix.Length);
-                    if (!VsDiscoveryVisitor.KnownTraitNames.Contains(traitName))
-                    {
-                        return null;
-                    }
                     foreach (Trait t in testCase.Traits)
                     {
-                        if (t.Name == traitName) return t.Value;
+                        if (t.Name == name) return t.Value;
                     }
                 }
                 else
