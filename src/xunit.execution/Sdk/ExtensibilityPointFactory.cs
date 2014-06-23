@@ -168,8 +168,8 @@ namespace Xunit.Sdk
                 result.GetTypeInfo().DeclaredConstructors
                                         .Any(ci => 
                                              ci.GetParameters()
-                                               .SingleOrDefault(pi => 
-                                                   typeof(IAssemblyInfo).GetTypeInfo().IsAssignableFrom(pi.ParameterType.GetTypeInfo())) == null)
+                                               .SingleOrDefault(pi =>
+                                                   typeof(ITestAssembly).GetTypeInfo().IsAssignableFrom(pi.ParameterType.GetTypeInfo())) == null)
                 )
                 
                 return typeof(CollectionPerClassTestCollectionFactory);
