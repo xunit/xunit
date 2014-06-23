@@ -42,7 +42,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         public int TotalTests { get; private set; }
 
-        public static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, XunitVisualStudioSettings settings, bool forceUniqueNames)
+        internal static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, XunitVisualStudioSettings settings, bool forceUniqueNames, HashSet<string> knownTraitNames = null)
         {
             var serializedTestCase = discoverer.Serialize(xunitTestCase);
             var fqTestMethodName = String.Format("{0}.{1}", xunitTestCase.Class.Name, xunitTestCase.Method.Name);
@@ -55,7 +55,11 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             if (addTraitThunk != null)
                 foreach (var key in xunitTestCase.Traits.Keys)
                 {
-                    KnownTraitNames.Add(key);
+                    if (knownTraitNames != null)
+                    {
+                        knownTraitNames.Add(key);
+                    }
+
                     foreach (var value in xunitTestCase.Traits[key])
                         addTraitThunk(result, key, value);
                 }
@@ -138,6 +142,5 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         }
 
         public static string fqTestMethodName { get; set; }
-        public static readonly HashSet<string> KnownTraitNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     }
 }

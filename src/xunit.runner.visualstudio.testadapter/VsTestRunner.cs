@@ -153,13 +153,14 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                         assemblyFileName,
                                         sink.TestCases
                                             .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
-                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
+                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1, knownTraitNames: sink.KnownTraitNames)))
                                             .ToList());
 
-                                var filter = TestCaseFilterHelper.GetTestCaseFilterExpression(runContext);
+                                var filterHelper = new TestCaseFilterHelper(sink);
+                                var filter = filterHelper.GetTestCaseFilterExpression(runContext);
                                 if (filter != null)
                                 {
-                                    grouping = new Grouping<string, TestCase>(grouping.Key, grouping.Where(testCase => filter.MatchTestCase(testCase, (p) => TestCaseFilterHelper.PropertyProvider(testCase, p))).ToList());
+                                    grouping = new Grouping<string, TestCase>(grouping.Key, grouping.Where(testCase => filter.MatchTestCase(testCase, (p) => filterHelper.PropertyProvider(testCase, p))).ToList());
                                 }
 
                                 result.Add(grouping);
@@ -359,17 +360,27 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         {
             private const string DisplayNameString = "DisplayName";
             private const string FullyQualifiedNameString = "FullyQualifiedName";
-            public static List<string> SupportedPropertyNames = GetSupportedPropertyNames();
+            private TestDiscoveryVisitor sink;
+            private List<string> supportedPropertyNames;
 
-            private static List<string> GetSupportedPropertyNames()
+            public TestCaseFilterHelper(TestDiscoveryVisitor sink)
             {
-                List<string> result = VsDiscoveryVisitor.KnownTraitNames.ToList();
-                result.Add(DisplayNameString);
-                result.Add(FullyQualifiedNameString);
-                return result;
+                this.sink = sink;
+                this.supportedPropertyNames = this.GetSupportedPropertyNames();
             }
 
-            public static ITestCaseFilterExpression GetTestCaseFilterExpression(IRunContext runContext)
+            private List<string> GetSupportedPropertyNames()
+            {
+                if (this.supportedPropertyNames == null)
+                {
+                    this.supportedPropertyNames = this.sink.KnownTraitNames.ToList();
+                    this.supportedPropertyNames.Add(DisplayNameString);
+                    this.supportedPropertyNames.Add(FullyQualifiedNameString);
+                }
+                return this.supportedPropertyNames;
+            }
+
+            public ITestCaseFilterExpression GetTestCaseFilterExpression(IRunContext runContext)
             {
                 try
                 {
@@ -379,7 +390,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                     ITestCaseFilterExpression result = null;
                     if (getTestCaseFilterMethod != null)
                     {
-                        result = (ITestCaseFilterExpression)getTestCaseFilterMethod.Invoke(runContext, new object[] { SupportedPropertyNames, null });
+                        result = (ITestCaseFilterExpression)getTestCaseFilterMethod.Invoke(runContext, new object[] { this.supportedPropertyNames, null });
                     }
 
                     return result;
@@ -390,10 +401,10 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 }
             }
 
-            public static object PropertyProvider(TestCase testCase, string name)
+            public object PropertyProvider(TestCase testCase, string name)
             {
                 // Traits filtering
-                if (VsDiscoveryVisitor.KnownTraitNames.Contains(name))
+                if (this.sink.KnownTraitNames.Contains(name))
                 {
                     foreach (Trait t in testCase.Traits)
                     {

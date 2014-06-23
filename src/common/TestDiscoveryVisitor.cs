@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -11,6 +12,7 @@ namespace Xunit
         }
 
         public List<ITestCase> TestCases { get; private set; }
+        public readonly HashSet<string> KnownTraitNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         public override void Dispose()
         {
