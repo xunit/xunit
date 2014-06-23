@@ -252,9 +252,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
-            if (!Debugger.IsAttached)
-                Debugger.Launch();
-
             Guard.ArgumentNotNull("tests", tests);
             Guard.ArgumentValid("tests", "appx not supported in this overload", !ContainsAppX(tests.Select(t => t.Source)));
 
