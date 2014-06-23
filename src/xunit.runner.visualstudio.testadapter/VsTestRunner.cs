@@ -201,9 +201,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                         ),
                 stopwatch
             );
-
-
-            logger.SendMessage(TestMessageLevel.Warning, "Run Tests in " + string.Join(", ", sources));
+            
             return result;
         }
 
