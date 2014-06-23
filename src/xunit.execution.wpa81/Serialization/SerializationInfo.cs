@@ -99,9 +99,6 @@ namespace Xunit.Serialization
 
         internal static SerializationInfo ObjectToSerializationInfo(IGetTypeData ser)
         {
-            
-            var ctx = new StreamingContext();
-
             var info = new SerializationInfo(ser.GetType());
             ser.GetData(info);
             return info;

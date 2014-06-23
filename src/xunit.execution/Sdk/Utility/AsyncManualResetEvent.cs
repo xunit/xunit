@@ -39,13 +39,16 @@ namespace Xunit.Sdk
         /// </summary>
         public void Reset()
         {
+#pragma warning disable 420
             while (true)
             {
                 var tcs = _tcs;
                 if (!tcs.Task.IsCompleted ||
                     Interlocked.CompareExchange(ref _tcs, new TaskCompletionSource<bool>(), tcs) == tcs)
+
                     return;
             }
+#pragma warning restore 420
         }
     }
 }

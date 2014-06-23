@@ -192,7 +192,9 @@ namespace Xunit.Sdk
 
         class PreserveWorkingFolder : IDisposable
         {
+#if !WINDOWS_PHONE_APP
             readonly string originalWorkingFolder;
+#endif
 
             public PreserveWorkingFolder(IAssemblyInfo assemblyInfo)
             {
