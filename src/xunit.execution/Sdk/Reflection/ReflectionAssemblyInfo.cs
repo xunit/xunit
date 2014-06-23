@@ -61,7 +61,7 @@ namespace Xunit.Sdk
                 return Assembly.GetLocalCodeBase();
 #else
                 return Assembly.GetName()
-                               .Name; // Return the short name on WPA81 as that's all that can be loaded
+                               .Name + ".dll"; // Return the short name on WPA81 as that's all that can be loaded
 #endif
             } 
         }

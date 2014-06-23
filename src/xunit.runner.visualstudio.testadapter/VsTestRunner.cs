@@ -172,15 +172,16 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         }
 
         IEnumerable<IGrouping<string, TestCase>> GetTests(IEnumerable<string> sources, IMessageLogger logger, XunitVisualStudioSettings settings, Stopwatch stopwatch)
-        {
+        {         
 #if WIN8_STORE
             // For store apps, the files are copied to the AppX dir, we need to load it from there
             sources = sources.Select(s => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly()
                                                                                      .Location), Path.GetFileName(s)));
             
+#elif WINDOWS_PHONE_APP
+            sources = sources.Select(s => Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, Path.GetFileName(s))); ;
 #endif
-
-
+            
             var result = new List<IGrouping<string, TestCase>>();
 
             DiscoverTests(
@@ -196,11 +197,13 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                    .GroupBy(tc => String.Format("{0}.{1}", tc.TestMethod.TestClass.Class.Name, tc.TestMethod.Method.Name))
                                    .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(source, discoverer, testCase, settings, forceUniqueNames: group.Count() > 1)))
                                    .ToList()
-                        )
-                    ),
+                            )
+                        ),
                 stopwatch
             );
 
+
+            logger.SendMessage(TestMessageLevel.Warning, "Run Tests in " + string.Join(", ", sources));
             return result;
         }
 
@@ -212,10 +215,10 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                                 .ToUpperInvariant()))
                 return false;
 
-
-
+            
             string xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
             string xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
+            
             return File.Exists(xunitPath) || File.Exists(xunitExecutionPath);
         }
 
@@ -223,6 +226,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         {
             Guard.ArgumentNotNull("sources", sources);
 
+            
             // In this case, we need to go thru the files manually
             if (ContainsAppX(sources))
             {
@@ -248,6 +252,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
+            if (!Debugger.IsAttached)
+                Debugger.Launch();
+
             Guard.ArgumentNotNull("tests", tests);
             Guard.ArgumentValid("tests", "appx not supported in this overload", !ContainsAppX(tests.Select(t => t.Source)));
 

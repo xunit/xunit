@@ -2,11 +2,23 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+
+using System.Text;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using Xunit.Abstractions;
 using Xunit.Runner.VisualStudio.Settings;
+
+#if !WINDOWS_PHONE_APP
+using System.Security.Cryptography;
+#else
+using Xunit.Serialization;
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
+using System.Runtime.InteropServices.WindowsRuntime;
+#endif
 
 namespace Xunit.Runner.VisualStudio.TestAdapter
 {
@@ -51,6 +63,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             var result = new TestCase(uniqueName, uri, source) { DisplayName = Escape(displayName) };
             result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, serializedTestCase);
+            result.Id = IdHasher.GuidFromString(uri + xunitTestCase.UniqueID);
 
             if (addTraitThunk != null)
                 foreach (var key in xunitTestCase.Traits.Keys)
@@ -135,11 +148,42 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             var forceUniqueNames = lastTestClassTestCases.Count > 1;
 
             foreach (var testCase in lastTestClassTestCases)
+            {
                 discoverySink.SendTestCase(CreateVsTestCase(source, discoverer, testCase, settings, forceUniqueNames));
+            }
 
             lastTestClassTestCases.Clear();
         }
 
         public static string fqTestMethodName { get; set; }
+
+
+        internal static class IdHasher
+        {
+#if !WINDOWS_PHONE_APP
+            readonly static HashAlgorithm Hasher = (HashAlgorithm)new SHA1CryptoServiceProvider();
+            public static Guid GuidFromString(string data)
+            {
+                byte[] hash = Hasher.ComputeHash(Encoding.Unicode.GetBytes(data));
+                byte[] b = new byte[16];
+                Array.Copy((Array)hash, (Array)b, 16);
+                return new Guid(b);
+            }
+            
+#else
+            readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
+
+            public static Guid GuidFromString(string data)
+            {
+
+                var buffer = CryptographicBuffer.CreateFromByteArray(Encoding.Unicode.GetBytes(data));
+                byte[] hash = Hasher.HashData(buffer).ToArray();
+                byte[] b = new byte[16];
+                Array.Copy((Array)hash, (Array)b, 16);
+                return new Guid(b);
+
+            }
+#endif
+        }
     }
 }
