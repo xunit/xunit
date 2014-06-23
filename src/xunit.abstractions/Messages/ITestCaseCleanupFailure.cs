@@ -3,7 +3,7 @@
     /// <summary>
     /// This message indicates that an error has occurred during test case cleanup. 
     /// </summary>
-    public interface ITestCaseCleanupFailure : ITestCaseMessage, IFailureInformation
+    public interface ITestCaseCleanupFailure : ITestCaseMessage, IExecutionMessage, IFailureInformation
     {
     }
 }

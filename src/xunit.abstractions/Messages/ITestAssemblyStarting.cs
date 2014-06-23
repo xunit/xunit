@@ -6,7 +6,7 @@ namespace Xunit.Abstractions
     /// This message indicates that the execution process is about to start for 
     /// the requested assembly.
     /// </summary>
-    public interface ITestAssemblyStarting : ITestAssemblyMessage
+    public interface ITestAssemblyStarting : ITestAssemblyMessage, IExecutionMessage
     {
         /// <summary>
         /// Gets the local date and time when the test assembly execution began.
