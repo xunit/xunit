@@ -12,7 +12,6 @@ namespace Xunit
         }
 
         public List<ITestCase> TestCases { get; private set; }
-        public readonly HashSet<string> KnownTraitNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         public override void Dispose()
         {

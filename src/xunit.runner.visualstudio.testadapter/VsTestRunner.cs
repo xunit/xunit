@@ -148,15 +148,15 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                             {
                                 framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
                                 sink.Finished.WaitOne();
-
+                                HashSet<string> knownTraitNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                                 var grouping = new Grouping<string, TestCase>(
-                                        assemblyFileName,
-                                        sink.TestCases
-                                            .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
-                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1, knownTraitNames: sink.KnownTraitNames)))
-                                            .ToList());
+                                                                assemblyFileName,
+                                                                sink.TestCases
+                                                                    .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
+                                                                    .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1, knownTraitNames: knownTraitNames)))
+                                                                    .ToList());
 
-                                var filterHelper = new TestCaseFilterHelper(sink);
+                                var filterHelper = new TestCaseFilterHelper(knownTraitNames);
                                 var filter = filterHelper.GetTestCaseFilterExpression(runContext);
                                 if (filter != null)
                                 {
@@ -360,20 +360,21 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         {
             private const string DisplayNameString = "DisplayName";
             private const string FullyQualifiedNameString = "FullyQualifiedName";
-            private TestDiscoveryVisitor sink;
+            private HashSet<string> knownTraits;
             private List<string> supportedPropertyNames;
 
-            public TestCaseFilterHelper(TestDiscoveryVisitor sink)
+            public TestCaseFilterHelper(HashSet<string> knownTraits)
             {
-                this.sink = sink;
+                this.knownTraits = knownTraits;
                 this.supportedPropertyNames = this.GetSupportedPropertyNames();
             }
 
             private List<string> GetSupportedPropertyNames()
             {
+                // Returns the set of well-known property names usually used with the Test Plugins (Used Test Traits + DisplayName + FullyQualifiedName)
                 if (this.supportedPropertyNames == null)
                 {
-                    this.supportedPropertyNames = this.sink.KnownTraitNames.ToList();
+                    this.supportedPropertyNames = this.knownTraits.ToList();
                     this.supportedPropertyNames.Add(DisplayNameString);
                     this.supportedPropertyNames.Add(FullyQualifiedNameString);
                 }
@@ -404,19 +405,20 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             public object PropertyProvider(TestCase testCase, string name)
             {
                 // Traits filtering
-                if (this.sink.KnownTraitNames.Contains(name))
+                if (this.knownTraits.Contains(name))
                 {
                     foreach (Trait t in testCase.Traits)
                     {
-                        if (t.Name == name) return t.Value;
+                        if (String.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase))
+                            return t.Value;
                     }
                 }
                 else
                 {
                     // Handle the displayName and fullyQualifierNames independently
-                    if (name == FullyQualifiedNameString)
+                    if (String.Equals(name, FullyQualifiedNameString, StringComparison.OrdinalIgnoreCase))
                         return testCase.FullyQualifiedName;
-                    if (name == DisplayNameString)
+                    if (String.Equals(name, DisplayNameString, StringComparison.OrdinalIgnoreCase))
                         return testCase.DisplayName;
                 }
 

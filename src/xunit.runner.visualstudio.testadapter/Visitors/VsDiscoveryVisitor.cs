@@ -42,7 +42,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
         public int TotalTests { get; private set; }
 
-        internal static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, XunitVisualStudioSettings settings, bool forceUniqueNames, HashSet<string> knownTraitNames = null)
+        public static TestCase CreateVsTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase xunitTestCase, XunitVisualStudioSettings settings, bool forceUniqueNames, HashSet<string> knownTraitNames = null)
         {
             var serializedTestCase = discoverer.Serialize(xunitTestCase);
             var fqTestMethodName = String.Format("{0}.{1}", xunitTestCase.Class.Name, xunitTestCase.Method.Name);
