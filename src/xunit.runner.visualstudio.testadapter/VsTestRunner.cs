@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Runner.VisualStudio.Settings;
+using Xunit.Abstractions;
 
 namespace Xunit.Runner.VisualStudio.TestAdapter
 {
@@ -106,7 +108,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             return TestProperty.Register("XunitTestCase", "xUnit.net Test Case", typeof(string), typeof(VsTestRunner));
         }
 
-        IEnumerable<IGrouping<string, TestCase>> GetTests(IEnumerable<string> sources, IMessageLogger logger, XunitVisualStudioSettings settings, Stopwatch stopwatch)
+        IEnumerable<IGrouping<string, TestCase>> GetTests(IEnumerable<string> sources, IRunContext runContext, IMessageLogger logger, XunitVisualStudioSettings settings, Stopwatch stopwatch)
         {
             var result = new List<IGrouping<string, TestCase>>();
 
@@ -146,16 +148,22 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                             {
                                 framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
                                 sink.Finished.WaitOne();
+                                HashSet<string> knownTraitNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                                var grouping = new Grouping<string, TestCase>(
+                                                                assemblyFileName,
+                                                                sink.TestCases
+                                                                    .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
+                                                                    .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1, knownTraitNames: knownTraitNames)))
+                                                                    .ToList());
 
-                                result.Add(
-                                    new Grouping<string, TestCase>(
-                                        assemblyFileName,
-                                        sink.TestCases
-                                            .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
-                                            .SelectMany(group => group.Select(testCase => VsDiscoveryVisitor.CreateVsTestCase(assemblyFileName, framework, testCase, settings, forceUniqueNames: group.Count() > 1)))
-                                            .ToList()
-                                    )
-                                );
+                                var filterHelper = new TestCaseFilterHelper(knownTraitNames);
+                                var filter = filterHelper.GetTestCaseFilterExpression(runContext);
+                                if (filter != null)
+                                {
+                                    grouping = new Grouping<string, TestCase>(grouping.Key, grouping.Where(testCase => filter.MatchTestCase(testCase, (p) => filterHelper.PropertyProvider(testCase, p))).ToList());
+                                }
+
+                                result.Add(grouping);
 
                                 if (settings.MessageDisplay != MessageDisplay.None)
                                     logger.SendMessage(TestMessageLevel.Informational,
@@ -189,7 +197,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             Guard.ArgumentNotNull("sources", sources);
 
             var stopwatch = Stopwatch.StartNew();
-            RunTests(runContext, frameworkHandle, stopwatch, settings => GetTests(sources, frameworkHandle, settings, stopwatch));
+            RunTests(runContext, frameworkHandle, stopwatch, settings => GetTests(sources, runContext, frameworkHandle, settings, stopwatch));
             stopwatch.Stop();
         }
 
@@ -345,6 +353,76 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             IEnumerator IEnumerable.GetEnumerator()
             {
                 return elements.GetEnumerator();
+            }
+        }
+
+        class TestCaseFilterHelper
+        {
+            private const string DisplayNameString = "DisplayName";
+            private const string FullyQualifiedNameString = "FullyQualifiedName";
+            private HashSet<string> knownTraits;
+            private List<string> supportedPropertyNames;
+
+            public TestCaseFilterHelper(HashSet<string> knownTraits)
+            {
+                this.knownTraits = knownTraits;
+                this.supportedPropertyNames = this.GetSupportedPropertyNames();
+            }
+
+            private List<string> GetSupportedPropertyNames()
+            {
+                // Returns the set of well-known property names usually used with the Test Plugins (Used Test Traits + DisplayName + FullyQualifiedName)
+                if (this.supportedPropertyNames == null)
+                {
+                    this.supportedPropertyNames = this.knownTraits.ToList();
+                    this.supportedPropertyNames.Add(DisplayNameString);
+                    this.supportedPropertyNames.Add(FullyQualifiedNameString);
+                }
+                return this.supportedPropertyNames;
+            }
+
+            public ITestCaseFilterExpression GetTestCaseFilterExpression(IRunContext runContext)
+            {
+                try
+                {
+                    // In Microsoft.VisualStudio.TestPlatform.ObjectModel V11 IRunContext provides a TestCaseFilter property
+                    // GetTestCaseFilter only exists in V12+
+                    MethodInfo getTestCaseFilterMethod = runContext.GetType().GetMethod("GetTestCaseFilter");
+                    ITestCaseFilterExpression result = null;
+                    if (getTestCaseFilterMethod != null)
+                    {
+                        result = (ITestCaseFilterExpression)getTestCaseFilterMethod.Invoke(runContext, new object[] { this.supportedPropertyNames, null });
+                    }
+
+                    return result;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+
+            public object PropertyProvider(TestCase testCase, string name)
+            {
+                // Traits filtering
+                if (this.knownTraits.Contains(name))
+                {
+                    foreach (Trait t in testCase.Traits)
+                    {
+                        if (String.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase))
+                            return t.Value;
+                    }
+                }
+                else
+                {
+                    // Handle the displayName and fullyQualifierNames independently
+                    if (String.Equals(name, FullyQualifiedNameString, StringComparison.OrdinalIgnoreCase))
+                        return testCase.FullyQualifiedName;
+                    if (String.Equals(name, DisplayNameString, StringComparison.OrdinalIgnoreCase))
+                        return testCase.DisplayName;
+                }
+
+                return null;
             }
         }
     }
