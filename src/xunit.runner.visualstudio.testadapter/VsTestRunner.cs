@@ -407,10 +407,16 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 // Traits filtering
                 if (this.knownTraits.Contains(name))
                 {
+                    List<string> result = new List<string>();
                     foreach (Trait t in testCase.Traits)
                     {
                         if (String.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase))
-                            return t.Value;
+                            result.Add(t.Value);
+                    }
+
+                    if (result.Count > 0)
+                    {
+                        return result.ToArray();
                     }
                 }
                 else
