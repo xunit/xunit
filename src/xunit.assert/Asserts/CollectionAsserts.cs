@@ -185,6 +185,37 @@ namespace Xunit
         }
 
         /// <summary>
+        /// Verifies that all items in the collection pass when executed against
+        /// action.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="action">The action to test each item against.</param>
+        /// <exception cref="CompositeException">Thrown when the collection contains at least one none matching element.</exception>
+        public static void All<T>(IEnumerable<T> collection, Action<T> action)
+        {
+            Assert.GuardArgumentNotNull("collection", collection);
+            Assert.GuardArgumentNotNull("action", action);
+
+            var errors = new Stack<Tuple<int, Exception>>();
+            int position = 0;
+            foreach (var item in collection)
+            {
+                try
+                {
+                    action(item);
+                }
+                catch (Exception ex)
+                {
+                    errors.Push(new Tuple<int, Exception>(position, ex));
+                }
+                position++;
+            }
+            if (errors.Count > 0)
+                throw new CompositeException(position, errors.ToArray());
+        }
+
+        /// <summary>
         /// Verifies that a collection is not empty.
         /// </summary>
         /// <param name="collection">The collection to be inspected</param>

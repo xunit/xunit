@@ -400,6 +400,51 @@ public class CollectionAssertsTests
         }
     }
 
+    public class All
+    {
+        [Fact]
+        public void NullCollectionThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(null, _ => { }));
+        }
+
+        [Fact]
+        public void NullActionThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(new Object[0], null));
+        }
+
+        [Fact]
+        public void ActionWhereSomeFail()
+        {
+            var items = new[] {1, 1, 2, 2, 1, 1};
+
+            var ex = Assert.Throws<CompositeException>(() => Assert.All(items, _ => Assert.Equal(1, _)));
+
+            Assert.Equal(2, ex.Failures.Count);
+            Assert.All(ex.Failures, _ => Assert.IsType<EqualException>(_));
+        }
+
+        [Fact]
+        public void ActionWhereNoneFail()
+        {
+            var items = new[] { 1, 1, 1, 1, 1, 1 };
+
+            Assert.All(items, _ => Assert.Equal(1, _));
+        }
+
+        [Fact]
+        public void ActionWhereAllFail()
+        {
+            var items = new[] { 1, 1, 2, 2, 1, 1 };
+
+            var ex = Assert.Throws<CompositeException>(() => Assert.All(items, _ => Assert.Equal(0, _)));
+
+            Assert.Equal(6, ex.Failures.Count);
+            Assert.All(ex.Failures, _ => Assert.IsType<EqualException>(_));
+        }
+    }
+
     public class NotEmpty
     {
         [Fact]
