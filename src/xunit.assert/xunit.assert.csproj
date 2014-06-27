@@ -54,6 +54,7 @@
     <Compile Include="Asserts\Sdk\Exceptions\AssertActualExpectedException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\AssertCollectionCountException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\CollectionException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\AllException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\ContainsException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\DoesNotContainException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\DoesNotMatchException.cs" />

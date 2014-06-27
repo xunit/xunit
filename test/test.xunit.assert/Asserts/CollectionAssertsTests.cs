@@ -6,6 +6,51 @@ using Xunit.Sdk;
 
 public class CollectionAssertsTests
 {
+    public class All
+    {
+        [Fact]
+        public static void NullCollectionThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(null, _ => { }));
+        }
+
+        [Fact]
+        public static void NullActionThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(new Object[0], null));
+        }
+
+        [Fact]
+        public static void ActionWhereSomeFail()
+        {
+            var items = new[] { 1, 1, 2, 2, 1, 1 };
+
+            var ex = Assert.Throws<AllException>(() => Assert.All(items, x => Assert.Equal(1, x)));
+
+            Assert.Equal(2, ex.Failures.Count);
+            Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
+        }
+
+        [Fact]
+        public static void ActionWhereNoneFail()
+        {
+            var items = new[] { 1, 1, 1, 1, 1, 1 };
+
+            Assert.All(items, x => Assert.Equal(1, x));
+        }
+
+        [Fact]
+        public static void ActionWhereAllFail()
+        {
+            var items = new[] { 1, 1, 2, 2, 1, 1 };
+
+            var ex = Assert.Throws<AllException>(() => Assert.All(items, x => Assert.Equal(0, x)));
+
+            Assert.Equal(6, ex.Failures.Count);
+            Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
+        }
+    }
+
     public class Collection
     {
         [Fact]

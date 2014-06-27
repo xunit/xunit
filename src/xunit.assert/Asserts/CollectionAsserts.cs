@@ -9,6 +9,38 @@ namespace Xunit
     public partial class Assert
     {
         /// <summary>
+        /// Verifies that all items in the collection pass when executed against
+        /// action.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to be verified</typeparam>
+        /// <param name="collection">The collection</param>
+        /// <param name="action">The action to test each item against</param>
+        /// <exception cref="AllException">Thrown when the collection contains at least one non-matching element</exception>
+        public static void All<T>(IEnumerable<T> collection, Action<T> action)
+        {
+            Assert.GuardArgumentNotNull("collection", collection);
+            Assert.GuardArgumentNotNull("action", action);
+
+            var errors = new Stack<Tuple<int, Exception>>();
+            var array = collection.ToArray();
+
+            for (var idx = 0; idx < array.Length; ++idx)
+            {
+                try
+                {
+                    action(array[idx]);
+                }
+                catch (Exception ex)
+                {
+                    errors.Push(new Tuple<int, Exception>(idx, ex));
+                }
+            }
+
+            if (errors.Count > 0)
+                throw new AllException(array.Length, errors.ToArray());
+        }
+
+        /// <summary>
         /// Verifies that a collection contains exactly a given number of elements, which meet
         /// the criteria provided by the element inspectors.
         /// </summary>
