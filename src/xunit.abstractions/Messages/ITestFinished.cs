@@ -3,7 +3,7 @@
     /// <summary>
     /// This message indicates that a test has finished executing.
     /// </summary>
-    public interface ITestFinished : ITestMessage
+    public interface ITestFinished : ITestMessage, IExecutionMessage
     {
         /// <summary>
         /// Gets the time spent executing the test, in seconds.

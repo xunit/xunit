@@ -3,7 +3,7 @@
     /// <summary>
     /// This message indicates that a test has failed.
     /// </summary>
-    public interface ITestFailed : ITestResultMessage, IFailureInformation
+    public interface ITestFailed : ITestResultMessage, IExecutionMessage, IFailureInformation
     {
     }
 }

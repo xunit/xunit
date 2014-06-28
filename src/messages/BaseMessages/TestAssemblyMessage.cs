@@ -8,9 +8,9 @@ namespace Xunit
 #endif
 {
     /// <summary>
-    /// Default implementation of <see cref="ITestAssemblyMessage"/>.
+    /// Default implementation of <see cref="ITestAssemblyMessage"/> and <see cref="IExecutionMessage"/>.
     /// </summary>
-    public class TestAssemblyMessage : LongLivedMarshalByRefObject, ITestAssemblyMessage
+    public class TestAssemblyMessage : LongLivedMarshalByRefObject, ITestAssemblyMessage, IExecutionMessage
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyMessage"/> class.

@@ -3,7 +3,7 @@
     /// <summary>
     /// This message indicates that an error has occurred during test method cleanup. 
     /// </summary>
-    public interface ITestMethodCleanupFailure : ITestMethodMessage, IFailureInformation
+    public interface ITestMethodCleanupFailure : ITestMethodMessage, IExecutionMessage, IFailureInformation
     {
     }
 }

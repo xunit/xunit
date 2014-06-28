@@ -11,10 +11,5 @@ namespace Xunit.Abstractions
         /// The test assembly that is associated with this message.
         /// </summary>
         ITestAssembly TestAssembly { get; }
-
-        /// <summary>
-        /// The test cases that are associated with this message.
-        /// </summary>
-        IEnumerable<ITestCase> TestCases { get; }
     }
 }
