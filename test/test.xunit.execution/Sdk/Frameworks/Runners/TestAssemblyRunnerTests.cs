@@ -99,13 +99,13 @@ public class TestAssemblyRunnerTests
         }
 
         [Fact]
-        public static async void FailureInOnTestAssemblyStarted_GivesErroredAggregatorToTestCollectionRunner_NoCleanupFailureMessage()
+        public static async void FailureInAfterTestAssemblyStarting_GivesErroredAggregatorToTestCollectionRunner_NoCleanupFailureMessage()
         {
             var messages = new List<IMessageSinkMessage>();
             var messageSink = SpyMessageSink.Create(messages: messages);
             var runner = TestableTestAssemblyRunner.Create(messageSink);
             var ex = new DivideByZeroException();
-            runner.OnAssemblyStarted_Callback = aggregator => aggregator.Add(ex);
+            runner.AfterTestAssemblyStarting_Callback = aggregator => aggregator.Add(ex);
 
             await runner.RunAsync();
 
@@ -114,7 +114,7 @@ public class TestAssemblyRunnerTests
         }
 
         [Fact]
-        public static async void FailureInOnTestAssemblyFinishing_ReportsCleanupFailure_DoesNotIncludeExceptionsFromTestAssemblyStarted()
+        public static async void FailureInBeforeTestAssemblyFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestAssemblyStarting()
         {
             var thisAssembly = Assembly.GetExecutingAssembly();
             var thisAppDomain = AppDomain.CurrentDomain;
@@ -122,10 +122,10 @@ public class TestAssemblyRunnerTests
             var messageSink = SpyMessageSink.Create(messages: messages);
             var testCases = new[] { Mocks.TestCase() };
             var runner = TestableTestAssemblyRunner.Create(messageSink, testCases: testCases);
-            var startedException = new DivideByZeroException();
-            var finishingException = new InvalidOperationException();
-            runner.OnAssemblyStarted_Callback = aggregator => aggregator.Add(startedException);
-            runner.OnAssemblyFinishing_Callback = aggregator => aggregator.Add(finishingException);
+            var startingException = new DivideByZeroException();
+            var finishedException = new InvalidOperationException();
+            runner.AfterTestAssemblyStarting_Callback = aggregator => aggregator.Add(startingException);
+            runner.BeforeTestAssemblyFinished_Callback = aggregator => aggregator.Add(finishedException);
 
             await runner.RunAsync();
 
@@ -144,8 +144,8 @@ public class TestAssemblyRunnerTests
 
             await runner.RunAsync();
 
-            Assert.False(runner.OnAssemblyStarted_Called);
-            Assert.False(runner.OnAssemblyFinishing_Called);
+            Assert.False(runner.AfterTestAssemblyStarting_Called);
+            Assert.False(runner.BeforeTestAssemblyFinished_Called);
         }
 
         [Fact]
@@ -156,8 +156,8 @@ public class TestAssemblyRunnerTests
 
             await runner.RunAsync();
 
-            Assert.True(runner.OnAssemblyStarted_Called);
-            Assert.True(runner.OnAssemblyFinishing_Called);
+            Assert.True(runner.AfterTestAssemblyStarting_Called);
+            Assert.True(runner.BeforeTestAssemblyFinished_Called);
         }
 
         [Fact]
@@ -215,10 +215,10 @@ public class TestAssemblyRunnerTests
         readonly RunSummary result;
 
         public List<Tuple<ITestCollection, IEnumerable<ITestCase>>> CollectionsRun = new List<Tuple<ITestCollection, IEnumerable<ITestCase>>>();
-        public Action<ExceptionAggregator> OnAssemblyFinishing_Callback = _ => { };
-        public bool OnAssemblyFinishing_Called;
-        public Action<ExceptionAggregator> OnAssemblyStarted_Callback = _ => { };
-        public bool OnAssemblyStarted_Called;
+        public Action<ExceptionAggregator> AfterTestAssemblyStarting_Callback = _ => { };
+        public bool AfterTestAssemblyStarting_Called;
+        public Action<ExceptionAggregator> BeforeTestAssemblyFinished_Callback = _ => { };
+        public bool BeforeTestAssemblyFinished_Called;
         public Exception RunTestCollectionAsync_AggregatorResult;
 
         TestableTestAssemblyRunner(ITestAssembly testAssembly,
@@ -270,16 +270,16 @@ public class TestAssemblyRunnerTests
             return "The test framework environment";
         }
 
-        protected override void OnAssemblyStarted()
+        protected override void AfterTestAssemblyStarting()
         {
-            OnAssemblyStarted_Called = true;
-            OnAssemblyStarted_Callback(Aggregator);
+            AfterTestAssemblyStarting_Called = true;
+            AfterTestAssemblyStarting_Callback(Aggregator);
         }
 
-        protected override void OnAssemblyFinishing()
+        protected override void BeforeTestAssemblyFinished()
         {
-            OnAssemblyFinishing_Called = true;
-            OnAssemblyFinishing_Callback(Aggregator);
+            BeforeTestAssemblyFinished_Called = true;
+            BeforeTestAssemblyFinished_Callback(Aggregator);
         }
 
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<ITestCase> testCases, CancellationTokenSource cancellationTokenSource)

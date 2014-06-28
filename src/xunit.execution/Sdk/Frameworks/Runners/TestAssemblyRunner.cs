@@ -84,16 +84,16 @@ namespace Xunit.Sdk
         protected abstract string GetTestFrameworkEnvironment();
 
         /// <summary>
-        /// This method is called just after <see cref="ITestAssemblyStarting"/> it sent, but before any test collections are run.
+        /// This method is called just after <see cref="ITestAssemblyStarting"/> is sent, but before any test collections are run.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnAssemblyStarted() { }
+        protected virtual void AfterTestAssemblyStarting() { }
 
         /// <summary>
         /// This method is called just before <see cref="ITestAssemblyFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnAssemblyFinishing() { }
+        protected virtual void BeforeTestAssemblyFinished() { }
 
         /// <summary>
         /// Creates the message bus to be used for test execution. By default, it inspects
@@ -130,7 +130,7 @@ namespace Xunit.Sdk
                 {
                     try
                     {
-                        OnAssemblyStarted();
+                        AfterTestAssemblyStarting();
 
                         var masterStopwatch = Stopwatch.StartNew();
                         totalSummary = await RunTestCollectionsAsync(messageBus, cancellationTokenSource);
@@ -138,7 +138,7 @@ namespace Xunit.Sdk
                         totalSummary.Time = (decimal)masterStopwatch.Elapsed.TotalSeconds;
 
                         Aggregator.Clear();
-                        OnAssemblyFinishing();
+                        BeforeTestAssemblyFinished();
 
                         if (Aggregator.HasExceptions)
                             messageBus.QueueMessage(new TestAssemblyCleanupFailure(TestCases.Cast<ITestCase>(), TestAssembly, Aggregator.ToException()));
