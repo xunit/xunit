@@ -57,6 +57,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.execution", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.visualstudio.Win8", "test\test.xunit.runner.visualstudio.Win8\test.xunit.runner.visualstudio.Win8.csproj", "{C5B811E8-30CD-4879-A48C-664241D3EFB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.assert", "test\test.xunit.assert\test.xunit.assert.csproj", "{B1875255-91B8-4B17-A6B3-7A96A49004D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -387,6 +389,20 @@ Global
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Release|x86.ActiveCfg = Release|x86
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Release|x86.Build.0 = Release|x86
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8}.Release|x86.Deploy.0 = Release|x86
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|ARM.ActiveCfg = Release|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|x64.ActiveCfg = Release|Any CPU
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -417,5 +433,9 @@ Global
 		{7F47544F-3F88-448E-9729-224DC057F71C} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{C32639C0-50EB-49AB-9681-C3334E5DEAE7} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{C5B811E8-30CD-4879-A48C-664241D3EFB8} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
+		{B1875255-91B8-4B17-A6B3-7A96A49004D5} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
