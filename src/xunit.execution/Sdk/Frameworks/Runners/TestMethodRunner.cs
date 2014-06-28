@@ -77,24 +77,16 @@ namespace Xunit.Sdk
         protected ITestMethod TestMethod { get; set; }
 
         /// <summary>
-        /// This method is called just before <see cref="ITestMethodStarting"/> is sent.
-        /// </summary>
-        protected virtual void OnTestMethodStarting() { }
-
-        /// <summary>
         /// This method is called just after <see cref="ITestMethodStarting"/> is sent, but before any test cases are run.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnTestMethodStarted() { }
 
         /// <summary>
         /// This method is called just before <see cref="ITestMethodFinished"/> is sent.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnTestMethodFinishing() { }
-
-        /// <summary>
-        /// This method is called just after <see cref="ITestMethodFinished"/> is sent.
-        /// </summary>
-        protected virtual void OnTestMethodFinished() { }
 
         /// <summary>
         /// Runs the tests in the test method.
@@ -102,8 +94,6 @@ namespace Xunit.Sdk
         /// <returns>Returns summary information about the tests that were run.</returns>
         public async Task<RunSummary> RunAsync()
         {
-            OnTestMethodStarting();
-
             var methodSummary = new RunSummary();
 
             try
@@ -114,7 +104,13 @@ namespace Xunit.Sdk
                 {
                     OnTestMethodStarted();
                     methodSummary = await RunTestCasesAsync();
+
+                    Aggregator.Clear();
                     OnTestMethodFinishing();
+
+                    if (Aggregator.HasExceptions)
+                        if (!MessageBus.QueueMessage(new TestMethodCleanupFailure(TestCases.Cast<ITestCase>(), TestMethod, Aggregator.ToException())))
+                            CancellationTokenSource.Cancel();
                 }
             }
             finally
@@ -122,7 +118,6 @@ namespace Xunit.Sdk
                 if (!MessageBus.QueueMessage(new TestMethodFinished(TestCases.Cast<ITestCase>(), TestMethod, methodSummary.Time, methodSummary.Total, methodSummary.Failed, methodSummary.Skipped)))
                     CancellationTokenSource.Cancel();
 
-                OnTestMethodFinished();
             }
 
             return methodSummary;

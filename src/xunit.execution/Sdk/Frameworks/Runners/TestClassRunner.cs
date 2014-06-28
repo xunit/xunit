@@ -157,11 +157,10 @@ namespace Xunit.Sdk
 
                     Aggregator.Clear();
                     OnTestClassFinishing();
-                    
+
                     if (Aggregator.HasExceptions)
                         if (!MessageBus.QueueMessage(new TestClassCleanupFailure(TestCases.Cast<ITestCase>(), TestClass, Aggregator.ToException())))
                             CancellationTokenSource.Cancel();
-
                 }
             }
             finally
