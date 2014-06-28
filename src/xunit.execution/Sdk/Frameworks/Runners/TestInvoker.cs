@@ -147,16 +147,16 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// This method is called just before the test method is invoked.
-        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
-        /// </summary>
-        protected virtual void OnTestExecuting() { }
-
-        /// <summary>
         /// This method is called just after the test method has finished executing.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnTestExecuted() { }
+        protected virtual void AfterTestMethodInvoked() { }
+
+        /// <summary>
+        /// This method is called just before the test method is invoked.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
+        /// </summary>
+        protected virtual void BeforeTestMethodInvoked() { }
 
         /// <summary>
         /// Invokes the test method.
@@ -170,16 +170,15 @@ namespace Xunit.Sdk
                 if (!CancellationTokenSource.IsCancellationRequested)
                 {
                     var testClassInstance = CreateTestClass();
-                    // CreateTestClass() will throw, so no need to check the aggregator
 
                     if (!CancellationTokenSource.IsCancellationRequested)
                     {
-                        OnTestExecuting();
+                        BeforeTestMethodInvoked();
 
                         if (!Aggregator.HasExceptions)
                             await InvokeTestMethodAsync(testClassInstance);
 
-                        OnTestExecuted();
+                        AfterTestMethodInvoked();
                     }
 
                     Aggregator.Run(() => DisposeTestClass(testClassInstance));

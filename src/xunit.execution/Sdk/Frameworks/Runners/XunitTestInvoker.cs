@@ -42,7 +42,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestExecuting()
+        protected override void BeforeTestMethodInvoked()
         {
             foreach (var beforeAfterAttribute in beforeAfterAttributes)
             {
@@ -74,7 +74,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestExecuted()
+        protected override void AfterTestMethodInvoked()
         {
             foreach (var beforeAfterAttribute in beforeAfterAttributesRun)
             {
