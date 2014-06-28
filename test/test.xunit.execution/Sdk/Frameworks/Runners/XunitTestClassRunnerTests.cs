@@ -17,9 +17,8 @@ public class XunitTestClassRunnerTests
 
         await runner.RunAsync();
 
-        var ex = runner.Aggregator.ToException();
-        Assert.IsType<TestClassException>(ex);
-        Assert.Equal("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).", ex.Message);
+        Assert.IsType<TestClassException>(runner.RunTestMethodAsync_AggregatorResult);
+        Assert.Equal("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).", runner.RunTestMethodAsync_AggregatorResult.Message);
     }
 
     class ClassWithCollectionFixture : ICollectionFixture<object>
@@ -36,9 +35,8 @@ public class XunitTestClassRunnerTests
 
         await runner.RunAsync();
 
-        var ex = runner.Aggregator.ToException();
-        Assert.IsType<TestClassException>(ex);
-        Assert.Equal("A test class may only define a single public constructor.", ex.Message);
+        Assert.IsType<TestClassException>(runner.RunTestMethodAsync_AggregatorResult);
+        Assert.Equal("A test class may only define a single public constructor.", runner.RunTestMethodAsync_AggregatorResult.Message);
     }
 
     class ClassWithTwoConstructors
@@ -136,8 +134,8 @@ public class XunitTestClassRunnerTests
 
     class TestableXunitTestClassRunner : XunitTestClassRunner
     {
-        public new readonly ExceptionAggregator Aggregator;
         public List<object[]> ConstructorArguments = new List<object[]>();
+        public Exception RunTestMethodAsync_AggregatorResult;
 
         TestableXunitTestClassRunner(ITestClass testClass,
                                      IReflectionTypeInfo @class,
@@ -147,10 +145,7 @@ public class XunitTestClassRunnerTests
                                      ExceptionAggregator aggregator,
                                      CancellationTokenSource cancellationTokenSource,
                                      IDictionary<Type, object> collectionFixtureMappings)
-            : base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings)
-        {
-            Aggregator = aggregator;
-        }
+            : base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings) { }
 
         public new Dictionary<Type, object> ClassFixtureMappings
         {
@@ -179,6 +174,7 @@ public class XunitTestClassRunnerTests
         protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
         {
             ConstructorArguments.Add(constructorArguments);
+            RunTestMethodAsync_AggregatorResult = Aggregator.ToException();
 
             return Task.FromResult(new RunSummary());
         }

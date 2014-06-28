@@ -70,10 +70,10 @@ public class TestCollectionRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestAssemblyFinishing_ReportsCleanupFailure_DoesNotIncludeExceptionsFromTestAssemblyStarted()
+    public static async void FailureInOnTestCollectionFinishing_ReportsCleanupFailure_DoesNotIncludeExceptionsFromTestCollectionStarted()
     {
         var messageBus = new SpyMessageBus();
-        var testCases = new[] { Mocks.TestCase<TestCollectionRunnerTests>("FailureInOnTestAssemblyFinishing_ReportsCleanupFailure_DoesNotIncludeExceptionsFromTestAssemblyStarted") };
+        var testCases = new[] { Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages") };
         var runner = TestableTestCollectionRunner.Create(messageBus, testCases);
         var startedException = new DivideByZeroException();
         var finishingException = new InvalidOperationException();
@@ -253,7 +253,6 @@ public class TestCollectionRunnerTests
                 CancellationTokenSource.Cancel();
 
             RunTestClassAsync_AggregatorResult = Aggregator.ToException();
-
             ClassesRun.Add(Tuple.Create(@class, testCases));
             return Task.FromResult(result);
         }
