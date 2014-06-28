@@ -82,12 +82,12 @@ public class TestCollectionRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestCollectionStarted_GivesErroredAggregatorToTestClassRunner_NoCleanupFailureMessage()
+    public static async void FailureInAfterTestCollectionStarting_GivesErroredAggregatorToTestClassRunner_NoCleanupFailureMessage()
     {
         var messageBus = new SpyMessageBus();
         var runner = TestableTestCollectionRunner.Create(messageBus);
         var ex = new DivideByZeroException();
-        runner.OnTestCollectionStarted_Callback = aggregator => aggregator.Add(ex);
+        runner.AfterTestCollectionStarting_Callback = aggregator => aggregator.Add(ex);
 
         await runner.RunAsync();
 
@@ -96,15 +96,15 @@ public class TestCollectionRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestCollectionFinishing_ReportsCleanupFailure_DoesNotIncludeExceptionsFromTestCollectionStarted()
+    public static async void FailureInBeforeTestCollectionFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestCollectionStarting()
     {
         var messageBus = new SpyMessageBus();
         var testCases = new[] { Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages") };
         var runner = TestableTestCollectionRunner.Create(messageBus, testCases);
-        var startedException = new DivideByZeroException();
-        var finishingException = new InvalidOperationException();
-        runner.OnTestCollectionStarted_Callback = aggregator => aggregator.Add(startedException);
-        runner.OnTestCollectionFinishing_Callback = aggregator => aggregator.Add(finishingException);
+        var startingException = new DivideByZeroException();
+        var finishedException = new InvalidOperationException();
+        runner.AfterTestCollectionStarting_Callback = aggregator => aggregator.Add(startingException);
+        runner.BeforeTestCollectionFinished_Callback = aggregator => aggregator.Add(finishedException);
 
         await runner.RunAsync();
 
@@ -123,8 +123,8 @@ public class TestCollectionRunnerTests
         await runner.RunAsync();
 
         Assert.True(runner.TokenSource.IsCancellationRequested);
-        Assert.False(runner.OnTestCollectionStarted_Called);
-        Assert.False(runner.OnTestCollectionFinishing_Called);
+        Assert.False(runner.AfterTestCollectionStarting_Called);
+        Assert.False(runner.BeforeTestCollectionFinished_Called);
     }
 
     [Fact]
@@ -136,8 +136,8 @@ public class TestCollectionRunnerTests
         await runner.RunAsync();
 
         Assert.True(runner.TokenSource.IsCancellationRequested);
-        Assert.True(runner.OnTestCollectionStarted_Called);
-        Assert.True(runner.OnTestCollectionFinishing_Called);
+        Assert.True(runner.AfterTestCollectionStarting_Called);
+        Assert.True(runner.BeforeTestCollectionFinished_Called);
     }
 
     [Fact]
@@ -145,7 +145,7 @@ public class TestCollectionRunnerTests
     {
         var messageBus = new SpyMessageBus(msg => !(msg is ITestCollectionCleanupFailure));
         var runner = TestableTestCollectionRunner.Create(messageBus);
-        runner.OnTestCollectionFinishing_Callback = aggregator => aggregator.Add(new Exception());
+        runner.BeforeTestCollectionFinished_Callback = aggregator => aggregator.Add(new Exception());
 
         await runner.RunAsync();
 
@@ -213,10 +213,10 @@ public class TestCollectionRunnerTests
         readonly RunSummary result;
 
         public readonly List<Tuple<IReflectionTypeInfo, IEnumerable<ITestCase>>> ClassesRun = new List<Tuple<IReflectionTypeInfo, IEnumerable<ITestCase>>>();
-        public Action<ExceptionAggregator> OnTestCollectionFinishing_Callback = _ => { };
-        public bool OnTestCollectionFinishing_Called;
-        public Action<ExceptionAggregator> OnTestCollectionStarted_Callback = _ => { };
-        public bool OnTestCollectionStarted_Called;
+        public Action<ExceptionAggregator> AfterTestCollectionStarting_Callback = _ => { };
+        public bool AfterTestCollectionStarting_Called;
+        public Action<ExceptionAggregator> BeforeTestCollectionFinished_Callback = _ => { };
+        public bool BeforeTestCollectionFinished_Called;
         public Exception RunTestClassAsync_AggregatorResult;
         public readonly CancellationTokenSource TokenSource;
 
@@ -261,16 +261,16 @@ public class TestCollectionRunnerTests
             );
         }
 
-        protected override void OnTestCollectionFinishing()
+        protected override void AfterTestCollectionStarting()
         {
-            OnTestCollectionFinishing_Called = true;
-            OnTestCollectionFinishing_Callback(Aggregator);
+            AfterTestCollectionStarting_Called = true;
+            AfterTestCollectionStarting_Callback(Aggregator);
         }
 
-        protected override void OnTestCollectionStarted()
+        protected override void BeforeTestCollectionFinished()
         {
-            OnTestCollectionStarted_Called = true;
-            OnTestCollectionStarted_Callback(Aggregator);
+            BeforeTestCollectionFinished_Called = true;
+            BeforeTestCollectionFinished_Callback(Aggregator);
         }
 
         protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<ITestCase> testCases)

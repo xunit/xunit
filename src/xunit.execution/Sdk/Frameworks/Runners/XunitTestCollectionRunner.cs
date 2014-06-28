@@ -33,7 +33,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets the fixture mappings that were created during <see cref="OnTestCollectionStarted"/>.
+        /// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStarting"/>.
         /// </summary>
         protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
 
@@ -44,7 +44,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestCollectionStarted()
+        protected override void AfterTestCollectionStarting()
         {
             if (TestCollection.CollectionDefinition != null)
             {
@@ -59,7 +59,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestCollectionFinishing()
+        protected override void BeforeTestCollectionFinished()
         {
             foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
             {
