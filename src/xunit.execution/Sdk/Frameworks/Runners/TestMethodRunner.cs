@@ -96,11 +96,11 @@ namespace Xunit.Sdk
         {
             var methodSummary = new RunSummary();
 
-            try
+            if (!MessageBus.QueueMessage(new TestMethodStarting(TestCases.Cast<ITestCase>(), TestMethod)))
+                CancellationTokenSource.Cancel();
+            else
             {
-                if (!MessageBus.QueueMessage(new TestMethodStarting(TestCases.Cast<ITestCase>(), TestMethod)))
-                    CancellationTokenSource.Cancel();
-                else
+                try
                 {
                     OnTestMethodStarted();
                     methodSummary = await RunTestCasesAsync();
@@ -112,12 +112,12 @@ namespace Xunit.Sdk
                         if (!MessageBus.QueueMessage(new TestMethodCleanupFailure(TestCases.Cast<ITestCase>(), TestMethod, Aggregator.ToException())))
                             CancellationTokenSource.Cancel();
                 }
-            }
-            finally
-            {
-                if (!MessageBus.QueueMessage(new TestMethodFinished(TestCases.Cast<ITestCase>(), TestMethod, methodSummary.Time, methodSummary.Total, methodSummary.Failed, methodSummary.Skipped)))
-                    CancellationTokenSource.Cancel();
+                finally
+                {
+                    if (!MessageBus.QueueMessage(new TestMethodFinished(TestCases.Cast<ITestCase>(), TestMethod, methodSummary.Time, methodSummary.Total, methodSummary.Failed, methodSummary.Skipped)))
+                        CancellationTokenSource.Cancel();
 
+                }
             }
 
             return methodSummary;

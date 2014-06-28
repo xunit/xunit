@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -40,6 +41,31 @@ public class TestCollectionRunnerTests
                 Assert.Equal(1, finished.TestsSkipped);
             }
         );
+    }
+
+    [Fact]
+    public static async void FailureInQueueOfTestCollectionStarting_DoesNotQueueTestCollectionFinished_DoesNotRunTestClasses()
+    {
+        var messages = new List<IMessageSinkMessage>();
+        var messageBus = Substitute.For<IMessageBus>();
+        messageBus.QueueMessage(null)
+                  .Returns(callInfo =>
+                  {
+                      var msg = callInfo.Arg<IMessageSinkMessage>();
+                      messages.Add(msg);
+
+                      if (msg is ITestCollectionStarting)
+                          throw new InvalidOperationException();
+
+                      return true;
+                  });
+        var runner = TestableTestCollectionRunner.Create(messageBus);
+
+        await runner.RunAsync();
+
+        var starting = Assert.Single(messages);
+        Assert.IsAssignableFrom<ITestCollectionStarting>(starting);
+        Assert.Empty(runner.ClassesRun);
     }
 
     [Fact]

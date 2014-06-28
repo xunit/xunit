@@ -74,6 +74,31 @@ public class TestAssemblyRunnerTests
         }
 
         [Fact]
+        public static async void FailureInQueueOfTestAssemblyStarting_DoesNotQueueTestAssemblyFinished_DoesNotRunTestCollections()
+        {
+            var messages = new List<IMessageSinkMessage>();
+            var messageSink = Substitute.For<IMessageSink>();
+            messageSink.OnMessage(null)
+                       .Returns(callInfo =>
+                       {
+                           var msg = callInfo.Arg<IMessageSinkMessage>();
+                           messages.Add(msg);
+
+                           if (msg is ITestAssemblyStarting)
+                               throw new InvalidOperationException();
+
+                           return true;
+                       });
+            var runner = TestableTestAssemblyRunner.Create(messageSink);
+
+            await runner.RunAsync();
+
+            var starting = Assert.Single(messages);
+            Assert.IsAssignableFrom<ITestAssemblyStarting>(starting);
+            Assert.Empty(runner.CollectionsRun);
+        }
+
+        [Fact]
         public static async void FailureInOnTestAssemblyStarted_GivesErroredAggregatorToTestCollectionRunner_NoCleanupFailureMessage()
         {
             var messages = new List<IMessageSinkMessage>();

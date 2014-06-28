@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -43,6 +44,31 @@ public class TestClassRunnerTests
                 Assert.Equal(1, finished.TestsSkipped);
             }
         );
+    }
+
+    [Fact]
+    public static async void FailureInQueueOfTestClassStarting_DoesNotQueueTestClassFinished_DoesNotRunTestMethods()
+    {
+        var messages = new List<IMessageSinkMessage>();
+        var messageBus = Substitute.For<IMessageBus>();
+        messageBus.QueueMessage(null)
+                  .Returns(callInfo =>
+                  {
+                      var msg = callInfo.Arg<IMessageSinkMessage>();
+                      messages.Add(msg);
+
+                      if (msg is ITestClassStarting)
+                          throw new InvalidOperationException();
+
+                      return true;
+                  });
+        var runner = TestableTestClassRunner.Create(messageBus);
+
+        await runner.RunAsync();
+
+        var starting = Assert.Single(messages);
+        Assert.IsAssignableFrom<ITestClassStarting>(starting);
+        Assert.Empty(runner.MethodsRun);
     }
 
     [Fact]

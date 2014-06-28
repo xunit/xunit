@@ -124,11 +124,11 @@ namespace Xunit.Sdk
 
             using (var messageBus = CreateMessageBus())
             {
-                try
-                {
-                    Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
+                Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
 
-                    if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
+                if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
+                {
+                    try
                     {
                         OnAssemblyStarted();
 
@@ -143,11 +143,11 @@ namespace Xunit.Sdk
                         if (Aggregator.HasExceptions)
                             messageBus.QueueMessage(new TestAssemblyCleanupFailure(TestCases.Cast<ITestCase>(), TestAssembly, Aggregator.ToException()));
                     }
-                }
-                finally
-                {
-                    messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
-                    Directory.SetCurrentDirectory(currentDirectory);
+                    finally
+                    {
+                        messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
+                        Directory.SetCurrentDirectory(currentDirectory);
+                    }
                 }
             }
 

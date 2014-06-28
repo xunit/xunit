@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -44,6 +45,31 @@ public class TestMethodRunnerTests
                 Assert.Equal(1, finished.TestsSkipped);
             }
         );
+    }
+
+    [Fact]
+    public static async void FailureInQueueOfTestMethodStarting_DoesNotQueueTestMethodFinished_DoesNotRunTestCases()
+    {
+        var messages = new List<IMessageSinkMessage>();
+        var messageBus = Substitute.For<IMessageBus>();
+        messageBus.QueueMessage(null)
+                  .Returns(callInfo =>
+                  {
+                      var msg = callInfo.Arg<IMessageSinkMessage>();
+                      messages.Add(msg);
+
+                      if (msg is ITestMethodStarting)
+                          throw new InvalidOperationException();
+
+                      return true;
+                  });
+        var runner = TestableTestMethodRunner.Create(messageBus);
+
+        await runner.RunAsync();
+
+        var starting = Assert.Single(messages);
+        Assert.IsAssignableFrom<ITestMethodStarting>(starting);
+        Assert.Empty(runner.TestCasesRun);
     }
 
     [Fact]
@@ -93,7 +119,7 @@ public class TestMethodRunnerTests
     }
 
     [Fact]
-    public static async void Cancellation_TestMethodStarting_CallsOuterMethodsOnly()
+    public static async void Cancellation_TestMethodStarting_DoesNotCallExtensibilityMethods()
     {
         var messageBus = new SpyMessageBus(msg => !(msg is ITestMethodStarting));
         var runner = TestableTestMethodRunner.Create(messageBus);
@@ -106,7 +132,7 @@ public class TestMethodRunnerTests
     }
 
     [Fact]
-    public static async void Cancellation_TestMethodFinished_CallsOuterAndInnerMethods()
+    public static async void Cancellation_TestMethodFinished_CallsExtensibilityMethods()
     {
         var messageBus = new SpyMessageBus(msg => !(msg is ITestMethodFinished));
         var runner = TestableTestMethodRunner.Create(messageBus);

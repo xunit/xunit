@@ -51,24 +51,16 @@ namespace Xunit.Sdk
         protected TTestCase TestCase { get; set; }
 
         /// <summary>
-        /// This method is called just before <see cref="ITestCaseStarting"/> is sent.
-        /// </summary>
-        protected virtual void OnTestCaseStarting() { }
-
-        /// <summary>
         /// This method is called just after <see cref="ITestCaseStarting"/> it sent, but before any test collections are run.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnTestCaseStarted() { }
 
         /// <summary>
         /// This method is called just before <see cref="ITestCaseFinished"/> is sent.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnTestCaseFinishing() { }
-
-        /// <summary>
-        /// This method is called just after <see cref="ITestCaseFinished"/> is sent.
-        /// </summary>
-        protected virtual void OnTestCaseFinished() { }
 
         /// <summary>
         /// Runs the tests in the test case.
@@ -78,24 +70,29 @@ namespace Xunit.Sdk
         {
             var summary = new RunSummary();
 
-            OnTestCaseStarting();
 
             if (!MessageBus.QueueMessage(new TestCaseStarting(TestCase)))
                 CancellationTokenSource.Cancel();
             else
             {
-                OnTestCaseStarted();
+                try
+                {
+                    OnTestCaseStarted();
+                    summary = await RunTestAsync();
 
-                // TODO: Introduce TestCaseFailedHere, only calling RunTestAsync if things are still okay (also harden OnXxx implementations)
-                summary = await RunTestAsync();
+                    Aggregator.Clear();
+                    OnTestCaseFinishing();
 
-                OnTestCaseFinishing();
+                    if (Aggregator.HasExceptions)
+                        if (!MessageBus.QueueMessage(new TestCaseCleanupFailure(TestCase, Aggregator.ToException())))
+                            CancellationTokenSource.Cancel();
+                }
+                finally
+                {
+                    if (!MessageBus.QueueMessage(new TestCaseFinished(TestCase, summary.Time, summary.Total, summary.Failed, summary.Skipped)))
+                        CancellationTokenSource.Cancel();
+                }
             }
-
-            if (!MessageBus.QueueMessage(new TestCaseFinished(TestCase, summary.Time, summary.Total, summary.Failed, summary.Skipped)))
-                CancellationTokenSource.Cancel();
-
-            OnTestCaseFinished();
 
             return summary;
         }
