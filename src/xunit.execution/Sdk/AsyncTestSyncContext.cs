@@ -6,20 +6,15 @@ namespace Xunit.Sdk
 {
     internal class AsyncTestSyncContext : SynchronizationContext
     {
-        readonly AsyncManualResetEvent @event = new AsyncManualResetEvent();
+        readonly AsyncManualResetEvent @event = new AsyncManualResetEvent(true);
         Exception exception = null;
         int operationCount = 0;
-
-        public AsyncTestSyncContext()
-        {
-            @event.Set();
-        }
-
+        
         public override void OperationCompleted()
         {
             var result = Interlocked.Decrement(ref operationCount);
             if (result == 0)
-                @event.Set();
+                @event.SetAsync();
         }
 
         public override void OperationStarted()
