@@ -80,12 +80,12 @@ public class TestCaseRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestCaseStarted_GivesErroredAggregatorToTestRunner_NoCleanupFailureMessage()
+    public static async void FailureInAfterTestCaseStarting_GivesErroredAggregatorToTestRunner_NoCleanupFailureMessage()
     {
         var messageBus = new SpyMessageBus();
         var runner = TestableTestCaseRunner.Create(messageBus);
         var ex = new DivideByZeroException();
-        runner.OnTestCaseStarted_Callback = aggregator => aggregator.Add(ex);
+        runner.AfterTestCaseStarting_Callback = aggregator => aggregator.Add(ex);
 
         await runner.RunAsync();
 
@@ -94,15 +94,15 @@ public class TestCaseRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestCaseFinishing_ReportsCleanupFailure_DoesNotIncludeExceptionsFromTestCaseStarted()
+    public static async void FailureInBeforeTestCaseFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestCaseStarting()
     {
         var messageBus = new SpyMessageBus();
         var testCase = Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages");
         var runner = TestableTestCaseRunner.Create(messageBus, testCase);
-        var startedException = new DivideByZeroException();
-        var finishingException = new InvalidOperationException();
-        runner.OnTestCaseStarted_Callback = aggregator => aggregator.Add(startedException);
-        runner.OnTestCaseFinishing_Callback = aggregator => aggregator.Add(finishingException);
+        var startingException = new DivideByZeroException();
+        var finishedException = new InvalidOperationException();
+        runner.AfterTestCaseStarting_Callback = aggregator => aggregator.Add(startingException);
+        runner.BeforeTestCaseFinished_Callback = aggregator => aggregator.Add(finishedException);
 
         await runner.RunAsync();
 
@@ -120,8 +120,8 @@ public class TestCaseRunnerTests
 
         await runner.RunAsync();
 
-        Assert.False(runner.OnTestCaseStarted_Called);
-        Assert.False(runner.OnTestCaseFinishing_Called);
+        Assert.False(runner.AfterTestCaseStarting_Called);
+        Assert.False(runner.BeforeTestCaseFinished_Called);
     }
 
     [Fact]
@@ -132,8 +132,8 @@ public class TestCaseRunnerTests
 
         await runner.RunAsync();
 
-        Assert.True(runner.OnTestCaseStarted_Called);
-        Assert.True(runner.OnTestCaseFinishing_Called);
+        Assert.True(runner.AfterTestCaseStarting_Called);
+        Assert.True(runner.BeforeTestCaseFinished_Called);
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class TestCaseRunnerTests
     {
         var messageBus = new SpyMessageBus(msg => !(msg is ITestCaseCleanupFailure));
         var runner = TestableTestCaseRunner.Create(messageBus);
-        runner.OnTestCaseFinishing_Callback = aggregator => aggregator.Add(new Exception());
+        runner.BeforeTestCaseFinished_Callback = aggregator => aggregator.Add(new Exception());
 
         await runner.RunAsync();
 
@@ -165,10 +165,10 @@ public class TestCaseRunnerTests
     {
         readonly RunSummary result;
 
-        public Action<ExceptionAggregator> OnTestCaseFinishing_Callback = _ => { };
-        public bool OnTestCaseFinishing_Called;
-        public Action<ExceptionAggregator> OnTestCaseStarted_Callback = _ => { };
-        public bool OnTestCaseStarted_Called;
+        public Action<ExceptionAggregator> AfterTestCaseStarting_Callback = _ => { };
+        public bool AfterTestCaseStarting_Called;
+        public Action<ExceptionAggregator> BeforeTestCaseFinished_Callback = _ => { };
+        public bool BeforeTestCaseFinished_Called;
         public Exception RunTestAsync_AggregatorResult;
         public bool RunTestAsync_Called;
         public readonly new ITestCase TestCase;
@@ -198,16 +198,16 @@ public class TestCaseRunnerTests
             );
         }
 
-        protected override void OnTestCaseFinishing()
+        protected override void AfterTestCaseStarting()
         {
-            OnTestCaseFinishing_Called = true;
-            OnTestCaseFinishing_Callback(Aggregator);
+            AfterTestCaseStarting_Called = true;
+            AfterTestCaseStarting_Callback(Aggregator);
         }
 
-        protected override void OnTestCaseStarted()
+        protected override void BeforeTestCaseFinished()
         {
-            OnTestCaseStarted_Called = true;
-            OnTestCaseStarted_Callback(Aggregator);
+            BeforeTestCaseFinished_Called = true;
+            BeforeTestCaseFinished_Callback(Aggregator);
         }
 
         protected override Task<RunSummary> RunTestAsync()

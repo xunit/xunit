@@ -54,13 +54,13 @@ namespace Xunit.Sdk
         /// This method is called just after <see cref="ITestCaseStarting"/> it sent, but before any test collections are run.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnTestCaseStarted() { }
+        protected virtual void AfterTestCaseStarting() { }
 
         /// <summary>
         /// This method is called just before <see cref="ITestCaseFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnTestCaseFinishing() { }
+        protected virtual void BeforeTestCaseFinished() { }
 
         /// <summary>
         /// Runs the tests in the test case.
@@ -77,11 +77,11 @@ namespace Xunit.Sdk
             {
                 try
                 {
-                    OnTestCaseStarted();
+                    AfterTestCaseStarting();
                     summary = await RunTestAsync();
 
                     Aggregator.Clear();
-                    OnTestCaseFinishing();
+                    BeforeTestCaseFinished();
 
                     if (Aggregator.HasExceptions)
                         if (!MessageBus.QueueMessage(new TestCaseCleanupFailure(TestCase, Aggregator.ToException())))
