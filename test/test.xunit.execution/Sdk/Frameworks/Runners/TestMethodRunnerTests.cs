@@ -145,7 +145,7 @@ public class TestMethodRunnerTests
     }
 
     [Fact]
-    public static async void Cancellation_TestClassCleanupFailure_SetsCancellationToken()
+    public static async void Cancellation_TestMethodCleanupFailure_SetsCancellationToken()
     {
         var messageBus = new SpyMessageBus(msg => !(msg is ITestMethodCleanupFailure));
         var runner = TestableTestMethodRunner.Create(messageBus);
