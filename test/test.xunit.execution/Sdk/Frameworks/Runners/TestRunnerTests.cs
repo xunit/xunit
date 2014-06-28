@@ -116,7 +116,7 @@ public class TestRunnerTests
         var messages = new List<IMessageSinkMessage>();
         var messageBus = Substitute.For<IMessageBus>();
         messageBus.QueueMessage(null)
-                  .Returns(callInfo =>
+                  .ReturnsForAnyArgs(callInfo =>
                   {
                       var msg = callInfo.Arg<IMessageSinkMessage>();
                       messages.Add(msg);
@@ -128,7 +128,7 @@ public class TestRunnerTests
                   });
         var runner = TestableTestRunner.Create(messageBus);
 
-        await runner.RunAsync();
+        await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
         var starting = Assert.Single(messages);
         Assert.IsAssignableFrom<ITestStarting>(starting);
@@ -136,7 +136,7 @@ public class TestRunnerTests
     }
 
     [Fact]
-    public static async void InvokeTestAsync_AggregatorIncludesPassedInExceptions()
+    public static async void WithPreSeededException_ReturnsTestFailed_NoCleanupFailureMessage()
     {
         var messageBus = new SpyMessageBus();
         var ex = new DivideByZeroException();
@@ -144,11 +144,13 @@ public class TestRunnerTests
 
         await runner.RunAsync();
 
-        Assert.Same(ex, runner.InvokeTestAsync_AggregatorResult);
+        var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
+        Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
+        Assert.Empty(messageBus.Messages.OfType<ITestCleanupFailure>());
     }
 
     [Fact]
-    public static async void FailureInAfterTestStarting_GivesErroredAggregatorToTestInvoker()
+    public static async void FailureInAfterTestStarting_ReturnsTestFailed_NoCleanupFailureMessage()
     {
         var messageBus = new SpyMessageBus();
         var runner = TestableTestRunner.Create(messageBus);
@@ -157,7 +159,28 @@ public class TestRunnerTests
 
         await runner.RunAsync();
 
-        Assert.Same(ex, runner.InvokeTestAsync_AggregatorResult);
+        var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
+        Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
+        Assert.Empty(messageBus.Messages.OfType<ITestCleanupFailure>());
+    }
+
+    [Fact]
+    public static async void FailureInBeforeTestFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestStarting()
+    {
+        var messageBus = new SpyMessageBus();
+        var testCase = Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages");
+        var runner = TestableTestRunner.Create(messageBus, testCase);
+        var startingException = new DivideByZeroException();
+        var finishedException = new InvalidOperationException();
+        runner.AfterTestStarting_Callback = aggregator => aggregator.Add(startingException);
+        runner.BeforeTestFinished_Callback = aggregator => aggregator.Add(finishedException);
+
+        await runner.RunAsync();
+
+        var cleanupFailure = Assert.Single(messageBus.Messages.OfType<ITestCleanupFailure>());
+        Assert.Same(testCase, cleanupFailure.TestCase);
+        Assert.Equal(new[] { testCase }, cleanupFailure.TestCases);
+        Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
     }
 
     [Fact]
@@ -190,15 +213,27 @@ public class TestRunnerTests
         Assert.True(runner.BeforeTestFinished_Called);
     }
 
+    [Fact]
+    public static async void Cancellation_TestCleanupFailure_SetsCancellationToken()
+    {
+        var messageBus = new SpyMessageBus(msg => !(msg is ITestCleanupFailure));
+        var runner = TestableTestRunner.Create(messageBus);
+        runner.BeforeTestFinished_Callback = aggregator => aggregator.Add(new Exception());
+
+        await runner.RunAsync();
+
+        Assert.True(runner.TokenSource.IsCancellationRequested);
+    }
+
     class TestableTestRunner : TestRunner<ITestCase>
     {
         readonly Action lambda;
         readonly decimal runTime;
 
-        public Exception InvokeTestAsync_AggregatorResult;
         public bool InvokeTestAsync_Called;
         public Action<ExceptionAggregator> AfterTestStarting_Callback = _ => { };
         public bool AfterTestStarting_Called;
+        public Action<ExceptionAggregator> BeforeTestFinished_Callback = _ => { };
         public bool BeforeTestFinished_Called;
         public readonly new ITestCase TestCase;
         public CancellationTokenSource TokenSource;
@@ -260,14 +295,14 @@ public class TestRunnerTests
         protected override void BeforeTestFinished()
         {
             BeforeTestFinished_Called = true;
+            BeforeTestFinished_Callback(Aggregator);
         }
 
-        protected override Task<decimal> InvokeTestAsync()
+        protected override Task<decimal> InvokeTestAsync(ExceptionAggregator aggregator)
         {
             if (lambda != null)
-                Aggregator.Run(lambda);
+                aggregator.Run(lambda);
 
-            InvokeTestAsync_AggregatorResult = Aggregator.ToException();
             InvokeTestAsync_Called = true;
 
             return Task.FromResult(runTime);

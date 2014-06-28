@@ -70,7 +70,6 @@ namespace Xunit.Sdk
         {
             var summary = new RunSummary();
 
-
             if (!MessageBus.QueueMessage(new TestCaseStarting(TestCase)))
                 CancellationTokenSource.Cancel();
             else

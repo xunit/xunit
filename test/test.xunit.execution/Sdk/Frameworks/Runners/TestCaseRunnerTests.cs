@@ -47,7 +47,7 @@ public class TestCaseRunnerTests
         var messages = new List<IMessageSinkMessage>();
         var messageBus = Substitute.For<IMessageBus>();
         messageBus.QueueMessage(null)
-                  .Returns(callInfo =>
+                  .ReturnsForAnyArgs(callInfo =>
                   {
                       var msg = callInfo.Arg<IMessageSinkMessage>();
                       messages.Add(msg);
@@ -59,7 +59,7 @@ public class TestCaseRunnerTests
                   });
         var runner = TestableTestCaseRunner.Create(messageBus);
 
-        await runner.RunAsync();
+        await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
         var starting = Assert.Single(messages);
         Assert.IsAssignableFrom<ITestCaseStarting>(starting);

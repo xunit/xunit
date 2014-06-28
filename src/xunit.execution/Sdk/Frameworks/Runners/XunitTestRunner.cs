@@ -44,9 +44,9 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override Task<decimal> InvokeTestAsync()
+        protected override Task<decimal> InvokeTestAsync(ExceptionAggregator aggregator)
         {
-            return new XunitTestInvoker(TestCase, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, beforeAfterAttributes, DisplayName, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
+            return new XunitTestInvoker(TestCase, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, beforeAfterAttributes, DisplayName, aggregator, CancellationTokenSource).RunAsync();
         }
     }
 }

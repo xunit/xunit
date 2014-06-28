@@ -79,7 +79,7 @@ public class TestAssemblyRunnerTests
             var messages = new List<IMessageSinkMessage>();
             var messageSink = Substitute.For<IMessageSink>();
             messageSink.OnMessage(null)
-                       .Returns(callInfo =>
+                       .ReturnsForAnyArgs(callInfo =>
                        {
                            var msg = callInfo.Arg<IMessageSinkMessage>();
                            messages.Add(msg);
@@ -91,7 +91,7 @@ public class TestAssemblyRunnerTests
                        });
             var runner = TestableTestAssemblyRunner.Create(messageSink);
 
-            await runner.RunAsync();
+            await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
 
             var starting = Assert.Single(messages);
             Assert.IsAssignableFrom<ITestAssemblyStarting>(starting);

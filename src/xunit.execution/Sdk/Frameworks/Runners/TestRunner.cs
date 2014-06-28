@@ -137,10 +137,12 @@ namespace Xunit.Sdk
                 }
                 else
                 {
-                    if (!Aggregator.HasExceptions)
-                        runSummary.Time = await Aggregator.RunAsync(() => InvokeTestAsync());
+                    var aggregator = new ExceptionAggregator(Aggregator);
 
-                    var exception = Aggregator.ToException();
+                    if (!aggregator.HasExceptions)
+                        runSummary.Time = await aggregator.RunAsync(() => InvokeTestAsync(aggregator));
+
+                    var exception = aggregator.ToException();
                     TestResultMessage testResult;
 
                     if (exception == null)
@@ -156,7 +158,12 @@ namespace Xunit.Sdk
                             CancellationTokenSource.Cancel();
                 }
 
+                Aggregator.Clear();
                 BeforeTestFinished();
+
+                if (Aggregator.HasExceptions)
+                    if (!MessageBus.QueueMessage(new TestCleanupFailure(TestCase, DisplayName, Aggregator.ToException())))
+                        CancellationTokenSource.Cancel();
             }
 
             if (!MessageBus.QueueMessage(new TestFinished(TestCase, DisplayName, runSummary.Time, output)))
@@ -168,7 +175,8 @@ namespace Xunit.Sdk
         /// <summary>
         /// Override this method to invoke the test method.
         /// </summary>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
-        protected abstract Task<decimal> InvokeTestAsync();
+        protected abstract Task<decimal> InvokeTestAsync(ExceptionAggregator aggregator);
     }
 }
