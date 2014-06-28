@@ -22,11 +22,13 @@ namespace Xunit.Sdk
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public TestCollectionRunner(ITestCollection testCollection,
                                     IEnumerable<TTestCase> testCases,
                                     IMessageBus messageBus,
                                     ITestCaseOrderer testCaseOrderer,
+                                    ExceptionAggregator aggregator,
                                     CancellationTokenSource cancellationTokenSource)
         {
             TestCollection = testCollection;
@@ -34,7 +36,7 @@ namespace Xunit.Sdk
             MessageBus = messageBus;
             TestCaseOrderer = testCaseOrderer;
             CancellationTokenSource = cancellationTokenSource;
-            Aggregator = new ExceptionAggregator();
+            Aggregator = aggregator;
         }
 
         /// <summary>
@@ -68,24 +70,16 @@ namespace Xunit.Sdk
         protected ITestCollection TestCollection { get; set; }
 
         /// <summary>
-        /// This method is called just before <see cref="ITestCollectionStarting"/> is sent.
-        /// </summary>
-        protected virtual void OnTestCollectionStarting() { }
-
-        /// <summary>
         /// This method is called just after <see cref="ITestCollectionStarting"/> is sent, but before any test classes are run.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnTestCollectionStarted() { }
 
         /// <summary>
         /// This method is called just before <see cref="ITestCollectionFinished"/> is sent.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnTestCollectionFinishing() { }
-
-        /// <summary>
-        /// This method is called just after <see cref="ITestCollectionFinished"/> is sent.
-        /// </summary>
-        protected virtual void OnTestCollectionFinished() { }
 
         /// <summary>
         /// Runs the tests in the test collection.
@@ -93,8 +87,6 @@ namespace Xunit.Sdk
         /// <returns>Returns summary information about the tests that were run.</returns>
         public async Task<RunSummary> RunAsync()
         {
-            OnTestCollectionStarting();
-
             var collectionSummary = new RunSummary();
 
             try
@@ -105,15 +97,19 @@ namespace Xunit.Sdk
                 {
                     OnTestCollectionStarted();
                     collectionSummary = await RunTestClassesAsync();
+
+                    Aggregator.Clear();
                     OnTestCollectionFinishing();
+
+                    if (Aggregator.HasExceptions)
+                        if (!MessageBus.QueueMessage(new TestCollectionCleanupFailure(TestCases.Cast<ITestCase>(), TestCollection, Aggregator.ToException())))
+                            CancellationTokenSource.Cancel();
                 }
             }
             finally
             {
                 if (!MessageBus.QueueMessage(new TestCollectionFinished(TestCases.Cast<ITestCase>(), TestCollection, collectionSummary.Time, collectionSummary.Total, collectionSummary.Failed, collectionSummary.Skipped)))
                     CancellationTokenSource.Cancel();
-
-                OnTestCollectionFinished();
             }
 
             return collectionSummary;

@@ -19,19 +19,21 @@ namespace Xunit.Sdk
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         public XunitTestCollectionRunner(ITestCollection testCollection,
                                          IEnumerable<IXunitTestCase> testCases,
                                          IMessageBus messageBus,
                                          ITestCaseOrderer testCaseOrderer,
+                                         ExceptionAggregator aggregator,
                                          CancellationTokenSource cancellationTokenSource)
-            : base(testCollection, testCases, messageBus, testCaseOrderer, cancellationTokenSource)
+            : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
             CollectionFixtureMappings = new Dictionary<Type, object>();
         }
 
         /// <summary>
-        /// Gets the fixture mappings that were created during <see cref="OnTestCollectionStarting"/>.
+        /// Gets the fixture mappings that were created during <see cref="OnTestCollectionStarted"/>.
         /// </summary>
         protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
 
@@ -42,7 +44,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestCollectionStarting()
+        protected override void OnTestCollectionStarted()
         {
             if (TestCollection.CollectionDefinition != null)
             {
