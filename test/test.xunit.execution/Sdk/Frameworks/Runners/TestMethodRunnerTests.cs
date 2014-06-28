@@ -86,12 +86,12 @@ public class TestMethodRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestMethodStarted_GivesErroredAggregatorToTestClassRunner_NoCleanupFailureMessage()
+    public static async void FailureInAfterTestMethodStarting_GivesErroredAggregatorToTestCaseRunner_NoCleanupFailureMessage()
     {
         var messageBus = new SpyMessageBus();
         var runner = TestableTestMethodRunner.Create(messageBus);
         var ex = new DivideByZeroException();
-        runner.OnTestMethodStarted_Callback = aggregator => aggregator.Add(ex);
+        runner.AfterTestMethodStarting_Callback = aggregator => aggregator.Add(ex);
 
         await runner.RunAsync();
 
@@ -100,15 +100,15 @@ public class TestMethodRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestMethodFinishing_ReportsCleanupFailure_DoesNotIncludeExceptionsFromTestMethodStarted()
+    public static async void FailureInBeforeTestMethodFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestMethodStarting()
     {
         var messageBus = new SpyMessageBus();
         var testCases = new[] { Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages") };
         var runner = TestableTestMethodRunner.Create(messageBus, testCases);
-        var startedException = new DivideByZeroException();
-        var finishingException = new InvalidOperationException();
-        runner.OnTestMethodStarted_Callback = aggregator => aggregator.Add(startedException);
-        runner.OnTestMethodFinishing_Callback = aggregator => aggregator.Add(finishingException);
+        var startingException = new DivideByZeroException();
+        var finishedException = new InvalidOperationException();
+        runner.AfterTestMethodStarting_Callback = aggregator => aggregator.Add(startingException);
+        runner.BeforeTestMethodFinished_Callback = aggregator => aggregator.Add(finishedException);
 
         await runner.RunAsync();
 
@@ -127,8 +127,8 @@ public class TestMethodRunnerTests
         await runner.RunAsync();
 
         Assert.True(runner.TokenSource.IsCancellationRequested);
-        Assert.False(runner.OnTestMethodStarted_Called);
-        Assert.False(runner.OnTestMethodFinishing_Called);
+        Assert.False(runner.AfterTestMethodStarting_Called);
+        Assert.False(runner.BeforeTestMethodFinished_Called);
     }
 
     [Fact]
@@ -140,8 +140,8 @@ public class TestMethodRunnerTests
         await runner.RunAsync();
 
         Assert.True(runner.TokenSource.IsCancellationRequested);
-        Assert.True(runner.OnTestMethodStarted_Called);
-        Assert.True(runner.OnTestMethodFinishing_Called);
+        Assert.True(runner.AfterTestMethodStarting_Called);
+        Assert.True(runner.BeforeTestMethodFinished_Called);
     }
 
     [Fact]
@@ -149,7 +149,7 @@ public class TestMethodRunnerTests
     {
         var messageBus = new SpyMessageBus(msg => !(msg is ITestMethodCleanupFailure));
         var runner = TestableTestMethodRunner.Create(messageBus);
-        runner.OnTestMethodFinishing_Callback = aggregator => aggregator.Add(new Exception());
+        runner.BeforeTestMethodFinished_Callback = aggregator => aggregator.Add(new Exception());
 
         await runner.RunAsync();
 
@@ -183,10 +183,10 @@ public class TestMethodRunnerTests
         readonly bool cancelInRunTestCaseAsync;
         readonly RunSummary result;
 
-        public bool OnTestMethodFinishing_Called;
-        public Action<ExceptionAggregator> OnTestMethodFinishing_Callback = _ => { };
-        public bool OnTestMethodStarted_Called;
-        public Action<ExceptionAggregator> OnTestMethodStarted_Callback = _ => { };
+        public bool AfterTestMethodStarting_Called;
+        public Action<ExceptionAggregator> AfterTestMethodStarting_Callback = _ => { };
+        public bool BeforeTestMethodFinished_Called;
+        public Action<ExceptionAggregator> BeforeTestMethodFinished_Callback = _ => { };
         public Exception RunTestCaseAsync_AggregatorResult;
         public readonly CancellationTokenSource TokenSource;
 
@@ -237,16 +237,16 @@ public class TestMethodRunnerTests
             );
         }
 
-        protected override void OnTestMethodFinishing()
+        protected override void AfterTestMethodStarting()
         {
-            OnTestMethodFinishing_Called = true;
-            OnTestMethodFinishing_Callback(Aggregator);
+            AfterTestMethodStarting_Called = true;
+            AfterTestMethodStarting_Callback(Aggregator);
         }
 
-        protected override void OnTestMethodStarted()
+        protected override void BeforeTestMethodFinished()
         {
-            OnTestMethodStarted_Called = true;
-            OnTestMethodStarted_Callback(Aggregator);
+            BeforeTestMethodFinished_Called = true;
+            BeforeTestMethodFinished_Callback(Aggregator);
         }
 
         protected override Task<RunSummary> RunTestCaseAsync(ITestCase testCase)
