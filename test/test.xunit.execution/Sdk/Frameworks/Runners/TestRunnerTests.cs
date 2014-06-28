@@ -148,12 +148,12 @@ public class TestRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestStarted_GivesErroredAggregatorToTestInvoker()
+    public static async void FailureInAfterTestStarting_GivesErroredAggregatorToTestInvoker()
     {
         var messageBus = new SpyMessageBus();
         var runner = TestableTestRunner.Create(messageBus);
         var ex = new DivideByZeroException();
-        runner.OnTestStarted_Callback = aggregator => aggregator.Add(ex);
+        runner.AfterTestStarting_Callback = aggregator => aggregator.Add(ex);
 
         await runner.RunAsync();
 
@@ -169,8 +169,8 @@ public class TestRunnerTests
         await runner.RunAsync();
 
         Assert.True(runner.TokenSource.IsCancellationRequested);
-        Assert.False(runner.OnTestStarted_Called);
-        Assert.False(runner.OnTestFinishing_Called);
+        Assert.False(runner.AfterTestStarting_Called);
+        Assert.False(runner.BeforeTestFinished_Called);
     }
 
     [Theory]
@@ -186,8 +186,8 @@ public class TestRunnerTests
         await runner.RunAsync();
 
         Assert.True(runner.TokenSource.IsCancellationRequested);
-        Assert.True(runner.OnTestStarted_Called);
-        Assert.True(runner.OnTestFinishing_Called);
+        Assert.True(runner.AfterTestStarting_Called);
+        Assert.True(runner.BeforeTestFinished_Called);
     }
 
     class TestableTestRunner : TestRunner<ITestCase>
@@ -197,10 +197,9 @@ public class TestRunnerTests
 
         public Exception InvokeTestAsync_AggregatorResult;
         public bool InvokeTestAsync_Called;
-        public Action<ExceptionAggregator> OnTestFinishing_Callback = _ => { };
-        public bool OnTestFinishing_Called;
-        public Action<ExceptionAggregator> OnTestStarted_Callback = _ => { };
-        public bool OnTestStarted_Called;
+        public Action<ExceptionAggregator> AfterTestStarting_Callback = _ => { };
+        public bool AfterTestStarting_Called;
+        public bool BeforeTestFinished_Called;
         public readonly new ITestCase TestCase;
         public CancellationTokenSource TokenSource;
 
@@ -252,16 +251,15 @@ public class TestRunnerTests
                 lambda);
         }
 
-        protected override void OnTestFinishing()
+        protected override void AfterTestStarting()
         {
-            OnTestFinishing_Called = true;
-            OnTestFinishing_Callback(Aggregator);
+            AfterTestStarting_Called = true;
+            AfterTestStarting_Callback(Aggregator);
         }
 
-        protected override void OnTestStarted()
+        protected override void BeforeTestFinished()
         {
-            OnTestStarted_Called = true;
-            OnTestStarted_Callback(Aggregator);
+            BeforeTestFinished_Called = true;
         }
 
         protected override Task<decimal> InvokeTestAsync()

@@ -105,13 +105,13 @@ namespace Xunit.Sdk
         /// This method is called just after <see cref="ITestStarting"/> is sent, but before the test class is created.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnTestStarted() { }
+        protected virtual void AfterTestStarting() { }
 
         /// <summary>
         /// This method is called just before <see cref="ITestFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnTestFinishing() { }
+        protected virtual void BeforeTestFinished() { }
 
         /// <summary>
         /// Runs the test.
@@ -126,7 +126,7 @@ namespace Xunit.Sdk
                 CancellationTokenSource.Cancel();
             else
             {
-                OnTestStarted();
+                AfterTestStarting();
 
                 if (!String.IsNullOrEmpty(SkipReason))
                 {
@@ -156,7 +156,7 @@ namespace Xunit.Sdk
                             CancellationTokenSource.Cancel();
                 }
 
-                OnTestFinishing();
+                BeforeTestFinished();
             }
 
             if (!MessageBus.QueueMessage(new TestFinished(TestCase, DisplayName, runSummary.Time, output)))
