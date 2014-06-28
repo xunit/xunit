@@ -42,7 +42,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets the fixture mappings that were created during <see cref="OnTestClassStarting"/>.
+        /// Gets the fixture mappings that were created during <see cref="OnTestClassStarted"/>.
         /// </summary>
         protected Dictionary<Type, object> ClassFixtureMappings { get; set; }
 
@@ -60,7 +60,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestClassStarting()
+        protected override void OnTestClassStarted()
         {
             var ordererAttribute = Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (ordererAttribute != null)

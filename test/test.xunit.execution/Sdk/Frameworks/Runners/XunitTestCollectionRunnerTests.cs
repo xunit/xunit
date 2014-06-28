@@ -77,8 +77,9 @@ public class XunitTestCollectionRunnerTests
                                           IEnumerable<IXunitTestCase> testCases,
                                           IMessageBus messageBus,
                                           ITestCaseOrderer testCaseOrderer,
+                                          ExceptionAggregator aggregator,
                                           CancellationTokenSource cancellationTokenSource)
-            : base(testCollection, testCases, messageBus, testCaseOrderer, cancellationTokenSource) { }
+            : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource) { }
 
         public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase)
         {
@@ -87,6 +88,7 @@ public class XunitTestCollectionRunnerTests
                 new[] { testCase },
                 new SpyMessageBus(),
                 new MockTestCaseOrderer(),
+                new ExceptionAggregator(),
                 new CancellationTokenSource()
             );
         }

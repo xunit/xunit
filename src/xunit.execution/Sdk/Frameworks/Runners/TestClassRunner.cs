@@ -127,24 +127,16 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// This method is called just before <see cref="ITestClassStarting"/> is sent.
-        /// </summary>
-        protected virtual void OnTestClassStarting() { }
-
-        /// <summary>
         /// This method is called just after <see cref="ITestClassStarting"/> is sent, but before any test methods are run.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnTestClassStarted() { }
 
         /// <summary>
         /// This method is called just before <see cref="ITestClassFinished"/> is sent.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnTestClassFinishing() { }
-
-        /// <summary>
-        /// This method is called just after <see cref="ITestClassFinished"/> is sent.
-        /// </summary>
-        protected virtual void OnTestClassFinished() { }
 
         /// <summary>
         /// Runs the tests in the test class.
@@ -152,8 +144,6 @@ namespace Xunit.Sdk
         /// <returns>Returns summary information about the tests that were run.</returns>
         public async Task<RunSummary> RunAsync()
         {
-            OnTestClassStarting();
-
             var classSummary = new RunSummary();
 
             try
@@ -164,15 +154,20 @@ namespace Xunit.Sdk
                 {
                     OnTestClassStarted();
                     classSummary = await RunTestMethodsAsync();
+
+                    Aggregator.Clear();
                     OnTestClassFinishing();
+                    
+                    if (Aggregator.HasExceptions)
+                        if (!MessageBus.QueueMessage(new TestClassCleanupFailure(TestCases.Cast<ITestCase>(), TestClass, Aggregator.ToException())))
+                            CancellationTokenSource.Cancel();
+
                 }
             }
             finally
             {
                 if (!MessageBus.QueueMessage(new TestClassFinished(TestCases.Cast<ITestCase>(), TestClass, classSummary.Time, classSummary.Total, classSummary.Failed, classSummary.Skipped)))
                     CancellationTokenSource.Cancel();
-
-                OnTestClassFinished();
             }
 
             return classSummary;

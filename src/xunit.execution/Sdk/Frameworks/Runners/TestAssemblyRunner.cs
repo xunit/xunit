@@ -35,7 +35,13 @@ namespace Xunit.Sdk
             MessageSink = messageSink;
             ExecutionOptions = executionOptions;
             TestCaseOrderer = new DefaultTestCaseOrderer();
+            Aggregator = new ExceptionAggregator();
         }
+
+        /// <summary>
+        /// Gets or sets the exception aggregator used to run code and collect exceptions.
+        /// </summary>
+        protected ExceptionAggregator Aggregator { get; set; }
 
         /// <summary>
         /// Gets or sets the user's requested execution options.
@@ -78,24 +84,16 @@ namespace Xunit.Sdk
         protected abstract string GetTestFrameworkEnvironment();
 
         /// <summary>
-        /// This method is called just before <see cref="ITestAssemblyStarting"/> is sent.
-        /// </summary>
-        protected virtual void OnAssemblyStarting() { }
-
-        /// <summary>
         /// This method is called just after <see cref="ITestAssemblyStarting"/> it sent, but before any test collections are run.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnAssemblyStarted() { }
 
         /// <summary>
         /// This method is called just before <see cref="ITestAssemblyFinished"/> is sent.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual void OnAssemblyFinishing() { }
-
-        /// <summary>
-        /// This method is called just after <see cref="ITestAssemblyFinished"/> is sent.
-        /// </summary>
-        protected virtual void OnAssemblyFinished() { }
 
         /// <summary>
         /// Creates the message bus to be used for test execution. By default, it inspects
@@ -132,10 +130,8 @@ namespace Xunit.Sdk
                 {
                     
 #if !WINDOWS_PHONE_APP
-                    Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));                    
+                    Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
 #endif
-
-                    OnAssemblyStarting();
 
                     if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
                     {
@@ -146,7 +142,11 @@ namespace Xunit.Sdk
                         // Want clock time, not aggregated run time
                         totalSummary.Time = (decimal)masterStopwatch.Elapsed.TotalSeconds;
 
+                        Aggregator.Clear();
                         OnAssemblyFinishing();
+
+                        if (Aggregator.HasExceptions)
+                            messageBus.QueueMessage(new TestAssemblyCleanupFailure(TestCases.Cast<ITestCase>(), TestAssembly, Aggregator.ToException()));
                     }
                 }
                 finally
@@ -156,8 +156,6 @@ namespace Xunit.Sdk
 #if !WINDOWS_PHONE_APP
                     Directory.SetCurrentDirectory(currentDirectory);
 #endif
-
-                    OnAssemblyFinished();
                 }
             }
 

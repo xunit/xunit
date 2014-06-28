@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,31 +74,65 @@ public class TestAssemblyRunnerTests
         }
 
         [Fact]
-        public static async void Cancellation_TestAssemblyStarting_CallsOuterMethodsOnly()
+        public static async void FailureInOnTestAssemblyStarted_GivesErroredAggregatorToTestCollectionRunner_NoCleanupFailureMessage()
+        {
+            var messages = new List<IMessageSinkMessage>();
+            var messageSink = SpyMessageSink.Create(messages: messages);
+            var runner = TestableTestAssemblyRunner.Create(messageSink);
+            var ex = new DivideByZeroException();
+            runner.OnAssemblyStarted_Callback = aggregator => aggregator.Add(ex);
+
+            await runner.RunAsync();
+
+            Assert.Same(ex, runner.RunTestCollectionAsync_AggregatorResult);
+            Assert.Empty(messages.OfType<ITestAssemblyCleanupFailure>());
+        }
+
+        [Fact]
+        public static async void FailureInOnTestAssemblyFinishing_ReportsCleanupFailure_DoesNotIncludeExceptionsFromTestAssemblyStarted()
+        {
+            var thisAssembly = Assembly.GetExecutingAssembly();
+            var thisAppDomain = AppDomain.CurrentDomain;
+            var messages = new List<IMessageSinkMessage>();
+            var messageSink = SpyMessageSink.Create(messages: messages);
+            var testCases = new[] { Mocks.TestCase() };
+            var runner = TestableTestAssemblyRunner.Create(messageSink, testCases: testCases);
+            var startedException = new DivideByZeroException();
+            var finishingException = new InvalidOperationException();
+            runner.OnAssemblyStarted_Callback = aggregator => aggregator.Add(startedException);
+            runner.OnAssemblyFinishing_Callback = aggregator => aggregator.Add(finishingException);
+
+            await runner.RunAsync();
+
+            var cleanupFailure = Assert.Single(messages.OfType<ITestAssemblyCleanupFailure>());
+            Assert.Equal(thisAssembly.GetLocalCodeBase(), cleanupFailure.TestAssembly.Assembly.AssemblyPath);
+            Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, cleanupFailure.TestAssembly.ConfigFileName);
+            Assert.Same(testCases, cleanupFailure.TestCases);
+            Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
+        }
+
+        [Fact]
+        public static async void Cancellation_TestAssemblyStarting_DoesNotCallExtensibilityCallbacks()
         {
             var messageSink = SpyMessageSink.Create(msg => !(msg is ITestAssemblyStarting));
             var runner = TestableTestAssemblyRunner.Create(messageSink);
 
             await runner.RunAsync();
 
-            Assert.True(runner.OnAssemblyStarting_Called);
             Assert.False(runner.OnAssemblyStarted_Called);
             Assert.False(runner.OnAssemblyFinishing_Called);
-            Assert.True(runner.OnAssemblyFinished_Called);
         }
 
         [Fact]
-        public static async void Cancellation_TestAssemblyFinished_CallsOuterAndInnerMethods()
+        public static async void Cancellation_TestAssemblyFinished_CallsCallExtensibilityCallbacks()
         {
             var messageSink = SpyMessageSink.Create(msg => !(msg is ITestAssemblyFinished));
             var runner = TestableTestAssemblyRunner.Create(messageSink);
 
             await runner.RunAsync();
 
-            Assert.True(runner.OnAssemblyStarting_Called);
             Assert.True(runner.OnAssemblyStarted_Called);
             Assert.True(runner.OnAssemblyFinishing_Called);
-            Assert.True(runner.OnAssemblyFinished_Called);
         }
 
         [Fact]
@@ -155,10 +190,11 @@ public class TestAssemblyRunnerTests
         readonly RunSummary result;
 
         public List<Tuple<ITestCollection, IEnumerable<ITestCase>>> CollectionsRun = new List<Tuple<ITestCollection, IEnumerable<ITestCase>>>();
-        public bool OnAssemblyFinished_Called;
+        public Action<ExceptionAggregator> OnAssemblyFinishing_Callback = _ => { };
         public bool OnAssemblyFinishing_Called;
+        public Action<ExceptionAggregator> OnAssemblyStarted_Callback = _ => { };
         public bool OnAssemblyStarted_Called;
-        public bool OnAssemblyStarting_Called;
+        public Exception RunTestCollectionAsync_AggregatorResult;
 
         TestableTestAssemblyRunner(ITestAssembly testAssembly,
                                    IEnumerable<ITestCase> testCases,
@@ -209,24 +245,16 @@ public class TestAssemblyRunnerTests
             return "The test framework environment";
         }
 
-        protected override void OnAssemblyStarting()
-        {
-            OnAssemblyStarting_Called = true;
-        }
-
         protected override void OnAssemblyStarted()
         {
             OnAssemblyStarted_Called = true;
+            OnAssemblyStarted_Callback(Aggregator);
         }
 
         protected override void OnAssemblyFinishing()
         {
             OnAssemblyFinishing_Called = true;
-        }
-
-        protected override void OnAssemblyFinished()
-        {
-            OnAssemblyFinished_Called = true;
+            OnAssemblyFinishing_Callback(Aggregator);
         }
 
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<ITestCase> testCases, CancellationTokenSource cancellationTokenSource)
@@ -234,6 +262,7 @@ public class TestAssemblyRunnerTests
             if (cancelInRunTestCollectionAsync)
                 cancellationTokenSource.Cancel();
 
+            RunTestCollectionAsync_AggregatorResult = Aggregator.ToException();
             CollectionsRun.Add(Tuple.Create(testCollection, testCases));
             return Task.FromResult(result);
         }
