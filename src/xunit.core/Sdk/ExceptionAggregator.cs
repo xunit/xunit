@@ -45,6 +45,14 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Clears the aggregator.
+        /// </summary>
+        public void Clear()
+        {
+            exceptions.Clear();
+        }
+
+        /// <summary>
         /// Runs the code, catching the exception that is thrown and adding it to
         /// the aggregate.
         /// </summary>

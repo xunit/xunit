@@ -104,7 +104,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnAssemblyStarting()
+        protected override void OnAssemblyStarted()
         {
             Initialize();
         }

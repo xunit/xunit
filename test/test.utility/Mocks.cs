@@ -171,8 +171,11 @@ public static class Mocks
         return result;
     }
 
-    public static ITestCase TestCase(ITestCollection collection)
+    public static ITestCase TestCase(ITestCollection collection = null)
     {
+        if (collection == null)
+            collection = Mocks.TestCollection();
+
         var result = Substitute.For<ITestCase>();
         result.TestMethod.TestClass.TestCollection.Returns(collection);
         return result;
