@@ -39,7 +39,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestCaseAsync(IXunitTestCase testCase)
         {
-            return testCase.RunAsync(MessageBus, constructorArguments, Aggregator, CancellationTokenSource);
+            return testCase.RunAsync(MessageBus, constructorArguments, new ExceptionAggregator(Aggregator), CancellationTokenSource);
         }
     }
 }

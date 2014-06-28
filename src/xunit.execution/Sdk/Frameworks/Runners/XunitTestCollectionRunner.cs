@@ -78,7 +78,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
         {
-            return new XunitTestClassRunner(testClass, @class, testCases, MessageBus, TestCaseOrderer, Aggregator, CancellationTokenSource, CollectionFixtureMappings).RunAsync();
+            return new XunitTestClassRunner(testClass, @class, testCases, MessageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), CancellationTokenSource, CollectionFixtureMappings).RunAsync();
         }
     }
 }

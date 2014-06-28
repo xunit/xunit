@@ -100,7 +100,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
         {
-            return new XunitTestMethodRunner(testMethod, Class, method, testCases, MessageBus, Aggregator, CancellationTokenSource, constructorArguments).RunAsync();
+            return new XunitTestMethodRunner(testMethod, Class, method, testCases, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
         }
 
         /// <inheritdoc/>
