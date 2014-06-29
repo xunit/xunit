@@ -17,8 +17,8 @@ public class TestInvokerTests
         await invoker.RunAsync();
 
         Assert.Empty(messageBus.Messages);
-        Assert.True(invoker.OnTestExecuting_Called);
-        Assert.True(invoker.OnTestExecuted_Called);
+        Assert.True(invoker.BeforeTestMethodInvoked_Called);
+        Assert.True(invoker.AfterTestMethodInvoked_Called);
     }
 
     [Fact]
@@ -110,8 +110,8 @@ public class TestInvokerTests
 
         Assert.Equal(0m, result);
         Assert.Null(invoker.Aggregator.ToException());
-        Assert.False(invoker.OnTestExecuting_Called);
-        Assert.False(invoker.OnTestExecuted_Called);
+        Assert.False(invoker.BeforeTestMethodInvoked_Called);
+        Assert.False(invoker.AfterTestMethodInvoked_Called);
     }
 
     [Theory]
@@ -168,8 +168,8 @@ public class TestInvokerTests
     class TestableTestInvoker : TestInvoker<ITestCase>
     {
         public readonly new ExceptionAggregator Aggregator;
-        public bool OnTestExecuted_Called;
-        public bool OnTestExecuting_Called;
+        public bool AfterTestMethodInvoked_Called;
+        public bool BeforeTestMethodInvoked_Called;
         public readonly new ITestCase TestCase;
         public readonly CancellationTokenSource TokenSource;
 
@@ -198,14 +198,14 @@ public class TestInvokerTests
             );
         }
 
-        protected override void OnTestExecuted()
+        protected override void AfterTestMethodInvoked()
         {
-            OnTestExecuted_Called = true;
+            AfterTestMethodInvoked_Called = true;
         }
 
-        protected override void OnTestExecuting()
+        protected override void BeforeTestMethodInvoked()
         {
-            OnTestExecuting_Called = true;
+            BeforeTestMethodInvoked_Called = true;
         }
     }
 }

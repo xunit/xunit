@@ -102,24 +102,16 @@ namespace Xunit.Sdk
         protected object[] TestMethodArguments { get; set; }
 
         /// <summary>
-        /// This method is called just before <see cref="ITestStarting"/> is sent.
-        /// </summary>
-        protected virtual void OnTestStarting() { }
-
-        /// <summary>
         /// This method is called just after <see cref="ITestStarting"/> is sent, but before the test class is created.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnTestStarted() { }
+        protected virtual void AfterTestStarting() { }
 
         /// <summary>
         /// This method is called just before <see cref="ITestFinished"/> is sent.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnTestFinishing() { }
-
-        /// <summary>
-        /// This method is called just after <see cref="ITestFinished"/> is sent.
-        /// </summary>
-        protected virtual void OnTestFinished() { }
+        protected virtual void BeforeTestFinished() { }
 
         /// <summary>
         /// Runs the test.
@@ -128,16 +120,13 @@ namespace Xunit.Sdk
         public async Task<RunSummary> RunAsync()
         {
             var runSummary = new RunSummary { Total = 1 };
-            var aggregator = new ExceptionAggregator(Aggregator);
             var output = String.Empty;  // TODO: Add output facilities for v2
-
-            OnTestStarting();
 
             if (!MessageBus.QueueMessage(new TestStarting(TestCase, DisplayName)))
                 CancellationTokenSource.Cancel();
             else
             {
-                OnTestStarted();
+                AfterTestStarting();
 
                 if (!String.IsNullOrEmpty(SkipReason))
                 {
@@ -148,6 +137,8 @@ namespace Xunit.Sdk
                 }
                 else
                 {
+                    var aggregator = new ExceptionAggregator(Aggregator);
+
                     if (!aggregator.HasExceptions)
                         runSummary.Time = await aggregator.RunAsync(() => InvokeTestAsync(aggregator));
 
@@ -167,13 +158,16 @@ namespace Xunit.Sdk
                             CancellationTokenSource.Cancel();
                 }
 
-                OnTestFinishing();
+                Aggregator.Clear();
+                BeforeTestFinished();
+
+                if (Aggregator.HasExceptions)
+                    if (!MessageBus.QueueMessage(new TestCleanupFailure(TestCase, DisplayName, Aggregator.ToException())))
+                        CancellationTokenSource.Cancel();
             }
 
             if (!MessageBus.QueueMessage(new TestFinished(TestCase, DisplayName, runSummary.Time, output)))
                 CancellationTokenSource.Cancel();
-
-            OnTestFinished();
 
             return runSummary;
         }

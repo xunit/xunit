@@ -115,7 +115,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnAssemblyStarted()
+        protected override void AfterTestAssemblyStarting()
         {
             Initialize();
         }
@@ -147,7 +147,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
         {
-            return new XunitTestCollectionRunner(testCollection, testCases, messageBus, TestCaseOrderer, Aggregator, cancellationTokenSource).RunAsync();
+            return new XunitTestCollectionRunner(testCollection, testCases, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
         }
     }
 }

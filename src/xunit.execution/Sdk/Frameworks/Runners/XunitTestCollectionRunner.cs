@@ -34,7 +34,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets the fixture mappings that were created during <see cref="OnTestCollectionStarted"/>.
+        /// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStarting"/>.
         /// </summary>
         protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
 
@@ -45,7 +45,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestCollectionStarted()
+        protected override void AfterTestCollectionStarting()
         {
             if (TestCollection.CollectionDefinition != null)
             {
@@ -60,7 +60,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void OnTestCollectionFinishing()
+        protected override void BeforeTestCollectionFinished()
         {
             foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
             {
@@ -79,7 +79,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
         {
-            return new XunitTestClassRunner(testClass, @class, testCases, MessageBus, TestCaseOrderer, Aggregator, CancellationTokenSource, CollectionFixtureMappings).RunAsync();
+            return new XunitTestClassRunner(testClass, @class, testCases, MessageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), CancellationTokenSource, CollectionFixtureMappings).RunAsync();
         }
     }
 }

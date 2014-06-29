@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -46,6 +47,31 @@ public class TestClassRunnerTests
     }
 
     [Fact]
+    public static async void FailureInQueueOfTestClassStarting_DoesNotQueueTestClassFinished_DoesNotRunTestMethods()
+    {
+        var messages = new List<IMessageSinkMessage>();
+        var messageBus = Substitute.For<IMessageBus>();
+        messageBus.QueueMessage(null)
+                  .ReturnsForAnyArgs(callInfo =>
+                  {
+                      var msg = callInfo.Arg<IMessageSinkMessage>();
+                      messages.Add(msg);
+
+                      if (msg is ITestClassStarting)
+                          throw new InvalidOperationException();
+
+                      return true;
+                  });
+        var runner = TestableTestClassRunner.Create(messageBus);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
+
+        var starting = Assert.Single(messages);
+        Assert.IsAssignableFrom<ITestClassStarting>(starting);
+        Assert.Empty(runner.MethodsRun);
+    }
+
+    [Fact]
     public static async void RunTestMethodAsync_AggregatorIncludesPassedInExceptions()
     {
         var messageBus = new SpyMessageBus();
@@ -59,12 +85,12 @@ public class TestClassRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestClassStarted_GivesErroredAggregatorToTestClassRunner_NoCleanupFailureMessage()
+    public static async void FailureInAfterTestClassStarting_GivesErroredAggregatorToTestMethodRunner_NoCleanupFailureMessage()
     {
         var messageBus = new SpyMessageBus();
         var runner = TestableTestClassRunner.Create(messageBus);
         var ex = new DivideByZeroException();
-        runner.OnTestClassStarted_Callback = aggregator => aggregator.Add(ex);
+        runner.AfterTestClassStarting_Callback = aggregator => aggregator.Add(ex);
 
         await runner.RunAsync();
 
@@ -73,15 +99,15 @@ public class TestClassRunnerTests
     }
 
     [Fact]
-    public static async void FailureInOnTestClassFinishing_ReportsCleanupFailure_DoesNotIncludeExceptionsFromTestClassStarted()
+    public static async void FailureInBeforeTestClassFinished_ReportsCleanupFailure_DoesNotIncludeExceptionsFromAfterTestClassStarting()
     {
         var messageBus = new SpyMessageBus();
         var testCases = new[] { Mocks.TestCase<TestAssemblyRunnerTests.RunAsync>("Messages") };
         var runner = TestableTestClassRunner.Create(messageBus, testCases);
-        var startedException = new DivideByZeroException();
-        var finishingException = new InvalidOperationException();
-        runner.OnTestClassStarted_Callback = aggregator => aggregator.Add(startedException);
-        runner.OnTestClassFinishing_Callback = aggregator => aggregator.Add(finishingException);
+        var startingException = new DivideByZeroException();
+        var finishedException = new InvalidOperationException();
+        runner.AfterTestClassStarting_Callback = aggregator => aggregator.Add(startingException);
+        runner.BeforeTestClassFinished_Callback = aggregator => aggregator.Add(finishedException);
 
         await runner.RunAsync();
 
@@ -100,8 +126,8 @@ public class TestClassRunnerTests
         await runner.RunAsync();
 
         Assert.True(runner.TokenSource.IsCancellationRequested);
-        Assert.False(runner.OnTestClassStarted_Called);
-        Assert.False(runner.OnTestClassFinishing_Called);
+        Assert.False(runner.AfterTestClassStarting_Called);
+        Assert.False(runner.BeforeTestClassFinished_Called);
     }
 
     [Fact]
@@ -113,8 +139,8 @@ public class TestClassRunnerTests
         await runner.RunAsync();
 
         Assert.True(runner.TokenSource.IsCancellationRequested);
-        Assert.True(runner.OnTestClassStarted_Called);
-        Assert.True(runner.OnTestClassFinishing_Called);
+        Assert.True(runner.AfterTestClassStarting_Called);
+        Assert.True(runner.BeforeTestClassFinished_Called);
     }
 
     [Fact]
@@ -122,7 +148,7 @@ public class TestClassRunnerTests
     {
         var messageBus = new SpyMessageBus(msg => !(msg is ITestClassCleanupFailure));
         var runner = TestableTestClassRunner.Create(messageBus);
-        runner.OnTestClassFinishing_Callback = aggregator => aggregator.Add(new Exception());
+        runner.BeforeTestClassFinished_Callback = aggregator => aggregator.Add(new Exception());
 
         await runner.RunAsync();
 
@@ -274,10 +300,10 @@ public class TestClassRunnerTests
         readonly RunSummary result;
 
         public List<Tuple<IReflectionMethodInfo, IEnumerable<ITestCase>, object[]>> MethodsRun = new List<Tuple<IReflectionMethodInfo, IEnumerable<ITestCase>, object[]>>();
-        public Action<ExceptionAggregator> OnTestClassFinishing_Callback = _ => { };
-        public bool OnTestClassFinishing_Called;
-        public Action<ExceptionAggregator> OnTestClassStarted_Callback = _ => { };
-        public bool OnTestClassStarted_Called;
+        public Action<ExceptionAggregator> AfterTestClassStarting_Callback = _ => { };
+        public bool AfterTestClassStarting_Called;
+        public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
+        public bool BeforeTestClassFinished_Called;
         public Exception RunTestMethodAsync_AggregatorResult;
         public readonly CancellationTokenSource TokenSource;
 
@@ -337,16 +363,16 @@ public class TestClassRunnerTests
             );
         }
 
-        protected override void OnTestClassFinishing()
+        protected override void AfterTestClassStarting()
         {
-            OnTestClassFinishing_Called = true;
-            OnTestClassFinishing_Callback(Aggregator);
+            AfterTestClassStarting_Called = true;
+            AfterTestClassStarting_Callback(Aggregator);
         }
 
-        protected override void OnTestClassStarted()
+        protected override void BeforeTestClassFinished()
         {
-            OnTestClassStarted_Called = true;
-            OnTestClassStarted_Callback(Aggregator);
+            BeforeTestClassFinished_Called = true;
+            BeforeTestClassFinished_Callback(Aggregator);
         }
 
         protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<ITestCase> testCases, object[] constructorArguments)

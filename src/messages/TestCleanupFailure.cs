@@ -8,15 +8,15 @@ namespace Xunit
 #endif
 {
     /// <summary>
-    /// Default implementation of <see cref="ITestCaseCleanupFailure"/>.
+    /// Default implementation of <see cref="ITestCleanupFailure"/>.
     /// </summary>
-    public class TestCaseCleanupFailure : TestCaseMessage, ITestCaseCleanupFailure
+    public class TestCleanupFailure : TestMessage, ITestCleanupFailure
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestCaseCleanupFailure"/> class.
+        /// Initializes a new instance of the <see cref="TestCleanupFailure"/> class.
         /// </summary>
-        public TestCaseCleanupFailure(ITestCase testCase, string[] exceptionTypes, string[] messages, string[] stackTraces, int[] exceptionParentIndices)
-            : base(testCase)
+        public TestCleanupFailure(ITestCase testCase, string displayName, string[] exceptionTypes, string[] messages, string[] stackTraces, int[] exceptionParentIndices)
+            : base(testCase, displayName)
         {
             StackTraces = stackTraces;
             Messages = messages;
@@ -26,10 +26,10 @@ namespace Xunit
 
 #if XUNIT_CORE_DLL
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestCaseCleanupFailure"/> class.
+        /// Initializes a new instance of the <see cref="TestCleanupFailure"/> class.
         /// </summary>
-        public TestCaseCleanupFailure(ITestCase testCase, Exception ex)
-            : base(testCase)
+        public TestCleanupFailure(ITestCase testCase, string displayName, Exception ex)
+            : base(testCase, displayName)
         {
             var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
             ExceptionTypes = failureInfo.ExceptionTypes;
