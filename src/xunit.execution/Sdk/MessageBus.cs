@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
+#if WINDOWS_PHONE_APP
+using Windows.Foundation;
+using Windows.System.Threading;
+#endif
 namespace Xunit.Sdk
 {
     /// <summary>
@@ -16,7 +18,11 @@ namespace Xunit.Sdk
         volatile bool continueRunning = true;
         readonly IMessageSink messageSink;
         readonly ConcurrentQueue<IMessageSinkMessage> reporterQueue = new ConcurrentQueue<IMessageSinkMessage>();
-        readonly Task reporterThreadTask;
+#if !WINDOWS_PHONE_APP
+        readonly Thread reporterThread;
+#else
+        readonly IAsyncAction reporterTask;
+#endif
         readonly AutoResetEvent reporterWorkEvent = new AutoResetEvent(initialState: false);
         volatile bool shutdownRequested;
 
@@ -25,7 +31,12 @@ namespace Xunit.Sdk
         {
             this.messageSink = messageSink;
 
-            reporterThreadTask = Task.Run(() => ReporterWorker());
+#if !WINDOWS_PHONE_APP
+            reporterThread = new Thread(ReporterWorker);
+            reporterThread.Start();
+#else
+            reporterTask = ThreadPool.RunAsync(_ => ReporterWorker(), WorkItemPriority.Normal, WorkItemOptions.TimeSliced);
+#endif
         }
 
         private void DispatchMessages()
@@ -45,8 +56,12 @@ namespace Xunit.Sdk
             shutdownRequested = true;
 
             reporterWorkEvent.Set();
-            reporterThreadTask.Wait();
-
+            
+#if !WINDOWS_PHONE_APP
+            reporterThread.Join();
+#else
+            reporterTask.GetResults();
+#endif
             reporterWorkEvent.Dispose();
         }
 
