@@ -67,7 +67,7 @@ namespace Xunit.Sdk
 
         public async Task<Exception> WaitForCompletionAsync()
         {
-            await @event.WaitAsync();
+            await @event.WaitAsync().ConfigureAwait(false);
 
             return exception;
         }

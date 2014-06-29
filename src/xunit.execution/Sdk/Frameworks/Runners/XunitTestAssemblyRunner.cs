@@ -124,17 +124,18 @@ namespace Xunit.Sdk
         protected override async Task<RunSummary> RunTestCollectionsAsync(IMessageBus messageBus, CancellationTokenSource cancellationTokenSource)
         {
             if (disableParallelization)
-                return await base.RunTestCollectionsAsync(messageBus, cancellationTokenSource);
+                return await base.RunTestCollectionsAsync(messageBus, cancellationTokenSource).ConfigureAwait(false);
 
-            var tasks = TestCases.Cast<IXunitTestCase>()
-                                 .GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
-                                 .Select(collectionGroup => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource),
-                                                                                  cancellationTokenSource.Token,
-                                                                                  TaskCreationOptions.None,
-                                                                                  scheduler))
+            var tasks = TestCases.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
+                                 .Select(collectionGroup => 
+                                     Task.Factory.StartNew(() => 
+                                         RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource),
+                                         cancellationTokenSource.Token,
+                                         TaskCreationOptions.DenyChildAttach,
+                                         scheduler))
                                  .ToArray();
 
-            var summaries = await Task.WhenAll(tasks.Select(t => t.Unwrap()));
+            var summaries = await Task.WhenAll(tasks.Select(t => t.Unwrap())).ConfigureAwait(false);
 
             return new RunSummary()
             {
