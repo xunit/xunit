@@ -16,7 +16,7 @@ namespace Xunit.Sdk
     internal class AsyncManualResetEvent
     {
         private volatile TaskCompletionSource<bool> taskCompletionSource = new TaskCompletionSource<bool>();
-        private readonly bool allowInliningAwaiters;
+        private readonly bool allowInliningAwaiters = true;
         private static readonly Task completedTask = Task.FromResult(true);
 
         public AsyncManualResetEvent(bool signaled = false)
