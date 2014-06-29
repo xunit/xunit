@@ -59,8 +59,6 @@ namespace Xunit.Sdk
             
 #if !WINDOWS_PHONE_APP
             reporterThread.Join();
-#else
-            reporterTask.GetResults();
 #endif
             reporterWorkEvent.Dispose();
         }
