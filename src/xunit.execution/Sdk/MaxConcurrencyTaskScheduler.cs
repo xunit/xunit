@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,7 +13,7 @@ namespace Xunit.Sdk
     /// Provides a task scheduler that ensures a maximum concurrency level while  
     /// running on top of the thread pool. 
     /// </summary>
-    public class MaxConcurrencyTaskScheduler : TaskScheduler
+    public class MaxConcurrencyTaskScheduler : TaskScheduler, IDisposable
     {
         // Indicates whether the current thread is processing work items.
         [ThreadStatic]
@@ -29,6 +27,8 @@ namespace Xunit.Sdk
 
         // Indicates whether the scheduler is currently processing work items.  
         private int _delegatesQueuedOrRunning = 0;
+
+        private volatile bool _terminate;
 
         /// <summary>
         /// Creates a new instance with the specified degree of parallelism.  
@@ -59,6 +59,9 @@ namespace Xunit.Sdk
         // Inform the ThreadPool that there's work to be executed for this scheduler.  
         private void NotifyThreadPoolOfPendingWork()
         {
+            if (_terminate)
+                return;
+
             Task.Run(() =>
             {
                 // Note that the current thread is now processing work items. 
@@ -74,6 +77,9 @@ namespace Xunit.Sdk
                         {
                             // When there are no more items to be processed, 
                             // note that we're done processing, and get out. 
+                            if (_terminate)
+                                break;
+
                             if (_tasks.Count == 0)
                             {
                                 --_delegatesQueuedOrRunning;
@@ -104,12 +110,44 @@ namespace Xunit.Sdk
             if (taskWasPreviouslyQueued)
                 // Try to run the task.  
                 if (TryDequeue(task))
+                {
+                    if (_terminate)
+                        return false;
                     return base.TryExecuteTask(task);
+                }
                 else
                     return false;
             else
+            {
+                if (_terminate)
+                    return false;
                 return base.TryExecuteTask(task);
+            }
         }
+
+        
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            bool lockTaken = false;
+            try
+            {
+                Monitor.TryEnter(_tasks, ref lockTaken);
+                if (lockTaken)
+                {
+                    _terminate = true;
+                    _tasks.Clear();
+                }
+                
+            }
+            finally
+            {
+                if (lockTaken) 
+                    Monitor.Exit(_tasks);
+            }
+            
+        }
+
 
         // Attempt to remove a previously scheduled task from the scheduler.  
         protected sealed override bool TryDequeue(Task task)
