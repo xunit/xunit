@@ -18,6 +18,11 @@ AppPackages
 *.ncrunch*
 *.vsix
 
+*.vsps
+*.vspx
+*.vsp
+*.psess
+
 Test*.html
 Test*.xml
 
