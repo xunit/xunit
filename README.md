@@ -7,15 +7,19 @@ xUnit.net is part of the [ASP.NET Open Source Gallery](http://www.outercurve.org
 under the [Outercurve Foundation](http://www.outercurve.org/). It is licensed under the
 [Apache 2 license](http://opensource.org/licenses/Apache-2.0), which is approved by the OSI.
 
+Other projects in the xunit organization include:
+
+* [Resharper runner](https://github.com/xunit/resharper-xunit)
+* [Visual Studio runner](https://github.com/xunit/visualstudio.xunit)
+* [Xamarin runner](https://github.com/xunit/xamarin.xunit) (for iOS and Android)
+
 Continuous integration builds are available online via [TeamCity](http://teamcity.tier3.com/guestLogin.html?guest=1).
 
 _For status updates, follow us on Twitter: [@xunit](https://twitter.com/xunit), [@jamesnewkirk](https://twitter.com/jamesnewkirk), [@bradwilson](https://twitter.com/bradwilson)_
 
 _For information on contributing to xUnit.net, see [xUnit.net Governance](https://xunit.codeplex.com/wikipage?title=xUnit.net%20Governance)._
 
-_ReSharper support is provided by the [xUnit.net ReSharper project](https://github.com/xunit/resharper-xunit)._<br>
 _CodeRush Test Runner support is provided by [DevExpress](http://www.devexpress.com/)._<br>
-_Xamarin Test Runner support is provided by [xUnit.net Xamarin project](https://github.com/xunit/xamarin.xunit)._<br>
 _The xUnit.net logo was designed by [Nathan Young](http://flavors.me/nathanyoung)._<br>
 _The TeamCity server is sponsored by [CenturyLink Cloud](http://www.centurylinkcloud.com/)._
 
