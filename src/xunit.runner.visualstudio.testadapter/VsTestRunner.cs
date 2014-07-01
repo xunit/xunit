@@ -157,10 +157,18 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                                                     .ToList());
 
                                 var filterHelper = new TestCaseFilterHelper(knownTraitNames);
-                                var filter = filterHelper.GetTestCaseFilterExpression(runContext);
-                                if (filter != null)
+                                ITestCaseFilterExpression filter = null;
+                                if (filterHelper.GetTestCaseFilterExpression(runContext, logger, stopwatch, assemblyFileName, out filter))
                                 {
-                                    grouping = new Grouping<string, TestCase>(grouping.Key, grouping.Where(testCase => filter.MatchTestCase(testCase, (p) => filterHelper.PropertyProvider(testCase, p))).ToList());
+                                    if (filter != null)
+                                    {
+                                        grouping = new Grouping<string, TestCase>(grouping.Key, grouping.Where(testCase => filter.MatchTestCase(testCase, (p) => filterHelper.PropertyProvider(testCase, p))).ToList());
+                                    }
+                                }
+                                else
+                                {
+                                    // Error while filtering, ensure discovered test list is empty
+                                    grouping = new Grouping<string, TestCase>(assemblyFileName, new List<TestCase>());
                                 }
 
                                 result.Add(grouping);
@@ -381,25 +389,30 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 return this.supportedPropertyNames;
             }
 
-            public ITestCaseFilterExpression GetTestCaseFilterExpression(IRunContext runContext)
+            public bool GetTestCaseFilterExpression(IRunContext runContext, IMessageLogger logger, Stopwatch stopwatch, string assemblyFileName, out ITestCaseFilterExpression filter)
             {
+                filter = null;
                 try
                 {
                     // In Microsoft.VisualStudio.TestPlatform.ObjectModel V11 IRunContext provides a TestCaseFilter property
                     // GetTestCaseFilter only exists in V12+
                     MethodInfo getTestCaseFilterMethod = runContext.GetType().GetMethod("GetTestCaseFilter");
-                    ITestCaseFilterExpression result = null;
                     if (getTestCaseFilterMethod != null)
                     {
-                        result = (ITestCaseFilterExpression)getTestCaseFilterMethod.Invoke(runContext, new object[] { this.supportedPropertyNames, null });
+                        filter = (ITestCaseFilterExpression)getTestCaseFilterMethod.Invoke(runContext, new object[] { this.supportedPropertyNames, null });
                     }
-
-                    return result;
+                    return true;
                 }
-                catch (Exception)
+                catch (TargetInvocationException e)
                 {
-                    return null;
+                    var formatException = e.InnerException as TestPlatformFormatException;
+                    if (formatException != null)
+                    {
+                        logger.SendMessage(TestMessageLevel.Error,
+                            String.Format("[xUnit.net {0}] Exception discovering tests from {1}: Invalid filter string {2}", stopwatch.Elapsed, Path.GetFileName(assemblyFileName), formatException.FilterValue));
+                    }
                 }
+                return false;
             }
 
             public object PropertyProvider(TestCase testCase, string name)
