@@ -329,6 +329,54 @@ public class CollectionAssertsTests
             Assert.NotEqual(expected, actual);
             Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
         }
+
+        [Fact]
+        public void CaseSensitiveDictionaryUsesExpectedComparer()
+        {
+            var expected = new Dictionary<string, int>(StringComparer.CurrentCulture)
+            {
+                {"A", 1}, {"B", 2}, {"C", 3}
+            };
+            var actual = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase)
+            {
+                {"a", 1}, {"b", 2}, {"c", 3}
+            };
+
+            Assert.NotEqual(expected, actual);
+            Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+        }
+
+        [Fact]
+        public void CaseInsensitiveDictionaryUsesExpectedComparer()
+        {
+            var expected = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase)
+            {
+                {"A", 1}, {"B", 2}, {"C", 3}
+            };
+            var actual = new Dictionary<string, int>(StringComparer.CurrentCulture)
+            {
+                {"a", 1}, {"b", 2}, {"c", 3}
+            };
+
+            Assert.NotEqual(expected, actual);
+            Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+        }
+
+        [Fact]
+        public void DetectsDuplicateValueInActual()
+        {
+            var expected = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase)
+            {
+                {"A", 1}, {"B", 2}, {"C", 3}
+            };
+            var actual = new Dictionary<string, int>(StringComparer.CurrentCulture)
+            {
+                {"a", 1}, {"A", 1}, {"c", 3}
+            };
+
+            Assert.NotEqual(expected, actual);
+            Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+        }
     }
 
     public class Equal_WithComparer

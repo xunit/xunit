@@ -133,6 +133,18 @@ namespace Xunit.Sdk
                     return true;
             }
 
+            foreach (var key in dictionaryY.Keys)
+            {
+                if (!dictionaryX.Contains(key))
+                    return true;
+
+                var valueX = dictionaryX[key];
+                var valueY = dictionaryY[key];
+
+                if (!equalityComparer.Equals(valueX, valueY))
+                    return true;
+            }
+
             @equals = true;
             return true;
         }
