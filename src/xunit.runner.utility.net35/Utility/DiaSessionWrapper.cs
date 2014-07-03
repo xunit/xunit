@@ -19,7 +19,7 @@ namespace Xunit
             string xUnitAssemblyPath = typeof(DiaSessionWrapperHelper).Assembly.GetLocalCodeBase();
             string xUnitAssemblyDirectory = Path.GetDirectoryName(xUnitAssemblyPath);
 
-            appDomainManager = new RemoteAppDomainManager(assemblyFilename, configFileName, shadowCopy);
+            appDomainManager = new RemoteAppDomainManager(assemblyFilename, configFileName, shadowCopy, null);
 
             // We want to be able to create the wrapper in the other domain, yet keep the domain centered on the test assembly.
             helper = appDomainManager.CreateObjectFromPath<DiaSessionWrapperHelper>(xUnitAssemblyPath, typeof(DiaSessionWrapperHelper).FullName, assemblyFilename, xUnitAssemblyDirectory);
