@@ -149,7 +149,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                 framework.Find(includeSourceInformation: true, messageSink: sink, options: new TestFrameworkOptions());
                                 sink.Finished.WaitOne();
                                 HashSet<string> knownTraitNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                                var grouping = new Grouping<string, TestCase>(
+                                IGrouping<string, TestCase> grouping = new Grouping<string, TestCase>(
                                                                 assemblyFileName,
                                                                 sink.TestCases
                                                                     .GroupBy(tc => String.Format("{0}.{1}", tc.Class.Name, tc.Method.Name))
@@ -157,12 +157,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                                                                     .ToList());
 
                                 var filterHelper = new TestCaseFilterHelper(knownTraitNames);
-                                var filter = filterHelper.GetTestCaseFilterExpression(runContext);
-                                if (filter != null)
-                                {
-                                    grouping = new Grouping<string, TestCase>(grouping.Key, grouping.Where(testCase => filter.MatchTestCase(testCase, (p) => filterHelper.PropertyProvider(testCase, p))).ToList());
-                                }
-
+                                grouping = filterHelper.GetFilteredTestList(grouping, runContext, logger, stopwatch, assemblyFileName);
                                 result.Add(grouping);
 
                                 if (settings.MessageDisplay != MessageDisplay.None)
@@ -331,105 +326,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             });
 
             return @event;
-        }
-
-        class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
-        {
-            readonly IEnumerable<TElement> elements;
-
-            public Grouping(TKey key, IEnumerable<TElement> elements)
-            {
-                Key = key;
-                this.elements = elements;
-            }
-
-            public TKey Key { get; private set; }
-
-            public IEnumerator<TElement> GetEnumerator()
-            {
-                return elements.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return elements.GetEnumerator();
-            }
-        }
-
-        class TestCaseFilterHelper
-        {
-            private const string DisplayNameString = "DisplayName";
-            private const string FullyQualifiedNameString = "FullyQualifiedName";
-            private HashSet<string> knownTraits;
-            private List<string> supportedPropertyNames;
-
-            public TestCaseFilterHelper(HashSet<string> knownTraits)
-            {
-                this.knownTraits = knownTraits;
-                this.supportedPropertyNames = this.GetSupportedPropertyNames();
-            }
-
-            private List<string> GetSupportedPropertyNames()
-            {
-                // Returns the set of well-known property names usually used with the Test Plugins (Used Test Traits + DisplayName + FullyQualifiedName)
-                if (this.supportedPropertyNames == null)
-                {
-                    this.supportedPropertyNames = this.knownTraits.ToList();
-                    this.supportedPropertyNames.Add(DisplayNameString);
-                    this.supportedPropertyNames.Add(FullyQualifiedNameString);
-                }
-                return this.supportedPropertyNames;
-            }
-
-            public ITestCaseFilterExpression GetTestCaseFilterExpression(IRunContext runContext)
-            {
-                try
-                {
-                    // In Microsoft.VisualStudio.TestPlatform.ObjectModel V11 IRunContext provides a TestCaseFilter property
-                    // GetTestCaseFilter only exists in V12+
-                    MethodInfo getTestCaseFilterMethod = runContext.GetType().GetMethod("GetTestCaseFilter");
-                    ITestCaseFilterExpression result = null;
-                    if (getTestCaseFilterMethod != null)
-                    {
-                        result = (ITestCaseFilterExpression)getTestCaseFilterMethod.Invoke(runContext, new object[] { this.supportedPropertyNames, null });
-                    }
-
-                    return result;
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
-            }
-
-            public object PropertyProvider(TestCase testCase, string name)
-            {
-                // Traits filtering
-                if (this.knownTraits.Contains(name))
-                {
-                    List<string> result = new List<string>();
-                    foreach (Trait t in testCase.Traits)
-                    {
-                        if (String.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase))
-                            result.Add(t.Value);
-                    }
-
-                    if (result.Count > 0)
-                    {
-                        return result.ToArray();
-                    }
-                }
-                else
-                {
-                    // Handle the displayName and fullyQualifierNames independently
-                    if (String.Equals(name, FullyQualifiedNameString, StringComparison.OrdinalIgnoreCase))
-                        return testCase.FullyQualifiedName;
-                    if (String.Equals(name, DisplayNameString, StringComparison.OrdinalIgnoreCase))
-                        return testCase.DisplayName;
-                }
-
-                return null;
-            }
         }
     }
 }

@@ -51,6 +51,7 @@
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="TestCaseFilterHelperTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.abstractions.net35\xunit.abstractions.net35.csproj">
