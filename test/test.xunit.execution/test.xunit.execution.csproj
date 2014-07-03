@@ -70,6 +70,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\common\AssemblyExtensions.cs">
+      <Link>Common\AssemblyExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
@@ -87,11 +90,25 @@
     </Compile>
     <Compile Include="Sdk\ArgumentFormatterTests.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />
+    <Compile Include="Sdk\ExtensibilityPointFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerAssemblyTestCollectionFactoryTests.cs" />
     <Compile Include="Sdk\Frameworks\CollectionPerClassTestCollectionFactoryTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\LambdaTestCaseRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestAssemblyRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestCaseRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestClassRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestCollectionRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestInvokerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestMethodRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\TestRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestAssemblyRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestCaseRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestClassRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestCollectionRunnerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTestInvokerTests.cs" />
+    <Compile Include="Sdk\Frameworks\Runners\XunitTheoryTestCaseRunnerTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestCaseTests.cs" />
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkDiscovererTests.cs" />
-    <Compile Include="Sdk\Frameworks\XunitTheoryTestCaseTests.cs" />
     <Compile Include="Sdk\MessageBusTests.cs" />
     <Compile Include="Sdk\Frameworks\TheoryDiscovererTests.cs" />
     <Compile Include="Sdk\Reflection\ReflectorTests.cs" />
@@ -105,13 +122,13 @@
       <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions.net35</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.execution.net45\xunit.execution.net45.csproj">
+      <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
+      <Name>xunit.execution.net45</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
       <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
       <Name>xunit.runner.tdnet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj">
-      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
-      <Name>xunit.runner.utility</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">
       <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>
@@ -121,9 +138,9 @@
       <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>
       <Name>xunit.core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.execution\xunit.execution.csproj">
-      <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
-      <Name>xunit.execution</Name>
+    <ProjectReference Include="..\..\src\xunit.runner.utility.net35\xunit.runner.utility.net35.csproj">
+      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
+      <Name>xunit.runner.utility.net35</Name>
     </ProjectReference>
     <ProjectReference Include="..\test.utility\test.utility.csproj">
       <Project>{4FEC8604-E544-43C2-979C-F0815B5770E2}</Project>

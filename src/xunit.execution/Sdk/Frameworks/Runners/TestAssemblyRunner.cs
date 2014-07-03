@@ -21,32 +21,27 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyRunner{TTestCase}"/> class.
         /// </summary>
-        /// <param name="assemblyInfo">The assembly that contains the tests to be run.</param>
+        /// <param name="testAssembly">The assembly that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="messageSink">The message sink to report run status to.</param>
         /// <param name="executionOptions">The user's requested execution options.</param>
-        public TestAssemblyRunner(IAssemblyInfo assemblyInfo,
+        public TestAssemblyRunner(ITestAssembly testAssembly,
                                   IEnumerable<TTestCase> testCases,
                                   IMessageSink messageSink,
                                   ITestFrameworkOptions executionOptions)
         {
-            AssemblyInfo = assemblyInfo;
-            AssemblyFileName = AssemblyInfo.AssemblyPath;
+            TestAssembly = testAssembly;
             TestCases = testCases;
             MessageSink = messageSink;
             ExecutionOptions = executionOptions;
             TestCaseOrderer = new DefaultTestCaseOrderer();
+            Aggregator = new ExceptionAggregator();
         }
 
         /// <summary>
-        /// Gets the file name of the assembly under test.
+        /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
-        protected string AssemblyFileName { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the assembly that contains the tests to be run.
-        /// </summary>
-        protected IAssemblyInfo AssemblyInfo { get; set; }
+        protected ExceptionAggregator Aggregator { get; set; }
 
         /// <summary>
         /// Gets or sets the user's requested execution options.
@@ -57,6 +52,11 @@ namespace Xunit.Sdk
         /// Gets or sets the message sink to report run status to.
         /// </summary>
         protected IMessageSink MessageSink { get; set; }
+
+        /// <summary>
+        /// Gets or sets the assembly that contains the tests to be run.
+        /// </summary>
+        protected ITestAssembly TestAssembly { get; set; }
 
         /// <summary>
         /// Gets or sets the test case orderer that will be used to decide how to order the test.
@@ -84,14 +84,16 @@ namespace Xunit.Sdk
         protected abstract string GetTestFrameworkEnvironment();
 
         /// <summary>
-        /// Override this method to run code just before the test assembly is run.
+        /// This method is called just after <see cref="ITestAssemblyStarting"/> is sent, but before any test collections are run.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnAssemblyStarting() { }
+        protected virtual void AfterTestAssemblyStarting() { }
 
         /// <summary>
-        /// Override this method to run code just after the test assembly run has finished.
+        /// This method is called just before <see cref="ITestAssemblyFinished"/> is sent.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void OnAssemblyFinished() { }
+        protected virtual void BeforeTestAssemblyFinished() { }
 
         /// <summary>
         /// Creates the message bus to be used for test execution. By default, it inspects
@@ -114,8 +116,6 @@ namespace Xunit.Sdk
         /// <returns>Returns summary information about the tests that were run.</returns>
         public async Task<RunSummary> RunAsync()
         {
-            OnAssemblyStarting();
-
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
             var currentDirectory = Directory.GetCurrentDirectory();
@@ -124,25 +124,30 @@ namespace Xunit.Sdk
 
             using (var messageBus = CreateMessageBus())
             {
-                try
-                {
-                    Directory.SetCurrentDirectory(Path.GetDirectoryName(AssemblyInfo.AssemblyPath));
+                Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
 
-                    if (messageBus.QueueMessage(new TestAssemblyStarting(AssemblyFileName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, DateTime.Now,
-                                                                         testFrameworkEnvironment, testFrameworkDisplayName)))
+                if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
+                {
+                    try
                     {
+                        AfterTestAssemblyStarting();
+
                         var masterStopwatch = Stopwatch.StartNew();
                         totalSummary = await RunTestCollectionsAsync(messageBus, cancellationTokenSource);
                         // Want clock time, not aggregated run time
                         totalSummary.Time = (decimal)masterStopwatch.Elapsed.TotalSeconds;
-                    }
-                }
-                finally
-                {
-                    messageBus.QueueMessage(new TestAssemblyFinished(AssemblyInfo, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
-                    Directory.SetCurrentDirectory(currentDirectory);
 
-                    OnAssemblyFinished();
+                        Aggregator.Clear();
+                        BeforeTestAssemblyFinished();
+
+                        if (Aggregator.HasExceptions)
+                            messageBus.QueueMessage(new TestAssemblyCleanupFailure(TestCases.Cast<ITestCase>(), TestAssembly, Aggregator.ToException()));
+                    }
+                    finally
+                    {
+                        messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
+                        Directory.SetCurrentDirectory(currentDirectory);
+                    }
                 }
             }
 
@@ -159,7 +164,7 @@ namespace Xunit.Sdk
         {
             var summary = new RunSummary();
 
-            foreach (var collectionGroup in TestCases.Cast<TTestCase>().GroupBy(tc => tc.TestCollection, TestCollectionComparer.Instance))
+            foreach (var collectionGroup in TestCases.Cast<TTestCase>().GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance))
             {
                 summary.Aggregate(await RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource));
                 if (cancellationTokenSource.IsCancellationRequested)

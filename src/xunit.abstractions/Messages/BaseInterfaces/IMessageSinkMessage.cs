@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Xunit.Abstractions
+﻿namespace Xunit.Abstractions
 {
     /// <summary>
     /// This is the base interface for all test messages. A test message is a message that is

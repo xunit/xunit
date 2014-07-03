@@ -68,6 +68,11 @@ public class TypeWrapper : ITypeInfo
         return inner.GetGenericArguments();
     }
 
+    public IMethodInfo GetMethod(string methodName, bool includePrivateMethod)
+    {
+        return inner.GetMethod(methodName, includePrivateMethod);
+    }
+
     public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
     {
         return inner.GetMethods(includePrivateMethods);

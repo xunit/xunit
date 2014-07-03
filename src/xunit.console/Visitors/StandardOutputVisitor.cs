@@ -27,7 +27,7 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
         {
-            assemblyFileName = Path.GetFileName(assemblyStarting.AssemblyFileName);
+            assemblyFileName = Path.GetFileName(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
 
             lock (consoleLock)
                 Console.WriteLine("Starting: {0}", assemblyFileName);

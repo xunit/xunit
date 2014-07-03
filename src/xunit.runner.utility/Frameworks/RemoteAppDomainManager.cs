@@ -9,13 +9,14 @@ namespace Xunit
 {
     internal class RemoteAppDomainManager : IDisposable
     {
-        public RemoteAppDomainManager(string assemblyFileName, string configFileName, bool shadowCopy)
+        public RemoteAppDomainManager(string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
 
             assemblyFileName = Path.GetFullPath(assemblyFileName);
+#if !ANDROID
             Guard.ArgumentValid("assemblyFileName", "Could not find file: " + assemblyFileName, File.Exists(assemblyFileName));
-
+#endif
             if (configFileName == null)
                 configFileName = GetDefaultConfigFile(assemblyFileName);
 
@@ -24,7 +25,9 @@ namespace Xunit
 
             AssemblyFileName = assemblyFileName;
             ConfigFileName = configFileName;
-            AppDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy);
+#if !NO_APPDOMAIN
+            AppDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+#endif
         }
 
         public AppDomain AppDomain { get; private set; }
@@ -33,9 +36,10 @@ namespace Xunit
 
         public string ConfigFileName { get; private set; }
 
-        static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy)
+#if !NO_APPDOMAIN
+        static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy, string shadowCopyFolder)
         {
-            AppDomainSetup setup = new AppDomainSetup();
+            var setup = new AppDomainSetup();
             setup.ApplicationBase = Path.GetDirectoryName(assemblyFilename);
             setup.ApplicationName = Guid.NewGuid().ToString() + Path.GetFileNameWithoutExtension(assemblyFilename);
 
@@ -43,20 +47,28 @@ namespace Xunit
             {
                 setup.ShadowCopyFiles = "true";
                 setup.ShadowCopyDirectories = setup.ApplicationBase;
-                setup.CachePath = Path.Combine(Path.GetTempPath(), setup.ApplicationName);
+                setup.CachePath = shadowCopyFolder ?? Path.Combine(Path.GetTempPath(), setup.ApplicationName);
             }
 
             setup.ConfigurationFile = configFilename;
 
             return AppDomain.CreateDomain(setup.ApplicationName, null, setup, new PermissionSet(PermissionState.Unrestricted));
+
         }
+#endif
 
         public TObject CreateObject<TObject>(string assemblyName, string typeName, params object[] args)
         {
             try
             {
+#if !NO_APPDOMAIN
                 object unwrappedObject = AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName, false, 0, null, args, null, null, null);
                 return (TObject)unwrappedObject;
+#else
+                var objHandle = Activator.CreateInstance(AppDomain.CurrentDomain, assemblyName, typeName, false, BindingFlags.Default, null, args, null, null);
+                return (TObject)objHandle.Unwrap();                    
+#endif
+                
             }
             catch (TargetInvocationException ex)
             {
@@ -81,6 +93,7 @@ namespace Xunit
 
         public virtual void Dispose()
         {
+#if !NO_APPDOMAIN
             if (AppDomain != null)
             {
                 string cachePath = AppDomain.SetupInformation.CachePath;
@@ -94,6 +107,7 @@ namespace Xunit
                 }
                 catch { }
             }
+#endif
         }
 
         static string GetDefaultConfigFile(string assemblyFile)

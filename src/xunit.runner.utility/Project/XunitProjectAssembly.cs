@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Xunit
+﻿namespace Xunit
 {
     /// <summary>
     /// Represents an assembly in an <see cref="XunitProject"/>.

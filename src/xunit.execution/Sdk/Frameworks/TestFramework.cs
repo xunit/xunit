@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -25,7 +24,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the disposal tracker for the test framework.
         /// </summary>
-        protected DisposalTracker DisposalTracker { get; private set; }
+        protected DisposalTracker DisposalTracker { get; set; }
 
         /// <inheritdoc/>
         public ISourceInformationProvider SourceInformationProvider { get; set; }

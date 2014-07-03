@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Xml;
@@ -32,8 +30,7 @@ public class TestClassCallbackHandlerTests
     public static void WithTestNode_ParsesNumberWithInvariantCulture()
     {
         var sink = Substitute.For<IMessageSink>();
-        var testCollection = new Xunit1TestCollection("assembly");
-        var testCase = new Xunit1TestCase("assembly", "foo", "bar", "foo.bar") { TestCollection = testCollection };
+        var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
         var handler = new TestClassCallbackHandler(new [] { testCase }, sink);
         var xml = new XmlDocument();
         xml.LoadXml("<test type='foo' method='bar' name='foo.bar' time='1.234' result='Pass' />");

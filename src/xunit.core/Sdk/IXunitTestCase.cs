@@ -10,6 +10,12 @@ namespace Xunit.Sdk
     public interface IXunitTestCase : ITestCase
     {
         /// <summary>
+        /// Gets the method to be run. Differs from <see cref="ITestCase.TestMethod"/>.<see cref="ITestMethod.Method"/> in that
+        /// any generic argument types will have been closed based on the arguments.
+        /// </summary>
+        IMethodInfo Method { get; }
+
+        /// <summary>
         /// Executes the test case, returning 0 or more result messages through the message sink.
         /// </summary>
         /// <param name="messageBus">The message bus to report results to.</param>

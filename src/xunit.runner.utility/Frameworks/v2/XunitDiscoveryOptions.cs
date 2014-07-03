@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Xunit
+﻿namespace Xunit
 {
     /// <summary>
     /// Represents discovery options for xUnit.net v2 tests.

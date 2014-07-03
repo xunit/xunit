@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 
@@ -84,7 +83,7 @@ public class Xunit1TestCaseTests
 
             var result = Create(typeUnderTest, "TestMethod").UniqueID;
 
-            Assert.Equal<object>(String.Format("Xunit1TestCaseTests+UniqueID+ClassUnderTest.TestMethod ({0})", assemblyFileName), result);
+            Assert.Equal(String.Format("Xunit1TestCaseTests+UniqueID+ClassUnderTest.TestMethod ({0})", assemblyFileName), result);
         }
 
         class ClassUnderTest
@@ -98,6 +97,6 @@ public class Xunit1TestCaseTests
     {
         var assemblyFileName = typeUnderTest.Assembly.GetLocalCodeBase();
 
-        return new Xunit1TestCase(assemblyFileName, typeUnderTest.FullName, methodName, null, traits);
+        return new Xunit1TestCase(assemblyFileName, null, typeUnderTest.FullName, methodName, null, traits);
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Xunit.Abstractions
+﻿namespace Xunit.Abstractions
 {
     /// <summary>
     /// Represents information about a method parameter. The primary implementation is based on runtime

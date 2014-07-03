@@ -45,6 +45,14 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Clears the aggregator.
+        /// </summary>
+        public void Clear()
+        {
+            exceptions.Clear();
+        }
+
+        /// <summary>
         /// Runs the code, catching the exception that is thrown and adding it to
         /// the aggregate.
         /// </summary>
@@ -75,6 +83,24 @@ namespace Xunit.Sdk
             catch (Exception ex)
             {
                 exceptions.Add(ex.Unwrap());
+            }
+        }
+
+        /// <summary>
+        /// Runs the code, catching the exception that is thrown and adding it to
+        /// the aggregate.
+        /// </summary>
+        /// <param name="code">The code to be run.</param>
+        public async Task<T> RunAsync<T>(Func<Task<T>> code)
+        {
+            try
+            {
+                return await code();
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex.Unwrap());
+                return default(T);
             }
         }
 

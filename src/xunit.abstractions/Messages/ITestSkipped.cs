@@ -3,7 +3,7 @@
     /// <summary>
     /// This message indicates that a test was skipped.
     /// </summary>
-    public interface ITestSkipped : ITestResultMessage
+    public interface ITestSkipped : ITestResultMessage, IExecutionMessage
     {
         /// <summary>
         /// The reason given for skipping the test.

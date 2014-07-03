@@ -294,8 +294,9 @@ public class xunitTests
             FrontController.WhenAny(fc => fc.RunTests((IEnumerable<ITestCase>)null, null, null))
                            .Do<object, IMessageSink>((_, sink) =>
                                {
+                                   var assembly = Mocks.TestAssembly("Name.dll");
                                    var testAssemblyStarting = Substitute.For<ITestAssemblyStarting>();
-                                   testAssemblyStarting.AssemblyFileName.Returns("Name.dll");
+                                   testAssemblyStarting.TestAssembly.Returns(assembly);
                                    sink.OnMessage(testAssemblyStarting);
                                    sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
                                });
@@ -353,11 +354,12 @@ public class xunitTests
 
         class TestCaseDiscoveryMessage : ITestCaseDiscoveryMessage
         {
+            public ITestAssembly TestAssembly { get; set; }
             public ITestCase TestCase { get; set; }
-
+            public IEnumerable<ITestCase> TestCases { get; set; }
+            public ITestClass TestClass { get; set; }
             public ITestCollection TestCollection { get; set; }
-
-            public void Dispose() { }
+            public ITestMethod TestMethod { get; set; }
         }
 
         class DiscoveryCompleteMessage : IDiscoveryCompleteMessage
@@ -368,8 +370,6 @@ public class xunitTests
             }
 
             public IEnumerable<string> Warnings { get; set; }
-
-            public void Dispose() { }
         }
     }
 }

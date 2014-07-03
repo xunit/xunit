@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -73,7 +72,7 @@ public class Xunit2TheoryAcceptanceTests
             var results = Run<ITestPassed>(typeof(GenericWithNonSerializableData));
 
             Assert.Collection(results,
-                result => Assert.Equal<object>(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.TestDisplayName)
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.TestDisplayName)
             );
         }
 
@@ -649,6 +648,52 @@ public class Xunit2TheoryAcceptanceTests
             {
                 Assert.Equal(0, x); // Fails the first data item
                 Assert.NotNull(z);  // Fails the second data item
+            }
+        }
+    }
+
+    public class OverloadedMethodTests : AcceptanceTest
+    {
+        [Fact]
+        public void TestMethodMessagesOnlySentOnce()
+        {
+            var testMessages = Run<IMessageSinkMessage>(typeof(ClassUnderTest));
+
+            Assert.Single(testMessages, msg =>
+            {
+                var methodStarting = msg as ITestMethodStarting;
+                if (methodStarting == null)
+                    return false;
+
+                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodStarting.TestClass.Class.Name);
+                Assert.Equal("Theory", methodStarting.TestMethod.Method.Name);
+                return true;
+            });
+
+            Assert.Single(testMessages, msg =>
+            {
+                var methodFinished = msg as ITestMethodFinished;
+                if (methodFinished == null)
+                    return false;
+
+                Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodFinished.TestClass.Class.Name);
+                Assert.Equal("Theory", methodFinished.TestMethod.Method.Name);
+                return true;
+            });
+        }
+
+        class ClassUnderTest
+        {
+            [Theory]
+            [InlineData(42)]
+            public void Theory(int value)
+            {
+            }
+
+            [Theory]
+            [InlineData("42")]
+            public void Theory(string value)
+            {
             }
         }
     }

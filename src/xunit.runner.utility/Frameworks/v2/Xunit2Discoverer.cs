@@ -17,37 +17,42 @@ namespace Xunit
         readonly ITestFramework framework;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class. The location
-        /// of xunit.execution.dll is implied based on the location of the test assembly.
+        /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class.
         /// </summary>
         /// <param name="sourceInformationProvider">The source code information provider.</param>
         /// <param name="assemblyInfo">The assembly to use for discovery</param>
-        public Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, IAssemblyInfo assemblyInfo)
-            : this(sourceInformationProvider, assemblyInfo, null, GetXunitExecutionAssemblyPath(assemblyInfo), null, true) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class. This constructor
-        /// is usually used by AST-based runners which may not have access to a test assembly on disk,
-        /// but can point to xunit.execution.dll (by following the project reference in Visual Studio).
-        /// </summary>
-        /// <param name="sourceInformationProvider">The source code information provider.</param>
-        /// <param name="assemblyInfo">The assembly to use for discovery</param>
-        /// <param name="xunitExecutionAssemblyPath">The path on disk of xunit.execution.dll</param>
-        public Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, IAssemblyInfo assemblyInfo, string xunitExecutionAssemblyPath)
-            : this(sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath, null, true) { }
+        /// <param name="xunitExecutionAssemblyPath">The path on disk of xunit.execution.dll; if <c>null</c>, then
+        /// the location of xunit.execution.dll is implied based on the location of the test assembly</param>
+        /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
+        /// will be automatically (randomly) generated</param>
+        public Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, IAssemblyInfo assemblyInfo, string xunitExecutionAssemblyPath = null, string shadowCopyFolder = null)
+            : this(sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(assemblyInfo), null, true, shadowCopyFolder) { }
 
         // Used by Xunit2 when initializing for both discovery and execution.
-        internal Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName, bool shadowCopy)
-            : this(sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName), configFileName, shadowCopy) { }
+        internal Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder = null)
+            : this(sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName), configFileName, shadowCopy, shadowCopyFolder) { }
 
-        Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider, IAssemblyInfo assemblyInfo, string assemblyFileName, string xunitExecutionAssemblyPath, string configFileName, bool shadowCopy)
+        Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider,
+                         IAssemblyInfo assemblyInfo,
+                         string assemblyFileName,
+                         string xunitExecutionAssemblyPath,
+                         string configFileName,
+                         bool shadowCopy,
+                         string shadowCopyFolder)
         {
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
+#if !ANDROID
             Guard.ArgumentValid("xunitExecutionAssemblyPath", "File not found: " + xunitExecutionAssemblyPath, File.Exists(xunitExecutionAssemblyPath));
+#endif
+            appDomain = new RemoteAppDomainManager(assemblyFileName ?? xunitExecutionAssemblyPath, configFileName, shadowCopy, shadowCopyFolder);
 
-            appDomain = new RemoteAppDomainManager(assemblyFileName ?? xunitExecutionAssemblyPath, configFileName, shadowCopy);
-
-            var testFrameworkAssemblyName = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath).FullName;
+#if !ANDROID
+            var name = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
+            var testFrameworkAssemblyName = name.FullName;
+#else
+            var name = Assembly.Load(xunitExecutionAssemblyPath);
+            var testFrameworkAssemblyName = name.FullName;
+#endif
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
             if (assemblyInfo == null)
@@ -63,6 +68,12 @@ namespace Xunit
         public ITestFramework Framework
         {
             get { return framework; }
+        }
+
+        /// <inheritdoc/>
+        public string TargetFramework
+        {
+            get { return discoverer.TargetFramework; }
         }
 
         /// <inheritdoc/>
@@ -117,7 +128,9 @@ namespace Xunit
         static string GetXunitExecutionAssemblyPath(string assemblyFileName)
         {
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
+#if !ANDROID
             Guard.ArgumentValid("assemblyFileName", "File not found: " + assemblyFileName, File.Exists(assemblyFileName));
+#endif
 
             return Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
         }

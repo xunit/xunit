@@ -6,8 +6,8 @@
     public interface ITestClassMessage : ITestCollectionMessage
     {
         /// <summary>
-        /// The fully-qualified name of the test class.
+        /// The test class that is associated with this message.
         /// </summary>
-        string ClassName { get; }
+        ITestClass TestClass { get; }
     }
 }

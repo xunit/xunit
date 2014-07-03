@@ -42,7 +42,7 @@ public class ArgumentFormatterTests
         {
             var now = DateTime.UtcNow;
 
-            Assert.Equal<object>(now.ToString("o"), ArgumentFormatter.Format(now));
+            Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
         }
 
         [CulturedFact]
@@ -50,7 +50,7 @@ public class ArgumentFormatterTests
         {
             var now = DateTimeOffset.UtcNow;
 
-            Assert.Equal<object>(now.ToString("o"), ArgumentFormatter.Format(now));
+            Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
         }
 
         [CulturedFact]

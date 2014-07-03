@@ -15,6 +15,7 @@ help
 *.exe
 *.dll
 *.ncrunch*
+*.vsix
 
 Test*.html
 Test*.xml

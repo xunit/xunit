@@ -13,16 +13,14 @@
     <ParallelizeTests Condition="'$(ParallelizeTests)' == ''">true</ParallelizeTests>
     <MaxParallelThreads Condition="'$(MaxParallelThreads)' == ''">0</MaxParallelThreads>
     <TrackFileAccess>false</TrackFileAccess>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\</SolutionDir>
-    <NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(SolutionDir).nuget\nuget.exe</NuGetExePath>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)</SolutionDir>
+    <NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(SolutionDir)\.nuget\nuget.exe</NuGetExePath>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">normal</RequestedVerbosity>
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
-    <NuGetNuspecTargets Include="src\*.nuspec" />
-    <NuGetCsprojTargets Include="src\xunit.assert\xunit.assert.csproj;
-                                 src\xunit.execution\xunit.execution.csproj;
-                                 src\xunit.runner.utility\xunit.runner.utility.csproj" />
+    <NuGetNuspecTargets Include="src\xunit.assert.nuspec;src\xunit.core.nuspec;src\xunit.execution.nuspec;src\xunit.runner.utility.nuspec" />
+    <NuGetNuspecNoSymbolsTargets Include="src\*.nuspec" Exclude="@(NuGetNuspecTargets)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
     <PackageSource Include="https://nuget.org/api/v2/" />
@@ -40,7 +38,7 @@
 
   <!-- Build server targets -->
 
-  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts" />
+  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts;PushMyGet" />
 
   <!-- Individiual targets -->
 
@@ -65,8 +63,8 @@
 
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
-    <Exec Command="$(NuGetExePath) install xunit.buildtasks -Source @(PackageSource) -SolutionDir $(SolutionDir) -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)packages\xunit.buildtasks\')" />
-    <Exec Command="$(NuGetExePath) restore $(SolutionDir)xunit.sln -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\xunit.sln&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
@@ -74,12 +72,6 @@
         Projects="xunit.sln"
         Targets="Build"
         Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
-
-    <!-- Build Visual Studio VSIX -->
-    <MSBuild Projects="tools\xunit.vsix.msbuild"
-             Properties="InputSettings=..\src\xunit.runner.visualstudio.settings\bin\$(Configuration)\;
-                         InputTestAdapter=..\src\xunit.runner.visualstudio.testadapter\bin\$(Configuration)\;
-                         OutputPath=..\src\xunit.runner.visualstudio.settings\bin\$(Configuration)\" />
 
     <!-- Build xunit.console.x86 -->
     <Copy
@@ -139,8 +131,8 @@
   </Target>
 
   <Target Name='Packages'>
-    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
-    <Exec Command='.nuget\NuGet.exe pack %(NuGetCsProjTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet -Symbols' />
+    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecTargets.Identity) -Symbols -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
+    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecNoSymbolsTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
   </Target>
 
   <Target Name='ZipArtifacts'>
@@ -157,15 +149,24 @@
     <Zip Files="@(Binaries)" ZipFileName="binaries.zip" StripPath="true" />
   </Target>
 
-  <Target Name="PushPackages">
+  <Target Name="PushMyGet">
     <ItemGroup>
-      <NupkgFiles Include="*.nupkg" Exclude="*.symbols.nupkg" />
+      <NupkgSymbolsFiles Include="*.symbols.nupkg" />
+      <NupkgFiles Include="*.nupkg" Exclude="@(NupkgSymbolsFiles)" />
+    </ItemGroup>
+    <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive -Source https://www.myget.org/F/xunit/api/v2/package" />
+    <Exec Command=".nuget\NuGet.exe push %(NupkgSymbolsFiles.Identity) -NonInteractive -Source https://nuget.symbolsource.org/MyGet/xunit" />
+  </Target>
+
+  <Target Name="PushNuGet">
+    <ItemGroup>
+      <NupkgFiles Include="*.nupkg" Exclude="*.symbols*.nupkg" />
     </ItemGroup>
     <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive" />
   </Target>
 
   <Target Name="_DownloadNuGet">
-    <MakeDir Directories="$(SolutionDir).nuget" />
+    <MakeDir Directories="$(SolutionDir)\.nuget" />
     <DownloadNuGet OutputFilename="$(NuGetExePath)" Condition="!Exists('$(NuGetExePath)')" />
   </Target>
 

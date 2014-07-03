@@ -9,8 +9,7 @@ public class CollectionPerAssemblyTestCollectionFactoryTests
     {
         var type1 = Mocks.TypeInfo("type1");
         var type2 = Mocks.TypeInfo("type2");
-        var assembly = Mocks.AssemblyInfo();
-        assembly.AssemblyPath.Returns(@"C:\Foo\bar.dll");
+        var assembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
         var factory = new CollectionPerAssemblyTestCollectionFactory(assembly);
 
         var result1 = factory.Get(type1);
@@ -26,8 +25,7 @@ public class CollectionPerAssemblyTestCollectionFactoryTests
         var attr = Mocks.CollectionAttribute("My Collection");
         var type1 = Mocks.TypeInfo("type1", attributes: new[] { attr });
         var type2 = Mocks.TypeInfo("type2", attributes: new[] { attr });
-        var assembly = Mocks.AssemblyInfo();
-        assembly.AssemblyPath.Returns(@"C:\Foo\bar.dll");
+        var assembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
         var factory = new CollectionPerAssemblyTestCollectionFactory(assembly);
 
         var result1 = factory.Get(type1);
@@ -42,8 +40,7 @@ public class CollectionPerAssemblyTestCollectionFactoryTests
     {
         var type1 = Mocks.TypeInfo("type1", attributes: new[] { Mocks.CollectionAttribute("Collection 1") });
         var type2 = Mocks.TypeInfo("type2", attributes: new[] { Mocks.CollectionAttribute("Collection 2") });
-        var assembly = Mocks.AssemblyInfo();
-        assembly.AssemblyPath.Returns(@"C:\Foo\bar.dll");
+        var assembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
         var factory = new CollectionPerAssemblyTestCollectionFactory(assembly);
 
         var result1 = factory.Get(type1);
@@ -59,8 +56,7 @@ public class CollectionPerAssemblyTestCollectionFactoryTests
     {
         var testType = Mocks.TypeInfo("type", attributes: new[] { Mocks.CollectionAttribute("This is a test collection") });
         var collectionDefinitionType = Mocks.TypeInfo("collectionDefinition", attributes: new[] { Mocks.CollectionDefinitionAttribute("This is a test collection") });
-        var assembly = Mocks.AssemblyInfo(new[] { collectionDefinitionType });
-        assembly.AssemblyPath.Returns(@"C:\Foo\bar.dll");
+        var assembly = Mocks.TestAssembly(@"C:\Foo\bar.dll", types: new[] { collectionDefinitionType });
         var factory = new CollectionPerAssemblyTestCollectionFactory(assembly);
 
         var result = factory.Get(testType);
@@ -75,8 +71,7 @@ public class CollectionPerAssemblyTestCollectionFactoryTests
         var testType = Mocks.TypeInfo("type", attributes: new[] { Mocks.CollectionAttribute("This is a test collection") });
         var collectionDefinition1 = Mocks.TypeInfo("collectionDefinition1", attributes: new[] { Mocks.CollectionDefinitionAttribute("This is a test collection") });
         var collectionDefinition2 = Mocks.TypeInfo("collectionDefinition2", attributes: new[] { Mocks.CollectionDefinitionAttribute("This is a test collection") });
-        var assembly = Mocks.AssemblyInfo(new[] { collectionDefinition1, collectionDefinition2 });
-        assembly.AssemblyPath.Returns(@"C:\Foo\bar.dll");
+        var assembly = Mocks.TestAssembly(@"C:\Foo\bar.dll", types: new[] { collectionDefinition1, collectionDefinition2 });
         var factory = new CollectionPerAssemblyTestCollectionFactory(assembly, broker);
 
         factory.Get(testType);

@@ -15,6 +15,7 @@ namespace Xunit
         readonly string configFileName;
         IFrontController innerController;
         readonly bool shadowCopy;
+        private readonly string shadowCopyFolder;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 
@@ -29,22 +30,32 @@ namespace Xunit
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
-        /// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="VisualStudioSourceInformationProvider"/>).</param>
+        /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
+        /// will be automatically (randomly) generated</param>
+        /// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
         /// tests to be discovered and run without locking assembly files on disk.</param>
-        public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true, ISourceInformationProvider sourceInformationProvider = null)
+        public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null, ISourceInformationProvider sourceInformationProvider = null)
         {
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
             this.shadowCopy = shadowCopy;
+            this.shadowCopyFolder = shadowCopyFolder;
             this.sourceInformationProvider = sourceInformationProvider;
 
+#if !ANDROID
             Guard.FileExists("assemblyFileName", assemblyFileName);
+#endif
 
             if (this.sourceInformationProvider == null)
             {
+#if !XAMARIN
                 this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName, shadowCopy, configFileName);
+#else
+                this.sourceInformationProvider = new NullSourceInformationProvider();
+#endif
                 toDispose.Push(this.sourceInformationProvider);
             }
+
         }
 
         private IFrontController InnerController
@@ -62,6 +73,12 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public string TargetFramework
+        {
+            get { return InnerController.TargetFramework; }
+        }
+
+        /// <inheritdoc/>
         public string TestFrameworkDisplayName
         {
             get { return InnerController.TestFrameworkDisplayName; }
@@ -72,15 +89,25 @@ namespace Xunit
         /// </summary>
         protected virtual IFrontController CreateInnerController()
         {
+#if !XAMARIN
             var xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
+#endif
             var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
 
+#if !ANDROID
             if (File.Exists(xunitExecutionPath))
-                return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+#endif
+                return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+#if !XAMARIN
             if (File.Exists(xunitPath))
-                return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy);
+                return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+#endif
 
+#if XAMARIN
+            throw new ArgumentException("Unknown test framework: Could not find xunit.execution.dll.", assemblyFileName);
+#else
             throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit.execution.dll.", assemblyFileName);
+#endif
         }
 
         /// <inheritdoc/>

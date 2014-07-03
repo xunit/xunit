@@ -36,7 +36,11 @@
     <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile>bin\Release\xunit.abstractions.xml</DocumentationFile>
   </PropertyGroup>
-  <Import Project="..\xunit.abstractions\xunit.abstractions.projitems" Label="Shared" />
+  <ItemGroup>
+    <Compile Include="..\xunit.abstractions\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

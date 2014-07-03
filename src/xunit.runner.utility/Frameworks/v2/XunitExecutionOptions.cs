@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Xunit
+﻿namespace Xunit
 {
     /// <summary>
     /// Represents execution options for xUnit.net v2 tests.
@@ -10,7 +6,7 @@ namespace Xunit
     public class XunitExecutionOptions : TestFrameworkOptions
     {
         /// <summary>
-        /// Gets or sets a flag that determines whether xunit should report test results synchronously.
+        /// Gets or sets a flag that determines whether xUnit.net should report test results synchronously.
         /// </summary>
         public bool SynchronousMessageReporting
         {

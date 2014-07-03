@@ -1,3 +1,4 @@
+using System;
 using TestDriven.Framework;
 using Xunit.Abstractions;
 
@@ -25,7 +26,7 @@ namespace Xunit.Runner.TdNet
 
             TestListener.TestFinished(testResult);
 
-            //WriteOutput(name, output);
+            WriteOutput(failed.TestDisplayName, failed.Output);
 
             return true;
         }
@@ -35,11 +36,11 @@ namespace Xunit.Runner.TdNet
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
 
-            TestResult testResult = passed.ToTdNetTestResult(TestState.Passed);
+            var testResult = passed.ToTdNetTestResult(TestState.Passed);
 
             TestListener.TestFinished(testResult);
 
-            //WriteOutput(name, output);
+            WriteOutput(passed.TestDisplayName, passed.Output);
 
             return true;
         }
@@ -49,13 +50,23 @@ namespace Xunit.Runner.TdNet
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
 
-            TestResult testResult = skipped.ToTdNetTestResult(TestState.Ignored);
+            var testResult = skipped.ToTdNetTestResult(TestState.Ignored);
 
             testResult.Message = skipped.Reason;
 
             TestListener.TestFinished(testResult);
 
             return true;
+        }
+
+        private void WriteOutput(string name, string output)
+        {
+            if (String.IsNullOrWhiteSpace(output))
+                return;
+
+            TestListener.WriteLine(String.Format("Output from {0}:", name), Category.Output);
+            foreach (string line in output.Trim().Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+                TestListener.WriteLine(String.Format("  {0}", line), Category.Output);
         }
     }
 }

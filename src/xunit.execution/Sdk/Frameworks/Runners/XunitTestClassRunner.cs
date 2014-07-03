@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Xunit.Abstractions;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -14,63 +14,76 @@ namespace Xunit.Sdk
     public class XunitTestClassRunner : TestClassRunner<IXunitTestCase>
     {
         readonly IDictionary<Type, object> collectionFixtureMappings;
-        readonly IDictionary<Type, object> fixtureMappings = new Dictionary<Type, object>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
         /// </summary>
-        /// <param name="testCollection">The test collection that contains the test class.</param>
-        /// <param name="testClass">The test class that contains the tests to be run.</param>
+        /// <param name="testClass">The test class to be run.</param>
+        /// <param name="class">The test class that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
-        /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         /// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
-        public XunitTestClassRunner(ITestCollection testCollection,
-                                    IReflectionTypeInfo testClass,
+        public XunitTestClassRunner(ITestClass testClass,
+                                    IReflectionTypeInfo @class,
                                     IEnumerable<IXunitTestCase> testCases,
                                     IMessageBus messageBus,
                                     ITestCaseOrderer testCaseOrderer,
                                     ExceptionAggregator aggregator,
                                     CancellationTokenSource cancellationTokenSource,
                                     IDictionary<Type, object> collectionFixtureMappings)
-            : base(testCollection, testClass, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+            : base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
             this.collectionFixtureMappings = collectionFixtureMappings;
+
+            ClassFixtureMappings = new Dictionary<Type, object>();
         }
+
+        /// <summary>
+        /// Gets the fixture mappings that were created during <see cref="AfterTestClassStarting"/>.
+        /// </summary>
+        protected Dictionary<Type, object> ClassFixtureMappings { get; set; }
 
         void CreateFixture(Type fixtureGenericInterfaceType)
         {
             var fixtureType = fixtureGenericInterfaceType.GetGenericArguments().Single();
-            Aggregator.Run(() => fixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
+            Aggregator.Run(() => ClassFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
         }
 
         /// <inheritdoc/>
-        protected override void OnTestClassStarting()
+        protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
         {
-            var ordererAttribute = TestClass.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
+            var argText = String.Join(", ", unusedArguments.Select(arg => String.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
+            return String.Format("The following constructor parameters did not have matching fixture data: {0}", argText);
+        }
+
+        /// <inheritdoc/>
+        protected override void AfterTestClassStarting()
+        {
+            var ordererAttribute = Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (ordererAttribute != null)
                 TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
 
-            if (TestClass.Type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+            if (Class.Type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
                 Aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
 
-            foreach (var interfaceType in TestClass.Type.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
+            foreach (var interfaceType in Class.Type.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
                 CreateFixture(interfaceType);
 
-            if (TestCollection.CollectionDefinition != null)
+            if (TestClass.TestCollection.CollectionDefinition != null)
             {
-                var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
+                var declarationType = ((IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
                 foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
                     CreateFixture(interfaceType);
             }
         }
 
         /// <inheritdoc/>
-        protected override void OnTestClassFinished()
+        protected override void BeforeTestClassFinished()
         {
-            foreach (var fixture in fixtureMappings.Values.OfType<IDisposable>())
+            foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
             {
                 try
                 {
@@ -85,16 +98,15 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override Task<RunSummary> RunTestMethodAsync(IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
+        protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
         {
-            var testMethodRunner = new XunitTestMethodRunner(TestCollection, TestClass, method, testCases, MessageBus, CancellationTokenSource, Aggregator, constructorArguments);
-            return testMethodRunner.RunAsync();
+            return new XunitTestMethodRunner(testMethod, Class, method, testCases, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
         }
 
         /// <inheritdoc/>
         protected override ConstructorInfo SelectTestClassConstructor()
         {
-            var ctors = TestClass.Type.GetConstructors();
+            var ctors = Class.Type.GetConstructors();
             if (ctors.Length == 1)
                 return ctors[0];
 
@@ -105,7 +117,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, out object argumentValue)
         {
-            return fixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
+            return ClassFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
                 || collectionFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue);
         }
     }
