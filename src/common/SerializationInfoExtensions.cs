@@ -1,4 +1,9 @@
 ﻿using System.Runtime.Serialization;
+using Xunit;
+
+#if WINDOWS_PHONE_APP
+using Xunit.Serialization;
+#endif
 
 internal static class SerializationInfoExtensions
 {

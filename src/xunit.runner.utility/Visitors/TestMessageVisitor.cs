@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -347,7 +348,6 @@ namespace Xunit
         public override bool OnMessage(IMessageSinkMessage message)
         {
             var result = base.OnMessage(message);
-
             if (message is TCompleteMessage)
                 Finished.Set();
 

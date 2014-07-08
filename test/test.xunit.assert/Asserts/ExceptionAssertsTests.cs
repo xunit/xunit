@@ -93,7 +93,7 @@ public class ExceptionAssertsTests
         public async void CodeDoesNotThrow()
         {
             bool methodCalled = false;
-            Func<Task> testCode = () => Task.Factory.StartNew(() => methodCalled = true);
+            Func<Task> testCode = () => Task.Run(() => methodCalled = true);
 
             await Assert.DoesNotThrowAsync(testCode);
 
@@ -103,7 +103,7 @@ public class ExceptionAssertsTests
         [Fact]
         public async void CodeThrows()
         {
-            Func<Task> testCode = () => Task.Factory.StartNew(ThrowingMethod);
+            Func<Task> testCode = () => Task.Run(() => ThrowingMethod());
 
             var ex = await Record.ExceptionAsync(() => Assert.DoesNotThrowAsync(testCode));
 
@@ -255,7 +255,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                await Assert.ThrowsAsync<ArgumentException>(() => Task.Factory.StartNew(() => { }));
+                await Assert.ThrowsAsync<ArgumentException>(() => Task.Run(() => { }));
             }
             catch (AssertActualExpectedException exception)
             {
@@ -268,7 +268,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+                Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
 
                 await Assert.ThrowsAsync<Exception>(testCode);
             }
@@ -281,7 +281,7 @@ public class ExceptionAssertsTests
         [Fact]
         public async void GotExpectedException()
         {
-            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new ArgumentException(); });
+            Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException(); });
 
             var ex = await Assert.ThrowsAsync<ArgumentException>(testCode);
 
@@ -417,7 +417,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                await Assert.ThrowsAnyAsync<ArgumentException>(() => Task.Factory.StartNew(() => { }));
+                await Assert.ThrowsAnyAsync<ArgumentException>(() => Task.Run(() => { }));
             }
             catch (AssertActualExpectedException exception)
             {
@@ -428,7 +428,7 @@ public class ExceptionAssertsTests
         [Fact]
         public async void GotExpectedException()
         {
-            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new ArgumentException(); });
+            Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException(); });
 
             var ex = await Assert.ThrowsAnyAsync<ArgumentException>(testCode);
 
@@ -440,7 +440,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+                Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
 
                 await Assert.ThrowsAnyAsync<Exception>(testCode);
             }
@@ -551,7 +551,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Func<Task> testCode = () => Task.Factory.StartNew(() => { });
+                Func<Task> testCode = () => Task.Run(() => { });
 
                 await Assert.ThrowsAsync(typeof(ArgumentException), testCode);
             }
@@ -566,7 +566,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+                Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
 
                 await Assert.ThrowsAsync(typeof(Exception), testCode);
             }
@@ -579,7 +579,7 @@ public class ExceptionAssertsTests
         [Fact]
         public async void GotExpectedException()
         {
-            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new ArgumentException(); });
+            Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException(); });
 
             var ex = await Assert.ThrowsAsync(typeof(ArgumentException), testCode);
 

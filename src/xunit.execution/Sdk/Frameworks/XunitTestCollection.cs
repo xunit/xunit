@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
 using Xunit.Abstractions;
+
+
+#if WINDOWS_PHONE_APP
+using Xunit.Serialization;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -12,6 +18,9 @@ namespace Xunit.Sdk
     [Serializable]
     [DebuggerDisplay(@"\{ id = {UniqueID}, display = {DisplayName} \}")]
     public class XunitTestCollection : LongLivedMarshalByRefObject, ITestCollection, ISerializable
+#if JSON
+        , IGetTypeData
+#endif
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCollection"/> class.
@@ -69,5 +78,29 @@ namespace Xunit.Sdk
                 info.AddValue("DeclarationTypeName", null);
             }
         }
+
+#if JSON
+        public virtual void GetData(
+#if !WINDOWS_PHONE_APP
+Xunit.Serialization.
+#endif
+SerializationInfo info)
+        {
+            info.AddValue("DisplayName", DisplayName);
+            info.AddValue("TestAssembly", TestAssembly);
+            info.AddValue("UniqueID", UniqueID.ToString());
+
+            if (CollectionDefinition != null)
+            {
+                info.AddValue("DeclarationAssemblyName", CollectionDefinition.Assembly.Name);
+                info.AddValue("DeclarationTypeName", CollectionDefinition.Name);
+            }
+            else
+            {
+                info.AddValue("DeclarationAssemblyName", null);
+                info.AddValue("DeclarationTypeName", null);
+            }
+        }
+#endif
     }
 }

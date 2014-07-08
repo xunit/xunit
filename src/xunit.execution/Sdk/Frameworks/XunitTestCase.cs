@@ -5,11 +5,19 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Xunit.Abstractions;
+#if !WINDOWS_PHONE_APP
+using System.Security.Cryptography;
+#else
+using Xunit.Serialization;
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
+using System.Runtime.InteropServices.WindowsRuntime;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -20,8 +28,15 @@ namespace Xunit.Sdk
     [Serializable]
     [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
     public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable
+#if JSON
+        , IGetTypeData
+#endif
     {
+#if !WINDOWS_PHONE_APP
         readonly static HashAlgorithm Hasher = new SHA1Managed();
+#else
+        readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
+#endif
 
         Lazy<string> uniqueID;
 
@@ -130,7 +145,13 @@ namespace Xunit.Sdk
                     Write(stream, SerializationHelper.Serialize(TestMethodArguments));
 
                 stream.Position = 0;
-                var hash = Hasher.ComputeHash(stream);
+#if !WINDOWS_PHONE_APP
+                byte[] hash = Hasher.ComputeHash(stream);
+#else
+                var buffer = CryptographicBuffer.CreateFromByteArray(stream.ToArray());
+                var hash = Hasher.HashData(buffer).ToArray();
+                
+#endif
                 return String.Join("", hash.Select(x => x.ToString("x2")).ToArray());
             }
         }
@@ -147,5 +168,13 @@ namespace Xunit.Sdk
         {
             return new XunitTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, TestMethodArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
         }
+
+#if JSON
+        public virtual void GetData(Xunit.Serialization.SerializationInfo data)
+        {
+            data.AddValue("TestMethod", TestMethod);
+            data.AddValue("TestMethodArguments", TestMethodArguments);
+        }
+#endif
     }
 }

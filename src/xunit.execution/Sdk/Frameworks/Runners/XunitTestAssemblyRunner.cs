@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -52,9 +54,18 @@ namespace Xunit.Sdk
 
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, TestAssembly);
 
+            var attr = typeof(object).GetTypeInfo()
+                          .Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
+
+            var displayName = attr == null ? ".NET Framework" : attr.FrameworkDisplayName;
+
             return String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
                                  IntPtr.Size * 8,
+#if !WINDOWS_PHONE_APP
                                  Environment.Version,
+#else
+                                displayName,
+#endif
                                  testCollectionFactory.DisplayName,
                                  disableParallelization ? "non-parallel" : "parallel",
                                  maxParallelThreads > 0 ? String.Format(" ({0} threads)", maxParallelThreads) : "");
@@ -113,17 +124,18 @@ namespace Xunit.Sdk
         protected override async Task<RunSummary> RunTestCollectionsAsync(IMessageBus messageBus, CancellationTokenSource cancellationTokenSource)
         {
             if (disableParallelization)
-                return await base.RunTestCollectionsAsync(messageBus, cancellationTokenSource);
+                return await base.RunTestCollectionsAsync(messageBus, cancellationTokenSource).ConfigureAwait(false);
 
-            var tasks = TestCases.Cast<IXunitTestCase>()
-                                 .GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
-                                 .Select(collectionGroup => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource),
-                                                                                  cancellationTokenSource.Token,
-                                                                                  TaskCreationOptions.None,
-                                                                                  scheduler))
+            var tasks = TestCases.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
+                                 .Select(collectionGroup => 
+                                     Task.Factory.StartNew(() => 
+                                         RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource),
+                                         cancellationTokenSource.Token,
+                                         TaskCreationOptions.DenyChildAttach,
+                                         scheduler))
                                  .ToArray();
 
-            var summaries = await Task.WhenAll(tasks.Select(t => t.Unwrap()));
+            var summaries = await Task.WhenAll(tasks.Select(t => t.Unwrap())).ConfigureAwait(false);
 
             return new RunSummary()
             {

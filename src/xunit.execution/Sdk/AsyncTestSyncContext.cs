@@ -6,15 +6,15 @@ namespace Xunit.Sdk
 {
     internal class AsyncTestSyncContext : SynchronizationContext
     {
-        readonly ManualResetEvent @event = new ManualResetEvent(initialState: true);
+        readonly AsyncManualResetEvent @event = new AsyncManualResetEvent(true);
         Exception exception = null;
         int operationCount = 0;
-
+        
         public override void OperationCompleted()
         {
             var result = Interlocked.Decrement(ref operationCount);
             if (result == 0)
-                @event.Set();
+                @event.SetAsync();
         }
 
         public override void OperationStarted()
@@ -23,24 +23,34 @@ namespace Xunit.Sdk
             @event.Reset();
         }
 
-        public override void Post(SendOrPostCallback d, object state)
+        public override async void Post(SendOrPostCallback d, object state)
         {
             // The call to Post() may be the state machine signaling that an exception is
             // about to be thrown, so we make sure the operation count gets incremented
             // before the QUWI, and then decrement the count when the operation is done.
             OperationStarted();
 
-            ThreadPool.QueueUserWorkItem(s =>
+            try
             {
-                try
+                // await and eat exceptions that come from this post
+                // We could get a thread abort, so we need to handle that
+                await Task.Run(() =>
                 {
-                    Send(d, state);
-                }
-                finally
-                {
-                    OperationCompleted();
-                }
-            });
+                    try
+                    {
+                        Send(d, state);
+                    }
+                    finally
+                    {
+                        OperationCompleted();
+                    }
+                }).ConfigureAwait(false);
+            }
+            catch
+            {
+                
+            }
+            
         }
 
         public override void Send(SendOrPostCallback d, object state)
@@ -55,20 +65,11 @@ namespace Xunit.Sdk
             }
         }
 
-        public Task<Exception> WaitForCompletionAsync()
+        public async Task<Exception> WaitForCompletionAsync()
         {
-            var tcs = new TaskCompletionSource<Exception>();
+            await @event.WaitAsync().ConfigureAwait(false);
 
-            // Registering callback to wait till WaitHandle changes its state
-
-            ThreadPool.RegisterWaitForSingleObject(
-                waitObject: @event,
-                callBack: (o, timeout) => { tcs.SetResult(exception); },
-                state: null,
-                timeout: TimeSpan.FromMilliseconds(Int32.MaxValue - 2),
-                executeOnlyOnce: true);
-
-            return tcs.Task;
+            return exception;
         }
     }
 }

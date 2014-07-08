@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -15,7 +16,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the display name of the xUnit.net v2 test framework.
         /// </summary>
-        public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
+        public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).GetTypeInfo().Assembly.GetName().Version);
 
         readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
 
@@ -42,7 +43,12 @@ namespace Xunit.Sdk
         {
             var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
             var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
-            var testAssembly = new XunitTestAssembly(assemblyInfo, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+
+            string config = null;
+#if !WINDOWS_PHONE_APP
+            config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+#endif
+            var testAssembly = new XunitTestAssembly(assemblyInfo, config);
 
             TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, testAssembly);
             TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",

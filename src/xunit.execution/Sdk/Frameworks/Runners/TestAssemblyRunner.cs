@@ -118,13 +118,17 @@ namespace Xunit.Sdk
         {
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
+#if !WINDOWS_PHONE_APP
             var currentDirectory = Directory.GetCurrentDirectory();
+#endif
             var testFrameworkEnvironment = GetTestFrameworkEnvironment();
             var testFrameworkDisplayName = GetTestFrameworkDisplayName();
 
             using (var messageBus = CreateMessageBus())
             {
-                Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
+#if !WINDOWS_PHONE_APP
+                    Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
+#endif
 
                 if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
                 {
@@ -145,8 +149,11 @@ namespace Xunit.Sdk
                     }
                     finally
                     {
+
                         messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
-                        Directory.SetCurrentDirectory(currentDirectory);
+#if !WINDOWS_PHONE_APP
+                    Directory.SetCurrentDirectory(currentDirectory);
+#endif
                     }
                 }
             }

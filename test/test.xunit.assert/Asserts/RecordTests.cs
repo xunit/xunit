@@ -33,7 +33,7 @@ public class RecordTests
         [Fact]
         public async void Exception()
         {
-            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+            Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
 
             var ex = await Record.ExceptionAsync(testCode);
 
@@ -44,7 +44,7 @@ public class RecordTests
         [Fact]
         public async void NoException()
         {
-            Func<Task> testCode = () => Task.Factory.StartNew(() => { });
+            Func<Task> testCode = () => Task.Run(() => { });
 
             var ex = await Record.ExceptionAsync(testCode);
 

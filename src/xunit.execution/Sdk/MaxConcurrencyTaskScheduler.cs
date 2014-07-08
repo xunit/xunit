@@ -1,94 +1,178 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xunit.Sdk
 {
+
+    // Code from http://msdn.microsoft.com/en-us/library/ee789351(v=vs.110).aspx
+
     /// <summary>
-    /// This class limits concurrency for all Tasks that are started with this scheduler, and
-    /// also uses the stopwatch from the dictionary based on the lookup key that is passed as
-    /// the async state to the task during creation. CallContext data is used to flow the
-    /// stopwatch lookup key throughout the process (when it's not present, it pulls the key
-    /// from the Task's AsyncState).
+    /// Provides a task scheduler that ensures a maximum concurrency level while  
+    /// running on top of the thread pool. 
     /// </summary>
     public class MaxConcurrencyTaskScheduler : TaskScheduler, IDisposable
     {
-        readonly int maximumConcurrencyLevel;
-        readonly ManualResetEvent terminate = new ManualResetEvent(false);
-        readonly List<Thread> workerThreads;
-        readonly ConcurrentQueue<Task> workQueue = new ConcurrentQueue<Task>();
-        readonly AutoResetEvent workReady = new AutoResetEvent(false);
+        // Indicates whether the current thread is processing work items.
+        [ThreadStatic]
+        private static bool _currentThreadIsProcessingItems;
+
+        // The list of tasks to be executed  
+        private readonly LinkedList<Task> _tasks = new LinkedList<Task>(); // protected by lock(_tasks) 
+
+        // The maximum concurrency level allowed by this scheduler.  
+        private readonly int _maxDegreeOfParallelism;
+
+        // Indicates whether the scheduler is currently processing work items.  
+        private int _delegatesQueuedOrRunning = 0;
+
+        private volatile bool _terminate;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MaxConcurrencyTaskScheduler"/> class.
+        /// Creates a new instance with the specified degree of parallelism.  
         /// </summary>
-        /// <param name="maximumConcurrencyLevel">The maximum number of tasks to run at any one time.</param>
-        public MaxConcurrencyTaskScheduler(int maximumConcurrencyLevel)
+        /// <param name="maxDegreeOfParallelism"></param>
+        public MaxConcurrencyTaskScheduler(int maxDegreeOfParallelism)
         {
-            this.maximumConcurrencyLevel = maximumConcurrencyLevel;
-
-            workerThreads = Enumerable.Range(0, this.maximumConcurrencyLevel)
-                                      .Select(_ => new Thread(WorkerThreadProc))
-                                      .ToList();
-
-            for (int idx = 0; idx < workerThreads.Count; idx++)
-                workerThreads[idx].Start(idx);
+            if (maxDegreeOfParallelism < 1) throw new ArgumentOutOfRangeException("maxDegreeOfParallelism");
+            _maxDegreeOfParallelism = maxDegreeOfParallelism;
         }
 
+        // Queues a task to the scheduler.  
+        protected sealed override void QueueTask(Task task)
+        {
+            // Add the task to the list of tasks to be processed.  If there aren't enough  
+            // delegates currently queued or running to process tasks, schedule another.  
+            lock (_tasks)
+            {
+                _tasks.AddLast(task);
+                if (_delegatesQueuedOrRunning < _maxDegreeOfParallelism)
+                {
+                    ++_delegatesQueuedOrRunning;
+                    NotifyThreadPoolOfPendingWork();
+                }
+            }
+        }
+
+        // Inform the ThreadPool that there's work to be executed for this scheduler.  
+        private void NotifyThreadPoolOfPendingWork()
+        {
+            if (_terminate)
+                return;
+
+            Task.Run(() =>
+            {
+                // Note that the current thread is now processing work items. 
+                // This is necessary to enable inlining of tasks into this thread.
+                _currentThreadIsProcessingItems = true;
+                try
+                {
+                    // Process all available items in the queue. 
+                    while (true)
+                    {
+                        Task item;
+                        lock (_tasks)
+                        {
+                            // When there are no more items to be processed, 
+                            // note that we're done processing, and get out. 
+                            if (_terminate)
+                                break;
+
+                            if (_tasks.Count == 0)
+                            {
+                                --_delegatesQueuedOrRunning;
+                                break;
+                            }
+
+                            // Get the next item from the queue
+                            item = _tasks.First.Value;
+                            _tasks.RemoveFirst();
+                        }
+
+                        // Execute the task we pulled out of the queue 
+                        base.TryExecuteTask(item);
+                    }
+                }
+                // We're done processing items on the current thread 
+                finally { _currentThreadIsProcessingItems = false; }
+            });
+        }
+
+        // Attempts to execute the specified task on the current thread.  
+        protected sealed override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
+        {
+            // If this thread isn't already processing a task, we don't support inlining 
+            if (!_currentThreadIsProcessingItems) return false;
+
+            // If the task was previously queued, remove it from the queue 
+            if (taskWasPreviouslyQueued)
+                // Try to run the task.  
+                if (TryDequeue(task))
+                {
+                    if (_terminate)
+                        return false;
+                    return base.TryExecuteTask(task);
+                }
+                else
+                    return false;
+            else
+            {
+                if (_terminate)
+                    return false;
+                return base.TryExecuteTask(task);
+            }
+        }
+
+        
         /// <inheritdoc/>
         public void Dispose()
         {
-            terminate.Set();
-            workerThreads.ForEach(t => t.Join());
-
-            terminate.Dispose();
-            workReady.Dispose();
-        }
-
-        /// <inheritdoc/>
-        public override int MaximumConcurrencyLevel
-        {
-            get { return maximumConcurrencyLevel; }
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        protected override IEnumerable<Task> GetScheduledTasks()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        protected override void QueueTask(Task task)
-        {
-            workQueue.Enqueue(task);
-            workReady.Set();
-        }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
-        {
-            return false;
-        }
-
-        [SecuritySafeCritical]
-        void WorkerThreadProc(object state)
-        {
-            while (true)
+            bool lockTaken = false;
+            try
             {
-                if (WaitHandle.WaitAny(new WaitHandle[] { workReady, terminate }) == 1)
-                    return;
+                Monitor.TryEnter(_tasks, ref lockTaken);
+                if (lockTaken)
+                {
+                    _terminate = true;
+                    _tasks.Clear();
+                }
+                
+            }
+            finally
+            {
+                if (lockTaken) 
+                    Monitor.Exit(_tasks);
+            }
+            
+        }
 
-                Task task;
-                while (workQueue.TryDequeue(out task))
-                    TryExecuteTask(task);
+
+        // Attempt to remove a previously scheduled task from the scheduler.  
+        protected sealed override bool TryDequeue(Task task)
+        {
+            lock (_tasks) return _tasks.Remove(task);
+        }
+
+        // Gets the maximum concurrency level supported by this scheduler.  
+        public sealed override int MaximumConcurrencyLevel { get { return _maxDegreeOfParallelism; } }
+
+        // Gets an enumerable of the tasks currently scheduled on this scheduler.  
+        protected sealed override IEnumerable<Task> GetScheduledTasks()
+        {
+            bool lockTaken = false;
+            try
+            {
+                Monitor.TryEnter(_tasks, ref lockTaken);
+                if (lockTaken) return _tasks;
+                else throw new NotSupportedException();
+            }
+            finally
+            {
+                if (lockTaken) Monitor.Exit(_tasks);
             }
         }
     }
+
 }
