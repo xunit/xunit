@@ -16,20 +16,11 @@
       <xUnitLibs Include="$(MSBuildThisFileDirectory)..\..\lib\Wpa81\WinRT\xunit.runner.utility.pri">
         <TargetPath>xunit.runner.utility.pri</TargetPath>
       </xUnitLibs>
-      <xUnitLibs Include="$(MSBuildThisFileDirectory)..\..\lib\Wpa81\WinRT\xunit.runner.visualstudio.testadapter.dll">
-        <TargetPath>xunit.runner.visualstudio.testadapter.dll</TargetPath>
-      </xUnitLibs>
-      <xUnitLibs Include="$(MSBuildThisFileDirectory)..\..\lib\Wpa81\WinRT\xunit.runner.visualstudio.testadapter.pri">
-        <TargetPath>xunit.runner.visualstudio.testadapter.pri</TargetPath>
-      </xUnitLibs>
 
       <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.execution.dll'"/>
       <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.execution.pdb'"/>
       <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.utility.dll'"/>
       <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.utility.pdb'"/>
-      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.visualstudio.testadapter.dll'"/>
-      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.visualstudio.testadapter.pdb'"/>
-
 
       <AppxPackagePayload Remove="@(xUnitLibsToRemove)" />
       <AppxPackagePayload Include="@(xUnitLibs)" />

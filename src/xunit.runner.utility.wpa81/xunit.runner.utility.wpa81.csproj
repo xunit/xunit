@@ -33,6 +33,7 @@
     <DefineConstants>TRACE;NETFX_CORE;WINDOWS_PHONE_APP;NO_APPDOMAIN;NEW_REFLECTION</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\xunit.runner.utility.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -133,7 +134,7 @@
       <Link>Serialization\SerializationInfo.cs</Link>
     </Compile>
   </ItemGroup>
-    <ItemGroup>
+  <ItemGroup>
     <Compile Include="..\xunit.runner.utility\**\*.cs">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>

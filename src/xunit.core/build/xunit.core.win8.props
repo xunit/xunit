@@ -9,9 +9,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
     </Content>
-     <Content Include="$(MSBuildThisFileDirectory)..\..\lib\Win8\xunit.runner.visualstudio.testadapter.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
   </ItemGroup>
 </Project>

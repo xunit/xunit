@@ -7,7 +7,7 @@
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
       Includes the version-independent runner for xUnit.net to run both v1 and v2 tests (xunit.runner.utility.dll).
-      Supported platforms: Desktop .NET 3.5+.
+      Supported platforms: Desktop .NET 3.5+, iOS, Android, WPA81
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -31,11 +31,16 @@
     <file src="xunit.runner.utility.android\bin\Release\xunit.runner.utility.dll" target="lib\monoandroid\xunit.runner.utility.dll" />
     <file src="xunit.runner.utility.android\bin\Release\xunit.runner.utility.pdb" target="lib\monoandroid\xunit.runner.utility.pdb" />
     <file src="xunit.runner.utility.android\bin\Release\xunit.runner.utility.xml" target="lib\monoandroid\xunit.runner.utility.xml" />
+    
+    <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.dll" target="lib\wpa81\xunit.runner.utility.dll" />
+    <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.pdb" target="lib\wpa81\xunit.runner.utility.pdb" />
+    <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.xml" target="lib\wpa81\xunit.runner.utility.xml" />
 
     <file src="xunit.runner.utility\**\*.cs" target="src\xunit.runner.utility" />
     <file src="xunit.runner.utility.android\**\*.cs" target="src\xunit.runner.utility.android" />
     <file src="xunit.runner.utility.iOS\**\*.cs" target="src\xunit.runner.utility.iOS" />
     <file src="xunit.runner.utility.net35\**\*.cs" target="src\xunit.runner.utility.net35" />
+    <file src="xunit.runner.utility.wpa81\**\*.cs" target="src\xunit.runner.utility.wpa81" />
     <file src="messages\**\*.cs" target="src\messages" />
     <file src="common\**\*.cs" target="src\common" />
   </files>
