@@ -23,14 +23,14 @@ namespace Xunit.Sdk
         {
             DisposalTracker = new DisposalTracker();
             SourceInformationProvider = sourceInformationProvider;
-            Assembly = Assembly.Load(assemblyName);
-            AssemblyInfo = Reflector.Wrap(Assembly);
-        }
 
-        /// <summary>
-        /// Gets the assembly that contains the tests.
-        /// </summary>
-        protected Assembly Assembly { get; set; }
+#if !WIN8_STORE || WINDOWS_PHONE_APP
+            var assembly = Assembly.Load(assemblyName);
+#else
+            var assembly = Assembly.Load(assemblyName.Name);
+#endif
+            AssemblyInfo = Reflector.Wrap(assembly);
+        }
 
         /// <summary>
         /// Gets the assembly information of the assembly under test.

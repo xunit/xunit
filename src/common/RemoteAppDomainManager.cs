@@ -13,9 +13,8 @@ namespace Xunit
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
 
             assemblyFileName = Path.GetFullPath(assemblyFileName);
-#if !ANDROID
-            Guard.ArgumentValid("assemblyFileName", "Could not find file: " + assemblyFileName, File.Exists(assemblyFileName));
-#endif
+            Guard.FileExists("assemblyFileName", assemblyFileName);
+
             if (configFileName == null)
                 configFileName = GetDefaultConfigFile(assemblyFileName);
 
@@ -24,9 +23,7 @@ namespace Xunit
 
             AssemblyFileName = assemblyFileName;
             ConfigFileName = configFileName;
-#if !NO_APPDOMAIN
             AppDomain = CreateAppDomain(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
-#endif
         }
 
         public AppDomain AppDomain { get; private set; }
@@ -35,7 +32,6 @@ namespace Xunit
 
         public string ConfigFileName { get; private set; }
 
-#if !NO_APPDOMAIN
         static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy, string shadowCopyFolder)
         {
             var setup = new AppDomainSetup();
@@ -51,23 +47,15 @@ namespace Xunit
 
             setup.ConfigurationFile = configFilename;
 
-            return AppDomain.CreateDomain(setup.ApplicationName, null, setup, new PermissionSet(PermissionState.Unrestricted));
-
+            return AppDomain.CreateDomain(Path.GetFileNameWithoutExtension(assemblyFilename), null, setup, new PermissionSet(PermissionState.Unrestricted));
         }
-#endif
 
         public TObject CreateObject<TObject>(string assemblyName, string typeName, params object[] args)
         {
             try
             {
-#if !NO_APPDOMAIN
                 object unwrappedObject = AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName, false, 0, null, args, null, null, null);
                 return (TObject)unwrappedObject;
-#else
-                var objHandle = Activator.CreateInstance(AppDomain.CurrentDomain, assemblyName, typeName, false, BindingFlags.Default, null, args, null, null);
-                return (TObject)objHandle.Unwrap();                    
-#endif
-                
             }
             catch (TargetInvocationException ex)
             {
@@ -78,7 +66,6 @@ namespace Xunit
 
         public virtual void Dispose()
         {
-#if !NO_APPDOMAIN
             if (AppDomain != null)
             {
                 string cachePath = AppDomain.SetupInformation.CachePath;
@@ -92,7 +79,6 @@ namespace Xunit
                 }
                 catch { }
             }
-#endif
         }
 
         static string GetDefaultConfigFile(string assemblyFile)

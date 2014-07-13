@@ -182,10 +182,10 @@ public class XunitTestAssemblyRunnerTests
     class ClassUnderTest
     {
         [Fact]
-        public void Passing() { }
+        public void Passing() { Thread.Sleep(0); }
 
         [Fact]
-        public void Other() { }
+        public void Other() { Thread.Sleep(0); }
     }
 
     class TestableXunitTestAssemblyRunner : XunitTestAssemblyRunner

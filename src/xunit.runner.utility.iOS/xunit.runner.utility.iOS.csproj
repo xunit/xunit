@@ -41,6 +41,9 @@
     <Compile Include="..\common\AssemblyExtensions.cs">
       <Link>Common\AssemblyExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\common\AssemblyHelper.cs">
+      <Link>Common\AssemblyHelper.cs</Link>
+    </Compile>
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
@@ -55,6 +58,12 @@
     </Compile>
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
+    </Compile>
+    <Compile Include="..\common\LongLivedMarshalByRefObject_Runner_NoAppDomain.cs">
+      <Link>Common\LongLivedMarshalByRefObject_Runner_NoAppDomain.cs</Link>
+    </Compile>
+    <Compile Include="..\common\RemoteAppDomainManager_NoAppDomain.cs">
+      <Link>Common\RemoteAppDomainManager_NoAppDomain.cs</Link>
     </Compile>
     <Compile Include="..\common\SerializationInfoExtensions.cs">
       <Link>Common\SerializationInfoExtensions.cs</Link>

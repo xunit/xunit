@@ -19,7 +19,7 @@ namespace Xunit.Sdk
     {
         readonly int maximumConcurrencyLevel;
         readonly ManualResetEvent terminate = new ManualResetEvent(false);
-        readonly List<Thread> workerThreads;
+        readonly List<XunitWorkerThread> workerThreads;
         readonly ConcurrentQueue<Task> workQueue = new ConcurrentQueue<Task>();
         readonly AutoResetEvent workReady = new AutoResetEvent(false);
 
@@ -32,18 +32,17 @@ namespace Xunit.Sdk
             this.maximumConcurrencyLevel = maximumConcurrencyLevel;
 
             workerThreads = Enumerable.Range(0, this.maximumConcurrencyLevel)
-                                      .Select(_ => new Thread(WorkerThreadProc))
+                                      .Select(_ => new XunitWorkerThread(WorkerThreadProc))
                                       .ToList();
-
-            for (int idx = 0; idx < workerThreads.Count; idx++)
-                workerThreads[idx].Start(idx);
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
             terminate.Set();
-            workerThreads.ForEach(t => t.Join());
+
+            foreach (var workerThread in workerThreads)
+                workerThread.Join();
 
             terminate.Dispose();
             workReady.Dispose();
@@ -78,7 +77,7 @@ namespace Xunit.Sdk
         }
 
         [SecuritySafeCritical]
-        void WorkerThreadProc(object state)
+        void WorkerThreadProc()
         {
             while (true)
             {

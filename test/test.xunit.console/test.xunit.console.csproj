@@ -72,8 +72,6 @@
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Utility\StackFrameTransformerTests.cs" />
-    <Compile Include="Utility\TransformFactoryFacts.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.abstractions.net35\xunit.abstractions.net35.csproj">

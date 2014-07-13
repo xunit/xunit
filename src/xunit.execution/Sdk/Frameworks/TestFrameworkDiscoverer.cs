@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
-using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -90,7 +90,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("messageSink", messageSink);
             Guard.ArgumentNotNull("options", options);
 
-            ThreadPool.QueueUserWorkItem(_ =>
+            Task.Run(() =>
             {
                 using (var messageBus = new MessageBus(messageSink))
                 using (new PreserveWorkingFolder(AssemblyInfo))
@@ -115,7 +115,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("messageSink", messageSink);
             Guard.ArgumentNotNull("options", options);
 
-            ThreadPool.QueueUserWorkItem(_ =>
+            Task.Run(() =>
             {
                 using (var messageBus = new MessageBus(messageSink))
                 using (new PreserveWorkingFolder(AssemblyInfo))
@@ -190,19 +190,25 @@ namespace Xunit.Sdk
 
         class PreserveWorkingFolder : IDisposable
         {
+#if !WINDOWS_PHONE_APP
             readonly string originalWorkingFolder;
+#endif
 
             public PreserveWorkingFolder(IAssemblyInfo assemblyInfo)
             {
+#if !WINDOWS_PHONE_APP
                 originalWorkingFolder = Directory.GetCurrentDirectory();
 
                 if (!String.IsNullOrEmpty(assemblyInfo.AssemblyPath))
                     Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
+#endif
             }
 
             public void Dispose()
             {
+#if !WINDOWS_PHONE_APP
                 Directory.SetCurrentDirectory(originalWorkingFolder);
+#endif
             }
         }
     }

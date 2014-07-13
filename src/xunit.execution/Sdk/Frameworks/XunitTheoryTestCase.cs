@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,11 @@ namespace Xunit.Sdk
     [Serializable]
     public class XunitTheoryTestCase : XunitTestCase
     {
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Called by the de-serializer", error: true)]
+        public XunitTheoryTestCase() { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTheoryTestCase"/> class.
         /// </summary>

@@ -11,7 +11,7 @@ namespace Xunit
     /// </summary>
     public class AssemblyHelper : IDisposable
     {
-        string folder;
+        readonly string folder;
 
         AssemblyHelper(string folder)
         {
@@ -20,19 +20,13 @@ namespace Xunit
             AppDomain.CurrentDomain.AssemblyResolve += Resolve;
         }
 
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
-        }
-
         Assembly LoadAssembly(AssemblyName assemblyName)
         {
-            string path = Path.Combine(folder, assemblyName.Name);
+            var path = Path.Combine(folder, assemblyName.Name);
             return LoadAssembly(path + ".dll") ?? LoadAssembly(path + ".exe");
         }
 
-        Assembly LoadAssembly(string assemblyPath)
+        static Assembly LoadAssembly(string assemblyPath)
         {
             try
             {
@@ -57,6 +51,12 @@ namespace Xunit
         public static IDisposable SubscribeResolve()
         {
             return new AssemblyHelper(Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()));
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
         }
     }
 }

@@ -42,13 +42,11 @@ namespace Xunit
             this.shadowCopyFolder = shadowCopyFolder;
             this.sourceInformationProvider = sourceInformationProvider;
 
-#if !ANDROID
             Guard.FileExists("assemblyFileName", assemblyFileName);
-#endif
 
             if (this.sourceInformationProvider == null)
             {
-#if !XAMARIN
+#if !XAMARIN && !WINDOWS_PHONE_APP
                 this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
 #else
                 this.sourceInformationProvider = new NullSourceInformationProvider();
@@ -89,7 +87,8 @@ namespace Xunit
         /// </summary>
         protected virtual IFrontController CreateInnerController()
         {
-#if !XAMARIN
+            // TODO: Refactor this method -- too many ifdefs
+#if !XAMARIN && !WINDOWS_PHONE_APP
             var xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
 #endif
             var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
@@ -98,12 +97,12 @@ namespace Xunit
             if (File.Exists(xunitExecutionPath))
 #endif
                 return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
-#if !XAMARIN
+#if !XAMARIN && !WINDOWS_PHONE_APP
             if (File.Exists(xunitPath))
                 return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #endif
 
-#if XAMARIN
+#if XAMARIN || WINDOWS_PHONE_APP
             throw new ArgumentException("Unknown test framework: Could not find xunit.execution.dll.", assemblyFileName);
 #else
             throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit.execution.dll.", assemblyFileName);

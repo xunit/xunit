@@ -59,6 +59,12 @@
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\common\LongLivedMarshalByRefObject_Execution_NoAppDomain.cs">
+      <Link>Common\LongLivedMarshalByRefObject_Execution_NoAppDomain.cs</Link>
+    </Compile>
+    <Compile Include="..\common\SerializationHelper_BinarySerializer.cs">
+      <Link>Common\SerializationHelper_BinarySerializer.cs</Link>
+    </Compile>
     <Compile Include="..\common\SerializationInfoExtensions.cs">
       <Link>Common\SerializationInfoExtensions.cs</Link>
     </Compile>
@@ -70,6 +76,9 @@
     </Compile>
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
+    </Compile>
+    <Compile Include="..\common\XunitWorkerThread_Thread.cs">
+      <Link>Common\XunitWorkerThread_Thread.cs</Link>
     </Compile>
     <Compile Include="..\xunit.assert\asserts\sdk\AssertEqualityComparer.cs">
       <Link>Sdk\AssertEqualityComparer.cs</Link>

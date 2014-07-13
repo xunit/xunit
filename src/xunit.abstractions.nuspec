@@ -16,8 +16,11 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
   </metadata>
   <files>
+    <!-- Desktop -->
     <file src="xunit.abstractions.net35\bin\Release\xunit.abstractions.dll" target="lib\net35\xunit.abstractions.dll" />
     <file src="xunit.abstractions.net35\bin\Release\xunit.abstractions.xml" target="lib\net35\xunit.abstractions.xml" />
+    
+    <!-- PCL, Win8, WPA81, iOS, Android -->
     <file src="xunit.abstractions.pcl\bin\Release\xunit.abstractions.dll" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.abstractions.dll" />
     <file src="xunit.abstractions.pcl\bin\Release\xunit.abstractions.xml" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.abstractions.xml" />
   </files>

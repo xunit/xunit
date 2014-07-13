@@ -16,6 +16,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
   </metadata>
   <files>
+    <!-- Desktop -->
     <file src="xunit.console\HTML.xslt" target="tools\HTML.xslt" />
     <file src="xunit.console\xUnit1.xslt" target="tools\xUnit1.xslt" />
     <file src="xunit.console\bin\Release\xunit.console.exe" target="tools\xunit.console.exe" />

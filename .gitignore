@@ -2,6 +2,7 @@
 [Oo]bj
 packages
 help
+AppPackages
 
 *.suo
 *.user
@@ -16,6 +17,11 @@ help
 *.dll
 *.ncrunch*
 *.vsix
+
+*.vsps
+*.vspx
+*.vsp
+*.psess
 
 Test*.html
 Test*.xml

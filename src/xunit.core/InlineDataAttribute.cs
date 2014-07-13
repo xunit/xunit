@@ -13,17 +13,22 @@ namespace Xunit
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class InlineDataAttribute : DataAttribute
     {
+        private readonly object[] data;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="InlineDataAttribute"/> class.
         /// </summary>
         /// <param name="data">The data values to pass to the theory.</param>
-        public InlineDataAttribute(params object[] data) { }
+        public InlineDataAttribute(params object[] data)
+        {
+            this.data = data;
+        }
 
         /// <inheritdoc/>
         public override IEnumerable<object[]> GetData(MethodInfo testMethod)
         {
-            // This should never be called, because the discoverer can always find the data.
-            throw new InvalidOperationException();
+            // This is called by the WPA81 version as it does not have access to attribute ctor params
+            return new[] { data };
         }
     }
 }

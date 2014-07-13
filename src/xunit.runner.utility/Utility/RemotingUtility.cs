@@ -1,6 +1,4 @@
-﻿using System.Runtime.Remoting.Channels;
-
-namespace Xunit
+﻿namespace Xunit
 {
     /// <summary>
     /// Internal helper class for remoting.
@@ -20,8 +18,10 @@ namespace Xunit
         /// </remarks>
         public static void CleanUpRegisteredChannels()
         {
-            foreach (IChannel chan in ChannelServices.RegisteredChannels)
-                ChannelServices.UnregisterChannel(chan);
+#if !WINDOWS_PHONE_APP
+            foreach (var channel in System.Runtime.Remoting.Channels.ChannelServices.RegisteredChannels)
+                System.Runtime.Remoting.Channels.ChannelServices.UnregisterChannel(channel);
+#endif
         }
     }
 }

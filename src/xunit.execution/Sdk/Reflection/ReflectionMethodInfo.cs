@@ -66,7 +66,12 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITypeInfo Type
         {
+#if WINDOWS_PHONE_APP
+            // WinRT/"new reflection" does not have ReflectedType on MethodInfo
+            get { throw new NotSupportedException(); }
+#else
             get { return Reflector.Wrap(MethodInfo.ReflectedType); }
+#endif
         }
 
         /// <inheritdoc/>
@@ -84,13 +89,15 @@ namespace Xunit.Sdk
 
         static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType, AttributeUsageAttribute attributeUsage)
         {
+
+            // TODO: Does this need to be CustomAttributeData?
             IEnumerable<IAttributeInfo> results =
-                CustomAttributeData.GetCustomAttributes(method)
-                                   .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.ReflectedType))
-                                   .OrderBy(attr => attr.Constructor.ReflectedType.Name)
-                                   .Select(Reflector.Wrap)
-                                   .Cast<IAttributeInfo>()
-                                   .ToList();
+                method.CustomAttributes
+                      .Where(attr => attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
+                      .OrderBy(attr => attr.AttributeType.Name)
+                      .Select(Reflector.Wrap)
+                      .Cast<IAttributeInfo>()
+                      .ToList();
 
             if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || !results.Any()))
             {
@@ -114,14 +121,14 @@ namespace Xunit.Sdk
             if (!method.IsVirtual)
                 return null;
 
-            var baseType = method.DeclaringType.BaseType;
+            var baseType = method.DeclaringType.GetTypeInfo().BaseType;
             if (baseType == null)
                 return null;
 
             var methodParameters = method.GetParameters().Select(p => p.ParameterType).ToArray();
             var methodGenericArgCount = method.GetGenericArguments().Length;
 
-            return baseType.GetMethods(method.GetBindingFlags())
+            return baseType.GetMatchingMethods(method)
                            .SingleOrDefault(m => m.Name == method.Name
                                               && m.GetGenericArguments().Length == methodGenericArgCount
                                               && TypeListComparer.Equals(m.GetParameters().Select(p => p.ParameterType).ToArray(), methodParameters));

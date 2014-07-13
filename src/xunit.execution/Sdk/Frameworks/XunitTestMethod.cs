@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
 using Xunit.Abstractions;
+using Xunit.Serialization;
 
 namespace Xunit.Sdk
 {
@@ -11,8 +13,13 @@ namespace Xunit.Sdk
     /// </summary>
     [Serializable]
     [DebuggerDisplay(@"\{ class = {TestClass.Class.Name}, method = {Method.Name} \}")]
-    public class XunitTestMethod : LongLivedMarshalByRefObject, ITestMethod, ISerializable
+    public class XunitTestMethod : LongLivedMarshalByRefObject, ITestMethod, ISerializable, IGetTypeData
     {
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Called by the de-serializer", error: true)]
+        public XunitTestMethod() { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestMethod"/> class.
         /// </summary>
@@ -20,6 +27,29 @@ namespace Xunit.Sdk
         {
             Method = method;
             TestClass = testClass;
+        }
+
+        /// <inheritdoc/>
+        public IMethodInfo Method { get; set; }
+
+        /// <inheritdoc/>
+        public ITestClass TestClass { get; set; }
+
+        // -------------------- Serialization --------------------
+
+        /// <inheritdoc/>
+        [SecurityCritical]
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("MethodName", Method.Name);
+            info.AddValue("TestClass", TestClass);
+        }
+
+        /// <inheritdoc/>
+        public void GetData(XunitSerializationInfo info)
+        {
+            info.AddValue("MethodName", Method.Name);
+            info.AddValue("TestClass", TestClass);
         }
 
         /// <inheritdoc/>
@@ -33,17 +63,13 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public IMethodInfo Method { get; set; }
-
-        /// <inheritdoc/>
-        public ITestClass TestClass { get; set; }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void SetData(XunitSerializationInfo info)
         {
-            info.AddValue("MethodName", Method.Name);
-            info.AddValue("TestClass", TestClass);
+            TestClass = info.GetValue<ITestClass>("TestClass");
+
+            var methodName = info.GetString("MethodName");
+
+            Method = TestClass.Class.GetMethod(methodName, includePrivateMethod: false);
         }
     }
 }

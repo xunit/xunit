@@ -1,4 +1,12 @@
-﻿using System.Runtime.Serialization;
+﻿#if XUNIT_CORE_DLL
+using Xunit.Serialization;
+#endif
+
+#if WINDOWS_PHONE_APP
+using Xunit;
+#else
+using System.Runtime.Serialization;
+#endif
 
 internal static class SerializationInfoExtensions
 {
@@ -6,4 +14,11 @@ internal static class SerializationInfoExtensions
     {
         return (T)info.GetValue(name, typeof(T));
     }
+
+#if XUNIT_CORE_DLL
+    public static T GetValue<T>(this XunitSerializationInfo info, string name)
+    {
+        return (T)info.GetValue(name, typeof(T));
+    }
+#endif
 }

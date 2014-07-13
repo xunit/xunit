@@ -1,15 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Serialization;
+
+#if !WINDOWS_PHONE_APP
+using System.Security.Cryptography;
+#else
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -19,11 +28,20 @@ namespace Xunit.Sdk
     /// </summary>
     [Serializable]
     [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
-    public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable
+    public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable, IGetTypeData
     {
+#if !WINDOWS_PHONE_APP
         readonly static HashAlgorithm Hasher = new SHA1Managed();
+#else
+        readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
+#endif
 
         Lazy<string> uniqueID;
+
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Called by the de-serializer", error: true)]
+        public XunitTestCase() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCase"/> class.
@@ -33,15 +51,6 @@ namespace Xunit.Sdk
         public XunitTestCase(ITestMethod testMethod, object[] testMethodArguments = null)
         {
             Initialize(testMethod, testMethodArguments);
-        }
-
-        /// <inheritdoc/>
-        protected XunitTestCase(SerializationInfo info, StreamingContext context)
-        {
-            var arguments = info.GetValue<object[]>("TestMethodArguments");
-            var testMethod = info.GetValue<ITestMethod>("TestMethod");
-
-            Initialize(testMethod, arguments);
         }
 
         void Initialize(ITestMethod testMethod, object[] arguments)
@@ -110,14 +119,6 @@ namespace Xunit.Sdk
                     disposable.Dispose();
         }
 
-        /// <inheritdoc/>
-        [SecurityCritical]
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("TestMethod", TestMethod);
-            info.AddValue("TestMethodArguments", TestMethodArguments);
-        }
-
         string GetUniqueID()
         {
             using (var stream = new MemoryStream())
@@ -130,7 +131,13 @@ namespace Xunit.Sdk
                     Write(stream, SerializationHelper.Serialize(TestMethodArguments));
 
                 stream.Position = 0;
-                var hash = Hasher.ComputeHash(stream);
+#if !WINDOWS_PHONE_APP
+                byte[] hash = Hasher.ComputeHash(stream);
+#else
+                var buffer = CryptographicBuffer.CreateFromByteArray(stream.ToArray());
+                var hash = Hasher.HashData(buffer).ToArray();
+
+#endif
                 return String.Join("", hash.Select(x => x.ToString("x2")).ToArray());
             }
         }
@@ -146,6 +153,41 @@ namespace Xunit.Sdk
         public virtual Task<RunSummary> RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             return new XunitTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, TestMethodArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
+        }
+
+        // -------------------- Serialization --------------------
+
+        /// <inheritdoc/>
+        [SecurityCritical]
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("TestMethod", TestMethod);
+            info.AddValue("TestMethodArguments", TestMethodArguments);
+        }
+
+        /// <inheritdoc/>
+        public virtual void GetData(XunitSerializationInfo data)
+        {
+            // TODO: Should throw when TestMethodArguments is not null/empty?
+            data.AddValue("TestMethod", TestMethod);
+            data.AddValue("TestMethodArguments", TestMethodArguments);
+        }
+
+        /// <inheritdoc/>
+        protected XunitTestCase(SerializationInfo info, StreamingContext context)
+        {
+            var arguments = info.GetValue<object[]>("TestMethodArguments");
+            var testMethod = info.GetValue<ITestMethod>("TestMethod");
+
+            Initialize(testMethod, arguments);
+        }
+
+        /// <inheritdoc/>
+        public void SetData(XunitSerializationInfo data)
+        {
+            var testMethod = data.GetValue<ITestMethod>("TestMethod");
+
+            Initialize(testMethod, new object[0]);
         }
     }
 }

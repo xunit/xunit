@@ -10,10 +10,10 @@ get-process -name "msbuild" -ea SilentlyContinue | %{ stop-process $_.ID -force 
 
 $msbuilds = @(get-command msbuild -ea SilentlyContinue)
 if ($msbuilds.Count -eq 0) {
-    $msbuild = join-path $env:windir "Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
-} else {
-    $msbuild = $msbuilds[0].Definition
+    throw "MSBuild could not be found in the path. Please ensure MSBuild v12 (from Visual Studio 2013) is in the path."
 }
+
+$msbuild = $msbuilds[0].Definition
 
 if ($maxCpuCount -lt 1) {
     $maxCpuCountText = $Env:MSBuildProcessorCount

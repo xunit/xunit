@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
 using Xunit.Abstractions;
+using Xunit.Serialization;
 
 namespace Xunit.Sdk
 {
@@ -11,8 +13,13 @@ namespace Xunit.Sdk
     /// </summary>
     [Serializable]
     [DebuggerDisplay(@"\{ class = {Class.Name} \}")]
-    public class XunitTestClass : LongLivedMarshalByRefObject, ITestClass, ISerializable
+    public class XunitTestClass : LongLivedMarshalByRefObject, ITestClass, ISerializable, IGetTypeData
     {
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Called by the de-serializer", error: true)]
+        public XunitTestClass() { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestClass"/> class.
         /// </summary>
@@ -20,6 +27,31 @@ namespace Xunit.Sdk
         {
             Class = @class;
             TestCollection = testCollection;
+        }
+
+        /// <inheritdoc/>
+        public ITypeInfo Class { get; set; }
+
+        /// <inheritdoc/>
+        public ITestCollection TestCollection { get; set; }
+
+        // -------------------- Serialization --------------------
+
+        /// <inheritdoc/>
+        [SecurityCritical]
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("TestCollection", TestCollection);
+            info.AddValue("ClassAssemblyName", Class.Assembly.Name);
+            info.AddValue("ClassTypeName", Class.Name);
+        }
+
+        /// <inheritdoc/>
+        public void GetData(XunitSerializationInfo info)
+        {
+            info.AddValue("TestCollection", TestCollection);
+            info.AddValue("ClassAssemblyName", Class.Assembly.Name);
+            info.AddValue("ClassTypeName", Class.Name);
         }
 
         /// <inheritdoc/>
@@ -34,18 +66,14 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public ITypeInfo Class { get; set; }
-
-        /// <inheritdoc/>
-        public ITestCollection TestCollection { get; set; }
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void SetData(XunitSerializationInfo info)
         {
-            info.AddValue("TestCollection", TestCollection);
-            info.AddValue("ClassAssemblyName", Class.Assembly.Name);
-            info.AddValue("ClassTypeName", Class.Name);
+            TestCollection = info.GetValue<ITestCollection>("TestCollection");
+
+            var assemblyName = info.GetString("ClassAssemblyName");
+            var typeName = info.GetString("ClassTypeName");
+
+            Class = Reflector.Wrap(Reflector.GetType(assemblyName, typeName));
         }
     }
 }

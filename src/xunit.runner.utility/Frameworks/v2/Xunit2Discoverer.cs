@@ -41,18 +41,11 @@ namespace Xunit
                          string shadowCopyFolder)
         {
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
-#if !ANDROID
-            Guard.ArgumentValid("xunitExecutionAssemblyPath", "File not found: " + xunitExecutionAssemblyPath, File.Exists(xunitExecutionAssemblyPath));
-#endif
+            Guard.FileExists("xunitExecutionAssemblyPath", xunitExecutionAssemblyPath);
+
             appDomain = new RemoteAppDomainManager(assemblyFileName ?? xunitExecutionAssemblyPath, configFileName, shadowCopy, shadowCopyFolder);
 
-#if !ANDROID
-            var name = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
-            var testFrameworkAssemblyName = name.FullName;
-#else
-            var name = Assembly.Load(xunitExecutionAssemblyPath);
-            var testFrameworkAssemblyName = name.FullName;
-#endif
+            var testFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
             if (assemblyInfo == null)
@@ -60,6 +53,21 @@ namespace Xunit
 
             framework = appDomain.CreateObject<ITestFramework>(testFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider);
             discoverer = Framework.GetDiscoverer(assemblyInfo);
+        }
+
+        private static string GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
+        {
+#if ANDROID
+            // Android needs to just load the assembly
+            var name = Assembly.Load(xunitExecutionAssemblyPath);
+#elif WINDOWS_PHONE_APP
+            // WPA81 needs an AssemblyName that has the assembly short name (w/o extension)
+            var name = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath) }).GetName();
+#else
+            var name = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
+#endif
+
+            return name.FullName;
         }
 
         /// <summary>
@@ -128,9 +136,7 @@ namespace Xunit
         static string GetXunitExecutionAssemblyPath(string assemblyFileName)
         {
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
-#if !ANDROID
-            Guard.ArgumentValid("assemblyFileName", "File not found: " + assemblyFileName, File.Exists(assemblyFileName));
-#endif
+            Guard.FileExists("assemblyFileName", assemblyFileName);
 
             return Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
         }

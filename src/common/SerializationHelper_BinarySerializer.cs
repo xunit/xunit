@@ -13,14 +13,23 @@ namespace Xunit.Sdk
     {
         static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// De-serializes an object.
+        /// </summary>
+        /// <typeparam name="T">The type of the object</typeparam>
+        /// <param name="serializedValue">The object's serialized value</param>
+        /// <returns>The de-serialized object</returns>
         public static T Deserialize<T>(string serializedValue)
         {
             using (var stream = new MemoryStream(Convert.FromBase64String(serializedValue)))
                 return (T)BinaryFormatter.Deserialize(stream);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Serializes an object.
+        /// </summary>
+        /// <param name="value">The value to serialize</param>
+        /// <returns>The serialized value</returns>
         public static string Serialize(object value)
         {
             using (var stream = new MemoryStream())

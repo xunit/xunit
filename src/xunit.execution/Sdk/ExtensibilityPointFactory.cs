@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -12,6 +13,7 @@ namespace Xunit.Sdk
     {
         static readonly DisposalTracker disposalTracker = new DisposalTracker();
         static readonly ConcurrentDictionary<Type, object> instances = new ConcurrentDictionary<Type, object>();
+        static readonly TypeInfo testAssemblyTypeInfo = typeof(ITestAssembly).GetTypeInfo();
 
         private static object CreateInstance(Type type, object[] ctorArgs)
         {
@@ -161,10 +163,28 @@ namespace Xunit.Sdk
             }
 
             var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
-            if (result == null || !typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(ITestAssembly) }) == null)
+            if (result == null || !IsCompatibleTestCollectionFactory(result))
                 return typeof(CollectionPerClassTestCollectionFactory);
 
             return result;
+        }
+
+        private static bool IsCompatibleTestCollectionFactory(Type result)
+        {
+            var resultTypeInfo = result.GetTypeInfo();
+
+            if (!typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(resultTypeInfo))
+                return false;
+
+            return resultTypeInfo.DeclaredConstructors
+                                 .Any(ctor =>
+                                      {
+                                          var parameters = ctor.GetParameters();
+                                          if (parameters.Length != 1)
+                                              return false;
+
+                                          return testAssemblyTypeInfo.IsAssignableFrom(parameters[0].ParameterType.GetTypeInfo());
+                                      });
         }
     }
 }

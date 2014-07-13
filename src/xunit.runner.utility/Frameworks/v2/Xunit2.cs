@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Xunit.Abstractions;
 
@@ -25,11 +26,14 @@ namespace Xunit
         public Xunit2(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null)
             : base(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
         {
-#if !ANDROID
-            AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
-#else
+#if ANDROID
             var assm = Assembly.Load(assemblyFileName);
-            AssemblyName assemblyName = assm.GetName();
+            var assemblyName = assm.GetName();
+#elif WINDOWS_PHONE_APP
+            var assm = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) });
+            var assemblyName = new AssemblyName { Name = assm.GetName().Name };
+#else
+            var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
 #endif
             executor = Framework.GetExecutor(assemblyName);
         }
