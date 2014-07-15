@@ -156,6 +156,7 @@
     <None Include="..\signing.snk">
       <Link>signing.snk</Link>
     </None>
+    <None Include="build\xunit.runner.utility.targets" />
   </ItemGroup>
   <ItemGroup>
     <TargetPlatform Include="Windows, Version=8.1" />

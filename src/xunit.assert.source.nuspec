@@ -13,8 +13,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
   </metadata>
   <files>
-    <file src="xunit.assert\Asserts\*.cs" target="Content\Asserts" />
-    <file src="xunit.assert\Asserts\Sdk\*.cs" target="Content\Asserts\Sdk" />
-    <file src="xunit.assert\Asserts\Sdk\Exceptions\*.cs" target="Content\Asserts\Sdk\Exceptions" />
+    <file src="xunit.assert\Asserts\**\*.cs" target="Content\Asserts" />
   </files>
 </package>

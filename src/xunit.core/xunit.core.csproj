@@ -91,11 +91,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build\xunit.core.wpa81.targets" />
-    <None Include="build\xunit.core.wpa81.props" />
-    <None Include="build\xunit.core.empty.props" />
+    <None Include="build\xunit.core.targets" />
     <None Include="build\xunit.core.props" />
-    <None Include="build\xunit.core.win8.props" />
     <None Include="xunit.core.dll.tdnet">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
