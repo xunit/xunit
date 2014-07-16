@@ -49,7 +49,7 @@
     <file src="xunit.runner.utility.net35\**\*.cs"             target="src\xunit.runner.utility.net35" />
     <file src="xunit.runner.utility.net45.noappdomain\**\*.cs" target="src\xunit.runner.utility.net45.noappdomain" />
     <file src="xunit.runner.utility.wpa81\**\*.cs"             target="src\xunit.runner.utility.wpa81" />
-    <file src="xunit.execution\Serialization\*.cs"             target="src\xunit.execution\Serialization"
+    <file src="xunit.execution\Serialization\*.cs"             target="src\xunit.execution\Serialization" />
     <file src="xunit.execution.wpa81\Serialization\*.cs"       target="src\xunit.execution.wpa81\Serialization" />
     <file src="messages\**\*.cs"                               target="src\messages" />
     <file src="common\**\*.cs"                                 target="src\common" />
