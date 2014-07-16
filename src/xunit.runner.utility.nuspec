@@ -43,12 +43,15 @@
     <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.pri"             target="build\wpa81\xunit.runner.utility.pri" />
 
     <!-- Source -->
-    <file src="xunit.runner.utility\**\*.cs"         target="src\xunit.runner.utility" />
-    <file src="xunit.runner.utility.android\**\*.cs" target="src\xunit.runner.utility.android" />
-    <file src="xunit.runner.utility.iOS\**\*.cs"     target="src\xunit.runner.utility.iOS" />
-    <file src="xunit.runner.utility.net35\**\*.cs"   target="src\xunit.runner.utility.net35" />
-    <file src="xunit.runner.utility.wpa81\**\*.cs"   target="src\xunit.runner.utility.wpa81" />
-    <file src="messages\**\*.cs"                     target="src\messages" />
-    <file src="common\**\*.cs"                       target="src\common" />
+    <file src="xunit.runner.utility\**\*.cs"                   target="src\xunit.runner.utility" />
+    <file src="xunit.runner.utility.android\**\*.cs"           target="src\xunit.runner.utility.android" />
+    <file src="xunit.runner.utility.iOS\**\*.cs"               target="src\xunit.runner.utility.iOS" />
+    <file src="xunit.runner.utility.net35\**\*.cs"             target="src\xunit.runner.utility.net35" />
+    <file src="xunit.runner.utility.net45.noappdomain\**\*.cs" target="src\xunit.runner.utility.net45.noappdomain" />
+    <file src="xunit.runner.utility.wpa81\**\*.cs"             target="src\xunit.runner.utility.wpa81" />
+    <file src="xunit.execution\Serialization\*.cs"             target="src\xunit.execution\Serialization"
+    <file src="xunit.execution.wpa81\Serialization\*.cs"       target="src\xunit.execution.wpa81\Serialization" />
+    <file src="messages\**\*.cs"                               target="src\messages" />
+    <file src="common\**\*.cs"                                 target="src\common" />
   </files>
 </package>

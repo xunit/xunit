@@ -137,8 +137,6 @@
     <Compile Include="..\xunit.execution.wpa81\Serialization\Serializable.cs">
       <Link>Serialization\Serializable.cs</Link>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\xunit.execution\Serialization\IGetTypeData.cs">
       <Link>Serialization\IGetTypeData.cs</Link>
     </Compile>
