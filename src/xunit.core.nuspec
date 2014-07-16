@@ -30,14 +30,15 @@
     <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.xml" />
 
     <!-- Execution -->
-    <file src="xunit.core\build\xunit.core.props"                                 target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.props" />
-    <file src="xunit.execution.net45\bin\Release\xunit.execution.dll"             target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.execution.dll" />
-    <file src="xunit.core\build\xunit.core.props"                                 target="build\win8\xunit.core.props" />
-    <file src="xunit.execution.net45.noappdomain\bin\Release\xunit.execution.dll" target="build\win8\xunit.execution.dll" />
-    <file src="xunit.core\build\xunit.core.props"                                 target="build\wpa81\xunit.core.props" />
-    <file src="xunit.core\build\xunit.core.targets"                               target="build\wpa81\xunit.core.targets" />
-    <file src="xunit.execution.wpa81\bin\Release\xunit.execution.dll"             target="build\wpa81\xunit.execution.dll" />
-    <file src="xunit.execution.wpa81\bin\Release\xunit.execution.pri"             target="build\wpa81\xunit.execution.pri" />
+    <file src="xunit.core\build\xunit.core.props"                                     target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.props" />
+    <file src="xunit.execution.net45\bin\Release\xunit.execution.dll"                 target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.execution.dll" />
+    <file src="xunit.core\build\xunit.core.props"                                     target="build\win8\xunit.core.props" />
+    <file src="xunit.execution.net45.noappdomain\bin\Release\xunit.execution.dll"     target="build\win8\xunit.execution.dll" />
+    <file src="xunit.core\build\xunit.core.props"                                     target="build\wpa81\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.targets"                                   target="build\wpa81\xunit.core.targets" />
+    <file src="xunit.execution.net45.noserialization\bin\Release\xunit.execution.dll" target="build\wpa81\xunit.execution.dll" />
+    <file src="xunit.execution.wpa81\bin\Release\xunit.execution.dll"                 target="build\wpa81\device\xunit.execution.dll" />
+    <file src="xunit.execution.wpa81\bin\Release\xunit.execution.pri"                 target="build\wpa81\device\xunit.execution.pri" />
     
     <!-- TD.NET -->
     <file src="xunit.core\bin\Release\xunit.core.dll.tdnet"                     target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.dll.tdnet" />
