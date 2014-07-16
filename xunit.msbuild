@@ -19,7 +19,7 @@
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
-    <NuGetNuspecTargets Include="src\xunit.assert.nuspec;src\xunit.core.nuspec;src\xunit.execution.nuspec;src\xunit.runner.utility.nuspec" />
+    <NuGetNuspecTargets Include="src\xunit.assert.nuspec;src\xunit.core.nuspec;src\xunit.execution.nuspec;src\xunit.runner.utility.nuspec;src\xunit.runner.utility.visualstudio.win8.nuspec" />
     <NuGetNuspecNoSymbolsTargets Include="src\*.nuspec" Exclude="@(NuGetNuspecTargets)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">

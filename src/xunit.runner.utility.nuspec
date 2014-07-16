@@ -7,7 +7,7 @@
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
       Includes the version-independent runner for xUnit.net to run both v1 and v2 tests (xunit.runner.utility.dll).
-      Supported platforms: Desktop .NET 3.5+, Modern Windows 8+, Windows Phone 8.1+ (Universal), MonoTouch, MonoAndroid, Portable Libraries (supporting Profile259).
+      Supported platforms: Desktop .NET 3.5+, Windows 8.1+ (Universal), Windows Phone 8.1+ (Universal), MonoTouch, MonoAndroid, Portable Libraries (supporting Profile259).
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -34,13 +34,6 @@
     <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.pdb"      target="lib\portable-wpa81+win81\xunit.runner.utility.pdb" />
     <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.xml"      target="lib\portable-wpa81+win81\xunit.runner.utility.xml" />
     <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.pri"      target="lib\portable-wpa81+win81\xunit.runner.utility.pri" />
-
-    <!-- Execution -->
-    <file src="xunit.runner.utility.net45.noappdomain\build\xunit.runner.utility.targets"   target="build\win8\xunit.runner.utility.targets" />
-    <file src="xunit.runner.utility.net45.noappdomain\bin\Release\xunit.runner.utility.dll" target="build\win8\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility.wpa81\build\xunit.runner.utility.targets"               target="build\wpa81\xunit.runner.utility.targets" />
-    <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.dll"             target="build\wpa81\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.pri"             target="build\wpa81\xunit.runner.utility.pri" />
 
     <!-- Source -->
     <file src="xunit.runner.utility\**\*.cs"                   target="src\xunit.runner.utility" />

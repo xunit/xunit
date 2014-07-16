@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>xunit.runner.utility.visualstudio.win8</id>
+    <version>2.0.0-beta</version>
+    <title>xUnit.net [Runner Utility, for Visual Studio Win8]</title>
+    <authors>James Newkirk, Brad Wilson</authors>
+    <description>PRIVATE PACKAGE. DO NOT USE.</description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/xunit/xunit</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <dependencies>
+      <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
+      <!--<dependency id="xunit.abstractions" version="[2.0.0-alpha,2.1)" />-->
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="xunit.runner.utility.net45.noappdomain\bin\Release\xunit.runner.utility.dll" target="lib\xunit.runner.utility.dll" />
+    <file src="xunit.runner.utility.net45.noappdomain\bin\Release\xunit.runner.utility.pdb" target="lib\xunit.runner.utility.pdb" />
+    <file src="xunit.runner.utility.net45.noappdomain\bin\Release\xunit.runner.utility.xml" target="lib\xunit.runner.utility.xml" />
+
+    <!-- Source -->
+    <file src="xunit.runner.utility\**\*.cs"                   target="src\xunit.runner.utility" />
+    <file src="xunit.runner.utility.net35\**\*.cs"             target="src\xunit.runner.utility.net35" />
+    <file src="xunit.runner.utility.net45.noappdomain\**\*.cs" target="src\xunit.runner.utility.net45.noappdomain" />
+    <file src="messages\**\*.cs"                               target="src\messages" />
+    <file src="common\**\*.cs"                                 target="src\common" />
+  </files>
+</package>
