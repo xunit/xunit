@@ -14,6 +14,7 @@ namespace Xunit.ConsoleClient
                 arguments.Push(args[i]);
 
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
+            AppVeyor = Environment.GetEnvironmentVariable("APPVEYOR_API_URL") != null;
             ParallelizeAssemblies = false;
             ParallelizeTestCollections = true;
             Project = Parse();
@@ -30,6 +31,8 @@ namespace Xunit.ConsoleClient
         public bool Silent { get; protected set; }
 
         public bool TeamCity { get; protected set; }
+
+        public bool AppVeyor { get; protected set; }
 
         public bool Wait { get; protected set; }
 
@@ -147,6 +150,11 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     TeamCity = true;
+                }
+                else if (optionName == "-appveyor")
+                {
+                    GuardNoOptionValue(option);
+                    AppVeyor = true;
                 }
                 else if (optionName == "-noshadow")
                 {
