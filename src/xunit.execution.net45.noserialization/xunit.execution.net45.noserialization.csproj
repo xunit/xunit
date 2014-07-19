@@ -56,6 +56,9 @@
     <Compile Include="..\common\SerializationInfoExtensions.cs">
       <Link>Common\SerializationInfoExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\common\TestMessageVisitor.cs">
+      <Link>Common\TestMessageVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\common\XunitWorkerThread_Thread.cs">
       <Link>Common\XunitWorkerThread_Thread.cs</Link>
     </Compile>

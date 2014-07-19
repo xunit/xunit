@@ -71,6 +71,9 @@
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\common\TestMessageVisitor.cs">
+      <Link>Common\TestMessageVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
     </Compile>

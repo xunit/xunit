@@ -36,6 +36,7 @@ namespace Xunit.Sdk
                 }
                 catch { }
         }
+
         /// <summary/>
         public void Dispose()
         {

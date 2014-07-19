@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
 using Xunit.Abstractions;
 
+#if XUNIT_CORE_DLL
+namespace Xunit.Sdk
+#else
 namespace Xunit
+#endif
 {
     internal class TestDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
     {
@@ -11,14 +15,6 @@ namespace Xunit
         }
 
         public List<ITestCase> TestCases { get; private set; }
-
-        public override void Dispose()
-        {
-            foreach (var testCase in TestCases)
-                testCase.Dispose();
-
-            TestCases = null;
-        }
 
         protected override bool Visit(ITestCaseDiscoveryMessage discovery)
         {

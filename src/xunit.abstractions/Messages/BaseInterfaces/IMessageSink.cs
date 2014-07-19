@@ -5,7 +5,7 @@ namespace Xunit.Abstractions
     /// <summary>
     /// Represents an endpoint for the reception of test messages.
     /// </summary>
-    public interface IMessageSink : IDisposable
+    public interface IMessageSink
     {
         /// <summary>
         /// Reports the presence of a message on the message bus. This method should

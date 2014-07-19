@@ -1,29 +1,34 @@
 ﻿using System;
 using System.Threading;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
+#if XUNIT_CORE_DLL
+namespace Xunit.Sdk
+#else
 namespace Xunit
+#endif
 {
     /// <summary>
     /// An implementation of <see cref="IMessageSink"/> that provides several Visit methods that
     /// can provide access to specific message types without the burden of casting.
     /// </summary>
-    internal class TestMessageVisitor : LongLivedMarshalByRefObject, IMessageSink
+    public class TestMessageVisitor : LongLivedMarshalByRefObject, IMessageSink
     {
-        bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TMessage, bool> callback)
+        /// <summary>
+        /// Dispatches the message to the given callback, if it's of the correct type.
+        /// </summary>
+        /// <typeparam name="TMessage">The message type</typeparam>
+        /// <param name="message">The message</param>
+        /// <param name="callback">The callback</param>
+        /// <returns>The result of the callback, if called; <c>true</c>, otherwise</returns>
+        protected static bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TMessage, bool> callback)
             where TMessage : class, IMessageSinkMessage
         {
-            TMessage castMessage = message as TMessage;
+            var castMessage = message as TMessage;
             if (castMessage != null)
                 return callback(castMessage);
 
             return true;
-        }
-
-        /// <inheritdoc/>
-        public virtual void Dispose()
-        {
         }
 
         /// <inheritdoc/>
@@ -36,21 +41,27 @@ namespace Xunit
                 DoVisit<IBeforeTestStarting>(message, Visit) &&
                 DoVisit<IDiscoveryCompleteMessage>(message, Visit) &&
                 DoVisit<IErrorMessage>(message, Visit) &&
+                DoVisit<ITestAssemblyCleanupFailure>(message, Visit) &&
                 DoVisit<ITestAssemblyFinished>(message, Visit) &&
                 DoVisit<ITestAssemblyStarting>(message, Visit) &&
+                DoVisit<ITestCaseCleanupFailure>(message, Visit) &&
                 DoVisit<ITestCaseDiscoveryMessage>(message, Visit) &&
                 DoVisit<ITestCaseFinished>(message, Visit) &&
                 DoVisit<ITestCaseStarting>(message, Visit) &&
+                DoVisit<ITestClassCleanupFailure>(message, Visit) &&
                 DoVisit<ITestClassConstructionFinished>(message, Visit) &&
                 DoVisit<ITestClassConstructionStarting>(message, Visit) &&
                 DoVisit<ITestClassDisposeFinished>(message, Visit) &&
                 DoVisit<ITestClassDisposeStarting>(message, Visit) &&
                 DoVisit<ITestClassFinished>(message, Visit) &&
                 DoVisit<ITestClassStarting>(message, Visit) &&
+                DoVisit<ITestCleanupFailure>(message, Visit) &&
+                DoVisit<ITestCollectionCleanupFailure>(message, Visit) &&
                 DoVisit<ITestCollectionFinished>(message, Visit) &&
                 DoVisit<ITestCollectionStarting>(message, Visit) &&
                 DoVisit<ITestFailed>(message, Visit) &&
                 DoVisit<ITestFinished>(message, Visit) &&
+                DoVisit<ITestMethodCleanupFailure>(message, Visit) &&
                 DoVisit<ITestMethodFinished>(message, Visit) &&
                 DoVisit<ITestMethodStarting>(message, Visit) &&
                 DoVisit<ITestPassed>(message, Visit) &&
@@ -119,6 +130,16 @@ namespace Xunit
         }
 
         /// <summary>
+        /// Called when an instance of <see cref="ITestAssemblyCleanupFailure"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="cleanupFailure">The message.</param>
+        /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        {
+            return true;
+        }
+
+        /// <summary>
         /// Called when an instance of <see cref="ITestAssemblyFinished"/> is sent to the message sink.
         /// </summary>
         /// <param name="assemblyFinished">The message.</param>
@@ -134,6 +155,16 @@ namespace Xunit
         /// <param name="assemblyStarting">The message.</param>
         /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
         protected virtual bool Visit(ITestAssemblyStarting assemblyStarting)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Called when an instance of <see cref="ITestCaseCleanupFailure"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="cleanupFailure">The message.</param>
+        /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(ITestCaseCleanupFailure cleanupFailure)
         {
             return true;
         }
@@ -164,6 +195,16 @@ namespace Xunit
         /// <param name="testCaseStarting">The message.</param>
         /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
         protected virtual bool Visit(ITestCaseStarting testCaseStarting)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Called when an instance of <see cref="ITestClassCleanupFailure"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="cleanupFailure">The message.</param>
+        /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(ITestClassCleanupFailure cleanupFailure)
         {
             return true;
         }
@@ -229,6 +270,26 @@ namespace Xunit
         }
 
         /// <summary>
+        /// Called when an instance of <see cref="ITestCleanupFailure"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="cleanupFailure">The message.</param>
+        /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(ITestCleanupFailure cleanupFailure)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Called when an instance of <see cref="ITestCollectionCleanupFailure"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="cleanupFailure">The message.</param>
+        /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        {
+            return true;
+        }
+
+        /// <summary>
         /// Called when an instance of <see cref="ITestCollectionFinished"/> is sent to the message sink.
         /// </summary>
         /// <param name="testCollectionFinished">The message.</param>
@@ -264,6 +325,16 @@ namespace Xunit
         /// <param name="testFinished">The message.</param>
         /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
         protected virtual bool Visit(ITestFinished testFinished)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Called when an instance of <see cref="ITestMethodCleanupFailure"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="cleanupFailure">The message.</param>
+        /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(ITestMethodCleanupFailure cleanupFailure)
         {
             return true;
         }
@@ -321,11 +392,11 @@ namespace Xunit
 
     /// <summary>
     /// An implementation of <see cref="IMessageSink" /> that provides several Visit methods that
-    /// can provide access to specific message types without the burden of casting. It also record
+    /// can provide access to specific message types without the burden of casting. It also records
     /// when it sees a completion message, and sets the <see cref="Finished" /> event appropriately.
     /// </summary>
     /// <typeparam name="TCompleteMessage">The type of the completion message.</typeparam>
-    internal class TestMessageVisitor<TCompleteMessage> : TestMessageVisitor
+    public class TestMessageVisitor<TCompleteMessage> : TestMessageVisitor, IDisposable
         where TCompleteMessage : IMessageSinkMessage
     {
         /// <summary>
@@ -337,16 +408,14 @@ namespace Xunit
         }
 
         /// <summary>
-        /// This event is trigged when the completion message has been seen.
+        /// This event is triggered when the completion message has been seen.
         /// </summary>
         public ManualResetEvent Finished { get; private set; }
 
         /// <inheritdoc/>
-        public override void Dispose()
+        public void Dispose()
         {
             ((IDisposable)Finished).Dispose();
-
-            base.Dispose();
         }
 
         /// <inheritdoc/>

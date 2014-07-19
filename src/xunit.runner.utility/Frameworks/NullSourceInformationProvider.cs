@@ -14,5 +14,8 @@ namespace Xunit
         {
             return new SourceInformation();
         }
+
+        /// <inheritdoc/>
+        public void Dispose() { }
     }
 }

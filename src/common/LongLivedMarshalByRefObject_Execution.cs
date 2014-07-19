@@ -6,9 +6,7 @@ using System.Security;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// This class inherits from <see cref="MarshalByRefObject"/> and re-implements
-    /// InitializeLifetimeService in a way that allows the object to live
-    /// longer than the remoting default lifetime (5 minutes).
+    /// Base class for all long-lived objects that may cross over an AppDomain.
     /// </summary>
     public abstract class LongLivedMarshalByRefObject : MarshalByRefObject
     {
