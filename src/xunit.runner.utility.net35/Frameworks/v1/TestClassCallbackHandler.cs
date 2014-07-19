@@ -56,7 +56,8 @@ namespace Xunit
             {
                 var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failureNode);
 
-                var errorMessage = new ErrorMessage(failureInformation.ExceptionTypes,
+                var errorMessage = new ErrorMessage(testCases,
+                                                    failureInformation.ExceptionTypes,
                                                     failureInformation.Messages,
                                                     failureInformation.StackTraces,
                                                     failureInformation.ExceptionParentIndices);

@@ -1,5 +1,6 @@
 using System;
 using Xunit.Abstractions;
+using System.Collections.Generic;
 
 #if XUNIT_CORE_DLL
 namespace Xunit.Sdk
@@ -15,28 +16,28 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorMessage"/> class.
         /// </summary>
-        public ErrorMessage(string[] exceptionTypes, string[] messages, string[] stackTraces, int[] exceptionParentIndices)
+        public ErrorMessage(IEnumerable<ITestCase> testCases, string[] exceptionTypes, string[] messages, string[] stackTraces, int[] exceptionParentIndices)
         {
+            TestCases = testCases;
             StackTraces = stackTraces;
             Messages = messages;
             ExceptionTypes = exceptionTypes;
             ExceptionParentIndices = exceptionParentIndices;
         }
 
-#if XUNIT_CORE_DLL
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorMessage"/> class.
         /// </summary>
-        /// <param name="ex">The exception that represents the error message.</param>
-        public ErrorMessage(Exception ex)
+        public ErrorMessage(IEnumerable<ITestCase> testCases, Exception ex)
         {
+            TestCases = testCases;
+
             var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
             ExceptionTypes = failureInfo.ExceptionTypes;
             Messages = failureInfo.Messages;
             StackTraces = failureInfo.StackTraces;
             ExceptionParentIndices = failureInfo.ExceptionParentIndices;
         }
-#endif
 
         /// <inheritdoc/>
         public string[] ExceptionTypes { get; private set; }
@@ -49,5 +50,8 @@ namespace Xunit
 
         /// <inheritdoc/>
         public int[] ExceptionParentIndices { get; private set; }
+
+        /// <inheritdoc/>
+        public IEnumerable<ITestCase> TestCases { get; private set; }
     }
 }

@@ -47,6 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\common\ExceptionUtility.cs">
+      <Link>Common\ExceptionUtility.cs</Link>
+    </Compile>
     <Compile Include="..\common\LongLivedMarshalByRefObject_Execution.cs">
       <Link>Common\LongLivedMarshalByRefObject_Execution.cs</Link>
     </Compile>

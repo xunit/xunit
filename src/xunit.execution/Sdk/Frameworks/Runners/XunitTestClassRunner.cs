@@ -85,17 +85,7 @@ namespace Xunit.Sdk
         protected override void BeforeTestClassFinished()
         {
             foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
-            {
-                try
-                {
-                    fixture.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    if (!MessageBus.QueueMessage(new ErrorMessage(ex.Unwrap())))
-                        CancellationTokenSource.Cancel();
-                }
-            }
+                Aggregator.Run(fixture.Dispose);
         }
 
         /// <inheritdoc/>

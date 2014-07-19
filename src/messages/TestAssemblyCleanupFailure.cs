@@ -25,7 +25,6 @@ namespace Xunit
             ExceptionParentIndices = exceptionParentIndices;
         }
 
-#if XUNIT_CORE_DLL
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyCleanupFailure"/> class.
         /// </summary>
@@ -38,7 +37,6 @@ namespace Xunit
             StackTraces = failureInfo.StackTraces;
             ExceptionParentIndices = failureInfo.ExceptionParentIndices;
         }
-#endif
 
         /// <inheritdoc/>
         public int[] ExceptionParentIndices { get; private set; }

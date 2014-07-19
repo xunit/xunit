@@ -194,7 +194,7 @@ public class Xunit2AcceptanceTests
                          "---- Assert.Equal() Failure" + Environment.NewLine +
                          "Expected: 2" + Environment.NewLine +
                          "Actual:   3" + Environment.NewLine +
-                         "---- System.DivideByZeroException : Attempted to divide by zero.", ExceptionUtility.CombineMessages(msg));
+                         "---- System.DivideByZeroException : Attempted to divide by zero.", Xunit.ExceptionUtility.CombineMessages(msg));
         }
 
         class ClassUnderTest_CtorFailure

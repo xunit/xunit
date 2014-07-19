@@ -114,9 +114,6 @@
     <Compile Include="..\..\src\common\ExceptionExtensions.cs">
       <Link>Common\ExceptionExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\src\xunit.execution\Sdk\ExceptionUtility.cs">
-      <Link>Common\ExceptionUtility.cs</Link>
-    </Compile>
     <Compile Include="CulturedFactAttribute.cs" />
     <Compile Include="CulturedFactAttributeDiscoverer.cs" />
     <Compile Include="CulturedXunitTestCase.cs" />

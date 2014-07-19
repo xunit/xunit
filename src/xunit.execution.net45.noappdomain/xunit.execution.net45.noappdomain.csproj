@@ -51,6 +51,9 @@
     <Compile Include="..\common\ExceptionExtensions.cs">
       <Link>Common\ExceptionExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\common\ExceptionUtility.cs">
+      <Link>Common\ExceptionUtility.cs</Link>
+    </Compile>
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>

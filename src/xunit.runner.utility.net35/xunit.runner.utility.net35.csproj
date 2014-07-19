@@ -63,6 +63,9 @@
     <Compile Include="..\common\ExceptionExtensions.cs">
       <Link>Common\ExceptionExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\common\ExceptionUtility.cs">
+      <Link>Common\ExceptionUtility.cs</Link>
+    </Compile>
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
@@ -143,9 +146,6 @@
     </Compile>
     <Compile Include="..\xunit.runner.utility\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Utility\ExceptionUtility.cs">
-      <Link>Utility\ExceptionUtility.cs</Link>
     </Compile>
     <Compile Include="..\xunit.runner.utility\Utility\ExecutionSummary.cs">
       <Link>Utility\ExecutionSummary.cs</Link>

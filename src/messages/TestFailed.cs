@@ -31,7 +31,6 @@ namespace Xunit
             ExceptionParentIndices = exceptionParentIndices;
         }
 
-#if XUNIT_CORE_DLL
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFailed"/> class.
         /// </summary>
@@ -48,7 +47,6 @@ namespace Xunit
             StackTraces = failureInfo.StackTraces;
             ExceptionParentIndices = failureInfo.ExceptionParentIndices;
         }
-#endif
 
         /// <inheritdoc/>
         public string[] ExceptionTypes { get; private set; }
