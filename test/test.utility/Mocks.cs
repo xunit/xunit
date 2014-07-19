@@ -254,6 +254,15 @@ public static class Mocks
         return result;
     }
 
+    public static IReflectionAttributeInfo TestFrameworkAttribute(Type type)
+    {
+        var attribute = Activator.CreateInstance(type);
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        result.Attribute.Returns(attribute);
+        result.GetCustomAttributes(null).ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), CustomAttributeData.GetCustomAttributes(attribute.GetType()).Select(Reflector.Wrap).ToArray()));
+        return result;
+    }
+
     public static ITestMethod TestMethod(string typeName = "MockType",
                                          string methodName = "MockMethod",
                                          string displayName = null,

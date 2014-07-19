@@ -12,8 +12,6 @@ namespace Xunit.Sdk
     /// </summary>
     public class TestFrameworkProxy : LongLivedMarshalByRefObject, ITestFramework
     {
-        readonly ITestFramework testFramework;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFrameworkProxy"/> class.
         /// </summary>
@@ -24,15 +22,22 @@ namespace Xunit.Sdk
             var testAssembly = (IAssemblyInfo)testAssemblyObject;
             var sourceInformationProvider = (ISourceInformationProvider)sourceInformationProviderObject;
 
-            Type testFrameworkType = typeof(XunitTestFramework);
+            var testFrameworkType = typeof(XunitTestFramework);
 
             try
             {
-                var attr = testAssembly.GetCustomAttributes(typeof(TestFrameworkAttribute)).FirstOrDefault();
-                if (attr != null)
+                var testFrameworkAttr = testAssembly.GetCustomAttributes(typeof(ITestFrameworkAttribute)).FirstOrDefault();
+                if (testFrameworkAttr != null)
                 {
-                    var ctorArgs = attr.GetConstructorArguments().Cast<string>().ToArray();
-                    testFrameworkType = Reflector.GetType(ctorArgs[1], ctorArgs[0]);
+                    var discovererAttr = testFrameworkAttr.GetCustomAttributes(typeof(TestFrameworkDiscovererAttribute)).FirstOrDefault();
+                    if (discovererAttr != null)
+                    {
+                        var discoverer = ExtensibilityPointFactory.GetTestFrameworkTypeDiscoverer(discovererAttr);
+                        if (discoverer != null)
+                            testFrameworkType = discoverer.GetTestFrameworkType(testFrameworkAttr);
+                        // else                     // TODO: Log environmental error
+                    }
+                    // else                     // TODO: Log environmental error
                 }
             }
             catch
@@ -42,39 +47,41 @@ namespace Xunit.Sdk
 
             try
             {
-                testFramework = (ITestFramework)Activator.CreateInstance(testFrameworkType);
+                InnerTestFramework = (ITestFramework)Activator.CreateInstance(testFrameworkType);
             }
             catch
             {
                 // TODO: Log environmental error
-                testFramework = new XunitTestFramework();
+                InnerTestFramework = new XunitTestFramework();
             }
 
             SourceInformationProvider = sourceInformationProvider;
         }
 
+        public ITestFramework InnerTestFramework { get; private set; }
+
         /// <inheritdoc/>
         public ISourceInformationProvider SourceInformationProvider
         {
-            set { testFramework.SourceInformationProvider = value; }
+            set { InnerTestFramework.SourceInformationProvider = value; }
         }
 
         /// <inheritdoc/>
         public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly)
         {
-            return testFramework.GetDiscoverer(assembly);
+            return InnerTestFramework.GetDiscoverer(assembly);
         }
 
         /// <inheritdoc/>
         public ITestFrameworkExecutor GetExecutor(AssemblyName assemblyName)
         {
-            return testFramework.GetExecutor(assemblyName);
+            return InnerTestFramework.GetExecutor(assemblyName);
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            testFramework.Dispose();
+            InnerTestFramework.Dispose();
         }
     }
 }

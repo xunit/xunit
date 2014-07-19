@@ -96,6 +96,27 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Gets a test framework discoverer.
+        /// </summary>
+        public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(Type frameworkType)
+        {
+            return Get<ITestFrameworkTypeDiscoverer>(frameworkType);
+        }
+
+        /// <summary>
+        /// Gets a test framework discoverer, as specified in a reflected <see cref="TestFrameworkDiscovererAttribute"/>.
+        /// </summary>
+        public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(IAttributeInfo testFrameworkAttribute)
+        {
+            var args = testFrameworkAttribute.GetConstructorArguments().Cast<string>().ToArray();
+            var testFrameworkDiscovererType = Reflector.GetType(args[1], args[0]);
+            if (testFrameworkDiscovererType == null)
+                return null;
+
+            return GetTestFrameworkTypeDiscoverer(testFrameworkDiscovererType);
+        }
+
+        /// <summary>
         /// Gets a trait discoverer.
         /// </summary>
         public static ITraitDiscoverer GetTraitDiscoverer(Type discovererType)

@@ -92,6 +92,7 @@
     <Compile Include="Sdk\SpyMessageSink.cs" />
     <Compile Include="Sdk\SynchronousMessageBusTests.cs" />
     <Compile Include="Sdk\TestCaseSerializerTests.cs" />
+    <Compile Include="Sdk\TestFrameworkProxyTests.cs" />
     <Compile Include="SerializationTests.cs" />
   </ItemGroup>
   <ItemGroup>

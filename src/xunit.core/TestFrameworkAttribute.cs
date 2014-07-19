@@ -1,12 +1,14 @@
 ﻿using System;
+using Xunit.Sdk;
 
 namespace Xunit
 {
     /// <summary>
     /// Used to decorate an assembly to allow the use a custom <see cref="T:Xunit.Sdk.ITestFramework"/>.
     /// </summary>
+    [TestFrameworkDiscoverer("Xunit.TestFrameworkDiscoverer", "xunit.core")]
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-    public sealed class TestFrameworkAttribute : Attribute
+    public sealed class TestFrameworkAttribute : Attribute, ITestFrameworkAttribute
     {
         /// <summary>
         /// Initializes an instance of <see cref="TestFrameworkAttribute"/>.

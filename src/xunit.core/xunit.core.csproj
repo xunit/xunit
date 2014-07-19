@@ -72,12 +72,15 @@
     <Compile Include="Sdk\IMessageBus.cs" />
     <Compile Include="Sdk\InlineDataDiscoverer.cs" />
     <Compile Include="Sdk\ITestCaseOrderer.cs" />
+    <Compile Include="Sdk\ITestFrameworkAttribute.cs" />
+    <Compile Include="Sdk\ITestFrameworkTypeDiscoverer.cs" />
     <Compile Include="Sdk\ITraitAttribute.cs" />
     <Compile Include="Sdk\ITraitDiscoverer.cs" />
     <Compile Include="Sdk\IXunitTestCaseDiscoverer.cs" />
     <Compile Include="Sdk\IXunitTestCase.cs" />
     <Compile Include="Sdk\IXunitTestCollectionFactory.cs" />
     <Compile Include="Sdk\RunSummary.cs" />
+    <Compile Include="Sdk\TestFrameworkDiscovererAttribute.cs" />
     <Compile Include="Sdk\XunitTestCaseDiscovererAttribute.cs" />
     <Compile Include="Sdk\TraitDiscoverer.cs" />
     <Compile Include="Sdk\TraitDiscovererAttribute.cs" />
