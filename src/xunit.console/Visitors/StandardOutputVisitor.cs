@@ -30,7 +30,7 @@ namespace Xunit.ConsoleClient
             assemblyFileName = Path.GetFileName(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
 
             lock (consoleLock)
-                Console.WriteLine("Starting: {0}", assemblyFileName);
+                Console.WriteLine("Starting:  {0}", assemblyFileName);
 
             return base.Visit(assemblyStarting);
         }

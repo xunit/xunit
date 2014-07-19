@@ -175,6 +175,20 @@ namespace Xunit.ConsoleClient
                                           message.Value.Failed.ToString().PadLeft(longestFailed),
                                           message.Value.Skipped.ToString().PadLeft(longestSkipped),
                                           message.Value.Time.ToString("0.000s").PadLeft(longestTime));
+
+                    if (completionMessages.Count > 1)
+                        Console.WriteLine("   {0}         {1}          {2}           {3}        {4}" + Environment.NewLine +
+                                          "           {5} {6}          {7}           {8}        {9}",
+                                          " ".PadRight(longestAssemblyName),
+                                          "-".PadRight(longestTotal, '-'),
+                                          "-".PadRight(longestFailed, '-'),
+                                          "-".PadRight(longestSkipped, '-'),
+                                          "-".PadRight(longestTime, '-'),
+                                          "GRAND TOTAL:".PadLeft(longestAssemblyName),
+                                          completionMessages.Values.Sum(summary => summary.Total),
+                                          completionMessages.Values.Sum(summary => summary.Failed),
+                                          completionMessages.Values.Sum(summary => summary.Skipped),
+                                          completionMessages.Values.Sum(summary => summary.Time).ToString("0.000s"));
                 }
             }
 

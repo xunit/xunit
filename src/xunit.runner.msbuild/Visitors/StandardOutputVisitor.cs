@@ -70,7 +70,7 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
         {
             assemblyFileName = Path.GetFileName(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
-            Log.LogMessage(MessageImportance.High, "  Started: {0}", assemblyFileName);
+            Log.LogMessage(MessageImportance.High, "  Started:  {0}", assemblyFileName);
 
             return base.Visit(assemblyStarting);
         }
