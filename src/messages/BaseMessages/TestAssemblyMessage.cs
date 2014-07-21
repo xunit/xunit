@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
@@ -18,7 +19,8 @@ namespace Xunit
         public TestAssemblyMessage(IEnumerable<ITestCase> testCases, ITestAssembly testAssembly)
         {
             TestAssembly = testAssembly;
-            TestCases = testCases;
+            // Ensure the enumerable is serialisable
+            TestCases = testCases.ToList();
         }
 
         /// <inheritdoc/>
