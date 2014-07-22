@@ -187,7 +187,11 @@ namespace Xunit
             }
             catch (Exception ex)
             {
-                messageSink.OnMessage(new ErrorMessage(testCases, ex));
+                var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(ex);
+
+                messageSink.OnMessage(new ErrorMessage(testCases, failureInformation.ExceptionTypes,
+                    failureInformation.Messages, failureInformation.StackTraces,
+                    failureInformation.ExceptionParentIndices));
             }
             finally
             {
