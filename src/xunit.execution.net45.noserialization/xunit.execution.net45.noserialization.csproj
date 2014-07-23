@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XUNIT_CORE_DLL;NET45;NO_SERIALIZATION;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XUNIT_CORE_DLL;NET45;NO_SERIALIZATION;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\xunit.execution.xml</DocumentationFile>
@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;XUNIT_CORE_DLL;NET45;NO_SERIALIZATION;NO_APPDOMAIN</DefineConstants>
+    <DefineConstants>TRACE;XUNIT_CORE_DLL;NET45;NO_SERIALIZATION;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\xunit.execution.xml</DocumentationFile>

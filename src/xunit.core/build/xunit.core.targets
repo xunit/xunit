@@ -6,7 +6,7 @@
       <xUnitLibs Include="$(MSBuildThisFileDirectory)device\xunit.execution.dll">
         <TargetPath>xunit.execution.dll</TargetPath>
       </xUnitLibs>
-      <xUnitLibs Include="$(MSBuildThisFileDirectory)device\xunit.execution.pri">
+      <xUnitLibs Include="$(MSBuildThisFileDirectory)device\xunit.execution.pri" Condition="Exists('$(MSBuildThisFileDirectory)device\xunit.execution.pri')">
         <TargetPath>xunit.execution.pri</TargetPath>
       </xUnitLibs>
 
