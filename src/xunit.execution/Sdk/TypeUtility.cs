@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    internal static class TypeUtility
+    public static class TypeUtility
     {
         readonly static ITypeInfo ObjectTypeInfo = Reflector.Wrap(typeof(object));
 
