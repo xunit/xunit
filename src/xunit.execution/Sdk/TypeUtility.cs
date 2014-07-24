@@ -33,7 +33,7 @@ namespace Xunit.Sdk
             return String.Format(CultureInfo.CurrentCulture, "{0}<{1}>", baseTypeName, String.Join(", ", simpleNames));
         }
 
-        public static string GetDisplayNameWithArguments(IMethodInfo method, string baseDisplayName, object[] arguments, ITypeInfo[] genericTypes)
+        public static string GetDisplayNameWithArguments(this IMethodInfo method, string baseDisplayName, object[] arguments, ITypeInfo[] genericTypes)
         {
             baseDisplayName += ResolveGenericDisplay(genericTypes);
 
@@ -78,7 +78,7 @@ namespace Xunit.Sdk
             return String.Format(CultureInfo.CurrentCulture, "<{0}>", String.Join(", ", typeNames));
         }
 
-        public static ITypeInfo ResolveGenericType(ITypeInfo genericType, object[] parameters, IParameterInfo[] parameterInfos)
+        public static ITypeInfo ResolveGenericType(this ITypeInfo genericType, object[] parameters, IParameterInfo[] parameterInfos)
         {
             bool sawNullValue = false;
             ITypeInfo matchedType = null;
@@ -105,7 +105,7 @@ namespace Xunit.Sdk
             return sawNullValue && matchedType.IsValueType ? ObjectTypeInfo : matchedType;
         }
 
-        public static ITypeInfo[] ResolveGenericTypes(IMethodInfo method, object[] parameters)
+        public static ITypeInfo[] ResolveGenericTypes(this IMethodInfo method, object[] parameters)
         {
             var genericTypes = method.GetGenericArguments().ToArray();
             var resolvedTypes = new ITypeInfo[genericTypes.Length];
