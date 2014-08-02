@@ -35,12 +35,9 @@ namespace Xunit.Runner.MSBuild
             var stackTraces = ExceptionUtility.CombineStackTraces(failureInfo);
             if (stackTraces != null)
             {
-                var firstFrame = stackTraces.Split(new[] { Environment.NewLine }, 2, StringSplitOptions.RemoveEmptyEntries)
-                                            .FirstOrDefault();
-
-                if (firstFrame != null)
+                foreach (var frame in stackTraces.Split(new[] { Environment.NewLine }, 2, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    var match = stackFrameRegex.Match(firstFrame);
+                    var match = stackFrameRegex.Match(frame);
                     if (match.Success)
                         return Tuple.Create(match.Groups["file"].Value, Int32.Parse(match.Groups["line"].Value));
                 }

@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.MSBuild;
@@ -23,6 +24,43 @@ public class StandardOutputVisitorTests
             Assert.Collection(logger.Messages,
                 msg => Assert.Equal("ERROR: ExceptionType : This is my message \\t\\r\\n", msg),
                 msg => Assert.Equal("ERROR: Line 1\r\nLine 2\r\nLine 3", msg));
+        }
+
+        [Fact]
+        public void IncludesSourceLineNumberFromTopOfStack()
+        {
+            var errorMessage = Substitute.For<IErrorMessage>();
+            errorMessage.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            errorMessage.Messages.Returns(new[] { "This is my message \t\r\n" });
+            errorMessage.StackTraces.Returns(new[] { @"   at FixtureAcceptanceTests.Constructors.TestClassMustHaveSinglePublicConstructor() in d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs:line 16" });
+
+            var logger = SpyLogger.Create(includeSourceInformation: true);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
+
+            visitor.OnMessage(errorMessage);
+
+            Assert.Collection(logger.Messages,
+                msg => Assert.Equal(@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 16] ExceptionType : This is my message \t\r\n", msg),
+                msg => Assert.Equal(@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 16]    at FixtureAcceptanceTests.Constructors.TestClassMustHaveSinglePublicConstructor() in d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs:line 16", msg));
+        }
+
+        [Fact]
+        public void IncludesSourceLineNumberOfFirstStackFrameWithSourceInformation()
+        {
+            var errorMessage = Substitute.For<IErrorMessage>();
+            errorMessage.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            errorMessage.Messages.Returns(new[] { "This is my message \t\r\n" });
+            errorMessage.StackTraces.Returns(new[] { @"   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source)" + Environment.NewLine
+                                                   + @"   at FixtureAcceptanceTests.ClassFixture.TestClassWithExtraArgumentToConstructorResultsInFailedTest() in d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs:line 76" });
+
+            var logger = SpyLogger.Create(includeSourceInformation: true);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
+
+            visitor.OnMessage(errorMessage);
+
+            Assert.Collection(logger.Messages,
+                msg => Assert.Equal(@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 76] ExceptionType : This is my message \t\r\n", msg),
+                msg => Assert.Equal(@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 76]    at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source)" + Environment.NewLine + @"   at FixtureAcceptanceTests.ClassFixture.TestClassWithExtraArgumentToConstructorResultsInFailedTest() in d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs:line 76", msg));
         }
     }
 
