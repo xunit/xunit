@@ -132,7 +132,7 @@ public class TestAssemblyRunnerTests
             var cleanupFailure = Assert.Single(messages.OfType<ITestAssemblyCleanupFailure>());
             Assert.Equal(thisAssembly.GetLocalCodeBase(), cleanupFailure.TestAssembly.Assembly.AssemblyPath);
             Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, cleanupFailure.TestAssembly.ConfigFileName);
-            Assert.Same(testCases, cleanupFailure.TestCases);
+            Assert.Equal(testCases, cleanupFailure.TestCases);
             Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
         }
 
