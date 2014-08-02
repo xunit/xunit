@@ -6,6 +6,9 @@ namespace Xunit.Sdk
     /// Base class for all long-lived objects that may cross over an AppDomain.
     /// </summary>
     public abstract class LongLivedMarshalByRefObject
+#if !WINDOWS_PHONE_APP    
+        : MarshalByRefObject 
+#endif
     {
         /// <summary>
         /// Creates a new instance of the <see cref="LongLivedMarshalByRefObject"/> type.
