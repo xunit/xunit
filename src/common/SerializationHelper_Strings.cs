@@ -28,7 +28,11 @@ namespace Xunit.Sdk
             if (!typeof(IGetTypeData).GetTypeInfo().IsAssignableFrom(deserializedType.GetTypeInfo()))
                 throw new ArgumentException("Cannot de-serialize an object that does not implement IGetTypeData", "T");
 
-            return (T)XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
+            var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
+            if (obj is XunitSerializationInfo.ArraySerializer)
+                obj = ((XunitSerializationInfo.ArraySerializer)obj).ArrayData;
+
+            return (T)obj;
         }
 
         /// <summary>
@@ -40,6 +44,10 @@ namespace Xunit.Sdk
         {
             if (value == null)
                 throw new ArgumentNullException("value");
+
+            var array = value as object[];
+            if (array != null)
+                value = new XunitSerializationInfo.ArraySerializer(array);
 
             var getData = value as IGetTypeData;
             if (getData == null)
