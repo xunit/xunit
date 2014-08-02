@@ -58,6 +58,9 @@ namespace Xunit.Sdk
             SourceInformationProvider = sourceInformationProvider;
         }
 
+        /// <summary>
+        /// Gets the test framework that's being wrapped by the proxy.
+        /// </summary>
         public ITestFramework InnerTestFramework { get; private set; }
 
         /// <inheritdoc/>

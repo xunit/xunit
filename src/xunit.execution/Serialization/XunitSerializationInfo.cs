@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -98,8 +99,14 @@ namespace Xunit.Serialization
             if (type == typeof(string))
                 return FromBase64(serializedValue);
 
-            if (type == typeof(int?))
-                return Int32.Parse(serializedValue);
+            if (type == typeof(int?) || type == typeof(int))
+                return Int32.Parse(serializedValue, CultureInfo.InvariantCulture);
+
+            if (type.IsArray)
+            {
+                var arrSer = (ArraySerializer)DeserializeGetTypeData(typeof(ArraySerializer), serializedValue);
+                return arrSer.ArrayData;
+            }
 
             throw new ArgumentException("We don't know how to de-serialize type " + type.FullName, "serializedValue");
         }
@@ -148,9 +155,42 @@ namespace Xunit.Serialization
 
             var nullableIntData = value as int?;
             if (nullableIntData != null)
-                return nullableIntData.GetValueOrDefault().ToString();
+                return nullableIntData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var array = value as object[];
+            if (array != null)
+            {
+                var info = new XunitSerializationInfo();
+                var arraySer = new ArraySerializer(array);
+                arraySer.GetData(info);
+                return info.ToSerializedString();
+            }
 
             throw new ArgumentException("We don't know how to serialize type " + value.GetType().FullName, "value");
+        }
+
+        private static bool CanSerializeObject(object value)
+        {
+            if (value == null)
+                return true;
+
+            var getTypeData = value as IGetTypeData;
+            if (getTypeData != null)
+                return true;
+
+            var stringData = value as string;
+            if (stringData != null)
+                return true;
+
+            var nullableIntData = value as int?;
+            if (nullableIntData != null)
+                return true;
+
+            var array = value as object[];
+            if (array != null)
+                return true;
+
+            return false;
         }
 
         private static string FromBase64(string serializedValue)
@@ -163,6 +203,46 @@ namespace Xunit.Serialization
         {
             var bytes = Encoding.UTF8.GetBytes(value);
             return Convert.ToBase64String(bytes);
+        }
+
+        internal class ArraySerializer : IGetTypeData
+        {
+            private object[] array;
+            public object[] ArrayData { get { return array; } }
+
+            public ArraySerializer(object[] array)
+            {
+                if (array == null)
+                    throw new ArgumentNullException("array");
+
+                // If not empty, verify we can serialize it
+                if (array.Length > 0 && !array.All(CanSerializeObject))
+                    throw new ArgumentException("We don't know how to serialize type " + array[0].GetType().FullName, "array");
+
+                this.array = array;
+            }
+
+            public void GetData(XunitSerializationInfo info)
+            {
+                info.AddValue("Length", array.Length);
+                if (array.Length > 0)
+                    info.AddValue("ElementType", array[0].GetType().AssemblyQualifiedName);
+
+                for (var i = 0; i < array.Length; i++)
+                    info.AddValue("Item" + i, array[i]);
+            }
+
+            public void SetData(XunitSerializationInfo info)
+            {
+                var len = info.GetValue<int>("Length");
+                var arrTypeStr = info.GetString("ElementType");
+                var arrType = arrTypeStr != null ? Type.GetType(arrTypeStr) : typeof(object);
+
+                array = (object[])Array.CreateInstance(arrType, len);
+
+                for (var i = 0; i < array.Length; i++)
+                    array[i] = info.GetValue("Item" + i, arrType);
+            }
         }
     }
 }

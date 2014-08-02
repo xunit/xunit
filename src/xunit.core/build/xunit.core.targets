@@ -3,18 +3,18 @@
   <Target Name="SwapXunitExecutionLibs" AfterTargets="_ComputeAppxPackagePayload" BeforeTargets="_GenerateAppxManifest">
     <Message Text="Swapping xUnit.net Execution Libraries" />
     <ItemGroup>
-      <xUnitLibs Include="$(MSBuildThisFileDirectory)device\xunit.execution.dll">
+      <xUnitExecutionLibs Include="$(MSBuildThisFileDirectory)device\xunit.execution.dll">
         <TargetPath>xunit.execution.dll</TargetPath>
-      </xUnitLibs>
-      <xUnitLibs Include="$(MSBuildThisFileDirectory)device\xunit.execution.pri">
+      </xUnitExecutionLibs>
+      <xUnitExecutionLibs Include="$(MSBuildThisFileDirectory)device\xunit.execution.pri" Condition="Exists('$(MSBuildThisFileDirectory)device\xunit.execution.pri')">
         <TargetPath>xunit.execution.pri</TargetPath>
-      </xUnitLibs>
+      </xUnitExecutionLibs>
 
-      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.execution.dll'"/>
-      <xUnitLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.execution.pdb'"/>
+      <xUnitExecutionLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.execution.dll'"/>
+      <xUnitExecutionLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.execution.pdb'"/>
 
-      <AppxPackagePayload Remove="@(xUnitLibsToRemove)" />
-      <AppxPackagePayload Include="@(xUnitLibs)" />
+      <AppxPackagePayload Remove="@(xUnitExecutionLibsToRemove)" />
+      <AppxPackagePayload Include="@(xUnitExecutionLibs)" />
     </ItemGroup>
   </Target>
 </Project>

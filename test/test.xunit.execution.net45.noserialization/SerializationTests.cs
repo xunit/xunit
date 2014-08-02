@@ -60,7 +60,7 @@ public class SerializationTests
     {
         [Theory]
         [InlineData(1)]
-        [InlineData("hello")]
+        [InlineData(21.12)]
         public void Test(object x) { }
     }
 }
