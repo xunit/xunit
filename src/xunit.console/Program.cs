@@ -162,11 +162,15 @@ namespace Xunit.ConsoleClient
                     Console.WriteLine("=== TEST EXECUTION SUMMARY ===");
                     Console.ForegroundColor = ConsoleColor.Gray;
 
-                    int longestAssemblyName = completionMessages.Keys.Max(key => key.Length);
-                    int longestTotal = completionMessages.Values.Max(summary => summary.Total.ToString().Length);
-                    int longestFailed = completionMessages.Values.Max(summary => summary.Failed.ToString().Length);
-                    int longestSkipped = completionMessages.Values.Max(summary => summary.Skipped.ToString().Length);
-                    int longestTime = completionMessages.Values.Max(summary => summary.Time.ToString("0.000s").Length);
+                    var totalTestsRun = completionMessages.Values.Sum(summary => summary.Total);
+                    var totalTestsFailed = completionMessages.Values.Sum(summary => summary.Failed);
+                    var totalTestsSkipped = completionMessages.Values.Sum(summary => summary.Skipped);
+                    var totalTime = completionMessages.Values.Sum(summary => summary.Time).ToString("0.000s");
+                    var longestAssemblyName = completionMessages.Keys.Max(key => key.Length);
+                    var longestTotal = totalTestsRun.ToString().Length;
+                    var longestFailed = totalTestsFailed.ToString().Length;
+                    var longestSkipped = totalTestsSkipped.ToString().Length;
+                    var longestTime = totalTime.Length;
 
                     foreach (var message in completionMessages.OrderBy(m => m.Key))
                         Console.WriteLine("   {0}  Total: {1}, Failed: {2}, Skipped: {3}, Time: {4}",
@@ -185,10 +189,11 @@ namespace Xunit.ConsoleClient
                                           "-".PadRight(longestSkipped, '-'),
                                           "-".PadRight(longestTime, '-'),
                                           "GRAND TOTAL:".PadLeft(longestAssemblyName),
-                                          completionMessages.Values.Sum(summary => summary.Total),
-                                          completionMessages.Values.Sum(summary => summary.Failed),
-                                          completionMessages.Values.Sum(summary => summary.Skipped),
-                                          completionMessages.Values.Sum(summary => summary.Time).ToString("0.000s"));
+                                          totalTestsRun,
+                                          totalTestsFailed,
+                                          totalTestsSkipped,
+                                          totalTime);
+
                 }
             }
 
