@@ -61,6 +61,7 @@
     <Compile Include="ICollectionFixture.cs" />
     <Compile Include="InlineDataAttribute.cs" />
     <Compile Include="MemberDataAttribute.cs" />
+    <Compile Include="Extensions\PropertyDataAttribute.cs" />
     <Compile Include="Sdk\ArgumentFormatter.cs" />
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
     <Compile Include="Sdk\DataAttribute.cs" />
