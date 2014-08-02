@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
-    internal static class TypeUtility
+    public static class TypeUtility
     {
         readonly static ITypeInfo ObjectTypeInfo = Reflector.Wrap(typeof(object));
 
@@ -30,10 +30,10 @@ namespace Xunit.Sdk
             for (int idx = 0; idx < genericTypes.Length; idx++)
                 simpleNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
 
-            return String.Format("{0}<{1}>", baseTypeName, String.Join(", ", simpleNames));
+            return string.Format(CultureInfo.CurrentCulture, "{0}<{1}>", baseTypeName, string.Join(", ", simpleNames));
         }
 
-        public static string GetDisplayNameWithArguments(IMethodInfo method, string baseDisplayName, object[] arguments, ITypeInfo[] genericTypes)
+        public static string GetDisplayNameWithArguments(this IMethodInfo method, string baseDisplayName, object[] arguments, ITypeInfo[] genericTypes)
         {
             baseDisplayName += ResolveGenericDisplay(genericTypes);
 
@@ -50,7 +50,7 @@ namespace Xunit.Sdk
             for (; idx < parameterInfos.Length; idx++)  // Fill-in any missing parameters with "???"
                 displayValues[idx] = GetParameterName(parameterInfos, idx) + ": ???";
 
-            return String.Format(CultureInfo.CurrentCulture, "{0}({1})", baseDisplayName, string.Join(", ", displayValues));
+            return string.Format(CultureInfo.CurrentCulture, "{0}({1})", baseDisplayName, string.Join(", ", displayValues));
         }
 
         static string GetParameterName(IParameterInfo[] parameters, int index)
@@ -63,22 +63,22 @@ namespace Xunit.Sdk
 
         static string ParameterToDisplayValue(string parameterName, object parameterValue)
         {
-            return String.Format("{0}: {1}", parameterName, ArgumentFormatter.Format(parameterValue));
+            return string.Format(CultureInfo.CurrentCulture, "{0}: {1}", parameterName, ArgumentFormatter.Format(parameterValue));
         }
 
         static string ResolveGenericDisplay(ITypeInfo[] genericTypes)
         {
             if (genericTypes == null || genericTypes.Length == 0)
-                return String.Empty;
+                return string.Empty;
 
             var typeNames = new string[genericTypes.Length];
             for (var idx = 0; idx < genericTypes.Length; idx++)
                 typeNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
 
-            return String.Format("<{0}>", String.Join(", ", typeNames));
+            return string.Format(CultureInfo.CurrentCulture, "<{0}>", string.Join(", ", typeNames));
         }
 
-        public static ITypeInfo ResolveGenericType(ITypeInfo genericType, object[] parameters, IParameterInfo[] parameterInfos)
+        public static ITypeInfo ResolveGenericType(this ITypeInfo genericType, object[] parameters, IParameterInfo[] parameterInfos)
         {
             bool sawNullValue = false;
             ITypeInfo matchedType = null;
@@ -105,7 +105,7 @@ namespace Xunit.Sdk
             return sawNullValue && matchedType.IsValueType ? ObjectTypeInfo : matchedType;
         }
 
-        public static ITypeInfo[] ResolveGenericTypes(IMethodInfo method, object[] parameters)
+        public static ITypeInfo[] ResolveGenericTypes(this IMethodInfo method, object[] parameters)
         {
             var genericTypes = method.GetGenericArguments().ToArray();
             var resolvedTypes = new ITypeInfo[genericTypes.Length];
