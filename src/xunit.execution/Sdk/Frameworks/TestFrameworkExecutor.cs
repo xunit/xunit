@@ -78,7 +78,6 @@ namespace Xunit.Sdk
             }
 
             RunTestCases(discoverySink.TestCases.Cast<TTestCase>(), messageSink, executionOptions);
-
         }
 
         /// <inheritdoc/>

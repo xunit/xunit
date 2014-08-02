@@ -170,7 +170,7 @@ namespace Xunit
                 }
             }
 
-            if (current != null)
+            if (current != lastTestCase && current != null)
             {
                 if (lastTestCase == null || lastTestCase.TestMethod.Method.Name != current.TestMethod.Method.Name)
                 {
