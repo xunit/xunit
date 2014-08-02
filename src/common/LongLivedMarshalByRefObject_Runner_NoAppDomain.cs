@@ -1,7 +1,13 @@
-﻿namespace Xunit
+﻿using System;
+
+namespace Xunit
 {
     /// <summary>
     /// Base class for all long-lived objects that may cross over an AppDomain.
     /// </summary>
-    public abstract class LongLivedMarshalByRefObject { }
+    public abstract class LongLivedMarshalByRefObject 
+#if !WINDOWS_PHONE_APP    
+        : MarshalByRefObject 
+#endif
+    { }
 }
