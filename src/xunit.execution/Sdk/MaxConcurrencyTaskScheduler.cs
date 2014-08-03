@@ -58,7 +58,7 @@ namespace Xunit.Sdk
         [SecurityCritical]
         protected override IEnumerable<Task> GetScheduledTasks()
         {
-            throw new NotImplementedException();
+            return workQueue.ToArray();
         }
 
         /// <inheritdoc/>
