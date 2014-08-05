@@ -9,6 +9,7 @@ help
 *[Rr]esharper*
 *.html
 *.xml
+*.ide
 *.zip
 *.suo
 *.user
