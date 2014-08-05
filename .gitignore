@@ -8,6 +8,7 @@ AppPackages
 *.user
 *.[Cc]ache
 *[Rr]esharper*
+*.ide
 *.zip
 *.suo
 *.user
