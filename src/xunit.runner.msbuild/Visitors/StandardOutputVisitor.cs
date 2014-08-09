@@ -85,20 +85,11 @@ namespace Xunit.Runner.MSBuild
                     Total = assemblyFinished.TestsRun,
                     Failed = assemblyFinished.TestsFailed,
                     Skipped = assemblyFinished.TestsSkipped,
-                    Time = assemblyFinished.ExecutionTime
+                    Time = assemblyFinished.ExecutionTime,
+                    Errors = Errors
                 });
 
             return result;
-        }
-
-        protected override bool Visit(IErrorMessage error)
-        {
-            var stackFrameInfo = GetStackFrameInfo(error);
-
-            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", Escape(ExceptionUtility.CombineMessages(error)));
-            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", ExceptionUtility.CombineStackTraces(error));
-
-            return base.Visit(error);
         }
 
         protected override bool Visit(ITestFailed testFailed)
@@ -136,6 +127,63 @@ namespace Xunit.Runner.MSBuild
                 Log.LogMessage("    START: {0}", Escape(testStarting.TestDisplayName));
 
             return base.Visit(testStarting);
+        }
+
+        protected override bool Visit(IErrorMessage error)
+        {
+            WriteError("FATAL", error);
+
+            return base.Visit(error);
+        }
+
+        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.TestDisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        void WriteError(string failureName, IFailureInformation failureInfo)
+        {
+            var stackFrameInfo = GetStackFrameInfo(failureInfo);
+
+            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "[{0}] {1}", failureName, Escape(ExceptionUtility.CombineMessages(failureInfo)));
+            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", ExceptionUtility.CombineStackTraces(failureInfo));
         }
     }
 }

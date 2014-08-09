@@ -67,6 +67,9 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\common\Guard.cs">
+      <Link>Common\Guard.cs</Link>
+    </Compile>
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>

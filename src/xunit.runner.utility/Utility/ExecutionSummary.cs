@@ -24,5 +24,10 @@
         /// Gets or sets the total execution time for the tests.
         /// </summary>
         public decimal Time { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total errors (i.e., cleanup failures) for the tests.
+        /// </summary>
+        public int Errors { get; set; }
     }
 }

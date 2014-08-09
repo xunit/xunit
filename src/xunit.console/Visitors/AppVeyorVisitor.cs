@@ -55,7 +55,8 @@ namespace Xunit.ConsoleClient
                     Total = assemblyFinished.TestsRun,
                     Failed = assemblyFinished.TestsFailed,
                     Skipped = assemblyFinished.TestsSkipped,
-                    Time = assemblyFinished.ExecutionTime
+                    Time = assemblyFinished.ExecutionTime,
+                    Errors = Errors
                 });
 
             return result;

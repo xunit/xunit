@@ -225,7 +225,7 @@ public static class Mocks
         return result;
     }
 
-    public static ITestCollection TestCollection(Guid? id = null, ITypeInfo definition = null, ITestAssembly testAssembly = null)
+    public static ITestCollection TestCollection(Guid? id = null, ITypeInfo definition = null, ITestAssembly testAssembly = null, string displayName = null)
     {
         if (testAssembly == null)
             testAssembly = Mocks.TestAssembly();
@@ -234,6 +234,7 @@ public static class Mocks
         result.TestAssembly.Returns(testAssembly);
         result.UniqueID.Returns(id ?? Guid.NewGuid());
         result.CollectionDefinition.Returns(definition);
+        result.DisplayName.Returns(displayName);
         return result;
     }
 

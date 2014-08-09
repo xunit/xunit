@@ -1,28 +1,74 @@
-﻿using NSubstitute;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
+using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.MSBuild;
 
 public class TeamCityVisitorTests
 {
-    public class OnMessage_ErrorMessage
+    public class OnMessage_ErrorInformationMessages
     {
-        [Fact]
-        public void LogsMessage()
+        static TMessageType MakeFailureInformationSubstitute<TMessageType>()
+            where TMessageType : class, IFailureInformation
         {
-            var errorMessage = Substitute.For<IErrorMessage>();
-            errorMessage.ExceptionTypes.Returns(new[] { "ExceptionType" });
-            errorMessage.Messages.Returns(new[] { "This is my message \t\r\n" });
-            errorMessage.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
+            var result = Substitute.For<TMessageType>();
+            result.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            result.Messages.Returns(new[] { "This is my message \t\r\n" });
+            result.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
+            return result;
+        }
 
+        public static IEnumerable<object[]> Messages
+        {
+            get
+            {
+                yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "FATAL" };
+
+                var assemblyCleanupFailure = MakeFailureInformationSubstitute<ITestAssemblyCleanupFailure>();
+                var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
+                assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
+                yield return new object[] { assemblyCleanupFailure, @"Test Assembly Cleanup Failure (C:\Foo\bar.dll)" };
+
+                var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
+                var testCollection = Mocks.TestCollection(displayName: "FooBar");
+                collectionCleanupFailure.TestCollection.Returns(testCollection);
+                yield return new object[] { collectionCleanupFailure, "Test Collection Cleanup Failure (FooBar)" };
+
+                var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
+                var testClass = Mocks.TestClass("MyType");
+                classCleanupFailure.TestClass.Returns(testClass);
+                yield return new object[] { classCleanupFailure, "Test Class Cleanup Failure (MyType)" };
+
+                var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
+                var testMethod = Mocks.TestMethod(methodName: "MyMethod");
+                methodCleanupFailure.TestMethod.Returns(testMethod);
+                yield return new object[] { methodCleanupFailure, "Test Method Cleanup Failure (MyMethod)" };
+
+                var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
+                var testCase = Mocks.TestCase(typeof(Object), "ToString", displayName: "MyTestCase");
+                testCaseCleanupFailure.TestCase.Returns(testCase);
+                yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
+
+                var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
+                testCleanupFailure.TestDisplayName.Returns("MyTest");
+                yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
+            }
+        }
+
+        [Theory]
+        [MemberData("Messages")]
+        public static void LogsMessage(IMessageSinkMessage message, string messageType)
+        {
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null);
+            using (var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null))
+            {
+                visitor.OnMessage(message);
 
-            var result = visitor.OnMessage(errorMessage);
-
-            Assert.Collection(logger.Messages,
-                msg => Assert.Equal("ERROR: ExceptionType : This is my message \\t\\r\\n", msg),
-                msg => Assert.Equal("ERROR: Line 1\r\nLine 2\r\nLine 3", msg));
+                var msg = Assert.Single(logger.Messages);
+                Assert.Equal(String.Format("MESSAGE[High]: ##teamcity[message text='|[{0}|] ExceptionType: ExceptionType : This is my message \t|r|n' errorDetails='Line 1|r|nLine 2|r|nLine 3' status='ERROR']", messageType), msg);
+            }
         }
     }
 
@@ -39,7 +85,7 @@ public class TeamCityVisitorTests
             collectionFinished.TestCollection.DisplayName.Returns("Display Name");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
 
             visitor.OnMessage(collectionFinished);
 
@@ -56,7 +102,7 @@ public class TeamCityVisitorTests
             collectionStarting.TestCollection.DisplayName.Returns("Display Name");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
 
             visitor.OnMessage(collectionStarting);
 
@@ -79,7 +125,7 @@ public class TeamCityVisitorTests
             testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
 
             visitor.OnMessage(testFailed);
 
@@ -100,7 +146,7 @@ public class TeamCityVisitorTests
             testPassed.ExecutionTime.Returns(1.2345M);
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
 
             visitor.OnMessage(testPassed);
 
@@ -120,7 +166,7 @@ public class TeamCityVisitorTests
             testSkipped.Reason.Returns("This is my skip reason \t\r\n");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
 
             visitor.OnMessage(testSkipped);
 
@@ -140,7 +186,7 @@ public class TeamCityVisitorTests
             testStarting.TestDisplayName.Returns("This is my display name \t\r\n");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
 
             visitor.OnMessage(testStarting);
 

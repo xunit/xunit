@@ -50,7 +50,7 @@ namespace Xunit.ConsoleClient
 
                 var commandLine = CommandLine.Parse(args);
 
-                int failCount = RunProject(defaultDirectory, commandLine.Project, commandLine.TeamCity, commandLine.AppVeyor,
+                var failCount = RunProject(defaultDirectory, commandLine.Project, commandLine.TeamCity, commandLine.AppVeyor,
                                            commandLine.Silent, commandLine.ParallelizeAssemblies, commandLine.ParallelizeTestCollections,
                                            commandLine.MaxParallelThreads);
 
@@ -134,7 +134,7 @@ namespace Xunit.ConsoleClient
             if (needsXml)
                 assembliesElement = new XElement("assemblies");
 
-            string originalWorkingFolder = Directory.GetCurrentDirectory();
+            var originalWorkingFolder = Directory.GetCurrentDirectory();
 
             using (AssemblyHelper.SubscribeResolve())
             {
@@ -166,33 +166,38 @@ namespace Xunit.ConsoleClient
                     var totalTestsFailed = completionMessages.Values.Sum(summary => summary.Failed);
                     var totalTestsSkipped = completionMessages.Values.Sum(summary => summary.Skipped);
                     var totalTime = completionMessages.Values.Sum(summary => summary.Time).ToString("0.000s");
+                    var totalErrors = completionMessages.Values.Sum(summary => summary.Errors);
                     var longestAssemblyName = completionMessages.Keys.Max(key => key.Length);
                     var longestTotal = totalTestsRun.ToString().Length;
                     var longestFailed = totalTestsFailed.ToString().Length;
                     var longestSkipped = totalTestsSkipped.ToString().Length;
                     var longestTime = totalTime.Length;
+                    var longestErrors = totalErrors.ToString().Length;
 
                     foreach (var message in completionMessages.OrderBy(m => m.Key))
-                        Console.WriteLine("   {0}  Total: {1}, Failed: {2}, Skipped: {3}, Time: {4}",
+                        Console.WriteLine("   {0}  Total: {1}, Failed: {2}, Skipped: {3}, Time: {4}, Errors: {5}",
                                           message.Key.PadRight(longestAssemblyName),
                                           message.Value.Total.ToString().PadLeft(longestTotal),
                                           message.Value.Failed.ToString().PadLeft(longestFailed),
                                           message.Value.Skipped.ToString().PadLeft(longestSkipped),
-                                          message.Value.Time.ToString("0.000s").PadLeft(longestTime));
+                                          message.Value.Time.ToString("0.000s").PadLeft(longestTime),
+                                          message.Value.Errors.ToString().PadLeft(longestErrors));
 
                     if (completionMessages.Count > 1)
-                        Console.WriteLine("   {0}         {1}          {2}           {3}        {4}" + Environment.NewLine +
-                                          "           {5} {6}          {7}           {8}        {9}",
+                        Console.WriteLine("   {0}         {1}          {2}           {3}        {4}          {5}" + Environment.NewLine +
+                                          "           {6} {7}          {8}           {9}        {10}          {11}",
                                           " ".PadRight(longestAssemblyName),
                                           "-".PadRight(longestTotal, '-'),
                                           "-".PadRight(longestFailed, '-'),
                                           "-".PadRight(longestSkipped, '-'),
                                           "-".PadRight(longestTime, '-'),
+                                          "-".PadRight(longestErrors, '-'),
                                           "GRAND TOTAL:".PadLeft(longestAssemblyName),
                                           totalTestsRun,
                                           totalTestsFailed,
                                           totalTestsSkipped,
-                                          totalTime);
+                                          totalTime,
+                                          totalErrors);
 
                 }
             }

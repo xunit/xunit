@@ -21,7 +21,7 @@ public class XmlTestExecutionVisitorTests
         [Fact]
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
-            var visitor = new XmlTestExecutionVisitor(null, () => true);
+            var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), () => true);
 
             var result = visitor.OnMessage(testMessage);
 
@@ -31,7 +31,7 @@ public class XmlTestExecutionVisitorTests
         [Fact]
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
-            var visitor = new XmlTestExecutionVisitor(null, () => false);
+            var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), () => false);
 
             var result = visitor.OnMessage(testMessage);
 
@@ -50,7 +50,7 @@ public class XmlTestExecutionVisitorTests
             assemblyFinished.TestsSkipped.Returns(6);
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
-            var visitor = new XmlTestExecutionVisitor(null, () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
+            var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
 
             visitor.OnMessage(assemblyFinished);
 
@@ -111,7 +111,12 @@ public class XmlTestExecutionVisitorTests
 
             var assemblyElement = new XElement("assembly");
             var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var errorMessage = Substitute.For<IErrorMessage>();
+            errorMessage.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            errorMessage.Messages.Returns(new[] { "Message" });
+            errorMessage.StackTraces.Returns(new[] { "Stack" });
 
+            visitor.OnMessage(errorMessage);
             visitor.OnMessage(assemblyFinished);
 
             Assert.Equal("2112", assemblyElement.Attribute("total").Value);
@@ -119,6 +124,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("42", assemblyElement.Attribute("failed").Value);
             Assert.Equal("6", assemblyElement.Attribute("skipped").Value);
             Assert.Equal(123.457M.ToString(), assemblyElement.Attribute("time").Value);
+            Assert.Equal("1", assemblyElement.Attribute("errors").Value);
         }
 
         [CulturedFact]
@@ -333,6 +339,78 @@ public class XmlTestExecutionVisitorTests
         {
             [Fact]
             public void TestMethod() { }
+        }
+
+        static TMessageType MakeFailureInformationSubstitute<TMessageType>()
+            where TMessageType : class, IFailureInformation
+        {
+            var result = Substitute.For<TMessageType>();
+            result.ExceptionTypes.Returns(new[] { "ExceptionType" });
+            result.Messages.Returns(new[] { "This is my message \t\r\n" });
+            result.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
+            return result;
+        }
+
+        public static IEnumerable<object[]> Messages
+        {
+            get
+            {
+                yield return new object[] { MakeFailureInformationSubstitute<IErrorMessage>(), "fatal", null };
+
+                var assemblyCleanupFailure = MakeFailureInformationSubstitute<ITestAssemblyCleanupFailure>();
+                var testAssembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
+                assemblyCleanupFailure.TestAssembly.Returns(testAssembly);
+                yield return new object[] { assemblyCleanupFailure, @"assembly-cleanup", @"C:\Foo\bar.dll" };
+
+                var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
+                var testCollection = Mocks.TestCollection(displayName: "FooBar");
+                collectionCleanupFailure.TestCollection.Returns(testCollection);
+                yield return new object[] { collectionCleanupFailure, "test-collection-cleanup", "FooBar" };
+
+                var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
+                var testClass = Mocks.TestClass("MyType");
+                classCleanupFailure.TestClass.Returns(testClass);
+                yield return new object[] { classCleanupFailure, "test-class-cleanup", "MyType" };
+
+                var methodCleanupFailure = MakeFailureInformationSubstitute<ITestMethodCleanupFailure>();
+                var testMethod = Mocks.TestMethod(methodName: "MyMethod");
+                methodCleanupFailure.TestMethod.Returns(testMethod);
+                yield return new object[] { methodCleanupFailure, "test-method-cleanup", "MyMethod" };
+
+                var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
+                var testCase = Mocks.TestCase(typeof(Object), "ToString", displayName: "MyTestCase");
+                testCaseCleanupFailure.TestCase.Returns(testCase);
+                yield return new object[] { testCaseCleanupFailure, "test-case-cleanup", "MyTestCase" };
+
+                var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
+                testCleanupFailure.TestDisplayName.Returns("MyTest");
+                yield return new object[] { testCleanupFailure, "test-cleanup", "MyTest" };
+            }
+        }
+
+        [Theory]
+        [MemberData("Messages")]
+        public void AddsErrorMessagesToXml(IMessageSinkMessage errorMessage, string messageType, string name)
+        {
+            var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+            var assemblyElement = new XElement("assembly");
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+
+            visitor.OnMessage(errorMessage);
+            visitor.OnMessage(assemblyFinished);
+
+            var errorElement = Assert.Single(assemblyElement.Element("errors").Elements());
+            Assert.Equal(messageType, errorElement.Attribute("type").Value);
+
+            if (name == null)
+                Assert.Null(errorElement.Attribute("name"));
+            else
+                Assert.Equal(name, errorElement.Attribute("name").Value);
+
+            var failureElement = Assert.Single(errorElement.Elements("failure"));
+            Assert.Equal("ExceptionType", failureElement.Attribute("exception-type").Value);
+            Assert.Equal("ExceptionType : This is my message \t\r\n", failureElement.Elements("message").Single().Value);
+            Assert.Equal("Line 1\r\nLine 2\r\nLine 3", failureElement.Elements("stack-trace").Single().Value);
         }
     }
 }

@@ -12,11 +12,11 @@ namespace Xunit.Runner.MSBuild
         readonly ConcurrentDictionary<string, string> flowMappings = new ConcurrentDictionary<string, string>();
         readonly Func<string, string> flowIdMapper;
 
-        public TeamCityVisitor(TaskLoggingHelper log, XElement assembliesElement, Func<bool> cancelThunk)
-            : this(log, assembliesElement, cancelThunk, _ => Guid.NewGuid().ToString("N")) { }
+        public TeamCityVisitor(TaskLoggingHelper log, XElement assemblyElement, Func<bool> cancelThunk)
+            : this(log, assemblyElement, cancelThunk, _ => Guid.NewGuid().ToString("N")) { }
 
-        public TeamCityVisitor(TaskLoggingHelper log, XElement assembliesElement, Func<bool> cancelThunk, Func<string, string> flowIdMapper)
-            : base(log, assembliesElement, cancelThunk)
+        public TeamCityVisitor(TaskLoggingHelper log, XElement assemblyElement, Func<bool> cancelThunk, Func<string, string> flowIdMapper)
+            : base(log, assemblyElement, cancelThunk)
         {
             this.flowIdMapper = flowIdMapper;
         }
@@ -27,14 +27,6 @@ namespace Xunit.Runner.MSBuild
                            TeamCityEscape(testResult.TestDisplayName),
                            (int)(testResult.ExecutionTime * 1000M),
                            ToFlowId(testResult.TestCollection.DisplayName));
-        }
-
-        protected override bool Visit(IErrorMessage error)
-        {
-            Log.LogError("{0}", Escape(ExceptionUtility.CombineMessages(error)));
-            Log.LogError("{0}", ExceptionUtility.CombineStackTraces(error));
-
-            return base.Visit(error);
         }
 
         protected override bool Visit(ITestCollectionFinished testCollectionFinished)
@@ -95,6 +87,63 @@ namespace Xunit.Runner.MSBuild
                            ToFlowId(testStarting.TestCollection.DisplayName));
 
             return base.Visit(testStarting);
+        }
+
+        protected override bool Visit(IErrorMessage error)
+        {
+            WriteError("FATAL", error);
+
+            return base.Visit(error);
+        }
+
+        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.TestDisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        void WriteError(string messageType, IFailureInformation failureInfo)
+        {
+            var message = String.Format("[{0}] {1}: {2}", messageType, failureInfo.ExceptionTypes[0], ExceptionUtility.CombineMessages(failureInfo));
+            var stack = ExceptionUtility.CombineStackTraces(failureInfo);
+
+            Log.LogMessage(MessageImportance.High, "##teamcity[message text='{0}' errorDetails='{1}' status='ERROR']", TeamCityEscape(message), TeamCityEscape(stack));
         }
 
         static string TeamCityEscape(string value)

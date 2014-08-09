@@ -49,25 +49,11 @@ namespace Xunit.ConsoleClient
                     Total = assemblyFinished.TestsRun,
                     Failed = assemblyFinished.TestsFailed,
                     Skipped = assemblyFinished.TestsSkipped,
-                    Time = assemblyFinished.ExecutionTime
+                    Time = assemblyFinished.ExecutionTime,
+                    Errors = Errors
                 });
 
             return result;
-        }
-
-        protected override bool Visit(IErrorMessage error)
-        {
-            lock (consoleLock)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine("   {0} [FATAL]", Escape(error.ExceptionTypes[0]));
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.Error.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(error)));
-
-                WriteStackTrace(ExceptionUtility.CombineStackTraces(error));
-            }
-
-            return base.Visit(error);
         }
 
         protected override bool Visit(ITestFailed testFailed)
@@ -78,7 +64,7 @@ namespace Xunit.ConsoleClient
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Error.WriteLine("   {0} [FAIL]", Escape(testFailed.TestDisplayName));
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.Error.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(testFailed)));
+                Console.Error.WriteLine("      {0}", ExceptionUtility.CombineMessages(testFailed).Replace(Environment.NewLine, Environment.NewLine + "      "));
 
                 WriteStackTrace(ExceptionUtility.CombineStackTraces(testFailed));
             }
@@ -108,6 +94,68 @@ namespace Xunit.ConsoleClient
         protected override bool Visit(ITestStarting testStarting)
         {
             return base.Visit(testStarting);
+        }
+
+        protected override bool Visit(IErrorMessage error)
+        {
+            WriteError("FATAL", error);
+
+            return base.Visit(error);
+        }
+
+        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.TestDisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected void WriteError(string failureName, IFailureInformation failureInfo)
+        {
+            lock (consoleLock)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Error.WriteLine("   [{0}] {1}", failureName, Escape(failureInfo.ExceptionTypes[0]));
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.Error.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(failureInfo)));
+
+                WriteStackTrace(ExceptionUtility.CombineStackTraces(failureInfo));
+            }
         }
 
         void WriteStackTrace(string stackTrace)
