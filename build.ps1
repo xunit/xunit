@@ -2,7 +2,7 @@ param(
     [string]$target = "Test",
     [string]$verbosity = "minimal",
     [int]$maxCpuCount = 0,
-	[switch]$noXamarin = $false
+    [switch]$noXamarin = $false
 )
 
 # Kill all MSBUILD.EXE processes because they could very likely have a lock against our
@@ -24,7 +24,7 @@ if ($maxCpuCount -lt 1) {
 
 $solutionNameArg = "/property:SolutionName=xunit.sln"
 if($noXamarin) {
-	$solutionNameArg = "/property:SolutionName=xunit-NoXamarin.sln"
+    $solutionNameArg = "/property:SolutionName=xunit-NoXamarin.sln"
 }
 
 $allArgs = @("xunit.msbuild", "/m$maxCpuCountText", "/nologo", "/verbosity:$verbosity", "/t:$target", "/property:RequestedVerbosity=$verbosity", $solutionNameArg, $args)

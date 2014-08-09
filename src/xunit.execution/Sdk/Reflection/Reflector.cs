@@ -31,23 +31,28 @@ namespace Xunit.Sdk
                 types = EmptyTypes;
 
             if (args.Length == types.Length)
-                for (int idx = 0; idx < args.Length; idx++)
+                for (var idx = 0; idx < args.Length; idx++)
                 {
-                    var type = types[idx];
-                    if (type.IsArray && args[idx] != null && args[idx].GetType() != type)
+                    try
                     {
-                        var elementType = type.GetElementType();
-                        var arg = (IEnumerable<object>)args[idx];
-                        var castMethod = EnumerableCast.MakeGenericMethod(elementType);
-                        var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
-                        args[idx] = toArrayMethod.Invoke(null, new object[] { castMethod.Invoke(null, new object[] { arg }) });
-                    }
-                    else if (args[idx] != null && args[idx].GetType() != type)
-                    {
+                        var type = types[idx];
                         var arg = args[idx];
-                        if (arg.GetType().GetTypeInfo().ImplementedInterfaces.Any(t => t.FullName == "System.IConvertible"))
+
+                        if (arg == null || arg.GetType() == type)
+                            continue;
+
+                        if (type.IsArray)
+                        {
+                            var elementType = type.GetElementType();
+                            var enumerable = (IEnumerable<object>)arg;
+                            var castMethod = EnumerableCast.MakeGenericMethod(elementType);
+                            var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
+                            args[idx] = toArrayMethod.Invoke(null, new object[] { castMethod.Invoke(null, new object[] { enumerable }) });
+                        }
+                        else
                             args[idx] = Convert.ChangeType(arg, type);
                     }
+                    catch { }  // Eat conversion-related exceptions; they'll get re-surfaced during execution
                 }
 
             return args;
