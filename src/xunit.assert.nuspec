@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>xunit.assert</id>
-    <version>2.0.0-beta</version>
+    <version>99.99.99</version>
     <title>xUnit.net [Assertion Library]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>

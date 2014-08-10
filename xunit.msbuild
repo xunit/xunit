@@ -28,18 +28,10 @@
     <PackageSource Include="http://www.myget.org/F/b4ff5f68eccf4f6bbfed74f055f88d8f/" />
   </ItemGroup>
 
-  <!-- Cascading attempts to find a build number -->
-
-  <PropertyGroup Condition="'$(BuildNumber)' == ''">
-    <BuildNumber>$(BUILD_NUMBER)</BuildNumber>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(BuildNumber)' == ''">
-    <BuildNumber>0</BuildNumber>
-  </PropertyGroup>
-
   <!-- Build server targets -->
 
-  <Target Name="TeamCity" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts;PushMyGet" />
+  <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts" />
+  <Target Name="TeamCity" DependsOnTargets="CI;PushMyGet" />
 
   <!-- Individiual targets -->
 
@@ -112,23 +104,17 @@
 
   <Target Name="Test" DependsOnTargets="Build;_Test32;_Test64" />
 
-  <Target Name="Help" DependsOnTargets="Build">
-    <Exec Command='"C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\SandcastleBuilderConsole.exe" help\xunit.shfb' />
-  </Target>
-
   <Target Name="SetVersionNumber">
     <RegexReplace
-        Pattern='AssemblyVersion\("(\d+\.\d+\.\d+)\.\d+"\)'
-        Replacement='AssemblyVersion("$1.$(BuildNumber)")'
-        Files='src\common\GlobalAssemblyInfo.cs'/>
+        Pattern='AssemblyVersion\("99\.99\.99\.0"\)'
+        Replacement='AssemblyVersion("$(BuildAssemblyVersion)")'
+        Files='src\common\GlobalAssemblyInfo.cs'
+        Condition=" '$(BuildAssemblyVersion)' != '' "/>
     <RegexReplace
-        Pattern='&lt;version&gt;(\d+\.\d+\.\d+(-[A-Za-z0-9-]+)?)&lt;'
-        Replacement='&lt;version&gt;$1-build$(BuildNumber)&lt;'
-        Files='@(NuspecFiles)'/>
-    <RegexReplace
-        Pattern='version=&quot;\[(\d+\.\d+\.\d+(-[A-Za-z0-9-]+)?)\]&quot;'
-        Replacement='version=&quot;[$1-build$(BuildNumber)]&quot;'
-        Files='@(NuspecFiles)'/>
+        Pattern='99\.99\.99'
+        Replacement='$(BuildSemanticVersion)'
+        Files='@(NuspecFiles)'
+        Condition=" '$(BuildSemanticVersion)' != '' "/>
   </Target>
 
   <Target Name='Packages'>

@@ -13,13 +13,13 @@ public class XunitTestAssemblyRunnerTests
     public class GetTestFrameworkDisplayName
     {
         [Fact]
-        public static void IsXunit2()
+        public static void IsXunit()
         {
             var runner = TestableXunitTestAssemblyRunner.Create();
 
             var result = runner.GetTestFrameworkDisplayName();
 
-            Assert.StartsWith("xUnit.net 2.", result);
+            Assert.StartsWith("xUnit.net ", result);
         }
     }
 

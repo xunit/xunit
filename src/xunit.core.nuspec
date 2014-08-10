@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata minClientVersion="2.5">
     <id>xunit.core</id>
-    <version>2.0.0-beta</version>
+    <version>99.99.99</version>
     <title>xUnit.net [Core Library]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
@@ -19,17 +19,17 @@
     </references>
     <dependencies>
       <group>
-        <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
-        <!-- FOR WHEN WE RTM: -->
-        <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1)" />-->
+        <dependency id="xunit.abstractions" version="[99.99.99]" />
+        <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
       </group>
-      <!-- Bring in the ability to run Win8 and WPA81 tests in Visual Studio automatically -->
       <group targetFramework="win8">
-        <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
+        <dependency id="xunit.abstractions" version="[99.99.99]" />
+        <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
         <dependency id="xunit.runner.visualstudio" version="[0.99.8]" />
       </group>
       <group targetFramework="wpa81">
-        <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
+        <dependency id="xunit.abstractions" version="[99.99.99]" />
+        <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
         <dependency id="xunit.runner.visualstudio" version="[0.99.8]" />
       </group>
     </dependencies>

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>xunit.runners</id>
-    <version>2.0.0-beta</version>
+    <version>99.99.99</version>
     <title>xUnit.net [Runners]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
