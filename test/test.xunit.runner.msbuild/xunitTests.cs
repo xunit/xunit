@@ -80,7 +80,7 @@ public class xunitTests
         [Fact]
         public static void CallsExecuteAssemblyOnceForEachAssembly()
         {
-            var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), null);
+            var visitor = new XmlTestExecutionVisitor(null, null);
             visitor.Finished.Set();
             var assm1 = new TaskItem(@"C:\Full\Path\1");
             var assm2 = new TaskItem(@"C:\Full\Path\2", new Dictionary<string, string> { { "ConfigFile", @"C:\Config\File" } });
@@ -118,7 +118,7 @@ public class xunitTests
         [Fact]
         public static void ReturnsFalseWhenFailCountIsNonZero()
         {
-            var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), null) { Failed = 1 };
+            var visitor = new XmlTestExecutionVisitor(null, null) { Failed = 1 };
             visitor.Finished.Set();
             var task = Substitute.For<ITaskItem>();
             task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
@@ -136,7 +136,7 @@ public class xunitTests
 
             try
             {
-                var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), null) { Failed = 1 };
+                var visitor = new XmlTestExecutionVisitor(null, null) { Failed = 1 };
                 visitor.Finished.Set();
                 var task = Substitute.For<ITaskItem>();
                 task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
@@ -161,7 +161,7 @@ public class xunitTests
 
             try
             {
-                var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), null) { Failed = 1 };
+                var visitor = new XmlTestExecutionVisitor(null, null) { Failed = 1 };
                 visitor.Finished.Set();
                 var task = Substitute.For<ITaskItem>();
                 task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
@@ -187,7 +187,7 @@ public class xunitTests
 
             try
             {
-                var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), null) { Failed = 1 };
+                var visitor = new XmlTestExecutionVisitor(null, null) { Failed = 1 };
                 visitor.Finished.Set();
                 var task = Substitute.For<ITaskItem>();
                 task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
@@ -325,7 +325,7 @@ public class xunitTests
             if (CreateVisitor_Result != null)
                 return CreateVisitor_Result;
 
-            return base.CreateVisitor(assemblyFileName, new XElement("assembly"));
+            return base.CreateVisitor(assemblyFileName, null);
         }
 
         protected override XmlTestExecutionVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)

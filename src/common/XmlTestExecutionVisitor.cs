@@ -14,14 +14,15 @@ namespace Xunit
 
         public XmlTestExecutionVisitor(XElement assemblyElement, Func<bool> cancelThunk)
         {
-            Guard.ArgumentNotNull("assemblyElement", assemblyElement);
-
             CancelThunk = cancelThunk ?? (() => false);
 
-            errorsElement = new XElement("errors");
-
             this.assemblyElement = assemblyElement;
-            this.assemblyElement.Add(errorsElement);
+
+            if (this.assemblyElement != null)
+            {
+                errorsElement = new XElement("errors");
+                this.assemblyElement.Add(errorsElement);
+            }
         }
 
         public readonly Func<bool> CancelThunk;
@@ -230,6 +231,9 @@ namespace Xunit
         void AddError(string type, string name, IFailureInformation failureInfo)
         {
             Errors++;
+
+            if (errorsElement == null)
+                return;
 
             var errorElement = new XElement("error", new XAttribute("type", type), CreateFailureElement(failureInfo));
             if (name != null)

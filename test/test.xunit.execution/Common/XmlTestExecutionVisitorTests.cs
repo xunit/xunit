@@ -21,7 +21,7 @@ public class XmlTestExecutionVisitorTests
         [Fact]
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
-            var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), () => true);
+            var visitor = new XmlTestExecutionVisitor(null, () => true);
 
             var result = visitor.OnMessage(testMessage);
 
@@ -31,7 +31,7 @@ public class XmlTestExecutionVisitorTests
         [Fact]
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
-            var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), () => false);
+            var visitor = new XmlTestExecutionVisitor(null, () => false);
 
             var result = visitor.OnMessage(testMessage);
 
@@ -50,7 +50,7 @@ public class XmlTestExecutionVisitorTests
             assemblyFinished.TestsSkipped.Returns(6);
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
-            var visitor = new XmlTestExecutionVisitor(new XElement("assembly"), () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
+            var visitor = new XmlTestExecutionVisitor(null, () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
 
             visitor.OnMessage(assemblyFinished);
 

@@ -62,7 +62,7 @@ public class TeamCityVisitorTests
         public static void LogsMessage(IMessageSinkMessage message, string messageType)
         {
             var logger = SpyLogger.Create();
-            using (var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null))
+            using (var visitor = new TeamCityVisitor(logger, null, null))
             {
                 visitor.OnMessage(message);
 
@@ -85,7 +85,7 @@ public class TeamCityVisitorTests
             collectionFinished.TestCollection.DisplayName.Returns("Display Name");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(collectionFinished);
 
@@ -102,7 +102,7 @@ public class TeamCityVisitorTests
             collectionStarting.TestCollection.DisplayName.Returns("Display Name");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(collectionStarting);
 
@@ -125,7 +125,7 @@ public class TeamCityVisitorTests
             testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(testFailed);
 
@@ -146,7 +146,7 @@ public class TeamCityVisitorTests
             testPassed.ExecutionTime.Returns(1.2345M);
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(testPassed);
 
@@ -166,7 +166,7 @@ public class TeamCityVisitorTests
             testSkipped.Reason.Returns("This is my skip reason \t\r\n");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(testSkipped);
 
@@ -186,7 +186,7 @@ public class TeamCityVisitorTests
             testStarting.TestDisplayName.Returns("This is my display name \t\r\n");
 
             var logger = SpyLogger.Create();
-            var visitor = new TeamCityVisitor(logger, new XElement("assembly"), null, _ => "myFlowId");
+            var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
 
             visitor.OnMessage(testStarting);
 

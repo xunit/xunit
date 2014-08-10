@@ -62,7 +62,7 @@ public class StandardOutputVisitorTests
         public static void LogsMessage(IMessageSinkMessage message, string messageType)
         {
             var logger = SpyLogger.Create();
-            using (var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), false, null))
+            using (var visitor = new StandardOutputVisitor(logger, null, false, null))
             {
                 visitor.OnMessage(message);
 
@@ -79,7 +79,7 @@ public class StandardOutputVisitorTests
             ((IFailureInformation)message).StackTraces.Returns(new[] { @"   at FixtureAcceptanceTests.Constructors.TestClassMustHaveSinglePublicConstructor() in d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs:line 16" });
 
             var logger = SpyLogger.Create(includeSourceInformation: true);
-            using (var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), false, null))
+            using (var visitor = new StandardOutputVisitor(logger, null, false, null))
             {
                 visitor.OnMessage(message);
 
@@ -97,7 +97,7 @@ public class StandardOutputVisitorTests
                                                                      + @"   at FixtureAcceptanceTests.ClassFixture.TestClassWithExtraArgumentToConstructorResultsInFailedTest() in d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs:line 76" });
 
             var logger = SpyLogger.Create(includeSourceInformation: true);
-            using (var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), false, null))
+            using (var visitor = new StandardOutputVisitor(logger, null, false, null))
             {
                 visitor.OnMessage(message);
 
@@ -123,7 +123,7 @@ public class StandardOutputVisitorTests
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(assemblyStarting);
             visitor.OnMessage(assemblyFinished);
@@ -146,7 +146,7 @@ public class StandardOutputVisitorTests
             testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(testFailed);
 
@@ -166,7 +166,7 @@ public class StandardOutputVisitorTests
             testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(testFailed);
 
@@ -189,7 +189,7 @@ public class StandardOutputVisitorTests
         public void LogsTestName()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(testPassed);
 
@@ -200,7 +200,7 @@ public class StandardOutputVisitorTests
         public void AddsPassToLogWhenInVerboseMode()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), true, null);
+            var visitor = new StandardOutputVisitor(logger, null, true, null);
 
             visitor.OnMessage(testPassed);
 
@@ -218,7 +218,7 @@ public class StandardOutputVisitorTests
             testSkipped.Reason.Returns("This is my skip reason \t\r\n");
 
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(testSkipped);
 
@@ -240,7 +240,7 @@ public class StandardOutputVisitorTests
         public void NoOutputWhenNotInVerboseMode()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), false, null);
+            var visitor = new StandardOutputVisitor(logger, null, false, null);
 
             visitor.OnMessage(testStarting);
 
@@ -251,7 +251,7 @@ public class StandardOutputVisitorTests
         public void OutputStartMessageWhenInVerboseMode()
         {
             var logger = SpyLogger.Create();
-            var visitor = new StandardOutputVisitor(logger, new XElement("assembly"), true, null);
+            var visitor = new StandardOutputVisitor(logger, null, true, null);
 
             visitor.OnMessage(testStarting);
 
