@@ -18,9 +18,20 @@
       <reference file="xunit.core.dll" />
     </references>
     <dependencies>
-      <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
-      <!-- FOR WHEN WE RTM: -->
-      <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1)" />-->
+      <group>
+        <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
+        <!-- FOR WHEN WE RTM: -->
+        <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1)" />-->
+      </group>
+      <!-- Bring in the ability to run Win8 and WPA81 tests in Visual Studio automatically -->
+      <group targetFramework="win8">
+        <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
+        <dependency id="xunit.runner.visualstudio" version="[0.99.8]" />
+      </group>
+      <group targetFramework="wpa81">
+        <dependency id="xunit.abstractions" version="[2.0.0-beta]" />
+        <dependency id="xunit.runner.visualstudio" version="[0.99.8]" />
+      </group>
     </dependencies>
   </metadata>
   <files>
