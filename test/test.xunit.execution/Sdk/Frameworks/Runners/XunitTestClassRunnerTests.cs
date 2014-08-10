@@ -49,6 +49,46 @@ public class XunitTestClassRunnerTests
     }
 
     [Fact]
+    public static async void TestClassCanHavePublicAndPrivateConstructor()
+    {
+        var testCase = Mocks.XunitTestCase<ClassWithMixedConstructors>("Passing");
+        var runner = TestableXunitTestClassRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        Assert.Null(runner.RunTestMethodAsync_AggregatorResult);
+    }
+
+    class ClassWithMixedConstructors
+    {
+        public ClassWithMixedConstructors() { }
+        ClassWithMixedConstructors(int x) { }
+
+        [Fact]
+        public void Passing() { }
+    }
+
+    [Fact]
+    public static async void TestClassCanHaveStaticConstructor()
+    {
+        var testCase = Mocks.XunitTestCase<ClassWithStaticConstructor>("Passing");
+        var runner = TestableXunitTestClassRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        Assert.Null(runner.RunTestMethodAsync_AggregatorResult);
+    }
+
+    class ClassWithStaticConstructor
+    {
+        static ClassWithStaticConstructor() { }
+        public ClassWithStaticConstructor() { }
+
+        [Fact]
+        public void Passing() { }
+    }
+
+    [Fact]
     public static async void CreatesFixturesFromClassAndCollection()
     {
         var collection = new XunitTestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);

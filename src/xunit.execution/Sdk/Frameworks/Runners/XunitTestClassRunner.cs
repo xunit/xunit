@@ -99,7 +99,7 @@ namespace Xunit.Sdk
         {
             var ctors = Class.Type.GetTypeInfo()
                                   .DeclaredConstructors
-                                  .Where(ci => !ci.IsStatic) // filter out static ctors
+                                  .Where(ci => !ci.IsStatic && ci.IsPublic)
                                   .ToList();
 
             if (ctors.Count == 1)
