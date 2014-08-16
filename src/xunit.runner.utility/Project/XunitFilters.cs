@@ -16,6 +16,7 @@ namespace Xunit
         {
             ExcludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             IncludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            IncludedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -29,18 +30,34 @@ namespace Xunit
         public Dictionary<string, List<string>> IncludedTraits { get; private set; }
 
         /// <summary>
+        /// Gets the set of names filters for tests to include.
+        /// </summary>
+        public HashSet<string> IncludedNames { get; private set; }
+
+        /// <summary>
         /// Filters the given method using the defined filter values.
         /// </summary>
         /// <param name="testCase">The test case to filter.</param>
         /// <returns>Returns <c>true</c> if the test case passed the filter; returns <c>false</c> otherwise.</returns>
         public bool Filter(ITestCase testCase)
         {
+            if (!FilterIncludedNames(testCase))
+                return false;
             if (!FilterIncludedTraits(testCase))
                 return false;
             if (!FilterExcludedTraits(testCase))
                 return false;
 
             return true;
+        }
+
+        bool FilterIncludedNames(ITestCase testCase)
+        {
+            // No names in the filter == everything is okay
+            if (IncludedNames.Count == 0)
+                return true;
+
+            return IncludedNames.Contains(testCase.DisplayName);
         }
 
         bool FilterExcludedTraits(ITestCase testCase)
