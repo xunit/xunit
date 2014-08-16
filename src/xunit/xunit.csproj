@@ -70,6 +70,7 @@
     <Compile Include="Sdk\AsyncTestSyncContext.cs" />
     <Compile Include="Sdk\Commands\TestCommands\ExceptionAndOutputCaptureCommand.cs" />
     <Compile Include="Sdk\Commands\TestCommands\FactCommand.cs" />
+    <Compile Include="Sdk\Utilities\SafeStringWriter.cs" />
     <Compile Include="Sdk\Exceptions\AssertActualExpectedException.cs" />
     <Compile Include="Sdk\Exceptions\AssertException.cs" />
     <Compile Include="Sdk\Exceptions\ContainsException.cs" />
