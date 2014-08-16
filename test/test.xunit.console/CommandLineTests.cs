@@ -490,6 +490,58 @@ public class CommandLineTests
         }
     }
 
+    public class TestNameArgument
+    {
+        [Fact]
+        public void TestNameArgumentNotPassed()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(0, commandLine.Project.Filters.IncludedNames.Count);
+        }
+
+        [Fact]
+        public void SingleValidTestNameArgument()
+        {
+            const string name = "Namespace.Class.Method1";
+
+            var arguments = new[] { "assemblyName.dll", "-testname", name };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(1, commandLine.Project.Filters.IncludedNames.Count);
+            Assert.True(commandLine.Project.Filters.IncludedNames.Contains(name));
+        }
+
+        [Fact]
+        public void MultipleValidTestNameArguments()
+        {
+            const string name1 = "Namespace.Class.Method1";
+            const string name2 = "Namespace.Class.Method2";
+
+            var arguments = new[] { "assemblyName.dll", "-testname", name1, "-testname", name2 };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(2, commandLine.Project.Filters.IncludedNames.Count);
+            Assert.True(commandLine.Project.Filters.IncludedNames.Contains(name1));
+            Assert.True(commandLine.Project.Filters.IncludedNames.Contains(name2));
+        }
+
+        [Fact]
+        public void MissingOptionValue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-testname" };
+
+            var ex = Record.Exception(() => TestableCommandLine.Parse(arguments));
+
+            Assert.IsType<ArgumentException>(ex);
+            Assert.Equal("missing argument for -testname", ex.Message);
+        }
+    }
+
     public class ParallelizationOptions
     {
         [Fact]

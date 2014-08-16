@@ -177,6 +177,13 @@ namespace Xunit.ConsoleClient
                     var value = pieces[1];
                     project.Filters.ExcludedTraits.Add(name, value);
                 }
+                else if (optionName == "-testname")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -testname");
+
+                    project.Filters.IncludedNames.Add(option.Value);
+                }
                 else
                 {
                     if (option.Value == null)
