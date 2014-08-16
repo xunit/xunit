@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Xunit.Sdk.Utilities;
 
 namespace Xunit.Sdk
 {
@@ -38,7 +39,7 @@ namespace Xunit.Sdk
             TextWriter oldOut = Console.Out;
             TextWriter oldError = Console.Error;
 
-            using (StringWriter outputWriter = new StringWriter())
+            using (SafeStringWriter outputWriter = new SafeStringWriter())
             {
                 try
                 {
