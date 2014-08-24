@@ -116,9 +116,10 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void AfterTestAssemblyStarting()
+        protected override Task AfterTestAssemblyStartingAsync()
         {
             Initialize();
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>

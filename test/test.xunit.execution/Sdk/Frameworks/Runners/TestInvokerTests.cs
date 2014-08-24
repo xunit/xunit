@@ -198,14 +198,16 @@ public class TestInvokerTests
             );
         }
 
-        protected override void AfterTestMethodInvoked()
+        protected override Task AfterTestMethodInvokedAsync()
         {
             AfterTestMethodInvoked_Called = true;
+            return Task.FromResult(0);
         }
 
-        protected override void BeforeTestMethodInvoked()
+        protected override Task BeforeTestMethodInvokedAsync()
         {
             BeforeTestMethodInvoked_Called = true;
+            return Task.FromResult(0);
         }
     }
 }

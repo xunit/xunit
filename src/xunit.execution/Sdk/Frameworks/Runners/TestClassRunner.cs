@@ -130,13 +130,19 @@ namespace Xunit.Sdk
         /// This method is called just after <see cref="ITestClassStarting"/> is sent, but before any test methods are run.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void AfterTestClassStarting() { }
+        protected virtual Task AfterTestClassStartingAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         /// <summary>
         /// This method is called just before <see cref="ITestClassFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void BeforeTestClassFinished() { }
+        protected virtual Task BeforeTestClassFinishedAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         /// <summary>
         /// Runs the tests in the test class.
@@ -152,11 +158,11 @@ namespace Xunit.Sdk
             {
                 try
                 {
-                    AfterTestClassStarting();
+                    await AfterTestClassStartingAsync();
                     classSummary = await RunTestMethodsAsync();
 
                     Aggregator.Clear();
-                    BeforeTestClassFinished();
+                    await BeforeTestClassFinishedAsync();
 
                     if (Aggregator.HasExceptions)
                         if (!MessageBus.QueueMessage(new TestClassCleanupFailure(TestCases.Cast<ITestCase>(), TestClass, Aggregator.ToException())))

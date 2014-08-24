@@ -150,13 +150,19 @@ namespace Xunit.Sdk
         /// This method is called just after the test method has finished executing.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void AfterTestMethodInvoked() { }
+        protected virtual Task AfterTestMethodInvokedAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         /// <summary>
         /// This method is called just before the test method is invoked.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void BeforeTestMethodInvoked() { }
+        protected virtual Task BeforeTestMethodInvokedAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         /// <summary>
         /// Invokes the test method.
@@ -173,12 +179,12 @@ namespace Xunit.Sdk
 
                     if (!CancellationTokenSource.IsCancellationRequested)
                     {
-                        BeforeTestMethodInvoked();
+                        await BeforeTestMethodInvokedAsync();
 
                         if (!Aggregator.HasExceptions)
                             await InvokeTestMethodAsync(testClassInstance);
 
-                        AfterTestMethodInvoked();
+                        await AfterTestMethodInvokedAsync();
                     }
 
                     Aggregator.Run(() => DisposeTestClass(testClassInstance));

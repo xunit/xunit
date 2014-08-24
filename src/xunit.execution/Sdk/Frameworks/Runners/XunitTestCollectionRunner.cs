@@ -34,7 +34,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStarting"/>.
+        /// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStartingAsync"/>.
         /// </summary>
         protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
 
@@ -45,7 +45,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void AfterTestCollectionStarting()
+        protected override Task AfterTestCollectionStartingAsync()
         {
             if (TestCollection.CollectionDefinition != null)
             {
@@ -57,13 +57,17 @@ namespace Xunit.Sdk
                 if (ordererAttribute != null)
                     TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
             }
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>
-        protected override void BeforeTestCollectionFinished()
+        protected override Task BeforeTestCollectionFinishedAsync()
         {
             foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>

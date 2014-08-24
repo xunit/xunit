@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xunit.Sdk
 {
@@ -42,7 +43,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void BeforeTestMethodInvoked()
+        protected override Task BeforeTestMethodInvokedAsync()
         {
             foreach (var beforeAfterAttribute in beforeAfterAttributes)
             {
@@ -71,10 +72,12 @@ namespace Xunit.Sdk
                 if (CancellationTokenSource.IsCancellationRequested)
                     break;
             }
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>
-        protected override void AfterTestMethodInvoked()
+        protected override Task AfterTestMethodInvokedAsync()
         {
             foreach (var beforeAfterAttribute in beforeAfterAttributesRun)
             {
@@ -87,6 +90,8 @@ namespace Xunit.Sdk
                 if (!MessageBus.QueueMessage(new AfterTestFinished(TestCase, DisplayName, attributeName)))
                     CancellationTokenSource.Cancel();
             }
+
+            return Task.FromResult(0);
         }
     }
 }

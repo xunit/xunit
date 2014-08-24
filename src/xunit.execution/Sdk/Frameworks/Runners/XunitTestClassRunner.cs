@@ -42,7 +42,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets the fixture mappings that were created during <see cref="AfterTestClassStarting"/>.
+        /// Gets the fixture mappings that were created during <see cref="AfterTestClassStartingAsync"/>.
         /// </summary>
         protected Dictionary<Type, object> ClassFixtureMappings { get; set; }
 
@@ -60,7 +60,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void AfterTestClassStarting()
+        protected override Task AfterTestClassStartingAsync()
         {
             var ordererAttribute = Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (ordererAttribute != null)
@@ -79,13 +79,17 @@ namespace Xunit.Sdk
                 foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
                     CreateFixture(interfaceType);
             }
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>
-        protected override void BeforeTestClassFinished()
+        protected override Task BeforeTestClassFinishedAsync()
         {
             foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>
