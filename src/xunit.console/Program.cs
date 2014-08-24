@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -137,6 +138,8 @@ namespace Xunit.ConsoleClient
 
             using (AssemblyHelper.SubscribeResolve())
             {
+                var clockTime = Stopwatch.StartNew();
+
                 if (parallelizeAssemblies)
                 {
                     var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, defaultDirectory, assembly, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, project.Filters)));
@@ -153,6 +156,8 @@ namespace Xunit.ConsoleClient
                             assembliesElement.Add(assemblyElement);
                     }
                 }
+
+                clockTime.Stop();
 
                 if (completionMessages.Count > 0)
                 {
@@ -174,29 +179,30 @@ namespace Xunit.ConsoleClient
                     var longestErrors = totalErrors.ToString().Length;
 
                     foreach (var message in completionMessages.OrderBy(m => m.Key))
-                        Console.WriteLine("   {0}  Total: {1}, Failed: {2}, Skipped: {3}, Time: {4}, Errors: {5}",
+                        Console.WriteLine("   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Time: {5}",
                                           message.Key.PadRight(longestAssemblyName),
                                           message.Value.Total.ToString().PadLeft(longestTotal),
+                                          message.Value.Errors.ToString().PadLeft(longestErrors),
                                           message.Value.Failed.ToString().PadLeft(longestFailed),
                                           message.Value.Skipped.ToString().PadLeft(longestSkipped),
-                                          message.Value.Time.ToString("0.000s").PadLeft(longestTime),
-                                          message.Value.Errors.ToString().PadLeft(longestErrors));
+                                          message.Value.Time.ToString("0.000s").PadLeft(longestTime));
 
                     if (completionMessages.Count > 1)
-                        Console.WriteLine("   {0}         {1}          {2}           {3}        {4}          {5}" + Environment.NewLine +
-                                          "           {6} {7}          {8}           {9}        {10}          {11}",
+                        Console.WriteLine("   {0}         {1}          {2}          {3}           {4}        {5}" + Environment.NewLine +
+                                          "           {6} {7}          {8}          {9}           {10}        {11} ({12})",
                                           " ".PadRight(longestAssemblyName),
                                           "-".PadRight(longestTotal, '-'),
+                                          "-".PadRight(longestErrors, '-'),
                                           "-".PadRight(longestFailed, '-'),
                                           "-".PadRight(longestSkipped, '-'),
                                           "-".PadRight(longestTime, '-'),
-                                          "-".PadRight(longestErrors, '-'),
                                           "GRAND TOTAL:".PadLeft(longestAssemblyName),
                                           totalTestsRun,
+                                          totalErrors,
                                           totalTestsFailed,
                                           totalTestsSkipped,
                                           totalTime,
-                                          totalErrors);
+                                          clockTime.Elapsed.TotalSeconds.ToString("0.000s"));
 
                 }
             }

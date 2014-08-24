@@ -128,8 +128,8 @@ public class StandardOutputVisitorTests
             visitor.OnMessage(assemblyStarting);
             visitor.OnMessage(assemblyFinished);
 
-            Assert.Single(logger.Messages, "MESSAGE[High]:   Started:  File.dll");
-            Assert.Single(logger.Messages, "MESSAGE[High]:   Finished: File.dll");
+            Assert.Single(logger.Messages, "MESSAGE[High]:   Started:  File");
+            Assert.Single(logger.Messages, "MESSAGE[High]:   Finished: File");
         }
     }
 
