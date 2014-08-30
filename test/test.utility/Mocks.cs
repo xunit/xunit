@@ -249,6 +249,17 @@ public static class Mocks
         return result;
     }
 
+    public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrderer>()
+    {
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        var ordererType = typeof(TOrderer);
+        var typeName = ordererType.FullName;
+        var assemblyName = ordererType.Assembly.FullName;
+        result.Attribute.Returns(new TestCollectionOrdererAttribute(typeName, assemblyName));
+        result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
+        return result;
+    }
+
     public static ITestFailed TestFailed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M, Exception ex = null)
     {
         var testCase = Mocks.TestCase(type, methodName);

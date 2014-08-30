@@ -35,6 +35,7 @@ namespace Xunit.Sdk
             MessageSink = messageSink;
             ExecutionOptions = executionOptions;
             TestCaseOrderer = new DefaultTestCaseOrderer();
+            TestCollectionOrderer = new DefaultTestCollectionOrderer();
             Aggregator = new ExceptionAggregator();
         }
 
@@ -59,9 +60,14 @@ namespace Xunit.Sdk
         protected ITestAssembly TestAssembly { get; set; }
 
         /// <summary>
-        /// Gets or sets the test case orderer that will be used to decide how to order the test.
+        /// Gets or sets the test case orderer that will be used to decide how to order the tests.
         /// </summary>
         protected ITestCaseOrderer TestCaseOrderer { get; set; }
+
+        /// <summary>
+        /// Gets or sets the test collection orderer that will be used to decide how to order the test collections.
+        /// </summary>
+        protected ITestCollectionOrderer TestCollectionOrderer { get; set; }
 
         /// <summary>
         /// Gets or sets the test cases to be run.
@@ -114,6 +120,22 @@ namespace Xunit.Sdk
                 return new SynchronousMessageBus(MessageSink);
 
             return new MessageBus(MessageSink);
+        }
+
+        /// <summary>
+        /// Orders the test collections using the <see cref="TestCollectionOrderer"/>.
+        /// </summary>
+        /// <returns>Test collections (and the associated test cases) in run order</returns>
+        protected List<Tuple<ITestCollection, List<TTestCase>>> OrderTestCases()
+        {
+            var testCasesByCollection =
+                TestCases.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
+                         .ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
+
+            var orderedTestCollections = TestCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
+
+            return orderedTestCollections.Select(collection => Tuple.Create(collection, testCasesByCollection[collection]))
+                                         .ToList();
         }
 
         /// <summary>
@@ -176,9 +198,9 @@ namespace Xunit.Sdk
         {
             var summary = new RunSummary();
 
-            foreach (var collectionGroup in TestCases.Cast<TTestCase>().GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance))
+            foreach (var collection in OrderTestCases())
             {
-                summary.Aggregate(await RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource));
+                summary.Aggregate(await RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource));
                 if (cancellationTokenSource.IsCancellationRequested)
                     break;
             }

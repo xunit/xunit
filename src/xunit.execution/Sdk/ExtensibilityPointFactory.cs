@@ -96,6 +96,29 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Gets a test collection orderer.
+        /// </summary>
+        public static ITestCollectionOrderer GetTestCollectionOrderer(Type ordererType)
+        {
+            return Get<ITestCollectionOrderer>(ordererType);
+        }
+
+        /// <summary>
+        /// Gets a test collection orderer, as specified in a reflected <see cref="TestCollectionOrdererAttribute"/>.
+        /// </summary>
+        /// <param name="testCollectionOrdererAttribute">The test collection orderer attribute.</param>
+        /// <returns>The test collection orderer, if the type is loadable; <c>null</c>, otherwise.</returns>
+        public static ITestCollectionOrderer GetTestCollectionOrderer(IAttributeInfo testCollectionOrdererAttribute)
+        {
+            var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
+            var ordererType = Reflector.GetType(args[1], args[0]);
+            if (ordererType == null)
+                return null;
+
+            return GetTestCollectionOrderer(ordererType);
+        }
+
+        /// <summary>
         /// Gets a test framework discoverer.
         /// </summary>
         public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(Type frameworkType)

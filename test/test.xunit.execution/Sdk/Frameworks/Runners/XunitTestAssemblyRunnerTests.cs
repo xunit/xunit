@@ -202,6 +202,29 @@ public class XunitTestAssemblyRunnerTests
         }
     }
 
+    public class TestCollectionOrderer
+    {
+        [Fact]
+        public static void CanSetTestCollectionOrdererInAssemblyAttribute()
+        {
+            var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyTestCollectionOrderer>();
+            var assembly = Mocks.TestAssembly(attributes: new[] { ordererAttribute });
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+
+            runner.Initialize();
+
+            Assert.IsType<MyTestCollectionOrderer>(runner.TestCollectionOrderer);
+        }
+
+        class MyTestCollectionOrderer : ITestCollectionOrderer
+        {
+            public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> TestCollections)
+            {
+                return TestCollections.OrderByDescending(c => c.DisplayName);
+            }
+        }
+    }
+
     class ClassUnderTest
     {
         [Fact]
@@ -239,6 +262,12 @@ public class XunitTestAssemblyRunnerTests
         public new ITestCaseOrderer TestCaseOrderer
         {
             get { return base.TestCaseOrderer; }
+        }
+
+        public new ITestCollectionOrderer TestCollectionOrderer
+        {
+            get { return base.TestCollectionOrderer; }
+            set { base.TestCollectionOrderer = value; }
         }
 
         public new string GetTestFrameworkDisplayName()

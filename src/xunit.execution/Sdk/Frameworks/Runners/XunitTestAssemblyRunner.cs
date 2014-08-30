@@ -110,9 +110,13 @@ namespace Xunit.Sdk
             if (maxParallelThreadsOption > 0)
                 maxParallelThreads = maxParallelThreadsOption;
 
-            var ordererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
-            if (ordererAttribute != null)
-                TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
+            var testCaseOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
+            if (testCaseOrdererAttribute != null)
+                TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(testCaseOrdererAttribute);
+
+            var testCollectionOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCollectionOrdererAttribute)).SingleOrDefault();
+            if (testCollectionOrdererAttribute != null)
+                TestCollectionOrderer = ExtensibilityPointFactory.GetTestCollectionOrderer(testCollectionOrdererAttribute);
 
             initialized = true;
         }
@@ -143,12 +147,12 @@ namespace Xunit.Sdk
 
             var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 
-            var tasks = TestCases.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
-                                 .Select(collectionGroup => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource),
-                                                                                  cancellationTokenSource.Token,
-                                                                                  TaskCreationOptions.DenyChildAttach,
-                                                                                  scheduler))
-                                 .ToArray();
+            var tasks = OrderTestCases().Select(
+                collection => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource),
+                                                                                 cancellationTokenSource.Token,
+                                                                                 TaskCreationOptions.DenyChildAttach,
+                                                                                 scheduler)
+            ).ToArray();
 
             var summaries = await Task.WhenAll(tasks.Select(t => t.Unwrap()));
 

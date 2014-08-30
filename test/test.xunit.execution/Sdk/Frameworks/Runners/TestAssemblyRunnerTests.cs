@@ -163,17 +163,17 @@ public class TestAssemblyRunnerTests
         [Fact]
         public static async void TestsAreGroupedByCollection()
         {
-            var collection1 = Mocks.TestCollection();
+            var collection1 = Mocks.TestCollection(displayName: "1");
             var testCase1a = Mocks.TestCase(collection1);
             var testCase1b = Mocks.TestCase(collection1);
-            var collection2 = Mocks.TestCollection();
+            var collection2 = Mocks.TestCollection(displayName: "2");
             var testCase2a = Mocks.TestCase(collection2);
             var testCase2b = Mocks.TestCase(collection2);
             var runner = TestableTestAssemblyRunner.Create(testCases: new[] { testCase1a, testCase2a, testCase2b, testCase1b });
 
             await runner.RunAsync();
 
-            Assert.Collection(runner.CollectionsRun,
+            Assert.Collection(runner.CollectionsRun.OrderBy(c => c.Item1.DisplayName),
                 tuple =>
                 {
                     Assert.Same(collection1, tuple.Item1);
@@ -204,8 +204,7 @@ public class TestAssemblyRunnerTests
 
             await runner.RunAsync();
 
-            var tuple = Assert.Single(runner.CollectionsRun);
-            Assert.Same(collection1, tuple.Item1);
+            Assert.Single(runner.CollectionsRun);
         }
     }
 
@@ -217,6 +216,62 @@ public class TestAssemblyRunnerTests
             var runner = TestableTestAssemblyRunner.Create();
 
             Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
+        }
+    }
+
+    public class TestCollectionOrderer
+    {
+        [Fact]
+        public static void DefaultTestCaseOrderer()
+        {
+            var runner = TestableTestAssemblyRunner.Create();
+
+            Assert.IsType<DefaultTestCollectionOrderer>(runner.TestCollectionOrderer);
+        }
+
+        [Fact]
+        public static async void OrdererUsedToOrderTestCases()
+        {
+            var collection1 = Mocks.TestCollection(displayName: "AAA");
+            var testCase1a = Mocks.TestCase(collection1);
+            var testCase1b = Mocks.TestCase(collection1);
+            var collection2 = Mocks.TestCollection(displayName: "ZZZZ");
+            var testCase2a = Mocks.TestCase(collection2);
+            var testCase2b = Mocks.TestCase(collection2);
+            var collection3 = Mocks.TestCollection(displayName: "MM");
+            var testCase3a = Mocks.TestCase(collection3);
+            var testCase3b = Mocks.TestCase(collection3);
+            var testCases = new[] { testCase1a, testCase3a, testCase2a, testCase3b, testCase2b, testCase1b };
+            var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
+            runner.TestCollectionOrderer = new MyTestCollectionOrderer();
+
+            await runner.RunAsync();
+
+            Assert.Collection(runner.CollectionsRun,
+                collection =>
+                {
+                    Assert.Same(collection2, collection.Item1);
+                    Assert.Equal(new[] { testCase2a, testCase2b }, collection.Item2);
+                },
+                collection =>
+                {
+                    Assert.Same(collection3, collection.Item1);
+                    Assert.Equal(new[] { testCase3a, testCase3b }, collection.Item2);
+                },
+                collection =>
+                {
+                    Assert.Same(collection1, collection.Item1);
+                    Assert.Equal(new[] { testCase1a, testCase1b }, collection.Item2);
+                }
+            );
+        }
+
+        class MyTestCollectionOrderer : ITestCollectionOrderer
+        {
+            public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> TestCollections)
+            {
+                return TestCollections.OrderByDescending(c => c.DisplayName);
+            }
         }
     }
 
@@ -263,6 +318,12 @@ public class TestAssemblyRunnerTests
         public new ITestCaseOrderer TestCaseOrderer
         {
             get { return base.TestCaseOrderer; }
+        }
+
+        public new ITestCollectionOrderer TestCollectionOrderer
+        {
+            get { return base.TestCollectionOrderer; }
+            set { base.TestCollectionOrderer = value; }
         }
 
         public IMessageBus CreateMessageBus_Public()

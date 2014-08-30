@@ -60,6 +60,7 @@
     <Compile Include="IClassFixture.cs" />
     <Compile Include="ICollectionFixture.cs" />
     <Compile Include="InlineDataAttribute.cs" />
+    <Compile Include="ITestCollectionOrderer.cs" />
     <Compile Include="MemberDataAttribute.cs" />
     <Compile Include="Extensions\PropertyDataAttribute.cs" />
     <Compile Include="Sdk\ArgumentFormatter.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Sdk\XunitTestCaseDiscovererAttribute.cs" />
     <Compile Include="Sdk\TraitDiscoverer.cs" />
     <Compile Include="Sdk\TraitDiscovererAttribute.cs" />
+    <Compile Include="TestCollectionOrdererAttribute.cs" />
     <Compile Include="TestCaseOrdererAttribute.cs" />
     <Compile Include="TestFrameworkAttribute.cs" />
     <Compile Include="TheoryAttribute.cs" />
