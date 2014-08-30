@@ -20,8 +20,6 @@
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
-    <NuGetNuspecTargets Include="src\xunit.assert.nuspec;src\xunit.core.nuspec;src\xunit.execution.nuspec;src\xunit.runner.utility.nuspec;src\xunit.runner.utility.visualstudio.win8.nuspec" />
-    <NuGetNuspecNoSymbolsTargets Include="src\*.nuspec" Exclude="@(NuGetNuspecTargets)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
     <PackageSource Include="https://nuget.org/api/v2/" />
@@ -30,7 +28,7 @@
 
   <!-- Build server targets -->
 
-  <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts" />
+  <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;GitHubLink;Packages;ZipArtifacts" />
   <Target Name="TeamCity" DependsOnTargets="CI;PushMyGet" />
 
   <!-- Individiual targets -->
@@ -57,6 +55,7 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; install githublink -Pre -Source http://www.myget.org/F/b4ff5f68eccf4f6bbfed74f055f88d8f/ -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\githublink\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\$(SolutionName)&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
   </Target>
 
@@ -117,9 +116,12 @@
         Condition=" '$(BuildSemanticVersion)' != '' "/>
   </Target>
 
+  <Target Name='GitHubLink'>
+    <Exec Command='packages\githublink\tools\GitHubLink.exe $(MSBuildThisFileDirectory) -u https://github.com/xunit/xunit -commit $(CommitHash)' IgnoreExitCode='true' />
+  </Target>
+
   <Target Name='Packages'>
-    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecTargets.Identity) -Symbols -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
-    <Exec Command='.nuget\NuGet.exe pack %(NuGetNuspecNoSymbolsTargets.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
+    <Exec Command='"$(NuGetExePath)" pack %(NuspecFiles.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
   </Target>
 
   <Target Name='ZipArtifacts'>
@@ -138,18 +140,16 @@
 
   <Target Name="PushMyGet" DependsOnTargets="_DownloadNuGet">
     <ItemGroup>
-      <NupkgSymbolsFiles Include="*.symbols.nupkg" />
-      <NupkgFiles Include="*.nupkg" Exclude="@(NupkgSymbolsFiles)" />
+      <NupkgFiles Include="*.nupkg" />
     </ItemGroup>
-    <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive -Source https://www.myget.org/F/xunit/api/v2/package" />
-    <Exec Command=".nuget\NuGet.exe push %(NupkgSymbolsFiles.Identity) -NonInteractive -Source https://nuget.symbolsource.org/MyGet/xunit" />
+    <Exec Command='"$(NuGetExePath)" push %(NupkgFiles.Identity) -NonInteractive -Source https://www.myget.org/F/xunit/api/v2/package' />
   </Target>
 
   <Target Name="PushNuGet" DependsOnTargets="_DownloadNuGet">
     <ItemGroup>
       <NupkgFiles Include="*.nupkg" Exclude="*.symbols*.nupkg" />
     </ItemGroup>
-    <Exec Command=".nuget\NuGet.exe push %(NupkgFiles.Identity) -NonInteractive" />
+    <Exec Command='"$(NuGetExePath)" push %(NupkgFiles.Identity) -NonInteractive' />
   </Target>
 
   <Target Name="_DownloadNuGet">

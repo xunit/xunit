@@ -34,15 +34,5 @@
     <file src="xunit.execution.wpa81\bin\Release\xunit.execution.pdb"      target="lib\portable-wpa81+win81\xunit.execution.pdb" />
     <file src="xunit.execution.wpa81\bin\Release\xunit.execution.xml"      target="lib\portable-wpa81+win81\xunit.execution.xml" />
     <file src="xunit.execution.wpa81\bin\Release\xunit.execution.pri"      target="lib\portable-wpa81+win81\xunit.execution.pri" />
-
-    <!-- Source -->
-    <file src="xunit.execution\**\*.cs"                     target="src\xunit.execution" />
-    <file src="xunit.execution.android\**\*.cs"             target="src\xunit.execution.android" />
-    <file src="xunit.execution.iOS\**\*.cs"                 target="src\xunit.execution.iOS" />
-    <file src="xunit.execution.net45\**\*.cs"               target="src\xunit.execution.net45" />
-    <file src="xunit.execution.wpa81\**\*.cs"               target="src\xunit.execution.wpa81" />
-    <file src="xunit.assert\Asserts\Sdk\AssertEquality*.cs" target="src\xunit.assert\Asserts\Sdk\" />
-    <file src="messages\**\*.cs"                            target="src\messages" />
-    <file src="common\**\*.cs"                              target="src\common" />
   </files>
 </package>

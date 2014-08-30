@@ -19,8 +19,5 @@
     <file src="xunit.assert\bin\Release\xunit.assert.dll" target="lib\portable-net45+win+wpa81+wp80+monoandroid+monotouch10\xunit.assert.dll" />
     <file src="xunit.assert\bin\Release\xunit.assert.pdb" target="lib\portable-net45+win+wpa81+wp80+monoandroid+monotouch10\xunit.assert.pdb" />
     <file src="xunit.assert\bin\Release\xunit.assert.xml" target="lib\portable-net45+win+wpa81+wp80+monoandroid+monotouch10\xunit.assert.xml" />
-
-    <!-- Source -->
-    <file src="xunit.assert\**\*.cs" target="src" />
   </files>
 </package>
