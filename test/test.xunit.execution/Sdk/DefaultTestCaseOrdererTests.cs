@@ -9,6 +9,7 @@ public class DefaultTestCaseOrdererTests
         Mocks.TestCase<ClassUnderTest>("Test2"),
         Mocks.TestCase<ClassUnderTest>("Test3"),
         Mocks.TestCase<ClassUnderTest>("Test4"),
+        Mocks.TestCase<ClassUnderTest>("Test3"),
         Mocks.TestCase<ClassUnderTest>("Test5"),
         Mocks.TestCase<ClassUnderTest>("Test6")
     };
