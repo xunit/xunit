@@ -89,7 +89,11 @@ namespace Xunit.Sdk
 #endif
         }
 
-        void Initialize()
+        /// <summary>
+        /// Ensures the assembly runner is initialized (sets up the collection behavior,
+        /// parallelization options, and test orderers from their assembly attributes).
+        /// </summary>
+        protected void Initialize()
         {
             if (initialized)
                 return;

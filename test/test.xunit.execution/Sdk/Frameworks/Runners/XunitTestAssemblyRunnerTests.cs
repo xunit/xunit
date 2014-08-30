@@ -179,6 +179,29 @@ public class XunitTestAssemblyRunnerTests
         }
     }
 
+    public class TestCaseOrderer
+    {
+        [Fact]
+        public static void CanSetTestCaseOrdererInAssemblyAttribute()
+        {
+            var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyTestCaseOrderer>();
+            var assembly = Mocks.TestAssembly(attributes: new[] { ordererAttribute });
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+
+            runner.Initialize();
+
+            Assert.IsType<MyTestCaseOrderer>(runner.TestCaseOrderer);
+        }
+
+        class MyTestCaseOrderer : ITestCaseOrderer
+        {
+            public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
+
     class ClassUnderTest
     {
         [Fact]
@@ -213,6 +236,11 @@ public class XunitTestAssemblyRunnerTests
             );
         }
 
+        public new ITestCaseOrderer TestCaseOrderer
+        {
+            get { return base.TestCaseOrderer; }
+        }
+
         public new string GetTestFrameworkDisplayName()
         {
             return base.GetTestFrameworkDisplayName();
@@ -221,6 +249,11 @@ public class XunitTestAssemblyRunnerTests
         public new string GetTestFrameworkEnvironment()
         {
             return base.GetTestFrameworkEnvironment();
+        }
+
+        public new void Initialize()
+        {
+            base.Initialize();
         }
 
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)

@@ -209,6 +209,17 @@ public class TestAssemblyRunnerTests
         }
     }
 
+    public class TestCaseOrderer
+    {
+        [Fact]
+        public static void DefaultTestCaseOrderer()
+        {
+            var runner = TestableTestAssemblyRunner.Create();
+
+            Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
+        }
+    }
+
     class TestableTestAssemblyRunner : TestAssemblyRunner<ITestCase>
     {
         readonly bool cancelInRunTestCollectionAsync;
@@ -247,6 +258,11 @@ public class TestAssemblyRunnerTests
                 result ?? new RunSummary(),
                 cancelInRunTestCollectionAsync
             );
+        }
+
+        public new ITestCaseOrderer TestCaseOrderer
+        {
+            get { return base.TestCaseOrderer; }
         }
 
         public IMessageBus CreateMessageBus_Public()
