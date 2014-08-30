@@ -78,7 +78,7 @@ namespace Xunit.Sdk
         {
             try
             {
-                await code().ConfigureAwait(false);
+                await code();
             }
             catch (Exception ex)
             {
@@ -95,7 +95,7 @@ namespace Xunit.Sdk
         {
             try
             {
-                return await code().ConfigureAwait(false);
+                return await code();
             }
             catch (Exception ex)
             {

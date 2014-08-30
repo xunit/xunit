@@ -203,7 +203,7 @@ namespace Xunit.Sdk
 
             try
             {
-                var asyncSyncContext = new AsyncTestSyncContext();
+                var asyncSyncContext = new AsyncTestSyncContext(oldSyncContext);
                 SetSynchronizationContext(asyncSyncContext);
 
                 await Aggregator.RunAsync(
@@ -213,16 +213,16 @@ namespace Xunit.Sdk
                             var result = TestMethod.Invoke(testClassInstance, TestMethodArguments);
                             var task = result as Task;
                             if (task != null)
-                                await task.ConfigureAwait(false);
+                                await task;
                             else
                             {
-                                var ex = await asyncSyncContext.WaitForCompletionAsync().ConfigureAwait(false);
+                                var ex = await asyncSyncContext.WaitForCompletionAsync();
                                 if (ex != null)
                                     Aggregator.Add(ex);
                             }
                         }
                     )
-                ); // Don't use configure await false here, as we need to be on the orig context here to reset in the finally
+                );
             }
             finally
             {

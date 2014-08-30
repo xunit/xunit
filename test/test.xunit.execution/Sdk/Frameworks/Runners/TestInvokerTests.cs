@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using System.Collections.Generic;
 
 public class TestInvokerTests
 {
@@ -114,20 +115,6 @@ public class TestInvokerTests
         Assert.False(invoker.AfterTestMethodInvoked_Called);
     }
 
-    [Theory]
-    [InlineData("AsyncTask")]
-    [InlineData("AsyncVoid")]
-    public static async void TestCanBeAsync(string methodName)
-    {
-        var messageBus = new SpyMessageBus();
-        var invoker = TestableTestInvoker.Create<NonDisposableClass>(methodName, messageBus);
-
-        var result = await invoker.RunAsync();
-
-        Assert.NotEqual(0m, result);
-        Assert.IsType<TrueException>(invoker.Aggregator.ToException());
-    }
-
     class NonDisposableClass
     {
         [Fact]
@@ -139,20 +126,6 @@ public class TestInvokerTests
         [Fact]
         public void Failing()
         {
-            Assert.True(false);
-        }
-
-        [Fact]
-        public async Task AsyncTask()
-        {
-            await Task.Delay(1);
-            Assert.True(false);
-        }
-
-        [Fact]
-        public async void AsyncVoid()
-        {
-            await Task.Delay(1);
             Assert.True(false);
         }
     }

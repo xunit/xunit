@@ -144,6 +144,7 @@
     <Compile Include="..\xunit.assert\asserts\sdk\AssertEqualityComparerAdapter.cs">
       <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
     </Compile>
+    <Compile Include="Sdk\ExecutionContext.cs" />
     <Compile Include="Serialization\Serializable.cs" />
   </ItemGroup>
   <ItemGroup>

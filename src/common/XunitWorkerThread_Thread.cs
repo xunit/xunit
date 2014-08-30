@@ -17,5 +17,10 @@ namespace Xunit.Sdk
         {
             thread.Join();
         }
+
+        public static void QueueUserWorkItem(Action backgroundTask)
+        {
+            ThreadPool.QueueUserWorkItem(_ => backgroundTask());
+        }
     }
 }

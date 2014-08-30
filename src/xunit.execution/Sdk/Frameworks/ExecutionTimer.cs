@@ -45,7 +45,7 @@ namespace Xunit.Sdk
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                await asyncAction().ConfigureAwait(false);
+                await asyncAction();
             }
             finally
             {

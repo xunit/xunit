@@ -1,18 +1,20 @@
 using System;
-using Windows.Foundation;
 using Windows.System.Threading;
 
 namespace Xunit.Sdk
 {
     internal class XunitWorkerThread
     {
-        readonly IAsyncAction reporterTask;
-
         public XunitWorkerThread(Action threadProc)
         {
-            reporterTask = ThreadPool.RunAsync(_ => threadProc(), WorkItemPriority.Normal, WorkItemOptions.TimeSliced);
+            QueueUserWorkItem(threadProc);
         }
 
         public void Join() { }
+
+        public static void QueueUserWorkItem(Action backgroundTask)
+        {
+            var unused = ThreadPool.RunAsync(_ => backgroundTask(), WorkItemPriority.Normal, WorkItemOptions.TimeSliced);
+        }
     }
 }

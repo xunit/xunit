@@ -50,13 +50,13 @@ public class XunitTestAssemblyRunnerTests
         [Fact]
         public static void Attribute_MaxThreads()
         {
-            var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 255);
+            var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 3);
             var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
 
-            Assert.EndsWith("[collection-per-class, parallel (255 threads)]", result);
+            Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
         }
 
         [Theory]
@@ -112,25 +112,25 @@ public class XunitTestAssemblyRunnerTests
         [Fact]
         public static void TestOptions_MaxThreads()
         {
-            var options = new XunitExecutionOptions { MaxParallelThreads = 255 };
+            var options = new XunitExecutionOptions { MaxParallelThreads = 3 };
             var runner = TestableXunitTestAssemblyRunner.Create(options: options);
 
             var result = runner.GetTestFrameworkEnvironment();
 
-            Assert.EndsWith("[collection-per-class, parallel (255 threads)]", result);
+            Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
         }
 
         [Fact]
         public static void TestOptionsOverrideAttribute()
         {
             var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true, maxParallelThreads: 127);
-            var options = new XunitExecutionOptions { DisableParallelization = false, MaxParallelThreads = 255 };
+            var options = new XunitExecutionOptions { DisableParallelization = false, MaxParallelThreads = 3 };
             var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, options: options);
 
             var result = runner.GetTestFrameworkEnvironment();
 
-            Assert.EndsWith("[collection-per-class, parallel (255 threads)]", result);
+            Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
         }
     }
 

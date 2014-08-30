@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+
+#if WINDOWS_PHONE_APP
+using Windows.System.Threading;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -8,7 +13,13 @@ namespace Xunit.Sdk
     {
         readonly AsyncManualResetEvent @event = new AsyncManualResetEvent(true);
         Exception exception;
+        readonly SynchronizationContext innerContext;
         int operationCount;
+
+        public AsyncTestSyncContext(SynchronizationContext innerContext)
+        {
+            this.innerContext = innerContext;
+        }
 
         public override void OperationCompleted()
         {
@@ -23,7 +34,7 @@ namespace Xunit.Sdk
             @event.Reset();
         }
 
-        public override async void Post(SendOrPostCallback d, object state)
+        public override void Post(SendOrPostCallback d, object state)
         {
             // The call to Post() may be the state machine signaling that an exception is
             // about to be thrown, so we make sure the operation count gets incremented
@@ -32,19 +43,32 @@ namespace Xunit.Sdk
 
             try
             {
-                // await and eat exceptions that come from this post
-                // We could get a thread abort, so we need to handle that
-                await Task.Run(() =>
+                if (innerContext == null)
                 {
-                    try
+                    XunitWorkerThread.QueueUserWorkItem(() =>
                     {
-                        Send(d, state);
-                    }
-                    finally
+                        try
+                        {
+                            Send(d, state);
+                        }
+                        finally
+                        {
+                            OperationCompleted();
+                        }
+                    });
+                }
+                else
+                    innerContext.Post(_ =>
                     {
-                        OperationCompleted();
-                    }
-                }).ConfigureAwait(false);
+                        try
+                        {
+                            Send(d, _);
+                        }
+                        finally
+                        {
+                            OperationCompleted();
+                        }
+                    }, state);
             }
             catch { }
         }
@@ -53,7 +77,10 @@ namespace Xunit.Sdk
         {
             try
             {
-                d(state);
+                if (innerContext != null)
+                    innerContext.Send(d, state);
+                else
+                    d(state);
             }
             catch (Exception ex)
             {
@@ -63,7 +90,7 @@ namespace Xunit.Sdk
 
         public async Task<Exception> WaitForCompletionAsync()
         {
-            await @event.WaitAsync().ConfigureAwait(false);
+            await @event.WaitAsync();
 
             return exception;
         }
