@@ -220,11 +220,15 @@ namespace Xunit.Runner.MSBuild
 
             try
             {
+                Log.LogMessage(MessageImportance.High, "  Discovering: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+
                 using (var controller = CreateFrontController(assemblyFileName, configFileName))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, options: new XunitDiscoveryOptions());
                     discoveryVisitor.Finished.WaitOne();
+
+                    Log.LogMessage(MessageImportance.High, "  Discovered:  {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
                     using (var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement))
                     {

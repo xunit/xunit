@@ -128,8 +128,10 @@ public class StandardOutputVisitorTests
             visitor.OnMessage(assemblyStarting);
             visitor.OnMessage(assemblyFinished);
 
-            Assert.Single(logger.Messages, "MESSAGE[High]:   Started:  File");
-            Assert.Single(logger.Messages, "MESSAGE[High]:   Finished: File");
+            Assert.Collection(logger.Messages,
+                message => Assert.Equal(message, "MESSAGE[High]:   Starting:    File"),
+                message => Assert.Equal(message, "MESSAGE[High]:   Finished:    File")
+            );
         }
     }
 

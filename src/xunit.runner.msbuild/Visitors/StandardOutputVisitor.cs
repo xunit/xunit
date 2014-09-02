@@ -67,7 +67,7 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
         {
             assemblyFileName = Path.GetFileName(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
-            Log.LogMessage(MessageImportance.High, "  Started:  {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+            Log.LogMessage(MessageImportance.High, "  Starting:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
             return base.Visit(assemblyStarting);
         }
@@ -77,7 +77,7 @@ namespace Xunit.Runner.MSBuild
             // Base class does computation of results, so call it first.
             var result = base.Visit(assemblyFinished);
 
-            Log.LogMessage(MessageImportance.High, "  Finished: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+            Log.LogMessage(MessageImportance.High, "  Finished:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
             if (completionMessages != null)
                 completionMessages.TryAdd(assemblyFileName, new ExecutionSummary

@@ -30,7 +30,7 @@ namespace Xunit.ConsoleClient
             assemblyFileName = Path.GetFileName(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
 
             lock (consoleLock)
-                Console.WriteLine("Starting:  {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+                Console.WriteLine("Starting:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
             return base.Visit(assemblyStarting);
         }
@@ -41,7 +41,7 @@ namespace Xunit.ConsoleClient
             var result = base.Visit(assemblyFinished);
 
             lock (consoleLock)
-                Console.WriteLine("Finished: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+                Console.WriteLine("Finished:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
             if (completionMessages != null)
                 completionMessages.TryAdd(assemblyFileName, new ExecutionSummary
