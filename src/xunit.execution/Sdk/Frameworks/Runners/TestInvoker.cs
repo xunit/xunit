@@ -135,7 +135,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Invokes the test method.
+        /// Creates the test class (if necessary), and invokes the test method.
         /// </summary>
         /// <returns>Returns the time (in seconds) spent creating the test class, running
         /// the test, and disposing of the test class.</returns>
@@ -165,9 +165,11 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// For unit testing purposes only.
+        /// Invokes the test method on the given test class instance.
         /// </summary>
-        protected virtual async Task InvokeTestMethodAsync(object testClassInstance)
+        /// <param name="testClassInstance">The test class instance</param>
+        /// <returns>Returns the time taken to invoke the test method</returns>
+        public virtual async Task<decimal> InvokeTestMethodAsync(object testClassInstance)
         {
             var oldSyncContext = SynchronizationContext.Current;
 
@@ -198,6 +200,8 @@ namespace Xunit.Sdk
             {
                 SetSynchronizationContext(oldSyncContext);
             }
+
+            return Timer.Total;
         }
 
         [SecuritySafeCritical]
