@@ -102,48 +102,18 @@ namespace Xunit.Sdk
         /// </summary>
         protected ExecutionTimer Timer { get; set; }
 
-        object CreateTestClass()
+        /// <summary>
+        /// Creates the test class, unless the test method is static or there have already been errors.
+        /// </summary>
+        /// <returns>The class instance, if appropriate; <c>null</c>, otherwise</returns>
+        protected object CreateTestClass()
         {
             object testClass = null;
 
             if (!TestMethod.IsStatic && !Aggregator.HasExceptions)
-            {
-                if (!MessageBus.QueueMessage(new TestClassConstructionStarting(TestCase, DisplayName)))
-                    CancellationTokenSource.Cancel();
-
-                try
-                {
-                    if (!CancellationTokenSource.IsCancellationRequested)
-                        Timer.Aggregate(() => testClass = Activator.CreateInstance(TestClass, ConstructorArguments));
-                }
-                finally
-                {
-                    if (!MessageBus.QueueMessage(new TestClassConstructionFinished(TestCase, DisplayName)))
-                        CancellationTokenSource.Cancel();
-                }
-            }
+                testClass = TestCase.CreateTestClass(TestClass, ConstructorArguments, DisplayName, MessageBus, Timer, CancellationTokenSource);
 
             return testClass;
-        }
-
-        void DisposeTestClass(object testClass)
-        {
-            var disposable = testClass as IDisposable;
-            if (disposable == null)
-                return;
-
-            if (!MessageBus.QueueMessage(new TestClassDisposeStarting(TestCase, DisplayName)))
-                CancellationTokenSource.Cancel();
-
-            try
-            {
-                Timer.Aggregate(disposable.Dispose);
-            }
-            finally
-            {
-                if (!MessageBus.QueueMessage(new TestClassDisposeFinished(TestCase, DisplayName)))
-                    CancellationTokenSource.Cancel();
-            }
         }
 
         /// <summary>
@@ -187,7 +157,7 @@ namespace Xunit.Sdk
                         await AfterTestMethodInvokedAsync();
                     }
 
-                    Aggregator.Run(() => DisposeTestClass(testClassInstance));
+                    Aggregator.Run(() => TestCase.DisposeTestClass(testClassInstance, DisplayName, MessageBus, Timer, CancellationTokenSource));
                 }
 
                 return Timer.Total;

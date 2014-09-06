@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -11,6 +12,80 @@ using Xunit.Sdk;
 /// </summary>
 public static class ReflectionAbstractionExtensions
 {
+    /// <summary>
+    /// Creates an instance of the test class for the given test case. Sends the <see cref="ITestClassConstructionStarting"/>
+    /// and <see cref="ITestClassConstructionFinished"/> messages as appropriate.
+    /// </summary>
+    /// <param name="testCase">The test case</param>
+    /// <param name="testClassType">The type of the test class</param>
+    /// <param name="constructorArguments">The constructor arguments for the test class</param>
+    /// <param name="displayName">The display name of the test case</param>
+    /// <param name="messageBus">The message bus used to send the test messages</param>
+    /// <param name="timer">The timer used to measure the time taken for construction</param>
+    /// <param name="cancellationTokenSource">The cancellation token source</param>
+    /// <returns></returns>
+    public static object CreateTestClass(this ITestCase testCase,
+                                         Type testClassType,
+                                         object[] constructorArguments,
+                                         string displayName,
+                                         IMessageBus messageBus,
+                                         ExecutionTimer timer,
+                                         CancellationTokenSource cancellationTokenSource)
+    {
+        object testClass = null;
+
+        if (!messageBus.QueueMessage(new TestClassConstructionStarting(testCase, displayName)))
+            cancellationTokenSource.Cancel();
+
+        try
+        {
+            if (!cancellationTokenSource.IsCancellationRequested)
+                timer.Aggregate(() => testClass = Activator.CreateInstance(testClassType, constructorArguments));
+        }
+        finally
+        {
+            if (!messageBus.QueueMessage(new TestClassConstructionFinished(testCase, displayName)))
+                cancellationTokenSource.Cancel();
+        }
+
+        return testClass;
+    }
+
+    /// <summary>
+    /// Disposes the test class instance. Sends the <see cref="ITestClassDisposeStarting"/> and <see cref="ITestClassDisposeFinished"/>
+    /// messages as appropriate.
+    /// </summary>
+    /// <param name="testCase">The test case</param>
+    /// <param name="testClass">The test class instance to be disposed</param>
+    /// <param name="displayName">The display name of the test case</param>
+    /// <param name="messageBus">The message bus used to send the test messages</param>
+    /// <param name="timer">The timer used to measure the time taken for construction</param>
+    /// <param name="cancellationTokenSource">The cancellation token source</param>
+    public static void DisposeTestClass(this ITestCase testCase,
+                                        object testClass,
+                                        string displayName,
+                                        IMessageBus messageBus,
+                                        ExecutionTimer timer,
+                                        CancellationTokenSource cancellationTokenSource)
+    {
+        var disposable = testClass as IDisposable;
+        if (disposable == null)
+            return;
+
+        if (!messageBus.QueueMessage(new TestClassDisposeStarting(testCase, displayName)))
+            cancellationTokenSource.Cancel();
+
+        try
+        {
+            timer.Aggregate(disposable.Dispose);
+        }
+        finally
+        {
+            if (!messageBus.QueueMessage(new TestClassDisposeFinished(testCase, displayName)))
+                cancellationTokenSource.Cancel();
+        }
+    }
+
     static MethodInfo GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
     {
         // The old logic only flattened hierarchy for static methods
