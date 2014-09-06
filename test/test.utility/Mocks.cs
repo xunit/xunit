@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using NSubstitute;
@@ -14,6 +15,7 @@ public static class Mocks
         attributes = attributes ?? new IReflectionAttributeInfo[0];
 
         var result = Substitute.For<IAssemblyInfo>();
+        result.Name.Returns(assemblyFileName == null ? null : Path.GetFileNameWithoutExtension(assemblyFileName));
         result.AssemblyPath.Returns(assemblyFileName);
         result.GetType("").ReturnsForAnyArgs(types == null ? null : types.FirstOrDefault());
         result.GetTypes(true).ReturnsForAnyArgs(types ?? new ITypeInfo[0]);
@@ -142,6 +144,16 @@ public static class Mocks
         var result = Substitute.For<IParameterInfo>();
         result.Name.Returns(name);
         return result;
+    }
+
+    public static IReflectionMethodInfo ReflectionMethodInfo<TClass>(string methodName)
+    {
+        return Reflector.Wrap(typeof(TClass).GetMethod(methodName));
+    }
+
+    public static IReflectionTypeInfo ReflectionTypeInfo<TClass>()
+    {
+        return Reflector.Wrap(typeof(TClass));
     }
 
     public static ITestAssembly TestAssembly(ITypeInfo[] types = null, IReflectionAttributeInfo[] attributes = null)
@@ -393,11 +405,13 @@ public static class Mocks
         return result;
     }
 
-    public static ITypeInfo TypeInfo(string typeName = "MockType", IMethodInfo[] methods = null, IReflectionAttributeInfo[] attributes = null)
+    public static ITypeInfo TypeInfo(string typeName = "MockType", IMethodInfo[] methods = null, IReflectionAttributeInfo[] attributes = null, string assemblyFileName = null)
     {
         var result = Substitute.For<ITypeInfo>();
         result.Name.Returns(typeName);
         result.GetMethods(false).ReturnsForAnyArgs(methods ?? new IMethodInfo[0]);
+        var assemblyInfo = Mocks.AssemblyInfo(assemblyFileName: assemblyFileName);
+        result.Assembly.Returns(assemblyInfo);
         result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
         return result;
     }

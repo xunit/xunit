@@ -68,6 +68,7 @@
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Extensions\ReflectionAbstractionExtensionsTests.cs" />
     <Compile Include="Sdk\ArgumentFormatterTests.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />
     <Compile Include="Sdk\ExtensibilityPointFactoryTests.cs" />
