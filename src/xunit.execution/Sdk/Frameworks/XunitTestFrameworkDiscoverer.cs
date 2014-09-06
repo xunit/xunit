@@ -48,7 +48,7 @@ namespace Xunit.Sdk
 #if !WINDOWS_PHONE_APP
             config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
-            var testAssembly = new XunitTestAssembly(assemblyInfo, config);
+            var testAssembly = new TestAssembly(assemblyInfo, config);
 
             TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, testAssembly);
             TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",
@@ -65,7 +65,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override ITestClass CreateTestClass(ITypeInfo @class)
         {
-            return new XunitTestClass(TestCollectionFactory.Get(@class), @class);
+            return new TestClass(TestCollectionFactory.Get(@class), @class);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Xunit.Sdk
         {
             foreach (var method in testClass.Class.GetMethods(includePrivateMethods: true))
             {
-                var testMethod = new XunitTestMethod(testClass, method);
+                var testMethod = new TestMethod(testClass, method);
                 if (!FindTestsForMethod(testMethod, includeSourceInformation, messageBus))
                     return false;
             }

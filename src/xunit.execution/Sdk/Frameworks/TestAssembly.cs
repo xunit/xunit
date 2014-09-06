@@ -12,21 +12,21 @@ using Xunit.Serialization;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// The implementation of <see cref="ITestAssembly"/> that is used by xUnit.net v2.
+    /// The default implementation of <see cref="ITestAssembly"/>.
     /// </summary>
     [Serializable]
     [DebuggerDisplay(@"\{ assembly = {Assembly.AssemblyPath}, config = {ConfigFileName} \}")]
-    public class XunitTestAssembly : LongLivedMarshalByRefObject, ITestAssembly, ISerializable, IGetTypeData
+    public class TestAssembly : LongLivedMarshalByRefObject, ITestAssembly, ISerializable, IGetTypeData
     {
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer", error: true)]
-        public XunitTestAssembly() { }
+        public TestAssembly() { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="XunitTestAssembly"/> class.
+        /// Initializes a new instance of the <see cref="TestAssembly"/> class.
         /// </summary>
-        public XunitTestAssembly(IAssemblyInfo assembly, string configFileName)
+        public TestAssembly(IAssemblyInfo assembly, string configFileName)
         {
             ConfigFileName = configFileName;
             Assembly = assembly;
@@ -56,7 +56,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected XunitTestAssembly(SerializationInfo info, StreamingContext context)
+        protected TestAssembly(SerializationInfo info, StreamingContext context)
         {
             ConfigFileName = info.GetString("ConfigFileName");
 

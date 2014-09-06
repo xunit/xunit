@@ -12,7 +12,7 @@ public class XunitTestCollectionRunnerTests
     [Fact]
     public static async void CreatesFixtures()
     {
-        var collection = new XunitTestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
+        var collection = new TestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
         var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
         var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
@@ -27,7 +27,7 @@ public class XunitTestCollectionRunnerTests
     [Fact]
     public static async void DisposesFixtures()
     {
-        var collection = new XunitTestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
+        var collection = new TestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
         var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
         var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
@@ -40,7 +40,7 @@ public class XunitTestCollectionRunnerTests
     [Fact]
     public static async void UsesCustomTestOrderer()
     {
-        var collection = new XunitTestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
+        var collection = new TestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
         var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
         var runner = TestableXunitTestCollectionRunner.Create(testCase);
 

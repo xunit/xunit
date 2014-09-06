@@ -9,21 +9,21 @@ using Xunit.Serialization;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// The implementation of <see cref="ITestMethod"/> that is used by xUnit.net v2.
+    /// The default implementation of <see cref="ITestMethod"/>.
     /// </summary>
     [Serializable]
     [DebuggerDisplay(@"\{ class = {TestClass.Class.Name}, method = {Method.Name} \}")]
-    public class XunitTestMethod : LongLivedMarshalByRefObject, ITestMethod, ISerializable, IGetTypeData
+    public class TestMethod : LongLivedMarshalByRefObject, ITestMethod, ISerializable, IGetTypeData
     {
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer", error: true)]
-        public XunitTestMethod() { }
+        public TestMethod() { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="XunitTestMethod"/> class.
+        /// Initializes a new instance of the <see cref="TestMethod"/> class.
         /// </summary>
-        public XunitTestMethod(ITestClass testClass, IMethodInfo method)
+        public TestMethod(ITestClass testClass, IMethodInfo method)
         {
             Method = method;
             TestClass = testClass;
@@ -53,7 +53,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected XunitTestMethod(SerializationInfo info, StreamingContext context)
+        protected TestMethod(SerializationInfo info, StreamingContext context)
         {
             TestClass = info.GetValue<ITestClass>("TestClass");
 

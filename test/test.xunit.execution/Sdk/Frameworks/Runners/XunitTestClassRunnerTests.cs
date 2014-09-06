@@ -91,7 +91,7 @@ public class XunitTestClassRunnerTests
     [Fact]
     public static async void CreatesFixturesFromClassAndCollection()
     {
-        var collection = new XunitTestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
+        var collection = new TestCollection(null, Reflector.Wrap(typeof(CollectionUnderTest)), null);
         var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing", collection);
         var runner = TestableXunitTestClassRunner.Create(testCase);
 

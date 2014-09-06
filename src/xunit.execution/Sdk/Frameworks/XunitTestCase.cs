@@ -2,23 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Security;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.Serialization;
-
-#if !WINDOWS_PHONE_APP
-using System.Security.Cryptography;
-#else
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Security.Cryptography;
-using Windows.Security.Cryptography.Core;
-#endif
 
 namespace Xunit.Sdk
 {
@@ -28,16 +16,8 @@ namespace Xunit.Sdk
     /// </summary>
     [Serializable]
     [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
-    public class XunitTestCase : LongLivedMarshalByRefObject, IXunitTestCase, ISerializable, IGetTypeData
+    public class XunitTestCase : TestMethodTestCase, IXunitTestCase
     {
-#if !WINDOWS_PHONE_APP
-        readonly static HashAlgorithm Hasher = new SHA1Managed();
-#else
-        readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
-#endif
-
-        Lazy<string> uniqueID;
-
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer", error: true)]
@@ -49,33 +29,25 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method this test case belongs to.</param>
         /// <param name="testMethodArguments">The arguments for the test method.</param>
         public XunitTestCase(ITestMethod testMethod, object[] testMethodArguments = null)
+            : base(testMethod, testMethodArguments) { }
+
+        /// <inheritdoc />
+        protected XunitTestCase(SerializationInfo info, StreamingContext context)
+            : base(info, context) { }
+
+        /// <inheritdoc/>
+        protected override void Initialize()
         {
-            Initialize(testMethod, testMethodArguments);
-        }
+            base.Initialize();
 
-        void Initialize(ITestMethod testMethod, object[] arguments)
-        {
-            var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
-            var type = testMethod.TestClass.Class;
-            var method = testMethod.Method;
-            var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? type.Name + "." + method.Name;
-            ITypeInfo[] resolvedTypes = null;
+            var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+            var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
 
-            if (arguments != null && method.IsGenericMethodDefinition)
-            {
-                resolvedTypes = TypeUtility.ResolveGenericTypes(method, arguments);
-                method = method.MakeGenericMethod(resolvedTypes);
-            }
-
-            Method = method;
-            TestMethod = testMethod;
-            TestMethodArguments = arguments;
-            DisplayName = TypeUtility.GetDisplayNameWithArguments(method, baseDisplayName, arguments, resolvedTypes);
+            DisplayName = TypeUtility.GetDisplayNameWithArguments(TestMethod.Method, baseDisplayName, TestMethodArguments, MethodGenericTypes);
             SkipReason = factAttribute.GetNamedArgument<string>("Skip");
-            Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var traitAttribute in method.GetCustomAttributes(typeof(ITraitAttribute))
-                                                 .Concat(type.GetCustomAttributes(typeof(ITraitAttribute))))
+            foreach (var traitAttribute in TestMethod.Method.GetCustomAttributes(typeof(ITraitAttribute))
+                                                            .Concat(TestMethod.TestClass.Class.GetCustomAttributes(typeof(ITraitAttribute))))
             {
                 var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).First();
                 var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(discovererAttribute);
@@ -83,111 +55,12 @@ namespace Xunit.Sdk
                     foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
                         Traits.Add(keyValuePair.Key, keyValuePair.Value);
             }
-
-            uniqueID = new Lazy<string>(GetUniqueID, true);
-        }
-
-        /// <inheritdoc/>
-        public string DisplayName { get; set; }
-
-        /// <inheritdoc/>
-        public string SkipReason { get; set; }
-
-        /// <inheritdoc/>
-        public ISourceInformation SourceInformation { get; set; }
-
-        /// <inheritdoc/>
-        public IMethodInfo Method { get; set; }
-
-        /// <inheritdoc/>
-        public ITestMethod TestMethod { get; set; }
-
-        /// <inheritdoc/>
-        public object[] TestMethodArguments { get; set; }
-
-        /// <inheritdoc/>
-        public Dictionary<string, List<string>> Traits { get; set; }
-
-        /// <inheritdoc/>
-        public string UniqueID { get { return uniqueID.Value; } }
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            if (TestMethodArguments != null)
-                foreach (var disposable in TestMethodArguments.OfType<IDisposable>())
-                    disposable.Dispose();
-        }
-
-        string GetUniqueID()
-        {
-            using (var stream = new MemoryStream())
-            {
-                Write(stream, TestMethod.TestClass.TestCollection.TestAssembly.Assembly.Name);
-                Write(stream, TestMethod.TestClass.Class.Name);
-                Write(stream, TestMethod.Method.Name);
-
-                if (TestMethodArguments != null)
-                    Write(stream, SerializationHelper.Serialize(TestMethodArguments));
-
-                stream.Position = 0;
-#if !WINDOWS_PHONE_APP
-                byte[] hash = Hasher.ComputeHash(stream);
-#else
-                var buffer = CryptographicBuffer.CreateFromByteArray(stream.ToArray());
-                var hash = Hasher.HashData(buffer).ToArray();
-
-#endif
-                return String.Join("", hash.Select(x => x.ToString("x2")).ToArray());
-            }
-        }
-
-        static void Write(Stream stream, string value)
-        {
-            var bytes = Encoding.UTF8.GetBytes(value);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.WriteByte(0);
         }
 
         /// <inheritdoc/>
         public virtual Task<RunSummary> RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
         {
             return new XunitTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, TestMethodArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
-        }
-
-        // -------------------- Serialization --------------------
-
-        /// <inheritdoc/>
-        [SecurityCritical]
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("TestMethod", TestMethod);
-            info.AddValue("TestMethodArguments", TestMethodArguments);
-        }
-
-        /// <inheritdoc/>
-        public virtual void GetData(XunitSerializationInfo data)
-        {
-            // TODO: Should throw when TestMethodArguments is not null/empty?
-            data.AddValue("TestMethod", TestMethod);
-            data.AddValue("TestMethodArguments", TestMethodArguments);
-        }
-
-        /// <inheritdoc/>
-        protected XunitTestCase(SerializationInfo info, StreamingContext context)
-        {
-            var arguments = info.GetValue<object[]>("TestMethodArguments");
-            var testMethod = info.GetValue<ITestMethod>("TestMethod");
-
-            Initialize(testMethod, arguments);
-        }
-
-        /// <inheritdoc/>
-        public void SetData(XunitSerializationInfo data)
-        {
-            var testMethod = data.GetValue<ITestMethod>("TestMethod");
-
-            Initialize(testMethod, new object[0]);
         }
     }
 }

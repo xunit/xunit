@@ -9,21 +9,21 @@ using Xunit.Serialization;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// The implementation of <see cref="ITestCollection"/> that is used by xUnit.net v2.
+    /// The default implementation of <see cref="ITestCollection"/>.
     /// </summary>
     [Serializable]
     [DebuggerDisplay(@"\{ id = {UniqueID}, display = {DisplayName} \}")]
-    public class XunitTestCollection : LongLivedMarshalByRefObject, ITestCollection, ISerializable, IGetTypeData
+    public class TestCollection : LongLivedMarshalByRefObject, ITestCollection, ISerializable, IGetTypeData
     {
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer", error: true)]
-        public XunitTestCollection() { }
+        public TestCollection() { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="XunitTestCollection"/> class.
+        /// Initializes a new instance of the <see cref="TestCollection"/> class.
         /// </summary>
-        public XunitTestCollection(ITestAssembly testAssembly, ITypeInfo collectionDefinition, string displayName)
+        public TestCollection(ITestAssembly testAssembly, ITypeInfo collectionDefinition, string displayName)
         {
             CollectionDefinition = collectionDefinition;
             DisplayName = displayName;
@@ -85,7 +85,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected XunitTestCollection(SerializationInfo info, StreamingContext context)
+        protected TestCollection(SerializationInfo info, StreamingContext context)
         {
             DisplayName = info.GetString("DisplayName");
             TestAssembly = info.GetValue<ITestAssembly>("TestAssembly");

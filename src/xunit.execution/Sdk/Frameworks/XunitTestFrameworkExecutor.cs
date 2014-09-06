@@ -23,13 +23,13 @@ namespace Xunit.Sdk
 #if !WINDOWS_PHONE_APP
             config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
-            TestAssembly = new XunitTestAssembly(AssemblyInfo, config);
+            TestAssembly = new TestAssembly(AssemblyInfo, config);
         }
 
         /// <summary>
         /// Gets the test assembly that contains the test.
         /// </summary>
-        protected XunitTestAssembly TestAssembly { get; set; }
+        protected TestAssembly TestAssembly { get; set; }
 
         /// <inheritdoc/>
         protected override ITestFrameworkDiscoverer CreateDiscoverer()

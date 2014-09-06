@@ -39,7 +39,7 @@ public class XunitTestAssemblyRunnerTests
         public static void Attribute_NonParallel()
         {
             var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true);
-            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -51,7 +51,7 @@ public class XunitTestAssemblyRunnerTests
         public static void Attribute_MaxThreads()
         {
             var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 3);
-            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -65,7 +65,7 @@ public class XunitTestAssemblyRunnerTests
         public static void Attribute_CollectionBehavior(CollectionBehavior behavior, string expectedDisplayText)
         {
             var attribute = Mocks.CollectionBehaviorAttribute(behavior, disableTestParallelization: true);
-            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -78,7 +78,7 @@ public class XunitTestAssemblyRunnerTests
         {
             var factoryType = typeof(MyTestCollectionFactory);
             var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName, factoryType.Assembly.FullName, disableTestParallelization: true);
-            var assembly = Mocks.TestAssembly(attributes: new[] { attr });
+            var assembly = Mocks.TestAssembly(new[] { attr });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -125,7 +125,7 @@ public class XunitTestAssemblyRunnerTests
         {
             var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true, maxParallelThreads: 127);
             var options = new XunitExecutionOptions { DisableParallelization = false, MaxParallelThreads = 3 };
-            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, options: options);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -185,7 +185,7 @@ public class XunitTestAssemblyRunnerTests
         public static void CanSetTestCaseOrdererInAssemblyAttribute()
         {
             var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyTestCaseOrderer>();
-            var assembly = Mocks.TestAssembly(attributes: new[] { ordererAttribute });
+            var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             runner.Initialize();
@@ -208,7 +208,7 @@ public class XunitTestAssemblyRunnerTests
         public static void CanSetTestCollectionOrdererInAssemblyAttribute()
         {
             var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyTestCollectionOrderer>();
-            var assembly = Mocks.TestAssembly(attributes: new[] { ordererAttribute });
+            var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             runner.Initialize();
