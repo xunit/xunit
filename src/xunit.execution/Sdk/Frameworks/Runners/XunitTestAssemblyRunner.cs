@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Versioning;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,9 +54,8 @@ namespace Xunit.Sdk
 
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, TestAssembly);
 
-            return String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
-                                 IntPtr.Size * 8,
-                                 GetVersion(),
+            return String.Format("{0} [{1}, {2}{3}]",
+                                 base.GetTestFrameworkEnvironment(),
                                  testCollectionFactory.DisplayName,
                                  disableParallelization ? "non-parallel" : "parallel",
                                  maxParallelThreads > 0 ? String.Format(" ({0} threads)", maxParallelThreads) : "");
@@ -77,16 +74,6 @@ namespace Xunit.Sdk
 
             syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
             SetSynchronizationContext(syncContext);
-        }
-
-        static object GetVersion()
-        {
-#if WINDOWS_PHONE_APP
-            var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
-            return attr == null ? ".NET Framework" : attr.FrameworkDisplayName;
-#else
-            return Environment.Version;
-#endif
         }
 
         /// <summary>

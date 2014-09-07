@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -87,7 +89,20 @@ namespace Xunit.Sdk
         /// Override this to provide the environment information (f.e., "32-bit .NET 4.0"). This value is
         /// placed into <see cref="ITestAssemblyStarting.TestEnvironment"/>.
         /// </summary>
-        protected abstract string GetTestFrameworkEnvironment();
+        protected virtual string GetTestFrameworkEnvironment()
+        {
+            return String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, GetVersion());
+        }
+
+        static string GetVersion()
+        {
+#if WINDOWS_PHONE_APP
+            var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
+            return attr == null ? "(unknown version)" : attr.FrameworkDisplayName;
+#else
+            return Environment.Version.ToString();
+#endif
+        }
 
         /// <summary>
         /// This method is called just after <see cref="ITestAssemblyStarting"/> is sent, but before any test collections are run.
