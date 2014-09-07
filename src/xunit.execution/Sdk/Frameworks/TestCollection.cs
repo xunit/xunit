@@ -23,8 +23,13 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCollection"/> class.
         /// </summary>
+        /// <param name="testAssembly">The test assembly the collection belongs to</param>
+        /// <param name="collectionDefinition">The optional type which contains the collection definition</param>
+        /// <param name="displayName">The display name for the test collection</param>
         public TestCollection(ITestAssembly testAssembly, ITypeInfo collectionDefinition, string displayName)
         {
+            Guard.ArgumentNotNull("testAssembly", testAssembly);
+
             CollectionDefinition = collectionDefinition;
             DisplayName = displayName;
             TestAssembly = testAssembly;

@@ -23,8 +23,13 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestClass"/> class.
         /// </summary>
+        /// <param name="testCollection">The test collection the class belongs to</param>
+        /// <param name="class">The test class</param>
         public TestClass(ITestCollection testCollection, ITypeInfo @class)
         {
+            Guard.ArgumentNotNull("testCollection", testCollection);
+            Guard.ArgumentNotNull("class", @class);
+
             Class = @class;
             TestCollection = testCollection;
         }

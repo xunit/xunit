@@ -23,10 +23,15 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethod"/> class.
         /// </summary>
-        public TestMethod(ITestClass testClass, IMethodInfo method)
+        /// <param name="class">The test class</param>
+        /// <param name="method">The test method</param>
+        public TestMethod(ITestClass @class, IMethodInfo method)
         {
+            Guard.ArgumentNotNull("class", @class);
+            Guard.ArgumentNotNull("method", method);
+
             Method = method;
-            TestClass = testClass;
+            TestClass = @class;
         }
 
         /// <inheritdoc/>

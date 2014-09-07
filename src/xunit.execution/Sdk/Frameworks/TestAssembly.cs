@@ -26,10 +26,20 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssembly"/> class.
         /// </summary>
-        public TestAssembly(IAssemblyInfo assembly, string configFileName)
+        /// <param name="assembly">The test assembly.</param>
+        /// <param name="configFileName">The optional configuration filename (defaults to the
+        /// configuration file of the current app domain if not provided)</param>
+        public TestAssembly(IAssemblyInfo assembly, string configFileName = null)
         {
+            Guard.ArgumentNotNull("assembly", assembly);
+
             ConfigFileName = configFileName;
             Assembly = assembly;
+
+#if !WINDOWS_PHONE_APP
+            if (ConfigFileName == null)
+                ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+#endif
         }
 
         /// <inheritdoc/>
