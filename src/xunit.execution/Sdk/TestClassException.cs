@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+#if !ASPNETCORE50
 using System.Runtime.Serialization;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -20,7 +22,7 @@ namespace Xunit.Sdk
         public TestClassException(string message)
             : base(message) { }
 
-#if !WINDOWS_PHONE_APP
+#if !WINDOWS_PHONE_APP && !ASPNETCORE50
         /// <inheritdoc/>
         protected TestClassException(SerializationInfo info, StreamingContext context)
             : base(info, context) { }

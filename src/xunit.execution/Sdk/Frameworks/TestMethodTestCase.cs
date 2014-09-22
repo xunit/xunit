@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Security;
 using System.Text;
 using Xunit.Abstractions;
 using Xunit.Serialization;
+#if !ASPNETCORE50
+using System.Runtime.Serialization;
+#endif
 
 #if !WINDOWS_PHONE_APP
 using System.Security.Cryptography;
@@ -34,7 +36,9 @@ namespace Xunit.Sdk
         ITypeInfo[] methodGenericTypes;
         Lazy<string> uniqueID;
 
-#if !WINDOWS_PHONE_APP
+#if ASPNETCORE50
+        readonly static HashAlgorithm Hasher = SHA1.Create();
+#elif !WINDOWS_PHONE_APP
         readonly static HashAlgorithm Hasher = new SHA1Managed();
 #else
         readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);

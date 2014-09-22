@@ -1,0 +1,15 @@
+{
+    "frameworks": {
+        "aspnet50": { },
+        "aspnetcore50": {
+            "dependencies": {
+                "System.Collections": "4.0.10.0",
+                "System.Diagnostics.Tools": "4.0.0.0",
+                "System.Reflection": "4.0.10.0"
+            }
+        }
+    },
+    "compilationOptions": {
+        "define": [ "PCL" ]
+    }
+}

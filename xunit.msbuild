@@ -17,6 +17,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)</SolutionDir>
     <NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(SolutionDir)\.nuget\nuget.exe</NuGetExePath>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">normal</RequestedVerbosity>
+    <KvmPath Condition="'$(KvmPath)' == ''">$(SolutionDir)\tools\kvm.cmd</KvmPath>
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
@@ -87,6 +88,14 @@
         Files="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe.config" />
     <Delete
         Files="src\xunit.console\xunit.console.x86.csproj" />
+
+    <!-- Build aspnet projects -->
+    <Exec Command='"$(KvmPath)" upgrade -runtime CLR -x86' />
+    <Exec Command='"$(KvmPath)" install default -runtime CoreCLR -x86' />
+    <Exec Command='"$(KvmPath)" use default -runtime CLR -x86' />
+    <Exec Command="kpm restore" />
+    <Exec Command="kpm build src\xunit.runner.utility --configuration $(Configuration)" />
+    <Exec Command="kpm build src\xunit.execution --configuration $(Configuration)" />
   </Target>
 
   <Target Name="_Test32" DependsOnTargets="Build">

@@ -1,6 +1,8 @@
 using System;
-using System.Runtime.Serialization;
 using Xunit.Abstractions;
+#if !ASPNETCORE50
+using System.Runtime.Serialization;
+#endif
 
 #if XUNIT_CORE_DLL
 using Xunit.Serialization;

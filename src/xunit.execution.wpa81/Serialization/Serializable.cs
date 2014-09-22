@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !ASPNET50
+
+using System;
 
 namespace Xunit
 {
@@ -31,3 +33,5 @@ namespace Xunit
     /// <summary/>
     public class StreamingContext { }
 }
+
+#endif

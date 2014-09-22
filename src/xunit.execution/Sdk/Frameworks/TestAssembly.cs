@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if !WINDOWS_PHONE_APP && !ASPNETCORE50
 using System.Runtime.Serialization;
+#endif
 using System.Security;
 using Xunit.Abstractions;
 using Xunit.Serialization;
@@ -36,7 +38,7 @@ namespace Xunit.Sdk
             ConfigFileName = configFileName;
             Assembly = assembly;
 
-#if !WINDOWS_PHONE_APP
+#if !WINDOWS_PHONE_APP && !ASPNETCORE50
             if (ConfigFileName == null)
                 ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
@@ -72,7 +74,7 @@ namespace Xunit.Sdk
 
             var assemblyPath = info.GetString("AssemblyPath");
 
-#if !WINDOWS_PHONE_APP && !WIN8_STORE
+#if !WINDOWS_PHONE_APP && !WIN8_STORE && !ASPNETCORE50
             var assembly = AppDomain.CurrentDomain
                                     .GetAssemblies()
                                     .First(a => !a.IsDynamic && String.Equals(a.GetLocalCodeBase(), assemblyPath, StringComparison.OrdinalIgnoreCase));
