@@ -140,11 +140,14 @@ public class CollectionAssertsTests
         [Fact]
         public void ItemNotInContainer()
         {
-            List<int> list = new List<int>();
+            List<int> list = new List<int> { 41, 43 };
 
             ContainsException ex = Assert.Throws<ContainsException>(() => Assert.Contains(42, list));
 
-            Assert.Equal("Assert.Contains() Failure: Not found: 42", ex.Message);
+            Assert.Equal(
+                "Assert.Contains() Failure" + Environment.NewLine + 
+                "Expected: 42" + Environment.NewLine +
+                "Actual:   List<Int32> { 41, 43 }", ex.Message);
         }
 
         [Fact]

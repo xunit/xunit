@@ -99,7 +99,7 @@ namespace Xunit
                     if (comparer.Equals(expected, item))
                         return;
 
-            throw new ContainsException(expected);
+            throw new ContainsException(expected, collection);
         }
 
         /// <summary>
