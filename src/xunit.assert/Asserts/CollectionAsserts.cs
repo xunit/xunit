@@ -99,7 +99,7 @@ namespace Xunit
                 if (comparer.Equals(expected, item))
                     return;
 
-            throw new ContainsException(expected);
+            throw new ContainsException(expected, collection);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace Xunit
                 if (filter(item))
                     return;
 
-            throw new ContainsException();
+            throw new ContainsException("(filter expression)", collection);
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Xunit
 
             foreach (var item in collection)
                 if (comparer.Equals(expected, item))
-                    throw new DoesNotContainException(expected);
+                    throw new DoesNotContainException(expected, collection);
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Xunit
 
             foreach (var item in collection)
                 if (filter(item))
-                    throw new DoesNotContainException();
+                    throw new DoesNotContainException("(filter expression)", collection);
         }
 
         /// <summary>

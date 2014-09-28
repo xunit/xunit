@@ -1,6 +1,4 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 
 namespace Xunit.Sdk
 {
@@ -8,19 +6,14 @@ namespace Xunit.Sdk
     /// Exception thrown when a collection unexpectedly contains the expected value.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    public class DoesNotContainException : XunitException
+    public class DoesNotContainException : AssertActualExpectedException
     {
         /// <summary>
         /// Creates a new instance of the <see cref="DoesNotContainException"/> class.
         /// </summary>
-        public DoesNotContainException()
-            : base("Assert.DoesNotContain() Failure") { }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="DoesNotContainException"/> class.
-        /// </summary>
         /// <param name="expected">The expected object value</param>
-        public DoesNotContainException(object expected)
-            : base(String.Format(CultureInfo.CurrentCulture, "Assert.DoesNotContain() Failure: Found: {0}", expected)) { }
+        /// <param name="actual">The actual value</param>
+        public DoesNotContainException(object expected, object actual)
+            : base(expected, actual, "Assert.DoesNotContain() Failure", "Found", "In value") { }
     }
 }
