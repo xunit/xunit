@@ -13,6 +13,12 @@ namespace Xunit.Sdk
         /// <summary>
         /// Creates a new instance of the <see cref="DoesNotContainException"/> class.
         /// </summary>
+        public DoesNotContainException()
+            : base("Assert.DoesNotContain() Failure") { }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="DoesNotContainException"/> class.
+        /// </summary>
         /// <param name="expected">The expected object value</param>
         public DoesNotContainException(object expected)
             : base(String.Format(CultureInfo.CurrentCulture, "Assert.DoesNotContain() Failure: Found: {0}", expected)) { }

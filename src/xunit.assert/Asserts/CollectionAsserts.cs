@@ -93,13 +93,32 @@ namespace Xunit
         public static void Contains<T>(T expected, IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
             Assert.GuardArgumentNotNull("comparer", comparer);
+            Assert.GuardArgumentNotNull("collection", collection);
 
-            if (collection != null)
-                foreach (T item in collection)
-                    if (comparer.Equals(expected, item))
-                        return;
+            foreach (var item in collection)
+                if (comparer.Equals(expected, item))
+                    return;
 
             throw new ContainsException(expected);
+        }
+
+        /// <summary>
+        /// Verifies that a collection contains a given object.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to be verified</typeparam>
+        /// <param name="collection">The collection to be inspected</param>
+        /// <param name="filter">The filter used to find the item you're ensuring the collection contains</param>
+        /// <exception cref="ContainsException">Thrown when the object is not present in the collection</exception>
+        public static void Contains<T>(IEnumerable<T> collection, Predicate<T> filter)
+        {
+            Assert.GuardArgumentNotNull("collection", collection);
+            Assert.GuardArgumentNotNull("filter", filter);
+
+            foreach (var item in collection)
+                if (filter(item))
+                    return;
+
+            throw new ContainsException();
         }
 
         /// <summary>
@@ -124,12 +143,29 @@ namespace Xunit
         /// <exception cref="DoesNotContainException">Thrown when the object is present inside the container</exception>
         public static void DoesNotContain<T>(T expected, IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
+            Assert.GuardArgumentNotNull("collection", collection);
             Assert.GuardArgumentNotNull("comparer", comparer);
 
-            if (collection != null)
-                foreach (T item in collection)
-                    if (comparer.Equals(expected, item))
-                        throw new DoesNotContainException(expected);
+            foreach (var item in collection)
+                if (comparer.Equals(expected, item))
+                    throw new DoesNotContainException(expected);
+        }
+
+        /// <summary>
+        /// Verifies that a collection does not contain a given object.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to be compared</typeparam>
+        /// <param name="collection">The collection to be inspected</param>
+        /// <param name="filter">The filter used to find the item you're ensuring the collection does not contain</param>
+        /// <exception cref="DoesNotContainException">Thrown when the object is present inside the container</exception>
+        public static void DoesNotContain<T>(IEnumerable<T> collection, Predicate<T> filter)
+        {
+            Assert.GuardArgumentNotNull("collection", collection);
+            Assert.GuardArgumentNotNull("filter", filter);
+
+            foreach (var item in collection)
+                if (filter(item))
+                    throw new DoesNotContainException();
         }
 
         /// <summary>
