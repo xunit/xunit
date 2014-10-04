@@ -238,11 +238,20 @@ namespace Xunit.Runner.MSBuild
                             MaxParallelThreads = MaxParallelThreads
                         };
 
-                        controller.RunTests(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor, executionOptions);
-                        resultsVisitor.Finished.WaitOne();
-
-                        if (resultsVisitor.Failed != 0)
+                        var filteredTestCases = discoveryVisitor.TestCases.Where(Filters.Filter).ToList();
+                        if (filteredTestCases.Count == 0)
+                        {
+                            Log.LogError("{0} has no tests to run", Path.GetFileNameWithoutExtension(assemblyFileName));
                             ExitCode = 1;
+                        }
+                        else
+                        {
+                            controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
+                            resultsVisitor.Finished.WaitOne();
+
+                            if (resultsVisitor.Failed != 0)
+                                ExitCode = 1;
+                        }
                     }
                 }
             }

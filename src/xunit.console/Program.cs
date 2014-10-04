@@ -252,8 +252,21 @@ namespace Xunit.ConsoleClient
 
                     var executionOptions = new XunitExecutionOptions { DisableParallelization = !parallelizeTestCollections, MaxParallelThreads = maxThreadCount };
                     var resultsVisitor = CreateVisitor(consoleLock, defaultDirectory, assemblyElement, teamCity, appVeyor);
-                    controller.RunTests(discoveryVisitor.TestCases.Where(filters.Filter).ToList(), resultsVisitor, executionOptions);
-                    resultsVisitor.Finished.WaitOne();
+                    var filteredTestCases = discoveryVisitor.TestCases.Where(filters.Filter).ToList();
+                    if (filteredTestCases.Count == 0)
+                    {
+                        lock (consoleLock)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("ERROR:       {0} has no tests to run", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        }
+                    }
+                    else
+                    {
+                        controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
+                        resultsVisitor.Finished.WaitOne();
+                    }
                 }
             }
             catch (Exception ex)
