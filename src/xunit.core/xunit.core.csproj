@@ -66,6 +66,7 @@
     <Compile Include="Sdk\ArgumentFormatter.cs" />
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
     <Compile Include="Sdk\DataAttribute.cs" />
+    <Compile Include="Sdk\MemberDataDiscoverer.cs" />
     <Compile Include="Sdk\DataDiscoverer.cs" />
     <Compile Include="Sdk\DataDiscovererAttribute.cs" />
     <Compile Include="Sdk\ExceptionAggregator.cs" />

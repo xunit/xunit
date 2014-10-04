@@ -24,5 +24,11 @@ namespace Xunit.Sdk
             var args = (IEnumerable<object>)dataAttribute.GetConstructorArguments().Single() ?? new object[] { null };
             return new[] { args.ToArray() };
         }
+
+        /// <inheritdoc/>
+        public virtual bool SupportsDiscoveryEnumeration(IAttributeInfo dataAttribute, IMethodInfo testMethod)
+        {
+            return true;
+        }
     }
 }

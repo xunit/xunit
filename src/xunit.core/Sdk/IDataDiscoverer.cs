@@ -31,5 +31,12 @@ namespace Xunit.Sdk
         /// <returns>The theory data (or null during discovery, if not enough
         /// information is available to enumerate the data)</returns>
         IEnumerable<object[]> GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod);
+
+        /// <summary>
+        /// Returns <c>true</c> if the data attribute supports enumeration during
+        /// discovery; <c>false</c> otherwise. Data attributes with expensive computational
+        /// costs should return <c>false</c>.
+        /// </summary>
+        bool SupportsDiscoveryEnumeration(IAttributeInfo dataAttribute, IMethodInfo testMethod);
     }
 }

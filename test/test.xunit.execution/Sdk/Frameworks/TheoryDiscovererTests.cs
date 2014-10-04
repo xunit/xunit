@@ -146,6 +146,56 @@ public class TheoryDiscovererTests : AcceptanceTest
     }
 
     [Fact]
+    public static void NonDiscoveryEnumeratedDataYieldsSingleTheoryTestCase()
+    {
+        var discoverer = new TheoryDiscoverer();
+        var testMethod = Mocks.TestMethod(typeof(NonDiscoveryEnumeratedData), "TheoryMethod");
+        var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+        var testCases = discoverer.Discover(testMethod, factAttribute);
+
+        var testCase = Assert.Single(testCases);
+        var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
+        Assert.Equal("TheoryDiscovererTests+NonDiscoveryEnumeratedData.TheoryMethod", theoryTestCase.DisplayName);
+    }
+
+    class NonDiscoveryEnumeratedData
+    {
+        public static IEnumerable<object[]> foo { get { return Enumerable.Empty<object[]>(); } }
+        public static IEnumerable<object[]> bar { get { return Enumerable.Empty<object[]>(); } }
+
+        [Theory]
+        [MemberData("foo", DisableDiscoveryEnumeration = true)]
+        [MemberData("bar", DisableDiscoveryEnumeration = true)]
+        public static void TheoryMethod(int x) { }
+    }
+
+    [Fact]
+    public static void MixedDiscoveryEnumerationDataYieldSingleTheoryTestCase()
+    {
+        var discoverer = new TheoryDiscoverer();
+        var testMethod = Mocks.TestMethod(typeof(MixedDiscoveryEnumeratedData), "TheoryMethod");
+        var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+        var testCases = discoverer.Discover(testMethod, factAttribute);
+
+        var testCase = Assert.Single(testCases);
+        var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
+        Assert.Equal("TheoryDiscovererTests+MixedDiscoveryEnumeratedData.TheoryMethod", theoryTestCase.DisplayName);
+    }
+
+    class MixedDiscoveryEnumeratedData
+    {
+        public static IEnumerable<object[]> foo { get { return Enumerable.Empty<object[]>(); } }
+        public static IEnumerable<object[]> bar { get { return Enumerable.Empty<object[]>(); } }
+
+        [Theory]
+        [MemberData("foo", DisableDiscoveryEnumeration = false)]
+        [MemberData("bar", DisableDiscoveryEnumeration = true)]
+        public static void TheoryMethod(int x) { }
+    }
+
+    [Fact]
     public void SkippedTheoryWithNoData()
     {
         var skips = Run<ITestSkipped>(typeof(SkippedWithNoData));
