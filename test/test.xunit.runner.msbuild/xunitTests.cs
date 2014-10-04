@@ -146,7 +146,7 @@ public class xunitTests
 
                 xunit.Execute();
 
-                Assert.DoesNotThrow(() => new XmlDocument().Load(tempFile));
+                new XmlDocument().Load(tempFile);  // File should exist as legal XML
             }
             finally
             {
@@ -171,7 +171,7 @@ public class xunitTests
 
                 xunit.Execute();
 
-                Assert.DoesNotThrow(() => new XmlDocument().Load(tempFile));
+                new XmlDocument().Load(tempFile);  // File should exist as legal XML
             }
             finally
             {

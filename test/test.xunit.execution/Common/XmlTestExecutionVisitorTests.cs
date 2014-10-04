@@ -332,7 +332,7 @@ public class XmlTestExecutionVisitorTests
             visitor.OnMessage(assemblyFinished);
 
             using (var writer = new StringWriter())
-                Assert.DoesNotThrow(() => assemblyElement.Save(writer));
+                assemblyElement.Save(writer);  // Should not throw
         }
 
         class ClassUnderTest

@@ -69,7 +69,7 @@ public class StringAssertsTests
         [Fact]
         public void NullActualStringDoesNotThrow()
         {
-            Assert.DoesNotThrow(() => Assert.DoesNotContain("foo", (string)null));
+            Assert.DoesNotContain("foo", (string)null);
         }
     }
 
@@ -312,7 +312,7 @@ public class StringAssertsTests
         [Fact]
         public void NullActualStringDoesNotThrow()
         {
-            Assert.DoesNotThrow(() => Assert.DoesNotMatch(@"\w+", (string)null));
+            Assert.DoesNotMatch(@"\w+", (string)null);
         }
     }
 
@@ -344,7 +344,7 @@ public class StringAssertsTests
         [Fact]
         public void NullActualStringDoesNotThrow()
         {
-            Assert.DoesNotThrow(() => Assert.DoesNotMatch(new Regex(@"\w+"), (string)null));
+            Assert.DoesNotMatch(new Regex(@"\w+"), (string)null);
         }
     }
 }

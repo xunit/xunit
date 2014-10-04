@@ -135,7 +135,7 @@ public class TypeAssertsTests
         [Fact]
         public void NullObjectDoesNotThrow()
         {
-            Assert.DoesNotThrow(() => Assert.IsNotType<object>(null));
+            Assert.IsNotType<object>(null);
         }
     }
 
@@ -162,7 +162,7 @@ public class TypeAssertsTests
         [Fact]
         public void NullObjectDoesNotThrow()
         {
-            Assert.DoesNotThrow(() => Assert.IsNotType(typeof(object), null));
+            Assert.IsNotType(typeof(object), null);
         }
     }
 

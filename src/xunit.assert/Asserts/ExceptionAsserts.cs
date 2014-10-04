@@ -9,44 +9,6 @@ namespace Xunit
     public partial class Assert
     {
         /// <summary>
-        /// Verifies that a block of code does not throw any exceptions.
-        /// </summary>
-        /// <param name="testCode">A delegate to the code to be tested</param>
-        public static void DoesNotThrow(Action testCode)
-        {
-            DoesNotThrow(Record.Exception(testCode));
-        }
-
-        /// <summary>
-        /// Verifies that a block of code does not throw any exceptions.
-        /// </summary>
-        /// <param name="testCode">A delegate to the code to be tested</param>
-        public static void DoesNotThrow(Func<object> testCode)
-        {
-            DoesNotThrow(Record.Exception(testCode));
-        }
-
-        /// <summary/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("You must call Assert.DoesNotThrowAsync (and await the result) when testing async code.", true)]
-        public static void DoesNotThrow(Func<Task> testCode) { throw new NotImplementedException(); }
-
-        /// <summary>
-        /// Verifies that a task does not throw any exceptions.
-        /// </summary>
-        /// <param name="testCode">A delegate to the code to be tested</param>
-        public static async Task DoesNotThrowAsync(Func<Task> testCode)
-        {
-            DoesNotThrow(await Record.ExceptionAsync(testCode));
-        }
-
-        private static void DoesNotThrow(Exception exception)
-        {
-            if (exception != null)
-                throw new DoesNotThrowException(exception);
-        }
-
-        /// <summary>
         /// Verifies that the exact exception is thrown (and not a derived exception type).
         /// </summary>
         /// <typeparam name="T">The type of the exception expected to be thrown</typeparam>

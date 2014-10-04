@@ -58,7 +58,6 @@
     <Compile Include="Asserts\Sdk\Exceptions\ContainsException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\DoesNotContainException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\DoesNotMatchException.cs" />
-    <Compile Include="Asserts\Sdk\Exceptions\DoesNotThrowException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\EmptyException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\EndsWithException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\EqualException.cs" />

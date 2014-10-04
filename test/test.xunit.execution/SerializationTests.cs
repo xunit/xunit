@@ -23,7 +23,7 @@ public class SerializationTests
             object o = bf.Deserialize(ms);
 
             Assert.IsType(typeof(SerializableObject), o);
-            Assert.DoesNotThrow(delegate { SerializableObject o2 = (SerializableObject)o; });
+            var o2 = (SerializableObject)o;  // Should not throw
         }
     }
 

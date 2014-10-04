@@ -29,10 +29,7 @@ public class CommandLineTests
         {
             var arguments = new[] { "assemblyName.dll" };
 
-            Assert.DoesNotThrow(() =>
-            {
-                TestableCommandLine.Parse(arguments);
-            });
+            TestableCommandLine.Parse(arguments);  // Should not throw
         }
 
         [Fact]

@@ -31,7 +31,7 @@
   <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;GitHubLink;Packages;ZipArtifacts" />
   <Target Name="TeamCity" DependsOnTargets="CI;PushMyGet" />
 
-  <!-- Individiual targets -->
+  <!-- Individual targets -->
 
   <Target Name="DisableParallelization">
     <PropertyGroup>

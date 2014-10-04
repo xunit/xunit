@@ -220,7 +220,7 @@ public class CollectionAssertsTests
         [Fact]
         public void NullContainerDoesNotThrow()
         {
-            Assert.DoesNotThrow(() => Assert.DoesNotContain(14, (List<int>)null));
+            Assert.DoesNotContain(14, (List<int>)null);
         }
     }
 

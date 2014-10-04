@@ -21,7 +21,7 @@ public class TestCaseSerializerTests
         {
             var testCase = Mocks.XunitTestCase<ClassUnderTest>("FactMethod");
 
-            Assert.DoesNotThrow(() => SerializationHelper.Serialize(testCase));
+            SerializationHelper.Serialize(testCase);  // Should not throw
         }
 
         [Fact]
@@ -83,7 +83,7 @@ public class TestCaseSerializerTests
         {
             var testCase = Mocks.XunitTheoryTestCase<ClassUnderTest>("FactMethod");
 
-            Assert.DoesNotThrow(() => SerializationHelper.Serialize(testCase));
+            SerializationHelper.Serialize(testCase);  // Should not throw
         }
 
         [Fact]
