@@ -9,12 +9,12 @@ namespace Xunit
     /// </summary>
     public class XunitProject : IEnumerable<XunitProjectAssembly>
     {
-        readonly List<XunitProjectAssembly> assemblies;
+        readonly IEnumerable<XunitProjectAssembly> _assemblies;
 
         /// <summary/>
-        public XunitProject()
+        public XunitProject(IEnumerable<XunitProjectAssembly> assemblies)
         {
-            assemblies = new List<XunitProjectAssembly>();
+            _assemblies = assemblies;
             Filters = new XunitFilters();
             Output = new Dictionary<string, string>();
         }
@@ -22,7 +22,7 @@ namespace Xunit
         /// <summary/>
         public IEnumerable<XunitProjectAssembly> Assemblies
         {
-            get { return assemblies; }
+            get { return _assemblies; }
         }
 
         /// <summary/>
@@ -30,14 +30,6 @@ namespace Xunit
 
         /// <summary/>
         public Dictionary<string, string> Output { get; set; }
-
-        /// <summary/>
-        public void Add(XunitProjectAssembly assembly)
-        {
-            Guard.ArgumentNotNull("assembly", assembly);
-
-            assemblies.Add(assembly);
-        }
 
         /// <summary/>
         public IEnumerator<XunitProjectAssembly> GetEnumerator()

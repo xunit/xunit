@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Xunit.ConsoleClient.Utility;
 
 namespace Xunit.ConsoleClient
 {
@@ -36,17 +38,16 @@ namespace Xunit.ConsoleClient
 
         public bool Wait { get; protected set; }
 
-        static XunitProject GetSingleAssemblyProject(string assemblyFile, string configFile)
+        static XunitProject GetAssemblyProject(IEnumerable<string> assemblies, string configFile)
         {
-            return new XunitProject
-            {
-                new XunitProjectAssembly
-                {
-                    AssemblyFilename = assemblyFile,
-                    ConfigFilename = configFile,
-                    ShadowCopy = true
-                }
-            };
+            return new XunitProject(
+                assemblies.Select(a => 
+                    new XunitProjectAssembly
+                    {
+                        AssemblyFilename = a,
+                        ConfigFilename = configFile,
+                        ShadowCopy = true
+                    }));
         }
 
         static void GuardNoOptionValue(KeyValuePair<string, string> option)
@@ -62,16 +63,20 @@ namespace Xunit.ConsoleClient
 
         protected virtual XunitProject Parse()
         {
-            return Parse(fileName => File.Exists(fileName));
+            return Parse(
+                File.Exists, 
+                p => new DirectoryInfo(Directory.GetCurrentDirectory()).Glob(p));
         }
 
-        protected XunitProject Parse(Predicate<string> fileExists)
+        protected XunitProject Parse(Predicate<string> fileExists, Func<string, IEnumerable<string>> getAssemblies)
         {
-            var transforms = new Dictionary<string, string>();
+            var pattern = arguments.Pop();
 
-            var filename = arguments.Pop();
-            if (!fileExists(filename))
-                throw new ArgumentException(String.Format("file not found: {0}", filename));
+            List<string> assemblies;
+
+            assemblies = fileExists(pattern) ? new List<string>{pattern} : getAssemblies(pattern).ToList();
+            
+            if(!assemblies.Any()) throw new ArgumentException(String.Format("no files found for pattern: {0}", pattern));
 
             string configFile = null;
             if (arguments.Count > 0 && !arguments.Peek().StartsWith("-"))
@@ -82,7 +87,7 @@ namespace Xunit.ConsoleClient
                     throw new ArgumentException(String.Format("config file not found: {0}", configFile));
             }
 
-            var project = GetSingleAssemblyProject(filename, configFile);
+            var project = GetAssemblyProject(assemblies, configFile);
 
             while (arguments.Count > 0)
             {

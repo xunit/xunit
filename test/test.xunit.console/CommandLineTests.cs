@@ -596,7 +596,7 @@ public class CommandLineTests
 
         protected override XunitProject Parse()
         {
-            return Parse(filename => filename != "badConfig.config");
+            return Parse(filename => filename != "badConfig.config", x => new String[]{});
         }
     }
 }
