@@ -34,5 +34,8 @@
     <file src="xunit.execution.wpa81\bin\Release\xunit.execution.pdb"      target="lib\portable-wpa81+win81\xunit.execution.pdb" />
     <file src="xunit.execution.wpa81\bin\Release\xunit.execution.xml"      target="lib\portable-wpa81+win81\xunit.execution.xml" />
     <file src="xunit.execution.wpa81\bin\Release\xunit.execution.pri"      target="lib\portable-wpa81+win81\xunit.execution.pri" />
+    <file src="xunit.execution.wp8\bin\Release\xunit.execution.dll"        target="lib\wp8\xunit.execution.dll" />
+    <file src="xunit.execution.wp8\bin\Release\xunit.execution.pdb"        target="lib\wp8\xunit.execution.pdb" />
+    <file src="xunit.execution.wp8\bin\Release\xunit.execution.xml"        target="lib\wp8\xunit.execution.xml" />
   </files>
 </package>

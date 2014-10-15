@@ -20,7 +20,7 @@ namespace Xunit.Sdk
         public TestClassException(string message)
             : base(message) { }
 
-#if !WINDOWS_PHONE_APP
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE
         /// <inheritdoc/>
         protected TestClassException(SerializationInfo info, StreamingContext context)
             : base(info, context) { }
