@@ -11,6 +11,8 @@ using System.Reflection;
 [assembly: AssemblyTitle("xUnit.net (.NET 4.5 [String Serialization])")]
 #elif WINDOWS_PHONE_APP
 [assembly: AssemblyTitle("xUnit.net (WPA81 + WIN81)")]
+#elif WINDOWS_PHONE
+[assembly: AssemblyTitle("xUnit.net (WP8 Silverlight)")]
 #else
 [assembly: AssemblyTitle("xUnit.net (.NET 4.5)")]
 #endif

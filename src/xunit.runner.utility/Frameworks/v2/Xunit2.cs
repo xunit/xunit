@@ -29,7 +29,7 @@ namespace Xunit
 #if ANDROID
             var assm = Assembly.Load(assemblyFileName);
             var assemblyName = assm.GetName();
-#elif WINDOWS_PHONE_APP
+#elif WINDOWS_PHONE_APP || WINDOWS_PHONE
             var assm = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) });
             var assemblyName = new AssemblyName { Name = assm.GetName().Name };
 #else

@@ -46,7 +46,7 @@ namespace Xunit
 
             if (this.sourceInformationProvider == null)
             {
-#if !XAMARIN && !WINDOWS_PHONE_APP
+#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE
                 this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
 #else
                 this.sourceInformationProvider = new NullSourceInformationProvider();
@@ -88,7 +88,7 @@ namespace Xunit
         protected virtual IFrontController CreateInnerController()
         {
             // TODO: Refactor this method -- too many ifdefs
-#if !XAMARIN && !WINDOWS_PHONE_APP
+#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE
             var xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
 #endif
             var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
@@ -97,12 +97,12 @@ namespace Xunit
             if (File.Exists(xunitExecutionPath))
 #endif
                 return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
-#if !XAMARIN && !WINDOWS_PHONE_APP
+#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE
             if (File.Exists(xunitPath))
                 return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #endif
 
-#if XAMARIN || WINDOWS_PHONE_APP
+#if XAMARIN || WINDOWS_PHONE_APP || WINDOWS_PHONE
             throw new ArgumentException("Unknown test framework: Could not find xunit.execution.dll.", assemblyFileName);
 #else
             throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit.execution.dll.", assemblyFileName);
