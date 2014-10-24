@@ -257,7 +257,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void SetData(XunitSerializationInfo data)
+        public virtual void SetData(XunitSerializationInfo data)
         {
             TestMethod = data.GetValue<ITestMethod>("TestMethod");
             TestMethodArguments = null;
