@@ -242,7 +242,9 @@ public class EqualityAssertsTests
             var ex = Record.Exception(() => Assert.NotEqual("actual", "actual"));
 
             Assert.IsType<NotEqualException>(ex);
-            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+            Assert.Equal(@"Assert.NotEqual() Failure" + Environment.NewLine +
+                         @"Expected: Not ""actual""" + Environment.NewLine +
+                         @"Actual:   ""actual""", ex.Message);
         }
     }
 
@@ -261,7 +263,9 @@ public class EqualityAssertsTests
                 () => Assert.NotEqual("TestString", "testString", StringComparer.CurrentCultureIgnoreCase));
 
             Assert.IsType<NotEqualException>(ex);
-            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+            Assert.Equal(@"Assert.NotEqual() Failure" + Environment.NewLine +
+                         @"Expected: Not ""TestString""" + Environment.NewLine +
+                         @"Actual:   ""testString""", ex.Message);
         }
     }
 
@@ -277,7 +281,10 @@ public class EqualityAssertsTests
         public void Failure()
         {
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111M, 0.11444M, 2));
-            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+
+            Assert.Equal("Assert.NotEqual() Failure" + Environment.NewLine +
+                         "Expected: Not 0.11 (rounded from 0.11111)" + Environment.NewLine +
+                         "Actual:   0.11 (rounded from 0.11444)", ex.Message);
         }
     }
 
@@ -293,7 +300,10 @@ public class EqualityAssertsTests
         public void Failure()
         {
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111, 0.11444, 2));
-            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+
+            Assert.Equal("Assert.NotEqual() Failure" + Environment.NewLine +
+                         "Expected: Not 0.11 (rounded from 0.11111)" + Environment.NewLine +
+                         "Actual:   0.11 (rounded from 0.11444)", ex.Message);
         }
     }
 
@@ -317,14 +327,18 @@ public class EqualityAssertsTests
             var ex = Record.Exception(() => Assert.NotStrictEqual("actual", "actual"));
 
             Assert.IsType<NotEqualException>(ex);
-            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+            Assert.Equal(@"Assert.NotEqual() Failure" + Environment.NewLine +
+                         @"Expected: Not ""actual""" + Environment.NewLine +
+                         @"Actual:   ""actual""", ex.Message);
         }
 
         [Fact]
         public static void Collection()
         {
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotStrictEqual(new DerivedClass(), new BaseClass()));
-            Assert.Equal("Assert.NotEqual() Failure", ex.Message);
+            Assert.Equal(@"Assert.NotEqual() Failure" + Environment.NewLine + 
+                         @"Expected: Not DerivedClass { }" + Environment.NewLine +
+                         @"Actual:   BaseClass { }", ex.Message);
         }
     }
 
