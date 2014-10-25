@@ -46,6 +46,9 @@
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs">
+      <Link>Common\ArgumentFormatter.cs</Link>
+    </Compile>
     <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparer.cs">
       <Link>Sdk\AssertEqualityComparer.cs</Link>
     </Compile>
@@ -63,7 +66,6 @@
     <Compile Include="ITestCollectionOrderer.cs" />
     <Compile Include="MemberDataAttribute.cs" />
     <Compile Include="Extensions\PropertyDataAttribute.cs" />
-    <Compile Include="Sdk\ArgumentFormatter.cs" />
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
     <Compile Include="Sdk\DataAttribute.cs" />
     <Compile Include="Sdk\MemberDataDiscoverer.cs" />

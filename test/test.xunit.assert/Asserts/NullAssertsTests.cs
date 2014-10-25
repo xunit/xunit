@@ -39,7 +39,7 @@ public class NullAssertsTests
             Assert.IsType<NullException>(ex);
             Assert.Equal("Assert.Null() Failure" + Environment.NewLine +
                          "Expected: (null)" + Environment.NewLine +
-                         "Actual:   System.Object", ex.Message);
+                         "Actual:   Object { }", ex.Message);
         }
     }
 }

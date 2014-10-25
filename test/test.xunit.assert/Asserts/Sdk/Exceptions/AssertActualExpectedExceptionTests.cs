@@ -73,8 +73,8 @@ public class AssertActualExpectedExceptionTests
 
         string expectedMessage =
             "Message" + Environment.NewLine +
-            "Expected: String[] { (null), \"hello\" }" + Environment.NewLine +
-            "Actual:   String[] { (null), \"world\" }";
+            "Expected: String[] [null, \"hello\"]" + Environment.NewLine +
+            "Actual:   String[] [null, \"world\"]";
 
         AssertActualExpectedException ex =
             new AssertActualExpectedException(expectedValue, actualValue, "Message");

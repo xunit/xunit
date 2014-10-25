@@ -499,8 +499,8 @@ public class ExceptionAssertsTests
 
             Assert.IsType<ThrowsException>(ex);
             Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
-                            "Expected: System.ArgumentException" + Environment.NewLine +
-                            "Actual:   System.InvalidOperationException", ex.Message);
+                            "Expected: typeof(System.ArgumentException)" + Environment.NewLine +
+                            "Actual:   typeof(System.InvalidOperationException)", ex.Message);
         }
 
         [Fact]
@@ -579,8 +579,8 @@ public class ExceptionAssertsTests
 
             Assert.IsType<ThrowsException>(ex);
             Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
-                            "Expected: System.ArgumentException" + Environment.NewLine +
-                            "Actual:   System.InvalidOperationException", ex.Message);
+                            "Expected: typeof(System.ArgumentException)" + Environment.NewLine +
+                            "Actual:   typeof(System.InvalidOperationException)", ex.Message);
         }
 
         [Fact]
@@ -643,8 +643,8 @@ public class ExceptionAssertsTests
 
             Assert.IsType<ThrowsException>(ex);
             Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
-                            "Expected: System.ArgumentNullException" + Environment.NewLine +
-                            "Actual:   System.InvalidOperationException", ex.Message);
+                            "Expected: typeof(System.ArgumentNullException)" + Environment.NewLine +
+                            "Actual:   typeof(System.InvalidOperationException)", ex.Message);
         }
 
         [Fact]

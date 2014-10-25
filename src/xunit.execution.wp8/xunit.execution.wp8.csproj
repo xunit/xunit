@@ -131,6 +131,9 @@
     <Compile Include="..\common\XunitWorkerThread_ThreadPool.cs">
       <Link>Common\XunitWorkerThread_ThreadPool.cs</Link>
     </Compile>
+    <Compile Include="..\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs">
+      <Link>Common\ArgumentFormatter.cs</Link>
+    </Compile>
     <Compile Include="..\xunit.assert\asserts\sdk\AssertEqualityComparer.cs">
       <Link>Sdk\AssertEqualityComparer.cs</Link>
     </Compile>

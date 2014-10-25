@@ -103,33 +103,11 @@ namespace Xunit.Sdk
             if (stringValue != null)
                 return stringValue;
 
-            var enumerableValue = value as IEnumerable;
-            if (enumerableValue == null)
-                return value.ToString();
+            var formattedValue = ArgumentFormatter.Format(value);
+            if (value is IEnumerable)
+                formattedValue = String.Format("{0} {1}", ConvertToSimpleTypeName(value.GetType().GetTypeInfo()), formattedValue);
 
-            var valueStrings = new List<string>();
-
-            foreach (object valueObject in enumerableValue)
-            {
-                string displayName;
-
-                if (valueObject == null)
-                    displayName = "(null)";
-                else
-                {
-                    var stringValueObject = valueObject as string;
-                    if (stringValueObject != null)
-                        displayName = String.Format("\"{0}\"", stringValueObject);
-                    else
-                        displayName = valueObject.ToString();
-                }
-
-                valueStrings.Add(displayName);
-            }
-
-            return String.Format("{0} {{ {1} }}",
-                                 ConvertToSimpleTypeName(value.GetType().GetTypeInfo()),
-                                 String.Join(", ", valueStrings.ToArray()));
+            return formattedValue;
         }
     }
 }

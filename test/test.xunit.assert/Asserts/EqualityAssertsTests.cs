@@ -223,8 +223,8 @@ public class EqualityAssertsTests
             var actual = new EnumerableClass("fnaah");
 
             var ex = Assert.Throws<EqualException>(() => Assert.StrictEqual(expected, actual));
-            Assert.Equal("EnumerableClass {  }", ex.Expected);
-            Assert.Equal("EnumerableClass {  }", ex.Actual);
+            Assert.Equal("EnumerableClass []", ex.Expected);
+            Assert.Equal("EnumerableClass []", ex.Actual);
         }
     }
 

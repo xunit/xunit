@@ -149,7 +149,7 @@ public class CollectionAssertsTests
             Assert.Equal(
                 "Assert.Contains() Failure" + Environment.NewLine +
                 "Not found: 42" + Environment.NewLine +
-                "In value:  List<Int32> { 41, 43 }", ex.Message);
+                "In value:  List<Int32> [41, 43]", ex.Message);
         }
 
         [Fact]
@@ -246,7 +246,7 @@ public class CollectionAssertsTests
 
             Assert.Equal("Assert.DoesNotContain() Failure" + Environment.NewLine +
                          "Found:    42" + Environment.NewLine +
-                         "In value: List<Int32> { 42 }", ex.Message);
+                         "In value: List<Int32> [42]", ex.Message);
         }
 
         [Fact]

@@ -48,6 +48,7 @@
     <Compile Include="Asserts\ExceptionAsserts.cs" />
     <Compile Include="Asserts\Guards.cs" />
     <Compile Include="Asserts\Record.cs" />
+    <Compile Include="Asserts\Sdk\ArgumentFormatter.cs" />
     <Compile Include="Asserts\Sdk\AssertComparer.cs" />
     <Compile Include="Asserts\Sdk\AssertEqualityComparer.cs" />
     <Compile Include="Asserts\Sdk\AssertEqualityComparerAdapter.cs" />

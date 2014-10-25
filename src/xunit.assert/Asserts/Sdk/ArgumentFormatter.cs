@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Formats arguments for display in theories.
     /// </summary>
-    public static class ArgumentFormatter
+    internal static class ArgumentFormatter
     {
         const int MAX_DEPTH = 3;
         const int MAX_ENUMERABLE_LENGTH = 5;
@@ -112,7 +112,19 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                return String.Format("(throws {0})", ex.Unwrap().GetType().Name);
+                return String.Format("(throws {0})", UnwrapException(ex).GetType().Name);
+            }
+        }
+
+        private static Exception UnwrapException(Exception ex)
+        {
+            while (true)
+            {
+                var tiex = ex as TargetInvocationException;
+                if (tiex == null)
+                    return ex;
+
+                ex = tiex.InnerException;
             }
         }
     }
