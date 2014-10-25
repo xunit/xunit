@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !ASPNET50
+
+using System;
 using System.Reflection;
 using Xunit.Serialization;
 
@@ -58,3 +60,5 @@ namespace Xunit.Sdk
         }
     }
 }
+
+#endif

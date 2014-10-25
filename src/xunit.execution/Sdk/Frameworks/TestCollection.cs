@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using System.Security;
 using Xunit.Abstractions;
 using Xunit.Serialization;
+#if !ASPNETCORE50
+using System.Runtime.Serialization;
+#endif
 
 namespace Xunit.Sdk
 {

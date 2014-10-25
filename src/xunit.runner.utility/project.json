@@ -1,0 +1,47 @@
+{
+    "frameworks": {
+        "aspnet50": {
+            "dependencies": {
+                "System.Web": "",
+                "System.XML": ""
+            }
+        },
+        "aspnetcore50": {
+            "dependencies": {
+                "System.Diagnostics.Tools": "4.0.0.0",
+                "System.IO.FileSystem": "4.0.0.0",
+                "System.Linq": "4.0.0.0",
+                "System.Reflection": "4.0.10.0",
+                "System.Runtime.Extensions": "4.0.10.0",
+                "System.Threading": "4.0.0.0"
+            }
+        }
+    },
+    "compilationOptions": {
+        "define": [ "NET", "NO_APPDOMAIN" ]
+    },
+    "code": [
+        "..\\common\\AssemblyExtensions.cs",
+        "..\\common\\AssemblyHelper.cs",
+        "..\\common\\AssemblyHelper_WPA81.cs",
+        "..\\common\\DictionaryExtensions.cs",
+        "..\\common\\DisposableExtensions.cs",
+        "..\\common\\ExceptionExtensions.cs",
+        "..\\common\\ExceptionUtility.cs",
+        "..\\common\\GlobalAssemblyInfo.cs",
+        "..\\common\\Guard.cs",
+        "..\\common\\LongLivedMarshalByRefObject_Runner_NoAppDomain.cs",
+        "..\\common\\RemoteAppDomainManager_NoAppDomain.cs",
+        "..\\common\\SerializationInfoExtensions.cs",
+        "..\\common\\SourceInformation.cs",
+        "..\\common\\TestDiscoveryVisitor.cs",
+        "..\\common\\TestMessageVisitor.cs",
+        "..\\common\\TestOptionsNames.cs",
+        "..\\xunit.execution.wpa81\\Serialization\\Serializable.cs",
+        "**\\*.cs",
+        "..\\messages\\**\\*.cs"
+    ],
+    "dependencies": {
+        "xunit.abstractions": ""
+    }
+}
