@@ -17,6 +17,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)</SolutionDir>
     <NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(SolutionDir)\.nuget\nuget.exe</NuGetExePath>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">normal</RequestedVerbosity>
+    <KvmPath Condition="'$(KvmPath)' == ''">$(SolutionDir)\tools\kvm.cmd</KvmPath>
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="**\*.nuspec" />
@@ -87,6 +88,9 @@
         Files="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe.config" />
     <Delete
         Files="src\xunit.console\xunit.console.x86.csproj" />
+
+    <!-- Build aspnet projects -->
+    <Exec Command="cmd /c tools\build-aspnet.cmd $(Configuration)" />
   </Target>
 
   <Target Name="_Test32" DependsOnTargets="Build">

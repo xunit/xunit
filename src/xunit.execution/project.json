@@ -1,0 +1,57 @@
+{
+    "frameworks": {
+        "aspnet50": {
+            "dependencies": {
+                "System.Reflection": "",
+                "System.Runtime": "",
+                "System.Threading.Tasks": ""
+            }
+        },
+        "aspnetcore50": {
+            "dependencies": {
+                "System.Collections.Concurrent": "4.0.0.0",
+                "System.Diagnostics.Debug": "4.0.10.0",
+                "System.Diagnostics.Tools": "4.0.0.0",
+                "System.Globalization": "4.0.10.0",
+                "System.Linq": "4.0.0.0",
+                "System.Reflection": "4.0.10.0",
+                "System.Reflection.Extensions": "4.0.0.0",
+                "System.Runtime.Extensions": "4.0.10.0",
+                "System.Security.Cryptography.Hashing.Algorithms": "4.0.0.0",
+                "System.Threading": "4.0.0.0",
+                "System.Threading.ExecutionContext": "4.0.0.0",
+                "System.Threading.Thread": "4.0.0.0",
+                "System.Threading.ThreadPool": "4.0.10.0"
+            }
+        }
+    },
+    "compilationOptions": {
+        "define": [ "XUNIT_CORE_DLL", "NET45", "NO_APPDOMAIN" ]
+    },
+    "code": [
+        "..\\common\\AssemblyExtensions.cs",        
+        "..\\common\\DictionaryExtensions.cs",
+        "..\\common\\ExceptionExtensions.cs",
+        "..\\common\\ExceptionUtility.cs",
+        "..\\common\\GlobalAssemblyInfo.cs",
+        "..\\common\\Guard.cs",
+        "..\\common\\LongLivedMarshalByRefObject_Execution_NoAppDomain.cs",
+        "..\\common\\SerializationHelper_Strings.cs",
+        "..\\common\\SerializationHelper_BinarySerializer.cs",
+        "..\\common\\SerializationInfoExtensions.cs",
+        "..\\common\\SourceInformation.cs",        
+        "..\\common\\TestDiscoveryVisitor.cs",
+        "..\\common\\TestMessageVisitor.cs",
+        "..\\common\\TestOptionsNames.cs",
+        "..\\common\\XunitWorkerThread_Thread.cs",
+        "..\\xunit.assert\\asserts\\sdk\\AssertEqualityComparer.cs",
+        "..\\xunit.assert\\asserts\\sdk\\AssertEqualityComparerAdapter.cs",
+        "..\\xunit.execution.wpa81\\Serialization\\Serializable.cs",
+        "**\\*.cs",
+        "..\\messages\\**\\*.cs"        
+    ],
+    "dependencies": {
+        "xunit.abstractions": "",
+        "xunit.core": ""
+    }
+}

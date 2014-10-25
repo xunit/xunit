@@ -2,7 +2,7 @@
 using Xunit.Serialization;
 #endif
 
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
 using Xunit;
 #else
 using System.Runtime.Serialization;

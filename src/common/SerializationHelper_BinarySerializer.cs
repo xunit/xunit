@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !ASPNETCORE50
+
+using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xunit.Abstractions;
@@ -40,3 +42,5 @@ namespace Xunit.Sdk
         }
     }
 }
+
+#endif

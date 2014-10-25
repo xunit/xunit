@@ -133,7 +133,7 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
             Assembly assembly = null;
             try
             {

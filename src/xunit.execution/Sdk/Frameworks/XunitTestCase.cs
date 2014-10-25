@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+#if !ASPNETCORE50
+using System.Runtime.Serialization;
+#endif
 
 namespace Xunit.Sdk
 {

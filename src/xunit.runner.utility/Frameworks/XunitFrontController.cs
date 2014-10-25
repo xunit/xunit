@@ -46,7 +46,7 @@ namespace Xunit
 
             if (this.sourceInformationProvider == null)
             {
-#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE
+#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
                 this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
 #else
                 this.sourceInformationProvider = new NullSourceInformationProvider();
@@ -93,11 +93,11 @@ namespace Xunit
 #endif
             var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
 
-#if !ANDROID
+#if !ANDROID && !ASPNET50 && !ASPNETCORE50
             if (File.Exists(xunitExecutionPath))
 #endif
                 return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
-#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE
+#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
             if (File.Exists(xunitPath))
                 return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #endif
