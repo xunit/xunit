@@ -36,7 +36,7 @@ namespace Xunit.Sdk
             ConfigFileName = configFileName;
             Assembly = assembly;
 
-#if !WINDOWS_PHONE_APP
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE
             if (ConfigFileName == null)
                 ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
@@ -72,7 +72,7 @@ namespace Xunit.Sdk
 
             var assemblyPath = info.GetString("AssemblyPath");
 
-#if !WINDOWS_PHONE_APP && !WIN8_STORE
+#if !WINDOWS_PHONE_APP && !WIN8_STORE && !WINDOWS_PHONE
             var assembly = AppDomain.CurrentDomain
                                     .GetAssemblies()
                                     .First(a => !a.IsDynamic && String.Equals(a.GetLocalCodeBase(), assemblyPath, StringComparison.OrdinalIgnoreCase));

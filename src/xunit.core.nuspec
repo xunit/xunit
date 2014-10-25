@@ -32,6 +32,11 @@
         <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
         <dependency id="xunit.runner.visualstudio.wpa81" version="[0.99.9]" />
       </group>
+      <group targetFramework="wp8">
+        <dependency id="xunit.abstractions" version="[99.99.99]" />
+        <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
+        <dependency id="xunit.runner.visualstudio.wp8" version="[0.99.9]" />
+      </group>
     </dependencies>
   </metadata>
   <files>
@@ -54,6 +59,12 @@
     <file src="xunit.execution.net45.noserialization\bin\Release\xunit.execution.dll" target="build\wpa81\xunit.execution.dll" />
     <file src="xunit.execution.wpa81\bin\Release\xunit.execution.dll"                 target="build\wpa81\device\xunit.execution.dll" />
     <file src="xunit.execution.wpa81\bin\Release\xunit.execution.pri"                 target="build\wpa81\device\xunit.execution.pri" />
+
+
+    <file src="xunit.core\build\xunit.core.props"                                     target="build\wp8\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.targets"                                   target="build\wp8\xunit.core.targets" />
+    <file src="xunit.execution.net45.noserialization\bin\Release\xunit.execution.dll" target="build\wp8\xunit.execution.dll" />
+    <file src="xunit.execution.wp8\bin\Release\xunit.execution.dll"                   target="build\wp8\device\xunit.execution.dll" />
 
     <file src="xunit.core\build\xunit.core.props"                                     target="build\monotouch\xunit.core.props" />
     <file src="xunit.execution.iOS\bin\iPhone\Release\xunit.execution.dll"            target="build\monotouch\xunit.execution.dll" />

@@ -24,7 +24,7 @@ namespace Xunit.Sdk
             DisposalTracker = new DisposalTracker();
             SourceInformationProvider = sourceInformationProvider;
 
-#if !WIN8_STORE || WINDOWS_PHONE_APP
+#if !WIN8_STORE || WINDOWS_PHONE_APP || WINDOWS_PHONE
             var assembly = Assembly.Load(assemblyName);
 #else
             var assembly = Assembly.Load(assemblyName.Name);
