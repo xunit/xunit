@@ -44,7 +44,7 @@ namespace Xunit.ConsoleClient
                 Console.WriteLine("Finished:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
             if (completionMessages != null)
-                completionMessages.TryAdd(assemblyFileName, new ExecutionSummary
+                completionMessages.TryAdd(Path.GetFileNameWithoutExtension(assemblyFileName), new ExecutionSummary
                 {
                     Total = assemblyFinished.TestsRun,
                     Failed = assemblyFinished.TestsFailed,

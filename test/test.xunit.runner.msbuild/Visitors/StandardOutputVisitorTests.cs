@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;

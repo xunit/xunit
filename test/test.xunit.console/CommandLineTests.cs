@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -9,6 +10,15 @@ public class CommandLineTests
 {
     public class Filename
     {
+        [Fact]
+        public static void MissingAssemblyFileNameThrows()
+        {
+            var exception = Record.Exception(() => CommandLine.Parse(new[] { "-teamcity" }));
+
+            Assert.IsType<ArgumentException>(exception);
+            Assert.Equal("must specify at least one assembly", exception.Message);
+        }
+
         [Fact]
         public static void AssemblyFileNameNotPresentThrows()
         {
@@ -42,19 +52,62 @@ public class CommandLineTests
             Assert.IsType<ArgumentException>(exception);
             Assert.Equal("config file not found: badConfig.config", exception.Message);
         }
-    }
 
-    public class InvalidOption
-    {
         [Fact]
-        public static void OptionWithoutSlashThrows()
+        public static void MultipleAssembliesDoesNotThrow()
         {
-            var arguments = new[] { "assembly.dll", "assembly.config", "teamcity" };
+            var arguments = new[] { "assemblyName.dll", "assemblyName2.dll" };
+
+            var result = TestableCommandLine.Parse(arguments);
+
+            Assert.Collection(result.Project,
+                a =>
+                {
+                    Assert.Equal(Path.GetFullPath("assemblyName.dll"), a.AssemblyFilename);
+                    Assert.Null(a.ConfigFilename);
+                    Assert.True(a.ShadowCopy);
+                },
+                a =>
+                {
+                    Assert.Equal(Path.GetFullPath("assemblyName2.dll"), a.AssemblyFilename);
+                    Assert.Null(a.ConfigFilename);
+                    Assert.True(a.ShadowCopy);
+                }
+            );
+        }
+
+        [Fact]
+        public static void MultipleAssembliesOneWithConfig()
+        {
+            var arguments = new[] { "assemblyName.dll", "assemblyName2.dll", "assembly2.config" };
+
+            var result = TestableCommandLine.Parse(arguments);
+
+            Assert.Collection(result.Project,
+                a =>
+                {
+                    Assert.Equal(Path.GetFullPath("assemblyName.dll"), a.AssemblyFilename);
+                    Assert.Null(a.ConfigFilename);
+                    Assert.True(a.ShadowCopy);
+                },
+                a =>
+                {
+                    Assert.Equal(Path.GetFullPath("assemblyName2.dll"), a.AssemblyFilename);
+                    Assert.Equal(Path.GetFullPath("assembly2.config"), a.ConfigFilename);
+                    Assert.True(a.ShadowCopy);
+                }
+            );
+        }
+
+        [Fact]
+        public static void ConfigFileWhenExpectingAssemblyThrows()
+        {
+            var arguments = new[] { "assemblyName.dll", "assembly1.config", "assembly2.config" };
 
             var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
 
             Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("unknown command line option: teamcity", exception.Message);
+            Assert.Equal("expecting assembly, got config file: assembly2.config", exception.Message);
         }
     }
 

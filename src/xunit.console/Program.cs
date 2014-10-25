@@ -97,7 +97,9 @@ namespace Xunit.ConsoleClient
         {
             var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
 
-            Console.WriteLine("usage: {0} <assemblyFile> [configFile] [options]", executableName);
+            Console.WriteLine("usage: {0} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options]", executableName);
+            Console.WriteLine();
+            Console.WriteLine("Note: Configuration files must end in .config");
             Console.WriteLine();
             Console.WriteLine("Valid options:");
             Console.WriteLine("  -parallel option       : set parallelization based on option");

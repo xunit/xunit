@@ -37,17 +37,19 @@ namespace Xunit.ConsoleClient
 
         public bool Wait { get; protected set; }
 
-        static XunitProject GetSingleAssemblyProject(string assemblyFile, string configFile)
+        static XunitProject GetProjectFile(List<Tuple<string, string>> assemblies)
         {
-            return new XunitProject
-            {
-                new XunitProjectAssembly
+            var result = new XunitProject();
+
+            foreach (var assembly in assemblies)
+                result.Add(new XunitProjectAssembly
                 {
-                    AssemblyFilename = assemblyFile,
-                    ConfigFilename = configFile,
+                    AssemblyFilename = Path.GetFullPath(assembly.Item1),
+                    ConfigFilename = assembly.Item2 != null ? Path.GetFullPath(assembly.Item2) : null,
                     ShadowCopy = true
-                }
-            };
+                });
+
+            return result;
         }
 
         static void GuardNoOptionValue(KeyValuePair<string, string> option)
@@ -63,20 +65,38 @@ namespace Xunit.ConsoleClient
 
         protected XunitProject Parse(Predicate<string> fileExists)
         {
-            var filename = arguments.Pop();
-            if (!fileExists(filename))
-                throw new ArgumentException(String.Format("file not found: {0}", filename));
+            var assemblies = new List<Tuple<string, string>>();
 
-            string configFile = null;
-            if (arguments.Count > 0 && !arguments.Peek().StartsWith("-"))
+            while (arguments.Count > 0)
             {
-                configFile = arguments.Pop();
+                if (arguments.Peek().StartsWith("-"))
+                    break;
 
-                if (!fileExists(configFile))
-                    throw new ArgumentException(String.Format("config file not found: {0}", configFile));
+                var assemblyFile = arguments.Pop();
+                if (assemblyFile.EndsWith(".config", StringComparison.OrdinalIgnoreCase))
+                    throw new ArgumentException(String.Format("expecting assembly, got config file: {0}", assemblyFile));
+                if (!fileExists(assemblyFile))
+                    throw new ArgumentException(String.Format("file not found: {0}", assemblyFile));
+
+                string configFile = null;
+                if (arguments.Count > 0)
+                {
+                    var value = arguments.Peek();
+                    if (!value.StartsWith("-") && value.EndsWith(".config", StringComparison.OrdinalIgnoreCase))
+                    {
+                        configFile = arguments.Pop();
+                        if (!fileExists(configFile))
+                            throw new ArgumentException(String.Format("config file not found: {0}", configFile));
+                    }
+                }
+
+                assemblies.Add(Tuple.Create(assemblyFile, configFile));
             }
 
-            var project = GetSingleAssemblyProject(filename, configFile);
+            if (assemblies.Count == 0)
+                throw new ArgumentException("must specify at least one assembly");
+
+            var project = GetProjectFile(assemblies);
 
             while (arguments.Count > 0)
             {
