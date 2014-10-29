@@ -32,11 +32,6 @@
         <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
         <dependency id="xunit.runner.visualstudio.wpa81" version="[0.99.9]" />
       </group>
-      <group targetFramework="wp8">
-        <dependency id="xunit.abstractions" version="[99.99.99]" />
-        <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
-        <dependency id="xunit.runner.visualstudio.wp8" version="[0.99.9]" />
-      </group>
     </dependencies>
   </metadata>
   <files>
