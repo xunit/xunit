@@ -100,6 +100,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="build\xunit.core.wp8.targets" />
     <None Include="build\xunit.core.targets" />
     <None Include="build\xunit.core.props" />
     <None Include="xunit.core.dll.tdnet">

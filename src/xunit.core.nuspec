@@ -57,7 +57,7 @@
 
 
     <file src="xunit.core\build\xunit.core.props"                                     target="build\wp8\xunit.core.props" />
-    <file src="xunit.core\build\xunit.core.targets"                                   target="build\wp8\xunit.core.targets" />
+    <file src="xunit.core\build\xunit.core.wp8.targets"                               target="build\wp8\xunit.core.targets" />
     <file src="xunit.execution.net45.noserialization\bin\Release\xunit.execution.dll" target="build\wp8\xunit.execution.dll" />
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.dll"                   target="build\wp8\device\xunit.execution.dll" />
 
