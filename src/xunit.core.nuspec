@@ -25,12 +25,12 @@
       <group targetFramework="win8">
         <dependency id="xunit.abstractions" version="[99.99.99]" />
         <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
-        <dependency id="xunit.runner.visualstudio.win8" version="[0.99.9]" />
+        <dependency id="xunit.runner.visualstudio.win8" version="(0.99.8,0.99.10)" />
       </group>
       <group targetFramework="wpa81">
         <dependency id="xunit.abstractions" version="[99.99.99]" />
         <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
-        <dependency id="xunit.runner.visualstudio.wpa81" version="[0.99.9]" />
+        <dependency id="xunit.runner.visualstudio.wpa81" version="(0.99.8,0.99.10)" />
       </group>
     </dependencies>
   </metadata>
