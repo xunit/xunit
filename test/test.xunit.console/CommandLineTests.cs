@@ -540,10 +540,10 @@ public class CommandLineTests
         }
     }
 
-    public class TestNameArgument
+    public class MethodArgument
     {
         [Fact]
-        public void TestNameArgumentNotPassed()
+        public static void MethodArgumentNotPassed()
         {
             var arguments = new[] { "assemblyName.dll" };
 
@@ -553,7 +553,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void SingleValidTestNameArgument()
+        public static void SingleValidMethodArgument()
         {
             const string name = "Namespace.Class.Method1";
 
@@ -566,7 +566,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void MultipleValidTestNameArguments()
+        public static void MultipleValidMethodArguments()
         {
             const string name1 = "Namespace.Class.Method1";
             const string name2 = "Namespace.Class.Method2";
@@ -581,7 +581,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void MissingOptionValue()
+        public static void MissingOptionValue()
         {
             var arguments = new[] { "assemblyName.dll", "-method" };
 
@@ -589,6 +589,58 @@ public class CommandLineTests
 
             Assert.IsType<ArgumentException>(ex);
             Assert.Equal("missing argument for -method", ex.Message);
+        }
+    }
+
+    public class ClassArgument
+    {
+        [Fact]
+        public static void ClassArgumentNotPassed()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(0, commandLine.Project.Filters.IncludedMethods.Count);
+        }
+
+        [Fact]
+        public static void SingleValidClassArgument()
+        {
+            const string name = "Namespace.Class";
+
+            var arguments = new[] { "assemblyName.dll", "-class", name };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(1, commandLine.Project.Filters.IncludedClasses.Count);
+            Assert.True(commandLine.Project.Filters.IncludedClasses.Contains(name));
+        }
+
+        [Fact]
+        public static void MultipleValidClassArguments()
+        {
+            const string name1 = "Namespace.Class1";
+            const string name2 = "Namespace.Class2";
+
+            var arguments = new[] { "assemblyName.dll", "-class", name1, "-class", name2 };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(2, commandLine.Project.Filters.IncludedClasses.Count);
+            Assert.True(commandLine.Project.Filters.IncludedClasses.Contains(name1));
+            Assert.True(commandLine.Project.Filters.IncludedClasses.Contains(name2));
+        }
+
+        [Fact]
+        public static void MissingOptionValue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-class" };
+
+            var ex = Record.Exception(() => TestableCommandLine.Parse(arguments));
+
+            Assert.IsType<ArgumentException>(ex);
+            Assert.Equal("missing argument for -class", ex.Message);
         }
     }
 
