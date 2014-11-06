@@ -197,12 +197,12 @@ namespace Xunit.ConsoleClient
                     var value = pieces[1];
                     project.Filters.ExcludedTraits.Add(name, value);
                 }
-                else if (optionName == "-testname")
+                else if (optionName == "-method")
                 {
                     if (option.Value == null)
-                        throw new ArgumentException("missing argument for -testname");
+                        throw new ArgumentException("missing argument for -method");
 
-                    project.Filters.IncludedNames.Add(option.Value);
+                    project.Filters.IncludedMethods.Add(option.Value);
                 }
                 else
                 {

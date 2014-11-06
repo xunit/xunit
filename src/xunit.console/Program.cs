@@ -118,7 +118,8 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
             Console.WriteLine("  -notrait \"name=value\"  : do not run tests with matching name/value traits");
             Console.WriteLine("                         : if specified more than once, acts as an AND operation");
-            Console.WriteLine("  -testname \"name\"       : run tests with matching name");
+            Console.WriteLine("  -method \"name\"       : run a given test method (should be fully specified;");
+            Console.WriteLine("                         : i.e., 'MyNamespace.MyClass.MyTestMethod')");
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
 
             TransformFactory.AvailableTransforms.ForEach(
