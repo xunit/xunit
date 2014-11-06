@@ -66,7 +66,7 @@ namespace Xunit.Sdk
 
             var methodName = info.GetString("MethodName");
 
-            Method = TestClass.Class.GetMethod(methodName, includePrivateMethod: false);
+            Method = TestClass.Class.GetMethod(methodName, includePrivateMethod: true);
         }
 
         /// <inheritdoc/>
@@ -76,7 +76,7 @@ namespace Xunit.Sdk
 
             var methodName = info.GetString("MethodName");
 
-            Method = TestClass.Class.GetMethod(methodName, includePrivateMethod: false);
+            Method = TestClass.Class.GetMethod(methodName, includePrivateMethod: true);
         }
     }
 }
