@@ -103,6 +103,7 @@
     <Compile Include="Frameworks\v1\Xunit1Executor.cs" />
     <Compile Include="Frameworks\v1\Xunit1ReflectionWrapper.cs" />
     <Compile Include="Frameworks\v1\Xunit1RunSummary.cs" />
+    <Compile Include="Frameworks\v1\Xunit1Test.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCase.cs" />
     <Compile Include="Frameworks\VisualStudioSourceInformationProvider.cs" />
     <Compile Include="Utility\DiaNavigationData.cs" />

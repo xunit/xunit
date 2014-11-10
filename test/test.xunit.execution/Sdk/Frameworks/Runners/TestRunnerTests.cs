@@ -27,7 +27,7 @@ public class TestRunnerTests
                 var testStarting = Assert.IsAssignableFrom<ITestStarting>(msg);
                 Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testStarting.TestCollection);
                 Assert.Same(runner.TestCase, testStarting.TestCase);
-                Assert.Equal("Display Name", testStarting.TestDisplayName);
+                Assert.Equal("Display Name", testStarting.Test.DisplayName);
             },
             msg => { },  // Pass/fail/skip, will be tested elsewhere
             msg =>
@@ -35,7 +35,7 @@ public class TestRunnerTests
                 var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
                 Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, testFinished.TestCollection);
                 Assert.Same(runner.TestCase, testFinished.TestCase);
-                Assert.Equal("Display Name", testFinished.TestDisplayName);
+                Assert.Equal("Display Name", testFinished.Test.DisplayName);
                 Assert.Equal(21.12m, testFinished.ExecutionTime);
                 Assert.Empty(testFinished.Output);
             }
@@ -59,7 +59,7 @@ public class TestRunnerTests
         var passed = messageBus.Messages.OfType<ITestPassed>().Single();
         Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, passed.TestCollection);
         Assert.Same(runner.TestCase, passed.TestCase);
-        Assert.Equal("Display Name", passed.TestDisplayName);
+        Assert.Equal("Display Name", passed.Test.DisplayName);
         Assert.Equal(21.12m, passed.ExecutionTime);
         Assert.Empty(passed.Output);
     }
@@ -81,7 +81,7 @@ public class TestRunnerTests
         var failed = messageBus.Messages.OfType<ITestFailed>().Single();
         Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, failed.TestCollection);
         Assert.Same(runner.TestCase, failed.TestCase);
-        Assert.Equal("Display Name", failed.TestDisplayName);
+        Assert.Equal("Display Name", failed.Test.DisplayName);
         Assert.Equal(21.12m, failed.ExecutionTime);
         Assert.Empty(failed.Output);
         Assert.Equal("Xunit.Sdk.TrueException", failed.ExceptionTypes.Single());
@@ -104,7 +104,7 @@ public class TestRunnerTests
         var failed = messageBus.Messages.OfType<ITestSkipped>().Single();
         Assert.Same(runner.TestCase.TestMethod.TestClass.TestCollection, failed.TestCollection);
         Assert.Same(runner.TestCase, failed.TestCase);
-        Assert.Equal("Display Name", failed.TestDisplayName);
+        Assert.Equal("Display Name", failed.Test.DisplayName);
         Assert.Equal(0m, failed.ExecutionTime);
         Assert.Empty(failed.Output);
         Assert.Equal("Please don't run me", failed.Reason);
@@ -238,21 +238,20 @@ public class TestRunnerTests
         public readonly new ITestCase TestCase;
         public CancellationTokenSource TokenSource;
 
-        TestableTestRunner(ITestCase testCase,
+        TestableTestRunner(ITest test,
                            IMessageBus messageBus,
                            Type testClass,
                            object[] constructorArguments,
                            MethodInfo testMethod,
                            object[] testMethodArguments,
-                           string displayName,
                            string skipReason,
                            ExceptionAggregator aggregator,
                            CancellationTokenSource cancellationTokenSource,
                            decimal runTime,
                            Action lambda)
-            : base(testCase, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, displayName, skipReason, aggregator, cancellationTokenSource)
+            : base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
         {
-            TestCase = testCase;
+            TestCase = test.TestCase;
             TokenSource = cancellationTokenSource;
 
             this.runTime = runTime;
@@ -270,15 +269,17 @@ public class TestRunnerTests
             var aggregator = new ExceptionAggregator();
             if (aggregatorSeedException != null)
                 aggregator.Add(aggregatorSeedException);
+            if (testCase == null)
+                testCase = Mocks.TestCase<Object>("ToString");
+            var test = Mocks.Test(testCase, displayName);
 
             return new TestableTestRunner(
-                testCase ?? Mocks.TestCase<Object>("ToString"),
+                test,
                 messageBus,
                 typeof(Object),
                 new object[0],
                 typeof(Object).GetMethod("ToString"),
                 new object[0],
-                displayName,
                 skipReason,
                 aggregator,
                 new CancellationTokenSource(),

@@ -51,7 +51,8 @@ public class StandardOutputVisitorTests
                 yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
 
                 var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
-                testCleanupFailure.TestDisplayName.Returns("MyTest");
+                var test = Mocks.Test(testCase, "MyTest");
+                testCleanupFailure.Test.Returns(test);
                 yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
             }
         }
@@ -140,7 +141,8 @@ public class StandardOutputVisitorTests
         public static void LogsTestNameWithExceptionAndStackTrace()
         {
             var testFailed = Substitute.For<ITestFailed>();
-            testFailed.TestDisplayName.Returns("This is my display name \t\r\n");
+            var test = Mocks.Test(null, "This is my display name \t\r\n");
+            testFailed.Test.Returns(test);
             testFailed.Messages.Returns(new[] { "This is my message \t\r\n" });
             testFailed.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
             testFailed.ExceptionTypes.Returns(new[] { "ExceptionType" });
@@ -160,7 +162,8 @@ public class StandardOutputVisitorTests
         public static void NullStackTraceDoesNotLogStackTrace()
         {
             var testFailed = Substitute.For<ITestFailed>();
-            testFailed.TestDisplayName.Returns("1");
+            var test = Mocks.Test(null, "1");
+            testFailed.Test.Returns(test);
             testFailed.Messages.Returns(new[] { "2" });
             testFailed.StackTraces.Returns(new[] { (string)null });
             testFailed.ExceptionTypes.Returns(new[] { "ExceptionType" });
@@ -182,8 +185,9 @@ public class StandardOutputVisitorTests
 
         public OnMessage_TestPassed()
         {
+            var test = Mocks.Test(null, "This is my display name \t\r\n");
             testPassed = Substitute.For<ITestPassed>();
-            testPassed.TestDisplayName.Returns("This is my display name \t\r\n");
+            testPassed.Test.Returns(test);
         }
 
         [Fact]
@@ -214,8 +218,9 @@ public class StandardOutputVisitorTests
         [Fact]
         public static void LogsTestNameAsWarning()
         {
+            var test = Mocks.Test(null, "This is my display name \t\r\n");
             var testSkipped = Substitute.For<ITestSkipped>();
-            testSkipped.TestDisplayName.Returns("This is my display name \t\r\n");
+            testSkipped.Test.Returns(test);
             testSkipped.Reason.Returns("This is my skip reason \t\r\n");
 
             var logger = SpyLogger.Create();
@@ -233,8 +238,9 @@ public class StandardOutputVisitorTests
 
         public OnMessage_TestStarting()
         {
+            var test = Mocks.Test(null, "This is my display name \t\r\n");
             testStarting = Substitute.For<ITestStarting>();
-            testStarting.TestDisplayName.Returns("This is my display name \t\r\n");
+            testStarting.Test.Returns(test);
         }
 
         [Fact]

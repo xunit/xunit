@@ -14,8 +14,8 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="BeforeTestStarting"/> class.
         /// </summary>
-        public BeforeTestStarting(ITestCase testCase, string testDisplayName, string attributeName)
-            : base(testCase, testDisplayName)
+        public BeforeTestStarting(ITest test, string attributeName)
+            : base(test)
         {
             AttributeName = attributeName;
         }

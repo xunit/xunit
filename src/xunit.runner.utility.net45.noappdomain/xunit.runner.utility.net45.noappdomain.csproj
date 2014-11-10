@@ -123,6 +123,9 @@
     <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\Xunit1RunSummary.cs">
       <Link>Frameworks\v1\Xunit1RunSummary.cs</Link>
     </Compile>
+    <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\Xunit1Test.cs">
+      <Link>Frameworks\v1\Xunit1Test.cs</Link>
+    </Compile>
     <Compile Include="..\xunit.runner.utility.net35\Frameworks\v1\Xunit1TestCase.cs">
       <Link>Frameworks\v1\Xunit1TestCase.cs</Link>
     </Compile>

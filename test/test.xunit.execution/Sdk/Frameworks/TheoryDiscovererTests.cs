@@ -51,7 +51,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     [Fact]
     public void MultipleDataRowsFromSingleDataAttribute()
     {
-        var passes = Run<ITestPassed>(typeof(MultipleDataClass)).Select(tc => tc.TestDisplayName).ToList();
+        var passes = Run<ITestPassed>(typeof(MultipleDataClass)).Select(tc => tc.Test.DisplayName).ToList();
 
         Assert.Equal(2, passes.Count);
         Assert.Single(passes, name => name == "TheoryDiscovererTests+MultipleDataClass.TheoryMethod(x: 42)");
@@ -201,7 +201,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         var skips = Run<ITestSkipped>(typeof(SkippedWithNoData));
 
         var skip = Assert.Single(skips);
-        Assert.Equal("TheoryDiscovererTests+SkippedWithNoData.TestMethod", skip.TestDisplayName);
+        Assert.Equal("TheoryDiscovererTests+SkippedWithNoData.TestMethod", skip.Test.DisplayName);
         Assert.Equal("I have no data", skip.Reason);
     }
 
@@ -217,7 +217,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         var skips = Run<ITestSkipped>(typeof(SkippedWithData));
 
         var skip = Assert.Single(skips);
-        Assert.Equal("TheoryDiscovererTests+SkippedWithData.TestMethod", skip.TestDisplayName);
+        Assert.Equal("TheoryDiscovererTests+SkippedWithData.TestMethod", skip.Test.DisplayName);
         Assert.Equal("I have data", skip.Reason);
     }
 

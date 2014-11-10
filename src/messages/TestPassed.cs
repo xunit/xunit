@@ -14,7 +14,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestPassed"/> class.
         /// </summary>
-        public TestPassed(ITestCase testCase, string testDisplayName, decimal executionTime, string output)
-            : base(testCase, testDisplayName, executionTime, output) { }
+        public TestPassed(ITest test, decimal executionTime, string output)
+            : base(test, executionTime, output) { }
     }
 }

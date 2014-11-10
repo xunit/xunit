@@ -39,7 +39,7 @@ public class LambdaTestCaseRunnerTests : IDisposable
                 var testStarting = Assert.IsAssignableFrom<ITestStarting>(msg);
                 Assert.Same(testCase.TestMethod.TestClass.TestCollection, testStarting.TestCollection);
                 Assert.Same(testCase, testStarting.TestCase);
-                Assert.Equal("MockType.MockMethod", testStarting.TestDisplayName);
+                Assert.Equal("MockType.MockMethod", testStarting.Test.DisplayName);
             },
             msg => { },  // Pass/fail/skip, will be tested elsewhere
             msg =>
@@ -47,7 +47,7 @@ public class LambdaTestCaseRunnerTests : IDisposable
                 var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
                 Assert.Same(testCase.TestMethod.TestClass.TestCollection, testFinished.TestCollection);
                 Assert.Same(testCase, testFinished.TestCase);
-                Assert.Equal("MockType.MockMethod", testFinished.TestDisplayName);
+                Assert.Equal("MockType.MockMethod", testFinished.Test.DisplayName);
                 Assert.NotEqual(0m, testFinished.ExecutionTime);
                 Assert.Empty(testFinished.Output);
             },

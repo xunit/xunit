@@ -156,6 +156,14 @@ public static class Mocks
         return Reflector.Wrap(typeof(TClass));
     }
 
+    public static ITest Test(ITestCase testCase, string displayName)
+    {
+        var result = Substitute.For<ITest>();
+        result.DisplayName.Returns(displayName);
+        result.TestCase.Returns(testCase);
+        return result;
+    }
+
     public static ITestAssembly TestAssembly(IReflectionAttributeInfo[] attributes)
     {
         var assemblyInfo = Mocks.AssemblyInfo(attributes: attributes);
@@ -263,6 +271,7 @@ public static class Mocks
     public static ITestFailed TestFailed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M, Exception ex = null)
     {
         var testCase = Mocks.TestCase(type, methodName);
+        var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
         var failureInfo = Xunit.Sdk.ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
 
         var result = Substitute.For<ITestFailed>();
@@ -273,7 +282,7 @@ public static class Mocks
         result.Output.Returns(output);
         result.StackTraces.Returns(failureInfo.StackTraces);
         result.TestCase.Returns(testCase);
-        result.TestDisplayName.Returns(displayName ?? "NO DISPLAY NAME");
+        result.Test.Returns(test);
         return result;
     }
 
@@ -330,21 +339,23 @@ public static class Mocks
     public static ITestPassed TestPassed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M)
     {
         var testCase = Mocks.TestCase(type, methodName);
+        var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
 
         var result = Substitute.For<ITestPassed>();
         result.ExecutionTime.Returns(executionTime);
         result.Output.Returns(output);
         result.TestCase.Returns(testCase);
-        result.TestDisplayName.Returns(displayName ?? "NO DISPLAY NAME");
+        result.Test.Returns(test);
         return result;
     }
 
     public static ITestResultMessage TestResult<TClassUnderTest>(string methodName, string displayName, decimal executionTime)
     {
         var testCase = Mocks.TestCase<TClassUnderTest>(methodName);
+        var test = Mocks.Test(testCase, displayName);
         var result = Substitute.For<ITestResultMessage>();
         result.TestCase.Returns(testCase);
-        result.TestDisplayName.Returns(displayName);
+        result.Test.Returns(test);
         result.ExecutionTime.Returns(executionTime);
         return result;
     }
@@ -352,13 +363,14 @@ public static class Mocks
     public static ITestSkipped TestSkipped(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M, string skipReason = null)
     {
         var testCase = Mocks.TestCase(type, methodName);
+        var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
 
         var result = Substitute.For<ITestSkipped>();
         result.ExecutionTime.Returns(executionTime);
         result.Output.Returns(output);
         result.Reason.Returns(skipReason);
         result.TestCase.Returns(testCase);
-        result.TestDisplayName.Returns(displayName ?? "NO DISPLAY NAME");
+        result.Test.Returns(test);
         return result;
     }
 

@@ -15,15 +15,14 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFailed"/> class.
         /// </summary>
-        public TestFailed(ITestCase testCase,
-                          string testDisplayName,
+        public TestFailed(ITest test,
                           decimal executionTime,
                           string output,
                           string[] exceptionTypes,
                           string[] messages,
                           string[] stackTraces,
                           int[] exceptionParentIndices)
-            : base(testCase, testDisplayName, executionTime, output)
+            : base(test, executionTime, output)
         {
             StackTraces = stackTraces;
             Messages = messages;
@@ -34,12 +33,11 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFailed"/> class.
         /// </summary>
-        public TestFailed(ITestCase testCase,
-                          string testDisplayName,
+        public TestFailed(ITest test,
                           decimal executionTime,
                           string output,
                           Exception ex)
-            : base(testCase, testDisplayName, executionTime, output)
+            : base(test, executionTime, output)
         {
             var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
             ExceptionTypes = failureInfo.ExceptionTypes;

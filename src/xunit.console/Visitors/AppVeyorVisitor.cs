@@ -77,7 +77,7 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestStarting testStarting)
         {
-            var testName = testStarting.TestDisplayName;
+            var testName = testStarting.Test.DisplayName;
             if (testMethods.ContainsKey(testName))
                 testName = String.Format("{0} {1}", testName, testMethods[testName]);
 
@@ -88,7 +88,7 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestPassed testPassed)
         {
-            AppVeyorLogger.UpdateTest(GetFinishedTestName(testPassed.TestDisplayName), FrameworkName, assemblyFileName, "Passed",
+            AppVeyorLogger.UpdateTest(GetFinishedTestName(testPassed.Test.DisplayName), FrameworkName, assemblyFileName, "Passed",
                                       Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output, null);
 
             return base.Visit(testPassed);
@@ -96,12 +96,12 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
-            AppVeyorLogger.UpdateTest(GetFinishedTestName(testSkipped.TestDisplayName), FrameworkName, assemblyFileName, "Skipped",
+            AppVeyorLogger.UpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName), FrameworkName, assemblyFileName, "Skipped",
                                       Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null, null);
 
             lock (consoleLock)
             {
-                Console.Error.WriteLine("   {0} [SKIP]", Escape(testSkipped.TestDisplayName));
+                Console.Error.WriteLine("   {0} [SKIP]", Escape(testSkipped.Test.DisplayName));
                 Console.Error.WriteLine("      {0}", Escape(testSkipped.Reason));
             }
 
@@ -110,13 +110,13 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestFailed testFailed)
         {
-            AppVeyorLogger.UpdateTest(GetFinishedTestName(testFailed.TestDisplayName), FrameworkName, assemblyFileName, "Failed",
+            AppVeyorLogger.UpdateTest(GetFinishedTestName(testFailed.Test.DisplayName), FrameworkName, assemblyFileName, "Failed",
                                       Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
                                       ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output, null);
 
             lock (consoleLock)
             {
-                Console.Error.WriteLine("   {0} [FAIL]", Escape(testFailed.TestDisplayName));
+                Console.Error.WriteLine("   {0} [FAIL]", Escape(testFailed.Test.DisplayName));
                 Console.Error.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(testFailed)));
 
                 WriteStackTrace(ExceptionUtility.CombineStackTraces(testFailed));

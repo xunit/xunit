@@ -14,13 +14,13 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMessage"/> class.
         /// </summary>
-        public TestMessage(ITestCase testCase, string testDisplayName)
-            : base(testCase)
+        public TestMessage(ITest test)
+            : base(test.TestCase)
         {
-            TestDisplayName = testDisplayName;
+            Test = test;
         }
 
         /// <inheritdoc/>
-        public string TestDisplayName { get; private set; }
+        public ITest Test { get; private set; }
     }
 }

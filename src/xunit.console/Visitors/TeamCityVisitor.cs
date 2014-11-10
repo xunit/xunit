@@ -22,7 +22,7 @@ namespace Xunit.ConsoleClient
         void LogFinish(ITestResultMessage testResult)
         {
             Console.WriteLine("##teamcity[testFinished name='{0}' duration='{1}' flowId='{2}']",
-                              TeamCityEscape(testResult.TestDisplayName),
+                              TeamCityEscape(testResult.Test.DisplayName),
                               (int)(testResult.ExecutionTime * 1000M),
                               ToFlowId(testResult.TestCollection.DisplayName));
         }
@@ -51,7 +51,7 @@ namespace Xunit.ConsoleClient
         protected override bool Visit(ITestFailed testFailed)
         {
             Console.WriteLine("##teamcity[testFailed name='{0}' details='{1}|r|n{2}' flowId='{3}']",
-                              TeamCityEscape(testFailed.TestDisplayName),
+                              TeamCityEscape(testFailed.Test.DisplayName),
                               TeamCityEscape(ExceptionUtility.CombineMessages(testFailed)),
                               TeamCityEscape(ExceptionUtility.CombineStackTraces(testFailed)),
                               ToFlowId(testFailed.TestCollection.DisplayName));
@@ -70,7 +70,7 @@ namespace Xunit.ConsoleClient
         protected override bool Visit(ITestSkipped testSkipped)
         {
             Console.WriteLine("##teamcity[testIgnored name='{0}' message='{1}' flowId='{2}']",
-                              TeamCityEscape(testSkipped.TestDisplayName),
+                              TeamCityEscape(testSkipped.Test.DisplayName),
                               TeamCityEscape(testSkipped.Reason),
                               ToFlowId(testSkipped.TestCollection.DisplayName));
             LogFinish(testSkipped);
@@ -81,7 +81,7 @@ namespace Xunit.ConsoleClient
         protected override bool Visit(ITestStarting testStarting)
         {
             Console.WriteLine("##teamcity[testStarted name='{0}' flowId='{1}']",
-                              TeamCityEscape(testStarting.TestDisplayName),
+                              TeamCityEscape(testStarting.Test.DisplayName),
                               ToFlowId(testStarting.TestCollection.DisplayName));
 
             return base.Visit(testStarting);
@@ -124,7 +124,7 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
-            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.TestDisplayName), cleanupFailure);
+            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }

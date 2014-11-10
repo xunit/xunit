@@ -26,7 +26,7 @@ namespace Xunit.Runner.TdNet
 
             TestListener.TestFinished(testResult);
 
-            WriteOutput(failed.TestDisplayName, failed.Output);
+            WriteOutput(failed.Test.DisplayName, failed.Output);
 
             return true;
         }
@@ -40,7 +40,7 @@ namespace Xunit.Runner.TdNet
 
             TestListener.TestFinished(testResult);
 
-            WriteOutput(passed.TestDisplayName, passed.Output);
+            WriteOutput(passed.Test.DisplayName, passed.Output);
 
             return true;
         }
@@ -96,7 +96,7 @@ namespace Xunit.Runner.TdNet
 
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
-            ReportError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.TestDisplayName), cleanupFailure);
+            ReportError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }

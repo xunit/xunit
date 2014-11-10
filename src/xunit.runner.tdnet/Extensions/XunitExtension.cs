@@ -25,7 +25,7 @@ namespace Xunit.Runner.TdNet
             {
                 FixtureType = testResult.TestCase.GetClass(),
                 Method = testResult.TestCase.GetMethod(),
-                Name = testResult.TestDisplayName,
+                Name = testResult.Test.DisplayName,
                 State = testState,
                 TimeSpan = new TimeSpan((long)(10000.0M * testResult.ExecutionTime)),
                 TotalTests = 1,

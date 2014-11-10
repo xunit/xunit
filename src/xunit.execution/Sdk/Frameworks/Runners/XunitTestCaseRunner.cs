@@ -93,7 +93,8 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestAsync()
         {
-            return new XunitTestRunner(TestCase, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, DisplayName, SkipReason, beforeAfterAttributes, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
+            var test = new XunitTest(TestCase, DisplayName);
+            return new XunitTestRunner(test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, SkipReason, beforeAfterAttributes, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
         }
     }
 }

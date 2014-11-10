@@ -95,7 +95,7 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestFailed testFailed)
         {
             var stackFrameInfo = GetStackFrameInfo(testFailed);
-            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}: {1}", Escape(testFailed.TestDisplayName), Escape(ExceptionUtility.CombineMessages(testFailed)));
+            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}: {1}", Escape(testFailed.Test.DisplayName), Escape(ExceptionUtility.CombineMessages(testFailed)));
 
             var combinedStackTrace = ExceptionUtility.CombineStackTraces(testFailed);
             if (!String.IsNullOrWhiteSpace(combinedStackTrace))
@@ -107,16 +107,16 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestPassed testPassed)
         {
             if (verbose)
-                Log.LogMessage("    PASS:  {0}", Escape(testPassed.TestDisplayName));
+                Log.LogMessage("    PASS:  {0}", Escape(testPassed.Test.DisplayName));
             else
-                Log.LogMessage("    {0}", Escape(testPassed.TestDisplayName));
+                Log.LogMessage("    {0}", Escape(testPassed.Test.DisplayName));
 
             return base.Visit(testPassed);
         }
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
-            Log.LogWarning("{0}: {1}", Escape(testSkipped.TestDisplayName), Escape(testSkipped.Reason));
+            Log.LogWarning("{0}: {1}", Escape(testSkipped.Test.DisplayName), Escape(testSkipped.Reason));
 
             return base.Visit(testSkipped);
         }
@@ -124,7 +124,7 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestStarting testStarting)
         {
             if (verbose)
-                Log.LogMessage("    START: {0}", Escape(testStarting.TestDisplayName));
+                Log.LogMessage("    START: {0}", Escape(testStarting.Test.DisplayName));
 
             return base.Visit(testStarting);
         }
@@ -166,7 +166,7 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
-            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.TestDisplayName), cleanupFailure);
+            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }

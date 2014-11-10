@@ -16,25 +16,23 @@ public static class ReflectionAbstractionExtensions
     /// Creates an instance of the test class for the given test case. Sends the <see cref="ITestClassConstructionStarting"/>
     /// and <see cref="ITestClassConstructionFinished"/> messages as appropriate.
     /// </summary>
-    /// <param name="testCase">The test case</param>
+    /// <param name="test">The test</param>
     /// <param name="testClassType">The type of the test class</param>
     /// <param name="constructorArguments">The constructor arguments for the test class</param>
-    /// <param name="displayName">The display name of the test case</param>
     /// <param name="messageBus">The message bus used to send the test messages</param>
     /// <param name="timer">The timer used to measure the time taken for construction</param>
     /// <param name="cancellationTokenSource">The cancellation token source</param>
     /// <returns></returns>
-    public static object CreateTestClass(this ITestCase testCase,
+    public static object CreateTestClass(this ITest test,
                                          Type testClassType,
                                          object[] constructorArguments,
-                                         string displayName,
                                          IMessageBus messageBus,
                                          ExecutionTimer timer,
                                          CancellationTokenSource cancellationTokenSource)
     {
         object testClass = null;
 
-        if (!messageBus.QueueMessage(new TestClassConstructionStarting(testCase, displayName)))
+        if (!messageBus.QueueMessage(new TestClassConstructionStarting(test)))
             cancellationTokenSource.Cancel();
 
         try
@@ -44,7 +42,7 @@ public static class ReflectionAbstractionExtensions
         }
         finally
         {
-            if (!messageBus.QueueMessage(new TestClassConstructionFinished(testCase, displayName)))
+            if (!messageBus.QueueMessage(new TestClassConstructionFinished(test)))
                 cancellationTokenSource.Cancel();
         }
 
@@ -55,15 +53,13 @@ public static class ReflectionAbstractionExtensions
     /// Disposes the test class instance. Sends the <see cref="ITestClassDisposeStarting"/> and <see cref="ITestClassDisposeFinished"/>
     /// messages as appropriate.
     /// </summary>
-    /// <param name="testCase">The test case</param>
+    /// <param name="test">The test</param>
     /// <param name="testClass">The test class instance to be disposed</param>
-    /// <param name="displayName">The display name of the test case</param>
     /// <param name="messageBus">The message bus used to send the test messages</param>
     /// <param name="timer">The timer used to measure the time taken for construction</param>
     /// <param name="cancellationTokenSource">The cancellation token source</param>
-    public static void DisposeTestClass(this ITestCase testCase,
+    public static void DisposeTestClass(this ITest test,
                                         object testClass,
-                                        string displayName,
                                         IMessageBus messageBus,
                                         ExecutionTimer timer,
                                         CancellationTokenSource cancellationTokenSource)
@@ -72,7 +68,7 @@ public static class ReflectionAbstractionExtensions
         if (disposable == null)
             return;
 
-        if (!messageBus.QueueMessage(new TestClassDisposeStarting(testCase, displayName)))
+        if (!messageBus.QueueMessage(new TestClassDisposeStarting(test)))
             cancellationTokenSource.Cancel();
 
         try
@@ -81,7 +77,7 @@ public static class ReflectionAbstractionExtensions
         }
         finally
         {
-            if (!messageBus.QueueMessage(new TestClassDisposeFinished(testCase, displayName)))
+            if (!messageBus.QueueMessage(new TestClassDisposeFinished(test)))
                 cancellationTokenSource.Cancel();
         }
     }

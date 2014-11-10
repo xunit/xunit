@@ -20,32 +20,32 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestInvoker{TTestCase}"/> class.
         /// </summary>
-        /// <param name="testCase">The test case that this invocation belongs to.</param>
+        /// <param name="test">The test that this invocation belongs to.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testClass">The test class that the test method belongs to.</param>
         /// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
         /// <param name="testMethod">The test method that will be invoked.</param>
         /// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
-        /// <param name="displayName">The display name for this test invocation.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public TestInvoker(TTestCase testCase,
+        public TestInvoker(ITest test,
                            IMessageBus messageBus,
                            Type testClass,
                            object[] constructorArguments,
                            MethodInfo testMethod,
                            object[] testMethodArguments,
-                           string displayName,
                            ExceptionAggregator aggregator,
                            CancellationTokenSource cancellationTokenSource)
         {
-            TestCase = testCase;
+            Guard.ArgumentNotNull("test", test);
+            Guard.ArgumentValid("test", "test.TestCase must implement " + typeof(TTestCase).FullName, test.TestCase is TTestCase);
+
+            Test = test;
             MessageBus = messageBus;
             TestClass = testClass;
             ConstructorArguments = constructorArguments;
             TestMethod = testMethod;
             TestMethodArguments = testMethodArguments;
-            DisplayName = displayName;
             Aggregator = aggregator;
             CancellationTokenSource = cancellationTokenSource;
 
@@ -68,9 +68,9 @@ namespace Xunit.Sdk
         protected object[] ConstructorArguments { get; set; }
 
         /// <summary>
-        /// Gets or sets the display name of the invoked test.
+        /// Gets the display name of the invoked test.
         /// </summary>
-        protected string DisplayName { get; set; }
+        protected string DisplayName { get { return Test.DisplayName; } }
 
         /// <summary>
         /// Gets or sets the message bus to report run status to.
@@ -78,9 +78,14 @@ namespace Xunit.Sdk
         protected IMessageBus MessageBus { get; set; }
 
         /// <summary>
-        /// Gets or sets the test case to be run.
+        /// Gets or sets the test to be run.
         /// </summary>
-        protected TTestCase TestCase { get; set; }
+        protected ITest Test { get; set; }
+
+        /// <summary>
+        /// Gets the test case to be run.
+        /// </summary>
+        protected TTestCase TestCase { get { return (TTestCase)Test.TestCase; } }
 
         /// <summary>
         /// Gets or sets the runtime type of the class that contains the test method.
@@ -111,7 +116,7 @@ namespace Xunit.Sdk
             object testClass = null;
 
             if (!TestMethod.IsStatic && !Aggregator.HasExceptions)
-                testClass = TestCase.CreateTestClass(TestClass, ConstructorArguments, DisplayName, MessageBus, Timer, CancellationTokenSource);
+                testClass = Test.CreateTestClass(TestClass, ConstructorArguments, MessageBus, Timer, CancellationTokenSource);
 
             return testClass;
         }
@@ -157,7 +162,7 @@ namespace Xunit.Sdk
                         await AfterTestMethodInvokedAsync();
                     }
 
-                    Aggregator.Run(() => TestCase.DisposeTestClass(testClassInstance, DisplayName, MessageBus, Timer, CancellationTokenSource));
+                    Aggregator.Run(() => Test.DisposeTestClass(testClassInstance, MessageBus, Timer, CancellationTokenSource));
                 }
 
                 return Timer.Total;

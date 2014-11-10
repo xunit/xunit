@@ -15,7 +15,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
 
             var skipped = Assert.Single(testMessages.Cast<ITestSkipped>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+ClassUnderTest.TestViaInlineData", skipped.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+ClassUnderTest.TestViaInlineData", skipped.Test.DisplayName);
             Assert.Equal("Don't run this!", skipped.Reason);
         }
 
@@ -35,10 +35,10 @@ public class Xunit2TheoryAcceptanceTests
         {
             var results = Run<ITestResultMessage>(typeof(GenericWithSerializableData));
 
-            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.TestDisplayName),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.TestDisplayName),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32[], List<String>>(value1: [1, 2, 3], value2: [""a"", ""b"", ""c""])", result.TestDisplayName),
-                result => Assert.Equal(String.Format(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: {0})", 21.12), result.TestDisplayName)
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32[], List<String>>(value1: [1, 2, 3], value2: [""a"", ""b"", ""c""])", result.Test.DisplayName),
+                result => Assert.Equal(String.Format(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<String, Double>(value1: ""Hello, world!"", value2: {0})", 21.12), result.Test.DisplayName)
             );
         }
 
@@ -64,7 +64,7 @@ public class Xunit2TheoryAcceptanceTests
             var results = Run<ITestResultMessage>(typeof(GenericWithNonSerializableData));
 
             Assert.Collection(results.Cast<ITestPassed>(),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.TestDisplayName)
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.Test.DisplayName)
             );
         }
 
@@ -91,9 +91,9 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.TestDisplayName);
+            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)", failed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -114,7 +114,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForNullValues));
 
             var passing = Assert.Single(testMessages.Cast<ITestPassed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForNullValues.TestMethod(value: null)", passing.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForNullValues.TestMethod(value: null)", passing.Test.DisplayName);
         }
 
         class ClassUnderTestForNullValues
@@ -130,7 +130,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForArrays));
 
             var passing = Assert.Single(testMessages.Cast<ITestPassed>());
-            Assert.Contains("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForArrays.TestMethod", passing.TestDisplayName);
+            Assert.Contains("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForArrays.TestMethod", passing.Test.DisplayName);
         }
 
         class ClassUnderTestForArrays
@@ -149,7 +149,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithMissingData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData.TestViaMissingData", failed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData.TestViaMissingData", failed.Test.DisplayName);
             Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
             Assert.Equal("Could not find public static member (property, field, or method) named 'Foo' on Xunit2TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData", failed.Messages.Single());
         }
@@ -170,7 +170,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithIncompatibleData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
-            Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithIncompatibleData.TestViaIncompatibleData(x: ""Foo"")", failed.TestDisplayName);
+            Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithIncompatibleData.TestViaIncompatibleData(x: ""Foo"")", failed.Test.DisplayName);
             Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
             Assert.Equal("Object of type 'System.String' cannot be converted to type 'System.Int32'.", failed.Messages.Single());
         }
@@ -188,7 +188,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithImplicitlyConvertibleData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
-            Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaImplicitData(x: 42)", passed.TestDisplayName);
+            Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaImplicitData(x: 42)", passed.Test.DisplayName);
         }
 
         class ClassWithImplicitlyConvertibleData
@@ -204,7 +204,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithIConvertibleData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
-            Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithIConvertibleData.TestViaIConvertible(x: 42)", passed.TestDisplayName);
+            Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithIConvertibleData.TestViaIConvertible(x: 42)", passed.Test.DisplayName);
         }
 
         class MyConvertible : IConvertible
@@ -317,9 +317,9 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfFieldData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.TestDisplayName);
+            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 0, y: 0, z: null)", failed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -364,7 +364,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithNonStaticFieldData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData.TestViaFieldData", failed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData.TestViaFieldData", failed.Test.DisplayName);
             Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
             Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData", failed.Messages.Single());
         }
@@ -384,7 +384,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithBaseClassData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithBaseClassData.TestViaFieldData(x: 42)", passed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithBaseClassData.TestViaFieldData(x: 42)", passed.Test.DisplayName);
         }
 
         class BaseClass
@@ -408,9 +408,9 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfMethodData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.TestDisplayName);
+            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -458,7 +458,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithNonStaticMethodData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithNonStaticMethodData.TestViaMethodData", failed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithNonStaticMethodData.TestViaMethodData", failed.Test.DisplayName);
             Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
             Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithNonStaticMethodData", failed.Messages.Single());
         }
@@ -478,7 +478,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithBaseClassData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithBaseClassData.TestViaMethodData(x: 42)", passed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithBaseClassData.TestViaMethodData(x: 42)", passed.Test.DisplayName);
         }
 
         class BaseClass
@@ -502,9 +502,9 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithParameterizedMethodData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.TestDisplayName);
+            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -536,9 +536,9 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfPropertyData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.TestDisplayName);
+            Assert.Equal(String.Format("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 0, y: 0, z: null)", failed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -587,7 +587,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithNonStaticPropertyData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestViaPropertyData", failed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestViaPropertyData", failed.Test.DisplayName);
             Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
             Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData", failed.Messages.Single());
         }
@@ -607,7 +607,7 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithBaseClassData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithBaseClassData.TestViaPropertyData(x: 42)", passed.TestDisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithBaseClassData.TestViaPropertyData(x: 42)", passed.Test.DisplayName);
         }
 
         class BaseClass
@@ -630,10 +630,10 @@ public class Xunit2TheoryAcceptanceTests
         {
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
 
-            var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == String.Format("Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: {0}, z: ClassUnderTest {{ }})", 21.12));
+            var equalFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == String.Format("Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: {0}, z: ClassUnderTest {{ }})", 21.12));
             Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
-            var notNullFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)");
+            var notNullFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)");
             Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
         }
 

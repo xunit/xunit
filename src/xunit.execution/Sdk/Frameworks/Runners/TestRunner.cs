@@ -16,36 +16,36 @@ namespace Xunit.Sdk
         where TTestCase : ITestCase
     {
         /// <summary>
-        /// Initalizes a new instance of the <see cref="TestRunner{TTestCase}"/> class.
+        /// Initializes a new instance of the <see cref="TestRunner{TTestCase}"/> class.
         /// </summary>
-        /// <param name="testCase">The test case that this invocation belongs to.</param>
+        /// <param name="test">The test that this invocation belongs to.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testClass">The test class that the test method belongs to.</param>
         /// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
         /// <param name="testMethod">The test method that will be invoked.</param>
         /// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
-        /// <param name="displayName">The display name for this test invocation.</param>
         /// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public TestRunner(TTestCase testCase,
+        public TestRunner(ITest test,
                           IMessageBus messageBus,
                           Type testClass,
                           object[] constructorArguments,
                           MethodInfo testMethod,
                           object[] testMethodArguments,
-                          string displayName,
                           string skipReason,
                           ExceptionAggregator aggregator,
                           CancellationTokenSource cancellationTokenSource)
         {
-            TestCase = testCase;
+            Guard.ArgumentNotNull("test", test);
+            Guard.ArgumentValid("test", "test.TestCase must implement " + typeof(TTestCase).FullName, test.TestCase is TTestCase);
+
+            Test = test;
             MessageBus = messageBus;
             TestClass = testClass;
             ConstructorArguments = constructorArguments;
             TestMethod = testMethod;
             TestMethodArguments = testMethodArguments;
-            DisplayName = displayName;
             SkipReason = skipReason;
             Aggregator = aggregator;
             CancellationTokenSource = cancellationTokenSource;
@@ -69,7 +69,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets or sets the display name of the invoked test.
         /// </summary>
-        protected string DisplayName { get; set; }
+        protected string DisplayName { get { return Test.DisplayName; } }
 
         /// <summary>
         /// Gets or sets the message bus to report run status to.
@@ -82,9 +82,14 @@ namespace Xunit.Sdk
         protected string SkipReason { get; set; }
 
         /// <summary>
-        /// Gets or sets the test case to be run.
+        /// Gets or sets the test to be run.
         /// </summary>
-        protected TTestCase TestCase { get; set; }
+        protected ITest Test { get; set; }
+
+        /// <summary>
+        /// Gets the test case to be run.
+        /// </summary>
+        protected TTestCase TestCase { get { return (TTestCase)Test.TestCase; } }
 
         /// <summary>
         /// Gets or sets the runtime type of the class that contains the test method.
@@ -122,7 +127,7 @@ namespace Xunit.Sdk
             var runSummary = new RunSummary { Total = 1 };
             var output = String.Empty;  // TODO: Add output facilities for v2
 
-            if (!MessageBus.QueueMessage(new TestStarting(TestCase, DisplayName)))
+            if (!MessageBus.QueueMessage(new TestStarting(Test)))
                 CancellationTokenSource.Cancel();
             else
             {
@@ -132,7 +137,7 @@ namespace Xunit.Sdk
                 {
                     runSummary.Skipped++;
 
-                    if (!MessageBus.QueueMessage(new TestSkipped(TestCase, DisplayName, SkipReason)))
+                    if (!MessageBus.QueueMessage(new TestSkipped(Test, SkipReason)))
                         CancellationTokenSource.Cancel();
                 }
                 else
@@ -146,10 +151,10 @@ namespace Xunit.Sdk
                     TestResultMessage testResult;
 
                     if (exception == null)
-                        testResult = new TestPassed(TestCase, DisplayName, runSummary.Time, output);
+                        testResult = new TestPassed(Test, runSummary.Time, output);
                     else
                     {
-                        testResult = new TestFailed(TestCase, DisplayName, runSummary.Time, output, exception);
+                        testResult = new TestFailed(Test, runSummary.Time, output, exception);
                         runSummary.Failed++;
                     }
 
@@ -162,11 +167,11 @@ namespace Xunit.Sdk
                 BeforeTestFinished();
 
                 if (Aggregator.HasExceptions)
-                    if (!MessageBus.QueueMessage(new TestCleanupFailure(TestCase, DisplayName, Aggregator.ToException())))
+                    if (!MessageBus.QueueMessage(new TestCleanupFailure(Test, Aggregator.ToException())))
                         CancellationTokenSource.Cancel();
             }
 
-            if (!MessageBus.QueueMessage(new TestFinished(TestCase, DisplayName, runSummary.Time, output)))
+            if (!MessageBus.QueueMessage(new TestFinished(Test, runSummary.Time, output)))
                 CancellationTokenSource.Cancel();
 
             return runSummary;

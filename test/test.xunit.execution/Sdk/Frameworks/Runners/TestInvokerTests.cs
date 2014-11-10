@@ -36,14 +36,14 @@ public class TestInvokerTests
                 var starting = Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg);
                 Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
                 Assert.Same(invoker.TestCase, starting.TestCase);
-                Assert.Equal("Display Name", starting.TestDisplayName);
+                Assert.Equal("Display Name", starting.Test.DisplayName);
             },
             msg =>
             {
                 var finished = Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg);
                 Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
                 Assert.Same(invoker.TestCase, finished.TestCase);
-                Assert.Equal("Display Name", finished.TestDisplayName);
+                Assert.Equal("Display Name", finished.Test.DisplayName);
             }
         );
     }
@@ -64,14 +64,14 @@ public class TestInvokerTests
                 var starting = Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg);
                 Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, starting.TestCollection);
                 Assert.Same(invoker.TestCase, starting.TestCase);
-                Assert.Equal("Display Name", starting.TestDisplayName);
+                Assert.Equal("Display Name", starting.Test.DisplayName);
             },
             msg =>
             {
                 var finished = Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg);
                 Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
                 Assert.Same(invoker.TestCase, finished.TestCase);
-                Assert.Equal("Display Name", finished.TestDisplayName);
+                Assert.Equal("Display Name", finished.Test.DisplayName);
             }
         );
     }
@@ -146,10 +146,10 @@ public class TestInvokerTests
         public readonly new ITestCase TestCase;
         public readonly CancellationTokenSource TokenSource;
 
-        TestableTestInvoker(ITestCase testCase, IMessageBus messageBus, Type testClass, object[] constructorArguments, MethodInfo testMethod, object[] testMethodArguments, string displayName, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
-            : base(testCase, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, displayName, aggregator, cancellationTokenSource)
+        TestableTestInvoker(ITest test, IMessageBus messageBus, Type testClass, object[] constructorArguments, MethodInfo testMethod, object[] testMethodArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+            : base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, aggregator, cancellationTokenSource)
         {
-            TestCase = testCase;
+            TestCase = test.TestCase;
             Aggregator = aggregator;
             TokenSource = cancellationTokenSource;
         }
@@ -157,15 +157,15 @@ public class TestInvokerTests
         public static TestableTestInvoker Create<TClassUnderTest>(string methodName, IMessageBus messageBus, string displayName = null)
         {
             var testCase = Mocks.TestCase<TClassUnderTest>(methodName);
+            var test = Mocks.Test(testCase, displayName);
 
             return new TestableTestInvoker(
-                testCase,
+                test,
                 messageBus,
                 typeof(TClassUnderTest),
                 new object[0],
                 typeof(TClassUnderTest).GetMethod(methodName),
                 new object[0],
-                displayName,
                 new ExceptionAggregator(),
                 new CancellationTokenSource()
             );

@@ -161,9 +161,10 @@ public class XmlTestExecutionVisitorTests
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
             testCase.SourceInformation.Returns(new SourceInformation());
+            var test = Mocks.Test(testCase, "Test Display Name");
             var testPassed = Substitute.For<ITestPassed>();
             testPassed.TestCase.Returns(testCase);
-            testPassed.TestDisplayName.Returns("Test Display Name");
+            testPassed.Test.Returns(test);
             testPassed.ExecutionTime.Returns(123.4567M);
 
             var assemblyElement = new XElement("assembly");
@@ -190,9 +191,10 @@ public class XmlTestExecutionVisitorTests
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
+            var test = Mocks.Test(testCase, "Test Display Name");
             var testFailed = Substitute.For<ITestFailed>();
             testFailed.TestCase.Returns(testCase);
-            testFailed.TestDisplayName.Returns("Test Display Name");
+            testFailed.Test.Returns(test);
             testFailed.ExecutionTime.Returns(123.4567M);
             testFailed.ExceptionTypes.Returns(new[] { "Exception Type" });
             testFailed.Messages.Returns(new[] { "Exception Message" });
@@ -245,9 +247,10 @@ public class XmlTestExecutionVisitorTests
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
+            var test = Mocks.Test(testCase, "Test Display Name");
             var testSkipped = Substitute.For<ITestSkipped>();
             testSkipped.TestCase.Returns(testCase);
-            testSkipped.TestDisplayName.Returns("Test Display Name");
+            testSkipped.Test.Returns(test);
             testSkipped.ExecutionTime.Returns(0.0M);
             testSkipped.Reason.Returns("Skip Reason");
 
@@ -320,9 +323,10 @@ public class XmlTestExecutionVisitorTests
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
+            var test = Mocks.Test(testCase, "Display\0\r\nName");
             var testSkipped = Substitute.For<ITestSkipped>();
             testSkipped.TestCase.Returns(testCase);
-            testSkipped.TestDisplayName.Returns("Display\0\r\nName");
+            testSkipped.Test.Returns(test);
             testSkipped.Reason.Returns("Bad\0\r\nString");
 
             var assemblyElement = new XElement("assembly");
@@ -383,7 +387,8 @@ public class XmlTestExecutionVisitorTests
                 yield return new object[] { testCaseCleanupFailure, "test-case-cleanup", "MyTestCase" };
 
                 var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
-                testCleanupFailure.TestDisplayName.Returns("MyTest");
+                var test = Mocks.Test(testCase, "MyTest");
+                testCleanupFailure.Test.Returns(test);
                 yield return new object[] { testCleanupFailure, "test-cleanup", "MyTest" };
             }
         }

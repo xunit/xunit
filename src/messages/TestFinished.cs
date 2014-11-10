@@ -15,8 +15,8 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFinished"/> class.
         /// </summary>
-        public TestFinished(ITestCase testCase, string testDisplayName, decimal executionTime, string output)
-            : base(testCase, testDisplayName)
+        public TestFinished(ITest test, decimal executionTime, string output)
+            : base(test)
         {
             ExecutionTime = executionTime;
             Output = output ?? String.Empty;

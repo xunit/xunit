@@ -140,7 +140,8 @@ public class ResultVisitorTests
                 yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
 
                 var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
-                testCleanupFailure.TestDisplayName.Returns("MyTest");
+                var test = Mocks.Test(testCase, "MyTest");
+                testCleanupFailure.Test.Returns(test);
                 yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
             }
         }

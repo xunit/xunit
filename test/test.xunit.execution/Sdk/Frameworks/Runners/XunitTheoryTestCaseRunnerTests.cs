@@ -21,9 +21,9 @@ public class XunitTheoryTestCaseRunnerTests
         Assert.Equal(2, summary.Total);
         Assert.Equal(1, summary.Failed);
         var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-        Assert.Equal(String.Format("Display Name(x: 42, y: {0}, z: \"Hello\")", 21.12), passed.TestDisplayName);
+        Assert.Equal(String.Format("Display Name(x: 42, y: {0}, z: \"Hello\")", 21.12), passed.Test.DisplayName);
         var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-        Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failed.TestDisplayName);
+        Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failed.Test.DisplayName);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class XunitTheoryTestCaseRunnerTests
         Assert.Equal(1, summary.Total);
         Assert.Equal(1, summary.Failed);
         var failed = messageBus.Messages.OfType<ITestFailed>().Single();
-        Assert.Equal("Display Name", failed.TestDisplayName);
+        Assert.Equal("Display Name", failed.Test.DisplayName);
         Assert.Equal("System.DivideByZeroException", failed.ExceptionTypes.Single());
         Assert.Equal("Attempted to divide by zero.", failed.Messages.Single());
         Assert.Contains("XunitTheoryTestCaseRunnerTests.ClassUnderTest.get_ThrowingData()", failed.StackTraces.Single());

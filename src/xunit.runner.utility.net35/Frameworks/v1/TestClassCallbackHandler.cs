@@ -18,6 +18,7 @@ namespace Xunit
         readonly Xunit1RunSummary testCaseResults = new Xunit1RunSummary();
         readonly Xunit1RunSummary testMethodResults = new Xunit1RunSummary();
 
+        ITest currentTest;
         ITestCase lastTestCase;
 
         /// <summary>
@@ -74,8 +75,9 @@ namespace Xunit
         bool OnStart(XmlNode xml)
         {
             var testCase = FindTestCase(xml.Attributes["type"].Value, xml.Attributes["method"].Value);
+            currentTest = new Xunit1Test(testCase, xml.Attributes["name"].Value);
             SendTestCaseMessagesWhenAppropriate(testCase);
-            return messageSink.OnMessage(new TestStarting(testCase, xml.Attributes["name"].Value)) && TestClassResults.Continue;
+            return messageSink.OnMessage(new TestStarting(currentTest)) && TestClassResults.Continue;
         }
 
         bool OnTest(XmlNode xml)
@@ -86,8 +88,10 @@ namespace Xunit
             var time = timeAttribute == null ? 0M : Decimal.Parse(timeAttribute.Value, CultureInfo.InvariantCulture);
             var outputElement = xml.SelectSingleNode("output");
             var output = outputElement == null ? String.Empty : outputElement.InnerText;
-            var displayName = xml.Attributes["name"].Value;
             ITestCaseMessage resultMessage = null;
+
+            if (currentTest == null)  // There is no <start> node for skipped tests, or with xUnit prior to v1.1
+                currentTest = new Xunit1Test(testCase, xml.Attributes["name"].Value);
 
             testCaseResults.Total++;
             testCaseResults.Time += time;
@@ -95,7 +99,7 @@ namespace Xunit
             switch (xml.Attributes["result"].Value)
             {
                 case "Pass":
-                    resultMessage = new TestPassed(testCase, displayName, time, output);
+                    resultMessage = new TestPassed(currentTest, time, output);
                     break;
 
                 case "Fail":
@@ -103,7 +107,7 @@ namespace Xunit
                         testCaseResults.Failed++;
                         var failure = xml.SelectSingleNode("failure");
                         var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(failure);
-                        resultMessage = new TestFailed(testCase, displayName, time, output,
+                        resultMessage = new TestFailed(currentTest, time, output,
                                                        failureInformation.ExceptionTypes,
                                                        failureInformation.Messages,
                                                        failureInformation.StackTraces,
@@ -116,16 +120,18 @@ namespace Xunit
                     if (testCase != lastTestCase)
                     {
                         SendTestCaseMessagesWhenAppropriate(testCase);
-                        @continue = messageSink.OnMessage(new TestStarting(testCase, displayName)) && @continue;
+                        @continue = messageSink.OnMessage(new TestStarting(currentTest)) && @continue;
                     }
-                    resultMessage = new TestSkipped(testCase, displayName, xml.SelectSingleNode("reason/message").InnerText);
+                    resultMessage = new TestSkipped(currentTest, xml.SelectSingleNode("reason/message").InnerText);
                     break;
             }
 
             if (resultMessage != null)
                 @continue = messageSink.OnMessage(resultMessage) && @continue;
 
-            @continue = messageSink.OnMessage(new TestFinished(testCase, displayName, time, output)) && @continue;
+            @continue = messageSink.OnMessage(new TestFinished(currentTest, time, output)) && @continue;
+            currentTest = null;
+
             return @continue && TestClassResults.Continue;
         }
 

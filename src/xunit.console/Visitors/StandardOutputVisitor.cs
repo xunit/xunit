@@ -62,7 +62,7 @@ namespace Xunit.ConsoleClient
             {
                 // TODO: Thread-safe way to figure out the default foreground color
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine("   {0} [FAIL]", Escape(testFailed.TestDisplayName));
+                Console.Error.WriteLine("   {0} [FAIL]", Escape(testFailed.Test.DisplayName));
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.Error.WriteLine("      {0}", ExceptionUtility.CombineMessages(testFailed).Replace(Environment.NewLine, Environment.NewLine + "      "));
 
@@ -83,7 +83,7 @@ namespace Xunit.ConsoleClient
             {
                 // TODO: Thread-safe way to figure out the default foreground color
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Error.WriteLine("   {0} [SKIP]", Escape(testSkipped.TestDisplayName));
+                Console.Error.WriteLine("   {0} [SKIP]", Escape(testSkipped.Test.DisplayName));
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.Error.WriteLine("      {0}", Escape(testSkipped.Reason));
             }
@@ -133,7 +133,7 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
-            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.TestDisplayName), cleanupFailure);
+            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }

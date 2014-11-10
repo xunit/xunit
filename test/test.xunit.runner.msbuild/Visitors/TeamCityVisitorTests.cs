@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
@@ -52,7 +51,8 @@ public class TeamCityVisitorTests
                 yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
 
                 var testCleanupFailure = MakeFailureInformationSubstitute<ITestCleanupFailure>();
-                testCleanupFailure.TestDisplayName.Returns("MyTest");
+                var test = Mocks.Test(testCase, "MyTest");
+                testCleanupFailure.Test.Returns(test);
                 yield return new object[] { testCleanupFailure, "Test Cleanup Failure (MyTest)" };
             }
         }
@@ -117,7 +117,8 @@ public class TeamCityVisitorTests
         public void LogsTestNameWithExceptionAndStackTrace()
         {
             var testFailed = Substitute.For<ITestFailed>();
-            testFailed.TestDisplayName.Returns("This is my display name \t\r\n");
+            var test = Mocks.Test(null, "This is my display name \t\r\n");
+            testFailed.Test.Returns(test);
             testFailed.ExecutionTime.Returns(1.2345M);
             testFailed.Messages.Returns(new[] { "This is my message \t\r\n" });
             testFailed.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
@@ -142,7 +143,8 @@ public class TeamCityVisitorTests
         public void LogsTestName()
         {
             var testPassed = Substitute.For<ITestPassed>();
-            testPassed.TestDisplayName.Returns("This is my display name \t\r\n");
+            var test = Mocks.Test(null, "This is my display name \t\r\n");
+            testPassed.Test.Returns(test);
             testPassed.ExecutionTime.Returns(1.2345M);
 
             var logger = SpyLogger.Create();
@@ -162,7 +164,8 @@ public class TeamCityVisitorTests
         public void LogsTestNameAsWarning()
         {
             var testSkipped = Substitute.For<ITestSkipped>();
-            testSkipped.TestDisplayName.Returns("This is my display name \t\r\n");
+            var test = Mocks.Test(null, "This is my display name \t\r\n");
+            testSkipped.Test.Returns(test);
             testSkipped.Reason.Returns("This is my skip reason \t\r\n");
 
             var logger = SpyLogger.Create();
@@ -183,7 +186,8 @@ public class TeamCityVisitorTests
         public void LogsTestName()
         {
             var testStarting = Substitute.For<ITestStarting>();
-            testStarting.TestDisplayName.Returns("This is my display name \t\r\n");
+            var test = Mocks.Test(null, "This is my display name \t\r\n");
+            testStarting.Test.Returns(test);
 
             var logger = SpyLogger.Create();
             var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId");
