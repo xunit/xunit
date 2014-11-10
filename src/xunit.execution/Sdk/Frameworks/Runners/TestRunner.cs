@@ -125,7 +125,7 @@ namespace Xunit.Sdk
         public async Task<RunSummary> RunAsync()
         {
             var runSummary = new RunSummary { Total = 1 };
-            var output = String.Empty;  // TODO: Add output facilities for v2
+            var output = String.Empty;
 
             if (!MessageBus.QueueMessage(new TestStarting(Test)))
                 CancellationTokenSource.Cancel();
@@ -145,7 +145,11 @@ namespace Xunit.Sdk
                     var aggregator = new ExceptionAggregator(Aggregator);
 
                     if (!aggregator.HasExceptions)
-                        runSummary.Time = await aggregator.RunAsync(() => InvokeTestAsync(aggregator));
+                    {
+                        var tuple = await aggregator.RunAsync(() => InvokeTestAsync(aggregator));
+                        runSummary.Time = tuple.Item1;
+                        output = tuple.Item2;
+                    }
 
                     var exception = aggregator.ToException();
                     TestResultMessage testResult;
@@ -181,7 +185,8 @@ namespace Xunit.Sdk
         /// Override this method to invoke the test method.
         /// </summary>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
-        /// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
-        protected abstract Task<decimal> InvokeTestAsync(ExceptionAggregator aggregator);
+        /// <returns>Returns a tuple which includes the execution time (in seconds) spent running the
+        /// test method, and any output that was returned by the test.</returns>
+        protected abstract Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator);
     }
 }

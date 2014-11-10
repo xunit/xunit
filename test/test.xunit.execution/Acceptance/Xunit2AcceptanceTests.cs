@@ -393,6 +393,64 @@ public class Xunit2AcceptanceTests
         }
     }
 
+    public class TestOutput : AcceptanceTest
+    {
+        [Fact]
+        public void SendOutputMessages()
+        {
+            var msgs = Run(typeof(ClassUnderTest));
+
+            var idxOfTestPassed = msgs.FindIndex(msg => msg is ITestPassed);
+            Assert.True(idxOfTestPassed >= 0, "Test should have passed");
+
+            var idxOfFirstTestOutput = msgs.FindIndex(msg => msg is ITestOutput);
+            Assert.True(idxOfFirstTestOutput >= 0, "Test should have output");
+            Assert.True(idxOfFirstTestOutput < idxOfTestPassed, "Test output messages should preceed test result");
+
+            Assert.Collection(msgs.OfType<ITestOutput>(),
+                msg =>
+                {
+                    var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);
+                    Assert.Equal("This is output in the constructor" + Environment.NewLine, outputMessage.Output);
+                },
+                msg =>
+                {
+                    var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);
+                    Assert.Equal("This is test output" + Environment.NewLine, outputMessage.Output);
+                },
+                msg =>
+                {
+                    var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);
+                    Assert.Equal("This is output in Dispose" + Environment.NewLine, outputMessage.Output);
+                }
+            );
+        }
+
+        class ClassUnderTest : IDisposable
+        {
+            readonly ITestOutputHelper output;
+
+            public ClassUnderTest(ITestOutputHelper output)
+            {
+                this.output = output;
+
+                output.WriteLine("This is output in the constructor");
+            }
+
+            public void Dispose()
+            {
+                output.WriteLine("This is {0} in Dispose", "output");
+            }
+
+            [Fact]
+            public void TestMethod()
+            {
+                output.WriteLine("This is test output");
+            }
+
+        }
+    }
+
     class NoTestsClass { }
 
     class SinglePassingTestClass

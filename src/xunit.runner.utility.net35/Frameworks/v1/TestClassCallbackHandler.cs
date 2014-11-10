@@ -126,6 +126,11 @@ namespace Xunit
                     break;
             }
 
+            // Since we don't get live output from xUnit.net v1, we just send a single output message just before
+            // the result message (if there was any output).
+            if (!String.IsNullOrEmpty(output))
+                @continue = messageSink.OnMessage(new TestOutput(currentTest, output)) && @continue;
+
             if (resultMessage != null)
                 @continue = messageSink.OnMessage(resultMessage) && @continue;
 

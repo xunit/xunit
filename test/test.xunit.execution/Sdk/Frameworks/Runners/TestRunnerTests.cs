@@ -111,6 +111,18 @@ public class TestRunnerTests
     }
 
     [Fact]
+    public static async void Output()
+    {
+        var messageBus = new SpyMessageBus();
+        var runner = TestableTestRunner.Create(messageBus, output: "This is my text output");
+
+        await runner.RunAsync();
+
+        var passed = messageBus.Messages.OfType<ITestPassed>().Single();
+        Assert.Equal("This is my text output", passed.Output);
+    }
+
+    [Fact]
     public static async void FailureInQueueOfTestStarting_DoesNotQueueTestFinished_DoesNotInvokeTest()
     {
         var messages = new List<IMessageSinkMessage>();
@@ -228,6 +240,7 @@ public class TestRunnerTests
     class TestableTestRunner : TestRunner<ITestCase>
     {
         readonly Action lambda;
+        readonly string output;
         readonly decimal runTime;
 
         public bool InvokeTestAsync_Called;
@@ -248,6 +261,7 @@ public class TestRunnerTests
                            ExceptionAggregator aggregator,
                            CancellationTokenSource cancellationTokenSource,
                            decimal runTime,
+                           string output,
                            Action lambda)
             : base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
         {
@@ -255,6 +269,7 @@ public class TestRunnerTests
             TokenSource = cancellationTokenSource;
 
             this.runTime = runTime;
+            this.output = output;
             this.lambda = lambda;
         }
 
@@ -263,6 +278,7 @@ public class TestRunnerTests
                                                 string displayName = null,
                                                 string skipReason = null,
                                                 decimal runTime = 0m,
+                                                string output = "",
                                                 Exception aggregatorSeedException = null,
                                                 Action lambda = null)
         {
@@ -284,6 +300,7 @@ public class TestRunnerTests
                 aggregator,
                 new CancellationTokenSource(),
                 runTime,
+                output,
                 lambda);
         }
 
@@ -299,14 +316,14 @@ public class TestRunnerTests
             BeforeTestFinished_Callback(Aggregator);
         }
 
-        protected override Task<decimal> InvokeTestAsync(ExceptionAggregator aggregator)
+        protected override Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator)
         {
             if (lambda != null)
                 aggregator.Run(lambda);
 
             InvokeTestAsync_Called = true;
 
-            return Task.FromResult(runTime);
+            return Task.FromResult(Tuple.Create(runTime, output));
         }
     }
 }

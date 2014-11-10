@@ -116,6 +116,12 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, out object argumentValue)
         {
+            if (parameter.ParameterType == typeof(ITestOutputHelper))
+            {
+                argumentValue = new TestOutputHelper();
+                return true;
+            }
+
             return ClassFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
                 || collectionFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue);
         }

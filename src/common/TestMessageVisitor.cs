@@ -47,6 +47,7 @@ namespace Xunit
                 DoVisit<ITestCaseCleanupFailure>(message, Visit) &&
                 DoVisit<ITestCaseDiscoveryMessage>(message, Visit) &&
                 DoVisit<ITestCaseFinished>(message, Visit) &&
+                DoVisit<ITestOutput>(message, Visit) &&
                 DoVisit<ITestCaseStarting>(message, Visit) &&
                 DoVisit<ITestClassCleanupFailure>(message, Visit) &&
                 DoVisit<ITestClassConstructionFinished>(message, Visit) &&
@@ -185,6 +186,16 @@ namespace Xunit
         /// <param name="testCaseFinished">The message.</param>
         /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
         protected virtual bool Visit(ITestCaseFinished testCaseFinished)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Called when an instance of <see cref="ITestOutput"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="testCaseOutput">The message.</param>
+        /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(ITestOutput testCaseOutput)
         {
             return true;
         }

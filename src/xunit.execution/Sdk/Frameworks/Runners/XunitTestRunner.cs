@@ -44,9 +44,22 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override Task<decimal> InvokeTestAsync(ExceptionAggregator aggregator)
+        protected override async Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator)
         {
-            return new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, beforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
+            var output = String.Empty;
+            var testOutputHelper = ConstructorArguments.OfType<TestOutputHelper>().FirstOrDefault();
+            if (testOutputHelper != null)
+                testOutputHelper.Initialize(MessageBus, Test);
+
+            var executionTime = await new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, beforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
+
+            if (testOutputHelper != null)
+            {
+                output = testOutputHelper.Output;
+                testOutputHelper.Uninitialize();
+            }
+
+            return Tuple.Create(executionTime, output);
         }
     }
 }
