@@ -1,7 +1,7 @@
 {
     "frameworks": {
         "aspnet50": {
-            "dependencies": {
+            "frameworkAssemblies": {
                 "System.Reflection": "",
                 "System.Runtime": "",
                 "System.Threading.Tasks": ""
@@ -9,19 +9,19 @@
         },
         "aspnetcore50": {
             "dependencies": {
-                "System.Collections.Concurrent": "4.0.0.0",
-                "System.Diagnostics.Debug": "4.0.10.0",
-                "System.Diagnostics.Tools": "4.0.0.0",
-                "System.Globalization": "4.0.10.0",
-                "System.Linq": "4.0.0.0",
-                "System.Reflection": "4.0.10.0",
-                "System.Reflection.Extensions": "4.0.0.0",
-                "System.Runtime.Extensions": "4.0.10.0",
-                "System.Security.Cryptography.Hashing.Algorithms": "4.0.0.0",
-                "System.Threading": "4.0.0.0",
-                "System.Threading.ExecutionContext": "4.0.0.0",
-                "System.Threading.Thread": "4.0.0.0",
-                "System.Threading.ThreadPool": "4.0.10.0"
+                "System.Collections.Concurrent": "4.0.0-beta-22231",
+                "System.Diagnostics.Debug": "4.0.10-beta-22231",
+                "System.Diagnostics.Tools": "4.0.0-beta-22231",
+                "System.Globalization": "4.0.10-beta-22231",
+                "System.Linq": "4.0.0-beta-22231",
+                "System.Reflection": "4.0.10-beta-22231",
+                "System.Reflection.Extensions": "4.0.0-beta-22231",
+                "System.Runtime.Extensions": "4.0.10-beta-22231",
+                "System.Security.Cryptography.Hashing.Algorithms": "4.0.0-beta-22231",
+                "System.Threading": "4.0.0-beta-22231",
+                "System.Threading.ExecutionContext": "4.0.0-beta-22231",
+                "System.Threading.Thread": "4.0.0-beta-22231",
+                "System.Threading.ThreadPool": "4.0.10-beta-22231"
             }
         }
     },
