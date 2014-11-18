@@ -110,49 +110,8 @@
     <Compile Include="Utility\DiaSession.cs" />
     <Compile Include="Utility\DiaSessionWrapper.cs" />
     <Compile Include="Utility\DiaSessionWrapperHelper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\xunit.runner.utility\Frameworks\IFrontController.cs">
-      <Link>Frameworks\IFrontController.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Frameworks\NullSourceInformationProvider.cs">
-      <Link>Frameworks\NullSourceInformationProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Frameworks\TestFrameworkOptions.cs">
-      <Link>Frameworks\TestFrameworkOptions.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Frameworks\v2\Xunit2.cs">
-      <Link>Frameworks\v2\Xunit2.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Frameworks\v2\Xunit2Discoverer.cs">
-      <Link>Frameworks\v2\Xunit2Discoverer.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Frameworks\v2\XunitDiscoveryOptions.cs">
-      <Link>Frameworks\v2\XunitDiscoveryOptions.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Frameworks\v2\XunitExecutionOptions.cs">
-      <Link>Frameworks\v2\XunitExecutionOptions.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Frameworks\XunitFrontController.cs">
-      <Link>Frameworks\XunitFrontController.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Project\XunitFilters.cs">
-      <Link>Project\XunitFilters.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Project\XunitProject.cs">
-      <Link>Project\XunitProject.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Project\XunitProjectAssembly.cs">
-      <Link>Project\XunitProjectAssembly.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Properties\AssemblyInfo.cs">
-      <Link>Properties\AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Utility\ExecutionSummary.cs">
-      <Link>Utility\ExecutionSummary.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.runner.utility\Utility\RemotingUtility.cs">
-      <Link>Utility\RemotingUtility.cs</Link>
+    <Compile Include="..\xunit.runner.utility\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
     <Compile Include="..\messages\**\*.cs">
       <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
