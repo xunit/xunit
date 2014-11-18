@@ -39,6 +39,7 @@ namespace Xunit
                 DoVisit<IAfterTestStarting>(message, Visit) &&
                 DoVisit<IBeforeTestFinished>(message, Visit) &&
                 DoVisit<IBeforeTestStarting>(message, Visit) &&
+                DoVisit<IDiagnosticMessage>(message, Visit) &&
                 DoVisit<IDiscoveryCompleteMessage>(message, Visit) &&
                 DoVisit<IErrorMessage>(message, Visit) &&
                 DoVisit<ITestAssemblyCleanupFailure>(message, Visit) &&
@@ -106,6 +107,16 @@ namespace Xunit
         /// <param name="beforeTestStarting">The message.</param>
         /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
         protected virtual bool Visit(IBeforeTestStarting beforeTestStarting)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Called when an instance of <see cref="IDiagnosticMessage"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="diagnosticMessage">The message.</param>
+        /// <returns>Return <c>true</c> to continue discovering/executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(IDiagnosticMessage diagnosticMessage)
         {
             return true;
         }
