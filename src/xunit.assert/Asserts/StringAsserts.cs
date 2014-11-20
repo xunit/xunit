@@ -51,7 +51,7 @@ namespace Xunit
         public static void DoesNotContain(string expectedSubstring, string actualString, StringComparison comparisonType)
         {
             if (actualString != null && actualString.IndexOf(expectedSubstring, comparisonType) >= 0)
-                throw new DoesNotContainException(expectedSubstring);
+                throw new DoesNotContainException(expectedSubstring, actualString);
         }
 
         /// <summary>

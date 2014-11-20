@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -10,9 +11,18 @@ public class CommandLineTests
     public class Filename
     {
         [Fact]
-        public void AssemblyFileNameNotPresentThrows()
+        public static void MissingAssemblyFileNameThrows()
         {
-            string[] arguments = new string[1];
+            var exception = Record.Exception(() => CommandLine.Parse(new[] { "-teamcity" }));
+
+            Assert.IsType<ArgumentException>(exception);
+            Assert.Equal("must specify at least one assembly", exception.Message);
+        }
+
+        [Fact]
+        public static void AssemblyFileNameNotPresentThrows()
+        {
+            var arguments = new string[1];
             arguments[0] = "fileName";
 
             var exception = Record.Exception(() =>
@@ -25,46 +35,147 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void AssemblyFilePresentDoesNotThrow()
+        public static void AssemblyFilePresentDoesNotThrow()
         {
-            string[] arguments = new[] { "assemblyName.dll" };
+            var arguments = new[] { "assemblyName.dll" };
 
-            Assert.DoesNotThrow(() =>
-            {
-                TestableCommandLine.Parse(arguments);
-            });
+            TestableCommandLine.Parse(arguments);  // Should not throw
         }
 
         [Fact]
-        public void DllExistsConfigFileDoesNotExist()
+        public static void DllExistsConfigFileDoesNotExist()
         {
-            string[] arguments = new[] { "assemblyName.dll", "badConfig.config" };
+            var arguments = new[] { "assemblyName.dll", "badConfig.config" };
 
             var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
 
             Assert.IsType<ArgumentException>(exception);
             Assert.Equal("config file not found: badConfig.config", exception.Message);
         }
-    }
 
-    public class InvalidOption
-    {
         [Fact]
-        public void OptionWithoutSlashThrows()
+        public static void MultipleAssembliesDoesNotThrow()
         {
-            var arguments = new[] { "assembly.dll", "assembly.config", "teamcity" };
+            var arguments = new[] { "assemblyName.dll", "assemblyName2.dll" };
+
+            var result = TestableCommandLine.Parse(arguments);
+
+            Assert.Collection(result.Project,
+                a =>
+                {
+                    Assert.Equal(Path.GetFullPath("assemblyName.dll"), a.AssemblyFilename);
+                    Assert.Null(a.ConfigFilename);
+                    Assert.True(a.ShadowCopy);
+                },
+                a =>
+                {
+                    Assert.Equal(Path.GetFullPath("assemblyName2.dll"), a.AssemblyFilename);
+                    Assert.Null(a.ConfigFilename);
+                    Assert.True(a.ShadowCopy);
+                }
+            );
+        }
+
+        [Fact]
+        public static void MultipleAssembliesOneWithConfig()
+        {
+            var arguments = new[] { "assemblyName.dll", "assemblyName2.dll", "assembly2.config" };
+
+            var result = TestableCommandLine.Parse(arguments);
+
+            Assert.Collection(result.Project,
+                a =>
+                {
+                    Assert.Equal(Path.GetFullPath("assemblyName.dll"), a.AssemblyFilename);
+                    Assert.Null(a.ConfigFilename);
+                    Assert.True(a.ShadowCopy);
+                },
+                a =>
+                {
+                    Assert.Equal(Path.GetFullPath("assemblyName2.dll"), a.AssemblyFilename);
+                    Assert.Equal(Path.GetFullPath("assembly2.config"), a.ConfigFilename);
+                    Assert.True(a.ShadowCopy);
+                }
+            );
+        }
+
+        [Fact]
+        public static void ConfigFileWhenExpectingAssemblyThrows()
+        {
+            var arguments = new[] { "assemblyName.dll", "assembly1.config", "assembly2.config" };
 
             var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
 
             Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("unknown command line option: teamcity", exception.Message);
+            Assert.Equal("expecting assembly, got config file: assembly2.config", exception.Message);
+        }
+    }
+
+    public class AppVeyorOption
+    {
+        [Fact, AppVeyorEnvironmentRestore]
+        public static void AppVeyorOptionNotPassedAppVeyorFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.AppVeyor);
+        }
+
+        [Fact, AppVeyorEnvironmentRestore(Value = "AppVeyor")]
+        public static void AppVeyorOptionNotPassedEnvironmentSetAppVeyorTrue()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.AppVeyor);
+        }
+
+        [Fact, AppVeyorEnvironmentRestore]
+        public static void AppVeyorOptionAppVeyorTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-appveyor" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.AppVeyor);
+        }
+
+        [Fact, AppVeyorEnvironmentRestore]
+        public static void AppVeyorOptionIgnoreCaseAppVeyorTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-aPpVeyOr" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.AppVeyor);
+        }
+
+        class AppVeyorEnvironmentRestore : BeforeAfterTestAttribute
+        {
+            string originalValue;
+
+            public string Value { get; set; }
+
+            public override void Before(MethodInfo methodUnderTest)
+            {
+                originalValue = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
+                Environment.SetEnvironmentVariable("APPVEYOR_API_URL", Value);
+            }
+
+            public override void After(MethodInfo methodUnderTest)
+            {
+                Environment.SetEnvironmentVariable("APPVEYOR_API_URL", originalValue);
+            }
         }
     }
 
     public class MaxThreadsOption
     {
         [Fact]
-        public void DefaultValueIsZero()
+        public static void DefaultValueIsZero()
         {
             var commandLine = TestableCommandLine.Parse("assemblyName.dll");
 
@@ -72,7 +183,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void MissingValue()
+        public static void MissingValue()
         {
             var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-maxthreads"));
 
@@ -80,7 +191,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void InvalidValue()
+        public static void InvalidValue()
         {
             var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "abc"));
 
@@ -88,7 +199,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void SetsMaxParallelThreads()
+        public static void SetsMaxParallelThreads()
         {
             var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "16");
 
@@ -99,7 +210,7 @@ public class CommandLineTests
     public class NoShadowOption
     {
         [Fact]
-        public void NoShadowNotSetShadowCopyTrue()
+        public static void NoShadowNotSetShadowCopyTrue()
         {
             var arguments = new[] { "assemblyName.dll" };
 
@@ -110,7 +221,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void NoShadowSetShadowCopyFalse()
+        public static void NoShadowSetShadowCopyFalse()
         {
             var arguments = new[] { "assemblyName.dll", "-noshadow" };
 
@@ -121,43 +232,10 @@ public class CommandLineTests
         }
     }
 
-    public class SilentOption
-    {
-        [Fact]
-        public void SilentOptionNotPassedSilentFalse()
-        {
-            var arguments = new[] { "assemblyName.dll" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.False(commandLine.Silent);
-        }
-
-        [Fact]
-        public void SilentOptionSilentIsTrue()
-        {
-            var arguments = new[] { "assemblyName.dll", "-silent" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.True(commandLine.Silent);
-        }
-
-        [Fact]
-        public void SilentOptionIgnoreCaseSilentIsTrue()
-        {
-            var arguments = new[] { "assemblyName.dll", "-sIlEnT" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.True(commandLine.Silent);
-        }
-    }
-
     public class WaitOption
     {
         [Fact]
-        public void WaitOptionNotPassedWaitFalse()
+        public static void WaitOptionNotPassedWaitFalse()
         {
             var arguments = new[] { "assemblyName.dll" };
 
@@ -167,7 +245,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void WaitOptionWaitIsTrue()
+        public static void WaitOptionWaitIsTrue()
         {
             var arguments = new[] { "assemblyName.dll", "-wait" };
 
@@ -177,7 +255,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void WaitOptionIgnoreCaseWaitIsTrue()
+        public static void WaitOptionIgnoreCaseWaitIsTrue()
         {
             var arguments = new[] { "assemblyName.dll", "-wAiT" };
 
@@ -190,7 +268,7 @@ public class CommandLineTests
     public class TeamCityArgument
     {
         [Fact, TeamCityEnvironmentRestore]
-        public void TeamCityOptionNotPassedTeamCityFalse()
+        public static void TeamCityOptionNotPassedTeamCityFalse()
         {
             var arguments = new[] { "assemblyName.dll" };
 
@@ -200,7 +278,7 @@ public class CommandLineTests
         }
 
         [Fact, TeamCityEnvironmentRestore(Value = "TeamCity")]
-        public void TeamCityOptionNotPassedEnvironmentSetTeamCityTrue()
+        public static void TeamCityOptionNotPassedEnvironmentSetTeamCityTrue()
         {
             var arguments = new[] { "assemblyName.dll" };
 
@@ -210,7 +288,7 @@ public class CommandLineTests
         }
 
         [Fact, TeamCityEnvironmentRestore]
-        public void TeamCityOptionTeamCityTrue()
+        public static void TeamCityOptionTeamCityTrue()
         {
             var arguments = new[] { "assemblyName.dll", "-teamcity" };
 
@@ -220,7 +298,7 @@ public class CommandLineTests
         }
 
         [Fact, TeamCityEnvironmentRestore]
-        public void TeamCityOptionIgnoreCaseTeamCityTrue()
+        public static void TeamCityOptionIgnoreCaseTeamCityTrue()
         {
             var arguments = new[] { "assemblyName.dll", "-tEaMcItY" };
 
@@ -251,7 +329,7 @@ public class CommandLineTests
     public class TraitArgument
     {
         [Fact]
-        public void TraitArgumentNotPassed()
+        public static void TraitArgumentNotPassed()
         {
             var arguments = new[] { "assemblyName.dll" };
 
@@ -261,7 +339,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void SingleValidTraitArgument()
+        public static void SingleValidTraitArgument()
         {
             var arguments = new[] { "assemblyName.dll", "-trait", "foo=bar" };
 
@@ -273,7 +351,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void MultipleValidTraitArguments_SameName()
+        public static void MultipleValidTraitArguments_SameName()
         {
             var arguments = new[] { "assemblyName.dll", "-trait", "foo=bar", "-trait", "foo=baz" };
 
@@ -286,7 +364,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void MultipleValidTraitArguments_DifferentName()
+        public static void MultipleValidTraitArguments_DifferentName()
         {
             var arguments = new[] { "assemblyName.dll", "-trait", "foo=bar", "-trait", "baz=biff" };
 
@@ -300,7 +378,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void MissingOptionValue()
+        public static void MissingOptionValue()
         {
             var arguments = new[] { "assemblyName.dll", "-trait" };
 
@@ -311,7 +389,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void OptionValueMissingEquals()
+        public static void OptionValueMissingEquals()
         {
             var arguments = new[] { "assemblyName.dll", "-trait", "foobar" };
 
@@ -322,7 +400,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void OptionValueMissingName()
+        public static void OptionValueMissingName()
         {
             var arguments = new[] { "assemblyName.dll", "-trait", "=bar" };
 
@@ -333,7 +411,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void OptionNameMissingValue()
+        public static void OptionNameMissingValue()
         {
             var arguments = new[] { "assemblyName.dll", "-trait", "foo=" };
 
@@ -344,7 +422,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void TooManyEqualsSigns()
+        public static void TooManyEqualsSigns()
         {
             var arguments = new[] { "assemblyName.dll", "-trait", "foo=bar=baz" };
 
@@ -358,7 +436,7 @@ public class CommandLineTests
     public class MinusTraitArgument
     {
         [Fact]
-        public void TraitArgumentNotPassed()
+        public static void TraitArgumentNotPassed()
         {
             var arguments = new[] { "assemblyName.dll" };
 
@@ -368,7 +446,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void SingleValidTraitArgument()
+        public static void SingleValidTraitArgument()
         {
             var arguments = new[] { "assemblyName.dll", "-notrait", "foo=bar" };
 
@@ -380,7 +458,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void MultipleValidTraitArguments_SameName()
+        public static void MultipleValidTraitArguments_SameName()
         {
             var arguments = new[] { "assemblyName.dll", "-notrait", "foo=bar", "-notrait", "foo=baz" };
 
@@ -393,7 +471,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void MultipleValidTraitArguments_DifferentName()
+        public static void MultipleValidTraitArguments_DifferentName()
         {
             var arguments = new[] { "assemblyName.dll", "-notrait", "foo=bar", "-notrait", "baz=biff" };
 
@@ -407,7 +485,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void MissingOptionValue()
+        public static void MissingOptionValue()
         {
             var arguments = new[] { "assemblyName.dll", "-notrait" };
 
@@ -418,7 +496,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void OptionValueMissingEquals()
+        public static void OptionValueMissingEquals()
         {
             var arguments = new[] { "assemblyName.dll", "-notrait", "foobar" };
 
@@ -429,7 +507,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void OptionValueMissingName()
+        public static void OptionValueMissingName()
         {
             var arguments = new[] { "assemblyName.dll", "-notrait", "=bar" };
 
@@ -440,7 +518,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void OptionNameMissingValue()
+        public static void OptionNameMissingValue()
         {
             var arguments = new[] { "assemblyName.dll", "-notrait", "foo=" };
 
@@ -451,7 +529,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void TooManyEqualsSigns()
+        public static void TooManyEqualsSigns()
         {
             var arguments = new[] { "assemblyName.dll", "-notrait", "foo=bar=baz" };
 
@@ -462,10 +540,114 @@ public class CommandLineTests
         }
     }
 
+    public class MethodArgument
+    {
+        [Fact]
+        public static void MethodArgumentNotPassed()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(0, commandLine.Project.Filters.IncludedMethods.Count);
+        }
+
+        [Fact]
+        public static void SingleValidMethodArgument()
+        {
+            const string name = "Namespace.Class.Method1";
+
+            var arguments = new[] { "assemblyName.dll", "-method", name };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(1, commandLine.Project.Filters.IncludedMethods.Count);
+            Assert.True(commandLine.Project.Filters.IncludedMethods.Contains(name));
+        }
+
+        [Fact]
+        public static void MultipleValidMethodArguments()
+        {
+            const string name1 = "Namespace.Class.Method1";
+            const string name2 = "Namespace.Class.Method2";
+
+            var arguments = new[] { "assemblyName.dll", "-method", name1, "-method", name2 };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(2, commandLine.Project.Filters.IncludedMethods.Count);
+            Assert.True(commandLine.Project.Filters.IncludedMethods.Contains(name1));
+            Assert.True(commandLine.Project.Filters.IncludedMethods.Contains(name2));
+        }
+
+        [Fact]
+        public static void MissingOptionValue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-method" };
+
+            var ex = Record.Exception(() => TestableCommandLine.Parse(arguments));
+
+            Assert.IsType<ArgumentException>(ex);
+            Assert.Equal("missing argument for -method", ex.Message);
+        }
+    }
+
+    public class ClassArgument
+    {
+        [Fact]
+        public static void ClassArgumentNotPassed()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(0, commandLine.Project.Filters.IncludedMethods.Count);
+        }
+
+        [Fact]
+        public static void SingleValidClassArgument()
+        {
+            const string name = "Namespace.Class";
+
+            var arguments = new[] { "assemblyName.dll", "-class", name };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(1, commandLine.Project.Filters.IncludedClasses.Count);
+            Assert.True(commandLine.Project.Filters.IncludedClasses.Contains(name));
+        }
+
+        [Fact]
+        public static void MultipleValidClassArguments()
+        {
+            const string name1 = "Namespace.Class1";
+            const string name2 = "Namespace.Class2";
+
+            var arguments = new[] { "assemblyName.dll", "-class", name1, "-class", name2 };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.Equal(2, commandLine.Project.Filters.IncludedClasses.Count);
+            Assert.True(commandLine.Project.Filters.IncludedClasses.Contains(name1));
+            Assert.True(commandLine.Project.Filters.IncludedClasses.Contains(name2));
+        }
+
+        [Fact]
+        public static void MissingOptionValue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-class" };
+
+            var ex = Record.Exception(() => TestableCommandLine.Parse(arguments));
+
+            Assert.IsType<ArgumentException>(ex);
+            Assert.Equal("missing argument for -class", ex.Message);
+        }
+    }
+
     public class ParallelizationOptions
     {
         [Fact]
-        public void ParallelIsCollectionsOnlyByDefault()
+        public static void ParallelIsCollectionsOnlyByDefault()
         {
             var project = TestableCommandLine.Parse("assemblyName.dll");
 
@@ -474,7 +656,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void FailsWithoutOptionOrWithIncorrectOptions()
+        public static void FailsWithoutOptionOrWithIncorrectOptions()
         {
             var aex1 = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-parallel"));
             Assert.Equal("missing argument for -parallel", aex1.Message);
@@ -488,7 +670,7 @@ public class CommandLineTests
         [InlineData("assemblies", true, false)]
         [InlineData("collections", false, true)]
         [InlineData("all", true, true)]
-        public void ParallelCanBeTurnedOn(string parallelOption, bool expectedAssemblyParallelization, bool expectedCollectionsParallelization)
+        public static void ParallelCanBeTurnedOn(string parallelOption, bool expectedAssemblyParallelization, bool expectedCollectionsParallelization)
         {
             var project = TestableCommandLine.Parse("assemblyName.dll", "-parallel", parallelOption);
 
@@ -500,7 +682,7 @@ public class CommandLineTests
     public class Transform
     {
         [Fact]
-        public void OutputMissingFilename()
+        public static void OutputMissingFilename()
         {
             var arguments = new[] { "assemblyName.dll", "-xml" };
 
@@ -511,7 +693,7 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void Output()
+        public static void Output()
         {
             var arguments = new[] { "assemblyName.dll", "-xml", "foo.xml" };
 
@@ -526,16 +708,11 @@ public class CommandLineTests
     class TestableCommandLine : CommandLine
     {
         private TestableCommandLine(params string[] arguments)
-            : base(arguments) { }
+            : base(arguments, filename => filename != "badConfig.config") { }
 
         public new static TestableCommandLine Parse(params string[] arguments)
         {
             return new TestableCommandLine(arguments);
-        }
-
-        protected override XunitProject Parse()
-        {
-            return Parse(filename => filename != "badConfig.config");
         }
     }
 }

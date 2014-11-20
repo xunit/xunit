@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -102,7 +103,7 @@ namespace Xunit.Runner.MSBuild
             if (NeedsXml)
                 assembliesElement = new XElement("assemblies");
 
-            string originalWorkingFolder = Directory.GetCurrentDirectory();
+            var originalWorkingFolder = Directory.GetCurrentDirectory();
 
             using (AssemblyHelper.SubscribeResolve())
             {
@@ -110,8 +111,8 @@ namespace Xunit.Runner.MSBuild
 
                 var testAssemblyPaths = Assemblies.Select(assembly =>
                 {
-                    string assemblyFileName = assembly.GetMetadata("FullPath");
-                    string configFileName = assembly.GetMetadata("ConfigFile");
+                    var assemblyFileName = assembly.GetMetadata("FullPath");
+                    var configFileName = assembly.GetMetadata("ConfigFile");
                     if (configFileName != null && configFileName.Length == 0)
                         configFileName = null;
 
@@ -120,6 +121,8 @@ namespace Xunit.Runner.MSBuild
 
                 if (WorkingFolder != null)
                     Directory.SetCurrentDirectory(WorkingFolder);
+
+                var clockTime = Stopwatch.StartNew();
 
                 if (ParallelizeAssemblies)
                 {
@@ -138,23 +141,51 @@ namespace Xunit.Runner.MSBuild
                     }
                 }
 
+                clockTime.Stop();
+
                 if (completionMessages.Count > 0)
                 {
                     Log.LogMessage(MessageImportance.High, "=== TEST EXECUTION SUMMARY ===");
-                    int longestAssemblyName = completionMessages.Keys.Max(key => key.Length);
-                    int longestTotal = completionMessages.Values.Max(summary => summary.Total.ToString().Length);
-                    int longestFailed = completionMessages.Values.Max(summary => summary.Failed.ToString().Length);
-                    int longestSkipped = completionMessages.Values.Max(summary => summary.Skipped.ToString().Length);
-                    int longestTime = completionMessages.Values.Max(summary => summary.Time.ToString("0.000s").Length);
+
+                    var totalTestsRun = completionMessages.Values.Sum(summary => summary.Total);
+                    var totalTestsFailed = completionMessages.Values.Sum(summary => summary.Failed);
+                    var totalTestsSkipped = completionMessages.Values.Sum(summary => summary.Skipped);
+                    var totalTime = completionMessages.Values.Sum(summary => summary.Time).ToString("0.000s");
+                    var totalErrors = completionMessages.Values.Sum(summary => summary.Errors);
+                    var longestAssemblyName = completionMessages.Keys.Max(key => Path.GetFileNameWithoutExtension(key).Length);
+                    var longestTotal = totalTestsRun.ToString().Length;
+                    var longestFailed = totalTestsFailed.ToString().Length;
+                    var longestSkipped = totalTestsSkipped.ToString().Length;
+                    var longestTime = totalTime.Length;
+                    var longestErrors = totalErrors.ToString().Length;
 
                     foreach (var message in completionMessages.OrderBy(m => m.Key))
                         Log.LogMessage(MessageImportance.High,
-                                       "   {0}  Total: {1}, Failed: {2}, Skipped: {3}, Time: {4}",
-                                       message.Key.PadRight(longestAssemblyName),
+                                       "   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Time: {5}",
+                                       Path.GetFileNameWithoutExtension(message.Key).PadRight(longestAssemblyName),
                                        message.Value.Total.ToString().PadLeft(longestTotal),
+                                       message.Value.Errors.ToString().PadLeft(longestErrors),
                                        message.Value.Failed.ToString().PadLeft(longestFailed),
                                        message.Value.Skipped.ToString().PadLeft(longestSkipped),
                                        message.Value.Time.ToString("0.000s").PadLeft(longestTime));
+
+                    if (completionMessages.Count > 1)
+                        Log.LogMessage(MessageImportance.High,
+                                       "   {0}         {1}          {2}          {3}           {4}        {5}" + Environment.NewLine +
+                                       "           {6} {7}          {8}          {9}           {10}        {11} ({12})",
+                                       " ".PadRight(longestAssemblyName),
+                                       "-".PadRight(longestTotal, '-'),
+                                       "-".PadRight(longestErrors, '-'),
+                                       "-".PadRight(longestFailed, '-'),
+                                       "-".PadRight(longestSkipped, '-'),
+                                       "-".PadRight(longestTime, '-'),
+                                       "GRAND TOTAL:".PadLeft(longestAssemblyName),
+                                       totalTestsRun,
+                                       totalErrors,
+                                       totalTestsFailed,
+                                       totalTestsSkipped,
+                                       totalTime,
+                                       clockTime.Elapsed.TotalSeconds.ToString("0.000s"));
                 }
             }
 
@@ -189,11 +220,15 @@ namespace Xunit.Runner.MSBuild
 
             try
             {
+                Log.LogMessage(MessageImportance.High, "  Discovering: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+
                 using (var controller = CreateFrontController(assemblyFileName, configFileName))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, options: new XunitDiscoveryOptions());
                     discoveryVisitor.Finished.WaitOne();
+
+                    Log.LogMessage(MessageImportance.High, "  Discovered:  {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
                     using (var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement))
                     {
@@ -203,11 +238,20 @@ namespace Xunit.Runner.MSBuild
                             MaxParallelThreads = MaxParallelThreads
                         };
 
-                        controller.RunTests(discoveryVisitor.TestCases.Where(Filters.Filter).ToList(), resultsVisitor, executionOptions);
-                        resultsVisitor.Finished.WaitOne();
-
-                        if (resultsVisitor.Failed != 0)
+                        var filteredTestCases = discoveryVisitor.TestCases.Where(Filters.Filter).ToList();
+                        if (filteredTestCases.Count == 0)
+                        {
+                            Log.LogError("{0} has no tests to run", Path.GetFileNameWithoutExtension(assemblyFileName));
                             ExitCode = 1;
+                        }
+                        else
+                        {
+                            controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
+                            resultsVisitor.Finished.WaitOne();
+
+                            if (resultsVisitor.Failed != 0)
+                                ExitCode = 1;
+                        }
                     }
                 }
             }
@@ -219,7 +263,7 @@ namespace Xunit.Runner.MSBuild
                 {
                     Log.LogError("{0}: {1}", e.GetType().FullName, e.Message);
 
-                    foreach (string stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
                         Log.LogError(stackLine);
 
                     e = e.InnerException;
@@ -231,7 +275,7 @@ namespace Xunit.Runner.MSBuild
             return assemblyElement;
         }
 
-        void Transform(string resourceName, XNode xml, ITaskItem outputFile)
+        static void Transform(string resourceName, XNode xml, ITaskItem outputFile)
         {
             var xmlTransform = new XslCompiledTransform();
 

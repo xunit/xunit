@@ -6,11 +6,15 @@ using NSubstitute;
 
 public class SpyLogger : TaskLoggingHelper
 {
+    readonly bool includeSourceInformation;
+
     public List<string> Messages = new List<string>();
 
-    private SpyLogger(IBuildEngine buildEngine, string taskName)
+    private SpyLogger(IBuildEngine buildEngine, string taskName, bool includeSourceInformation)
         : base(buildEngine, taskName)
     {
+        this.includeSourceInformation = includeSourceInformation;
+
         buildEngine.WhenAny(e => e.LogMessageEvent(null))
                    .Do<BuildMessageEventArgs>(Log);
         buildEngine.WhenAny(e => e.LogWarningEvent(null))
@@ -19,9 +23,9 @@ public class SpyLogger : TaskLoggingHelper
                    .Do<BuildErrorEventArgs>(Log);
     }
 
-    public static SpyLogger Create(string taskName = "MyTask")
+    public static SpyLogger Create(string taskName = "MyTask", bool includeSourceInformation = false)
     {
-        return new SpyLogger(Substitute.For<IBuildEngine>(), taskName);
+        return new SpyLogger(Substitute.For<IBuildEngine>(), taskName, includeSourceInformation);
     }
 
     private void Log(BuildMessageEventArgs eventArgs)
@@ -36,6 +40,9 @@ public class SpyLogger : TaskLoggingHelper
 
     private void Log(BuildErrorEventArgs eventArgs)
     {
-        Messages.Add(String.Format("ERROR: {0}", eventArgs.Message));
+        if (includeSourceInformation)
+            Messages.Add(String.Format("ERROR: [FILE {0}][LINE {1}] {2}", eventArgs.File, eventArgs.LineNumber, eventArgs.Message));
+        else
+            Messages.Add(String.Format("ERROR: {0}", eventArgs.Message));
     }
 }

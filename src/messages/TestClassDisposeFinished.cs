@@ -14,7 +14,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestClassDisposeFinished"/> class.
         /// </summary>
-        public TestClassDisposeFinished(ITestCase testCase, string testDisplayName)
-            : base(testCase, testDisplayName) { }
+        public TestClassDisposeFinished(ITest test)
+            : base(test) { }
     }
 }

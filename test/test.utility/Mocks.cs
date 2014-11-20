@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using NSubstitute;
@@ -14,6 +15,7 @@ public static class Mocks
         attributes = attributes ?? new IReflectionAttributeInfo[0];
 
         var result = Substitute.For<IAssemblyInfo>();
+        result.Name.Returns(assemblyFileName == null ? null : Path.GetFileNameWithoutExtension(assemblyFileName));
         result.AssemblyPath.Returns(assemblyFileName);
         result.GetType("").ReturnsForAnyArgs(types == null ? null : types.FirstOrDefault());
         result.GetTypes(true).ReturnsForAnyArgs(types ?? new ITypeInfo[0]);
@@ -144,20 +146,30 @@ public static class Mocks
         return result;
     }
 
-    public static ITestAssembly TestAssembly(ITypeInfo[] types = null, IReflectionAttributeInfo[] attributes = null)
+    public static IReflectionMethodInfo ReflectionMethodInfo<TClass>(string methodName)
     {
-        var assemblyInfo = Mocks.AssemblyInfo(types, attributes);
+        return Reflector.Wrap(typeof(TClass).GetMethod(methodName));
+    }
 
-        var result = Substitute.For<ITestAssembly>();
-        result.Assembly.Returns(assemblyInfo);
+    public static IReflectionTypeInfo ReflectionTypeInfo<TClass>()
+    {
+        return Reflector.Wrap(typeof(TClass));
+    }
+
+    public static ITest Test(ITestCase testCase, string displayName)
+    {
+        var result = Substitute.For<ITest>();
+        result.DisplayName.Returns(displayName);
+        result.TestCase.Returns(testCase);
         return result;
     }
 
-    public static ITestAssembly TestAssembly(Assembly assembly, string configFileName = null)
+    public static ITestAssembly TestAssembly(IReflectionAttributeInfo[] attributes)
     {
+        var assemblyInfo = Mocks.AssemblyInfo(attributes: attributes);
+
         var result = Substitute.For<ITestAssembly>();
-        result.Assembly.Returns(Reflector.Wrap(assembly));
-        result.ConfigFileName.Returns(configFileName ?? AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+        result.Assembly.Returns(assemblyInfo);
         return result;
     }
 
@@ -169,6 +181,11 @@ public static class Mocks
         result.Assembly.Returns(assemblyInfo);
         result.ConfigFileName.Returns(configFileName);
         return result;
+    }
+
+    public static TestAssembly TestAssembly(Assembly assembly = null, string configFileName = null)
+    {
+        return new TestAssembly(Reflector.Wrap(assembly ?? Assembly.GetExecutingAssembly()), configFileName ?? AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
     }
 
     public static ITestCase TestCase(ITestCollection collection = null)
@@ -200,6 +217,17 @@ public static class Mocks
         return result;
     }
 
+    public static IReflectionAttributeInfo TestCaseOrdererAttribute<TOrderer>()
+    {
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        var ordererType = typeof(TOrderer);
+        var typeName = ordererType.FullName;
+        var assemblyName = ordererType.Assembly.FullName;
+        result.Attribute.Returns(new TestCaseOrdererAttribute(typeName, assemblyName));
+        result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
+        return result;
+    }
+
     public static ITestClass TestClass(string typeName, IReflectionAttributeInfo[] attributes = null)
     {
         var testCollection = Mocks.TestCollection();
@@ -211,35 +239,39 @@ public static class Mocks
         return result;
     }
 
-    public static ITestClass TestClass(Type type, ITestCollection testCollection = null)
+    public static TestClass TestClass(Type type, ITestCollection collection = null)
     {
-        if (testCollection == null)
-        {
-            var assembly = Mocks.TestAssembly(type.Assembly);
-            testCollection = Mocks.TestCollection(testAssembly: assembly);
-        }
+        if (collection == null)
+            collection = Mocks.TestCollection(type.Assembly);
 
-        var result = Substitute.For<ITestClass>();
-        result.Class.Returns(Reflector.Wrap(type));
-        result.TestCollection.Returns(testCollection);
-        return result;
+        return new TestClass(collection, Reflector.Wrap(type));
     }
 
-    public static ITestCollection TestCollection(Guid? id = null, ITypeInfo definition = null, ITestAssembly testAssembly = null)
+    public static TestCollection TestCollection(Assembly assembly = null, ITypeInfo definition = null, string displayName = null)
     {
-        if (testAssembly == null)
-            testAssembly = Mocks.TestAssembly();
+        if (assembly == null)
+            assembly = Assembly.GetExecutingAssembly();
+        if (displayName == null)
+            displayName = "Mock test collection for " + assembly.GetLocalCodeBase();
 
-        var result = Substitute.For<ITestCollection>();
-        result.TestAssembly.Returns(testAssembly);
-        result.UniqueID.Returns(id ?? Guid.NewGuid());
-        result.CollectionDefinition.Returns(definition);
+        return new TestCollection(Mocks.TestAssembly(assembly), definition, displayName);
+    }
+
+    public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrderer>()
+    {
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        var ordererType = typeof(TOrderer);
+        var typeName = ordererType.FullName;
+        var assemblyName = ordererType.Assembly.FullName;
+        result.Attribute.Returns(new TestCollectionOrdererAttribute(typeName, assemblyName));
+        result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
         return result;
     }
 
     public static ITestFailed TestFailed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M, Exception ex = null)
     {
         var testCase = Mocks.TestCase(type, methodName);
+        var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
         var failureInfo = Xunit.Sdk.ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
 
         var result = Substitute.For<ITestFailed>();
@@ -250,7 +282,16 @@ public static class Mocks
         result.Output.Returns(output);
         result.StackTraces.Returns(failureInfo.StackTraces);
         result.TestCase.Returns(testCase);
-        result.TestDisplayName.Returns(displayName ?? "NO DISPLAY NAME");
+        result.Test.Returns(test);
+        return result;
+    }
+
+    public static IReflectionAttributeInfo TestFrameworkAttribute(Type type)
+    {
+        var attribute = Activator.CreateInstance(type);
+        var result = Substitute.For<IReflectionAttributeInfo>();
+        result.Attribute.Returns(attribute);
+        result.GetCustomAttributes(null).ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), CustomAttributeData.GetCustomAttributes(attribute.GetType()).Select(Reflector.Wrap).ToArray()));
         return result;
     }
 
@@ -285,38 +326,36 @@ public static class Mocks
         return result;
     }
 
-    public static ITestMethod TestMethod(Type type, string methodName, ITestCollection collection = null)
+    public static TestMethod TestMethod(Type type, string methodName, ITestCollection collection = null)
     {
+        var @class = Mocks.TestClass(type, collection);
         var methodInfo = type.GetMethod(methodName);
         if (methodInfo == null)
             throw new Exception(String.Format("Unknown method: {0}.{1}", type.FullName, methodName));
 
-        var testClass = Mocks.TestClass(type, collection);
-
-        var result = Substitute.For<ITestMethod>();
-        result.Method.Returns(Reflector.Wrap(methodInfo));
-        result.TestClass.Returns(testClass);
-        return result;
+        return new TestMethod(@class, Reflector.Wrap(methodInfo));
     }
 
     public static ITestPassed TestPassed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M)
     {
         var testCase = Mocks.TestCase(type, methodName);
+        var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
 
         var result = Substitute.For<ITestPassed>();
         result.ExecutionTime.Returns(executionTime);
         result.Output.Returns(output);
         result.TestCase.Returns(testCase);
-        result.TestDisplayName.Returns(displayName ?? "NO DISPLAY NAME");
+        result.Test.Returns(test);
         return result;
     }
 
     public static ITestResultMessage TestResult<TClassUnderTest>(string methodName, string displayName, decimal executionTime)
     {
         var testCase = Mocks.TestCase<TClassUnderTest>(methodName);
+        var test = Mocks.Test(testCase, displayName);
         var result = Substitute.For<ITestResultMessage>();
         result.TestCase.Returns(testCase);
-        result.TestDisplayName.Returns(displayName);
+        result.Test.Returns(test);
         result.ExecutionTime.Returns(executionTime);
         return result;
     }
@@ -324,13 +363,14 @@ public static class Mocks
     public static ITestSkipped TestSkipped(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M, string skipReason = null)
     {
         var testCase = Mocks.TestCase(type, methodName);
+        var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
 
         var result = Substitute.For<ITestSkipped>();
         result.ExecutionTime.Returns(executionTime);
         result.Output.Returns(output);
         result.Reason.Returns(skipReason);
         result.TestCase.Returns(testCase);
-        result.TestDisplayName.Returns(displayName ?? "NO DISPLAY NAME");
+        result.Test.Returns(test);
         return result;
     }
 
@@ -361,61 +401,32 @@ public static class Mocks
         return result;
     }
 
-    public static ITypeInfo TypeInfo(string typeName = "MockType", IMethodInfo[] methods = null, IReflectionAttributeInfo[] attributes = null)
+    public static ITypeInfo TypeInfo(string typeName = "MockType", IMethodInfo[] methods = null, IReflectionAttributeInfo[] attributes = null, string assemblyFileName = null)
     {
         var result = Substitute.For<ITypeInfo>();
         result.Name.Returns(typeName);
         result.GetMethods(false).ReturnsForAnyArgs(methods ?? new IMethodInfo[0]);
+        var assemblyInfo = Mocks.AssemblyInfo(assemblyFileName: assemblyFileName);
+        result.Assembly.Returns(assemblyInfo);
         result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
         return result;
     }
 
-    public static XunitTestAssembly XunitTestAssembly(Assembly assembly = null, string configFileName = null)
-    {
-        return new XunitTestAssembly(Reflector.Wrap(assembly ?? Assembly.GetExecutingAssembly()), configFileName);
-    }
-
     public static XunitTestCase XunitTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null, object[] testMethodArguments = null)
     {
-        var method = Mocks.XunitTestMethod(typeof(TClassUnderTest), methodName, collection);
+        var method = Mocks.TestMethod(typeof(TClassUnderTest), methodName, collection);
 
         return new XunitTestCase(method, testMethodArguments);
     }
 
-    public static XunitTestCollection XunitTestCollection(Assembly assembly = null, ITypeInfo collectionDefinition = null, string displayName = null)
-    {
-        if (assembly == null)
-            assembly = Assembly.GetExecutingAssembly();
-        if (displayName == null)
-            displayName = "Mock test collection for " + assembly.GetLocalCodeBase();
-
-        return new XunitTestCollection(Mocks.XunitTestAssembly(assembly), collectionDefinition, displayName);
-    }
-
-    public static XunitTestClass XunitTestClass(Type type, ITestCollection collection = null)
-    {
-        if (collection == null)
-            collection = Mocks.XunitTestCollection(type.Assembly);
-
-        return new XunitTestClass(collection, Reflector.Wrap(type));
-    }
-
-    public static XunitTestMethod XunitTestMethod(Type type, string methodName, ITestCollection collection = null)
-    {
-        var @class = Mocks.XunitTestClass(type, collection);
-        var methodInfo = type.GetMethod(methodName);
-        if (methodInfo == null)
-            throw new Exception(String.Format("Unknown method: {0}.{1}", type.FullName, methodName));
-
-        return new XunitTestMethod(@class, Reflector.Wrap(methodInfo));
-    }
-
     public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null)
     {
-        var method = Mocks.XunitTestMethod(typeof(TClassUnderTest), methodName, collection);
+        var method = Mocks.TestMethod(typeof(TClassUnderTest), methodName, collection);
 
         return new XunitTheoryTestCase(method);
     }
+
+    // Helpers
 
     private static Dictionary<string, List<string>> GetTraits(IMethodInfo method)
     {

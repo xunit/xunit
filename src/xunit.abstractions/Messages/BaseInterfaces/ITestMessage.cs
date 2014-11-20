@@ -6,8 +6,8 @@
     public interface ITestMessage : ITestCaseMessage
     {
         /// <summary>
-        /// The display name of the test.
+        /// The test that is associated with this message.
         /// </summary>
-        string TestDisplayName { get; }
+        ITest Test { get; }
     }
 }

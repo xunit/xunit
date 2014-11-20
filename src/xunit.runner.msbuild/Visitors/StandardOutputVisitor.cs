@@ -35,12 +35,9 @@ namespace Xunit.Runner.MSBuild
             var stackTraces = ExceptionUtility.CombineStackTraces(failureInfo);
             if (stackTraces != null)
             {
-                var firstFrame = stackTraces.Split(new[] { Environment.NewLine }, 2, StringSplitOptions.RemoveEmptyEntries)
-                                            .FirstOrDefault();
-
-                if (firstFrame != null)
+                foreach (var frame in stackTraces.Split(new[] { Environment.NewLine }, 2, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    var match = stackFrameRegex.Match(firstFrame);
+                    var match = stackFrameRegex.Match(frame);
                     if (match.Success)
                         return Tuple.Create(match.Groups["file"].Value, Int32.Parse(match.Groups["line"].Value));
                 }
@@ -70,7 +67,7 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
         {
             assemblyFileName = Path.GetFileName(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
-            Log.LogMessage(MessageImportance.High, "  Started: {0}", assemblyFileName);
+            Log.LogMessage(MessageImportance.High, "  Starting:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
             return base.Visit(assemblyStarting);
         }
@@ -80,7 +77,7 @@ namespace Xunit.Runner.MSBuild
             // Base class does computation of results, so call it first.
             var result = base.Visit(assemblyFinished);
 
-            Log.LogMessage(MessageImportance.High, "  Finished: {0}", assemblyFileName);
+            Log.LogMessage(MessageImportance.High, "  Finished:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
             if (completionMessages != null)
                 completionMessages.TryAdd(assemblyFileName, new ExecutionSummary
@@ -88,26 +85,17 @@ namespace Xunit.Runner.MSBuild
                     Total = assemblyFinished.TestsRun,
                     Failed = assemblyFinished.TestsFailed,
                     Skipped = assemblyFinished.TestsSkipped,
-                    Time = assemblyFinished.ExecutionTime
+                    Time = assemblyFinished.ExecutionTime,
+                    Errors = Errors
                 });
 
             return result;
         }
 
-        protected override bool Visit(IErrorMessage error)
-        {
-            var stackFrameInfo = GetStackFrameInfo(error);
-
-            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", Escape(ExceptionUtility.CombineMessages(error)));
-            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", ExceptionUtility.CombineStackTraces(error));
-
-            return base.Visit(error);
-        }
-
         protected override bool Visit(ITestFailed testFailed)
         {
             var stackFrameInfo = GetStackFrameInfo(testFailed);
-            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}: {1}", Escape(testFailed.TestDisplayName), Escape(ExceptionUtility.CombineMessages(testFailed)));
+            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}: {1}", Escape(testFailed.Test.DisplayName), Escape(ExceptionUtility.CombineMessages(testFailed)));
 
             var combinedStackTrace = ExceptionUtility.CombineStackTraces(testFailed);
             if (!String.IsNullOrWhiteSpace(combinedStackTrace))
@@ -119,16 +107,16 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestPassed testPassed)
         {
             if (verbose)
-                Log.LogMessage("    PASS:  {0}", Escape(testPassed.TestDisplayName));
+                Log.LogMessage("    PASS:  {0}", Escape(testPassed.Test.DisplayName));
             else
-                Log.LogMessage("    {0}", Escape(testPassed.TestDisplayName));
+                Log.LogMessage("    {0}", Escape(testPassed.Test.DisplayName));
 
             return base.Visit(testPassed);
         }
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
-            Log.LogWarning("{0}: {1}", Escape(testSkipped.TestDisplayName), Escape(testSkipped.Reason));
+            Log.LogWarning("{0}: {1}", Escape(testSkipped.Test.DisplayName), Escape(testSkipped.Reason));
 
             return base.Visit(testSkipped);
         }
@@ -136,9 +124,66 @@ namespace Xunit.Runner.MSBuild
         protected override bool Visit(ITestStarting testStarting)
         {
             if (verbose)
-                Log.LogMessage("    START: {0}", Escape(testStarting.TestDisplayName));
+                Log.LogMessage("    START: {0}", Escape(testStarting.Test.DisplayName));
 
             return base.Visit(testStarting);
+        }
+
+        protected override bool Visit(IErrorMessage error)
+        {
+            WriteError("FATAL", error);
+
+            return base.Visit(error);
+        }
+
+        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        void WriteError(string failureName, IFailureInformation failureInfo)
+        {
+            var stackFrameInfo = GetStackFrameInfo(failureInfo);
+
+            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "[{0}] {1}", failureName, Escape(ExceptionUtility.CombineMessages(failureInfo)));
+            Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", ExceptionUtility.CombineStackTraces(failureInfo));
         }
     }
 }

@@ -18,7 +18,7 @@ public class Xunit1TestCaseTests
             serializer.Serialize(memoryStream, testCase);
             memoryStream.Position = 0;
 
-            Assert.DoesNotThrow(() => serializer.Deserialize(memoryStream));
+            serializer.Deserialize(memoryStream);  // Should not throw
         }
 
         [Fact]
@@ -31,7 +31,7 @@ public class Xunit1TestCaseTests
             serializer.Serialize(memoryStream, testCase);
             memoryStream.Position = 0;
 
-            Assert.DoesNotThrow(() => serializer.Deserialize(memoryStream));
+            serializer.Deserialize(memoryStream);  // Should not throw
         }
 
         [Fact]
@@ -44,7 +44,7 @@ public class Xunit1TestCaseTests
             serializer.Serialize(memoryStream, testCase);
             memoryStream.Position = 0;
 
-            Assert.DoesNotThrow(() => serializer.Deserialize(memoryStream));
+            serializer.Deserialize(memoryStream);  // Should not throw
         }
 
         [Fact]

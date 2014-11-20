@@ -15,8 +15,8 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCleanupFailure"/> class.
         /// </summary>
-        public TestCleanupFailure(ITestCase testCase, string displayName, string[] exceptionTypes, string[] messages, string[] stackTraces, int[] exceptionParentIndices)
-            : base(testCase, displayName)
+        public TestCleanupFailure(ITest test, string[] exceptionTypes, string[] messages, string[] stackTraces, int[] exceptionParentIndices)
+            : base(test)
         {
             StackTraces = stackTraces;
             Messages = messages;
@@ -24,12 +24,11 @@ namespace Xunit
             ExceptionParentIndices = exceptionParentIndices;
         }
 
-#if XUNIT_CORE_DLL
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCleanupFailure"/> class.
         /// </summary>
-        public TestCleanupFailure(ITestCase testCase, string displayName, Exception ex)
-            : base(testCase, displayName)
+        public TestCleanupFailure(ITest test, Exception ex)
+            : base(test)
         {
             var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
             ExceptionTypes = failureInfo.ExceptionTypes;
@@ -37,7 +36,6 @@ namespace Xunit
             StackTraces = failureInfo.StackTraces;
             ExceptionParentIndices = failureInfo.ExceptionParentIndices;
         }
-#endif
 
         /// <inheritdoc/>
         public string[] ExceptionTypes { get; private set; }

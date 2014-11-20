@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -35,6 +37,7 @@ namespace Xunit.Sdk
             MessageSink = messageSink;
             ExecutionOptions = executionOptions;
             TestCaseOrderer = new DefaultTestCaseOrderer();
+            TestCollectionOrderer = new DefaultTestCollectionOrderer();
             Aggregator = new ExceptionAggregator();
         }
 
@@ -59,9 +62,14 @@ namespace Xunit.Sdk
         protected ITestAssembly TestAssembly { get; set; }
 
         /// <summary>
-        /// Gets or sets the test case orderer that will be used to decide how to order the test.
+        /// Gets or sets the test case orderer that will be used to decide how to order the tests.
         /// </summary>
         protected ITestCaseOrderer TestCaseOrderer { get; set; }
+
+        /// <summary>
+        /// Gets or sets the test collection orderer that will be used to decide how to order the test collections.
+        /// </summary>
+        protected ITestCollectionOrderer TestCollectionOrderer { get; set; }
 
         /// <summary>
         /// Gets or sets the test cases to be run.
@@ -81,19 +89,38 @@ namespace Xunit.Sdk
         /// Override this to provide the environment information (f.e., "32-bit .NET 4.0"). This value is
         /// placed into <see cref="ITestAssemblyStarting.TestEnvironment"/>.
         /// </summary>
-        protected abstract string GetTestFrameworkEnvironment();
+        protected virtual string GetTestFrameworkEnvironment()
+        {
+            return String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, GetVersion());
+        }
+
+        static string GetVersion()
+        {
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
+            var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
+            return attr == null ? "(unknown version)" : attr.FrameworkDisplayName;
+#else
+            return Environment.Version.ToString();
+#endif
+        }
 
         /// <summary>
         /// This method is called just after <see cref="ITestAssemblyStarting"/> is sent, but before any test collections are run.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void AfterTestAssemblyStarting() { }
+        protected virtual Task AfterTestAssemblyStartingAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         /// <summary>
         /// This method is called just before <see cref="ITestAssemblyFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void BeforeTestAssemblyFinished() { }
+        protected virtual Task BeforeTestAssemblyFinishedAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         /// <summary>
         /// Creates the message bus to be used for test execution. By default, it inspects
@@ -111,6 +138,22 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Orders the test collections using the <see cref="TestCollectionOrderer"/>.
+        /// </summary>
+        /// <returns>Test collections (and the associated test cases) in run order</returns>
+        protected List<Tuple<ITestCollection, List<TTestCase>>> OrderTestCases()
+        {
+            var testCasesByCollection =
+                TestCases.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
+                         .ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
+
+            var orderedTestCollections = TestCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
+
+            return orderedTestCollections.Select(collection => Tuple.Create(collection, testCasesByCollection[collection]))
+                                         .ToList();
+        }
+
+        /// <summary>
         /// Runs the tests in the test assembly.
         /// </summary>
         /// <returns>Returns summary information about the tests that were run.</returns>
@@ -118,19 +161,23 @@ namespace Xunit.Sdk
         {
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
             var currentDirectory = Directory.GetCurrentDirectory();
+#endif
             var testFrameworkEnvironment = GetTestFrameworkEnvironment();
             var testFrameworkDisplayName = GetTestFrameworkDisplayName();
 
             using (var messageBus = CreateMessageBus())
             {
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
+#endif
 
                 if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
                 {
                     try
                     {
-                        AfterTestAssemblyStarting();
+                        await AfterTestAssemblyStartingAsync();
 
                         var masterStopwatch = Stopwatch.StartNew();
                         totalSummary = await RunTestCollectionsAsync(messageBus, cancellationTokenSource);
@@ -138,7 +185,7 @@ namespace Xunit.Sdk
                         totalSummary.Time = (decimal)masterStopwatch.Elapsed.TotalSeconds;
 
                         Aggregator.Clear();
-                        BeforeTestAssemblyFinished();
+                        await BeforeTestAssemblyFinishedAsync();
 
                         if (Aggregator.HasExceptions)
                             messageBus.QueueMessage(new TestAssemblyCleanupFailure(TestCases.Cast<ITestCase>(), TestAssembly, Aggregator.ToException()));
@@ -146,7 +193,9 @@ namespace Xunit.Sdk
                     finally
                     {
                         messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
                         Directory.SetCurrentDirectory(currentDirectory);
+#endif
                     }
                 }
             }
@@ -164,9 +213,9 @@ namespace Xunit.Sdk
         {
             var summary = new RunSummary();
 
-            foreach (var collectionGroup in TestCases.Cast<TTestCase>().GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance))
+            foreach (var collection in OrderTestCases())
             {
-                summary.Aggregate(await RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource));
+                summary.Aggregate(await RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource));
                 if (cancellationTokenSource.IsCancellationRequested)
                     break;
             }

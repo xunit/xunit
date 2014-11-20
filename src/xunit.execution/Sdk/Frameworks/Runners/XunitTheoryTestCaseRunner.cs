@@ -67,22 +67,25 @@ namespace Xunit.Sdk
                         var parameterTypes = methodToRun.GetParameters().Select(p => p.ParameterType).ToArray();
                         var convertedDataRow = Reflector.ConvertArguments(dataRow, parameterTypes);
                         var theoryDisplayName = TypeUtility.GetDisplayNameWithArguments(TestCase.TestMethod.Method, DisplayName, convertedDataRow, resolvedTypes);
+                        var test = new XunitTest(TestCase, theoryDisplayName);
 
-                        testRunners.Add(new XunitTestRunner(TestCase, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, theoryDisplayName, SkipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
+                        testRunners.Add(new XunitTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, SkipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
                     }
                 }
             }
             catch (Exception ex)
             {
-                if (!MessageBus.QueueMessage(new TestStarting(TestCase, DisplayName)))
+                var test = new XunitTest(TestCase, DisplayName);
+
+                if (!MessageBus.QueueMessage(new TestStarting(test)))
                     CancellationTokenSource.Cancel();
                 else
                 {
-                    if (!MessageBus.QueueMessage(new TestFailed(TestCase, DisplayName, 0, null, ex.Unwrap())))
+                    if (!MessageBus.QueueMessage(new TestFailed(test, 0, null, ex.Unwrap())))
                         CancellationTokenSource.Cancel();
                 }
 
-                if (!MessageBus.QueueMessage(new TestFinished(TestCase, DisplayName, 0, null)))
+                if (!MessageBus.QueueMessage(new TestFinished(test, 0, null)))
                     CancellationTokenSource.Cancel();
 
                 return new RunSummary { Total = 1, Failed = 1 };

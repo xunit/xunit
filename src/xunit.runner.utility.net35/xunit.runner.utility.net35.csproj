@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory),xunit.sln))\tools\xunit.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -51,6 +51,9 @@
     <Compile Include="..\common\AssemblyExtensions.cs">
       <Link>Common\AssemblyExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\common\AssemblyHelper.cs">
+      <Link>Common\AssemblyHelper.cs</Link>
+    </Compile>
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
@@ -60,8 +63,17 @@
     <Compile Include="..\common\ExceptionExtensions.cs">
       <Link>Common\ExceptionExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\common\ExceptionUtility.cs">
+      <Link>Common\ExceptionUtility.cs</Link>
+    </Compile>
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
+    </Compile>
+    <Compile Include="..\common\LongLivedMarshalByRefObject_Runner.cs">
+      <Link>Common\LongLivedMarshalByRefObject_Runner.cs</Link>
+    </Compile>
+    <Compile Include="..\common\RemoteAppDomainManager.cs">
+      <Link>Common\RemoteAppDomainManager.cs</Link>
     </Compile>
     <Compile Include="..\common\SerializationInfoExtensions.cs">
       <Link>Common\SerializationInfoExtensions.cs</Link>
@@ -71,6 +83,9 @@
     </Compile>
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\common\TestMessageVisitor.cs">
+      <Link>Common\TestMessageVisitor.cs</Link>
     </Compile>
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
@@ -88,14 +103,13 @@
     <Compile Include="Frameworks\v1\Xunit1Executor.cs" />
     <Compile Include="Frameworks\v1\Xunit1ReflectionWrapper.cs" />
     <Compile Include="Frameworks\v1\Xunit1RunSummary.cs" />
+    <Compile Include="Frameworks\v1\Xunit1Test.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCase.cs" />
     <Compile Include="Frameworks\VisualStudioSourceInformationProvider.cs" />
     <Compile Include="Utility\DiaNavigationData.cs" />
     <Compile Include="Utility\DiaSession.cs" />
     <Compile Include="Utility\DiaSessionWrapper.cs" />
     <Compile Include="Utility\DiaSessionWrapperHelper.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\xunit.runner.utility\**\*.cs">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>

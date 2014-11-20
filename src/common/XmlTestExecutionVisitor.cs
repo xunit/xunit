@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Xml.Linq;
 using Xunit.Abstractions;
 
@@ -8,6 +9,7 @@ namespace Xunit
     public class XmlTestExecutionVisitor : TestMessageVisitor<ITestAssemblyFinished>
     {
         readonly XElement assemblyElement;
+        readonly XElement errorsElement;
         readonly ConcurrentDictionary<ITestCollection, XElement> testCollectionElements = new ConcurrentDictionary<ITestCollection, XElement>();
 
         public XmlTestExecutionVisitor(XElement assemblyElement, Func<bool> cancelThunk)
@@ -15,9 +17,16 @@ namespace Xunit
             CancelThunk = cancelThunk ?? (() => false);
 
             this.assemblyElement = assemblyElement;
+
+            if (this.assemblyElement != null)
+            {
+                errorsElement = new XElement("errors");
+                this.assemblyElement.Add(errorsElement);
+            }
         }
 
         public readonly Func<bool> CancelThunk;
+        public int Errors;
         public int Failed;
         public int Skipped;
         public decimal Time;
@@ -28,7 +37,7 @@ namespace Xunit
             var collectionElement = GetTestCollectionElement(testResult.TestCase.TestMethod.TestClass.TestCollection);
             var testResultElement =
                 new XElement("test",
-                    new XAttribute("name", XmlEscape(testResult.TestDisplayName)),
+                    new XAttribute("name", XmlEscape(testResult.Test.DisplayName)),
                     new XAttribute("type", testResult.TestCase.TestMethod.TestClass.Class.Name),
                     new XAttribute("method", testResult.TestCase.TestMethod.Method.Name),
                     new XAttribute("time", testResult.ExecutionTime.ToString("0.000")),
@@ -92,7 +101,8 @@ namespace Xunit
                     new XAttribute("passed", Total - Failed - Skipped),
                     new XAttribute("failed", Failed),
                     new XAttribute("skipped", Skipped),
-                    new XAttribute("time", Time.ToString("0.000"))
+                    new XAttribute("time", Time.ToString("0.000")),
+                    new XAttribute("errors", Errors)
                 );
 
                 foreach (var element in testCollectionElements.Values)
@@ -144,13 +154,7 @@ namespace Xunit
             if (assemblyElement != null)
             {
                 var testElement = CreateTestResultElement(testFailed, "Fail");
-                testElement.Add(
-                    new XElement("failure",
-                        new XAttribute("exception-type", testFailed.ExceptionTypes[0]),
-                        new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(testFailed)))),
-                        new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(testFailed) ?? String.Empty))
-                    )
-                );
+                testElement.Add(CreateFailureElement(testFailed));
             }
 
             return base.Visit(testFailed);
@@ -173,6 +177,78 @@ namespace Xunit
             }
 
             return base.Visit(testSkipped);
+        }
+
+        protected override bool Visit(IErrorMessage error)
+        {
+            AddError("fatal", null, error);
+
+            return base.Visit(error);
+        }
+
+        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        {
+            AddError("assembly-cleanup", cleanupFailure.TestAssembly.Assembly.AssemblyPath, cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        {
+            AddError("test-case-cleanup", cleanupFailure.TestCase.DisplayName, cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        {
+            AddError("test-class-cleanup", cleanupFailure.TestClass.Class.Name, cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        {
+            AddError("test-collection-cleanup", cleanupFailure.TestCollection.DisplayName, cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        {
+            AddError("test-cleanup", cleanupFailure.Test.DisplayName, cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        {
+            AddError("test-method-cleanup", cleanupFailure.TestMethod.Method.Name, cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        void AddError(string type, string name, IFailureInformation failureInfo)
+        {
+            Errors++;
+
+            if (errorsElement == null)
+                return;
+
+            var errorElement = new XElement("error", new XAttribute("type", type), CreateFailureElement(failureInfo));
+            if (name != null)
+                errorElement.Add(new XAttribute("name", name));
+
+            errorsElement.Add(errorElement);
+        }
+
+        static XElement CreateFailureElement(IFailureInformation failureInfo)
+        {
+            return new XElement("failure",
+                new XAttribute("exception-type", failureInfo.ExceptionTypes[0]),
+                new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(failureInfo)))),
+                new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? String.Empty))
+            );
         }
 
         protected static string Escape(string value)

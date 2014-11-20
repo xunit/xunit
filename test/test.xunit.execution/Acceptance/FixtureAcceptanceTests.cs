@@ -119,7 +119,7 @@ public class FixtureAcceptanceTests
         [Fact]
         public void TestClassWithThrowingFixtureDisposeResultsInFailedTest()
         {
-            var messages = Run<IErrorMessage>(typeof(ClassWithThrowingFixtureDispose));
+            var messages = Run<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
             var msg = Assert.Single(messages);
             Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
@@ -232,9 +232,9 @@ public class FixtureAcceptanceTests
         }
 
         [Fact]
-        public void TestClassWithThrowingFixtureDisposeResultsInFailedTest()
+        public void TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
         {
-            var messages = Run<IErrorMessage>(typeof(ClassWithThrowingFixtureDispose));
+            var messages = Run<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
             var msg = Assert.Single(messages);
             Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());

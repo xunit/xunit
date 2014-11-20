@@ -48,16 +48,17 @@
     <Compile Include="Asserts\ExceptionAsserts.cs" />
     <Compile Include="Asserts\Guards.cs" />
     <Compile Include="Asserts\Record.cs" />
+    <Compile Include="Asserts\Sdk\ArgumentFormatter.cs" />
     <Compile Include="Asserts\Sdk\AssertComparer.cs" />
     <Compile Include="Asserts\Sdk\AssertEqualityComparer.cs" />
     <Compile Include="Asserts\Sdk\AssertEqualityComparerAdapter.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\AssertActualExpectedException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\AssertCollectionCountException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\CollectionException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\AllException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\ContainsException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\DoesNotContainException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\DoesNotMatchException.cs" />
-    <Compile Include="Asserts\Sdk\Exceptions\DoesNotThrowException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\EmptyException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\EndsWithException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\EqualException.cs" />
@@ -84,7 +85,6 @@
     <Compile Include="Asserts\Sdk\Exceptions\SubsetException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\SupersetException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\ThrowsException.cs" />
-    <Compile Include="Asserts\Sdk\Exceptions\TimeoutException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\TrueException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\XunitException.cs" />
     <Compile Include="Asserts\IdentityAsserts.cs" />

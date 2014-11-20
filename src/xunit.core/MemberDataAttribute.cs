@@ -15,6 +15,7 @@ namespace Xunit
     /// The member must return something compatible with IEnumerable&lt;object[]&gt; with the test data.
     /// </summary>
     [CLSCompliant(false)]
+    [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public sealed class MemberDataAttribute : DataAttribute
     {
@@ -28,6 +29,13 @@ namespace Xunit
             MemberName = memberName;
             Parameters = parameters;
         }
+
+        /// <summary>
+        /// Returns <c>true</c> if the data attribute wants to skip enumerating data during discovery.
+        /// This will cause the theory to yield a single test case for all data, and the data discovery
+        /// will be during during test execution instead of discovery.
+        /// </summary>
+        public bool DisableDiscoveryEnumeration { get; set; }
 
         /// <summary>
         /// Gets the member name.

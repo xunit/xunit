@@ -113,7 +113,7 @@ public class TestClassRunnerTests
 
         var cleanupFailure = Assert.Single(messageBus.Messages.OfType<ITestClassCleanupFailure>());
         Assert.Same(testCases[0].TestMethod.TestClass.TestCollection, cleanupFailure.TestCollection);
-        Assert.Same(testCases, cleanupFailure.TestCases);
+        Assert.Equal(testCases, cleanupFailure.TestCases);
         Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
     }
 
@@ -363,16 +363,18 @@ public class TestClassRunnerTests
             );
         }
 
-        protected override void AfterTestClassStarting()
+        protected override Task AfterTestClassStartingAsync()
         {
             AfterTestClassStarting_Called = true;
             AfterTestClassStarting_Callback(Aggregator);
+            return Task.FromResult(0);
         }
 
-        protected override void BeforeTestClassFinished()
+        protected override Task BeforeTestClassFinishedAsync()
         {
             BeforeTestClassFinished_Called = true;
             BeforeTestClassFinished_Callback(Aggregator);
+            return Task.FromResult(0);
         }
 
         protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<ITestCase> testCases, object[] constructorArguments)

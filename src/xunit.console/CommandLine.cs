@@ -8,16 +8,22 @@ namespace Xunit.ConsoleClient
     {
         readonly Stack<string> arguments = new Stack<string>();
 
-        protected CommandLine(string[] args)
+        protected CommandLine(string[] args, Predicate<string> fileExists = null)
         {
-            for (int i = args.Length - 1; i >= 0; i--)
+            if (fileExists == null)
+                fileExists = fileName => File.Exists(fileName);
+
+            for (var i = args.Length - 1; i >= 0; i--)
                 arguments.Push(args[i]);
 
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
+            AppVeyor = Environment.GetEnvironmentVariable("APPVEYOR_API_URL") != null;
             ParallelizeAssemblies = false;
             ParallelizeTestCollections = true;
-            Project = Parse();
+            Project = Parse(fileExists);
         }
+
+        public bool AppVeyor { get; protected set; }
 
         public int MaxParallelThreads { get; set; }
 
@@ -27,23 +33,23 @@ namespace Xunit.ConsoleClient
 
         public bool ParallelizeTestCollections { get; set; }
 
-        public bool Silent { get; protected set; }
-
         public bool TeamCity { get; protected set; }
 
         public bool Wait { get; protected set; }
 
-        static XunitProject GetSingleAssemblyProject(string assemblyFile, string configFile)
+        static XunitProject GetProjectFile(List<Tuple<string, string>> assemblies)
         {
-            return new XunitProject
-            {
-                new XunitProjectAssembly
+            var result = new XunitProject();
+
+            foreach (var assembly in assemblies)
+                result.Add(new XunitProjectAssembly
                 {
-                    AssemblyFilename = assemblyFile,
-                    ConfigFilename = configFile,
+                    AssemblyFilename = Path.GetFullPath(assembly.Item1),
+                    ConfigFilename = assembly.Item2 != null ? Path.GetFullPath(assembly.Item2) : null,
                     ShadowCopy = true
-                }
-            };
+                });
+
+            return result;
         }
 
         static void GuardNoOptionValue(KeyValuePair<string, string> option)
@@ -57,29 +63,40 @@ namespace Xunit.ConsoleClient
             return new CommandLine(args);
         }
 
-        protected virtual XunitProject Parse()
-        {
-            return Parse(fileName => File.Exists(fileName));
-        }
-
         protected XunitProject Parse(Predicate<string> fileExists)
         {
-            var transforms = new Dictionary<string, string>();
+            var assemblies = new List<Tuple<string, string>>();
 
-            var filename = arguments.Pop();
-            if (!fileExists(filename))
-                throw new ArgumentException(String.Format("file not found: {0}", filename));
-
-            string configFile = null;
-            if (arguments.Count > 0 && !arguments.Peek().StartsWith("-"))
+            while (arguments.Count > 0)
             {
-                configFile = arguments.Pop();
+                if (arguments.Peek().StartsWith("-"))
+                    break;
 
-                if (!fileExists(configFile))
-                    throw new ArgumentException(String.Format("config file not found: {0}", configFile));
+                var assemblyFile = arguments.Pop();
+                if (assemblyFile.EndsWith(".config", StringComparison.OrdinalIgnoreCase))
+                    throw new ArgumentException(String.Format("expecting assembly, got config file: {0}", assemblyFile));
+                if (!fileExists(assemblyFile))
+                    throw new ArgumentException(String.Format("file not found: {0}", assemblyFile));
+
+                string configFile = null;
+                if (arguments.Count > 0)
+                {
+                    var value = arguments.Peek();
+                    if (!value.StartsWith("-") && value.EndsWith(".config", StringComparison.OrdinalIgnoreCase))
+                    {
+                        configFile = arguments.Pop();
+                        if (!fileExists(configFile))
+                            throw new ArgumentException(String.Format("config file not found: {0}", configFile));
+                    }
+                }
+
+                assemblies.Add(Tuple.Create(assemblyFile, configFile));
             }
 
-            var project = GetSingleAssemblyProject(filename, configFile);
+            if (assemblies.Count == 0)
+                throw new ArgumentException("must specify at least one assembly");
+
+            var project = GetProjectFile(assemblies);
 
             while (arguments.Count > 0)
             {
@@ -138,15 +155,15 @@ namespace Xunit.ConsoleClient
                             break;
                     }
                 }
-                else if (optionName == "-silent")
-                {
-                    GuardNoOptionValue(option);
-                    Silent = true;
-                }
                 else if (optionName == "-teamcity")
                 {
                     GuardNoOptionValue(option);
                     TeamCity = true;
+                }
+                else if (optionName == "-appveyor")
+                {
+                    GuardNoOptionValue(option);
+                    AppVeyor = true;
                 }
                 else if (optionName == "-noshadow")
                 {
@@ -163,8 +180,8 @@ namespace Xunit.ConsoleClient
                     if (pieces.Length != 2 || String.IsNullOrEmpty(pieces[0]) || String.IsNullOrEmpty(pieces[1]))
                         throw new ArgumentException("incorrect argument format for -trait (should be \"name=value\")");
 
-                    string name = pieces[0];
-                    string value = pieces[1];
+                    var name = pieces[0];
+                    var value = pieces[1];
                     project.Filters.IncludedTraits.Add(name, value);
                 }
                 else if (optionName == "-notrait")
@@ -176,9 +193,23 @@ namespace Xunit.ConsoleClient
                     if (pieces.Length != 2 || String.IsNullOrEmpty(pieces[0]) || String.IsNullOrEmpty(pieces[1]))
                         throw new ArgumentException("incorrect argument format for -notrait (should be \"name=value\")");
 
-                    string name = pieces[0];
-                    string value = pieces[1];
+                    var name = pieces[0];
+                    var value = pieces[1];
                     project.Filters.ExcludedTraits.Add(name, value);
+                }
+                else if (optionName == "-class")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -class");
+
+                    project.Filters.IncludedClasses.Add(option.Value);
+                }
+                else if (optionName == "-method")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -method");
+
+                    project.Filters.IncludedMethods.Add(option.Value);
                 }
                 else
                 {
@@ -194,7 +225,7 @@ namespace Xunit.ConsoleClient
 
         static KeyValuePair<string, string> PopOption(Stack<string> arguments)
         {
-            string option = arguments.Pop();
+            var option = arguments.Pop();
             string value = null;
 
             if (arguments.Count > 0 && !arguments.Peek().StartsWith("-"))

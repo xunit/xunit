@@ -13,7 +13,7 @@ namespace Xunit.Sdk
     public abstract class TestFramework : LongLivedMarshalByRefObject, ITestFramework
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="XunitTestFramework"/> class.
+        /// Initializes a new instance of the <see cref="TestFramework"/> class.
         /// </summary>
         public TestFramework()
         {

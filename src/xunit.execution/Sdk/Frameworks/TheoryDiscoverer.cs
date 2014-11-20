@@ -20,17 +20,20 @@ namespace Xunit.Sdk
             if (factAttribute.GetNamedArgument<string>("Skip") != null)
                 return new[] { new XunitTestCase(testMethod) };
 
+            var dataAttributes = testMethod.Method.GetCustomAttributes(typeof(DataAttribute));
+
             try
             {
                 using (var memoryStream = new MemoryStream())
                 {
                     var results = new List<XunitTestCase>();
 
-                    var dataAttributes = testMethod.Method.GetCustomAttributes(typeof(DataAttribute));
                     foreach (var dataAttribute in dataAttributes)
                     {
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                         var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererAttribute);
+                        if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
+                            return new XunitTestCase[] { new XunitTheoryTestCase(testMethod) };
 
                         // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it
                         // down below so that we get the composite test case.

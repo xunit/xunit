@@ -20,32 +20,32 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestInvoker{TTestCase}"/> class.
         /// </summary>
-        /// <param name="testCase">The test case that this invocation belongs to.</param>
+        /// <param name="test">The test that this invocation belongs to.</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testClass">The test class that the test method belongs to.</param>
         /// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
         /// <param name="testMethod">The test method that will be invoked.</param>
         /// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
-        /// <param name="displayName">The display name for this test invocation.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public TestInvoker(TTestCase testCase,
+        public TestInvoker(ITest test,
                            IMessageBus messageBus,
                            Type testClass,
                            object[] constructorArguments,
                            MethodInfo testMethod,
                            object[] testMethodArguments,
-                           string displayName,
                            ExceptionAggregator aggregator,
                            CancellationTokenSource cancellationTokenSource)
         {
-            TestCase = testCase;
+            Guard.ArgumentNotNull("test", test);
+            Guard.ArgumentValid("test", "test.TestCase must implement " + typeof(TTestCase).FullName, test.TestCase is TTestCase);
+
+            Test = test;
             MessageBus = messageBus;
             TestClass = testClass;
             ConstructorArguments = constructorArguments;
             TestMethod = testMethod;
             TestMethodArguments = testMethodArguments;
-            DisplayName = displayName;
             Aggregator = aggregator;
             CancellationTokenSource = cancellationTokenSource;
 
@@ -68,9 +68,9 @@ namespace Xunit.Sdk
         protected object[] ConstructorArguments { get; set; }
 
         /// <summary>
-        /// Gets or sets the display name of the invoked test.
+        /// Gets the display name of the invoked test.
         /// </summary>
-        protected string DisplayName { get; set; }
+        protected string DisplayName { get { return Test.DisplayName; } }
 
         /// <summary>
         /// Gets or sets the message bus to report run status to.
@@ -78,9 +78,14 @@ namespace Xunit.Sdk
         protected IMessageBus MessageBus { get; set; }
 
         /// <summary>
-        /// Gets or sets the test case to be run.
+        /// Gets or sets the test to be run.
         /// </summary>
-        protected TTestCase TestCase { get; set; }
+        protected ITest Test { get; set; }
+
+        /// <summary>
+        /// Gets the test case to be run.
+        /// </summary>
+        protected TTestCase TestCase { get { return (TTestCase)Test.TestCase; } }
 
         /// <summary>
         /// Gets or sets the runtime type of the class that contains the test method.
@@ -102,64 +107,40 @@ namespace Xunit.Sdk
         /// </summary>
         protected ExecutionTimer Timer { get; set; }
 
-        object CreateTestClass()
+        /// <summary>
+        /// Creates the test class, unless the test method is static or there have already been errors.
+        /// </summary>
+        /// <returns>The class instance, if appropriate; <c>null</c>, otherwise</returns>
+        protected object CreateTestClass()
         {
             object testClass = null;
 
             if (!TestMethod.IsStatic && !Aggregator.HasExceptions)
-            {
-                if (!MessageBus.QueueMessage(new TestClassConstructionStarting(TestCase, DisplayName)))
-                    CancellationTokenSource.Cancel();
-
-                try
-                {
-                    if (!CancellationTokenSource.IsCancellationRequested)
-                        Timer.Aggregate(() => testClass = Activator.CreateInstance(TestClass, ConstructorArguments));
-                }
-                finally
-                {
-                    if (!MessageBus.QueueMessage(new TestClassConstructionFinished(TestCase, DisplayName)))
-                        CancellationTokenSource.Cancel();
-                }
-            }
+                testClass = Test.CreateTestClass(TestClass, ConstructorArguments, MessageBus, Timer, CancellationTokenSource);
 
             return testClass;
-        }
-
-        void DisposeTestClass(object testClass)
-        {
-            var disposable = testClass as IDisposable;
-            if (disposable == null)
-                return;
-
-            if (!MessageBus.QueueMessage(new TestClassDisposeStarting(TestCase, DisplayName)))
-                CancellationTokenSource.Cancel();
-
-            try
-            {
-                Timer.Aggregate(disposable.Dispose);
-            }
-            finally
-            {
-                if (!MessageBus.QueueMessage(new TestClassDisposeFinished(TestCase, DisplayName)))
-                    CancellationTokenSource.Cancel();
-            }
         }
 
         /// <summary>
         /// This method is called just after the test method has finished executing.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void AfterTestMethodInvoked() { }
+        protected virtual Task AfterTestMethodInvokedAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         /// <summary>
         /// This method is called just before the test method is invoked.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual void BeforeTestMethodInvoked() { }
+        protected virtual Task BeforeTestMethodInvokedAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         /// <summary>
-        /// Invokes the test method.
+        /// Creates the test class (if necessary), and invokes the test method.
         /// </summary>
         /// <returns>Returns the time (in seconds) spent creating the test class, running
         /// the test, and disposing of the test class.</returns>
@@ -173,15 +154,15 @@ namespace Xunit.Sdk
 
                     if (!CancellationTokenSource.IsCancellationRequested)
                     {
-                        BeforeTestMethodInvoked();
+                        await BeforeTestMethodInvokedAsync();
 
                         if (!Aggregator.HasExceptions)
                             await InvokeTestMethodAsync(testClassInstance);
 
-                        AfterTestMethodInvoked();
+                        await AfterTestMethodInvokedAsync();
                     }
 
-                    Aggregator.Run(() => DisposeTestClass(testClassInstance));
+                    Aggregator.Run(() => Test.DisposeTestClass(testClassInstance, MessageBus, Timer, CancellationTokenSource));
                 }
 
                 return Timer.Total;
@@ -189,15 +170,17 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// For unit testing purposes only.
+        /// Invokes the test method on the given test class instance.
         /// </summary>
-        protected virtual async Task InvokeTestMethodAsync(object testClassInstance)
+        /// <param name="testClassInstance">The test class instance</param>
+        /// <returns>Returns the time taken to invoke the test method</returns>
+        public virtual async Task<decimal> InvokeTestMethodAsync(object testClassInstance)
         {
             var oldSyncContext = SynchronizationContext.Current;
 
             try
             {
-                var asyncSyncContext = new AsyncTestSyncContext();
+                var asyncSyncContext = new AsyncTestSyncContext(oldSyncContext);
                 SetSynchronizationContext(asyncSyncContext);
 
                 await Aggregator.RunAsync(
@@ -222,6 +205,8 @@ namespace Xunit.Sdk
             {
                 SetSynchronizationContext(oldSyncContext);
             }
+
+            return Timer.Total;
         }
 
         [SecuritySafeCritical]

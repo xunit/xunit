@@ -42,7 +42,7 @@ namespace Xunit
         /// <summary/>
         public IEnumerator<XunitProjectAssembly> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return assemblies.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

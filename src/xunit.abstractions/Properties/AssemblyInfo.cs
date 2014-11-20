@@ -5,7 +5,12 @@ using System.Reflection;
 // This file does not use GlobalAssemblyInfo.cs because its version should not change over time.
 // Once 2.0 ships, this assembly will be considered to be frozen.
 
-[assembly: AssemblyTitle("xUnit.net Abstractions")]
+#if PCL
+[assembly: AssemblyTitle("xUnit.net Abstractions (PCL)")]
+#else
+[assembly: AssemblyTitle("xUnit.net Abstractions (.NET 3.5)")]
+#endif
+
 [assembly: AssemblyCompany("Outercurve Foundation")]
 [assembly: AssemblyProduct("xUnit.net Testing Framework")]
 [assembly: AssemblyCopyright("Copyright (C) Outercurve Foundation")]

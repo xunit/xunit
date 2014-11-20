@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="SwapXunitExecutionLibs" BeforeTargets="XapPackager">
+    <Message Text="Swapping xUnit.net Execution Libraries" />
+    <ItemGroup>
+      <xUnitExecutionLibs Include="$(MSBuildThisFileDirectory)device\xunit.execution.dll">
+        <TargetPath>xunit.execution.dll</TargetPath>
+      </xUnitExecutionLibs>
+      <xUnitExecutionLibs Include="$(MSBuildThisFileDirectory)device\xunit.execution.pri" Condition="Exists('$(MSBuildThisFileDirectory)device\xunit.execution.pri')">
+        <TargetPath>xunit.execution.pri</TargetPath>
+      </xUnitExecutionLibs>
+
+      <xUnitExecutionLibsToRemove Include="@(XapFilesInputCollection)" Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(FullPath)', 'xunit.execution'))"/>
+
+      <XapFilesInputCollection Remove="@(xUnitExecutionLibsToRemove)" />
+      <XapFilesInputCollection Include="@(xUnitExecutionLibs)" />
+    </ItemGroup>
+  </Target>
+</Project>

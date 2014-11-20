@@ -6,117 +6,6 @@ using Xunit.Sdk;
 
 public class ExceptionAssertsTests
 {
-    public class DoesNotThrow_Action
-    {
-        [Fact]
-        public void CorrectExceptionType()
-        {
-            Action testCode = () => { throw new NotImplementedException("Exception Message"); };
-
-            var ex = Assert.Throws<DoesNotThrowException>(() => Assert.DoesNotThrow(testCode));
-
-            Assert.Equal("Assert.DoesNotThrow() Failure", ex.UserMessage);
-            Assert.Equal("(No exception)", ex.Expected);
-            Assert.Equal("System.NotImplementedException: Exception Message", ex.Actual);
-        }
-
-        [Fact]
-        public void CodeDoesNotThrow()
-        {
-            bool methodCalled = false;
-
-            Assert.DoesNotThrow(() => methodCalled = true);
-
-            Assert.True(methodCalled);
-        }
-
-        [Fact]
-        public void CodeThrows()
-        {
-            Action testCode = () => ThrowingMethod();
-
-            var ex = Record.Exception(() => Assert.DoesNotThrow(testCode));
-
-            Assert.IsType<DoesNotThrowException>(ex);
-            Assert.Contains("NotImplementedException", ex.Message);
-        }
-
-        void ThrowingMethod()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class DoesNotThrow_Func
-    {
-        [Fact]
-        public void GuardClause()
-        {
-            Func<object> testCode = () => Task.Run(() => { });
-
-            var ex = Record.Exception(() => Assert.DoesNotThrow(testCode));
-
-            Assert.IsType<InvalidOperationException>(ex);
-            Assert.Equal("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.", ex.Message);
-        }
-
-        [Fact]
-        public void CodeDoesNotThrow()
-        {
-            bool methodCalled = false;
-
-            Assert.DoesNotThrow(() => { methodCalled = true; return 0; });
-
-            Assert.True(methodCalled);
-        }
-
-        [Fact]
-        public void CodeThrows()
-        {
-            Func<object> testCode = () => ThrowingMethod();
-
-            var ex = Record.Exception(() => Assert.DoesNotThrow(testCode));
-
-            Assert.IsType<DoesNotThrowException>(ex);
-            Assert.Contains("NotImplementedException", ex.Message);
-        }
-
-        int ThrowingMethod()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class DoesNotThrowAsync
-    {
-        [Fact]
-        public async void CodeDoesNotThrow()
-        {
-            bool methodCalled = false;
-            Func<Task> testCode = () => Task.Factory.StartNew(() => methodCalled = true);
-
-            await Assert.DoesNotThrowAsync(testCode);
-
-            Assert.True(methodCalled);
-        }
-
-        [Fact]
-        public async void CodeThrows()
-        {
-            Func<Task> testCode = () => Task.Factory.StartNew(ThrowingMethod);
-
-            var ex = await Record.ExceptionAsync(() => Assert.DoesNotThrowAsync(testCode));
-
-            Assert.IsType<DoesNotThrowException>(ex);
-            Assert.Contains("NotImplementedException", ex.Message);
-        }
-
-        void ThrowingMethod()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public class Throws_Generic_Action
     {
         [Fact]
@@ -255,7 +144,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                await Assert.ThrowsAsync<ArgumentException>(() => Task.Factory.StartNew(() => { }));
+                await Assert.ThrowsAsync<ArgumentException>(() => Task.Run(() => { }));
             }
             catch (AssertActualExpectedException exception)
             {
@@ -268,7 +157,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+                Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
 
                 await Assert.ThrowsAsync<Exception>(testCode);
             }
@@ -281,7 +170,7 @@ public class ExceptionAssertsTests
         [Fact]
         public async void GotExpectedException()
         {
-            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new ArgumentException(); });
+            Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException(); });
 
             var ex = await Assert.ThrowsAsync<ArgumentException>(testCode);
 
@@ -417,7 +306,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                await Assert.ThrowsAnyAsync<ArgumentException>(() => Task.Factory.StartNew(() => { }));
+                await Assert.ThrowsAnyAsync<ArgumentException>(() => Task.Run(() => { }));
             }
             catch (AssertActualExpectedException exception)
             {
@@ -428,7 +317,7 @@ public class ExceptionAssertsTests
         [Fact]
         public async void GotExpectedException()
         {
-            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new ArgumentException(); });
+            Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException(); });
 
             var ex = await Assert.ThrowsAnyAsync<ArgumentException>(testCode);
 
@@ -440,7 +329,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+                Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
 
                 await Assert.ThrowsAnyAsync<Exception>(testCode);
             }
@@ -551,7 +440,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Func<Task> testCode = () => Task.Factory.StartNew(() => { });
+                Func<Task> testCode = () => Task.Run(() => { });
 
                 await Assert.ThrowsAsync(typeof(ArgumentException), testCode);
             }
@@ -566,7 +455,7 @@ public class ExceptionAssertsTests
         {
             try
             {
-                Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new InvalidOperationException(); });
+                Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
 
                 await Assert.ThrowsAsync(typeof(Exception), testCode);
             }
@@ -579,7 +468,7 @@ public class ExceptionAssertsTests
         [Fact]
         public async void GotExpectedException()
         {
-            Func<Task> testCode = () => Task.Factory.StartNew(() => { throw new ArgumentException(); });
+            Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException(); });
 
             var ex = await Assert.ThrowsAsync(typeof(ArgumentException), testCode);
 
@@ -610,8 +499,8 @@ public class ExceptionAssertsTests
 
             Assert.IsType<ThrowsException>(ex);
             Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
-                            "Expected: System.ArgumentException" + Environment.NewLine +
-                            "Actual:   System.InvalidOperationException", ex.Message);
+                            "Expected: typeof(System.ArgumentException)" + Environment.NewLine +
+                            "Actual:   typeof(System.InvalidOperationException)", ex.Message);
         }
 
         [Fact]
@@ -690,8 +579,8 @@ public class ExceptionAssertsTests
 
             Assert.IsType<ThrowsException>(ex);
             Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
-                            "Expected: System.ArgumentException" + Environment.NewLine +
-                            "Actual:   System.InvalidOperationException", ex.Message);
+                            "Expected: typeof(System.ArgumentException)" + Environment.NewLine +
+                            "Actual:   typeof(System.InvalidOperationException)", ex.Message);
         }
 
         [Fact]
@@ -754,8 +643,8 @@ public class ExceptionAssertsTests
 
             Assert.IsType<ThrowsException>(ex);
             Assert.Contains("Assert.Throws() Failure" + Environment.NewLine +
-                            "Expected: System.ArgumentNullException" + Environment.NewLine +
-                            "Actual:   System.InvalidOperationException", ex.Message);
+                            "Expected: typeof(System.ArgumentNullException)" + Environment.NewLine +
+                            "Actual:   typeof(System.InvalidOperationException)", ex.Message);
         }
 
         [Fact]

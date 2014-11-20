@@ -10,16 +10,21 @@ internal static class XmlNodeExtensions
         if (xml.Name != "method")
             return null;
 
-        var displayName = xml.Attributes["name"].Value;
+        // The "name" attribute was introduced in 1.5, so it's not set for 1.1
+        string displayName = null;
+        var displayNameAttribute = xml.Attributes["name"];
+        if (displayNameAttribute != null)
+            displayName = displayNameAttribute.Value;
+
         var type = xml.Attributes["type"].Value;
         var method = xml.Attributes["method"].Value;
-        string skipReason = null;
-        var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
+        string skipReason = null;
         var skipReasonAttribute = xml.Attributes["skip"];
         if (skipReasonAttribute != null)
             skipReason = skipReasonAttribute.Value;
 
+        var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         foreach (XmlNode traitNode in xml.SelectNodes("traits/trait"))
             traits.Add(traitNode.Attributes["name"].Value, traitNode.Attributes["value"].Value);
 

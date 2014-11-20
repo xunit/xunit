@@ -14,7 +14,7 @@ namespace Xunit.Sdk
     public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFactory
     {
         readonly Dictionary<string, ITypeInfo> collectionDefinitions;
-        readonly XunitTestCollection defaultCollection;
+        readonly TestCollection defaultCollection;
         readonly ITestAssembly testAssembly;
         readonly ConcurrentDictionary<string, ITestCollection> testCollections = new ConcurrentDictionary<string, ITestCollection>();
 
@@ -34,7 +34,7 @@ namespace Xunit.Sdk
         {
             this.testAssembly = testAssembly;
 
-            defaultCollection = new XunitTestCollection(testAssembly, null, "Test collection for " + Path.GetFileName(testAssembly.Assembly.AssemblyPath));
+            defaultCollection = new TestCollection(testAssembly, null, "Test collection for " + Path.GetFileName(testAssembly.Assembly.AssemblyPath));
             collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, messageAggregator);
         }
 
@@ -48,7 +48,7 @@ namespace Xunit.Sdk
         {
             ITypeInfo definitionType;
             collectionDefinitions.TryGetValue(name, out definitionType);
-            return new XunitTestCollection(testAssembly, definitionType, name);
+            return new TestCollection(testAssembly, definitionType, name);
         }
 
         /// <inheritdoc/>

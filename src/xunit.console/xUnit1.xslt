@@ -18,7 +18,7 @@
           <xsl:attribute name="environment"><xsl:value-of select="@environment"/></xsl:attribute>
           <xsl:attribute name="test-framework"><xsl:value-of select="@test-framework"/></xsl:attribute>
 
-          <xsl:for-each select="//assembly/collection/test[count(. | key('tests-by-class', @type)[1]) = 1]">
+          <xsl:for-each select="collection/test[count(. | key('tests-by-class', @type)[1]) = 1]">
             <xsl:sort select="@type" />
             <class>
               <xsl:attribute name="name"><xsl:value-of select="@type"/></xsl:attribute>

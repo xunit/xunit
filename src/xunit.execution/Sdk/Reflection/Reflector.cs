@@ -13,8 +13,8 @@ namespace Xunit.Sdk
     {
         readonly static object[] EmptyArgs = new object[0];
         readonly static Type[] EmptyTypes = new Type[0];
-        readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetMethod("Cast");
-        readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetMethod("ToArray");
+        readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "Cast");
+        readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "ToArray");
 
         /// <summary>
         /// Converts arguments into their target types. Can be particularly useful when pulling attribute
@@ -31,17 +31,28 @@ namespace Xunit.Sdk
                 types = EmptyTypes;
 
             if (args.Length == types.Length)
-                for (int idx = 0; idx < args.Length; idx++)
+                for (var idx = 0; idx < args.Length; idx++)
                 {
-                    var type = types[idx];
-                    if (type.IsArray && args[idx] != null && args[idx].GetType() != type)
+                    try
                     {
-                        var elementType = type.GetElementType();
-                        var arg = (IEnumerable<object>)args[idx];
-                        var castMethod = EnumerableCast.MakeGenericMethod(elementType);
-                        var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
-                        args[idx] = toArrayMethod.Invoke(null, new object[] { castMethod.Invoke(null, new object[] { arg }) });
+                        var type = types[idx];
+                        var arg = args[idx];
+
+                        if (arg == null || arg.GetType() == type)
+                            continue;
+
+                        if (type.IsArray)
+                        {
+                            var elementType = type.GetElementType();
+                            var enumerable = (IEnumerable<object>)arg;
+                            var castMethod = EnumerableCast.MakeGenericMethod(elementType);
+                            var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
+                            args[idx] = toArrayMethod.Invoke(null, new object[] { castMethod.Invoke(null, new object[] { enumerable }) });
+                        }
+                        else
+                            args[idx] = Convert.ChangeType(arg, type);
                     }
+                    catch { }  // Eat conversion-related exceptions; they'll get re-surfaced during execution
                 }
 
             return args;
@@ -122,6 +133,17 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
+            Assembly assembly = null;
+            try
+            {
+                // Make sure we only use the short form for WPA81
+                var an = new AssemblyName(assemblyName);
+                assembly = Assembly.Load(new AssemblyName { Name = an.Name });
+
+            }
+            catch { }
+#else
             // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);
             if (assembly == null)
@@ -132,6 +154,7 @@ namespace Xunit.Sdk
                 }
                 catch { }
             }
+#endif
 
             if (assembly == null)
                 return null;

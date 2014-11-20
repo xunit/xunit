@@ -126,8 +126,8 @@ namespace Xunit
             {
                 XmlNode assemblyXml = null;
 
-                using (var handler = new XmlNodeCallbackHandler(xml => { assemblyXml = xml; return true; }))
-                    executor.EnumerateTests(handler);
+                var handler = new XmlNodeCallbackHandler(xml => { assemblyXml = xml; return true; });
+                executor.EnumerateTests(handler);
 
                 foreach (XmlNode method in assemblyXml.SelectNodes("//method"))
                 {
@@ -180,10 +180,23 @@ namespace Xunit
             var environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
             var testCollection = testCases.First().TestMethod.TestClass.TestCollection;
 
-            if (messageSink.OnMessage(new TestAssemblyStarting(testCases, testCollection.TestAssembly, DateTime.Now, environment, TestFrameworkDisplayName)))
-                results = RunTestCollection(testCollection, testCases, messageSink);
+            try
+            {
+                if (messageSink.OnMessage(new TestAssemblyStarting(testCases, testCollection.TestAssembly, DateTime.Now, environment, TestFrameworkDisplayName)))
+                    results = RunTestCollection(testCollection, testCases, messageSink);
+            }
+            catch (Exception ex)
+            {
+                var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(ex);
 
-            messageSink.OnMessage(new TestAssemblyFinished(testCases, testCollection.TestAssembly, results.Time, results.Total, results.Failed, results.Skipped));
+                messageSink.OnMessage(new ErrorMessage(testCases, failureInformation.ExceptionTypes,
+                    failureInformation.Messages, failureInformation.StackTraces,
+                    failureInformation.ExceptionParentIndices));
+            }
+            finally
+            {
+                messageSink.OnMessage(new TestAssemblyFinished(testCases, testCollection.TestAssembly, results.Time, results.Total, results.Failed, results.Skipped));
+            }
         }
 
         void ITestFrameworkExecutor.RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions options)
@@ -217,18 +230,9 @@ namespace Xunit
 
             if (results.Continue)
             {
-                try
-                {
-                    var methodNames = testCases.Select(tc => tc.TestMethod.Method.Name).ToList();
-                    executor.RunTests(testClass.Class.Name, methodNames, handler);
-                    handler.LastNodeArrived.WaitOne();
-                }
-                catch (Exception ex)
-                {
-                    var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(ex);
-
-                    results.Continue = messageSink.OnMessage(new ErrorMessage(failureInformation.ExceptionTypes, failureInformation.Messages, failureInformation.StackTraces, failureInformation.ExceptionParentIndices)) && results.Continue;
-                }
+                var methodNames = testCases.Select(tc => tc.TestMethod.Method.Name).ToList();
+                executor.RunTests(testClass.Class.Name, methodNames, handler);
+                handler.LastNodeArrived.WaitOne();
             }
 
             results.Continue = messageSink.OnMessage(new TestClassFinished(testCases, testClass, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;

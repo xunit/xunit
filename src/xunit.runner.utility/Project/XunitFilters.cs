@@ -16,6 +16,8 @@ namespace Xunit
         {
             ExcludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             IncludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            IncludedClasses = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            IncludedMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -29,18 +31,45 @@ namespace Xunit
         public Dictionary<string, List<string>> IncludedTraits { get; private set; }
 
         /// <summary>
+        /// Gets the set of method filters for test classes to include.
+        /// </summary>
+        public HashSet<string> IncludedClasses { get; private set; }
+
+        /// <summary>
+        /// Gets the set of method filters for tests to include.
+        /// </summary>
+        public HashSet<string> IncludedMethods { get; private set; }
+
+        /// <summary>
         /// Filters the given method using the defined filter values.
         /// </summary>
         /// <param name="testCase">The test case to filter.</param>
         /// <returns>Returns <c>true</c> if the test case passed the filter; returns <c>false</c> otherwise.</returns>
         public bool Filter(ITestCase testCase)
         {
+            if (!FilterIncludedMethodsAndClasses(testCase))
+                return false;
             if (!FilterIncludedTraits(testCase))
                 return false;
             if (!FilterExcludedTraits(testCase))
                 return false;
 
             return true;
+        }
+
+        bool FilterIncludedMethodsAndClasses(ITestCase testCase)
+        {
+            // No methods or classes in the filter == everything is okay
+            if (IncludedMethods.Count == 0 && IncludedClasses.Count == 0)
+                return true;
+
+            if (IncludedClasses.Count != 0 && IncludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
+                return true;
+
+            if (IncludedMethods.Count != 0 && IncludedMethods.Contains(String.Format("{0}.{1}", testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name)))
+                return true;
+
+            return false;
         }
 
         bool FilterExcludedTraits(ITestCase testCase)
@@ -53,8 +82,8 @@ namespace Xunit
             if (testCase.Traits.Count == 0)
                 return true;
 
-            foreach (string key in ExcludedTraits.Keys)
-                foreach (string value in ExcludedTraits[key])
+            foreach (var key in ExcludedTraits.Keys)
+                foreach (var value in ExcludedTraits[key])
                     if (testCase.Traits.Contains(key, value, StringComparer.OrdinalIgnoreCase))
                         return false;
 
@@ -71,8 +100,8 @@ namespace Xunit
             if (testCase.Traits.Count == 0)
                 return false;
 
-            foreach (string key in IncludedTraits.Keys)
-                foreach (string value in IncludedTraits[key])
+            foreach (var key in IncludedTraits.Keys)
+                foreach (var value in IncludedTraits[key])
                     if (testCase.Traits.Contains(key, value, StringComparer.OrdinalIgnoreCase))
                         return true;
 

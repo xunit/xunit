@@ -19,13 +19,17 @@ namespace Xunit.Sdk
         public XunitTestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider)
             : base(assemblyName, sourceInformationProvider)
         {
-            TestAssembly = new XunitTestAssembly(AssemblyInfo, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            string config = null;
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
+            config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+#endif
+            TestAssembly = new TestAssembly(AssemblyInfo, config);
         }
 
         /// <summary>
         /// Gets the test assembly that contains the test.
         /// </summary>
-        protected XunitTestAssembly TestAssembly { get; set; }
+        protected TestAssembly TestAssembly { get; set; }
 
         /// <inheritdoc/>
         protected override ITestFrameworkDiscoverer CreateDiscoverer()

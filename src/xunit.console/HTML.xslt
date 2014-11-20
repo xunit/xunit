@@ -48,29 +48,29 @@
           <b>Summary</b>
         </h3>
         <div>
-          Tests run: <a href="#all">
-            <b>
-              <xsl:value-of select="sum(//assembly/@total)"/>
-            </b>
-          </a> &#160;
-          Failures: <a href="#failures">
-            <b>
-              <xsl:value-of select="sum(//assembly/@failed)"/>
-            </b>
-          </a>,
-          Skipped: <a href="#skipped">
-            <b>
-              <xsl:value-of select="sum(//assembly/@skipped)"/>
-            </b>
-          </a>,
-          Run time: <b>
-            <xsl:value-of select="format-number(sum(//assembly/@time), '0.000')"/>s
-          </b>
+          Tests run: <a href="#all"><b><xsl:value-of select="sum(//assembly/@total)"/></b></a> &#160;
+          <xsl:if test="sum(//assembly/@errors) > 0">
+            Errors: <a href="#errors"><b><xsl:value-of select="sum(//assembly/@errors)"/></b></a>,
+          </xsl:if>
+          <xsl:if test="sum(//assembly/@failed) > 0">
+            Failures: <a href="#failures"><b><xsl:value-of select="sum(//assembly/@failed)"/></b></a>,
+          </xsl:if>
+          <xsl:if test="sum(//assembly/@skipped) > 0">
+            Skipped: <a href="#skipped"><b><xsl:value-of select="sum(//assembly/@skipped)"/></b></a>,
+          </xsl:if>
+          Run time: <b><xsl:value-of select="format-number(sum(//assembly/@time), '0.000')"/>s</b>
         </div>
+        <xsl:if test="//assembly/errors/error">
+          <br />
+          <h2>
+            <a id="errors"></a>Errors
+          </h2>
+          <xsl:apply-templates select="//assembly/errors"/>
+        </xsl:if>
         <xsl:if test="//assembly/collection/test[@result='Fail']">
           <br />
           <h2>
-            <a name="failures"></a>Failed tests
+            <a id="failures"></a>Failed tests
           </h2>
           <xsl:apply-templates select="//assembly/collection/test[@result='Fail']">
             <xsl:sort select="@name"/>
@@ -79,7 +79,7 @@
         <xsl:if test="//assembly/collection/failures/failure">
           <br />
           <h2>
-            <a name="failures"></a>Collection failures
+            <a id="failures"></a>Collection failures
           </h2>
           <xsl:apply-templates select="//assembly/collection/failures">
             <xsl:sort select="../@name"/>
@@ -88,7 +88,7 @@
         <xsl:if test="//assembly/@skipped > 0">
           <br />
           <h2>
-            <a name="skipped"></a>Skipped tests
+            <a id="skipped"></a>Skipped tests
           </h2>
           <xsl:apply-templates select="//assembly/collection/test[@result='Skip']">
             <xsl:sort select="@name"/>
@@ -96,7 +96,7 @@
         </xsl:if>
         <br />
         <h2>
-          <a name="all"></a>All tests
+          <a id="all"></a>All tests
         </h2>
         <h5>Click test class name to expand/collapse test details</h5>
 
@@ -182,6 +182,38 @@
         </xsl:if>
         <xsl:if test="stack-trace">
           <pre><xsl:value-of select="stack-trace"/></pre>
+        </xsl:if>
+      </div>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template match="errors">
+    <xsl:for-each select="error">
+      <div>
+        <xsl:attribute name="class">
+          <xsl:if test="(position() mod 2 = 0)">alt</xsl:if>row
+        </xsl:attribute>
+        <span class="failure">&#x2718;</span>
+        <xsl:if test="@type='assembly-cleanup'">Test Assembly Cleanup</xsl:if>
+        <xsl:if test="@type='test-collection-cleanup'">Test Collection Cleanup</xsl:if>
+        <xsl:if test="@type='test-class-cleanup'">Test Class Cleanup</xsl:if>
+        <xsl:if test="@type='test-method-cleanup'">Test Method Cleanup</xsl:if>
+        <xsl:if test="@type='test-case-cleanup'">Test Case Cleanup</xsl:if>
+        <xsl:if test="@type='test-cleanup'">Test Cleanup</xsl:if>
+        <xsl:if test="@type='fatal'">Fatal Error</xsl:if>
+        <xsl:if test="@name">
+          (<xsl:value-of select="@name"/>)
+        </xsl:if>
+        <br clear="all"/>
+        <xsl:if test="child::node()/message">
+          <pre>
+            <xsl:value-of select="child::node()/message"/>
+          </pre>
+        </xsl:if>
+        <xsl:if test="stack-trace">
+          <pre>
+            <xsl:value-of select="stack-trace"/>
+          </pre>
         </xsl:if>
       </div>
     </xsl:for-each>

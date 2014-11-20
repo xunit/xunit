@@ -15,7 +15,7 @@ public class xunitTests
     public class CreateVisitor
     {
         [Fact]
-        public void DefaultVisitorIsStandardOutputVisitor()
+        public static void DefaultVisitorIsStandardOutputVisitor()
         {
             var xunit = new Testable_xunit { TeamCity = false };
 
@@ -25,7 +25,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void VisitorIsTeamCityVisitorWhenTeamCityIsTrue()
+        public static void VisitorIsTeamCityVisitorWhenTeamCityIsTrue()
         {
             var xunit = new Testable_xunit { TeamCity = true };
 
@@ -38,9 +38,10 @@ public class xunitTests
     public class Execute
     {
         [Fact, PreserveWorkingDirectory]
-        public void ChangesCurrentDirectoryWhenWorkingFolderIsNotNull()
+        public static void ChangesCurrentDirectoryWhenWorkingFolderIsNotNull()
         {
             var tempFolder = Environment.GetEnvironmentVariable("TEMP");
+            tempFolder = Path.GetFullPath(tempFolder); // Ensure that the 8.3 path is not used
             var xunit = new Testable_xunit { WorkingFolder = tempFolder };
 
             xunit.Execute();
@@ -49,7 +50,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void DoesNotChangeCurrentDirectoryWhenWorkingFolderIsNull()
+        public static void DoesNotChangeCurrentDirectoryWhenWorkingFolderIsNull()
         {
             var currentFolder = Directory.GetCurrentDirectory();
             var xunit = new Testable_xunit();
@@ -60,7 +61,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void LogsWelcomeBanner()
+        public static void LogsWelcomeBanner()
         {
             var xunit = new Testable_xunit();
 
@@ -69,7 +70,7 @@ public class xunitTests
             xunit.BuildEngine.Received().LogMessageEvent(Arg.Is<BuildMessageEventArgs>(bmea => ValidateWelcomeBanner(bmea)));
         }
 
-        private bool ValidateWelcomeBanner(BuildMessageEventArgs eventArgs)
+        private static bool ValidateWelcomeBanner(BuildMessageEventArgs eventArgs)
         {
             Assert.Equal(String.Format("xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version), eventArgs.Message);
             Assert.Equal(MessageImportance.High, eventArgs.Importance);
@@ -77,7 +78,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void CallsExecuteAssemblyOnceForEachAssembly()
+        public static void CallsExecuteAssemblyOnceForEachAssembly()
         {
             var visitor = new XmlTestExecutionVisitor(null, null);
             visitor.Finished.Set();
@@ -95,7 +96,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void ReturnsTrueWhenExitCodeIsZeroAndFailCountIsZero()
+        public static void ReturnsTrueWhenExitCodeIsZeroAndFailCountIsZero()
         {
             var xunit = new Testable_xunit(exitCode: 0);
 
@@ -105,7 +106,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void ReturnsFalseWhenExitCodeIsNonZero()
+        public static void ReturnsFalseWhenExitCodeIsNonZero()
         {
             var xunit = new Testable_xunit(exitCode: 1);
 
@@ -115,7 +116,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void ReturnsFalseWhenFailCountIsNonZero()
+        public static void ReturnsFalseWhenFailCountIsNonZero()
         {
             var visitor = new XmlTestExecutionVisitor(null, null) { Failed = 1 };
             visitor.Finished.Set();
@@ -129,7 +130,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void WritesXmlToDisk()
+        public static void WritesXmlToDisk()
         {
             var tempFile = Path.GetTempFileName();
 
@@ -145,7 +146,7 @@ public class xunitTests
 
                 xunit.Execute();
 
-                Assert.DoesNotThrow(() => new XmlDocument().Load(tempFile));
+                new XmlDocument().Load(tempFile);  // File should exist as legal XML
             }
             finally
             {
@@ -154,7 +155,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void WritesXmlV1ToDisk()
+        public static void WritesXmlV1ToDisk()
         {
             var tempFile = Path.GetTempFileName();
 
@@ -170,7 +171,7 @@ public class xunitTests
 
                 xunit.Execute();
 
-                Assert.DoesNotThrow(() => new XmlDocument().Load(tempFile));
+                new XmlDocument().Load(tempFile);  // File should exist as legal XML
             }
             finally
             {
@@ -179,7 +180,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void WritesHtmlToDisk()
+        public static void WritesHtmlToDisk()
         {
             var tempFile = Path.GetTempFileName();
             File.Delete(tempFile);
@@ -208,7 +209,7 @@ public class xunitTests
     public class ExecuteAssembly
     {
         [Fact]
-        public void DisposesOfFrontController()
+        public static void DisposesOfFrontController()
         {
             var xunit = new Testable_xunit();
 
@@ -218,7 +219,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void DiscoversAllTestsInAssembly()
+        public static void DiscoversAllTestsInAssembly()
         {
             var xunit = new Testable_xunit();
 
@@ -228,7 +229,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void RunsDiscoveredTests()
+        public static void RunsDiscoveredTests()
         {
             var xunit = new Testable_xunit();
             xunit.DiscoveryTestCases.Add(Substitute.For<ITestCase>());
@@ -245,7 +246,7 @@ public class xunitTests
         }
 
         [Fact]
-        public void DoesNotRunFilteredTests()
+        public static void DoesNotRunFilteredTests()
         {
             var xunit = new Testable_xunit { ExcludeTraits = "One=1" };
 

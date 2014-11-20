@@ -198,16 +198,18 @@ public class TestCaseRunnerTests
             );
         }
 
-        protected override void AfterTestCaseStarting()
+        protected override Task AfterTestCaseStartingAsync()
         {
             AfterTestCaseStarting_Called = true;
             AfterTestCaseStarting_Callback(Aggregator);
+            return Task.FromResult(0);
         }
 
-        protected override void BeforeTestCaseFinished()
+        protected override Task BeforeTestCaseFinishedAsync()
         {
             BeforeTestCaseFinished_Called = true;
             BeforeTestCaseFinished_Callback(Aggregator);
+            return Task.FromResult(0);
         }
 
         protected override Task<RunSummary> RunTestAsync()

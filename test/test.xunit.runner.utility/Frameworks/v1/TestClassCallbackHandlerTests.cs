@@ -42,6 +42,23 @@ public class TestClassCallbackHandlerTests
         Assert.Equal(1.234M, message.ExecutionTime);
     }
 
+    [Fact]
+    public static void WithTestNode_OutputResultsInOutputMessage()
+    {
+        var sink = Substitute.For<IMessageSink>();
+        var testCase = new Xunit1TestCase("assembly", "config", "foo", "bar", "foo.bar");
+        var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
+        var xml = new XmlDocument();
+        xml.LoadXml("<test type='foo' method='bar' name='foo.bar' time='1.234' result='Pass'><output>This is output text</output></test>");
+
+        handler.OnXmlNode(xml.FirstChild);
+
+        var args = sink.Captured(0, x => x.OnMessage(null));
+        var message = args.Arg<ITestOutput>();
+        Assert.Same(testCase, message.TestCase);
+        Assert.Equal("This is output text", message.Output);
+    }
+
     /// <summary>
     /// Apply this attribute to your test method to replace the
     /// <see cref="Thread.CurrentThread" /> <see cref="CultureInfo.CurrentCulture" /> and

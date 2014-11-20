@@ -49,7 +49,8 @@ namespace Xunit
             var exceptionTypeAttribute = failureNode.Attributes["exception-type"];
             var exceptionType = exceptionTypeAttribute != null ? exceptionTypeAttribute.Value : string.Empty;
             var message = failureNode.SelectSingleNode("message").InnerText;
-            var stackTrace = failureNode.SelectSingleNode("stack-trace").InnerText;
+            var stackTraceNode = failureNode.SelectSingleNode("stack-trace");
+            var stackTrace = stackTraceNode == null ? string.Empty : stackTraceNode.InnerText;
 
             return ConvertToFailureInformation(exceptionType, message, stackTrace);
         }

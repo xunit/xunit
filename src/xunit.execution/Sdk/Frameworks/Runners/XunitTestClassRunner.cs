@@ -42,13 +42,13 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets the fixture mappings that were created during <see cref="AfterTestClassStarting"/>.
+        /// Gets the fixture mappings that were created during <see cref="AfterTestClassStartingAsync"/>.
         /// </summary>
         protected Dictionary<Type, object> ClassFixtureMappings { get; set; }
 
         void CreateFixture(Type fixtureGenericInterfaceType)
         {
-            var fixtureType = fixtureGenericInterfaceType.GetGenericArguments().Single();
+            var fixtureType = fixtureGenericInterfaceType.GetTypeInfo().GenericTypeArguments.Single();
             Aggregator.Run(() => ClassFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
         }
 
@@ -60,41 +60,36 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override void AfterTestClassStarting()
+        protected override Task AfterTestClassStartingAsync()
         {
             var ordererAttribute = Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (ordererAttribute != null)
                 TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
 
-            if (Class.Type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+            var testClassTypeInfo = Class.Type.GetTypeInfo();
+            if (testClassTypeInfo.ImplementedInterfaces.Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
                 Aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
 
-            foreach (var interfaceType in Class.Type.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
+            foreach (var interfaceType in testClassTypeInfo.ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
                 CreateFixture(interfaceType);
 
             if (TestClass.TestCollection.CollectionDefinition != null)
             {
                 var declarationType = ((IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
-                foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
+                foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
                     CreateFixture(interfaceType);
             }
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>
-        protected override void BeforeTestClassFinished()
+        protected override Task BeforeTestClassFinishedAsync()
         {
             foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
-            {
-                try
-                {
-                    fixture.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    if (!MessageBus.QueueMessage(new ErrorMessage(ex.Unwrap())))
-                        CancellationTokenSource.Cancel();
-                }
-            }
+                Aggregator.Run(fixture.Dispose);
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>
@@ -106,8 +101,12 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override ConstructorInfo SelectTestClassConstructor()
         {
-            var ctors = Class.Type.GetConstructors();
-            if (ctors.Length == 1)
+            var ctors = Class.Type.GetTypeInfo()
+                                  .DeclaredConstructors
+                                  .Where(ci => !ci.IsStatic && ci.IsPublic)
+                                  .ToList();
+
+            if (ctors.Count == 1)
                 return ctors[0];
 
             Aggregator.Add(new TestClassException("A test class may only define a single public constructor."));
@@ -117,6 +116,12 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, out object argumentValue)
         {
+            if (parameter.ParameterType == typeof(ITestOutputHelper))
+            {
+                argumentValue = new TestOutputHelper();
+                return true;
+            }
+
             return ClassFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
                 || collectionFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue);
         }

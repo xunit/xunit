@@ -27,7 +27,7 @@ namespace Xunit.Sdk
         /// <param name="actual">The actual exception that was thrown</param>
         [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "This parameter is verified elsewhere.")]
         public ThrowsException(Type expectedType, Exception actual)
-            : this(expectedType, actual.GetType().FullName, actual.Message, actual.StackTrace) { }
+            : this(expectedType, ArgumentFormatter.Format(actual.GetType()), actual.Message, actual.StackTrace) { }
 
         /// <summary>
         /// THIS CONSTRUCTOR IS FOR UNIT TESTING PURPOSES ONLY.

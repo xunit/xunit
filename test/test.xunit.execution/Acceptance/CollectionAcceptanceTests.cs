@@ -30,7 +30,7 @@ public class CollectionAcceptanceTests : AcceptanceTest
             message =>
             {
                 var passed = Assert.IsAssignableFrom<ITestPassed>(message);
-                Assert.Equal(testDisplayName, passed.TestDisplayName);
+                Assert.Equal(testDisplayName, passed.Test.DisplayName);
             },
             message => Assert.IsAssignableFrom<ITestFinished>(message),
             message => Assert.IsAssignableFrom<ITestCaseFinished>(message),

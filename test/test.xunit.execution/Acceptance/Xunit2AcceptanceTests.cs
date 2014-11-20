@@ -58,28 +58,28 @@ public class Xunit2AcceptanceTests
                 message =>
                 {
                     var starting = Assert.IsAssignableFrom<ITestStarting>(message);
-                    Assert.Equal(starting.TestCase.DisplayName, starting.TestDisplayName);
+                    Assert.Equal(starting.TestCase.DisplayName, starting.Test.DisplayName);
                 },
                 message =>
                 {
                     var classConstructionStarting = Assert.IsAssignableFrom<ITestClassConstructionStarting>(message);
-                    Assert.Equal(classConstructionStarting.TestCase.DisplayName, classConstructionStarting.TestDisplayName);
+                    Assert.Equal(classConstructionStarting.TestCase.DisplayName, classConstructionStarting.Test.DisplayName);
                 },
                 message =>
                 {
                     var classConstructionFinished = Assert.IsAssignableFrom<ITestClassConstructionFinished>(message);
-                    Assert.Equal(classConstructionFinished.TestCase.DisplayName, classConstructionFinished.TestDisplayName);
+                    Assert.Equal(classConstructionFinished.TestCase.DisplayName, classConstructionFinished.Test.DisplayName);
                 },
                 message =>
                 {
                     var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
-                    Assert.Equal(testPassed.TestCase.DisplayName, testPassed.TestDisplayName);
+                    Assert.Equal(testPassed.TestCase.DisplayName, testPassed.Test.DisplayName);
                     Assert.NotEqual(0M, testPassed.ExecutionTime);
                 },
                 message =>
                 {
                     var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
-                    Assert.Equal(testFinished.TestCase.DisplayName, testFinished.TestDisplayName);
+                    Assert.Equal(testFinished.TestCase.DisplayName, testFinished.Test.DisplayName);
                 },
                 message =>
                 {
@@ -133,7 +133,7 @@ public class Xunit2AcceptanceTests
             List<IMessageSinkMessage> results = Run(typeof(SingleSkippedTestClass));
 
             var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
-            Assert.Equal("Xunit2AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.TestDisplayName);
+            Assert.Equal("Xunit2AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.Test.DisplayName);
             Assert.Equal("This is a skipped test", skippedMessage.Reason);
 
             var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
@@ -194,7 +194,7 @@ public class Xunit2AcceptanceTests
                          "---- Assert.Equal() Failure" + Environment.NewLine +
                          "Expected: 2" + Environment.NewLine +
                          "Actual:   3" + Environment.NewLine +
-                         "---- System.DivideByZeroException : Attempted to divide by zero.", ExceptionUtility.CombineMessages(msg));
+                         "---- System.DivideByZeroException : Attempted to divide by zero.", Xunit.ExceptionUtility.CombineMessages(msg));
         }
 
         class ClassUnderTest_CtorFailure
@@ -242,7 +242,7 @@ public class Xunit2AcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(StaticClassUnderTest));
 
             var testMessage = Assert.Single(testMessages);
-            Assert.Equal("Xunit2AcceptanceTests+StaticClassSupport+StaticClassUnderTest.Passing", testMessage.TestDisplayName);
+            Assert.Equal("Xunit2AcceptanceTests+StaticClassSupport+StaticClassUnderTest.Passing", testMessage.Test.DisplayName);
             Assert.IsAssignableFrom<ITestPassed>(testMessage);
         }
 
@@ -260,10 +260,10 @@ public class Xunit2AcceptanceTests
         {
             var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
 
-            var equalFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.EqualFailure");
+            var equalFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.EqualFailure");
             Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
 
-            var notNullFailure = Assert.Single(testMessages, msg => msg.TestDisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.NotNullFailure");
+            var notNullFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.NotNullFailure");
             Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
         }
 
@@ -359,7 +359,7 @@ public class Xunit2AcceptanceTests
             var msgs = Run<ITestPassed>(typeof(ClassWithCustomFact));
 
             Assert.Collection(msgs,
-                msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", msg.TestDisplayName)
+                msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", msg.Test.DisplayName)
             );
         }
 
@@ -377,7 +377,7 @@ public class Xunit2AcceptanceTests
             var msgs = Run<ITestPassed>(typeof(ClassWithCustomArrayFact));
 
             Assert.Collection(msgs,
-                msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", msg.TestDisplayName)
+                msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", msg.Test.DisplayName)
             );
         }
 
@@ -390,6 +390,64 @@ public class Xunit2AcceptanceTests
         {
             [MyCustomArrayFact("1", "2", "3")]
             public void Passing() { }
+        }
+    }
+
+    public class TestOutput : AcceptanceTest
+    {
+        [Fact]
+        public void SendOutputMessages()
+        {
+            var msgs = Run(typeof(ClassUnderTest));
+
+            var idxOfTestPassed = msgs.FindIndex(msg => msg is ITestPassed);
+            Assert.True(idxOfTestPassed >= 0, "Test should have passed");
+
+            var idxOfFirstTestOutput = msgs.FindIndex(msg => msg is ITestOutput);
+            Assert.True(idxOfFirstTestOutput >= 0, "Test should have output");
+            Assert.True(idxOfFirstTestOutput < idxOfTestPassed, "Test output messages should preceed test result");
+
+            Assert.Collection(msgs.OfType<ITestOutput>(),
+                msg =>
+                {
+                    var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);
+                    Assert.Equal("This is output in the constructor" + Environment.NewLine, outputMessage.Output);
+                },
+                msg =>
+                {
+                    var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);
+                    Assert.Equal("This is test output" + Environment.NewLine, outputMessage.Output);
+                },
+                msg =>
+                {
+                    var outputMessage = Assert.IsAssignableFrom<ITestOutput>(msg);
+                    Assert.Equal("This is output in Dispose" + Environment.NewLine, outputMessage.Output);
+                }
+            );
+        }
+
+        class ClassUnderTest : IDisposable
+        {
+            readonly ITestOutputHelper output;
+
+            public ClassUnderTest(ITestOutputHelper output)
+            {
+                this.output = output;
+
+                output.WriteLine("This is output in the constructor");
+            }
+
+            public void Dispose()
+            {
+                output.WriteLine("This is {0} in Dispose", "output");
+            }
+
+            [Fact]
+            public void TestMethod()
+            {
+                output.WriteLine("This is test output");
+            }
+
         }
     }
 

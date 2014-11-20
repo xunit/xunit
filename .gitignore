@@ -2,11 +2,13 @@
 [Oo]bj
 packages
 help
+AppPackages
 
 *.suo
 *.user
 *.[Cc]ache
 *[Rr]esharper*
+*.ide
 *.zip
 *.suo
 *.user
@@ -16,6 +18,11 @@ help
 *.dll
 *.ncrunch*
 *.vsix
+
+*.vsps
+*.vspx
+*.vsp
+*.psess
 
 Test*.html
 Test*.xml

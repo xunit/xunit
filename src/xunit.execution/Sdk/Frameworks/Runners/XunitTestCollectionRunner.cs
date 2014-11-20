@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -33,46 +34,40 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStarting"/>.
+        /// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStartingAsync"/>.
         /// </summary>
         protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
 
         void CreateFixture(Type fixtureGenericInterfaceType)
         {
-            var fixtureType = fixtureGenericInterfaceType.GetGenericArguments().Single();
+            var fixtureType = fixtureGenericInterfaceType.GenericTypeArguments.Single();
             Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
         }
 
         /// <inheritdoc/>
-        protected override void AfterTestCollectionStarting()
+        protected override Task AfterTestCollectionStartingAsync()
         {
             if (TestCollection.CollectionDefinition != null)
             {
                 var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
-                foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+                foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
                     CreateFixture(interfaceType);
 
                 var ordererAttribute = TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
                 if (ordererAttribute != null)
                     TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
             }
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>
-        protected override void BeforeTestCollectionFinished()
+        protected override Task BeforeTestCollectionFinishedAsync()
         {
             foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
-            {
-                try
-                {
-                    fixture.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    if (!MessageBus.QueueMessage(new ErrorMessage(ex.Unwrap())))
-                        CancellationTokenSource.Cancel();
-                }
-            }
+                Aggregator.Run(fixture.Dispose);
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>

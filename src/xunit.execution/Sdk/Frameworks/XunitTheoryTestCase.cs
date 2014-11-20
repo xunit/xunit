@@ -1,8 +1,11 @@
 ﻿using System;
-using System.Runtime.Serialization;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+#if !ASPNETCORE50
+using System.Runtime.Serialization;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -13,6 +16,11 @@ namespace Xunit.Sdk
     [Serializable]
     public class XunitTheoryTestCase : XunitTestCase
     {
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Called by the de-serializer", error: true)]
+        public XunitTheoryTestCase() { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTheoryTestCase"/> class.
         /// </summary>

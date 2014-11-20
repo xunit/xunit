@@ -22,17 +22,9 @@ namespace Xunit.ConsoleClient
         void LogFinish(ITestResultMessage testResult)
         {
             Console.WriteLine("##teamcity[testFinished name='{0}' duration='{1}' flowId='{2}']",
-                              TeamCityEscape(testResult.TestDisplayName),
+                              TeamCityEscape(testResult.Test.DisplayName),
                               (int)(testResult.ExecutionTime * 1000M),
                               ToFlowId(testResult.TestCollection.DisplayName));
-        }
-
-        protected override bool Visit(IErrorMessage error)
-        {
-            Console.Error.WriteLine("{0}: {1}", error.ExceptionTypes[0], Escape(ExceptionUtility.CombineMessages(error)));
-            Console.Error.WriteLine(ExceptionUtility.CombineStackTraces(error));
-
-            return base.Visit(error);
         }
 
         protected override bool Visit(ITestCollectionFinished testCollectionFinished)
@@ -59,7 +51,7 @@ namespace Xunit.ConsoleClient
         protected override bool Visit(ITestFailed testFailed)
         {
             Console.WriteLine("##teamcity[testFailed name='{0}' details='{1}|r|n{2}' flowId='{3}']",
-                              TeamCityEscape(testFailed.TestDisplayName),
+                              TeamCityEscape(testFailed.Test.DisplayName),
                               TeamCityEscape(ExceptionUtility.CombineMessages(testFailed)),
                               TeamCityEscape(ExceptionUtility.CombineStackTraces(testFailed)),
                               ToFlowId(testFailed.TestCollection.DisplayName));
@@ -78,7 +70,7 @@ namespace Xunit.ConsoleClient
         protected override bool Visit(ITestSkipped testSkipped)
         {
             Console.WriteLine("##teamcity[testIgnored name='{0}' message='{1}' flowId='{2}']",
-                              TeamCityEscape(testSkipped.TestDisplayName),
+                              TeamCityEscape(testSkipped.Test.DisplayName),
                               TeamCityEscape(testSkipped.Reason),
                               ToFlowId(testSkipped.TestCollection.DisplayName));
             LogFinish(testSkipped);
@@ -89,10 +81,59 @@ namespace Xunit.ConsoleClient
         protected override bool Visit(ITestStarting testStarting)
         {
             Console.WriteLine("##teamcity[testStarted name='{0}' flowId='{1}']",
-                              TeamCityEscape(testStarting.TestDisplayName),
+                              TeamCityEscape(testStarting.Test.DisplayName),
                               ToFlowId(testStarting.TestCollection.DisplayName));
 
             return base.Visit(testStarting);
+        }
+
+        protected override bool Visit(IErrorMessage error)
+        {
+            WriteError("FATAL", error);
+
+            return base.Visit(error);
+        }
+
+        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
+        }
+
+        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        {
+            WriteError(String.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+
+            return base.Visit(cleanupFailure);
         }
 
         static string TeamCityEscape(string value)
@@ -114,6 +155,14 @@ namespace Xunit.ConsoleClient
         string ToFlowId(string testCollectionName)
         {
             return flowMappings.GetOrAdd(testCollectionName, flowIdMapper);
+        }
+
+        static void WriteError(string messageType, IFailureInformation failureInfo)
+        {
+            var message = String.Format("[{0}] {1}: {2}", messageType, failureInfo.ExceptionTypes[0], ExceptionUtility.CombineMessages(failureInfo));
+            var stack = ExceptionUtility.CombineStackTraces(failureInfo);
+
+            Console.WriteLine("##teamcity[message text='{0}' errorDetails='{1}' status='ERROR']", TeamCityEscape(message), TeamCityEscape(stack));
         }
     }
 }

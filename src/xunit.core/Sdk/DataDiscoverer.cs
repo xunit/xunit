@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -20,6 +21,12 @@ namespace Xunit.Sdk
                 return ((DataAttribute)reflectionDataAttribute.Attribute).GetData(reflectionTestMethod.MethodInfo);
 
             return null;
+        }
+
+        /// <inheritdoc/>
+        public virtual bool SupportsDiscoveryEnumeration(IAttributeInfo dataAttribute, IMethodInfo testMethod)
+        {
+            return true;
         }
     }
 }

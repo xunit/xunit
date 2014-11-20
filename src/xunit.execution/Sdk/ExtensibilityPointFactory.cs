@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -12,6 +13,7 @@ namespace Xunit.Sdk
     {
         static readonly DisposalTracker disposalTracker = new DisposalTracker();
         static readonly ConcurrentDictionary<Type, object> instances = new ConcurrentDictionary<Type, object>();
+        static readonly TypeInfo testAssemblyTypeInfo = typeof(ITestAssembly).GetTypeInfo();
 
         private static object CreateInstance(Type type, object[] ctorArgs)
         {
@@ -94,6 +96,50 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Gets a test collection orderer.
+        /// </summary>
+        public static ITestCollectionOrderer GetTestCollectionOrderer(Type ordererType)
+        {
+            return Get<ITestCollectionOrderer>(ordererType);
+        }
+
+        /// <summary>
+        /// Gets a test collection orderer, as specified in a reflected <see cref="TestCollectionOrdererAttribute"/>.
+        /// </summary>
+        /// <param name="testCollectionOrdererAttribute">The test collection orderer attribute.</param>
+        /// <returns>The test collection orderer, if the type is loadable; <c>null</c>, otherwise.</returns>
+        public static ITestCollectionOrderer GetTestCollectionOrderer(IAttributeInfo testCollectionOrdererAttribute)
+        {
+            var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
+            var ordererType = Reflector.GetType(args[1], args[0]);
+            if (ordererType == null)
+                return null;
+
+            return GetTestCollectionOrderer(ordererType);
+        }
+
+        /// <summary>
+        /// Gets a test framework discoverer.
+        /// </summary>
+        public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(Type frameworkType)
+        {
+            return Get<ITestFrameworkTypeDiscoverer>(frameworkType);
+        }
+
+        /// <summary>
+        /// Gets a test framework discoverer, as specified in a reflected <see cref="TestFrameworkDiscovererAttribute"/>.
+        /// </summary>
+        public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(IAttributeInfo testFrameworkAttribute)
+        {
+            var args = testFrameworkAttribute.GetConstructorArguments().Cast<string>().ToArray();
+            var testFrameworkDiscovererType = Reflector.GetType(args[1], args[0]);
+            if (testFrameworkDiscovererType == null)
+                return null;
+
+            return GetTestFrameworkTypeDiscoverer(testFrameworkDiscovererType);
+        }
+
+        /// <summary>
         /// Gets a trait discoverer.
         /// </summary>
         public static ITraitDiscoverer GetTraitDiscoverer(Type discovererType)
@@ -161,10 +207,28 @@ namespace Xunit.Sdk
             }
 
             var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
-            if (result == null || !typeof(IXunitTestCollectionFactory).IsAssignableFrom(result) || result.GetConstructor(new[] { typeof(ITestAssembly) }) == null)
+            if (result == null || !IsCompatibleTestCollectionFactory(result))
                 return typeof(CollectionPerClassTestCollectionFactory);
 
             return result;
+        }
+
+        private static bool IsCompatibleTestCollectionFactory(Type result)
+        {
+            var resultTypeInfo = result.GetTypeInfo();
+
+            if (!typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(resultTypeInfo))
+                return false;
+
+            return resultTypeInfo.DeclaredConstructors
+                                 .Any(ctor =>
+                                      {
+                                          var parameters = ctor.GetParameters();
+                                          if (parameters.Length != 1)
+                                              return false;
+
+                                          return testAssemblyTypeInfo.IsAssignableFrom(parameters[0].ParameterType.GetTypeInfo());
+                                      });
         }
     }
 }

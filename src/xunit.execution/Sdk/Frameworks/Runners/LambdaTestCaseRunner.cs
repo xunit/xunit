@@ -20,15 +20,16 @@ namespace Xunit.Sdk
                                     IMessageBus messageBus,
                                     ExceptionAggregator aggregator,
                                     CancellationTokenSource cancellationTokenSource)
-            : base(testCase, messageBus, aggregator, cancellationTokenSource)        {        }
+            : base(testCase, messageBus, aggregator, cancellationTokenSource) { }
 
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestAsync()
         {
+            var test = new XunitTest(TestCase, TestCase.DisplayName);
             var summary = new RunSummary { Total = 1 };
             var timer = new ExecutionTimer();
 
-            if (!MessageBus.QueueMessage(new TestStarting(TestCase, TestCase.DisplayName)))
+            if (!MessageBus.QueueMessage(new TestStarting(test)))
                 CancellationTokenSource.Cancel();
             else
             {
@@ -36,19 +37,19 @@ namespace Xunit.Sdk
                 {
                     timer.Aggregate(TestCase.Lambda);
 
-                    if (!MessageBus.QueueMessage(new TestPassed(TestCase, TestCase.DisplayName, timer.Total, null)))
+                    if (!MessageBus.QueueMessage(new TestPassed(test, timer.Total, null)))
                         CancellationTokenSource.Cancel();
                 }
                 catch (Exception ex)
                 {
                     summary.Failed++;
 
-                    if (!MessageBus.QueueMessage(new TestFailed(TestCase, TestCase.DisplayName, timer.Total, null, ex)))
+                    if (!MessageBus.QueueMessage(new TestFailed(test, timer.Total, null, ex)))
                         CancellationTokenSource.Cancel();
                 }
             }
 
-            if (!MessageBus.QueueMessage(new TestFinished(TestCase, TestCase.DisplayName, timer.Total, null)))
+            if (!MessageBus.QueueMessage(new TestFinished(test, timer.Total, null)))
                 CancellationTokenSource.Cancel();
 
             summary.Time = timer.Total;

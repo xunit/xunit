@@ -33,7 +33,6 @@ namespace Xunit
 
         public void Dispose()
         {
-            helper.Dispose();
             session.Dispose();
             appDomainManager.Dispose();
         }

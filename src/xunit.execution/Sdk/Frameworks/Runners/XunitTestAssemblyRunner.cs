@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -16,7 +17,8 @@ namespace Xunit.Sdk
         bool disableParallelization;
         bool initialized;
         int maxParallelThreads;
-        TaskScheduler scheduler;
+        SynchronizationContext originalSyncContext;
+        MaxConcurrencySyncContext syncContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestAssemblyRunner"/> class.
@@ -34,7 +36,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public override void Dispose()
         {
-            var disposable = scheduler as IDisposable;
+            var disposable = syncContext as IDisposable;
             if (disposable != null)
                 disposable.Dispose();
         }
@@ -52,32 +54,33 @@ namespace Xunit.Sdk
 
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, TestAssembly);
 
-            return String.Format("{0}-bit .NET {1} [{2}, {3}{4}]",
-                                 IntPtr.Size * 8,
-                                 Environment.Version,
+            return String.Format("{0} [{1}, {2}{3}]",
+                                 base.GetTestFrameworkEnvironment(),
                                  testCollectionFactory.DisplayName,
                                  disableParallelization ? "non-parallel" : "parallel",
                                  maxParallelThreads > 0 ? String.Format(" ({0} threads)", maxParallelThreads) : "");
         }
 
         /// <summary>
-        /// Gets the task scheduler used when potentially running tests in parallel.
+        /// Gets the synchronization context used when potentially running tests in parallel.
         /// If <paramref name="maxParallelThreads"/> is greater than 0, it creates
-        /// and returns an instance of <see cref="MaxConcurrencyTaskScheduler"/>;
-        /// otherwise, it uses the default task scheduler (which runs tasks on
-        /// the thread pool).
+        /// and uses an instance of <see cref="MaxConcurrencySyncContext"/>.
         /// </summary>
         /// <param name="maxParallelThreads">The maximum number of parallel threads.</param>
-        /// <returns>The task scheduler.</returns>
-        protected virtual TaskScheduler GetTaskScheduler(int maxParallelThreads)
+        protected virtual void SetupSyncContext(int maxParallelThreads)
         {
-            if (maxParallelThreads > 0)
-                return new MaxConcurrencyTaskScheduler(maxParallelThreads);
+            if (maxParallelThreads < 1)
+                maxParallelThreads = Environment.ProcessorCount;
 
-            return TaskScheduler.Current;
+            syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
+            SetSynchronizationContext(syncContext);
         }
 
-        void Initialize()
+        /// <summary>
+        /// Ensures the assembly runner is initialized (sets up the collection behavior,
+        /// parallelization options, and test orderers from their assembly attributes).
+        /// </summary>
+        protected void Initialize()
         {
             if (initialized)
                 return;
@@ -94,34 +97,49 @@ namespace Xunit.Sdk
             if (maxParallelThreadsOption > 0)
                 maxParallelThreads = maxParallelThreadsOption;
 
-            scheduler = GetTaskScheduler(maxParallelThreads);
+            var testCaseOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
+            if (testCaseOrdererAttribute != null)
+                TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(testCaseOrdererAttribute);
 
-            var ordererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
-            if (ordererAttribute != null)
-                TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
+            var testCollectionOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCollectionOrdererAttribute)).SingleOrDefault();
+            if (testCollectionOrdererAttribute != null)
+                TestCollectionOrderer = ExtensibilityPointFactory.GetTestCollectionOrderer(testCollectionOrdererAttribute);
 
             initialized = true;
         }
 
         /// <inheritdoc/>
-        protected override void AfterTestAssemblyStarting()
+        protected override Task AfterTestAssemblyStartingAsync()
         {
             Initialize();
+            return Task.FromResult(0);
+        }
+
+        /// <inheritdoc/>
+        protected override Task BeforeTestAssemblyFinishedAsync()
+        {
+            SetSynchronizationContext(originalSyncContext);
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>
         protected override async Task<RunSummary> RunTestCollectionsAsync(IMessageBus messageBus, CancellationTokenSource cancellationTokenSource)
         {
+            originalSyncContext = SynchronizationContext.Current;
+
             if (disableParallelization)
                 return await base.RunTestCollectionsAsync(messageBus, cancellationTokenSource);
 
-            var tasks = TestCases.Cast<IXunitTestCase>()
-                                 .GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
-                                 .Select(collectionGroup => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collectionGroup.Key, collectionGroup, cancellationTokenSource),
-                                                                                  cancellationTokenSource.Token,
-                                                                                  TaskCreationOptions.None,
-                                                                                  scheduler))
-                                 .ToArray();
+            SetupSyncContext(maxParallelThreads);
+
+            var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+
+            var tasks = OrderTestCases().Select(
+                collection => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource),
+                                                                                 cancellationTokenSource.Token,
+                                                                                 TaskCreationOptions.DenyChildAttach,
+                                                                                 scheduler)
+            ).ToArray();
 
             var summaries = await Task.WhenAll(tasks.Select(t => t.Unwrap()));
 
@@ -137,6 +155,12 @@ namespace Xunit.Sdk
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
         {
             return new XunitTestCollectionRunner(testCollection, testCases, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
+        }
+
+        [SecuritySafeCritical]
+        static void SetSynchronizationContext(SynchronizationContext context)
+        {
+            SynchronizationContext.SetSynchronizationContext(context);
         }
     }
 }

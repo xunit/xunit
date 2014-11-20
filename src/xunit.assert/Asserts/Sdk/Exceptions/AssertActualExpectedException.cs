@@ -20,11 +20,15 @@ namespace Xunit.Sdk
         /// <param name="expected">The expected value</param>
         /// <param name="actual">The actual value</param>
         /// <param name="userMessage">The user message to be shown</param>
-        public AssertActualExpectedException(object expected, object actual, string userMessage)
+        /// <param name="expectedTitle">The title to use for the expected value (defaults to "Expected")</param>
+        /// <param name="actualTitle">The title to use for the actual value (defaults to "Actual")</param>
+        public AssertActualExpectedException(object expected, object actual, string userMessage, string expectedTitle = null, string actualTitle = null)
             : base(userMessage)
         {
             Actual = actual == null ? null : ConvertToString(actual);
+            ActualTitle = actualTitle ?? "Actual";
             Expected = expected == null ? null : ConvertToString(expected);
+            ExpectedTitle = expectedTitle ?? "Expected";
 
             if (actual != null &&
                 expected != null &&
@@ -42,9 +46,19 @@ namespace Xunit.Sdk
         public string Actual { get; private set; }
 
         /// <summary>
+        /// Gets the title used for the actual value.
+        /// </summary>
+        public string ActualTitle { get; private set; }
+
+        /// <summary>
         /// Gets the expected value.
         /// </summary>
         public string Expected { get; private set; }
+
+        /// <summary>
+        /// Gets the title used for the expected value.
+        /// </summary>
+        public string ExpectedTitle { get; private set; }
 
         /// <summary>
         /// Gets a message that describes the current exception. Includes the expected and actual values.
@@ -55,10 +69,16 @@ namespace Xunit.Sdk
         {
             get
             {
+                var titleLength = Math.Max(ExpectedTitle.Length, ActualTitle.Length) + 2;  // + the colon and space
+                var formattedExpectedTitle = (ExpectedTitle + ":").PadRight(titleLength);
+                var formattedActualTitle = (ActualTitle + ":").PadRight(titleLength);
+
                 return String.Format(CultureInfo.CurrentCulture,
-                                     "{0}{3}Expected: {1}{3}Actual:   {2}",
+                                     "{0}{5}{1}{2}{5}{3}{4}",
                                      base.Message,
+                                     formattedExpectedTitle,
                                      Expected ?? "(null)",
+                                     formattedActualTitle,
                                      Actual ?? "(null)",
                                      Environment.NewLine);
             }
@@ -83,33 +103,11 @@ namespace Xunit.Sdk
             if (stringValue != null)
                 return stringValue;
 
-            var enumerableValue = value as IEnumerable;
-            if (enumerableValue == null)
-                return value.ToString();
+            var formattedValue = ArgumentFormatter.Format(value);
+            if (value is IEnumerable)
+                formattedValue = String.Format("{0} {1}", ConvertToSimpleTypeName(value.GetType().GetTypeInfo()), formattedValue);
 
-            var valueStrings = new List<string>();
-
-            foreach (object valueObject in enumerableValue)
-            {
-                string displayName;
-
-                if (valueObject == null)
-                    displayName = "(null)";
-                else
-                {
-                    var stringValueObject = valueObject as string;
-                    if (stringValueObject != null)
-                        displayName = String.Format("\"{0}\"", stringValueObject);
-                    else
-                        displayName = valueObject.ToString();
-                }
-
-                valueStrings.Add(displayName);
-            }
-
-            return String.Format("{0} {{ {1} }}",
-                                 ConvertToSimpleTypeName(value.GetType().GetTypeInfo()),
-                                 String.Join(", ", valueStrings.ToArray()));
+            return formattedValue;
         }
     }
 }

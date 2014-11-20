@@ -44,7 +44,7 @@ namespace Xunit.Sdk
         {
             ITypeInfo definitionType;
             collectionDefinitions.TryGetValue(name, out definitionType);
-            return new XunitTestCollection(testAssembly, definitionType, name);
+            return new TestCollection(testAssembly, definitionType, name);
         }
 
         /// <inheritdoc/>

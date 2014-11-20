@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Xunit.Sdk
@@ -64,31 +65,74 @@ namespace Xunit.Sdk
             if (comparable != null)
                 return comparable.CompareTo(y) == 0;
 
+            // Dictionaries?
+            var dictionariesEqual = CheckIfDictionariesAreEqual(x, y);
+            if (dictionariesEqual.HasValue)
+                return dictionariesEqual.GetValueOrDefault();
+
             // Enumerable?
-            var enumerableX = x as IEnumerable;
-            var enumerableY = y as IEnumerable;
-
-            if (enumerableX != null && enumerableY != null)
-            {
-                var enumeratorX = enumerableX.GetEnumerator();
-                var enumeratorY = enumerableY.GetEnumerator();
-                var equalityComparer = innerComparerFactory();
-
-                while (true)
-                {
-                    bool hasNextX = enumeratorX.MoveNext();
-                    bool hasNextY = enumeratorY.MoveNext();
-
-                    if (!hasNextX || !hasNextY)
-                        return (hasNextX == hasNextY);
-
-                    if (!equalityComparer.Equals(enumeratorX.Current, enumeratorY.Current))
-                        return false;
-                }
-            }
+            var enumerablesEqual = CheckIfEnumerablesAreEqual(x, y);
+            if (enumerablesEqual.HasValue)
+                return enumerablesEqual.GetValueOrDefault();
 
             // Last case, rely on Object.Equals
             return Object.Equals(x, y);
+        }
+
+        private bool? CheckIfEnumerablesAreEqual(T x, T y)
+        {
+            var enumerableX = x as IEnumerable;
+            var enumerableY = y as IEnumerable;
+
+            if (enumerableX == null || enumerableY == null)
+                return null;
+
+            var enumeratorX = enumerableX.GetEnumerator();
+            var enumeratorY = enumerableY.GetEnumerator();
+            var equalityComparer = innerComparerFactory();
+
+            while (true)
+            {
+                var hasNextX = enumeratorX.MoveNext();
+                var hasNextY = enumeratorY.MoveNext();
+
+                if (!hasNextX || !hasNextY)
+                    return hasNextX == hasNextY;
+
+                if (!equalityComparer.Equals(enumeratorX.Current, enumeratorY.Current))
+                    return false;
+            }
+        }
+
+        private bool? CheckIfDictionariesAreEqual(T x, T y)
+        {
+            var dictionaryX = x as IDictionary;
+            var dictionaryY = y as IDictionary;
+
+            if (dictionaryX == null || dictionaryY == null)
+                return null;
+
+            if (dictionaryX.Count != dictionaryY.Count)
+                return false;
+
+            var equalityComparer = innerComparerFactory();
+            var dictionaryYKeys = new HashSet<object>(dictionaryY.Keys.Cast<object>());
+
+            foreach (var key in dictionaryX.Keys)
+            {
+                if (!dictionaryYKeys.Contains(key))
+                    return false;
+
+                var valueX = dictionaryX[key];
+                var valueY = dictionaryY[key];
+
+                if (!equalityComparer.Equals(valueX, valueY))
+                    return false;
+
+                dictionaryYKeys.Remove(key);
+            }
+
+            return dictionaryYKeys.Count == 0;
         }
 
         /// <inheritdoc/>

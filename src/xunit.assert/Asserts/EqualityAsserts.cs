@@ -112,7 +112,7 @@ namespace Xunit
             Assert.GuardArgumentNotNull("comparer", comparer);
 
             if (comparer.Equals(expected, actual))
-                throw new NotEqualException();
+                throw new NotEqualException(ArgumentFormatter.Format(expected), ArgumentFormatter.Format(actual));
         }
 
         /// <summary>
@@ -129,7 +129,10 @@ namespace Xunit
             var actualRounded = Math.Round(actual, precision);
 
             if (GetEqualityComparer<double>().Equals(expectedRounded, actualRounded))
-                throw new NotEqualException();
+                throw new NotEqualException(
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
+                );
         }
 
         /// <summary>
@@ -146,7 +149,10 @@ namespace Xunit
             var actualRounded = Math.Round(actual, precision);
 
             if (GetEqualityComparer<decimal>().Equals(expectedRounded, actualRounded))
-                throw new NotEqualException();
+                throw new NotEqualException(
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
+                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
+                );
         }
 
         /// <summary>

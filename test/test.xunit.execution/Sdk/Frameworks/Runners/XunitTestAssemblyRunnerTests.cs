@@ -13,13 +13,13 @@ public class XunitTestAssemblyRunnerTests
     public class GetTestFrameworkDisplayName
     {
         [Fact]
-        public static void IsXunit2()
+        public static void IsXunit()
         {
             var runner = TestableXunitTestAssemblyRunner.Create();
 
             var result = runner.GetTestFrameworkDisplayName();
 
-            Assert.StartsWith("xUnit.net 2.", result);
+            Assert.StartsWith("xUnit.net ", result);
         }
     }
 
@@ -39,7 +39,7 @@ public class XunitTestAssemblyRunnerTests
         public static void Attribute_NonParallel()
         {
             var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true);
-            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -50,13 +50,13 @@ public class XunitTestAssemblyRunnerTests
         [Fact]
         public static void Attribute_MaxThreads()
         {
-            var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 255);
-            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
+            var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 3);
+            var assembly = Mocks.TestAssembly(new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
 
-            Assert.EndsWith("[collection-per-class, parallel (255 threads)]", result);
+            Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
         }
 
         [Theory]
@@ -65,7 +65,7 @@ public class XunitTestAssemblyRunnerTests
         public static void Attribute_CollectionBehavior(CollectionBehavior behavior, string expectedDisplayText)
         {
             var attribute = Mocks.CollectionBehaviorAttribute(behavior, disableTestParallelization: true);
-            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
+            var assembly = Mocks.TestAssembly(new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -78,7 +78,7 @@ public class XunitTestAssemblyRunnerTests
         {
             var factoryType = typeof(MyTestCollectionFactory);
             var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName, factoryType.Assembly.FullName, disableTestParallelization: true);
-            var assembly = Mocks.TestAssembly(attributes: new[] { attr });
+            var assembly = Mocks.TestAssembly(new[] { attr });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
             var result = runner.GetTestFrameworkEnvironment();
@@ -112,25 +112,25 @@ public class XunitTestAssemblyRunnerTests
         [Fact]
         public static void TestOptions_MaxThreads()
         {
-            var options = new XunitExecutionOptions { MaxParallelThreads = 255 };
+            var options = new XunitExecutionOptions { MaxParallelThreads = 3 };
             var runner = TestableXunitTestAssemblyRunner.Create(options: options);
 
             var result = runner.GetTestFrameworkEnvironment();
 
-            Assert.EndsWith("[collection-per-class, parallel (255 threads)]", result);
+            Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
         }
 
         [Fact]
         public static void TestOptionsOverrideAttribute()
         {
             var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true, maxParallelThreads: 127);
-            var options = new XunitExecutionOptions { DisableParallelization = false, MaxParallelThreads = 255 };
-            var assembly = Mocks.TestAssembly(attributes: new[] { attribute });
+            var options = new XunitExecutionOptions { DisableParallelization = false, MaxParallelThreads = 3 };
+            var assembly = Mocks.TestAssembly(new[] { attribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, options: options);
 
             var result = runner.GetTestFrameworkEnvironment();
 
-            Assert.EndsWith("[collection-per-class, parallel (255 threads)]", result);
+            Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
         }
     }
 
@@ -179,13 +179,59 @@ public class XunitTestAssemblyRunnerTests
         }
     }
 
+    public class TestCaseOrderer
+    {
+        [Fact]
+        public static void CanSetTestCaseOrdererInAssemblyAttribute()
+        {
+            var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyTestCaseOrderer>();
+            var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+
+            runner.Initialize();
+
+            Assert.IsType<MyTestCaseOrderer>(runner.TestCaseOrderer);
+        }
+
+        class MyTestCaseOrderer : ITestCaseOrderer
+        {
+            public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
+
+    public class TestCollectionOrderer
+    {
+        [Fact]
+        public static void CanSetTestCollectionOrdererInAssemblyAttribute()
+        {
+            var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyTestCollectionOrderer>();
+            var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+
+            runner.Initialize();
+
+            Assert.IsType<MyTestCollectionOrderer>(runner.TestCollectionOrderer);
+        }
+
+        class MyTestCollectionOrderer : ITestCollectionOrderer
+        {
+            public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> TestCollections)
+            {
+                return TestCollections.OrderByDescending(c => c.DisplayName);
+            }
+        }
+    }
+
     class ClassUnderTest
     {
         [Fact]
-        public void Passing() { }
+        public void Passing() { Thread.Sleep(0); }
 
         [Fact]
-        public void Other() { }
+        public void Other() { Thread.Sleep(0); }
     }
 
     class TestableXunitTestAssemblyRunner : XunitTestAssemblyRunner
@@ -213,6 +259,17 @@ public class XunitTestAssemblyRunnerTests
             );
         }
 
+        public new ITestCaseOrderer TestCaseOrderer
+        {
+            get { return base.TestCaseOrderer; }
+        }
+
+        public new ITestCollectionOrderer TestCollectionOrderer
+        {
+            get { return base.TestCollectionOrderer; }
+            set { base.TestCollectionOrderer = value; }
+        }
+
         public new string GetTestFrameworkDisplayName()
         {
             return base.GetTestFrameworkDisplayName();
@@ -221,6 +278,11 @@ public class XunitTestAssemblyRunnerTests
         public new string GetTestFrameworkEnvironment()
         {
             return base.GetTestFrameworkEnvironment();
+        }
+
+        public new void Initialize()
+        {
+            base.Initialize();
         }
 
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)

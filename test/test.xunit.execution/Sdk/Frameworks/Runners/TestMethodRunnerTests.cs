@@ -114,7 +114,7 @@ public class TestMethodRunnerTests
 
         var cleanupFailure = Assert.Single(messageBus.Messages.OfType<ITestMethodCleanupFailure>());
         Assert.Same(testCases[0].TestMethod.TestClass.TestCollection, cleanupFailure.TestCollection);
-        Assert.Same(testCases, cleanupFailure.TestCases);
+        Assert.Equal(testCases, cleanupFailure.TestCases);
         Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
     }
 

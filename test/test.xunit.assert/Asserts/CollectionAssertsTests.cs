@@ -1,25 +1,71 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 
 public class CollectionAssertsTests
 {
+    public class All
+    {
+        [Fact]
+        public static void NullCollectionThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(null, _ => { }));
+        }
+
+        [Fact]
+        public static void NullActionThrows()
+        {
+            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(new Object[0], null));
+        }
+
+        [Fact]
+        public static void ActionWhereSomeFail()
+        {
+            var items = new[] { 1, 1, 2, 2, 1, 1 };
+
+            var ex = Assert.Throws<AllException>(() => Assert.All(items, x => Assert.Equal(1, x)));
+
+            Assert.Equal(2, ex.Failures.Count);
+            Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
+        }
+
+        [Fact]
+        public static void ActionWhereNoneFail()
+        {
+            var items = new[] { 1, 1, 1, 1, 1, 1 };
+
+            Assert.All(items, x => Assert.Equal(1, x));
+        }
+
+        [Fact]
+        public static void ActionWhereAllFail()
+        {
+            var items = new[] { 1, 1, 2, 2, 1, 1 };
+
+            var ex = Assert.Throws<AllException>(() => Assert.All(items, x => Assert.Equal(0, x)));
+
+            Assert.Equal(6, ex.Failures.Count);
+            Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
+        }
+    }
+
     public class Collection
     {
         [Fact]
-        public void EmptyCollection()
+        public static void EmptyCollection()
         {
-            List<int> list = new List<int>();
+            var list = new List<int>();
 
             Assert.Collection(list);
         }
 
         [Fact]
-        public void MismatchedElementCount()
+        public static void MismatchedElementCount()
         {
-            List<int> list = new List<int>();
+            var list = new List<int>();
 
             var ex = Record.Exception(
                 () => Assert.Collection(list,
@@ -37,9 +83,9 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void NonEmptyCollection()
+        public static void NonEmptyCollection()
         {
-            List<int> list = new List<int> { 42, 2112 };
+            var list = new List<int> { 42, 2112 };
 
             Assert.Collection(list,
                 item => Assert.Equal(42, item),
@@ -48,9 +94,9 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void MismatchedElement()
+        public static void MismatchedElement()
         {
-            List<int> list = new List<int> { 42, 2112 };
+            var list = new List<int> { 42, 2112 };
 
             var ex = Record.Exception(() =>
                 Assert.Collection(list,
@@ -72,40 +118,44 @@ public class CollectionAssertsTests
     public class Contains
     {
         [Fact]
-        public void GuardClauses()
+        public static void GuardClause()
         {
-            Assert.Throws<ContainsException>(() => Assert.Contains(14, (List<int>)null));
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, (List<int>)null));
         }
 
         [Fact]
-        public void CanFindNullInContainer()
+        public static void CanFindNullInContainer()
         {
-            List<object> list = new List<object> { 16, null, "Hi there" };
+            var list = new List<object> { 16, null, "Hi there" };
 
             Assert.Contains(null, list);
         }
+
         [Fact]
-        public void ItemInContainer()
+        public static void ItemInContainer()
         {
-            List<int> list = new List<int> { 42 };
+            var list = new List<int> { 42 };
 
             Assert.Contains(42, list);
         }
 
         [Fact]
-        public void ItemNotInContainer()
+        public static void ItemNotInContainer()
         {
-            List<int> list = new List<int>();
+            var list = new List<int> { 41, 43 };
 
-            ContainsException ex = Assert.Throws<ContainsException>(() => Assert.Contains(42, list));
+            var ex = Assert.Throws<ContainsException>(() => Assert.Contains(42, list));
 
-            Assert.Equal("Assert.Contains() Failure: Not found: 42", ex.Message);
+            Assert.Equal(
+                "Assert.Contains() Failure" + Environment.NewLine +
+                "Not found: 42" + Environment.NewLine +
+                "In value:  List<Int32> [41, 43]", ex.Message);
         }
 
         [Fact]
-        public void NullsAllowedInContainer()
+        public static void NullsAllowedInContainer()
         {
-            List<object> list = new List<object> { null, 16, "Hi there" };
+            var list = new List<object> { null, 16, "Hi there" };
 
             Assert.Contains("Hi there", list);
         }
@@ -114,9 +164,18 @@ public class CollectionAssertsTests
     public class Contains_WithComparer
     {
         [Fact]
-        public void CanUseComparer()
+        public static void GuardClauses()
         {
-            List<int> list = new List<int> { 42 };
+            var comparer = Substitute.For<IEqualityComparer<int>>();
+
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, (List<int>)null, comparer));
+            Assert.Throws<ArgumentNullException>("comparer", () => Assert.Contains(14, new int[0], null));
+        }
+
+        [Fact]
+        public static void CanUseComparer()
+        {
+            var list = new List<int> { 42 };
 
             Assert.Contains(43, list, new MyComparer());
         }
@@ -135,56 +194,93 @@ public class CollectionAssertsTests
         }
     }
 
+    public class Contains_WithPredicate
+    {
+        [Fact]
+        public static void GuardClauses()
+        {
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains((List<int>)null, item => true));
+            Assert.Throws<ArgumentNullException>("filter", () => Assert.Contains(new int[0], (Predicate<int>)null));
+        }
+
+        [Fact]
+        public static void ItemFound_DoesNotThrow()
+        {
+            var list = new[] { "Hello", "world" };
+
+            Assert.Contains(list, item => item.StartsWith("w"));
+        }
+
+        [Fact]
+        public static void ItemNotFound_Throws()
+        {
+            var list = new[] { "Hello", "world" };
+
+            Assert.Throws<ContainsException>(() => Assert.Contains(list, item => item.StartsWith("q")));
+        }
+    }
+
     public class DoesNotContain
     {
         [Fact]
-        public void CanSearchForNullInContainer()
+        public static void GuardClause()
         {
-            List<object> list = new List<object> { 16, "Hi there" };
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, (List<int>)null));
+        }
+
+        [Fact]
+        public static void CanSearchForNullInContainer()
+        {
+            var list = new List<object> { 16, "Hi there" };
 
             Assert.DoesNotContain(null, list);
         }
 
         [Fact]
-        public void ItemInContainer()
+        public static void ItemInContainer()
         {
-            List<int> list = new List<int> { 42 };
+            var list = new List<int> { 42 };
 
             DoesNotContainException ex =
                 Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(42, list));
 
-            Assert.Equal("Assert.DoesNotContain() Failure: Found: 42", ex.Message);
+            Assert.Equal("Assert.DoesNotContain() Failure" + Environment.NewLine +
+                         "Found:    42" + Environment.NewLine +
+                         "In value: List<Int32> [42]", ex.Message);
         }
 
         [Fact]
-        public void ItemNotInContainer()
+        public static void ItemNotInContainer()
         {
-            List<int> list = new List<int>();
+            var list = new List<int>();
 
             Assert.DoesNotContain(42, list);
         }
 
         [Fact]
-        public void NullsAllowedInContainer()
+        public static void NullsAllowedInContainer()
         {
-            List<object> list = new List<object> { null, 16, "Hi there" };
+            var list = new List<object> { null, 16, "Hi there" };
 
             Assert.DoesNotContain(42, list);
-        }
-
-        [Fact]
-        public void NullContainerDoesNotThrow()
-        {
-            Assert.DoesNotThrow(() => Assert.DoesNotContain(14, (List<int>)null));
         }
     }
 
     public class DoesNotContain_WithComparer
     {
         [Fact]
-        public void CanUseComparer()
+        public static void GuardClauses()
         {
-            List<int> list = new List<int>();
+            var comparer = Substitute.For<IEqualityComparer<int>>();
+
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, (List<int>)null, comparer));
+            Assert.Throws<ArgumentNullException>("comparer", () => Assert.DoesNotContain(14, new int[0], null));
+        }
+
+        [Fact]
+        public static void CanUseComparer()
+        {
+            var list = new List<int>();
             list.Add(42);
 
             Assert.DoesNotContain(42, list, new MyComparer());
@@ -204,26 +300,52 @@ public class CollectionAssertsTests
         }
     }
 
+    public class DoesNotContain_WithPredicate
+    {
+        [Fact]
+        public static void GuardClauses()
+        {
+            Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain((List<int>)null, item => true));
+            Assert.Throws<ArgumentNullException>("filter", () => Assert.DoesNotContain(new int[0], (Predicate<int>)null));
+        }
+
+        [Fact]
+        public static void ItemFound_Throws()
+        {
+            var list = new[] { "Hello", "world" };
+
+            Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(list, item => item.StartsWith("w")));
+        }
+
+        [Fact]
+        public static void ItemNotFound_DoesNotThrow()
+        {
+            var list = new[] { "Hello", "world" };
+
+            Assert.DoesNotContain(list, item => item.StartsWith("q"));
+        }
+    }
+
     public class Empty
     {
         [Fact]
-        public void GuardClauses()
+        public static void GuardClauses()
         {
             Assert.Throws<ArgumentNullException>(() => Assert.Empty(null));
         }
 
         [Fact]
-        public void EmptyContainer()
+        public static void EmptyContainer()
         {
-            List<int> list = new List<int>();
+            var list = new List<int>();
 
             Assert.Empty(list);
         }
 
         [Fact]
-        public void NonEmptyContainerThrows()
+        public static void NonEmptyContainerThrows()
         {
-            List<int> list = new List<int>();
+            var list = new List<int>();
             list.Add(42);
 
             EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty(list));
@@ -232,13 +354,13 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void EmptyString()
+        public static void EmptyString()
         {
             Assert.Empty("");
         }
 
         [Fact]
-        public void NonEmptyStringThrows()
+        public static void NonEmptyStringThrows()
         {
             EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty("Foo"));
 
@@ -249,7 +371,7 @@ public class CollectionAssertsTests
     public class Equal
     {
         [Fact]
-        public void Array()
+        public static void Array()
         {
             string[] expected = { "@", "a", "ab", "b" };
             string[] actual = { "@", "a", "ab", "b" };
@@ -259,7 +381,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void ArrayInsideArray()
+        public static void ArrayInsideArray()
         {
             string[][] expected = { new[] { "@", "a" }, new[] { "ab", "b" } };
             string[][] actual = { new[] { "@", "a" }, new[] { "ab", "b" } };
@@ -269,7 +391,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void ArraysOfDifferentLengthsAreNotEqual()
+        public static void ArraysOfDifferentLengthsAreNotEqual()
         {
             string[] expected = { "@", "a", "ab", "b", "c" };
             string[] actual = { "@", "a", "ab", "b" };
@@ -279,7 +401,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void ArrayValuesAreDifferentNotEqual()
+        public static void ArrayValuesAreDifferentNotEqual()
         {
             string[] expected = { "@", "d", "v", "d" };
             string[] actual = { "@", "a", "ab", "b" };
@@ -289,7 +411,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void Equivalence()
+        public static void Equivalence()
         {
             int[] expected = new[] { 1, 2, 3, 4, 5 };
             List<int> actual = new List<int>(expected);
@@ -298,10 +420,53 @@ public class CollectionAssertsTests
         }
     }
 
+    public class EqualDictionary
+    {
+        [Fact]
+        public static void InOrderDictionary()
+        {
+            var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+            var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+
+            Assert.Equal(expected, actual);
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+        }
+
+        [Fact]
+        public static void OutOfOrderDictionary()
+        {
+            var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+            var actual = new Dictionary<string, int> { { "b", 2 }, { "c", 3 }, { "a", 1 } };
+
+            Assert.Equal(expected, actual);
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+        }
+
+        [Fact]
+        public static void ExpectedLarger()
+        {
+            var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+            var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
+
+            Assert.NotEqual(expected, actual);
+            Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+        }
+
+        [Fact]
+        public static void ActualLarger()
+        {
+            var expected = new Dictionary<string, int> { { "a", 1 }, { "b", 2 } };
+            var actual = new Dictionary<string, int> { { "a", 1 }, { "b", 2 }, { "c", 3 } };
+
+            Assert.NotEqual(expected, actual);
+            Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+        }
+    }
+
     public class Equal_WithComparer
     {
         [Fact]
-        public void EquivalenceWithComparer()
+        public static void EquivalenceWithComparer()
         {
             int[] expected = new[] { 1, 2, 3, 4, 5 };
             List<int> actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
@@ -333,13 +498,13 @@ public class CollectionAssertsTests
     public class None_NonGeneric_WithObject
     {
         [Fact]
-        public void NullCollectionThrows()
+        public static void NullCollectionThrows()
         {
             Assert.Throws<ArgumentNullException>(() => Assert.None(null, null));
         }
 
         [Fact]
-        public void ObjectNotPresent()
+        public static void ObjectNotPresent()
         {
             IEnumerable collection = new[] { "Hello", "World!" };
 
@@ -347,7 +512,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void NullNotPresent()
+        public static void NullNotPresent()
         {
             IEnumerable collection = new[] { "Hello", "World!" };
 
@@ -355,7 +520,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void ObjectPresentThrows()
+        public static void ObjectPresentThrows()
         {
             IEnumerable collection = new[] { "Hello", "World!" };
 
@@ -369,19 +534,19 @@ public class CollectionAssertsTests
     public class None_Generic_WithPredicate
     {
         [Fact]
-        public void NullCollectionThrows()
+        public static void NullCollectionThrows()
         {
             Assert.Throws<ArgumentNullException>(() => Assert.None<object>(null, _ => true));
         }
 
         [Fact]
-        public void NullPredicateThrows()
+        public static void NullPredicateThrows()
         {
             Assert.Throws<ArgumentNullException>(() => Assert.None<object>(new object[0], null));
         }
 
         [Fact]
-        public void PredicateWhereNoneMatch()
+        public static void PredicateWhereNoneMatch()
         {
             string[] collection = new[] { "Hello", "World!" };
 
@@ -389,7 +554,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void PredicateWithMatch()
+        public static void PredicateWithMatch()
         {
             string[] collection = new[] { "Hello", "World!" };
 
@@ -403,7 +568,7 @@ public class CollectionAssertsTests
     public class NotEmpty
     {
         [Fact]
-        public void EmptyContainer()
+        public static void EmptyContainer()
         {
             var list = new List<int>();
 
@@ -413,7 +578,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void NonEmptyContainer()
+        public static void NonEmptyContainer()
         {
             var list = new List<int> { 42 };
 
@@ -424,7 +589,7 @@ public class CollectionAssertsTests
     public class NotEqual
     {
         [Fact]
-        public void EnumerableInequivalence()
+        public static void EnumerableInequivalence()
         {
             int[] expected = new[] { 1, 2, 3, 4, 5 };
             List<int> actual = new List<int>(new[] { 1, 2, 3, 4, 6 });
@@ -433,7 +598,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void EnumerableEquivalence()
+        public static void EnumerableEquivalence()
         {
             int[] expected = new[] { 1, 2, 3, 4, 5 };
             List<int> actual = new List<int>(expected);
@@ -445,7 +610,7 @@ public class CollectionAssertsTests
     public class NotEqual_WithComparer
     {
         [Fact]
-        public void EnumerableInequivalenceWithFailedComparer()
+        public static void EnumerableInequivalenceWithFailedComparer()
         {
             int[] expected = new[] { 1, 2, 3, 4, 5 };
             List<int> actual = new List<int>(new int[] { 1, 2, 3, 4, 5 });
@@ -454,7 +619,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void EnumerableEquivalenceWithSuccessfulComparer()
+        public static void EnumerableEquivalenceWithSuccessfulComparer()
         {
             int[] expected = new[] { 1, 2, 3, 4, 5 };
             List<int> actual = new List<int>(new int[] { 0, 0, 0, 0, 0 });
@@ -486,13 +651,13 @@ public class CollectionAssertsTests
     public class Single_NonGeneric
     {
         [Fact]
-        public void NullCollectionThrows()
+        public static void NullCollectionThrows()
         {
             Assert.Throws<ArgumentNullException>(() => Assert.Single(null));
         }
 
         [Fact]
-        public void EmptyCollectionThrows()
+        public static void EmptyCollectionThrows()
         {
             ArrayList collection = new ArrayList();
 
@@ -503,7 +668,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void MultiItemCollectionThrows()
+        public static void MultiItemCollectionThrows()
         {
             ArrayList collection = new ArrayList { "Hello", "World" };
 
@@ -514,7 +679,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void SingleItemCollectionDoesNotThrow()
+        public static void SingleItemCollectionDoesNotThrow()
         {
             ArrayList collection = new ArrayList { "Hello" };
 
@@ -524,7 +689,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void SingleItemCollectionReturnsTheItem()
+        public static void SingleItemCollectionReturnsTheItem()
         {
             ArrayList collection = new ArrayList { "Hello" };
 
@@ -537,13 +702,13 @@ public class CollectionAssertsTests
     public class Single_NonGeneric_WithObject
     {
         [Fact]
-        public void NullCollectionThrows()
+        public static void NullCollectionThrows()
         {
             Assert.Throws<ArgumentNullException>(() => Assert.Single(null, null));
         }
 
         [Fact]
-        public void ObjectSingleMatch()
+        public static void ObjectSingleMatch()
         {
             IEnumerable collection = new[] { "Hello", "World!" };
 
@@ -551,7 +716,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void NullSingleMatch()
+        public static void NullSingleMatch()
         {
             IEnumerable collection = new[] { "Hello", "World!", null };
 
@@ -559,7 +724,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void ObjectNoMatch()
+        public static void ObjectNoMatch()
         {
             IEnumerable collection = new[] { "Hello", "World!" };
 
@@ -570,7 +735,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void PredicateTooManyMatches()
+        public static void PredicateTooManyMatches()
         {
             string[] collection = new[] { "Hello", "World!", "Hello" };
 
@@ -584,13 +749,13 @@ public class CollectionAssertsTests
     public class Single_Generic
     {
         [Fact]
-        public void NullCollectionThrows()
+        public static void NullCollectionThrows()
         {
             Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(null));
         }
 
         [Fact]
-        public void EmptyCollectionThrows()
+        public static void EmptyCollectionThrows()
         {
             object[] collection = new object[0];
 
@@ -601,7 +766,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void MultiItemCollectionThrows()
+        public static void MultiItemCollectionThrows()
         {
             string[] collection = new[] { "Hello", "World!" };
 
@@ -612,7 +777,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void SingleItemCollectionDoesNotThrow()
+        public static void SingleItemCollectionDoesNotThrow()
         {
             string[] collection = new[] { "Hello" };
 
@@ -622,7 +787,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void SingleItemCollectionReturnsTheItem()
+        public static void SingleItemCollectionReturnsTheItem()
         {
             string[] collection = new[] { "Hello" };
 
@@ -635,19 +800,19 @@ public class CollectionAssertsTests
     public class Single_Generic_WithPredicate
     {
         [Fact]
-        public void NullCollectionThrows()
+        public static void NullCollectionThrows()
         {
             Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(null, _ => true));
         }
 
         [Fact]
-        public void NullPredicateThrows()
+        public static void NullPredicateThrows()
         {
             Assert.Throws<ArgumentNullException>(() => Assert.Single<object>(new object[0], null));
         }
 
         [Fact]
-        public void PredicateSingleMatch()
+        public static void PredicateSingleMatch()
         {
             string[] collection = new[] { "Hello", "World!" };
 
@@ -657,7 +822,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void PredicateNoMatch()
+        public static void PredicateNoMatch()
         {
             string[] collection = new[] { "Hello", "World!" };
 
@@ -668,7 +833,7 @@ public class CollectionAssertsTests
         }
 
         [Fact]
-        public void PredicateTooManyMatches()
+        public static void PredicateTooManyMatches()
         {
             string[] collection = new[] { "Hello", "World!" };
 

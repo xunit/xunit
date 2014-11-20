@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -40,14 +39,14 @@ namespace Xunit.Sdk
             SkipReason = skipReason;
             ConstructorArguments = constructorArguments;
 
-            TestClass = GetRuntimeClass();
-            TestMethod = GetRuntimeMethod();
+            TestClass = TestCase.TestMethod.TestClass.Class.ToRuntimeType();
+            TestMethod = TestCase.Method.ToRuntimeMethod();
 
             var parameterTypes = TestMethod.GetParameters().Select(p => p.ParameterType).ToArray();
             TestMethodArguments = Reflector.ConvertArguments(testMethodArguments, parameterTypes);
 
             beforeAfterAttributes =
-                TestClass.GetCustomAttributes(typeof(BeforeAfterTestAttribute))
+                TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute))
                          .Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
                          .Cast<BeforeAfterTestAttribute>()
                          .ToList();
@@ -91,29 +90,11 @@ namespace Xunit.Sdk
         /// </summary>
         protected object[] TestMethodArguments { get; set; }
 
-        Type GetRuntimeClass()
-        {
-            var testClass = TestCase.TestMethod.TestClass;
-            var reflectionTypeInfo = testClass.Class as IReflectionTypeInfo;
-            if (reflectionTypeInfo != null)
-                return reflectionTypeInfo.Type;
-
-            return Reflector.GetType(testClass.TestCollection.TestAssembly.Assembly.Name, testClass.Class.Name);
-        }
-
-        MethodInfo GetRuntimeMethod()
-        {
-            var reflectionMethodInfo = TestCase.Method as IReflectionMethodInfo;
-            if (reflectionMethodInfo != null)
-                return reflectionMethodInfo.MethodInfo;
-
-            return TestClass.GetMethod(TestCase.Method.Name, TestCase.Method.GetBindingFlags());
-        }
-
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestAsync()
         {
-            return new XunitTestRunner(TestCase, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, DisplayName, SkipReason, beforeAfterAttributes, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
+            var test = new XunitTest(TestCase, DisplayName);
+            return new XunitTestRunner(test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, SkipReason, beforeAfterAttributes, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
         }
     }
 }

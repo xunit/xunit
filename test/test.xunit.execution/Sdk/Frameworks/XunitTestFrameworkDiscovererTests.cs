@@ -220,7 +220,7 @@ public class XunitTestFrameworkDiscovererTests
         public static void ClassWithNoTests_ReturnsNoTestCases()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
-            var testClass = new XunitTestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithNoTests)));
+            var testClass = new TestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithNoTests)));
 
             framework.FindTestsForClass(testClass);
 
@@ -237,7 +237,7 @@ public class XunitTestFrameworkDiscovererTests
         public static void AssemblyWithFact_ReturnsOneTestCaseOfTypeXunitTestCase()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
-            var testClass = new XunitTestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithOneFact)));
+            var testClass = new TestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithOneFact)));
 
             framework.FindTestsForClass(testClass);
 
@@ -261,7 +261,7 @@ public class XunitTestFrameworkDiscovererTests
         public static void AssemblyWithMixOfFactsAndNonTests_ReturnsTestCasesOnlyForFacts()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
-            var testClass = new XunitTestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithMixOfFactsAndNonFacts)));
+            var testClass = new TestClass(Mocks.TestCollection(), Reflector.Wrap(typeof(ClassWithMixOfFactsAndNonFacts)));
 
             framework.FindTestsForClass(testClass);
 
@@ -282,7 +282,7 @@ public class XunitTestFrameworkDiscovererTests
         public static void AssemblyWithTheoryWithInlineData_ReturnsOneTestCasePerDataRecord()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
-            var testClass = Mocks.XunitTestClass(typeof(TheoryWithInlineData));
+            var testClass = Mocks.TestClass(typeof(TheoryWithInlineData));
 
             framework.FindTestsForClass(testClass);
 
@@ -311,7 +311,7 @@ public class XunitTestFrameworkDiscovererTests
         public static void AssemblyWithTheoryWithPropertyData_ReturnsOneTestCasePerDataRecord()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
-            var testClass = Mocks.XunitTestClass(typeof(TheoryWithPropertyData));
+            var testClass = Mocks.TestClass(typeof(TheoryWithPropertyData));
 
             framework.FindTestsForClass(testClass);
 
