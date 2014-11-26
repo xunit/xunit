@@ -240,7 +240,7 @@ namespace Xunit.Runner.MSBuild
                                    !executionOptions.DisableParallelization,
                                    executionOptions.MaxParallelThreads);
                 else
-                    Log.LogMessage(MessageImportance.High, "  Discovering: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+                Log.LogMessage(MessageImportance.High, "  Discovering: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
                 using (var controller = CreateFrontController(assemblyFileName, configFileName))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())

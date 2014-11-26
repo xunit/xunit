@@ -120,6 +120,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.wp8", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.wp8", "src\xunit.runner.utility.wp8\xunit.runner.utility.wp8.csproj", "{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.ios-universal", "src\xunit.execution.ios-universal\xunit.execution.ios-universal.csproj", "{372BC460-0BBA-4AD5-9FC4-87950B220267}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.ios-universal", "src\xunit.runner.utility.ios-universal\xunit.runner.utility.ios-universal.csproj", "{DB7068BF-3B26-49AB-83B3-F6B8431E37E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -242,6 +246,14 @@ Global
 		{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{372BC460-0BBA-4AD5-9FC4-87950B220267}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{372BC460-0BBA-4AD5-9FC4-87950B220267}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{372BC460-0BBA-4AD5-9FC4-87950B220267}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{372BC460-0BBA-4AD5-9FC4-87950B220267}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB7068BF-3B26-49AB-83B3-F6B8431E37E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB7068BF-3B26-49AB-83B3-F6B8431E37E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB7068BF-3B26-49AB-83B3-F6B8431E37E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB7068BF-3B26-49AB-83B3-F6B8431E37E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -287,5 +299,7 @@ Global
 		{B70F7D22-1455-4118-A827-DC60CE6363A8} = {C50B1A3D-B2F9-468F-8280-526B0D712107}
 		{AA80CCD7-6DD1-4122-9A85-B8F9FD9F113E} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 		{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD} = {A36A630E-A604-47E6-894E-732946960182}
+		{372BC460-0BBA-4AD5-9FC4-87950B220267} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
+		{DB7068BF-3B26-49AB-83B3-F6B8431E37E9} = {A36A630E-A604-47E6-894E-732946960182}
 	EndGlobalSection
 EndGlobal

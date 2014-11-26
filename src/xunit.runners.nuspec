@@ -21,14 +21,14 @@
     <file src="xunit.runner.utility.net35\bin\Release\xunit.runner.utility.dll" target="tools\xunit.runner.utility.dll" />
     
     <!-- Console runner -->
-    <file src="xunit.console\HTML.xslt"                                         target="tools\HTML.xslt" />
-    <file src="xunit.console\xUnit1.xslt"                                       target="tools\xUnit1.xslt" />
-    <file src="xunit.console\bin\Release\xunit.console.exe"                     target="tools\xunit.console.exe" />
-    <file src="xunit.console\bin\Release\xunit.console.exe.config"              target="tools\xunit.console.exe.config" />
-    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe"             target="tools\xunit.console.x86.exe" />
-    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe.config"      target="tools\xunit.console.x86.exe.config" />
+    <file src="xunit.console\HTML.xslt"                                    target="tools\HTML.xslt" />
+    <file src="xunit.console\xUnit1.xslt"                                  target="tools\xUnit1.xslt" />
+    <file src="xunit.console\bin\Release\xunit.console.exe"                target="tools\xunit.console.exe" />
+    <file src="xunit.console\bin\Release\xunit.console.exe.config"         target="tools\xunit.console.exe.config" />
+    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe"        target="tools\xunit.console.x86.exe" />
+    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe.config" target="tools\xunit.console.x86.exe.config" />
     
     <!-- MSBuild runner -->
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll"       target="tools\xunit.runner.msbuild.dll" />
+    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll" target="tools\xunit.runner.msbuild.dll" />
   </files>
 </package>

@@ -263,7 +263,7 @@ namespace Xunit.ConsoleClient
                                           !executionOptions.DisableParallelization,
                                           executionOptions.MaxParallelThreads);
                     else
-                        Console.WriteLine("Discovering: {0}", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
+                    Console.WriteLine("Discovering: {0}", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
                 }
 
                 using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy))

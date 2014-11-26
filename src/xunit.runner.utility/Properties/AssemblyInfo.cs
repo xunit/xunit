@@ -3,8 +3,10 @@ using System.Reflection;
 
 #if ANDROID
 [assembly: AssemblyTitle("xUnit.net Runner Utility (MonoAndroid)")]
-#elif __IOS__
+#elif __IOS__ && !__UNIFIED__
 [assembly: AssemblyTitle("xUnit.net Runner Utility (MonoTouch)")]
+#elif __IOS__ 
+[assembly: AssemblyTitle("xUnit.net Runner Utility (Xamarin.iOS)")]
 #elif WINDOWS_PHONE_APP
 [assembly: AssemblyTitle("xUnit.net Runner Utility (WPA81 + WIN81)")]
 #elif WINDOWS_PHONE

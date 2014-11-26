@@ -7,7 +7,7 @@
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
       Includes the core unit testing framework from xUnit.net (xunit.core.dll).
-      Supported platforms: Desktop .NET 4.5+, ASP.NET Core 5+, Modern Windows 8+, Windows Phone 8+ (Silverlight), Windows Phone 8.1+ (Universal), MonoTouch, MonoAndroid, Portable Libraries (supporting Profile259).
+      Supported platforms: Desktop .NET 4.5+, ASP.NET Core 5+, Modern Windows 8+, Windows Phone 8+ (Silverlight), Windows Phone 8.1+ (Universal), MonoTouch, MonoAndroid, Xamarin.iOS, Portable Libraries (supporting Profile259).
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -36,18 +36,18 @@
   </metadata>
   <files>
     <!-- Core -->
-    <file src="xunit.core\bin\Release\xunit.core.dll" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid\xunit.core.dll" />
-    <file src="xunit.core\bin\Release\xunit.core.pdb" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid\xunit.core.pdb" />
-    <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid\xunit.core.xml" />
+    <file src="xunit.core\bin\Release\xunit.core.dll" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.dll" />
+    <file src="xunit.core\bin\Release\xunit.core.pdb" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.pdb" />
+    <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.xml" />
 
     <!-- Execution -->
-    <file src="xunit.core\build\xunit.core.props"                                     target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.core.props" />
-    <file src="xunit.execution.net45\bin\Release\xunit.execution.dll"                 target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid\xunit.execution.dll" />
+    <file src="xunit.core\build\xunit.core.props"                     target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
+    <file src="xunit.execution.net45\bin\Release\xunit.execution.dll" target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.execution.dll" />
 
-    <file src="xunit.core\build\xunit.core.props"                                     target="build\win8\xunit.core.props" />
-    <file src="xunit.core\build\xunit.core.targets"                                   target="build\win8\xunit.core.targets" />
-    <file src="xunit.execution.net45\bin\Release\xunit.execution.dll"                 target="build\win8\xunit.execution.dll" />
-    <file src="xunit.execution.net45.noappdomain\bin\Release\xunit.execution.dll"     target="build\win8\device\xunit.execution.dll" />
+    <file src="xunit.core\build\xunit.core.props"                                 target="build\win8\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.targets"                               target="build\win8\xunit.core.targets" />
+    <file src="xunit.execution.net45\bin\Release\xunit.execution.dll"             target="build\win8\xunit.execution.dll" />
+    <file src="xunit.execution.net45.noappdomain\bin\Release\xunit.execution.dll" target="build\win8\device\xunit.execution.dll" />
 
     <file src="xunit.core\build\xunit.core.props"                                     target="build\wpa81\xunit.core.props" />
     <file src="xunit.core\build\xunit.core.targets"                                   target="build\wpa81\xunit.core.targets" />
@@ -60,15 +60,18 @@
     <file src="xunit.execution.net45.noserialization\bin\Release\xunit.execution.dll" target="build\wp8\xunit.execution.dll" />
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.dll"                   target="build\wp8\device\xunit.execution.dll" />
 
-    <file src="xunit.core\build\xunit.core.props"                                     target="build\monotouch\xunit.core.props" />
-    <file src="xunit.execution.iOS\bin\iPhone\Release\xunit.execution.dll"            target="build\monotouch\xunit.execution.dll" />
+    <file src="xunit.core\build\xunit.core.props"                          target="build\monotouch\xunit.core.props" />
+    <file src="xunit.execution.iOS\bin\iPhone\Release\xunit.execution.dll" target="build\monotouch\xunit.execution.dll" />
 
-    <file src="xunit.core\build\xunit.core.props"                                     target="build\monoandroid\xunit.core.props" />
-    <file src="xunit.execution.android\bin\Release\xunit.execution.dll"               target="build\monoandroid\xunit.execution.dll" />
+    <file src="xunit.core\build\xunit.core.props"                                    target="build\Xamarin.iOS\xunit.core.props" />
+    <file src="xunit.execution.ios-universal\bin\iPhone\Release\xunit.execution.dll" target="build\Xamarin.iOS\xunit.execution.dll" />
+
+    <file src="xunit.core\build\xunit.core.props"                       target="build\monoandroid\xunit.core.props" />
+    <file src="xunit.execution.android\bin\Release\xunit.execution.dll" target="build\monoandroid\xunit.execution.dll" />
 
     <!-- TD.NET -->
-    <file src="xunit.core\bin\Release\xunit.core.dll.tdnet"                     target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid\xunit.core.dll.tdnet" />
-    <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll"           target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid\xunit.runner.tdnet.dll" />
-    <file src="xunit.runner.utility.net35\bin\Release\xunit.runner.utility.dll" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid\xunit.runner.utility.dll" />
+    <file src="xunit.core\bin\Release\xunit.core.dll.tdnet"                     target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.dll.tdnet" />
+    <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll"           target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.tdnet.dll" />
+    <file src="xunit.runner.utility.net35\bin\Release\xunit.runner.utility.dll" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.utility.dll" />
   </files>
 </package>
