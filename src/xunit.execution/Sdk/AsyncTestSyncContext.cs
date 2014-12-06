@@ -9,7 +9,7 @@ using Windows.System.Threading;
 
 namespace Xunit.Sdk
 {
-    internal class AsyncTestSyncContext : SynchronizationContext
+    public class AsyncTestSyncContext : SynchronizationContext
     {
         readonly AsyncManualResetEvent @event = new AsyncManualResetEvent(true);
         Exception exception;
