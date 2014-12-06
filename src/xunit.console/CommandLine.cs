@@ -18,20 +18,18 @@ namespace Xunit.ConsoleClient
 
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
             AppVeyor = Environment.GetEnvironmentVariable("APPVEYOR_API_URL") != null;
-            ParallelizeAssemblies = false;
-            ParallelizeTestCollections = true;
             Project = Parse(fileExists);
         }
 
         public bool AppVeyor { get; protected set; }
 
-        public int MaxParallelThreads { get; set; }
+        public int? MaxParallelThreads { get; set; }
 
         public XunitProject Project { get; protected set; }
 
-        public bool ParallelizeAssemblies { get; protected set; }
+        public bool? ParallelizeAssemblies { get; protected set; }
 
-        public bool ParallelizeTestCollections { get; set; }
+        public bool? ParallelizeTestCollections { get; set; }
 
         public bool TeamCity { get; protected set; }
 

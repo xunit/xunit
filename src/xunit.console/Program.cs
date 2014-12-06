@@ -132,12 +132,15 @@ namespace Xunit.ConsoleClient
             );
         }
 
-        static int RunProject(string defaultDirectory, XunitProject project, bool teamcity, bool appVeyor, bool parallelizeAssemblies, bool parallelizeTestCollections, int maxThreadCount)
+        static int RunProject(string defaultDirectory, XunitProject project, bool teamcity, bool appVeyor, bool? parallelizeAssemblies, bool? parallelizeTestCollections, int? maxThreadCount)
         {
             XElement assembliesElement = null;
             var xmlTransformers = TransformFactory.GetXmlTransformers(project);
             var needsXml = xmlTransformers.Count > 0;
             var consoleLock = new object();
+
+            if (!parallelizeAssemblies.HasValue)
+                parallelizeAssemblies = project.All(assembly => assembly.Configuration.ParallelizeAssembly);
 
             if (needsXml)
                 assembliesElement = new XElement("assemblies");
@@ -148,7 +151,7 @@ namespace Xunit.ConsoleClient
             {
                 var clockTime = Stopwatch.StartNew();
 
-                if (parallelizeAssemblies)
+                if (parallelizeAssemblies.GetValueOrDefault())
                 {
                     var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, defaultDirectory, assembly, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, project.Filters)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
@@ -232,7 +235,7 @@ namespace Xunit.ConsoleClient
             return new StandardOutputVisitor(consoleLock, defaultDirectory, assemblyElement, () => cancel, completionMessages);
         }
 
-        static XElement ExecuteAssembly(object consoleLock, string defaultDirectory, XunitProjectAssembly assembly, bool needsXml, bool teamCity, bool appVeyor, bool parallelizeTestCollections, int maxThreadCount, XunitFilters filters)
+        static XElement ExecuteAssembly(object consoleLock, string defaultDirectory, XunitProjectAssembly assembly, bool needsXml, bool teamCity, bool appVeyor, bool? parallelizeTestCollections, int? maxThreadCount, XunitFilters filters)
         {
             if (cancel)
                 return null;
@@ -244,19 +247,34 @@ namespace Xunit.ConsoleClient
                 if (!ValidateFileExists(consoleLock, assembly.AssemblyFilename) || !ValidateFileExists(consoleLock, assembly.ConfigFilename))
                     return null;
 
+                var discoveryOptions = new XunitDiscoveryOptions(assembly.Configuration);
+                var executionOptions = new XunitExecutionOptions(assembly.Configuration);
+                if (maxThreadCount.HasValue)
+                    executionOptions.MaxParallelThreads = maxThreadCount.GetValueOrDefault();
+                if (parallelizeTestCollections.HasValue)
+                    executionOptions.DisableParallelization = !parallelizeTestCollections.GetValueOrDefault();
+
                 lock (consoleLock)
-                    Console.WriteLine("Discovering: {0}", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
+                {
+                    if (assembly.Configuration.DiagnosticMessages)
+                        Console.WriteLine("Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
+                                          Path.GetFileNameWithoutExtension(assembly.AssemblyFilename),
+                                          discoveryOptions.MethodDisplay,
+                                          !executionOptions.DisableParallelization,
+                                          executionOptions.MaxParallelThreads);
+                    else
+                        Console.WriteLine("Discovering: {0}", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
+                }
 
                 using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
-                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: new TestFrameworkOptions());
+                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: discoveryOptions);
                     discoveryVisitor.Finished.WaitOne();
 
                     lock (consoleLock)
                         Console.WriteLine("Discovered:  {0}", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
 
-                    var executionOptions = new XunitExecutionOptions { DisableParallelization = !parallelizeTestCollections, MaxParallelThreads = maxThreadCount };
                     var resultsVisitor = CreateVisitor(consoleLock, defaultDirectory, assemblyElement, teamCity, appVeyor);
                     var filteredTestCases = discoveryVisitor.TestCases.Where(filters.Filter).ToList();
                     if (filteredTestCases.Count == 0)

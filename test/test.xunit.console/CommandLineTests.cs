@@ -175,11 +175,11 @@ public class CommandLineTests
     public class MaxThreadsOption
     {
         [Fact]
-        public static void DefaultValueIsZero()
+        public static void DefaultValueIsNull()
         {
             var commandLine = TestableCommandLine.Parse("assemblyName.dll");
 
-            Assert.Equal(0, commandLine.MaxParallelThreads);
+            Assert.Null(commandLine.MaxParallelThreads);
         }
 
         [Fact]
@@ -647,12 +647,12 @@ public class CommandLineTests
     public class ParallelizationOptions
     {
         [Fact]
-        public static void ParallelIsCollectionsOnlyByDefault()
+        public static void ParallelizationOptionsAreNullByDefault()
         {
             var project = TestableCommandLine.Parse("assemblyName.dll");
 
-            Assert.False(project.ParallelizeAssemblies);
-            Assert.True(project.ParallelizeTestCollections);
+            Assert.Null(project.ParallelizeAssemblies);
+            Assert.Null(project.ParallelizeTestCollections);
         }
 
         [Fact]
