@@ -17,6 +17,9 @@ namespace Xunit.Runner.MSBuild
         volatile bool cancel;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
         XunitFilters filters;
+        int? maxParallelThreads;
+        bool? parallelizeAssemblies;
+        bool? parallelizeTestCollections;
 
         public xunit()
         {
@@ -37,16 +40,16 @@ namespace Xunit.Runner.MSBuild
 
         public string IncludeTraits { get; set; }
 
-        public int MaxParallelThreads { get; set; }
+        public int MaxParallelThreads { set { maxParallelThreads = value; } }
 
         protected bool NeedsXml
         {
             get { return Xml != null || XmlV1 != null || Html != null; }
         }
 
-        public bool ParallelizeAssemblies { get; set; }
+        public bool ParallelizeAssemblies { set { parallelizeAssemblies = value; } }
 
-        public bool ParallelizeTestCollections { get; set; }
+        public bool ParallelizeTestCollections { set { parallelizeTestCollections = value; } }
 
         public bool ShadowCopy { get; set; }
 
@@ -116,7 +119,7 @@ namespace Xunit.Runner.MSBuild
                     if (configFileName != null && configFileName.Length == 0)
                         configFileName = null;
 
-                    return Tuple.Create(assemblyFileName, configFileName);
+                    return Tuple.Create(assemblyFileName, configFileName, ConfigReader.Load(assemblyFileName, configFileName));
                 }).ToList();
 
                 if (WorkingFolder != null)
@@ -124,9 +127,12 @@ namespace Xunit.Runner.MSBuild
 
                 var clockTime = Stopwatch.StartNew();
 
-                if (ParallelizeAssemblies)
+                if (!parallelizeAssemblies.HasValue)
+                    parallelizeAssemblies = testAssemblyPaths.All(tuple => tuple.Item3.ParallelizeAssembly);
+
+                if (parallelizeAssemblies.GetValueOrDefault())
                 {
-                    var tasks = testAssemblyPaths.Select(path => Task.Run(() => ExecuteAssembly(path.Item1, path.Item2)));
+                    var tasks = testAssemblyPaths.Select(path => Task.Run(() => ExecuteAssembly(path.Item1, path.Item2, path.Item3)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -135,7 +141,7 @@ namespace Xunit.Runner.MSBuild
                 {
                     foreach (var path in testAssemblyPaths)
                     {
-                        var assemblyElement = ExecuteAssembly(path.Item1, path.Item2);
+                        var assemblyElement = ExecuteAssembly(path.Item1, path.Item2, path.Item3);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -211,7 +217,7 @@ namespace Xunit.Runner.MSBuild
             return NeedsXml ? new XElement("assembly") : null;
         }
 
-        protected virtual XElement ExecuteAssembly(string assemblyFileName, string configFileName)
+        protected virtual XElement ExecuteAssembly(string assemblyFileName, string configFileName, TestAssemblyConfiguration configuration)
         {
             if (cancel)
                 return null;
@@ -220,24 +226,32 @@ namespace Xunit.Runner.MSBuild
 
             try
             {
-                Log.LogMessage(MessageImportance.High, "  Discovering: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+                var discoveryOptions = new XunitDiscoveryOptions(configuration);
+                var executionOptions = new XunitExecutionOptions(configuration);
+                if (maxParallelThreads.HasValue)
+                    executionOptions.MaxParallelThreads = maxParallelThreads.GetValueOrDefault();
+                if (parallelizeTestCollections.HasValue)
+                    executionOptions.DisableParallelization = !parallelizeTestCollections.GetValueOrDefault();
+
+                if (configuration.DiagnosticMessages)
+                    Log.LogMessage(MessageImportance.High, "  Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
+                                   Path.GetFileNameWithoutExtension(assemblyFileName),
+                                   discoveryOptions.MethodDisplay,
+                                   !executionOptions.DisableParallelization,
+                                   executionOptions.MaxParallelThreads);
+                else
+                    Log.LogMessage(MessageImportance.High, "  Discovering: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
                 using (var controller = CreateFrontController(assemblyFileName, configFileName))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
-                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: new XunitDiscoveryOptions());
+                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: discoveryOptions);
                     discoveryVisitor.Finished.WaitOne();
 
                     Log.LogMessage(MessageImportance.High, "  Discovered:  {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
                     using (var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement))
                     {
-                        var executionOptions = new XunitExecutionOptions
-                        {
-                            DisableParallelization = !ParallelizeTestCollections,
-                            MaxParallelThreads = MaxParallelThreads
-                        };
-
                         var filteredTestCases = discoveryVisitor.TestCases.Where(Filters.Filter).ToList();
                         if (filteredTestCases.Count == 0)
                         {

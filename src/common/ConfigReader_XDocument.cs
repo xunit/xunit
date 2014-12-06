@@ -22,8 +22,6 @@ namespace Xunit
         /// <returns>The test assembly configuration.</returns>
         public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null)
         {
-            Guard.FileExists("assemblyFileName", assemblyFileName);
-
             if (configFileName == null)
                 configFileName = assemblyFileName + ".config";
 

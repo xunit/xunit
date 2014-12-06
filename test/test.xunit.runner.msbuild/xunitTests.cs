@@ -335,14 +335,14 @@ public class xunitTests
 
         public void _ExecuteAssembly(string assemblyFilename, string configFileName)
         {
-            base.ExecuteAssembly(assemblyFilename, configFileName);
+            base.ExecuteAssembly(assemblyFilename, configFileName, new TestAssemblyConfiguration());
         }
 
-        protected override XElement ExecuteAssembly(string assemblyFilename, string configFileName)
+        protected override XElement ExecuteAssembly(string assemblyFilename, string configFileName, TestAssemblyConfiguration configuration)
         {
             ExecuteAssembly_Calls.Add(String.Format("{0}, {1}", assemblyFilename ?? "(null)", configFileName ?? "(null)"));
 
-            return base.ExecuteAssembly(assemblyFilename, configFileName);
+            return base.ExecuteAssembly(assemblyFilename, configFileName, configuration);
         }
 
         private void ReturnDiscoveryMessages(IMessageSink sink)
