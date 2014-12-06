@@ -101,7 +101,7 @@ namespace Xunit.Sdk
             var assemblyName = info.GetString("DeclarationAssemblyName");
             var typeName = info.GetString("DeclarationTypeName");
 
-            if (!String.IsNullOrWhiteSpace(assemblyName) && String.IsNullOrWhiteSpace(typeName))
+            if (!String.IsNullOrWhiteSpace(assemblyName) && !String.IsNullOrWhiteSpace(typeName))
                 CollectionDefinition = Reflector.Wrap(Reflector.GetType(assemblyName, typeName));
         }
 
@@ -115,7 +115,7 @@ namespace Xunit.Sdk
             var assemblyName = info.GetString("DeclarationAssemblyName");
             var typeName = info.GetString("DeclarationTypeName");
 
-            if (!String.IsNullOrWhiteSpace(assemblyName) && String.IsNullOrWhiteSpace(typeName))
+            if (!String.IsNullOrWhiteSpace(assemblyName) && !String.IsNullOrWhiteSpace(typeName))
                 CollectionDefinition = Reflector.Wrap(Reflector.GetType(assemblyName, typeName));
         }
     }
