@@ -11,6 +11,7 @@ namespace Xunit.Runner.TdNet
     {
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
         readonly Xunit2 xunit;
+        readonly TestAssemblyConfiguration configuration;
         readonly ITestListener testListener;
 
         /// <summary>
@@ -22,18 +23,20 @@ namespace Xunit.Runner.TdNet
         {
             this.testListener = testListener;
 
-            xunit = new Xunit2(new NullSourceInformationProvider(), assembly.GetLocalCodeBase());
+            var assemblyFileName = assembly.GetLocalCodeBase();
+            xunit = new Xunit2(new NullSourceInformationProvider(), assemblyFileName);
+            configuration = ConfigReader.Load(assemblyFileName);
             toDispose.Push(xunit);
         }
 
         public virtual IEnumerable<ITestCase> Discover()
         {
-            return Discover(sink => xunit.Find(false, sink, new XunitDiscoveryOptions()));
+            return Discover(sink => xunit.Find(false, sink, new XunitDiscoveryOptions(configuration)));
         }
 
         private IEnumerable<ITestCase> Discover(Type type)
         {
-            return Discover(sink => xunit.Find(type.FullName, false, sink, new XunitDiscoveryOptions()));
+            return Discover(sink => xunit.Find(type.FullName, false, sink, new XunitDiscoveryOptions(configuration)));
         }
 
         private IEnumerable<ITestCase> Discover(Action<IMessageSink> discoveryAction)
@@ -70,9 +73,9 @@ namespace Xunit.Runner.TdNet
                 toDispose.Push(visitor);
 
                 if (testCases == null)
-                    xunit.Run(visitor, new XunitDiscoveryOptions(), new XunitExecutionOptions());
+                    xunit.Run(visitor, new XunitDiscoveryOptions(configuration), new XunitExecutionOptions(configuration));
                 else
-                    xunit.Run(testCases, visitor, new XunitExecutionOptions());
+                    xunit.Run(testCases, visitor, new XunitExecutionOptions(configuration));
 
                 visitor.Finished.WaitOne();
 
