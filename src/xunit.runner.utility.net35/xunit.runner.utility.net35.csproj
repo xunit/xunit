@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -53,6 +54,9 @@
     </Compile>
     <Compile Include="..\common\AssemblyHelper.cs">
       <Link>Common\AssemblyHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\common\ConfigReader_Configuration.cs">
+      <Link>Common\ConfigReader_Configuration.cs</Link>
     </Compile>
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
@@ -86,6 +90,9 @@
     </Compile>
     <Compile Include="..\common\TestMessageVisitor.cs">
       <Link>Common\TestMessageVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\common\TestMethodDisplay.cs">
+      <Link>Common\TestMethodDisplay.cs</Link>
     </Compile>
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>

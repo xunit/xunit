@@ -62,6 +62,9 @@
     <Compile Include="..\common\TestMessageVisitor.cs">
       <Link>Common\TestMessageVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\common\TestMethodDisplay.cs">
+      <Link>Common\TestMethodDisplay.cs</Link>
+    </Compile>
     <Compile Include="..\common\XunitWorkerThread_Thread.cs">
       <Link>Common\XunitWorkerThread_Thread.cs</Link>
     </Compile>

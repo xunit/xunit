@@ -69,6 +69,10 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public virtual void RunAll(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
         {
+            Guard.ArgumentNotNull("messageSink", messageSink);
+            Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
+            Guard.ArgumentNotNull("executionOptions", executionOptions);
+
             var discoverySink = new TestDiscoveryVisitor();
 
             using (var discoverer = CreateDiscoverer())

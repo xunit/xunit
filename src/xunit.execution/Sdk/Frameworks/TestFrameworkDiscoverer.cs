@@ -85,10 +85,10 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
+        public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions discoveryOptions)
         {
             Guard.ArgumentNotNull("messageSink", messageSink);
-            Guard.ArgumentNotNull("options", options);
+            Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
             Task.Run(() =>
             {
@@ -109,11 +109,11 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
+        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions discoveryOptions)
         {
             Guard.ArgumentNotNullOrEmpty("typeName", typeName);
             Guard.ArgumentNotNull("messageSink", messageSink);
-            Guard.ArgumentNotNull("options", options);
+            Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
             Task.Run(() =>
             {

@@ -250,7 +250,7 @@ namespace Xunit.ConsoleClient
                 using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
-                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, options: new TestFrameworkOptions());
+                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: new TestFrameworkOptions());
                     discoveryVisitor.Finished.WaitOne();
 
                     lock (consoleLock)

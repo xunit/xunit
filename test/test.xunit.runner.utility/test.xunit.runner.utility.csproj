@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNIT_TEST</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -25,7 +25,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;UNIT_TEST</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -37,6 +37,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="TestDriven.Framework">
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
     </Reference>
@@ -45,15 +46,26 @@
     <Compile Include="..\..\src\common\AssemblyExtensions.cs">
       <Link>Common\AssemblyExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\ConfigReader_XDocument.cs">
+      <Link>Common\ConfigReader_XDocument.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\common\Guard.cs">
+      <Link>Common\Guard.cs</Link>
     </Compile>
     <Compile Include="..\..\src\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\TestOptionsNames.cs">
+      <Link>Common\TestOptionsNames.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\xunit.runner.utility.net35\Frameworks\v1\Xunit1ExceptionUtility.cs">
       <Link>Frameworks\v1\Xunit1ExceptionUtility.cs</Link>
     </Compile>
+    <Compile Include="Common\ConfigReader_ConfigurationTests.cs" />
+    <Compile Include="Common\ConfigReader_XDocumentTests.cs" />
     <Compile Include="Frameworks\v1\TestClassCallbackHandlerTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1ExceptionUtilityTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCaseTests.cs" />
@@ -69,6 +81,12 @@
     <Compile Include="Visitors\TestMessageVisitorTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ConfigReader_BadValues.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ConfigReader_OverrideValues.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

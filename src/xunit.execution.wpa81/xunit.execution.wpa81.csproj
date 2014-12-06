@@ -126,6 +126,9 @@
     <Compile Include="..\common\TestMessageVisitor.cs">
       <Link>Common\TestMessageVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\common\TestMethodDisplay.cs">
+      <Link>Common\TestMethodDisplay.cs</Link>
+    </Compile>
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
     </Compile>

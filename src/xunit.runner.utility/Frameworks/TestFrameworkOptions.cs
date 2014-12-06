@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -9,6 +11,15 @@ namespace Xunit
     public class TestFrameworkOptions : LongLivedMarshalByRefObject, ITestFrameworkOptions
     {
         readonly Dictionary<string, object> properties = new Dictionary<string, object>();
+
+        static bool IsEnum(Type type)
+        {
+#if NEW_REFLECTION
+            return type.GetTypeInfo().IsEnum;
+#else
+            return type.IsEnum;
+#endif
+        }
 
         /// <summary>
         /// Gets a value from the options collection.
@@ -21,7 +32,12 @@ namespace Xunit
         {
             object result;
             if (properties.TryGetValue(name, out result))
-                return (TValue)result;
+            {
+                if (IsEnum(typeof(TValue)))
+                    return (TValue)Enum.Parse(typeof(TValue), (string)result);
+                else
+                    return (TValue)result;
+            }
 
             return defaultValue;
         }
@@ -34,7 +50,10 @@ namespace Xunit
         /// <param name="value">The value.</param>
         public void SetValue<TValue>(string name, TValue value)
         {
-            properties[name] = value;
+            if (IsEnum(typeof(TValue)))
+                properties[name] = value.ToString();
+            else
+                properties[name] = value;
         }
     }
 }

@@ -6,12 +6,26 @@
     public class XunitExecutionOptions : TestFrameworkOptions
     {
         /// <summary>
-        /// Gets or sets a flag that determines whether xUnit.net should report test results synchronously.
+        /// Initializes a new instance of the <see cref="XunitExecutionOptions"/> class.
         /// </summary>
-        public bool SynchronousMessageReporting
+        /// <param name="configuration">The optional configuration to copy values from.</param>
+        public XunitExecutionOptions(TestAssemblyConfiguration configuration = null)
         {
-            get { return GetValue<bool>(TestOptionsNames.Execution.SynchronousMessageReporting, false); }
-            set { SetValue(TestOptionsNames.Execution.SynchronousMessageReporting, value); }
+            if (configuration != null)
+            {
+                DiagnosticMessages = configuration.DiagnosticMessages;
+                DisableParallelization = !configuration.ParallelizeTestCollections;
+                MaxParallelThreads = configuration.MaxParallelThreads;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a flag that determines whether diagnostic messages will be emitted.
+        /// </summary>
+        public bool DiagnosticMessages
+        {
+            get { return GetValue<bool>(TestOptionsNames.Execution.DiagnosticMessages, false); }
+            set { SetValue(TestOptionsNames.Execution.DiagnosticMessages, value); }
         }
 
         /// <summary>
@@ -31,6 +45,15 @@
         {
             get { return GetValue<int>(TestOptionsNames.Execution.MaxParallelThreads, 0); }
             set { SetValue(TestOptionsNames.Execution.MaxParallelThreads, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets a flag that determines whether xUnit.net should report test results synchronously.
+        /// </summary>
+        public bool SynchronousMessageReporting
+        {
+            get { return GetValue<bool>(TestOptionsNames.Execution.SynchronousMessageReporting, false); }
+            set { SetValue(TestOptionsNames.Execution.SynchronousMessageReporting, value); }
         }
     }
 }

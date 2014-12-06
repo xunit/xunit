@@ -225,7 +225,7 @@ namespace Xunit.Runner.MSBuild
                 using (var controller = CreateFrontController(assemblyFileName, configFileName))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
-                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, options: new XunitDiscoveryOptions());
+                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: new XunitDiscoveryOptions());
                     discoveryVisitor.Finished.WaitOne();
 
                     Log.LogMessage(MessageImportance.High, "  Discovered:  {0}", Path.GetFileNameWithoutExtension(assemblyFileName));

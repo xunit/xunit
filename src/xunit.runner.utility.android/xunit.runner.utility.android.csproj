@@ -50,6 +50,9 @@
     <Compile Include="..\common\AssemblyHelper.cs">
       <Link>Common\AssemblyHelper.cs</Link>
     </Compile>
+    <Compile Include="..\common\ConfigReader_XDocument.cs">
+      <Link>Common\ConfigReader_XDocument.cs</Link>
+    </Compile>
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
@@ -85,6 +88,9 @@
     </Compile>
     <Compile Include="..\common\TestMessageVisitor.cs">
       <Link>Common\TestMessageVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\common\TestMethodDisplay.cs">
+      <Link>Common\TestMethodDisplay.cs</Link>
     </Compile>
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
