@@ -14,6 +14,7 @@
         "..\\common\\ExceptionExtensions.cs",
         "..\\common\\GlobalAssemblyInfo.cs",
         "..\\common\\Guard.cs",
+        "..\\common\\TestMethodDisplay.cs",
         "..\\xunit.assert\\Asserts\\Sdk\\AssertEqualityComparer.cs",
         "..\\xunit.assert\\Asserts\\Sdk\\AssertEqualityComparerAdapter.cs",
         "**\\*.cs"

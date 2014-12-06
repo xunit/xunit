@@ -12,16 +12,11 @@ namespace Xunit
         /// <summary>
         /// Use a fully qualified name (namespace + class + method)
         /// </summary>
-        NamespaceAndClassAndMethod = 1,
+        ClassAndMethod = 1,
 
         /// <summary>
-        /// Use a class qualified name (class + method, without namespace)
+        /// Use just the method name (without class)
         /// </summary>
-        ClassAndMethod = 2,
-
-        /// <summary>
-        /// Use just the method name (without namespace or class)
-        /// </summary>
-        Method = 3
+        Method = 2
     }
 }

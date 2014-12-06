@@ -13,12 +13,12 @@ namespace Xunit.Sdk
     public class TheoryDiscoverer : IXunitTestCaseDiscoverer
     {
         /// <inheritdoc/>
-        public IEnumerable<IXunitTestCase> Discover(ITestMethod testMethod, IAttributeInfo factAttribute)
+        public IEnumerable<IXunitTestCase> Discover(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
             // Special case Skip, because we want a single Skip (not one per data item), and a skipped test may
             // not actually have any data (which is quasi-legal, since it's skipped).
             if (factAttribute.GetNamedArgument<string>("Skip") != null)
-                return new[] { new XunitTestCase(testMethod) };
+                return new[] { new XunitTestCase(defaultMethodDisplay, testMethod) };
 
             var dataAttributes = testMethod.Method.GetCustomAttributes(typeof(DataAttribute));
 
@@ -33,7 +33,7 @@ namespace Xunit.Sdk
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                         var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererAttribute);
                         if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
-                            return new XunitTestCase[] { new XunitTheoryTestCase(testMethod) };
+                            return new XunitTestCase[] { new XunitTheoryTestCase(defaultMethodDisplay, testMethod) };
 
                         // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it
                         // down below so that we get the composite test case.
@@ -43,7 +43,7 @@ namespace Xunit.Sdk
                             // and serialization is the best way to do that. If it's not serializable, this will
                             // throw and we will fall back to a single theory test case that gets its data
                             // at runtime.
-                            var testCase = new XunitTestCase(testMethod, dataRow);
+                            var testCase = new XunitTestCase(defaultMethodDisplay, testMethod, dataRow);
                             SerializationHelper.Serialize(testCase);
                             results.Add(testCase);
                         }
@@ -51,7 +51,7 @@ namespace Xunit.Sdk
 
                     // REVIEW: Could we re-write LambdaTestCase to just be for exceptions?
                     if (results.Count == 0)
-                        results.Add(new LambdaTestCase(testMethod,
+                        results.Add(new LambdaTestCase(defaultMethodDisplay, testMethod,
                                                        () => { throw new InvalidOperationException(String.Format("No data found for {0}.{1}", testMethod.TestClass.Class.Name, testMethod.Method.Name)); }));
 
                     return results;
@@ -59,7 +59,7 @@ namespace Xunit.Sdk
             }
             catch
             {
-                return new XunitTestCase[] { new XunitTheoryTestCase(testMethod) };
+                return new XunitTestCase[] { new XunitTheoryTestCase(defaultMethodDisplay, testMethod) };
             }
         }
     }

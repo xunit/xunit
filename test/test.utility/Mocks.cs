@@ -7,6 +7,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 
 public static class Mocks
 {
@@ -101,7 +102,7 @@ public static class Mocks
     {
         var testMethod = Mocks.TestMethod();
 
-        return new LambdaTestCase(testMethod, lambda);
+        return new LambdaTestCase(TestMethodDisplay.ClassAndMethod, testMethod, lambda);
     }
 
     static IEnumerable<IAttributeInfo> LookupAttribute(string fullyQualifiedTypeName, IReflectionAttributeInfo[] attributes)
@@ -416,14 +417,14 @@ public static class Mocks
     {
         var method = Mocks.TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-        return new XunitTestCase(method, testMethodArguments);
+        return new XunitTestCase(TestMethodDisplay.ClassAndMethod, method, testMethodArguments);
     }
 
     public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null)
     {
         var method = Mocks.TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-        return new XunitTheoryTestCase(method);
+        return new XunitTheoryTestCase(TestMethodDisplay.ClassAndMethod, method);
     }
 
     // Helpers

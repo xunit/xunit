@@ -18,10 +18,11 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="LambdaTestCase"/> class.
         /// </summary>
+        /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="testMethod">The test method.</param>
         /// <param name="lambda">The code to run for the test.</param>
-        public LambdaTestCase(ITestMethod testMethod, Action lambda)
-            : base(testMethod)
+        public LambdaTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, Action lambda)
+            : base(defaultMethodDisplay, testMethod)
         {
             Lambda = lambda;
         }

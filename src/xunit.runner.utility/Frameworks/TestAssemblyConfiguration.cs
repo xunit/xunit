@@ -14,7 +14,7 @@ namespace Xunit
         public TestAssemblyConfiguration()
         {
             MaxParallelThreads = Environment.ProcessorCount;
-            MethodDisplay = TestMethodDisplay.NamespaceAndClassAndMethod;
+            MethodDisplay = TestMethodDisplay.ClassAndMethod;
             ParallelizeTestCollections = true;
         }
 
@@ -32,7 +32,7 @@ namespace Xunit
 
         /// <summary>
         /// Gets or sets the default display name for test methods. Defaults
-        /// to <see cref="TestMethodDisplay.NamespaceAndClassAndMethod"/>.
+        /// to <see cref="TestMethodDisplay.ClassAndMethod"/>.
         /// </summary>
         public TestMethodDisplay MethodDisplay { get; set; }
 

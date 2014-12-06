@@ -46,6 +46,9 @@
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\common\TestMethodDisplay.cs">
+      <Link>Common\TestMethodDisplay.cs</Link>
+    </Compile>
     <Compile Include="..\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs">
       <Link>Common\ArgumentFormatter.cs</Link>
     </Compile>

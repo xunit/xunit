@@ -14,8 +14,8 @@ namespace TestUtility
     {
         private string culture;
 
-        public CulturedXunitTestCase(ITestMethod testMethod, string culture)
-            : base(testMethod)
+        public CulturedXunitTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, string culture)
+            : base(defaultMethodDisplay, testMethod)
         {
             Initialize(culture);
         }

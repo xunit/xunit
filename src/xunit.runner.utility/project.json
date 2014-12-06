@@ -38,7 +38,6 @@
         "..\\common\\SourceInformation.cs",
         "..\\common\\TestDiscoveryVisitor.cs",
         "..\\common\\TestMessageVisitor.cs",
-        "..\\common\\TestMethodDisplay.cs",
         "..\\common\\TestOptionsNames.cs",
         "..\\xunit.execution.wpa81\\Serialization\\Serializable.cs",
         "**\\*.cs",

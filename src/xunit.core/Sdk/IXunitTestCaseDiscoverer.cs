@@ -12,9 +12,10 @@ namespace Xunit.Sdk
         /// <summary>
         /// Discover test cases from a test method.
         /// </summary>
+        /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="testMethod">The test method the test cases belong to.</param>
         /// <param name="factAttribute">The fact attribute attached to the test method.</param>
         /// <returns>Returns zero or more test cases represented by the test method.</returns>
-        IEnumerable<IXunitTestCase> Discover(ITestMethod testMethod, IAttributeInfo factAttribute);
+        IEnumerable<IXunitTestCase> Discover(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, IAttributeInfo factAttribute);
     }
 }

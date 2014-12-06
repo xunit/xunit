@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security;
@@ -50,10 +49,12 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodTestCase"/> class.
         /// </summary>
+        /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="testMethod">The test method this test case belongs to.</param>
         /// <param name="testMethodArguments">The arguments for the test method.</param>
-        protected TestMethodTestCase(ITestMethod testMethod, object[] testMethodArguments = null)
+        protected TestMethodTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, object[] testMethodArguments = null)
         {
+            DefaultMethodDisplay = defaultMethodDisplay;
             TestMethod = testMethod;
             TestMethodArguments = testMethodArguments;
         }
@@ -63,8 +64,19 @@ namespace Xunit.Sdk
         /// </summary>
         protected string BaseDisplayName
         {
-            get { return String.Format("{0}.{1}", TestMethod.TestClass.Class.Name, TestMethod.Method.Name); }
+            get
+            {
+                if (DefaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
+                    return String.Format("{0}.{1}", TestMethod.TestClass.Class.Name, TestMethod.Method.Name);
+
+                return TestMethod.Method.Name;
+            }
         }
+
+        /// <summary>
+        /// Returns the default method display to use (when not customized).
+        /// </summary>
+        protected TestMethodDisplay DefaultMethodDisplay { get; private set; }
 
         /// <inheritdoc/>
         public string DisplayName
@@ -247,6 +259,7 @@ namespace Xunit.Sdk
         {
             info.AddValue("TestMethod", TestMethod);
             info.AddValue("TestMethodArguments", TestMethodArguments);
+            info.AddValue("DefaultMethodDisplay", DefaultMethodDisplay.ToString());
         }
 
         /// <inheritdoc/>
@@ -255,6 +268,7 @@ namespace Xunit.Sdk
             // TODO: Should throw when TestMethodArguments is not null/empty?
             data.AddValue("TestMethod", TestMethod);
             data.AddValue("TestMethodArguments", TestMethodArguments);
+            data.AddValue("DefaultMethodDisplay", DefaultMethodDisplay.ToString());
         }
 
         /// <inheritdoc/>
@@ -262,6 +276,7 @@ namespace Xunit.Sdk
         {
             TestMethod = info.GetValue<ITestMethod>("TestMethod");
             TestMethodArguments = info.GetValue<object[]>("TestMethodArguments");
+            DefaultMethodDisplay = (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), info.GetString("DefaultMethodDisplay"));
         }
 
         /// <inheritdoc/>
@@ -269,6 +284,7 @@ namespace Xunit.Sdk
         {
             TestMethod = data.GetValue<ITestMethod>("TestMethod");
             TestMethodArguments = null;
+            DefaultMethodDisplay = (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), data.GetString("DefaultMethodDisplay"));
         }
     }
 }

@@ -5,6 +5,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using IAttributeInfo = Xunit.Abstractions.IAttributeInfo;
+using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 
 public class XunitTestCaseTests
 {
@@ -13,7 +14,7 @@ public class XunitTestCaseTests
     {
         var testMethod = Mocks.TestMethod("MockType", "MockMethod");
 
-        var testCase = new XunitTestCase(testMethod);
+        var testCase = new XunitTestCase(TestMethodDisplay.ClassAndMethod, testMethod);
 
         Assert.Equal("MockType.MockMethod", testCase.DisplayName);
         Assert.Null(testCase.SkipReason);
@@ -25,7 +26,7 @@ public class XunitTestCaseTests
     {
         var testMethod = Mocks.TestMethod("MockType", "MockMethod", skip: "Skip Reason");
 
-        var testCase = new XunitTestCase(testMethod);
+        var testCase = new XunitTestCase(TestMethodDisplay.ClassAndMethod, testMethod);
 
         Assert.Equal("Skip Reason", testCase.SkipReason);
     }
@@ -39,7 +40,7 @@ public class XunitTestCaseTests
             var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
             var testMethod = Mocks.TestMethod(methodAttributes: new[] { trait1, trait2 });
 
-            var testCase = new XunitTestCase(testMethod);
+            var testCase = new XunitTestCase(TestMethodDisplay.ClassAndMethod, testMethod);
 
             Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
             Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
@@ -52,7 +53,7 @@ public class XunitTestCaseTests
             var trait2 = Mocks.TraitAttribute("Trait2", "Value2");
             var testMethod = Mocks.TestMethod(classAttributes: new[] { trait1, trait2 });
 
-            var testCase = new XunitTestCase(testMethod);
+            var testCase = new XunitTestCase(TestMethodDisplay.ClassAndMethod, testMethod);
 
             Assert.Equal("Value1", Assert.Single(testCase.Traits["Trait1"]));
             Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
@@ -110,7 +111,7 @@ public class XunitTestCaseTests
         {
             var testMethod = Mocks.TestMethod(displayName: "Custom Display Name");
 
-            var testCase = new XunitTestCase(testMethod);
+            var testCase = new XunitTestCase(TestMethodDisplay.ClassAndMethod, testMethod);
 
             Assert.Equal("Custom Display Name", testCase.DisplayName);
         }
@@ -124,7 +125,7 @@ public class XunitTestCaseTests
             var testMethod = Mocks.TestMethod(displayName: "Custom Display Name", parameters: new[] { param1, param2, param3 });
             var arguments = new object[] { 42, "Hello, world!", 'A' };
 
-            var testCase = new XunitTestCase(testMethod, arguments);
+            var testCase = new XunitTestCase(TestMethodDisplay.ClassAndMethod, testMethod, arguments);
 
             Assert.Equal("Custom Display Name(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
         }

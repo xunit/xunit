@@ -461,10 +461,10 @@ public class XunitTestFrameworkDiscovererTests
         public virtual bool FindTestsForClass(ITestClass testClass, bool includeSourceInformation = false)
         {
             using (var messageBus = new MessageBus(Visitor))
-                return base.FindTestsForType(testClass, includeSourceInformation, messageBus);
+                return base.FindTestsForType(testClass, includeSourceInformation, messageBus, new TestFrameworkOptions());
         }
 
-        protected sealed override bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus)
+        protected sealed override bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkOptions discoveryOptions)
         {
             return FindTestsForClass(testClass, includeSourceInformation);
         }

@@ -29,11 +29,11 @@
 
         /// <summary>
         /// Gets or sets the default display name for test methods. Defaults
-        /// to <see cref="TestMethodDisplay.NamespaceAndClassAndMethod"/>.
+        /// to <see cref="TestMethodDisplay.ClassAndMethod"/>.
         /// </summary>
         public TestMethodDisplay MethodDisplay
         {
-            get { return GetValue<TestMethodDisplay>(TestOptionsNames.Discovery.MethodDisplay, TestMethodDisplay.NamespaceAndClassAndMethod); }
+            get { return GetValue<TestMethodDisplay>(TestOptionsNames.Discovery.MethodDisplay, TestMethodDisplay.ClassAndMethod); }
             set { SetValue(TestOptionsNames.Discovery.MethodDisplay, value); }
         }
     }

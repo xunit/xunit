@@ -6,6 +6,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 
 public class TestMethodTestCaseTests
 {
@@ -72,6 +73,18 @@ public class TestMethodTestCaseTests
             var testCase = new TestableTestMethodTestCase(testMethod, arguments);
 
             Assert.Equal(String.Format("MockType.MockMethod(p1: 42, ???: {0})", 21.12), testCase.DisplayName);
+        }
+
+        [Theory]
+        [InlineData(TestMethodDisplay.ClassAndMethod, "TestMethodTestCaseTests+DisplayName.OverrideDefaultMethodDisplay")]
+        [InlineData(TestMethodDisplay.Method, "OverrideDefaultMethodDisplay")]
+        public static void OverrideDefaultMethodDisplay(TestMethodDisplay methodDisplay, string expectedDisplayName)
+        {
+            var testMethod = Mocks.TestMethod(typeof(DisplayName), "OverrideDefaultMethodDisplay");
+
+            var testCase = new TestableTestMethodTestCase(testMethod, defaultMethodDisplay: methodDisplay);
+
+            Assert.Equal(expectedDisplayName, testCase.DisplayName);
         }
     }
 
@@ -158,7 +171,8 @@ public class TestMethodTestCaseTests
     [Serializable]
     class TestableTestMethodTestCase : TestMethodTestCase
     {
-        public TestableTestMethodTestCase(ITestMethod testMethod, object[] testMethodArguments = null) : base(testMethod, testMethodArguments) { }
+        public TestableTestMethodTestCase(ITestMethod testMethod, object[] testMethodArguments = null, TestMethodDisplay defaultMethodDisplay = TestMethodDisplay.ClassAndMethod)
+            : base(defaultMethodDisplay, testMethod, testMethodArguments) { }
 
         protected TestableTestMethodTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }
 

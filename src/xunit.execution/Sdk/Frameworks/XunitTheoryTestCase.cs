@@ -24,9 +24,10 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTheoryTestCase"/> class.
         /// </summary>
+        /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="testMethod">The method under test.</param>
-        public XunitTheoryTestCase(ITestMethod testMethod)
-            : base(testMethod) { }
+        public XunitTheoryTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod)
+            : base(defaultMethodDisplay, testMethod) { }
 
         /// <inheritdoc />
         protected XunitTheoryTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }

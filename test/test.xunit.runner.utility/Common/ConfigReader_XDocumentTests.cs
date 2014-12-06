@@ -22,7 +22,7 @@ public class ConfigReader_XDocumentTests
 
             Assert.False(result.DiagnosticMessages);
             Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreads);
-            Assert.Equal(TestMethodDisplay.NamespaceAndClassAndMethod, result.MethodDisplay);
+            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplay);
             Assert.False(result.ParallelizeAssembly);
             Assert.True(result.ParallelizeTestCollections);
         }
@@ -46,7 +46,7 @@ public class ConfigReader_XDocumentTests
 
             Assert.False(result.DiagnosticMessages);
             Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreads);
-            Assert.Equal(TestMethodDisplay.NamespaceAndClassAndMethod, result.MethodDisplay);
+            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplay);
             // This value was valid as a sentinel to make sure we were trying to read values from the file
             Assert.True(result.ParallelizeAssembly);
             Assert.True(result.ParallelizeTestCollections);

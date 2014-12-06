@@ -5,6 +5,7 @@ using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 
 public class TheoryDiscovererTests : AcceptanceTest
 {
@@ -80,7 +81,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         var testMethod = Mocks.TestMethod(typeof(ThrowingDataClass), "TheoryWithMisbehavingData");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-        var testCases = discoverer.Discover(testMethod, factAttribute);
+        var testCases = discoverer.Discover(TestMethodDisplay.ClassAndMethod, testMethod, factAttribute);
 
         var testCase = Assert.Single(testCases);
         var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
@@ -109,7 +110,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         var dataAttribute = Mocks.DataAttribute();
         var testMethod = Mocks.TestMethod(methodAttributes: new[] { theoryAttribute, dataAttribute });
 
-        var testCases = discoverer.Discover(testMethod, theoryAttribute);
+        var testCases = discoverer.Discover(TestMethodDisplay.ClassAndMethod, testMethod, theoryAttribute);
 
         var testCase = Assert.Single(testCases);
         var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
@@ -123,7 +124,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         var testMethod = Mocks.TestMethod(typeof(NonSerializableDataClass), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-        var testCases = discoverer.Discover(testMethod, factAttribute);
+        var testCases = discoverer.Discover(TestMethodDisplay.ClassAndMethod, testMethod, factAttribute);
 
         var testCase = Assert.Single(testCases);
         var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
@@ -152,7 +153,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         var testMethod = Mocks.TestMethod(typeof(NonDiscoveryEnumeratedData), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-        var testCases = discoverer.Discover(testMethod, factAttribute);
+        var testCases = discoverer.Discover(TestMethodDisplay.ClassAndMethod, testMethod, factAttribute);
 
         var testCase = Assert.Single(testCases);
         var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
@@ -177,7 +178,7 @@ public class TheoryDiscovererTests : AcceptanceTest
         var testMethod = Mocks.TestMethod(typeof(MixedDiscoveryEnumeratedData), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-        var testCases = discoverer.Discover(testMethod, factAttribute);
+        var testCases = discoverer.Discover(TestMethodDisplay.ClassAndMethod, testMethod, factAttribute);
 
         var testCase = Assert.Single(testCases);
         var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
