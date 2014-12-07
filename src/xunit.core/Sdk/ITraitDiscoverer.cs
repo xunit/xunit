@@ -13,7 +13,8 @@ namespace Xunit.Sdk
         /// Gets the trait values from the trait attribute.
         /// </summary>
         /// <param name="traitAttribute">The trait attribute containing the trait values.</param>
+        /// <param name="testMethodArguments">The parameters passed to the test method.</param>
         /// <returns>The trait values.</returns>
-        IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute);
+        IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute, object[] testMethodArguments);
     }
 }

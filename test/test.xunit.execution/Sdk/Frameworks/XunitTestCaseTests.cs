@@ -90,7 +90,7 @@ public class XunitTestCaseTests
 
         public class BugDiscoverer : ITraitDiscoverer
         {
-            public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
+            public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute, object[] testMethodArguments)
             {
                 var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
                 yield return new KeyValuePair<string, string>("Bug", ctorArgs[0].ToString());

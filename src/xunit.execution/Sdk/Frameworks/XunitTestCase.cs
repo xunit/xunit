@@ -55,7 +55,7 @@ namespace Xunit.Sdk
                 var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).First();
                 var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(discovererAttribute);
                 if (discoverer != null)
-                    foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
+                    foreach (var keyValuePair in discoverer.GetTraits(traitAttribute, TestMethodArguments))
                         Traits.Add(keyValuePair.Key, keyValuePair.Value);
             }
         }
