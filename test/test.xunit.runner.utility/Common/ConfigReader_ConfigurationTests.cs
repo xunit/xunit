@@ -33,7 +33,7 @@ public class ConfigReader_ConfigurationTests
 
             Assert.True(result.DiagnosticMessages);
             Assert.Equal(2112, result.MaxParallelThreads);
-            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplay);
+            Assert.Equal(TestMethodDisplay.Method, result.MethodDisplay);
             Assert.True(result.ParallelizeAssembly);
             Assert.False(result.ParallelizeTestCollections);
         }
