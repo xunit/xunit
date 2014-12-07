@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,18 +8,27 @@ using Windows.System.Threading;
 
 namespace Xunit.Sdk
 {
-    internal class AsyncTestSyncContext : SynchronizationContext
+    /// <summary>
+    /// This implementation of <see cref="SynchronizationContext"/> allows the developer to track the count
+    /// of outstanding "async void" operations, and wait for them all to complete.
+    /// </summary>
+    public class AsyncTestSyncContext : SynchronizationContext
     {
         readonly AsyncManualResetEvent @event = new AsyncManualResetEvent(true);
         Exception exception;
         readonly SynchronizationContext innerContext;
         int operationCount;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncTestSyncContext"/> class.
+        /// </summary>
+        /// <param name="innerContext">The existing synchronization context (may be <c>null</c>).</param>
         public AsyncTestSyncContext(SynchronizationContext innerContext)
         {
             this.innerContext = innerContext;
         }
 
+        /// <inheritdoc/>
         public override void OperationCompleted()
         {
             var result = Interlocked.Decrement(ref operationCount);
@@ -28,12 +36,14 @@ namespace Xunit.Sdk
                 @event.Set();
         }
 
+        /// <inheritdoc/>
         public override void OperationStarted()
         {
             Interlocked.Increment(ref operationCount);
             @event.Reset();
         }
 
+        /// <inheritdoc/>
         public override void Post(SendOrPostCallback d, object state)
         {
             // The call to Post() may be the state machine signaling that an exception is
@@ -73,6 +83,7 @@ namespace Xunit.Sdk
             catch { }
         }
 
+        /// <inheritdoc/>
         public override void Send(SendOrPostCallback d, object state)
         {
             try
@@ -88,6 +99,9 @@ namespace Xunit.Sdk
             }
         }
 
+        /// <summary>
+        /// Returns a task which is signaled when all outstanding operations are complete.
+        /// </summary>
         public async Task<Exception> WaitForCompletionAsync()
         {
             await @event.WaitAsync();
