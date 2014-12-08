@@ -25,7 +25,7 @@
     <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\iPhone\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
@@ -34,6 +34,7 @@
     <CodesignKey>iPhone Developer</CodesignKey>
     <DefineConstants>__UNIFIED__;__MOBILE__;__IOS__;XAMARIN;NO_APPDOMAIN</DefineConstants>
     <DocumentationFile>bin\iPhone\Release\xunit.runner.utility.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
