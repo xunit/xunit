@@ -51,7 +51,7 @@ namespace Xunit.Sdk
             if (testOutputHelper != null)
                 testOutputHelper.Initialize(MessageBus, Test);
 
-            var executionTime = await new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, beforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
+            var executionTime = await InvokeTestMethodAsync(aggregator);
 
             if (testOutputHelper != null)
             {
@@ -60,6 +60,16 @@ namespace Xunit.Sdk
             }
 
             return Tuple.Create(executionTime, output);
+        }
+
+        /// <summary>
+        /// Override this method to invoke the test method.
+        /// </summary>
+        /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
+        /// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
+        protected virtual async Task<decimal> InvokeTestMethodAsync(ExceptionAggregator aggregator)
+        {
+            return await new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, beforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
         }
     }
 }
