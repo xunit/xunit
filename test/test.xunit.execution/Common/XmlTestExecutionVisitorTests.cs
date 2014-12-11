@@ -166,6 +166,7 @@ public class XmlTestExecutionVisitorTests
             testPassed.TestCase.Returns(testCase);
             testPassed.Test.Returns(test);
             testPassed.ExecutionTime.Returns(123.4567M);
+            testPassed.Output.Returns("test output");
 
             var assemblyElement = new XElement("assembly");
             var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
@@ -179,6 +180,40 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Pass", testElement.Attribute("result").Value);
             Assert.Equal(123.457M.ToString(), testElement.Attribute("time").Value);
+            Assert.Equal("test output", testElement.Attribute("output").Value);
+            Assert.Null(testElement.Attribute("source-file"));
+            Assert.Null(testElement.Attribute("source-line"));
+            Assert.Empty(testElement.Elements("traits"));
+            Assert.Empty(testElement.Elements("failure"));
+            Assert.Empty(testElement.Elements("reason"));
+        }
+
+        [CulturedFact]
+        public void EmptyOutputStringDoesNotShowUpInResultingXml()
+        {
+            var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+            var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
+            testCase.SourceInformation.Returns(new SourceInformation());
+            var test = Mocks.Test(testCase, "Test Display Name");
+            var testPassed = Substitute.For<ITestPassed>();
+            testPassed.TestCase.Returns(testCase);
+            testPassed.Test.Returns(test);
+            testPassed.ExecutionTime.Returns(123.4567M);
+            testPassed.Output.Returns(string.Empty);
+
+            var assemblyElement = new XElement("assembly");
+            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+
+            visitor.OnMessage(testPassed);
+            visitor.OnMessage(assemblyFinished);
+
+            var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
+            Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
+            Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
+            Assert.Equal("TestMethod", testElement.Attribute("method").Value);
+            Assert.Equal("Pass", testElement.Attribute("result").Value);
+            Assert.Equal(123.457M.ToString(), testElement.Attribute("time").Value);
+            Assert.Null(testElement.Attribute("output"));
             Assert.Null(testElement.Attribute("source-file"));
             Assert.Null(testElement.Attribute("source-line"));
             Assert.Empty(testElement.Elements("traits"));
@@ -196,6 +231,7 @@ public class XmlTestExecutionVisitorTests
             testFailed.TestCase.Returns(testCase);
             testFailed.Test.Returns(test);
             testFailed.ExecutionTime.Returns(123.4567M);
+            testFailed.Output.Returns("test output");
             testFailed.ExceptionTypes.Returns(new[] { "Exception Type" });
             testFailed.Messages.Returns(new[] { "Exception Message" });
             testFailed.StackTraces.Returns(new[] { "Exception Stack Trace" });
@@ -212,6 +248,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Fail", testElement.Attribute("result").Value);
             Assert.Equal(123.457M.ToString(), testElement.Attribute("time").Value);
+            Assert.Equal("test output", testElement.Attribute("output").Value);
             var failureElement = Assert.Single(testElement.Elements("failure"));
             Assert.Equal("Exception Type", failureElement.Attribute("exception-type").Value);
             Assert.Equal("Exception Type : Exception Message", failureElement.Elements("message").Single().Value);

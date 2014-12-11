@@ -44,6 +44,11 @@ namespace Xunit
                     new XAttribute("result", resultText)
                 );
 
+            if (!string.IsNullOrWhiteSpace(testResult.Output))
+            {
+                testResultElement.Add(new XAttribute("output", testResult.Output));
+            }
+
             if (testResult.TestCase.SourceInformation != null)
             {
                 if (testResult.TestCase.SourceInformation.FileName != null)
