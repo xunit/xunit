@@ -13,7 +13,11 @@
           h3 { font-weight: normal; }
           h4 { margin: 0.5em 0; }
           h5 { font-weight: normal; font-style: italic; margin-bottom: 0.75em; }
-          pre { font-family: Consolas; font-size: 85%; margin: 0 0 0 1em; padding: 0; }
+          h6 { font-size: 0.9em; font-weight: bold; margin: 0.5em 0 0 0.75em; padding: 0; }
+          pre,table { font-family: Consolas; font-size: 0.8em; margin: 0 0 0 1em; padding: 0; }
+          table { padding-bottom: 0.25em; }
+          th { padding: 0 0.5em; border-right: 1px solid #bbb; text-align: left; }
+          td { padding-left: 0.5em; }
           .divided { border-top: solid 1px #f0f5fa; padding-top: 0.5em; }
           .row, .altrow { padding: 0.1em 0.3em; }
           .row { background-color: #f0f5fa; }
@@ -168,7 +172,24 @@
       <xsl:if test="failure/stack-trace">
         <pre><xsl:value-of select="failure/stack-trace"/></pre>
       </xsl:if>
+      <xsl:if test="output">
+        <h6>Output:</h6>
+        <pre><xsl:value-of select="output"/></pre>
+      </xsl:if>
+      <xsl:if test="traits">
+        <h6>Traits:</h6>
+        <table cellspacing="0" cellpadding="0">
+          <xsl:apply-templates select="traits/trait"/>
+        </table>
+      </xsl:if>
     </div>
+  </xsl:template>
+
+  <xsl:template match="trait">
+    <tr>
+      <th><xsl:value-of select="@name"/></th>
+      <td><xsl:value-of select="@value"/></td>
+    </tr>
   </xsl:template>
 
   <xsl:template match="failures">
@@ -206,14 +227,10 @@
         </xsl:if>
         <br clear="all"/>
         <xsl:if test="child::node()/message">
-          <pre>
-            <xsl:value-of select="child::node()/message"/>
-          </pre>
+          <pre><xsl:value-of select="child::node()/message"/></pre>
         </xsl:if>
         <xsl:if test="stack-trace">
-          <pre>
-            <xsl:value-of select="stack-trace"/>
-          </pre>
+          <pre><xsl:value-of select="stack-trace"/></pre>
         </xsl:if>
       </div>
     </xsl:for-each>
