@@ -180,7 +180,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Pass", testElement.Attribute("result").Value);
             Assert.Equal(123.4567809M.ToString(), testElement.Attribute("time").Value);
-            Assert.Equal("test output", testElement.Attribute("output").Value);
+            Assert.Equal("test output", testElement.Element("output").Value);
             Assert.Null(testElement.Attribute("source-file"));
             Assert.Null(testElement.Attribute("source-line"));
             Assert.Empty(testElement.Elements("traits"));
@@ -248,7 +248,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Fail", testElement.Attribute("result").Value);
             Assert.Equal(123.4567809M.ToString(), testElement.Attribute("time").Value);
-            Assert.Equal("test output", testElement.Attribute("output").Value);
+            Assert.Equal("test output", testElement.Element("output").Value);
             var failureElement = Assert.Single(testElement.Elements("failure"));
             Assert.Equal("Exception Type", failureElement.Attribute("exception-type").Value);
             Assert.Equal("Exception Type : Exception Message", failureElement.Elements("message").Single().Value);

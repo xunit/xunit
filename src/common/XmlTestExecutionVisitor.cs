@@ -46,7 +46,7 @@ namespace Xunit
 
             if (!string.IsNullOrWhiteSpace(testResult.Output))
             {
-                testResultElement.Add(new XAttribute("output", testResult.Output));
+                testResultElement.Add(new XElement("output", new XCData(testResult.Output)));
             }
 
             if (testResult.TestCase.SourceInformation != null)
