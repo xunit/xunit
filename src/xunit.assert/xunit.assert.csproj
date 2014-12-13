@@ -68,7 +68,6 @@
     <Compile Include="Asserts\Sdk\Exceptions\IsNotTypeException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\IsTypeException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\MatchesException.cs" />
-    <Compile Include="Asserts\Sdk\Exceptions\NoneException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\NotEmptyException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\NotEqualException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\NotInRangeException.cs" />

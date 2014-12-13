@@ -208,51 +208,6 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Verifies that the given collection contains no
-        /// elements of the given value. The collection may or may not
-        /// contain other values.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <param name="expected">The value to find in the collection.</param>
-        /// <exception cref="NoneException">Thrown when the collection contains at least one of the given element.</exception>
-        public static void None(IEnumerable collection, object expected)
-        {
-            None(collection.Cast<object>(), expected);
-        }
-
-        /// <summary>
-        /// Verifies that the given collection contains no
-        /// elements of the given value. The collection may or may not
-        /// contain other values.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <param name="expected">The value to find in the collection.</param>
-        /// <exception cref="NoneException">Thrown when the collection contains at least one of the given element.</exception>
-        public static void None<T>(IEnumerable<T> collection, T expected)
-        {
-            None(collection, o => Object.Equals(o, expected));
-        }
-
-        /// <summary>
-        /// Verifies that the given collection contains no
-        /// elements that match the given predicate. The collection may or may not
-        /// contain other values.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <param name="predicate">The item matching predicate.</param>
-        /// <exception cref="NoneException">Thrown when the collection contains at least one matching element.</exception>
-        public static void None<T>(IEnumerable<T> collection, Func<T, bool> predicate)
-        {
-            Assert.GuardArgumentNotNull("collection", collection);
-            Assert.GuardArgumentNotNull("predicate", predicate);
-
-            int count = collection.Count(predicate);
-
-            if (count != 0)
-                throw new NoneException(count);
-        }
-
-        /// <summary>
         /// Verifies that a collection is not empty.
         /// </summary>
         /// <param name="collection">The collection to be inspected</param>
