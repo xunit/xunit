@@ -92,7 +92,7 @@ namespace Xunit.Sdk
 
             Task.Run(() =>
             {
-                using (var messageBus = new MessageBus(messageSink))
+                using (var messageBus = CreateMessageBus(messageSink, discoveryOptions))
                 using (new PreserveWorkingFolder(AssemblyInfo))
                 {
                     foreach (var type in AssemblyInfo.GetTypes(includePrivateTypes: false).Where(IsValidTestClass))
@@ -108,6 +108,16 @@ namespace Xunit.Sdk
             });
         }
 
+        private IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkOptions options)
+        {
+            if (options.GetValue(TestOptionsNames.Discovery.SynchronousMessageReporting, false))
+            {
+                return new SynchronousMessageBus(messageSink);
+            }
+
+            return new MessageBus(messageSink);
+        }
+
         /// <inheritdoc/>
         public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
@@ -117,7 +127,7 @@ namespace Xunit.Sdk
 
             Task.Run(() =>
             {
-                using (var messageBus = new MessageBus(messageSink))
+                using (var messageBus = CreateMessageBus(messageSink, discoveryOptions))
                 using (new PreserveWorkingFolder(AssemblyInfo))
                 {
                     var typeInfo = AssemblyInfo.GetType(typeName);

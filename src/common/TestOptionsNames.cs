@@ -15,6 +15,7 @@ internal static class TestOptionsNames
         public static readonly string DiagnosticMessages = "xunit.discovery.DiagnosticMessages";
         public static readonly string MethodDisplay = "xunit.discovery.MethodDisplay";
         public static readonly string PreEnumerateTheories = "xunit.discovery.PreEnumerateTheories";
+        public static readonly string SynchronousMessageReporting = "xunit.SynchronousMessageReporting";
     }
 
     internal static class Execution
