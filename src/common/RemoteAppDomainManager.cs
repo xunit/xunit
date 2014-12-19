@@ -47,7 +47,7 @@ namespace Xunit
 
             setup.ConfigurationFile = configFilename;
 
-            return AppDomain.CreateDomain(Path.GetFileNameWithoutExtension(assemblyFilename), null, setup, new PermissionSet(PermissionState.Unrestricted));
+            return AppDomain.CreateDomain(Path.GetFileNameWithoutExtension(assemblyFilename), System.AppDomain.CurrentDomain.Evidence, setup, new PermissionSet(PermissionState.Unrestricted));
         }
 
         public TObject CreateObject<TObject>(string assemblyName, string typeName, params object[] args)
