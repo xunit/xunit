@@ -45,6 +45,15 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Adds exceptions from another aggregator into this aggregator.
+        /// </summary>
+        /// <param name="aggregator">The aggregator whose exceptions should be copied.</param>
+        public void Aggregate(ExceptionAggregator aggregator)
+        {
+            exceptions.AddRange(aggregator.exceptions);
+        }
+
+        /// <summary>
         /// Clears the aggregator.
         /// </summary>
         public void Clear()

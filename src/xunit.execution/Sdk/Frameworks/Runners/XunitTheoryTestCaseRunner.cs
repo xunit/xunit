@@ -15,6 +15,11 @@ namespace Xunit.Sdk
     {
         static readonly object[] NoArguments = new object[0];
 
+        readonly ExceptionAggregator cleanupAggregator = new ExceptionAggregator();
+        Exception dataDiscoveryException;
+        readonly List<XunitTestRunner> testRunners = new List<XunitTestRunner>();
+        readonly List<IDisposable> toDispose = new List<IDisposable>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTheoryTestCaseRunner"/> class.
         /// </summary>
@@ -35,10 +40,9 @@ namespace Xunit.Sdk
             : base(testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource) { }
 
         /// <inheritdoc/>
-        protected override async Task<RunSummary> RunTestAsync()
+        protected override async Task AfterTestCaseStartingAsync()
         {
-            var testRunners = new List<XunitTestRunner>();
-            var toDispose = new List<IDisposable>();
+            await base.AfterTestCaseStartingAsync();
 
             try
             {
@@ -75,37 +79,52 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                var test = new XunitTest(TestCase, DisplayName);
-
-                if (!MessageBus.QueueMessage(new TestStarting(test)))
-                    CancellationTokenSource.Cancel();
-                else
-                {
-                    if (!MessageBus.QueueMessage(new TestFailed(test, 0, null, ex.Unwrap())))
-                        CancellationTokenSource.Cancel();
-                }
-
-                if (!MessageBus.QueueMessage(new TestFinished(test, 0, null)))
-                    CancellationTokenSource.Cancel();
-
-                return new RunSummary { Total = 1, Failed = 1 };
+                // Stash the exception so we can surface it during RunTestAsync
+                dataDiscoveryException = ex;
             }
+        }
+
+        /// <inheritdoc/>
+        protected override Task BeforeTestCaseFinishedAsync()
+        {
+            Aggregator.Aggregate(cleanupAggregator);
+
+            return base.BeforeTestCaseFinishedAsync();
+        }
+
+        /// <inheritdoc/>
+        protected override async Task<RunSummary> RunTestAsync()
+        {
+            if (dataDiscoveryException != null)
+                return RunTest_DataDiscoveryException();
 
             var runSummary = new RunSummary();
-
             foreach (var testRunner in testRunners)
                 runSummary.Aggregate(await testRunner.RunAsync());
 
+            // Run the cleanup here so we can include cleanup time in the run summary,
+            // but save any exceptions so we can surface them during the cleanup phase,
+            // so they get properly reported as test case cleanup failures.
             var timer = new ExecutionTimer();
-            var aggregator = new ExceptionAggregator();
-            // REVIEW: What should be done with these leftover errors?
-
             foreach (var disposable in toDispose)
-                timer.Aggregate(() => aggregator.Run(() => disposable.Dispose()));
+                timer.Aggregate(() => cleanupAggregator.Run(() => disposable.Dispose()));
 
             runSummary.Time += timer.Total;
-
             return runSummary;
+        }
+
+        RunSummary RunTest_DataDiscoveryException()
+        {
+            var test = new XunitTest(TestCase, DisplayName);
+
+            if (!MessageBus.QueueMessage(new TestStarting(test)))
+                CancellationTokenSource.Cancel();
+            else if (!MessageBus.QueueMessage(new TestFailed(test, 0, null, dataDiscoveryException.Unwrap())))
+                CancellationTokenSource.Cancel();
+            if (!MessageBus.QueueMessage(new TestFinished(test, 0, null)))
+                CancellationTokenSource.Cancel();
+
+            return new RunSummary { Total = 1, Failed = 1 };
         }
     }
 }
