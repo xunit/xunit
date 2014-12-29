@@ -56,6 +56,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Targets", "Targets", "{942F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "abstractions", "abstractions", "{C987FBEE-4FE7-46CA-8175-9531F5DEBB29}"
 	ProjectSection(SolutionItems) = preProject
+		src\xunit.abstractions\project.json = src\xunit.abstractions\project.json
 		src\xunit.abstractions.nuspec = src\xunit.abstractions.nuspec
 	EndProjectSection
 EndProject
@@ -68,6 +69,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runners", "runners", "{9D9F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{A727699B-E50A-4F83-8627-8BE64237582C}"
 	ProjectSection(SolutionItems) = preProject
+		src\xunit.core\project.json = src\xunit.core\project.json
 		src\xunit.assert.nuspec = src\xunit.assert.nuspec
 		src\xunit.assert.source.nuspec = src\xunit.assert.source.nuspec
 		src\xunit.core.nuspec = src\xunit.core.nuspec
@@ -79,6 +81,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "v1", "v1", "{C86F3A8E-8D96-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "execution", "execution", "{72690AF2-D51A-4FD2-BD59-17FADACC29A1}"
 	ProjectSection(SolutionItems) = preProject
+		src\xunit.execution\project.json = src\xunit.execution\project.json
 		src\xunit.execution.nuspec = src\xunit.execution.nuspec
 	EndProjectSection
 EndProject
@@ -86,6 +89,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.net45", "sr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runner.utility", "runner.utility", "{A36A630E-A604-47E6-894E-732946960182}"
 	ProjectSection(SolutionItems) = preProject
+		src\xunit.runner.utility\project.json = src\xunit.runner.utility\project.json
 		src\xunit.runner.utility.nuspec = src\xunit.runner.utility.nuspec
 		src\xunit.runner.utility.visualstudio.win8.nuspec = src\xunit.runner.utility.visualstudio.win8.nuspec
 	EndProjectSection
