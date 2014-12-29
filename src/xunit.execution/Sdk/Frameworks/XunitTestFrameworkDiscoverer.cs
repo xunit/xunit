@@ -76,7 +76,7 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report discovery messages to.</param>
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         /// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
-        protected virtual bool FindTestsForMethod(ITestMethod testMethod, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkOptions discoveryOptions)
+        protected virtual bool FindTestsForMethod(ITestMethod testMethod, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
             if (factAttribute == null)
@@ -95,9 +95,7 @@ namespace Xunit.Sdk
             if (discoverer == null)
                 return true;
 
-            var methodDisplayString = discoveryOptions.GetValue<string>(TestOptionsNames.Discovery.MethodDisplay, null);
-            var methodDisplay = methodDisplayString == null ? TestMethodDisplay.ClassAndMethod : (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), methodDisplayString);
-            foreach (var testCase in discoverer.Discover(methodDisplay, testMethod, factAttribute))
+            foreach (var testCase in discoverer.Discover(discoveryOptions, testMethod, factAttribute))
                 if (!ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus))
                     return false;
 
@@ -105,7 +103,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkOptions discoveryOptions)
+        protected override bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             foreach (var method in testClass.Class.GetMethods(includePrivateMethods: true))
             {

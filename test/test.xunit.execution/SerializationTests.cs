@@ -35,7 +35,7 @@ public class SerializationTests
         var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider);
         var visitor = new TestDiscoveryVisitor();
 
-        discoverer.Find(typeof(ClassWithFacts).FullName, false, visitor, new XunitDiscoveryOptions());
+        discoverer.Find(typeof(ClassWithFacts).FullName, false, visitor, TestFrameworkOptions.ForDiscovery());
         visitor.Finished.WaitOne();
 
         var first = visitor.TestCases[0];
@@ -68,7 +68,7 @@ public class SerializationTests
         var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider);
         var visitor = new TestDiscoveryVisitor();
 
-        discoverer.Find(typeof(ClassWithTheory).FullName, false, visitor, new XunitDiscoveryOptions());
+        discoverer.Find(typeof(ClassWithTheory).FullName, false, visitor, TestFrameworkOptions.ForDiscovery());
         visitor.Finished.WaitOne();
 
         var first = visitor.TestCases[0];

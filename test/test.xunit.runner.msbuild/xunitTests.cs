@@ -225,7 +225,7 @@ public class xunitTests
 
             xunit._ExecuteAssembly("assemblyFilename", "configFilename");
 
-            xunit.FrontController.Received().Find(false, Arg.Any<IMessageSink>(), Arg.Any<TestFrameworkOptions>());
+            xunit.FrontController.Received().Find(false, Arg.Any<IMessageSink>(), Arg.Any<ITestFrameworkDiscoveryOptions>());
         }
 
         [Fact]

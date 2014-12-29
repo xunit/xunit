@@ -38,7 +38,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions)
+        protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
         {
             using (var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, messageSink, executionOptions))
                 await assemblyRunner.RunAsync();

@@ -85,7 +85,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions discoveryOptions)
+        public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             Guard.ArgumentNotNull("messageSink", messageSink);
             Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
@@ -109,7 +109,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions discoveryOptions)
+        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             Guard.ArgumentNotNullOrEmpty("typeName", typeName);
             Guard.ArgumentNotNull("messageSink", messageSink);
@@ -141,9 +141,9 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message sink to send discovery messages to.</param>
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         /// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
-        protected abstract bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkOptions discoveryOptions);
+        protected abstract bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions);
 
-        private bool FindTestsForTypeAndWrapExceptions(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkOptions discoveryOptions)
+        private bool FindTestsForTypeAndWrapExceptions(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             try
             {

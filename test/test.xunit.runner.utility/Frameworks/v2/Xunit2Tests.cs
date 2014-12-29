@@ -23,7 +23,7 @@ public class Xunit2Tests
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-                controller.Find(includeSourceInformation: false, messageSink: sink, options: new XunitDiscoveryOptions());
+                controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
 
                 sink.Finished.WaitOne();
 
@@ -49,7 +49,7 @@ public class Xunit2Tests
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-                controller.Find(includeSourceInformation: false, messageSink: sink, options: new XunitDiscoveryOptions());
+                controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
 
                 sink.Finished.WaitOne();
 
@@ -99,7 +99,7 @@ public class Xunit2Tests
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-                controller.Find(includeSourceInformation: false, messageSink: sink, options: new XunitDiscoveryOptions());
+                controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
 
                 sink.Finished.WaitOne();
                 ITestCase[] testCases = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase).ToArray();
@@ -142,7 +142,7 @@ public class Xunit2Tests
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
 
-                controller.Find(includeSourceInformation: false, messageSink: sink, options: new XunitDiscoveryOptions());
+                controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
 
                 sink.Finished.WaitOne();
                 string[] testCaseNames = sink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(tcdm => tcdm.TestCase.DisplayName).ToArray();

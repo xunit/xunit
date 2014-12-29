@@ -103,16 +103,10 @@ namespace Xunit
         /// </summary>
         /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
         /// <param name="messageSink">The message sink to report results back to.</param>
-        /// <param name="options">The options used by the test framework during discovery.</param>
-        public void Find(bool includeSourceInformation, IMessageSink messageSink, XunitDiscoveryOptions options)
+        /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
+        public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            discoverer.Find(includeSourceInformation, messageSink, options);
-        }
-
-        /// <inheritdoc/>
-        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
-        {
-            discoverer.Find(includeSourceInformation, messageSink, options);
+            discoverer.Find(includeSourceInformation, messageSink, discoveryOptions);
         }
 
         /// <summary>
@@ -121,16 +115,10 @@ namespace Xunit
         /// <param name="typeName">The fully qualified type name to find tests in.</param>
         /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
         /// <param name="messageSink">The message sink to report results back to.</param>
-        /// <param name="options">The options used by the test framework during discovery.</param>
-        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, XunitDiscoveryOptions options)
+        /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
+        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            discoverer.Find(typeName, includeSourceInformation, messageSink, options);
-        }
-
-        /// <inheritdoc/>
-        void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
-        {
-            discoverer.Find(typeName, includeSourceInformation, messageSink, options);
+            discoverer.Find(typeName, includeSourceInformation, messageSink, discoveryOptions);
         }
 
         static string GetXunitExecutionAssemblyPath(string assemblyFileName)

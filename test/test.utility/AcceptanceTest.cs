@@ -24,9 +24,9 @@ public class AcceptanceTest : IDisposable
         Xunit2 = new Xunit2(new NullSourceInformationProvider(), types[0].Assembly.GetLocalCodeBase(), configFileName: null, shadowCopy: true);
 
         var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
-        foreach (Type type in types)
+        foreach (var type in types)
         {
-            Xunit2.Find(type.FullName, includeSourceInformation: false, messageSink: discoverySink, options: new XunitDiscoveryOptions());
+            Xunit2.Find(type.FullName, includeSourceInformation: false, messageSink: discoverySink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
             discoverySink.Finished.WaitOne();
             discoverySink.Finished.Reset();
         }
@@ -34,7 +34,7 @@ public class AcceptanceTest : IDisposable
         var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
 
         var runSink = new SpyMessageSink<ITestAssemblyFinished>();
-        Xunit2.Run(testCases, runSink, new XunitExecutionOptions());
+        Xunit2.RunTests(testCases, runSink, TestFrameworkOptions.ForExecution());
         runSink.Finished.WaitOne();
 
         return runSink.Messages.ToList();

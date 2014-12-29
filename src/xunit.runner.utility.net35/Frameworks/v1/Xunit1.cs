@@ -98,7 +98,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
+        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             Find(msg => true, includeSourceInformation, messageSink);
         }
@@ -115,7 +115,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions options)
+        void ITestFrameworkDiscoverer.Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             Find(msg => msg.TestCase.TestMethod.TestClass.Class.Name == typeName, includeSourceInformation, messageSink);
         }
@@ -164,7 +164,7 @@ namespace Xunit
             Run(discoverySink.TestCases, messageSink);
         }
 
-        void ITestFrameworkExecutor.RunAll(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
+        void ITestFrameworkExecutor.RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
         {
             Run(messageSink);
         }
@@ -199,7 +199,7 @@ namespace Xunit
             }
         }
 
-        void ITestFrameworkExecutor.RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions options)
+        void ITestFrameworkExecutor.RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
         {
             Run(testCases, messageSink);
         }

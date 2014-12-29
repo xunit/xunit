@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -8,17 +6,46 @@ namespace Xunit
     /// <summary>
     /// Represents options passed to a test framework for discovery or execution.
     /// </summary>
-    public class TestFrameworkOptions : LongLivedMarshalByRefObject, ITestFrameworkOptions
+    public class TestFrameworkOptions : LongLivedMarshalByRefObject, ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
     {
         readonly Dictionary<string, object> properties = new Dictionary<string, object>();
 
-        static bool IsEnum(Type type)
+        // Force users to use one of the factory methods
+        private TestFrameworkOptions() { }
+
+        /// <summary>
+        /// Creates an instance of <see cref="TestFrameworkOptions"/>
+        /// </summary>
+        /// <param name="configuration">The optional configuration to copy values from.</param>
+        public static ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration configuration = null)
         {
-#if NEW_REFLECTION
-            return type.GetTypeInfo().IsEnum;
-#else
-            return type.IsEnum;
-#endif
+            ITestFrameworkDiscoveryOptions result = new TestFrameworkOptions();
+
+            if (configuration != null)
+            {
+                result.SetDiagnosticMessages(configuration.DiagnosticMessages);
+                result.SetMethodDisplay(configuration.MethodDisplay);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates an instance of <see cref="TestFrameworkOptions"/>
+        /// </summary>
+        /// <param name="configuration">The optional configuration to copy values from.</param>
+        public static ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration configuration = null)
+        {
+            ITestFrameworkExecutionOptions result = new TestFrameworkOptions();
+
+            if (configuration != null)
+            {
+                result.SetDiagnosticMessages(configuration.DiagnosticMessages);
+                result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
+                result.SetMaxParallelThreads(configuration.MaxParallelThreads);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -32,12 +59,7 @@ namespace Xunit
         {
             object result;
             if (properties.TryGetValue(name, out result))
-            {
-                if (IsEnum(typeof(TValue)))
-                    return (TValue)Enum.Parse(typeof(TValue), (string)result);
-                else
-                    return (TValue)result;
-            }
+                return (TValue)result;
 
             return defaultValue;
         }
@@ -50,10 +72,7 @@ namespace Xunit
         /// <param name="value">The value.</param>
         public void SetValue<TValue>(string name, TValue value)
         {
-            if (IsEnum(typeof(TValue)))
-                properties[name] = value.ToString();
-            else
-                properties[name] = value;
+            properties[name] = value;
         }
     }
 }

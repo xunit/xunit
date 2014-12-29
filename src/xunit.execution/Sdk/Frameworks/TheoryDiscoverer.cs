@@ -13,8 +13,10 @@ namespace Xunit.Sdk
     public class TheoryDiscoverer : IXunitTestCaseDiscoverer
     {
         /// <inheritdoc/>
-        public IEnumerable<IXunitTestCase> Discover(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, IAttributeInfo factAttribute)
+        public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
+            var defaultMethodDisplay = discoveryOptions.MethodDisplay();
+
             // Special case Skip, because we want a single Skip (not one per data item), and a skipped test may
             // not actually have any data (which is quasi-legal, since it's skipped).
             if (factAttribute.GetNamedArgument<string>("Skip") != null)

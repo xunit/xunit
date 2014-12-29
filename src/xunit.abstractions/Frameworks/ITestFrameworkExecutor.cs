@@ -21,7 +21,7 @@ namespace Xunit.Abstractions
         /// <param name="messageSink">The message sink to report results back to.</param>
         /// <param name="discoveryOptions">The options to be used during test discovery.</param>
         /// <param name="executionOptions">The options to be used during test execution.</param>
-        void RunAll(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions);
+        void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions);
 
         /// <summary>
         /// Starts the process of running selected tests in the assembly.
@@ -29,6 +29,6 @@ namespace Xunit.Abstractions
         /// <param name="testCases">The test cases to run.</param>
         /// <param name="messageSink">The message sink to report results back to.</param>
         /// <param name="executionOptions">The options to be used during test execution.</param>
-        void RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions);
+        void RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions);
     }
 }

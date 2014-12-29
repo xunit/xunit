@@ -67,7 +67,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public virtual void RunAll(IMessageSink messageSink, ITestFrameworkOptions discoveryOptions, ITestFrameworkOptions executionOptions)
+        public virtual void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
         {
             Guard.ArgumentNotNull("messageSink", messageSink);
             Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
@@ -85,7 +85,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public virtual void RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions)
+        public virtual void RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
         {
             Guard.ArgumentNotNull("testCases", testCases);
             Guard.ArgumentNotNull("messageSink", messageSink);
@@ -100,6 +100,6 @@ namespace Xunit.Sdk
         /// <param name="testCases">The test cases to be run.</param>
         /// <param name="messageSink">The message sink to report run status to.</param>
         /// <param name="executionOptions">The user's requested execution options.</param>
-        protected abstract void RunTestCases(IEnumerable<TTestCase> testCases, IMessageSink messageSink, ITestFrameworkOptions executionOptions);
+        protected abstract void RunTestCases(IEnumerable<TTestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions);
     }
 }

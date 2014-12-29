@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -10,9 +11,9 @@ namespace Xunit.Sdk
     public class FactDiscoverer : IXunitTestCaseDiscoverer
     {
         /// <inheritdoc/>
-        public IEnumerable<IXunitTestCase> Discover(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, IAttributeInfo factAttribute)
+        public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
-            return new IXunitTestCase[] { new XunitTestCase(defaultMethodDisplay, testMethod) };
+            return new IXunitTestCase[] { new XunitTestCase(discoveryOptions.MethodDisplay(), testMethod) };
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Xunit.Sdk
         public XunitTestAssemblyRunner(ITestAssembly testAssembly,
                                        IEnumerable<IXunitTestCase> testCases,
                                        IMessageSink messageSink,
-                                       ITestFrameworkOptions executionOptions)
+                                       ITestFrameworkExecutionOptions executionOptions)
             : base(testAssembly, testCases, messageSink, executionOptions) { }
 
         /// <inheritdoc/>

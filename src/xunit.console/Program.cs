@@ -247,23 +247,23 @@ namespace Xunit.ConsoleClient
                 if (!ValidateFileExists(consoleLock, assembly.AssemblyFilename) || !ValidateFileExists(consoleLock, assembly.ConfigFilename))
                     return null;
 
-                var discoveryOptions = new XunitDiscoveryOptions(assembly.Configuration);
-                var executionOptions = new XunitExecutionOptions(assembly.Configuration);
+                var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+                var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
                 if (maxThreadCount.HasValue)
-                    executionOptions.MaxParallelThreads = maxThreadCount.GetValueOrDefault();
+                    executionOptions.SetMaxParallelThreads(maxThreadCount.GetValueOrDefault());
                 if (parallelizeTestCollections.HasValue)
-                    executionOptions.DisableParallelization = !parallelizeTestCollections.GetValueOrDefault();
+                    executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
                 lock (consoleLock)
                 {
                     if (assembly.Configuration.DiagnosticMessages)
                         Console.WriteLine("Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
                                           Path.GetFileNameWithoutExtension(assembly.AssemblyFilename),
-                                          discoveryOptions.MethodDisplay,
-                                          !executionOptions.DisableParallelization,
-                                          executionOptions.MaxParallelThreads);
+                                          discoveryOptions.GetMethodDisplay(),
+                                          !executionOptions.GetDisableParallelization(),
+                                          executionOptions.GetMaxParallelThreads());
                     else
-                    Console.WriteLine("Discovering: {0}", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
+                        Console.WriteLine("Discovering: {0}", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
                 }
 
                 using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy))

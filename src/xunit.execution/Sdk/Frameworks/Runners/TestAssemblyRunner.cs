@@ -30,7 +30,7 @@ namespace Xunit.Sdk
         public TestAssemblyRunner(ITestAssembly testAssembly,
                                   IEnumerable<TTestCase> testCases,
                                   IMessageSink messageSink,
-                                  ITestFrameworkOptions executionOptions)
+                                  ITestFrameworkExecutionOptions executionOptions)
         {
             TestAssembly = testAssembly;
             TestCases = testCases;
@@ -49,7 +49,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets or sets the user's requested execution options.
         /// </summary>
-        protected ITestFrameworkOptions ExecutionOptions { get; set; }
+        protected ITestFrameworkExecutionOptions ExecutionOptions { get; set; }
 
         /// <summary>
         /// Gets or sets the message sink to report run status to.

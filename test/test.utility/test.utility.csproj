@@ -114,6 +114,9 @@
     <Compile Include="..\..\src\common\ExceptionExtensions.cs">
       <Link>Common\ExceptionExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\TestOptionsNames.cs">
+      <Link>Common\TestOptionsNames.cs</Link>
+    </Compile>
     <Compile Include="CulturedFactAttribute.cs" />
     <Compile Include="CulturedFactAttributeDiscoverer.cs" />
     <Compile Include="CulturedXunitTestCase.cs" />

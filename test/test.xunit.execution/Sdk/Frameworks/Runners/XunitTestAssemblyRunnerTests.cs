@@ -101,8 +101,9 @@ public class XunitTestAssemblyRunnerTests
         [Fact]
         public static void TestOptions_NonParallel()
         {
-            var options = new XunitExecutionOptions { DisableParallelization = true };
-            var runner = TestableXunitTestAssemblyRunner.Create(options: options);
+            var options = TestFrameworkOptions.ForExecution();
+            options.SetDisableParallelization(true);
+            var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
 
             var result = runner.GetTestFrameworkEnvironment();
 
@@ -112,8 +113,9 @@ public class XunitTestAssemblyRunnerTests
         [Fact]
         public static void TestOptions_MaxThreads()
         {
-            var options = new XunitExecutionOptions { MaxParallelThreads = 3 };
-            var runner = TestableXunitTestAssemblyRunner.Create(options: options);
+            var options = TestFrameworkOptions.ForExecution();
+            options.SetMaxParallelThreads(3);
+            var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
 
             var result = runner.GetTestFrameworkEnvironment();
 
@@ -124,9 +126,11 @@ public class XunitTestAssemblyRunnerTests
         public static void TestOptionsOverrideAttribute()
         {
             var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true, maxParallelThreads: 127);
-            var options = new XunitExecutionOptions { DisableParallelization = false, MaxParallelThreads = 3 };
+            var options = TestFrameworkOptions.ForExecution();
+            options.SetDisableParallelization(false);
+            options.SetMaxParallelThreads(3);
             var assembly = Mocks.TestAssembly(new[] { attribute });
-            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, options: options);
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly, executionOptions: options);
 
             var result = runner.GetTestFrameworkEnvironment();
 
@@ -141,8 +145,9 @@ public class XunitTestAssemblyRunnerTests
         {
             var passing = Mocks.XunitTestCase<ClassUnderTest>("Passing");
             var other = Mocks.XunitTestCase<ClassUnderTest>("Other");
-            var options = new XunitExecutionOptions { MaxParallelThreads = 2 };
-            var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, options: options);
+            var options = TestFrameworkOptions.ForExecution();
+            options.SetMaxParallelThreads(2);
+            var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
             await runner.RunAsync();
 
@@ -155,8 +160,9 @@ public class XunitTestAssemblyRunnerTests
         {
             var passing = Mocks.XunitTestCase<ClassUnderTest>("Passing");
             var other = Mocks.XunitTestCase<ClassUnderTest>("Other");
-            var options = new XunitExecutionOptions { MaxParallelThreads = 1 };
-            var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, options: options);
+            var options = TestFrameworkOptions.ForExecution();
+            options.SetMaxParallelThreads(1);
+            var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
             await runner.RunAsync();
 
@@ -169,8 +175,9 @@ public class XunitTestAssemblyRunnerTests
         {
             var passing = Mocks.XunitTestCase<ClassUnderTest>("Passing");
             var other = Mocks.XunitTestCase<ClassUnderTest>("Other");
-            var options = new XunitExecutionOptions { DisableParallelization = true };
-            var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, options: options);
+            var options = TestFrameworkOptions.ForExecution();
+            options.SetDisableParallelization(true);
+            var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
             await runner.RunAsync();
 
@@ -241,12 +248,12 @@ public class XunitTestAssemblyRunnerTests
         TestableXunitTestAssemblyRunner(ITestAssembly testAssembly,
                                         IEnumerable<IXunitTestCase> testCases,
                                         IMessageSink messageSink,
-                                        ITestFrameworkOptions executionOptions)
+                                        ITestFrameworkExecutionOptions executionOptions)
             : base(testAssembly, testCases, messageSink, executionOptions) { }
 
         public static TestableXunitTestAssemblyRunner Create(ITestAssembly assembly = null,
                                                              IXunitTestCase[] testCases = null,
-                                                             ITestFrameworkOptions options = null)
+                                                             ITestFrameworkExecutionOptions executionOptions = null)
         {
             if (testCases == null)
                 testCases = new[] { Mocks.XunitTestCase<ClassUnderTest>("Passing") };
@@ -255,7 +262,7 @@ public class XunitTestAssemblyRunnerTests
                 assembly ?? testCases.First().TestMethod.TestClass.TestCollection.TestAssembly,
                 testCases ?? new IXunitTestCase[0],
                 SpyMessageSink.Create(),
-                options ?? new TestFrameworkOptions()
+                executionOptions ?? TestFrameworkOptions.ForExecution()
             );
         }
 

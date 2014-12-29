@@ -23,7 +23,7 @@ namespace Xunit.Abstractions
         /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
         /// <param name="messageSink">The message sink to report results back to.</param>
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-        void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions discoveryOptions);
+        void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions);
 
         /// <summary>
         /// Starts the process of finding all tests in a class.
@@ -32,7 +32,7 @@ namespace Xunit.Abstractions
         /// <param name="includeSourceInformation">Whether to include source file information, if possible.</param>
         /// <param name="messageSink">The message sink to report results back to.</param>
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-        void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkOptions discoveryOptions);
+        void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions);
 
         /// <summary>
         /// Serializes a test case into string form.

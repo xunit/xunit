@@ -1,8 +1,9 @@
 ﻿namespace Xunit.Abstractions
 {
     /// <summary>
-    /// Represents options given to an implementation of <see cref="ITestFrameworkDiscoverer"/>.Find
-    /// or <see cref="ITestFrameworkExecutor"/>.Run.
+    /// This interface should not be consumed directly; instead, you should
+    /// consume <see cref="ITestFrameworkDiscoveryOptions"/>
+    /// or <see cref="ITestFrameworkExecutionOptions"/>.
     /// </summary>
     public interface ITestFrameworkOptions
     {

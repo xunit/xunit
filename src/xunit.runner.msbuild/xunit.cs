@@ -226,21 +226,21 @@ namespace Xunit.Runner.MSBuild
 
             try
             {
-                var discoveryOptions = new XunitDiscoveryOptions(configuration);
-                var executionOptions = new XunitExecutionOptions(configuration);
+                var discoveryOptions = TestFrameworkOptions.ForDiscovery(configuration);
+                var executionOptions = TestFrameworkOptions.ForExecution(configuration);
                 if (maxParallelThreads.HasValue)
-                    executionOptions.MaxParallelThreads = maxParallelThreads.GetValueOrDefault();
+                    executionOptions.SetMaxParallelThreads(maxParallelThreads.GetValueOrDefault());
                 if (parallelizeTestCollections.HasValue)
-                    executionOptions.DisableParallelization = !parallelizeTestCollections.GetValueOrDefault();
+                    executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
                 if (configuration.DiagnosticMessages)
                     Log.LogMessage(MessageImportance.High, "  Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
                                    Path.GetFileNameWithoutExtension(assemblyFileName),
-                                   discoveryOptions.MethodDisplay,
-                                   !executionOptions.DisableParallelization,
-                                   executionOptions.MaxParallelThreads);
+                                   discoveryOptions.GetMethodDisplay(),
+                                   !executionOptions.GetDisableParallelization(),
+                                   executionOptions.GetMaxParallelThreads());
                 else
-                Log.LogMessage(MessageImportance.High, "  Discovering: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+                    Log.LogMessage(MessageImportance.High, "  Discovering: {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
 
                 using (var controller = CreateFrontController(assemblyFileName, configFileName))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
