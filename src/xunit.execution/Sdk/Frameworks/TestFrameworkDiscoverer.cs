@@ -108,12 +108,10 @@ namespace Xunit.Sdk
             });
         }
 
-        private IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkOptions options)
+        private static IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkOptions options)
         {
             if (options.GetValue(TestOptionsNames.Discovery.SynchronousMessageReporting, false))
-            {
                 return new SynchronousMessageBus(messageSink);
-            }
 
             return new MessageBus(messageSink);
         }
