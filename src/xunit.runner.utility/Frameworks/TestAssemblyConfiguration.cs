@@ -16,6 +16,7 @@ namespace Xunit
             MaxParallelThreads = Environment.ProcessorCount;
             MethodDisplay = TestMethodDisplay.ClassAndMethod;
             ParallelizeTestCollections = true;
+            PreEnumerateTheories = true;
         }
 
         /// <summary>
@@ -47,5 +48,11 @@ namespace Xunit
         /// in parallel against one another. Defaults to <c>true</c>.
         /// </summary>
         public bool ParallelizeTestCollections { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag indicating whether theory data should be pre-enumerated during
+        /// test discovery. Defaults to <c>true</c>.
+        /// </summary>
+        public bool PreEnumerateTheories { get; set; }
     }
 }

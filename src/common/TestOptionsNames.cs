@@ -7,6 +7,7 @@ internal static class TestOptionsNames
         public const string MethodDisplay = "xunit.methodDisplay";
         public const string ParallelizeAssembly = "xunit.parallelizeAssembly";
         public const string ParallelizeTestCollections = "xunit.parallelizeTestCollections";
+        public const string PreEnumerateTheories = "xunit.preEnumerateTheories";
     }
 
     internal static class Discovery

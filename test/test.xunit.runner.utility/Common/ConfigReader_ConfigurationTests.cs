@@ -24,6 +24,7 @@ public class ConfigReader_ConfigurationTests
             Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplay);
             Assert.False(result.ParallelizeAssembly);
             Assert.True(result.ParallelizeTestCollections);
+            Assert.True(result.PreEnumerateTheories);
         }
 
         [Fact]
@@ -36,6 +37,7 @@ public class ConfigReader_ConfigurationTests
             Assert.Equal(TestMethodDisplay.Method, result.MethodDisplay);
             Assert.True(result.ParallelizeAssembly);
             Assert.False(result.ParallelizeTestCollections);
+            Assert.False(result.PreEnumerateTheories);
         }
 
         [Fact]
@@ -49,6 +51,7 @@ public class ConfigReader_ConfigurationTests
             // This value was valid as a sentinel to make sure we were trying to read values from the file
             Assert.True(result.ParallelizeAssembly);
             Assert.True(result.ParallelizeTestCollections);
+            Assert.True(result.PreEnumerateTheories);
         }
     }
 }

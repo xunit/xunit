@@ -53,6 +53,8 @@ namespace Xunit
                                     result.ParallelizeAssembly = GetBoolean(value.Value, result.ParallelizeAssembly);
                                 else if (key.Value.Equals(TestOptionsNames.Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
                                     result.ParallelizeTestCollections = GetBoolean(value.Value, result.ParallelizeTestCollections);
+                                else if (key.Value.Equals(TestOptionsNames.Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
+                                    result.PreEnumerateTheories = GetBoolean(value.Value, result.PreEnumerateTheories);
                             }
                         }
                     }

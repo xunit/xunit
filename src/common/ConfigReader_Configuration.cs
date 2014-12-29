@@ -34,6 +34,7 @@ namespace Xunit
                     result.MethodDisplay = GetEnum(settings, TestOptionsNames.Configuration.MethodDisplay, result.MethodDisplay);
                     result.ParallelizeAssembly = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeAssembly, result.ParallelizeAssembly);
                     result.ParallelizeTestCollections = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeTestCollections, result.ParallelizeTestCollections);
+                    result.PreEnumerateTheories = GetBoolean(settings, TestOptionsNames.Configuration.PreEnumerateTheories, result.PreEnumerateTheories);
                 }
             }
             catch (ConfigurationErrorsException) { }
