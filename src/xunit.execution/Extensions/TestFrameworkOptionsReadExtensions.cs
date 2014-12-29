@@ -26,6 +26,16 @@ public static class TestFrameworkOptionsReadExtensions
         return methodDisplayString == null ? TestMethodDisplay.ClassAndMethod : (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), methodDisplayString);
     }
 
+    /// <summary>
+    /// Gets a flag that determines whether theories are pre-enumerated. If they enabled, then the
+    /// discovery system will return a test case for each row of test data; they are disabled, then the
+    /// discovery system will return a single test case for the theory.
+    /// </summary>
+    public static bool PreEnumerateTheories(this ITestFrameworkDiscoveryOptions discoveryOptions)
+    {
+        return discoveryOptions.GetValue<bool>(TestOptionsNames.Discovery.PreEnumerateTheories, true);
+    }
+
     // Read methods for ITestFrameworkExecutionOptions
 
     /// <summary>

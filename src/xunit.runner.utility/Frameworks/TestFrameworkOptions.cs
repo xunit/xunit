@@ -25,6 +25,7 @@ namespace Xunit
             {
                 result.SetDiagnosticMessages(configuration.DiagnosticMessages);
                 result.SetMethodDisplay(configuration.MethodDisplay);
+                result.SetPreEnumerateTheories(configuration.PreEnumerateTheories);
             }
 
             return result;

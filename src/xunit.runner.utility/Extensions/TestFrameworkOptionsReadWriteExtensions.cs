@@ -27,6 +27,16 @@ public static class TestFrameworkOptionsReadWriteExtensions
     }
 
     /// <summary>
+    /// Gets a flag that determines whether theories are pre-enumerated. If they enabled, then the
+    /// discovery system will return a test case for each row of test data; they are disabled, then the
+    /// discovery system will return a single test case for the theory.
+    /// </summary>
+    public static bool GetPreEnumerateTheories(this ITestFrameworkDiscoveryOptions discoveryOptions)
+    {
+        return discoveryOptions.GetValue<bool>(TestOptionsNames.Discovery.PreEnumerateTheories, true);
+    }
+
+    /// <summary>
     /// Sets a flag that determines whether diagnostic messages will be emitted.
     /// </summary>
     public static void SetDiagnosticMessages(this ITestFrameworkDiscoveryOptions discoveryOptions, bool value)
@@ -40,6 +50,16 @@ public static class TestFrameworkOptionsReadWriteExtensions
     public static void SetMethodDisplay(this ITestFrameworkDiscoveryOptions discoveryOptions, TestMethodDisplay value)
     {
         discoveryOptions.SetValue(TestOptionsNames.Discovery.MethodDisplay, value.ToString());
+    }
+
+    /// <summary>
+    /// Sets a flag that determines whether theories are pre-enumerated. If they enabled, then the
+    /// discovery system will return a test case for each row of test data; they are disabled, then the
+    /// discovery system will return a single test case for the theory.
+    /// </summary>
+    public static void SetPreEnumerateTheories(this ITestFrameworkDiscoveryOptions discoveryOptions, bool value)
+    {
+        discoveryOptions.SetValue(TestOptionsNames.Discovery.DiagnosticMessages, value);
     }
 
     // Read/write methods for ITestFrameworkExecutionOptions

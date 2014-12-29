@@ -51,13 +51,33 @@ public class TheoryDiscovererTests : AcceptanceTest
     }
 
     [Fact]
-    public void MultipleDataRowsFromSingleDataAttribute()
+    public void DiscoveryOptions_PreEnumerateTheoriesSetToTrue_YieldsTestCasePerDataRow()
     {
-        var passes = Run<ITestPassed>(typeof(MultipleDataClass)).Select(tc => tc.Test.DisplayName).ToList();
+        discoveryOptions.SetValue(TestOptionsNames.Discovery.PreEnumerateTheories, true);
+        var discoverer = new TheoryDiscoverer();
+        var testMethod = Mocks.TestMethod(typeof(MultipleDataClass), "TheoryMethod");
+        var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
-        Assert.Equal(2, passes.Count);
-        Assert.Single(passes, name => name == "TheoryDiscovererTests+MultipleDataClass.TheoryMethod(x: 42)");
-        Assert.Single(passes, name => name == "TheoryDiscovererTests+MultipleDataClass.TheoryMethod(x: 2112)");
+        var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute).ToList();
+
+        Assert.Equal(2, testCases.Count);
+        Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClass.TheoryMethod(x: 42)");
+        Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClass.TheoryMethod(x: 2112)");
+    }
+
+    [Fact]
+    public void DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTheoryTestCase()
+    {
+        discoveryOptions.SetValue(TestOptionsNames.Discovery.PreEnumerateTheories, false);
+        var discoverer = new TheoryDiscoverer();
+        var testMethod = Mocks.TestMethod(typeof(MultipleDataClass), "TheoryMethod");
+        var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+        var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+        var testCase = Assert.Single(testCases);
+        var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
+        Assert.Equal("TheoryDiscovererTests+MultipleDataClass.TheoryMethod", theoryTestCase.DisplayName);
     }
 
     class MultipleDataAttribute : DataAttribute
