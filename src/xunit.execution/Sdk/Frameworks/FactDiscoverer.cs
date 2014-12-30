@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -13,7 +14,15 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
-            return new IXunitTestCase[] { new XunitTestCase(discoveryOptions.MethodDisplay(), testMethod) };
+            var methodDisplay = discoveryOptions.MethodDisplay();
+
+            IXunitTestCase testCase;
+            if (testMethod.Method.GetParameters().Any())
+                testCase = new LambdaTestCase(methodDisplay, testMethod, () => { throw new InvalidOperationException("[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?"); });
+            else
+                testCase = new XunitTestCase(methodDisplay, testMethod);
+
+            return new[] { testCase };
         }
     }
 }

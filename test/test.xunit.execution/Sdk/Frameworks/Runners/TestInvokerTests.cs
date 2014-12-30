@@ -101,6 +101,30 @@ public class TestInvokerTests
     }
 
     [Fact]
+    public static async void TooManyParameterValues()
+    {
+        var messageBus = new SpyMessageBus();
+        var invoker = TestableTestInvoker.Create<NonDisposableClass>("Passing", messageBus, testMethodArguments: new object[] { 42 });
+
+        await invoker.RunAsync();
+
+        var ex = Assert.IsType<InvalidOperationException>(invoker.Aggregator.ToException());
+        Assert.Equal("The test method expected 0 parameter values, but 1 parameter value was provided.", ex.Message);
+    }
+
+    [Fact]
+    public static async void NotEnoughParameterValues()
+    {
+        var messageBus = new SpyMessageBus();
+        var invoker = TestableTestInvoker.Create<NonDisposableClass>("FactWithParameter", messageBus);
+
+        await invoker.RunAsync();
+
+        var ex = Assert.IsType<InvalidOperationException>(invoker.Aggregator.ToException());
+        Assert.Equal("The test method expected 1 parameter value, but 0 parameter values were provided.", ex.Message);
+    }
+
+    [Fact]
     public static async void CancellationRequested_DoesNotInvokeTestMethod()
     {
         var messageBus = new SpyMessageBus();
@@ -128,6 +152,9 @@ public class TestInvokerTests
         {
             Assert.True(false);
         }
+
+        [Fact]
+        public void FactWithParameter(int x) { }
     }
 
     class DisposableClass : IDisposable
@@ -154,7 +181,7 @@ public class TestInvokerTests
             TokenSource = cancellationTokenSource;
         }
 
-        public static TestableTestInvoker Create<TClassUnderTest>(string methodName, IMessageBus messageBus, string displayName = null)
+        public static TestableTestInvoker Create<TClassUnderTest>(string methodName, IMessageBus messageBus, string displayName = null, object[] testMethodArguments = null)
         {
             var testCase = Mocks.TestCase<TClassUnderTest>(methodName);
             var test = Mocks.Test(testCase, displayName);
@@ -165,7 +192,7 @@ public class TestInvokerTests
                 typeof(TClassUnderTest),
                 new object[0],
                 typeof(TClassUnderTest).GetMethod(methodName),
-                new object[0],
+                testMethodArguments ?? new object[0],
                 new ExceptionAggregator(),
                 new CancellationTokenSource()
             );

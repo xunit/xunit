@@ -191,15 +191,29 @@ namespace Xunit.Sdk
                     () => Timer.AggregateAsync(
                         async () =>
                         {
-                            var result = TestMethod.Invoke(testClassInstance, TestMethodArguments);
-                            var task = result as Task;
-                            if (task != null)
-                                await task;
+                            var parameterCount = TestMethod.GetParameters().Length;
+                            var valueCount = TestMethodArguments == null ? 0 : TestMethodArguments.Length;
+                            if (parameterCount != valueCount)
+                            {
+                                Aggregator.Add(
+                                    new InvalidOperationException(
+                                        String.Format("The test method expected {0} parameter value{1}, but {2} parameter value{3} {4} provided.",
+                                                      parameterCount, parameterCount == 1 ? "" : "s",
+                                                      valueCount, valueCount == 1 ? "" : "s", valueCount == 1 ? "was" : "were"))
+                                );
+                            }
                             else
                             {
-                                var ex = await asyncSyncContext.WaitForCompletionAsync();
-                                if (ex != null)
-                                    Aggregator.Add(ex);
+                                var result = TestMethod.Invoke(testClassInstance, TestMethodArguments);
+                                var task = result as Task;
+                                if (task != null)
+                                    await task;
+                                else
+                                {
+                                    var ex = await asyncSyncContext.WaitForCompletionAsync();
+                                    if (ex != null)
+                                        Aggregator.Add(ex);
+                                }
                             }
                         }
                     )
