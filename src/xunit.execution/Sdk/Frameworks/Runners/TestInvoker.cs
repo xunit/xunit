@@ -108,10 +108,14 @@ namespace Xunit.Sdk
         protected ExecutionTimer Timer { get; set; }
 
         /// <summary>
-        /// Creates the test class, unless the test method is static or there have already been errors.
+        /// Creates the test class, unless the test method is static or there have already been errors. Note that
+        /// this method times the creation of the test class (using <see cref="Timer"/>). It is also responsible for
+        /// sending the <see cref="ITestClassConstructionStarting"/>and <see cref="ITestClassConstructionFinished"/>
+        /// messages, so if you override this method without calling the base, you are responsible for all of this behavior.
+        /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         /// <returns>The class instance, if appropriate; <c>null</c>, otherwise</returns>
-        protected object CreateTestClass()
+        protected virtual object CreateTestClass()
         {
             object testClass = null;
 
