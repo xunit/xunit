@@ -47,7 +47,7 @@ namespace Xunit
             if (this.sourceInformationProvider == null)
             {
 #if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
-                this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
+                this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName, shadowCopy, configFileName);
 #else
                 this.sourceInformationProvider = new NullSourceInformationProvider();
 #endif

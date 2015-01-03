@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 
 namespace Xunit
 {
@@ -10,14 +12,17 @@ namespace Xunit
         readonly DiaSessionWrapperHelper helper;
         readonly DiaSession session;
 
-        public DiaSessionWrapper(string assemblyFilename)
+        public DiaSessionWrapper(string assemblyFilename, bool shadowCopy = true, string configFileName = null)
         {
             session = new DiaSession(assemblyFilename);
 
-            var assemblyFileName = typeof(DiaSessionWrapperHelper).Assembly.GetLocalCodeBase();
+            string xUnitAssemblyPath = typeof(DiaSessionWrapperHelper).Assembly.GetLocalCodeBase();
+            string xUnitAssemblyDirectory = Path.GetDirectoryName(xUnitAssemblyPath);
 
-            appDomainManager = new RemoteAppDomainManager(assemblyFileName, null, true, null);
-            helper = appDomainManager.CreateObject<DiaSessionWrapperHelper>(typeof(DiaSessionWrapperHelper).Assembly.FullName, typeof(DiaSessionWrapperHelper).FullName, assemblyFilename);
+            appDomainManager = new RemoteAppDomainManager(assemblyFilename, configFileName, shadowCopy, null);
+
+            // We want to be able to create the wrapper in the other domain, yet keep the domain centered on the test assembly.
+            helper = appDomainManager.CreateObjectFromPath<DiaSessionWrapperHelper>(xUnitAssemblyPath, typeof(DiaSessionWrapperHelper).FullName, assemblyFilename, xUnitAssemblyDirectory);
         }
 
         public DiaNavigationData GetNavigationData(string typeName, string methodName)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Remoting;
 using System.Security;
 using System.Security.Permissions;
 
@@ -36,7 +37,7 @@ namespace Xunit
         {
             var setup = new AppDomainSetup();
             setup.ApplicationBase = Path.GetDirectoryName(assemblyFilename);
-            setup.ApplicationName = Guid.NewGuid().ToString();
+            setup.ApplicationName = Guid.NewGuid().ToString() + Path.GetFileNameWithoutExtension(assemblyFilename);
 
             if (shadowCopy)
             {
@@ -55,6 +56,20 @@ namespace Xunit
             try
             {
                 object unwrappedObject = AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName, false, 0, null, args, null, null, null);
+                return (TObject)unwrappedObject;
+            }
+            catch (TargetInvocationException ex)
+            {
+                ex.InnerException.RethrowWithNoStackTraceLoss();
+                return default(TObject);
+            }
+        }
+
+        public TObject CreateObjectFromPath<TObject>(string assemblyPath, string typeName, params object[] args)
+        {
+            try
+            {
+                object unwrappedObject = AppDomain.CreateInstanceFromAndUnwrap(assemblyPath, typeName, false, 0, null, args, null, null, null);
                 return (TObject)unwrappedObject;
             }
             catch (TargetInvocationException ex)

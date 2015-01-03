@@ -12,12 +12,26 @@ namespace Xunit
 
         readonly Assembly assembly;
 
-        public DiaSessionWrapperHelper(string assemblyFileName)
+        public DiaSessionWrapperHelper(string assemblyFileName, string xUnitAssemblyLocation)
         {
             try
             {
                 assembly = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
                 string assemblyDirectory = Path.GetDirectoryName(assemblyFileName);
+
+                AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
+                {
+                    // Look for assembly next to the xunit assembly location
+                    AssemblyName requestedAssemblyName = new AssemblyName(args.Name);
+                    string requestedAssemblyFileName = requestedAssemblyName.Name + ".dll";
+                    string fullPath = Path.Combine(xUnitAssemblyLocation, requestedAssemblyFileName);
+                    if (File.Exists(fullPath))
+                    {
+                        return Assembly.LoadFrom(fullPath);
+                    }
+
+                    return null;
+                };
 
                 AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += (sender, args) =>
                 {
@@ -47,7 +61,8 @@ namespace Xunit
                     }
                 };
             }
-            catch { }
+            catch
+            { }
         }
 
         static Type GetStateMachineType_NoOp(MethodInfo method)
@@ -124,32 +139,28 @@ namespace Xunit
 
         public void Normalize(ref string typeName, ref string methodName)
         {
-            try
+            if (assembly == null)
+                return;
+
+            Type type = assembly.GetType(typeName);
+            if (type != null)
             {
-                if (assembly == null)
-                    return;
-
-                Type type = assembly.GetType(typeName);
-                if (type != null)
+                MethodInfo method = type.GetMethod(methodName);
+                if (method != null)
                 {
-                    MethodInfo method = type.GetMethod(methodName);
-                    if (method != null)
-                    {
-                        // DiaSession only ever wants you to ask for the declaring type
-                        typeName = method.DeclaringType.FullName;
+                    // DiaSession only ever wants you to ask for the declaring type
+                    typeName = method.DeclaringType.FullName;
 
-                        // See if this is an async method by looking for [AsyncStateMachine] on the method,
-                        // which means we need to pass the state machine's "MoveNext" method.
-                        Type stateMachineType = GetStateMachineType(method);
-                        if (stateMachineType != null)
-                        {
-                            typeName = stateMachineType.FullName;
-                            methodName = "MoveNext";
-                        }
+                    // See if this is an async method by looking for [AsyncStateMachine] on the method,
+                    // which means we need to pass the state machine's "MoveNext" method.
+                    Type stateMachineType = GetStateMachineType(method);
+                    if (stateMachineType != null)
+                    {
+                        typeName = stateMachineType.FullName;
+                        methodName = "MoveNext";
                     }
                 }
             }
-            catch { }
         }
     }
 }
