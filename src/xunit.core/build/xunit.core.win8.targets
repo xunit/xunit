@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="AddXunitExecutionLibs" AfterTargets="_ComputeAppxPackagePayload" BeforeTargets="_GenerateAppxManifest">
+    <ItemGroup>
+      <xUnitExecutionLibs Include="$(MSBuildThisFileDirectory)xunit.execution.win8.dll">
+        <TargetPath>xunit.execution.win8.dll</TargetPath>
+      </xUnitExecutionLibs>
+      <AppxPackagePayload Include="@(xUnitExecutionLibs)" />
+    </ItemGroup>
+  </Target>
+</Project>

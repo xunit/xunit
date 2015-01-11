@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DAED8494-AC8A-4C67-A8F1-616D95ECC302}"
-	ProjectSection(SolutionItems) = preProject
-		src\xunit.nuspec = src\xunit.nuspec
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D013AD79-A261-4476-93FC-9AF7E637CDB6}"
 EndProject
@@ -57,22 +54,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "abstractions", "abstractions", "{C987FBEE-4FE7-46CA-8175-9531F5DEBB29}"
 	ProjectSection(SolutionItems) = preProject
 		src\xunit.abstractions\project.json = src\xunit.abstractions\project.json
-		src\xunit.abstractions.nuspec = src\xunit.abstractions.nuspec
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runners", "runners", "{C11636E8-A3D7-4B0C-BC1E-2726B02A101F}"
-	ProjectSection(SolutionItems) = preProject
-		src\xunit.runners.nuspec = src\xunit.runners.nuspec
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runners", "runners", "{9D9F81DC-EE05-43B4-AF77-8EFE32024E82}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{A727699B-E50A-4F83-8627-8BE64237582C}"
 	ProjectSection(SolutionItems) = preProject
 		src\xunit.core\project.json = src\xunit.core\project.json
-		src\xunit.assert.nuspec = src\xunit.assert.nuspec
-		src\xunit.assert.source.nuspec = src\xunit.assert.source.nuspec
-		src\xunit.core.nuspec = src\xunit.core.nuspec
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{AE42309B-BFBE-4253-8AD6-BBFD676152ED}"
@@ -81,52 +71,63 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "v1", "v1", "{C86F3A8E-8D96-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "execution", "execution", "{72690AF2-D51A-4FD2-BD59-17FADACC29A1}"
 	ProjectSection(SolutionItems) = preProject
-		src\xunit.execution\project.json = src\xunit.execution\project.json
-		src\xunit.execution.nuspec = src\xunit.execution.nuspec
+		src\xunit.execution.AspNet\project.json = src\xunit.execution.AspNet\project.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.net45", "src\xunit.execution.net45\xunit.execution.net45.csproj", "{09EF9917-4B00-4646-8C3F-96EFACC8BF51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.desktop", "src\xunit.execution.desktop\xunit.execution.desktop.csproj", "{09EF9917-4B00-4646-8C3F-96EFACC8BF51}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runner.utility", "runner.utility", "{A36A630E-A604-47E6-894E-732946960182}"
 	ProjectSection(SolutionItems) = preProject
-		src\xunit.runner.utility\project.json = src\xunit.runner.utility\project.json
-		src\xunit.runner.utility.nuspec = src\xunit.runner.utility.nuspec
-		src\xunit.runner.utility.visualstudio.win8.nuspec = src\xunit.runner.utility.visualstudio.win8.nuspec
+		src\xunit.runner.utility.AspNet\project.json = src\xunit.runner.utility.AspNet\project.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.net35", "src\xunit.runner.utility.net35\xunit.runner.utility.net35.csproj", "{EFC3F529-3686-416B-9C67-36EC914C776A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.desktop", "src\xunit.runner.utility.desktop\xunit.runner.utility.desktop.csproj", "{EFC3F529-3686-416B-9C67-36EC914C776A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.iOS", "src\xunit.execution.iOS\xunit.execution.iOS.csproj", "{15AF2955-4EAD-45E5-A18D-9A12609EFABB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.MonoTouch", "src\xunit.execution.MonoTouch\xunit.execution.MonoTouch.csproj", "{15AF2955-4EAD-45E5-A18D-9A12609EFABB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.android", "src\xunit.execution.android\xunit.execution.android.csproj", "{34290DA1-E5CA-4373-BA2D-1404D0C29BCD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.MonoAndroid", "src\xunit.execution.MonoAndroid\xunit.execution.MonoAndroid.csproj", "{34290DA1-E5CA-4373-BA2D-1404D0C29BCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.android", "src\xunit.runner.utility.android\xunit.runner.utility.android.csproj", "{9E5809D5-4CD3-4CB0-8ABC-1B7D04176C55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.MonoAndroid", "src\xunit.runner.utility.MonoAndroid\xunit.runner.utility.MonoAndroid.csproj", "{9E5809D5-4CD3-4CB0-8ABC-1B7D04176C55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.iOS", "src\xunit.runner.utility.iOS\xunit.runner.utility.iOS.csproj", "{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.MonoTouch", "src\xunit.runner.utility.MonoTouch\xunit.runner.utility.MonoTouch.csproj", "{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "execution", "execution", "{C50B1A3D-B2F9-468F-8280-526B0D712107}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runner.utility", "runner.utility", "{2B780476-EC2C-45FC-B04E-4CDF2EF93509}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.net45.noappdomain", "src\xunit.execution.net45.noappdomain\xunit.execution.net45.noappdomain.csproj", "{141612DE-2D07-4968-ABAF-09FD05B7951E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.win8", "src\xunit.execution.win8\xunit.execution.win8.csproj", "{141612DE-2D07-4968-ABAF-09FD05B7951E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.net45.noappdomain", "src\xunit.runner.utility.net45.noappdomain\xunit.runner.utility.net45.noappdomain.csproj", "{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.win8", "src\xunit.runner.utility.win8\xunit.runner.utility.win8.csproj", "{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.wpa81", "src\xunit.execution.wpa81\xunit.execution.wpa81.csproj", "{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.universal", "src\xunit.execution.universal\xunit.execution.universal.csproj", "{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.net45.noserialization", "src\xunit.execution.net45.noserialization\xunit.execution.net45.noserialization.csproj", "{D79B0E97-8599-4A59-A5AF-948BA91ACE21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.desktop-NoSerialization", "src\xunit.execution.desktop-NoSerialization\xunit.execution.desktop-NoSerialization.csproj", "{D79B0E97-8599-4A59-A5AF-948BA91ACE21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.wpa81", "src\xunit.runner.utility.wpa81\xunit.runner.utility.wpa81.csproj", "{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.universal", "src\xunit.runner.utility.universal\xunit.runner.utility.universal.csproj", "{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.execution.net45.noserialization", "test\test.xunit.execution.net45.noserialization\test.xunit.execution.net45.noserialization.csproj", "{B70F7D22-1455-4118-A827-DC60CE6363A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.execution.desktop-NoSerialization", "test\test.xunit.execution.desktop-NoSerialization\test.xunit.execution.desktop-NoSerialization.csproj", "{B70F7D22-1455-4118-A827-DC60CE6363A8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.wp8", "src\xunit.execution.wp8\xunit.execution.wp8.csproj", "{AA80CCD7-6DD1-4122-9A85-B8F9FD9F113E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.wp8", "src\xunit.runner.utility.wp8\xunit.runner.utility.wp8.csproj", "{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.ios-universal", "src\xunit.execution.ios-universal\xunit.execution.ios-universal.csproj", "{372BC460-0BBA-4AD5-9FC4-87950B220267}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.iOS-Universal", "src\xunit.execution.iOS-Universal\xunit.execution.iOS-Universal.csproj", "{372BC460-0BBA-4AD5-9FC4-87950B220267}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.ios-universal", "src\xunit.runner.utility.ios-universal\xunit.runner.utility.ios-universal.csproj", "{DB7068BF-3B26-49AB-83B3-F6B8431E37E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.iOS-Universal", "src\xunit.runner.utility.iOS-Universal\xunit.runner.utility.iOS-Universal.csproj", "{DB7068BF-3B26-49AB-83B3-F6B8431E37E9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{52472A94-ACC4-4C12-B9AA-0B6B12E12A48}"
+	ProjectSection(SolutionItems) = preProject
+		src\xunit.abstractions.nuspec = src\xunit.abstractions.nuspec
+		src\xunit.assert.nuspec = src\xunit.assert.nuspec
+		src\xunit.assert.source.nuspec = src\xunit.assert.source.nuspec
+		src\xunit.core.nuspec = src\xunit.core.nuspec
+		src\xunit.extensibility.core.nuspec = src\xunit.extensibility.core.nuspec
+		src\xunit.extensibility.execution.nuspec = src\xunit.extensibility.execution.nuspec
+		src\xunit.nuspec = src\xunit.nuspec
+		src\xunit.runner.utility.nuspec = src\xunit.runner.utility.nuspec
+		src\xunit.runner.utility.visualstudio.win8.nuspec = src\xunit.runner.utility.visualstudio.win8.nuspec
+		src\xunit.runners.nuspec = src\xunit.runners.nuspec
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -305,5 +306,6 @@ Global
 		{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD} = {A36A630E-A604-47E6-894E-732946960182}
 		{372BC460-0BBA-4AD5-9FC4-87950B220267} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 		{DB7068BF-3B26-49AB-83B3-F6B8431E37E9} = {A36A630E-A604-47E6-894E-732946960182}
+		{52472A94-ACC4-4C12-B9AA-0B6B12E12A48} = {3AD1513F-07B7-4C14-AB10-83682616ACE5}
 	EndGlobalSection
 EndGlobal

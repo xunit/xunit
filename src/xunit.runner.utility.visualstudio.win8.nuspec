@@ -12,13 +12,15 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <dependency id="xunit.abstractions" version="[99.99.99]" />
-      <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
+      <!-- Upon RTM: <dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" /> -->
+      <group>
+        <dependency id="xunit.abstractions" version="[99.99.99]" />
+      </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.runner.utility.net45.noappdomain\bin\Release\xunit.runner.utility.dll" target="lib\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility.net45.noappdomain\bin\Release\xunit.runner.utility.pdb" target="lib\xunit.runner.utility.pdb" />
-    <file src="xunit.runner.utility.net45.noappdomain\bin\Release\xunit.runner.utility.xml" target="lib\xunit.runner.utility.xml" />
+    <file src="xunit.runner.utility.win8\bin\Release\xunit.runner.utility.win8.dll" target="lib\" />
+    <file src="xunit.runner.utility.win8\bin\Release\xunit.runner.utility.win8.pdb" target="lib\" />
+    <file src="xunit.runner.utility.win8\bin\Release\xunit.runner.utility.win8.xml" target="lib\" />
   </files>
 </package>

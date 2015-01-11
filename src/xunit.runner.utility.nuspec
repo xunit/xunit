@@ -7,7 +7,7 @@
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
       Includes the version-independent runner for xUnit.net to run both v1 and v2 tests (xunit.runner.utility.dll).
-      Supported platforms: Desktop .NET 3.5+, Windows 8.1+ (Universal), Windows Phone 8.1+ (Universal), MonoTouch, MonoAndroid, Xamarin.iOS, Portable Libraries (supporting Profile259), ASP.NET vNext.
+      Supported platforms: Desktop .NET 3.5+, ASP.NET 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -15,44 +15,57 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <dependency id="xunit.abstractions" version="[99.99.99]" />
-      <!--<dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" />-->
-      <!-- TODO: Add dependencies for aspnetcore50 -->
+      <!-- Upon RTM: <dependency id="xunit.abstractions" version="[2.0.0,2.1.0)" /> -->
+      <group>
+        <dependency id="xunit.abstractions" version="[99.99.99]" />
+      </group>
     </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="mscorlib" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Runtime" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Web" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.XML" targetFramework="aspnet50" />
+    </frameworkAssemblies>
   </metadata>
   <files>
-    <!-- Discovery -->
-    <file src="xunit.runner.utility.net35\bin\Release\xunit.runner.utility.dll" target="lib\net35\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility.net35\bin\Release\xunit.runner.utility.pdb" target="lib\net35\xunit.runner.utility.pdb" />
-    <file src="xunit.runner.utility.net35\bin\Release\xunit.runner.utility.xml" target="lib\net35\xunit.runner.utility.xml" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnet50\xunit.runner.utility.AspNet.dll" target="lib\aspnet50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnet50\xunit.runner.utility.AspNet.pdb" target="lib\aspnet50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnet50\xunit.runner.utility.AspNet.xml" target="lib\aspnet50\" />
 
-    <file src="xunit.runner.utility.iOS\bin\iPhone\Release\xunit.runner.utility.dll" target="lib\monotouch\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility.iOS\bin\iPhone\Release\xunit.runner.utility.pdb" target="lib\monotouch\xunit.runner.utility.pdb" />
-    <file src="xunit.runner.utility.iOS\bin\iPhone\Release\xunit.runner.utility.xml" target="lib\monotouch\xunit.runner.utility.xml" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnetcore50\xunit.runner.utility.AspNet.dll" target="lib\aspnetcore50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnetcore50\xunit.runner.utility.AspNet.pdb" target="lib\aspnetcore50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnetcore50\xunit.runner.utility.AspNet.xml" target="lib\aspnetcore50\" />
 
-    <file src="xunit.runner.utility.ios-universal\bin\iPhone\Release\xunit.runner.utility.dll" target="lib\Xamarin.iOS\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility.ios-universal\bin\iPhone\Release\xunit.runner.utility.pdb" target="lib\Xamarin.iOS\xunit.runner.utility.pdb" />
-    <file src="xunit.runner.utility.ios-universal\bin\iPhone\Release\xunit.runner.utility.xml" target="lib\Xamarin.iOS\xunit.runner.utility.xml" />
+    <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.dll" target="lib\monoandroid\" />
+    <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.pdb" target="lib\monoandroid\" />
+    <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.xml" target="lib\monoandroid\" />
 
-    <file src="xunit.runner.utility.android\bin\Release\xunit.runner.utility.dll" target="lib\monoandroid\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility.android\bin\Release\xunit.runner.utility.pdb" target="lib\monoandroid\xunit.runner.utility.pdb" />
-    <file src="xunit.runner.utility.android\bin\Release\xunit.runner.utility.xml" target="lib\monoandroid\xunit.runner.utility.xml" />
+    <file src="xunit.runner.utility.MonoTouch\bin\iPhone\Release\xunit.runner.utility.MonoTouch.dll" target="lib\monotouch\" />
+    <file src="xunit.runner.utility.MonoTouch\bin\iPhone\Release\xunit.runner.utility.MonoTouch.pdb" target="lib\monotouch\" />
+    <file src="xunit.runner.utility.MonoTouch\bin\iPhone\Release\xunit.runner.utility.MonoTouch.xml" target="lib\monotouch\" />
 
-    <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.dll" target="lib\portable-wpa81+win81\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.pdb" target="lib\portable-wpa81+win81\xunit.runner.utility.pdb" />
-    <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.xml" target="lib\portable-wpa81+win81\xunit.runner.utility.xml" />
-    <file src="xunit.runner.utility.wpa81\bin\Release\xunit.runner.utility.pri" target="lib\portable-wpa81+win81\xunit.runner.utility.pri" />
+    <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.dll" target="lib\net35\" />
+    <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.pdb" target="lib\net35\" />
+    <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.xml" target="lib\net35\" />
 
-    <file src="xunit.runner.utility.wp8\bin\Release\xunit.runner.utility.dll" target="lib\wp8\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility.wp8\bin\Release\xunit.runner.utility.pdb" target="lib\wp8\xunit.runner.utility.pdb" />
-    <file src="xunit.runner.utility.wp8\bin\Release\xunit.runner.utility.xml" target="lib\wp8\xunit.runner.utility.xml" />
+    <file src="xunit.runner.utility.universal\bin\Release\xunit.runner.utility.universal.dll" target="lib\portable-wpa81+win81\" />
+    <file src="xunit.runner.utility.universal\bin\Release\xunit.runner.utility.universal.pdb" target="lib\portable-wpa81+win81\" />
+    <file src="xunit.runner.utility.universal\bin\Release\xunit.runner.utility.universal.xml" target="lib\portable-wpa81+win81\" />
+    <file src="xunit.runner.utility.universal\bin\Release\xunit.runner.utility.universal.pri" target="lib\portable-wpa81+win81\" />
 
-    <file src="xunit.runner.utility\bin\Release\aspnet50\xunit.runner.utility.dll" target="lib\aspnet50\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility\bin\Release\aspnet50\xunit.runner.utility.pdb" target="lib\aspnet50\xunit.runner.utility.pdb" />
-    <file src="xunit.runner.utility\bin\Release\aspnet50\xunit.runner.utility.xml" target="lib\aspnet50\xunit.runner.utility.xml" />
+    <file src="xunit.runner.utility.win8\bin\Release\xunit.runner.utility.win8.dll" target="lib\win8\" />
+    <file src="xunit.runner.utility.win8\bin\Release\xunit.runner.utility.win8.pdb" target="lib\win8\" />
+    <file src="xunit.runner.utility.win8\bin\Release\xunit.runner.utility.win8.xml" target="lib\win8\" />
 
-    <file src="xunit.runner.utility\bin\Release\aspnetcore50\xunit.runner.utility.dll" target="lib\aspnetcore50\xunit.runner.utility.dll" />
-    <file src="xunit.runner.utility\bin\Release\aspnetcore50\xunit.runner.utility.pdb" target="lib\aspnetcore50\xunit.runner.utility.pdb" />
-    <file src="xunit.runner.utility\bin\Release\aspnetcore50\xunit.runner.utility.xml" target="lib\aspnetcore50\xunit.runner.utility.xml" />
+    <file src="xunit.runner.utility.wp8\bin\Release\xunit.runner.utility.wp8.dll" target="lib\wp8\" />
+    <file src="xunit.runner.utility.wp8\bin\Release\xunit.runner.utility.wp8.pdb" target="lib\wp8\" />
+    <file src="xunit.runner.utility.wp8\bin\Release\xunit.runner.utility.wp8.xml" target="lib\wp8\" />
+
+    <file src="xunit.runner.utility.iOS-Universal\bin\iPhone\Release\xunit.runner.utility.iOS-Universal.pdb" target="lib\Xamarin.iOS\" />
+    <file src="xunit.runner.utility.iOS-Universal\bin\iPhone\Release\xunit.runner.utility.iOS-Universal.xml" target="lib\Xamarin.iOS\" />
+    <file src="xunit.runner.utility.iOS-Universal\bin\iPhone\Release\xunit.runner.utility.iOS-Universal.dll" target="lib\Xamarin.iOS\" />
   </files>
 </package>

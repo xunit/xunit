@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata minClientVersion="2.5">
+    <id>xunit.extensibility.execution</id>
+    <version>99.99.99</version>
+    <title>xUnit.net [Extensibility: Execution]</title>
+    <authors>James Newkirk, Brad Wilson</authors>
+    <description>
+      Includes xunit.execution.*.dll for extensibility purposes.
+      Supported platforms: Desktop .NET 4.5+, ASP.NET 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
+    </description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/xunit/xunit</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <dependencies>
+      <group>
+        <dependency id="xunit.extensibility.core" version="[99.99.99]" />
+      </group>
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="mscorlib" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Reflection" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Runtime" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Threading.Tasks" targetFramework="aspnet50" />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+    <file src="xunit.execution.AspNet\bin\Release\aspnet50\xunit.execution.AspNet.dll" target="lib\aspnet50\" />
+    <file src="xunit.execution.AspNet\bin\Release\aspnet50\xunit.execution.AspNet.pdb" target="lib\aspnet50\" />
+    <file src="xunit.execution.AspNet\bin\Release\aspnet50\xunit.execution.AspNet.xml" target="lib\aspnet50\" />
+
+    <file src="xunit.execution.AspNet\bin\Release\aspnetcore50\xunit.execution.AspNet.dll" target="lib\aspnetcore50\" />
+    <file src="xunit.execution.AspNet\bin\Release\aspnetcore50\xunit.execution.AspNet.pdb" target="lib\aspnetcore50\" />
+    <file src="xunit.execution.AspNet\bin\Release\aspnetcore50\xunit.execution.AspNet.xml" target="lib\aspnetcore50\" />
+
+    <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.dll" target="lib\monoandroid\" />
+    <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.pdb" target="lib\monoandroid\" />
+    <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.xml" target="lib\monoandroid\" />
+
+    <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.dll" target="lib\monotouch\" />
+    <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.pdb" target="lib\monotouch\" />
+    <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.xml" target="lib\monotouch\" />
+
+    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll" target="lib\net45\" />
+    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.pdb" target="lib\net45\" />
+    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.xml" target="lib\net45\" />
+
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.dll" target="lib\portable-wpa81+win81\" />
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pdb" target="lib\portable-wpa81+win81\" />
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.xml" target="lib\portable-wpa81+win81\" />
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pri" target="lib\portable-wpa81+win81\" />
+
+    <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.dll" target="lib\win8\" />
+    <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.pdb" target="lib\win8\" />
+    <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.xml" target="lib\win8\" />
+
+    <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.dll" target="lib\wp8\" />
+    <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.pdb" target="lib\wp8\" />
+    <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.xml" target="lib\wp8\" />
+
+    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.dll" target="lib\Xamarin.iOS\" />
+    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.pdb" target="lib\Xamarin.iOS\" />
+    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.xml" target="lib\Xamarin.iOS\" />
+  </files>
+</package>

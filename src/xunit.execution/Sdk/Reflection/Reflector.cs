@@ -133,6 +133,10 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
+            // Take a generic reference to xunit.execution.dll and swap it out for the currently execution execution library
+            if (String.Equals(assemblyName, "xunit.execution", StringComparison.OrdinalIgnoreCase))
+                assemblyName = ExecutionHelper.AssemblyName.Replace(".dll", "");
+
 #if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
             Assembly assembly = null;
             try

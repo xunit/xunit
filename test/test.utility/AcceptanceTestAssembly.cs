@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.CSharp;
+using Xunit;
 
 public class AcceptanceTestAssembly : IDisposable
 {
@@ -45,7 +46,7 @@ public class AcceptanceTestAssembly : IDisposable
 
     public string XunitExecutionDllFilename
     {
-        get { return Path.Combine(BasePath, "xunit.execution.dll"); }
+        get { return Path.Combine(BasePath, ExecutionHelper.AssemblyName); }
     }
 
     void Compile(string code, string[] references)

@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory),xunit.sln))\tools\xunit.targets" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5DE631D1-860E-40CB-89D4-75D0F7F7D941}</ProjectGuid>
+    <ProjectGuid>{B70F7D22-1455-4118-A827-DC60CE6363A8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xunit.Runner.TdNet</RootNamespace>
-    <AssemblyName>test.xunit.runner.tdnet</AssemblyName>
+    <RootNamespace>Xunit</RootNamespace>
+    <AssemblyName>test.xunit.execution.desktop-NoSerialization</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,54 +34,59 @@
     <Reference Include="NSubstitute">
       <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
-    <Reference Include="System.Core" />
-    <Reference Include="TestDriven.Framework">
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="TestDriven.Framework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=50ecb853f8c6b8d2">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TdNetRunnerTests.cs" />
+    <Compile Include="..\..\src\common\TestDiscoveryVisitor.cs">
+      <Link>Common\TestDiscoveryVisitor.cs</Link>
+    </Compile>
+    <Compile Include="SerializationTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Visitors\ResultVisitorTests.cs" />
-    <Compile Include="Extensions\TestResultMessageExtensionsTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
-      <Project>{77743589-f177-4007-97b8-50b82a1c7044}</Project>
+      <Project>{53012549-d81b-4e40-b626-67c19265aa6f}</Project>
       <Name>xunit.abstractions.pcl</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.execution.desktop\xunit.execution.desktop.csproj">
-      <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
-      <Name>xunit.execution.desktop</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
-      <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
-      <Name>xunit.runner.tdnet</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">
-      <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>
+      <Project>{80b04afe-4331-4cdd-b247-864ac6482f7c}</Project>
       <Name>xunit.assert</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.core\xunit.core.csproj">
       <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>
       <Name>xunit.core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.execution.desktop-NoSerialization\xunit.execution.desktop-NoSerialization.csproj">
+      <Project>{d79b0e97-8599-4a59-a5af-948ba91ace21}</Project>
+      <Name>xunit.execution.desktop-NoSerialization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
+      <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
+      <Name>xunit.runner.tdnet</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.runner.utility.desktop\xunit.runner.utility.desktop.csproj">
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
       <Name>xunit.runner.utility.desktop</Name>
     </ProjectReference>
-    <ProjectReference Include="..\test.utility\test.utility.csproj">
-      <Project>{4fec8604-e544-43c2-979c-f0815b5770e2}</Project>
-      <Name>test.utility</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -91,7 +91,7 @@ namespace Xunit
 #if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE
             var xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
 #endif
-            var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.execution.dll");
+            var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), ExecutionHelper.AssemblyName);
 
 #if !ANDROID && !ASPNET50 && !ASPNETCORE50
             if (File.Exists(xunitExecutionPath))
@@ -103,9 +103,9 @@ namespace Xunit
 #endif
 
 #if XAMARIN || WINDOWS_PHONE_APP || WINDOWS_PHONE
-            throw new ArgumentException("Unknown test framework: Could not find xunit.execution.dll.", assemblyFileName);
+            throw new ArgumentException(String.Format("Unknown test framework: Could not find {0}", ExecutionHelper.AssemblyName), assemblyFileName);
 #else
-            throw new ArgumentException("Unknown test framework: Could not find xunit.dll or xunit.execution.dll.", assemblyFileName);
+            throw new ArgumentException(String.Format("Unknown test framework: Could not find xunit.dll or {0}.", ExecutionHelper.AssemblyName), assemblyFileName);
 #endif
         }
 
