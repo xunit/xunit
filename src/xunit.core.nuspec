@@ -29,11 +29,11 @@
       </group>
       <group targetFramework="win8">
         <dependency id="xunit.extensibility.core" version="[99.99.99]" />
-        <!--<dependency id="xunit.runner.visualstudio.win8" version="(0.99.8,0.99.10)" />-->
+        <dependency id="xunit.runner.visualstudio.win8" version="(0.99.9,0.99.11)" />
       </group>
       <group targetFramework="wpa81">
         <dependency id="xunit.extensibility.core" version="[99.99.99]" />
-        <!--<dependency id="xunit.runner.visualstudio.wpa81" version="(0.99.8,0.99.10)" />-->
+        <dependency id="xunit.runner.visualstudio.wpa81" version="(0.99.9,0.99.11)" />
       </group>
     </dependencies>
   </metadata>
