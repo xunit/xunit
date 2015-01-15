@@ -137,7 +137,7 @@ namespace Xunit.Sdk
             var tasks = OrderTestCases().Select(
                 collection => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource),
                                                                                  cancellationTokenSource.Token,
-                                                                                 TaskCreationOptions.DenyChildAttach,
+                                                                                 TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler,
                                                                                  scheduler)
             ).ToArray();
 
