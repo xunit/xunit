@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
@@ -8,7 +9,7 @@ using Xunit.Sdk;
 public class MessageBusTests
 {
     [Fact]
-    public void QueuedMessageShowUpInMessageSink()
+    public static void QueuedMessageShowUpInMessageSink()
     {
         var messages = new List<IMessageSinkMessage>();
         var sink = SpyMessageSink.Create(messages: messages);
@@ -31,7 +32,7 @@ public class MessageBusTests
     }
 
     [Fact]
-    public void TryingToQueueMessageAfterDisposingThrows()
+    public static void TryingToQueueMessageAfterDisposingThrows()
     {
         var bus = new MessageBus(SpyMessageSink.Create());
         bus.Dispose();
@@ -44,7 +45,7 @@ public class MessageBusTests
     }
 
     [Fact]
-    public void WhenSinkThrowsMessagesContinueToBeDelivered()
+    public static void WhenSinkThrowsMessagesContinueToBeDelivered()
     {
         var sink = Substitute.For<IMessageSink>();
         var msg1 = Substitute.For<IMessageSinkMessage>();
@@ -56,7 +57,7 @@ public class MessageBusTests
             {
                 var msg = (IMessageSinkMessage)callInfo[0];
                 if (msg == msg2)
-                    throw new Exception("whee!");
+                    throw new DivideByZeroException("whee!");
                 else
                     messages.Add(msg);
 
@@ -72,6 +73,12 @@ public class MessageBusTests
 
         Assert.Collection(messages,
             message => Assert.Same(message, msg1),
+            message =>
+            {
+                var errorMessage = Assert.IsAssignableFrom<IErrorMessage>(message);
+                Assert.Equal("System.DivideByZeroException", errorMessage.ExceptionTypes.Single());
+                Assert.Equal("whee!", errorMessage.Messages.Single());
+            },
             message => Assert.Same(message, msg3)
         );
     }
