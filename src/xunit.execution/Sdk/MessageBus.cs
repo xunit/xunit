@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -34,7 +35,16 @@ namespace Xunit.Sdk
                     if (!messageSink.OnMessage(message))
                         continueRunning = false;
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        var errorMessage = new ErrorMessage(Enumerable.Empty<ITestCase>(), ex);
+                        if (!messageSink.OnMessage(errorMessage))
+                            continueRunning = false;
+                    }
+                    catch { }
+                }
         }
 
         /// <summary/>
