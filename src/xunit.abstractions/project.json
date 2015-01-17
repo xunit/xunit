@@ -2,16 +2,13 @@
     "frameworks": {
         "net35": {
             "bin": {
-                "assembly": "..\\xunit.abstractions.net35\\bin\\Release\\xunit.abstractions.dll"
+                "assembly": "../xunit.abstractions.net35/bin/{configuration}/xunit.abstractions.dll"
             }
         },
         ".NETPortable,Version=v4.5,Profile=Profile259": {
             "bin": {
-                "assembly": "..\\xunit.abstractions.pcl\\bin\\Release\\xunit.abstractions.dll"
+                "assembly": "../xunit.abstractions.pcl/bin/{configuration}/xunit.abstractions.dll"
             }
         }
-    },
-    "compilationOptions": {
-        "define": [ "PCL" ]
     }
 }

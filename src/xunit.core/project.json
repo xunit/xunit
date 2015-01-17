@@ -2,23 +2,11 @@
     "frameworks": {
         ".NETPortable,Version=v4.5,Profile=Profile259": {
             "bin": {
-                "assembly": "bin\\Release\\xunit.core.dll",
-                "pdb": "bin\\Release\\xunit.core.pdb"
+                "assembly": "bin/{configuration}/xunit.core.dll",
+                "pdb": "bin/{configuration}/xunit.core.pdb"
             }
         }
     },
-    "compilationOptions": {
-        "define": [ "XUNIT_CORE_DLL", "NEW_REFLECTION" ]
-    },
-    "code": [
-        "..\\common\\ExceptionExtensions.cs",
-        "..\\common\\GlobalAssemblyInfo.cs",
-        "..\\common\\Guard.cs",
-        "..\\common\\TestMethodDisplay.cs",
-        "..\\xunit.assert\\Asserts\\Sdk\\AssertEqualityComparer.cs",
-        "..\\xunit.assert\\Asserts\\Sdk\\AssertEqualityComparerAdapter.cs",
-        "**\\*.cs"
-    ],
     "dependencies": {
         "xunit.abstractions": ""
     }

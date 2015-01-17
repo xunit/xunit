@@ -22,9 +22,9 @@ if ($maxCpuCount -lt 1) {
     $maxCpuCountText = ":$maxCpuCount"
 }
 
-$solutionNameArg = "/property:SolutionName=xunit.sln"
+$solutionNameArg = "/property:SolutionName=xunit.vs2013.sln"
 if($noXamarin) {
-    $solutionNameArg = "/property:SolutionName=xunit-NoXamarin.sln"
+    $solutionNameArg = "/property:SolutionName=xunit.vs2013.NoXamarin.sln"
 }
 
 $allArgs = @("xunit.msbuild", "/m$maxCpuCountText", "/nologo", "/verbosity:$verbosity", "/t:$target", "/property:RequestedVerbosity=$verbosity", $solutionNameArg, $args)
