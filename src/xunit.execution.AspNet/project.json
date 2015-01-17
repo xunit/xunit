@@ -26,7 +26,7 @@
         }
     },
     "compilationOptions": {
-        "define": [ "XUNIT_CORE_DLL", "NET45", "NO_APPDOMAIN" ]
+        "define": [ "XUNIT_CORE_DLL", "NET45", "NO_APPDOMAIN", "NEW_REFLECTION" ]
     },
     "code": [
         "..\\common\\AssemblyExtensions.cs",        

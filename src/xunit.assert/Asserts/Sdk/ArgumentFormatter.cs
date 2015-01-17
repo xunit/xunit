@@ -17,6 +17,9 @@ namespace Xunit.Sdk
         const int MAX_OBJECT_PARAMETER_COUNT = 5;
         const int MAX_STRING_LENGTH = 50;
 
+        static readonly object[] EmptyObjects = new object[0];
+        static readonly Type[] EmptyTypes = new Type[0];
+
         /// <summary>
         /// Format the value for presentation.
         /// </summary>
@@ -59,10 +62,19 @@ namespace Xunit.Sdk
             if (type.GetTypeInfo().IsValueType)
                 return Convert.ToString(value, CultureInfo.CurrentCulture);
 
-            return FormatCompledValue(value, depth, type);
+#if NEW_REFLECTION
+            var toString = type.GetTypeInfo().GetDeclaredMethod("ToString");
+#else
+            var toString = type.GetMethod("ToString", EmptyTypes);
+#endif
+
+            if (toString != null && toString.DeclaringType != typeof(Object))
+                return (string)toString.Invoke(value, EmptyObjects);
+
+            return FormatComplexValue(value, depth, type);
         }
 
-        private static string FormatCompledValue(object value, int depth, Type type)
+        private static string FormatComplexValue(object value, int depth, Type type)
         {
             if (depth == MAX_DEPTH)
                 return String.Format("{0} {{ ... }}", type.Name);

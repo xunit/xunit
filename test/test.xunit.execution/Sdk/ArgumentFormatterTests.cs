@@ -193,5 +193,19 @@ public class ArgumentFormatterTests
                 Me = this;
             }
         }
+
+        [Fact]
+        public static void WhenCustomTypeImplementsToString_UsesToString()
+        {
+            Assert.Equal("This is what you should show", ArgumentFormatter.Format(new TypeWithToString()));
+        }
+
+        public class TypeWithToString
+        {
+            public override string ToString()
+            {
+                return "This is what you should show";
+            }
+        }
     }
 }
