@@ -9,7 +9,7 @@
   <!-- Settings -->
 
   <PropertyGroup>
-    <SolutionName Condition="'$(SolutionName)' == ''">xunit.sln</SolutionName>
+    <SolutionName Condition="'$(SolutionName)' == ''">xunit.vs2013.sln</SolutionName>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <ParallelizeTests Condition="'$(ParallelizeTests)' == ''">true</ParallelizeTests>
     <MaxParallelThreads Condition="'$(MaxParallelThreads)' == ''">0</MaxParallelThreads>
