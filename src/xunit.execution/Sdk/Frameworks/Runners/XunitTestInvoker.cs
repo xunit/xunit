@@ -41,6 +41,14 @@ namespace Xunit.Sdk
             this.beforeAfterAttributes = beforeAfterAttributes;
         }
 
+        /// <summary>
+        /// Gets the list of <see cref="BeforeAfterTestAttribute"/>s for this test invocation.
+        /// </summary>
+        protected IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
+        {
+            get { return beforeAfterAttributes; }
+        }
+
         /// <inheritdoc/>
         protected override Task BeforeTestMethodInvokedAsync()
         {
