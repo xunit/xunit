@@ -122,6 +122,7 @@
     <Compile Include="CulturedFactAttribute.cs" />
     <Compile Include="CulturedFactAttributeDiscoverer.cs" />
     <Compile Include="CulturedXunitTestCase.cs" />
+    <Compile Include="InterfaceProxy.cs" />
     <Compile Include="MockTestCaseOrderer.cs" />
     <Compile Include="NSubstituteExtensions.cs" />
     <Compile Include="PreserveWorkingDirectoryAttribute.cs" />

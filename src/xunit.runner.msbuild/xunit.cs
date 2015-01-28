@@ -20,6 +20,7 @@ namespace Xunit.Runner.MSBuild
         int? maxParallelThreads;
         bool? parallelizeAssemblies;
         bool? parallelizeTestCollections;
+        readonly TeamCityDisplayNameFormatter teamCityDisplayNameFormatter = new TeamCityDisplayNameFormatter();
 
         public xunit()
         {
@@ -92,7 +93,7 @@ namespace Xunit.Runner.MSBuild
         protected virtual XmlTestExecutionVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)
         {
             if (TeamCity)
-                return new TeamCityVisitor(Log, assemblyElement, () => cancel);
+                return new TeamCityVisitor(Log, assemblyElement, () => cancel, displayNameFormatter: teamCityDisplayNameFormatter);
 
             return new StandardOutputVisitor(Log, assemblyElement, Verbose, () => cancel, completionMessages);
         }

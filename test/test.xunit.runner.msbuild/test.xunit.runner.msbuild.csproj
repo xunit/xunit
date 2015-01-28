@@ -54,6 +54,7 @@
     <Compile Include="Visitors\StandardOutputVisitorTests.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Utility\TeamCityDisplayNameFormatterTests.cs" />
     <Compile Include="Visitors\TeamCityVisitorTests.cs" />
     <Compile Include="xunitTests.cs" />
   </ItemGroup>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Runner.MSBuild;
+using Xunit.ConsoleClient;
 
 public class TeamCityVisitorTests
 {
@@ -12,7 +12,7 @@ public class TeamCityVisitorTests
         static TMessageType MakeFailureInformationSubstitute<TMessageType>()
             where TMessageType : class, IFailureInformation
         {
-            var result = Substitute.For<TMessageType>();
+            var result = Substitute.For<TMessageType, InterfaceProxy<TMessageType>>();
             result.ExceptionTypes.Returns(new[] { "ExceptionType" });
             result.Messages.Returns(new[] { "This is my message \t\r\n" });
             result.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
@@ -61,14 +61,14 @@ public class TeamCityVisitorTests
         [MemberData("Messages")]
         public static void LogsMessage(IMessageSinkMessage message, string messageType)
         {
-            var logger = SpyLogger.Create();
+            var logger = new SpyConsoleLogger();
 
             using (var visitor = new TeamCityVisitor(logger, null, null))
             {
                 visitor.OnMessage(message);
 
                 var msg = Assert.Single(logger.Messages);
-                Assert.Equal(String.Format("MESSAGE[High]: ##teamcity[message text='|[{0}|] ExceptionType: ExceptionType : This is my message \t|r|n' errorDetails='Line 1|r|nLine 2|r|nLine 3' status='ERROR']", messageType), msg);
+                Assert.Equal(String.Format("##teamcity[message text='|[{0}|] ExceptionType: ExceptionType : This is my message \t|r|n' errorDetails='Line 1|r|nLine 2|r|nLine 3' status='ERROR']", messageType), msg);
             }
         }
     }
@@ -87,13 +87,13 @@ public class TeamCityVisitorTests
             var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
             formatter.DisplayName(collectionFinished.TestCollection).Returns("formattedTestCollectionDisplayName");
 
-            var logger = SpyLogger.Create();
+            var logger = new SpyConsoleLogger();
 
             using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(collectionFinished);
 
-                Assert.Single(logger.Messages, @"MESSAGE[High]: ##teamcity[testSuiteFinished name='formattedTestCollectionDisplayName' flowId='myFlowId']");
+                Assert.Single(logger.Messages, "##teamcity[testSuiteFinished name='formattedTestCollectionDisplayName' flowId='myFlowId']");
             }
         }
     }
@@ -108,14 +108,14 @@ public class TeamCityVisitorTests
             var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
             formatter.DisplayName(collectionStarting.TestCollection).Returns("formattedTestCollectionDisplayName");
 
-            var logger = SpyLogger.Create();
+            var logger = new SpyConsoleLogger();
 
             using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(collectionStarting);
 
                 Assert.Collection(logger.Messages,
-                    msg => Assert.Equal(@"MESSAGE[High]: ##teamcity[testSuiteStarted name='formattedTestCollectionDisplayName' flowId='myFlowId']", msg));
+                    msg => Assert.Equal("##teamcity[testSuiteStarted name='formattedTestCollectionDisplayName' flowId='myFlowId']", msg));
             }
         }
     }
@@ -136,15 +136,15 @@ public class TeamCityVisitorTests
             var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
             formatter.DisplayName(test).Returns("This is my display name \t\r\n");
 
-            var logger = SpyLogger.Create();
+            var logger = new SpyConsoleLogger();
 
             using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testFailed);
 
                 Assert.Collection(logger.Messages,
-                    msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFailed name='This is my display name \t|r|n' details='ExceptionType : This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='myFlowId']", msg),
-                    msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
+                    msg => Assert.Equal("##teamcity[testFailed name='This is my display name \t|r|n' details='ExceptionType : This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='myFlowId']", msg),
+                    msg => Assert.Equal("##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
                 );
             }
         }
@@ -162,14 +162,14 @@ public class TeamCityVisitorTests
             var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
             formatter.DisplayName(test).Returns("This is my display name \t\r\n");
 
-            var logger = SpyLogger.Create();
+            var logger = new SpyConsoleLogger();
 
             using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testPassed);
 
                 Assert.Collection(logger.Messages,
-                    msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
+                    msg => Assert.Equal("##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
                 );
             }
         }
@@ -187,15 +187,15 @@ public class TeamCityVisitorTests
             var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
             formatter.DisplayName(test).Returns("This is my display name \t\r\n");
 
-            var logger = SpyLogger.Create();
+            var logger = new SpyConsoleLogger();
 
             using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testSkipped);
 
                 Assert.Collection(logger.Messages,
-                    msg => Assert.Equal("MESSAGE[High]: ##teamcity[testIgnored name='This is my display name \t|r|n' message='This is my skip reason \t|r|n' flowId='myFlowId']", msg),
-                    msg => Assert.Equal("MESSAGE[High]: ##teamcity[testFinished name='This is my display name \t|r|n' duration='0' flowId='myFlowId']", msg)
+                    msg => Assert.Equal("##teamcity[testIgnored name='This is my display name \t|r|n' message='This is my skip reason \t|r|n' flowId='myFlowId']", msg),
+                    msg => Assert.Equal("##teamcity[testFinished name='This is my display name \t|r|n' duration='0' flowId='myFlowId']", msg)
                 );
             }
         }
@@ -212,13 +212,13 @@ public class TeamCityVisitorTests
             var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
             formatter.DisplayName(test).Returns("This is my display name \t\r\n");
 
-            var logger = SpyLogger.Create();
+            var logger = new SpyConsoleLogger();
 
             using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testStarting);
 
-                Assert.Single(logger.Messages, "MESSAGE[High]: ##teamcity[testStarted name='This is my display name \t|r|n' flowId='myFlowId']");
+                Assert.Single(logger.Messages, "##teamcity[testStarted name='This is my display name \t|r|n' flowId='myFlowId']");
             }
         }
     }

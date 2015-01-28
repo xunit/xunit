@@ -15,7 +15,7 @@ public static class Mocks
     {
         attributes = attributes ?? new IReflectionAttributeInfo[0];
 
-        var result = Substitute.For<IAssemblyInfo>();
+        var result = Substitute.For<IAssemblyInfo, InterfaceProxy<IAssemblyInfo>>();
         result.Name.Returns(assemblyFileName == null ? null : Path.GetFileNameWithoutExtension(assemblyFileName));
         result.AssemblyPath.Returns(assemblyFileName);
         result.GetType("").ReturnsForAnyArgs(types == null ? null : types.FirstOrDefault());
@@ -26,7 +26,7 @@ public static class Mocks
 
     public static IReflectionAttributeInfo CollectionAttribute(string collectionName)
     {
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(new CollectionAttribute(collectionName));
         result.GetConstructorArguments().Returns(new[] { collectionName });
         return result;
@@ -35,7 +35,7 @@ public static class Mocks
     public static IReflectionAttributeInfo CollectionBehaviorAttribute(CollectionBehavior? collectionBehavior = null, bool disableTestParallelization = false, int maxParallelThreads = 0)
     {
         CollectionBehaviorAttribute attribute;
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
 
         if (collectionBehavior.HasValue)
         {
@@ -64,7 +64,7 @@ public static class Mocks
             DisableTestParallelization = disableTestParallelization,
             MaxParallelThreads = maxParallelThreads
         };
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(attribute);
         result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization);
         result.GetNamedArgument<int>("MaxParallelThreads").Returns(maxParallelThreads);
@@ -74,7 +74,7 @@ public static class Mocks
 
     public static IReflectionAttributeInfo CollectionDefinitionAttribute(string collectionName)
     {
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(new CollectionDefinitionAttribute(collectionName));
         result.GetConstructorArguments().Returns(new[] { collectionName });
         return result;
@@ -82,7 +82,7 @@ public static class Mocks
 
     public static IReflectionAttributeInfo DataAttribute(IEnumerable<object[]> data = null)
     {
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         var dataAttribute = Substitute.For<DataAttribute>();
         dataAttribute.GetData(null).ReturnsForAnyArgs(data);
         result.Attribute.Returns(dataAttribute);
@@ -91,7 +91,7 @@ public static class Mocks
 
     public static IReflectionAttributeInfo FactAttribute(string displayName = null, string skip = null)
     {
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(new FactAttribute { DisplayName = displayName, Skip = skip });
         result.GetNamedArgument<string>("DisplayName").Returns(displayName);
         result.GetNamedArgument<string>("Skip").Returns(skip);
@@ -123,7 +123,7 @@ public static class Mocks
                                          bool isPublic = true,
                                          bool isStatic = false)
     {
-        var result = Substitute.For<IMethodInfo>();
+        var result = Substitute.For<IMethodInfo, InterfaceProxy<IMethodInfo>>();
 
         attributes = attributes ?? new IReflectionAttributeInfo[0];
         parameters = parameters ?? new IParameterInfo[0];
@@ -142,7 +142,7 @@ public static class Mocks
 
     public static IParameterInfo ParameterInfo(string name)
     {
-        var result = Substitute.For<IParameterInfo>();
+        var result = Substitute.For<IParameterInfo, InterfaceProxy<IParameterInfo>>();
         result.Name.Returns(name);
         return result;
     }
@@ -159,7 +159,7 @@ public static class Mocks
 
     public static ITest Test(ITestCase testCase, string displayName)
     {
-        var result = Substitute.For<ITest>();
+        var result = Substitute.For<ITest, InterfaceProxy<ITest>>();
         result.DisplayName.Returns(displayName);
         result.TestCase.Returns(testCase);
         return result;
@@ -169,7 +169,7 @@ public static class Mocks
     {
         var assemblyInfo = Mocks.AssemblyInfo(attributes: attributes);
 
-        var result = Substitute.For<ITestAssembly>();
+        var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
         result.Assembly.Returns(assemblyInfo);
         return result;
     }
@@ -178,7 +178,7 @@ public static class Mocks
     {
         var assemblyInfo = Mocks.AssemblyInfo(types, attributes, assemblyFileName);
 
-        var result = Substitute.For<ITestAssembly>();
+        var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
         result.Assembly.Returns(assemblyInfo);
         result.ConfigFileName.Returns(configFileName);
         return result;
@@ -194,7 +194,7 @@ public static class Mocks
         if (collection == null)
             collection = Mocks.TestCollection();
 
-        var result = Substitute.For<ITestCase>();
+        var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
         result.TestMethod.TestClass.TestCollection.Returns(collection);
         return result;
     }
@@ -209,7 +209,7 @@ public static class Mocks
         var testMethod = Mocks.TestMethod(type, methodName);
         var traits = GetTraits(testMethod.Method);
 
-        var result = Substitute.For<ITestCase>();
+        var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
         result.DisplayName.Returns(displayName ?? String.Format("{0}.{1}", type, methodName));
         result.SkipReason.Returns(skipReason);
         result.TestMethod.Returns(testMethod);
@@ -220,7 +220,7 @@ public static class Mocks
 
     public static IReflectionAttributeInfo TestCaseOrdererAttribute<TOrderer>()
     {
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         var ordererType = typeof(TOrderer);
         var typeName = ordererType.FullName;
         var assemblyName = ordererType.Assembly.FullName;
@@ -234,7 +234,7 @@ public static class Mocks
         var testCollection = Mocks.TestCollection();
         var typeInfo = Mocks.TypeInfo(typeName, attributes: attributes);
 
-        var result = Substitute.For<ITestClass>();
+        var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
         result.Class.Returns(typeInfo);
         result.TestCollection.Returns(testCollection);
         return result;
@@ -260,7 +260,7 @@ public static class Mocks
 
     public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrderer>()
     {
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         var ordererType = typeof(TOrderer);
         var typeName = ordererType.FullName;
         var assemblyName = ordererType.Assembly.FullName;
@@ -275,7 +275,7 @@ public static class Mocks
         var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
         var failureInfo = Xunit.Sdk.ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
 
-        var result = Substitute.For<ITestFailed>();
+        var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
         result.ExceptionParentIndices.Returns(failureInfo.ExceptionParentIndices);
         result.ExceptionTypes.Returns(failureInfo.ExceptionTypes);
         result.ExecutionTime.Returns(executionTime);
@@ -290,7 +290,7 @@ public static class Mocks
     public static IReflectionAttributeInfo TestFrameworkAttribute(Type type)
     {
         var attribute = Activator.CreateInstance(type);
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(attribute);
         result.GetCustomAttributes(null).ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), CustomAttributeData.GetCustomAttributes(attribute.GetType()).Select(Reflector.Wrap).ToArray()));
         return result;
@@ -321,7 +321,7 @@ public static class Mocks
         var testClass = Mocks.TestClass(typeName, attributes: classAttributes.ToArray());
         var methodInfo = Mocks.MethodInfo(methodName, methodAttributes.ToArray(), parameters.ToArray(), testClass.Class);
 
-        var result = Substitute.For<ITestMethod>();
+        var result = Substitute.For<ITestMethod, InterfaceProxy<ITestMethod>>();
         result.Method.Returns(methodInfo);
         result.TestClass.Returns(testClass);
         return result;
@@ -342,7 +342,7 @@ public static class Mocks
         var testCase = Mocks.TestCase(type, methodName);
         var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
 
-        var result = Substitute.For<ITestPassed>();
+        var result = Substitute.For<ITestPassed, InterfaceProxy<ITestPassed>>();
         result.ExecutionTime.Returns(executionTime);
         result.Output.Returns(output);
         result.TestCase.Returns(testCase);
@@ -354,7 +354,7 @@ public static class Mocks
     {
         var testCase = Mocks.TestCase<TClassUnderTest>(methodName);
         var test = Mocks.Test(testCase, displayName);
-        var result = Substitute.For<ITestResultMessage>();
+        var result = Substitute.For<ITestResultMessage, InterfaceProxy<ITestResultMessage>>();
         result.TestCase.Returns(testCase);
         result.Test.Returns(test);
         result.ExecutionTime.Returns(executionTime);
@@ -366,7 +366,7 @@ public static class Mocks
         var testCase = Mocks.TestCase(type, methodName);
         var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
 
-        var result = Substitute.For<ITestSkipped>();
+        var result = Substitute.For<ITestSkipped, InterfaceProxy<ITestSkipped>>();
         result.ExecutionTime.Returns(executionTime);
         result.Output.Returns(output);
         result.Reason.Returns(skipReason);
@@ -377,7 +377,7 @@ public static class Mocks
 
     public static IReflectionAttributeInfo TheoryAttribute(string displayName = null, string skip = null)
     {
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(new TheoryAttribute { DisplayName = displayName, Skip = skip });
         result.GetNamedArgument<string>("DisplayName").Returns(displayName);
         result.GetNamedArgument<string>("Skip").Returns(skip);
@@ -386,7 +386,7 @@ public static class Mocks
 
     public static IReflectionAttributeInfo TraitAttribute(string name, string value)
     {
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         var traitDiscovererAttributes = new[] { Mocks.TraitDiscovererAttribute() };
         result.GetCustomAttributes(typeof(TraitDiscovererAttribute)).Returns(traitDiscovererAttributes);
         result.Attribute.Returns(new TraitAttribute(name, value));
@@ -396,7 +396,7 @@ public static class Mocks
 
     public static IAttributeInfo TraitDiscovererAttribute(string typeName = "Xunit.Sdk.TraitDiscoverer", string assemblyName = "xunit.core")
     {
-        var result = Substitute.For<IReflectionAttributeInfo>();
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(new TraitDiscovererAttribute(typeName, assemblyName));
         result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
         return result;
@@ -404,7 +404,7 @@ public static class Mocks
 
     public static ITypeInfo TypeInfo(string typeName = "MockType", IMethodInfo[] methods = null, IReflectionAttributeInfo[] attributes = null, string assemblyFileName = null)
     {
-        var result = Substitute.For<ITypeInfo>();
+        var result = Substitute.For<ITypeInfo, InterfaceProxy<ITypeInfo>>();
         result.Name.Returns(typeName);
         result.GetMethods(false).ReturnsForAnyArgs(methods ?? new IMethodInfo[0]);
         var assemblyInfo = Mocks.AssemblyInfo(assemblyFileName: assemblyFileName);

@@ -75,6 +75,9 @@
     <Compile Include="..\common\XmlTestExecutionVisitor.cs">
       <Link>Common\XmlTestExecutionVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\xunit.runner.msbuild\Utility\TeamCityDisplayNameFormatter.cs">
+      <Link>Utility\TeamCityDisplayNameFormatter.cs</Link>
+    </Compile>
     <Compile Include="CommandLine.cs" />
     <Compile Include="Config\TransformConfigurationElement.cs" />
     <Compile Include="Config\TransformConfigurationElementCollection.cs" />
@@ -85,6 +88,7 @@
     <Compile Include="RunnerCallbacks\RunnerCallback.cs" />
     <Compile Include="RunnerCallbacks\StandardRunnerCallback.cs" />
     <Compile Include="RunnerCallbacks\TeamCityRunnerCallback.cs" />
+    <Compile Include="Utility\ConsoleLogger.cs" />
     <Compile Include="Utility\StackFrameTransformer.cs" />
     <Compile Include="Utility\Transform.cs" />
     <Compile Include="Utility\TransformFactory.cs" />

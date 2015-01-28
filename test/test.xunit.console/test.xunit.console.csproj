@@ -61,6 +61,8 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="TestDriven.Framework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=50ecb853f8c6b8d2">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
@@ -71,6 +73,8 @@
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Utility\SpyConsoleLogger.cs" />
+    <Compile Include="Utility\TeamCityVisitorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">

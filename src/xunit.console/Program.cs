@@ -12,8 +12,10 @@ namespace Xunit.ConsoleClient
     public class Program
     {
         volatile static bool cancel;
-        static bool failed;
         static readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
+        static readonly ConsoleLogger consoleLogger = new ConsoleLogger();
+        static bool failed;
+        static readonly TeamCityDisplayNameFormatter teamCityDisplayNameFormatter = new TeamCityDisplayNameFormatter();
 
         [STAThread]
         public static int Main(string[] args)
@@ -228,7 +230,7 @@ namespace Xunit.ConsoleClient
         static XmlTestExecutionVisitor CreateVisitor(object consoleLock, string defaultDirectory, XElement assemblyElement, bool teamCity, bool appVeyor)
         {
             if (teamCity)
-                return new TeamCityVisitor(assemblyElement, () => cancel);
+                return new TeamCityVisitor(consoleLogger, assemblyElement, () => cancel, displayNameFormatter: teamCityDisplayNameFormatter);
             else if (appVeyor)
                 return new AppVeyorVisitor(consoleLock, defaultDirectory, assemblyElement, () => cancel, completionMessages);
 
