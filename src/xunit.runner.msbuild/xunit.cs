@@ -16,6 +16,7 @@ namespace Xunit.Runner.MSBuild
     {
         volatile bool cancel;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
+        readonly TeamCityDisplayNameFormatter teamCityDisplayNameFormatter;
         XunitFilters filters;
         int? maxParallelThreads;
         bool? parallelizeAssemblies;
@@ -26,6 +27,8 @@ namespace Xunit.Runner.MSBuild
             ParallelizeTestCollections = true;
             ShadowCopy = true;
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
+            if (TeamCity)
+                teamCityDisplayNameFormatter = new TeamCityDisplayNameFormatter();
         }
 
         [Required]
@@ -92,7 +95,7 @@ namespace Xunit.Runner.MSBuild
         protected virtual XmlTestExecutionVisitor CreateVisitor(string assemblyFileName, XElement assemblyElement)
         {
             if (TeamCity)
-                return new TeamCityVisitor(Log, assemblyElement, () => cancel);
+                return new TeamCityVisitor(Log, assemblyElement, () => cancel, teamCityDisplayNameFormatter);
 
             return new StandardOutputVisitor(Log, assemblyElement, Verbose, () => cancel, completionMessages);
         }
