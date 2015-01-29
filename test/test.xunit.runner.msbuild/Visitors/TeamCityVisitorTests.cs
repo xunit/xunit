@@ -89,7 +89,7 @@ public class TeamCityVisitorTests
 
             visitor.OnMessage(collectionFinished);
 
-            Assert.Single(logger.Messages, @"MESSAGE[High]: ##teamcity[testSuiteFinished name='Display Name' flowId='myFlowId']");
+            Assert.Single(logger.Messages, @"MESSAGE[High]: ##teamcity[testSuiteFinished name='Display Name (1)' flowId='myFlowId']");
         }
     }
 
@@ -107,7 +107,7 @@ public class TeamCityVisitorTests
             visitor.OnMessage(collectionStarting);
 
             Assert.Collection(logger.Messages,
-                msg => Assert.Equal(@"MESSAGE[High]: ##teamcity[testSuiteStarted name='Display Name' flowId='myFlowId']", msg));
+                msg => Assert.Equal(@"MESSAGE[High]: ##teamcity[testSuiteStarted name='Display Name (1)' flowId='myFlowId']", msg));
         }
     }
 
