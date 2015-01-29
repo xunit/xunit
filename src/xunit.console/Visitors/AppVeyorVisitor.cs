@@ -101,8 +101,8 @@ namespace Xunit.ConsoleClient
 
             lock (consoleLock)
             {
-                Console.Error.WriteLine("   {0} [SKIP]", Escape(testSkipped.Test.DisplayName));
-                Console.Error.WriteLine("      {0}", Escape(testSkipped.Reason));
+                Console.WriteLine("   {0} [SKIP]", Escape(testSkipped.Test.DisplayName));
+                Console.WriteLine("      {0}", Escape(testSkipped.Reason));
             }
 
             return base.Visit(testSkipped);
