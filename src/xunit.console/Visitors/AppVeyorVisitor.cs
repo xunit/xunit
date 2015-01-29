@@ -66,8 +66,8 @@ namespace Xunit.ConsoleClient
         {
             lock (consoleLock)
             {
-                Console.Error.WriteLine("   {0} [FATAL]", Escape(error.ExceptionTypes[0]));
-                Console.Error.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(error)));
+                Console.WriteLine("   {0} [FATAL]", Escape(error.ExceptionTypes[0]));
+                Console.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(error)));
 
                 WriteStackTrace(ExceptionUtility.CombineStackTraces(error));
             }
@@ -116,8 +116,8 @@ namespace Xunit.ConsoleClient
 
             lock (consoleLock)
             {
-                Console.Error.WriteLine("   {0} [FAIL]", Escape(testFailed.Test.DisplayName));
-                Console.Error.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(testFailed)));
+                Console.WriteLine("   {0} [FAIL]", Escape(testFailed.Test.DisplayName));
+                Console.WriteLine("      {0}", Escape(ExceptionUtility.CombineMessages(testFailed)));
 
                 WriteStackTrace(ExceptionUtility.CombineStackTraces(testFailed));
             }
@@ -153,9 +153,9 @@ namespace Xunit.ConsoleClient
             if (String.IsNullOrWhiteSpace(stackTrace))
                 return;
 
-            Console.Error.WriteLine("      Stack Trace:");
+            Console.WriteLine("      Stack Trace:");
             Array.ForEach(stackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None),
-                          stackFrame => Console.Error.WriteLine("         {0}", StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory)));
+                          stackFrame => Console.WriteLine("         {0}", StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory)));
         }
     }
 }
