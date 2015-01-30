@@ -14,7 +14,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
-            var methodDisplay = discoveryOptions.MethodDisplay();
+            var methodDisplay = discoveryOptions.MethodDisplayOrDefault();
 
             IXunitTestCase testCase;
             if (testMethod.Method.GetParameters().Any())

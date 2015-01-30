@@ -92,8 +92,8 @@ namespace Xunit.Sdk
                 maxParallelThreads = collectionBehaviorAttribute.GetNamedArgument<int>("MaxParallelThreads");
             }
 
-            disableParallelization = ExecutionOptions.GetValue<bool>(TestOptionsNames.Execution.DisableParallelization, disableParallelization);
-            var maxParallelThreadsOption = ExecutionOptions.GetValue<int>(TestOptionsNames.Execution.MaxParallelThreads, 0);
+            disableParallelization = ExecutionOptions.DisableParallelization() ?? disableParallelization;
+            var maxParallelThreadsOption = ExecutionOptions.MaxParallelThreads() ?? 0;
             if (maxParallelThreadsOption > 0)
                 maxParallelThreads = maxParallelThreadsOption;
 

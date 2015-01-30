@@ -142,7 +142,7 @@ namespace Xunit.ConsoleClient
             var consoleLock = new object();
 
             if (!parallelizeAssemblies.HasValue)
-                parallelizeAssemblies = project.All(assembly => assembly.Configuration.ParallelizeAssembly);
+                parallelizeAssemblies = project.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
 
             if (needsXml)
                 assembliesElement = new XElement("assemblies");
@@ -258,7 +258,7 @@ namespace Xunit.ConsoleClient
 
                 lock (consoleLock)
                 {
-                    if (assembly.Configuration.DiagnosticMessages)
+                    if (assembly.Configuration.DiagnosticMessagesOrDefault)
                         Console.WriteLine("Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
                                           Path.GetFileNameWithoutExtension(assembly.AssemblyFilename),
                                           discoveryOptions.GetMethodDisplay(),

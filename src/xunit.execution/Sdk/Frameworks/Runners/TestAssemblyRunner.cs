@@ -131,7 +131,7 @@ namespace Xunit.Sdk
         /// <returns>The message bus.</returns>
         protected virtual IMessageBus CreateMessageBus()
         {
-            if (ExecutionOptions.GetValue(TestOptionsNames.Execution.SynchronousMessageReporting, false))
+            if (ExecutionOptions.SynchronousMessageReportingOrDefault())
                 return new SynchronousMessageBus(MessageSink);
 
             return new MessageBus(MessageSink);

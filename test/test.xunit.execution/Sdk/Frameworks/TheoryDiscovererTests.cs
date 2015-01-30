@@ -53,7 +53,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     [Fact]
     public void DiscoveryOptions_PreEnumerateTheoriesSetToTrue_YieldsTestCasePerDataRow()
     {
-        discoveryOptions.SetValue(TestOptionsNames.Discovery.PreEnumerateTheories, true);
+        discoveryOptions.SetPreEnumerateTheories(true);
         var discoverer = new TheoryDiscoverer();
         var testMethod = Mocks.TestMethod(typeof(MultipleDataClass), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
@@ -68,7 +68,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     [Fact]
     public void DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTheoryTestCase()
     {
-        discoveryOptions.SetValue(TestOptionsNames.Discovery.PreEnumerateTheories, false);
+        discoveryOptions.SetPreEnumerateTheories(false);
         var discoverer = new TheoryDiscoverer();
         var testMethod = Mocks.TestMethod(typeof(MultipleDataClass), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();

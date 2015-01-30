@@ -11,12 +11,12 @@
         },
         "aspnetcore50": {
             "dependencies": {
-                "System.Diagnostics.Tools": "4.0.0-beta-22231",
-                "System.IO.FileSystem": "4.0.0-beta-22231",
-                "System.Linq": "4.0.0-beta-22231",
-                "System.Reflection": "4.0.10-beta-22231",
-                "System.Runtime.Extensions": "4.0.10-beta-22231",
-                "System.Threading": "4.0.0-beta-22231"
+                "System.Diagnostics.Tools": "4.0.0-beta-22416",
+                "System.IO.FileSystem": "4.0.0-beta-22416",
+                "System.Linq": "4.0.0-beta-22416",
+                "System.Reflection": "4.0.10-beta-22416",
+                "System.Runtime.Extensions": "4.0.10-beta-22416",
+                "System.Threading": "4.0.0-beta-22416"
             }
         }
     },

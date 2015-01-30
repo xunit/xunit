@@ -16,7 +16,7 @@ namespace TestUtility
             if (cultures == null || cultures.Length == 0)
                 cultures = new[] { "en-US", "fr-FR" };
 
-            return cultures.Select(culture => new CulturedXunitTestCase(discoveryOptions.MethodDisplay(), testMethod, culture)).ToList();
+            return cultures.Select(culture => new CulturedXunitTestCase(discoveryOptions.MethodDisplayOrDefault(), testMethod, culture)).ToList();
         }
     }
 }

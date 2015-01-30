@@ -12,9 +12,8 @@
         /// </summary>
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="name">The name of the value.</param>
-        /// <param name="defaultValue">The default value when none is present.</param>
         /// <returns>The value.</returns>
-        TValue GetValue<TValue>(string name, TValue defaultValue);
+        TValue GetValue<TValue>(string name);
 
         /// <summary>
         /// Sets an option value.

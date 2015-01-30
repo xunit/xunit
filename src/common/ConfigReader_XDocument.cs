@@ -44,17 +44,17 @@ namespace Xunit
                             if (key != null && value != null)
                             {
                                 if (key.Value.Equals(TestOptionsNames.Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
-                                    result.DiagnosticMessages = GetBoolean(value.Value, result.DiagnosticMessages);
+                                    result.DiagnosticMessages = GetBoolean(value.Value) ?? result.DiagnosticMessages;
                                 else if (key.Value.Equals(TestOptionsNames.Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
-                                    result.MaxParallelThreads = GetInt(value.Value, result.MaxParallelThreads);
+                                    result.MaxParallelThreads = GetInt(value.Value) ?? result.MaxParallelThreads;
                                 else if (key.Value.Equals(TestOptionsNames.Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
-                                    result.MethodDisplay = GetEnum(value.Value, result.MethodDisplay);
+                                    result.MethodDisplay = GetEnum<TestMethodDisplay>(value.Value) ?? result.MethodDisplay;
                                 else if (key.Value.Equals(TestOptionsNames.Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
-                                    result.ParallelizeAssembly = GetBoolean(value.Value, result.ParallelizeAssembly);
+                                    result.ParallelizeAssembly = GetBoolean(value.Value) ?? result.ParallelizeAssembly;
                                 else if (key.Value.Equals(TestOptionsNames.Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
-                                    result.ParallelizeTestCollections = GetBoolean(value.Value, result.ParallelizeTestCollections);
+                                    result.ParallelizeTestCollections = GetBoolean(value.Value) ?? result.ParallelizeTestCollections;
                                 else if (key.Value.Equals(TestOptionsNames.Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
-                                    result.PreEnumerateTheories = GetBoolean(value.Value, result.PreEnumerateTheories);
+                                    result.PreEnumerateTheories = GetBoolean(value.Value) ?? result.PreEnumerateTheories;
                             }
                         }
                     }
@@ -65,31 +65,31 @@ namespace Xunit
             return result;
         }
 
-        static bool GetBoolean(string value, bool defaultValue)
+        static bool? GetBoolean(string value)
         {
             switch (value.ToLowerInvariant())
             {
                 case "true": return true;
                 case "false": return false;
-                default: return defaultValue;
+                default: return null;
             }
         }
 
-        static TValue GetEnum<TValue>(string value, TValue defaultValue)
+        static TValue? GetEnum<TValue>(string value)
             where TValue : struct
         {
             TValue result;
             if (Enum.TryParse<TValue>(value, ignoreCase: true, result: out result))
                 return result;
-            return defaultValue;
+            return null;
         }
 
-        static int GetInt(string value, int defaultValue)
+        static int? GetInt(string value)
         {
             int result;
             if (Int32.TryParse(value, out result))
                 return result;
-            return defaultValue;
+            return null;
         }
     }
 }

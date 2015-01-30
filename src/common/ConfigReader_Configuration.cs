@@ -29,12 +29,12 @@ namespace Xunit
                 {
                     var settings = config.AppSettings.Settings;
 
-                    result.DiagnosticMessages = GetBoolean(settings, TestOptionsNames.Configuration.DiagnosticMessages, result.DiagnosticMessages);
-                    result.MaxParallelThreads = GetInt(settings, TestOptionsNames.Configuration.MaxParallelThreads, result.MaxParallelThreads);
-                    result.MethodDisplay = GetEnum(settings, TestOptionsNames.Configuration.MethodDisplay, result.MethodDisplay);
-                    result.ParallelizeAssembly = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeAssembly, result.ParallelizeAssembly);
-                    result.ParallelizeTestCollections = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeTestCollections, result.ParallelizeTestCollections);
-                    result.PreEnumerateTheories = GetBoolean(settings, TestOptionsNames.Configuration.PreEnumerateTheories, result.PreEnumerateTheories);
+                    result.DiagnosticMessages = GetBoolean(settings, TestOptionsNames.Configuration.DiagnosticMessages) ?? result.DiagnosticMessages;
+                    result.MaxParallelThreads = GetInt(settings, TestOptionsNames.Configuration.MaxParallelThreads) ?? result.MaxParallelThreads;
+                    result.MethodDisplay = GetEnum<TestMethodDisplay>(settings, TestOptionsNames.Configuration.MethodDisplay) ?? result.MethodDisplay;
+                    result.ParallelizeAssembly = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
+                    result.ParallelizeTestCollections = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
+                    result.PreEnumerateTheories = GetBoolean(settings, TestOptionsNames.Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
                 }
             }
             catch (ConfigurationErrorsException) { }
@@ -42,48 +42,48 @@ namespace Xunit
             return result;
         }
 
-        static bool GetBoolean(KeyValueConfigurationCollection settings, string key, bool defaultValue)
+        static bool? GetBoolean(KeyValueConfigurationCollection settings, string key)
         {
-            return GetValue(settings, key, defaultValue,
+            return GetValue<bool?>(settings, key,
                 value =>
                 {
                     switch (value.ToLowerInvariant())
                     {
                         case "true": return true;
                         case "false": return false;
-                        default: return defaultValue;
+                        default: return null;
                     }
                 });
         }
 
-        static TValue GetEnum<TValue>(KeyValueConfigurationCollection settings, string key, TValue defaultValue)
+        static TValue? GetEnum<TValue>(KeyValueConfigurationCollection settings, string key)
             where TValue : struct
         {
-            return GetValue(settings, key, defaultValue,
+            return GetValue<TValue?>(settings, key,
                 value =>
                 {
                     try { return (TValue)Enum.Parse(typeof(TValue), value, ignoreCase: true); }
-                    catch { return defaultValue; }
+                    catch { return null; }
                 });
         }
 
-        static int GetInt(KeyValueConfigurationCollection settings, string key, int defaultValue)
+        static int? GetInt(KeyValueConfigurationCollection settings, string key)
         {
-            return GetValue(settings, key, defaultValue,
+            return GetValue<int?>(settings, key,
                 ValueType =>
                 {
                     int result;
                     if (Int32.TryParse(ValueType, out result))
                         return result;
-                    return defaultValue;
+                    return null;
                 });
         }
 
-        static T GetValue<T>(KeyValueConfigurationCollection settings, string key, T defaultValue, Func<string, T> converter)
+        static T GetValue<T>(KeyValueConfigurationCollection settings, string key, Func<string, T> converter)
         {
             var setting = settings[key];
             if (setting == null)
-                return defaultValue;
+                return default(T);
 
             return converter(setting.Value);
         }

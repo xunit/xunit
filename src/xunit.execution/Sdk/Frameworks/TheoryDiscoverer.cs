@@ -15,7 +15,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
-            var defaultMethodDisplay = discoveryOptions.MethodDisplay();
+            var defaultMethodDisplay = discoveryOptions.MethodDisplayOrDefault();
 
             // Special case Skip, because we want a single Skip (not one per data item), and a skipped test may
             // not actually have any data (which is quasi-legal, since it's skipped).
@@ -24,7 +24,7 @@ namespace Xunit.Sdk
 
             var dataAttributes = testMethod.Method.GetCustomAttributes(typeof(DataAttribute));
 
-            if (discoveryOptions.PreEnumerateTheories())
+            if (discoveryOptions.PreEnumerateTheoriesOrDefault())
             {
                 try
                 {

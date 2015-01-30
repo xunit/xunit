@@ -129,7 +129,7 @@ namespace Xunit.Runner.MSBuild
                 var clockTime = Stopwatch.StartNew();
 
                 if (!parallelizeAssemblies.HasValue)
-                    parallelizeAssemblies = testAssemblyPaths.All(tuple => tuple.Item3.ParallelizeAssembly);
+                    parallelizeAssemblies = testAssemblyPaths.All(tuple => tuple.Item3.ParallelizeAssemblyOrDefault);
 
                 if (parallelizeAssemblies.GetValueOrDefault())
                 {
@@ -230,11 +230,11 @@ namespace Xunit.Runner.MSBuild
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(configuration);
                 var executionOptions = TestFrameworkOptions.ForExecution(configuration);
                 if (maxParallelThreads.HasValue)
-                    executionOptions.SetMaxParallelThreads(maxParallelThreads.GetValueOrDefault());
+                    executionOptions.SetMaxParallelThreads(maxParallelThreads);
                 if (parallelizeTestCollections.HasValue)
-                    executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
+                    executionOptions.SetDisableParallelization(!parallelizeTestCollections);
 
-                if (configuration.DiagnosticMessages)
+                if (configuration.DiagnosticMessagesOrDefault)
                     Log.LogMessage(MessageImportance.High, "  Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
                                    Path.GetFileNameWithoutExtension(assemblyFileName),
                                    discoveryOptions.GetMethodDisplay(),

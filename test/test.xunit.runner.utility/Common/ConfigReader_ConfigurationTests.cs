@@ -19,12 +19,12 @@ public class ConfigReader_ConfigurationTests
         {
             var result = ConfigReader.Load(assemblyFileName);
 
-            Assert.False(result.DiagnosticMessages);
-            Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreads);
-            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplay);
-            Assert.False(result.ParallelizeAssembly);
-            Assert.True(result.ParallelizeTestCollections);
-            Assert.True(result.PreEnumerateTheories);
+            Assert.False(result.DiagnosticMessagesOrDefault);
+            Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
+            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
+            Assert.False(result.ParallelizeAssemblyOrDefault);
+            Assert.True(result.ParallelizeTestCollectionsOrDefault);
+            Assert.True(result.PreEnumerateTheoriesOrDefault);
         }
 
         [Fact]
@@ -32,12 +32,12 @@ public class ConfigReader_ConfigurationTests
         {
             var result = ConfigReader.Load(assemblyFileName, Path.Combine(Path.GetDirectoryName(assemblyFileName), "ConfigReader_OverrideValues.config"));
 
-            Assert.True(result.DiagnosticMessages);
-            Assert.Equal(2112, result.MaxParallelThreads);
-            Assert.Equal(TestMethodDisplay.Method, result.MethodDisplay);
-            Assert.True(result.ParallelizeAssembly);
-            Assert.False(result.ParallelizeTestCollections);
-            Assert.False(result.PreEnumerateTheories);
+            Assert.True(result.DiagnosticMessagesOrDefault);
+            Assert.Equal(2112, result.MaxParallelThreadsOrDefault);
+            Assert.Equal(TestMethodDisplay.Method, result.MethodDisplayOrDefault);
+            Assert.True(result.ParallelizeAssemblyOrDefault);
+            Assert.False(result.ParallelizeTestCollectionsOrDefault);
+            Assert.False(result.PreEnumerateTheoriesOrDefault);
         }
 
         [Fact]
@@ -45,13 +45,13 @@ public class ConfigReader_ConfigurationTests
         {
             var result = ConfigReader.Load(assemblyFileName, Path.Combine(Path.GetDirectoryName(assemblyFileName), "ConfigReader_BadValues.config"));
 
-            Assert.False(result.DiagnosticMessages);
-            Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreads);
-            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplay);
+            Assert.False(result.DiagnosticMessagesOrDefault);
+            Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
+            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
             // This value was valid as a sentinel to make sure we were trying to read values from the file
-            Assert.True(result.ParallelizeAssembly);
-            Assert.True(result.ParallelizeTestCollections);
-            Assert.True(result.PreEnumerateTheories);
+            Assert.True(result.ParallelizeAssemblyOrDefault);
+            Assert.True(result.ParallelizeTestCollectionsOrDefault);
+            Assert.True(result.PreEnumerateTheoriesOrDefault);
         }
     }
 }
