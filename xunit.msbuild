@@ -142,7 +142,7 @@
     <Zip Files="@(Binaries)" ZipFileName="binaries.zip" StripPath="true" />
   </Target>
 
-  <Target Name="PushMyGet" DependsOnTargets="_DownloadNuGet">
+  <Target Name="PushMyGet" DependsOnTargets="_DownloadNuGet" Condition=" '$(GitBranch)' == 'master' Or '$(GitBranch)' == 'refs/heads/master' ">
     <ItemGroup>
       <NupkgFiles Include="*.nupkg" />
     </ItemGroup>
