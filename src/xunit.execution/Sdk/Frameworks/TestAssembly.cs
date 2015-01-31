@@ -2,23 +2,16 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-#if !WINDOWS_PHONE_APP && !ASPNETCORE50
-using System.Runtime.Serialization;
-#endif
-using System.Security;
 using Xunit.Abstractions;
-using Xunit.Serialization;
 
 namespace Xunit.Sdk
 {
     /// <summary>
     /// The default implementation of <see cref="ITestAssembly"/>.
     /// </summary>
-    [Serializable]
     [DebuggerDisplay(@"\{ assembly = {Assembly.AssemblyPath}, config = {ConfigFileName} \}")]
-    public class TestAssembly : LongLivedMarshalByRefObject, ITestAssembly, ISerializable, IGetTypeData
+    public class TestAssembly : LongLivedMarshalByRefObject, ITestAssembly
     {
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -50,55 +43,23 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public string ConfigFileName { get; set; }
 
-        // -------------------- Serialization --------------------
-
         /// <inheritdoc/>
-        [SecurityCritical]
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void Serialize(IXunitSerializationInfo info)
         {
             info.AddValue("AssemblyPath", Assembly.AssemblyPath);
             info.AddValue("ConfigFileName", ConfigFileName);
         }
 
         /// <inheritdoc/>
-        public void GetData(XunitSerializationInfo info)
+        public void Deserialize(IXunitSerializationInfo info)
         {
-            info.AddValue("AssemblyPath", Assembly.AssemblyPath);
-            info.AddValue("ConfigFileName", ConfigFileName);
-        }
-
-        /// <inheritdoc/>
-        protected TestAssembly(SerializationInfo info, StreamingContext context)
-        {
-            ConfigFileName = info.GetString("ConfigFileName");
-
-            var assemblyPath = info.GetString("AssemblyPath");
-
-#if !WINDOWS_PHONE_APP && !WIN8_STORE && !WINDOWS_PHONE && !ASPNETCORE50
-            var assembly = AppDomain.CurrentDomain
-                                    .GetAssemblies()
-                                    .First(a => !a.IsDynamic && String.Equals(a.GetLocalCodeBase(), assemblyPath, StringComparison.OrdinalIgnoreCase));
-#else
-            // On WPA, this will be the assemblyname
-            var assembly = System.Reflection.Assembly.Load(new AssemblyName
-            {
-                Name = Path.GetFileNameWithoutExtension(assemblyPath)
-            });
-#endif
-
-            Assembly = Reflector.Wrap(assembly);
-        }
-
-        /// <inheritdoc/>
-        public void SetData(XunitSerializationInfo info)
-        {
-            var assemblyPath = info.GetString("AssemblyPath");
+            var assemblyPath = info.GetValue<string>("AssemblyPath");
             var assembly = System.Reflection.Assembly.Load(new AssemblyName
             {
                 Name = Path.GetFileNameWithoutExtension(assemblyPath)
             });
 
-            ConfigFileName = info.GetString("ConfigFileName");
+            ConfigFileName = info.GetValue<string>("ConfigFileName");
             Assembly = Reflector.Wrap(assembly);
         }
     }

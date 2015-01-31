@@ -1,14 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-#if !ASPNETCORE50
-using System.Runtime.Serialization;
-#endif
 
 namespace Xunit.Sdk
 {
@@ -16,7 +12,6 @@ namespace Xunit.Sdk
     /// Default implementation of <see cref="IXunitTestCase"/> for xUnit v2 that supports tests decorated with
     /// both <see cref="FactAttribute"/> and <see cref="TheoryAttribute"/>.
     /// </summary>
-    [Serializable]
     [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
     public class XunitTestCase : TestMethodTestCase, IXunitTestCase
     {
@@ -33,10 +28,6 @@ namespace Xunit.Sdk
         /// <param name="testMethodArguments">The arguments for the test method.</param>
         public XunitTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, object[] testMethodArguments = null)
             : base(defaultMethodDisplay, testMethod, testMethodArguments) { }
-
-        /// <inheritdoc />
-        protected XunitTestCase(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
 
         /// <inheritdoc/>
         protected override void Initialize()

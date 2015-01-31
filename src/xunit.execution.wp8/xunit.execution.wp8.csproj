@@ -107,11 +107,8 @@
     <Compile Include="..\common\LongLivedMarshalByRefObject_Execution_NoAppDomain.cs">
       <Link>Common\LongLivedMarshalByRefObject_Execution_NoAppDomain.cs</Link>
     </Compile>
-    <Compile Include="..\common\SerializationHelper_Strings.cs">
-      <Link>Common\SerializationHelper_Strings.cs</Link>
-    </Compile>
-    <Compile Include="..\common\SerializationInfoExtensions.cs">
-      <Link>Common\SerializationInfoExtensions.cs</Link>
+    <Compile Include="..\common\SerializationHelper.cs">
+      <Link>Common\SerializationHelper.cs</Link>
     </Compile>
     <Compile Include="..\common\SourceInformation.cs">
       <Link>Common\SourceInformation.cs</Link>
@@ -145,9 +142,6 @@
     </Compile>
     <Compile Include="..\xunit.execution.universal\Sdk\ExecutionContext.cs">
       <Link>Sdk\ExecutionContext.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.execution.universal\Serialization\Serializable.cs">
-      <Link>Serialization\Serializable.cs</Link>
     </Compile>
     <Compile Include="Concurrent\CollectionDebugView.cs" />
     <Compile Include="Concurrent\ConcurrentBag.cs" />

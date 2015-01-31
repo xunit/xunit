@@ -1,21 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Security;
 using Xunit.Abstractions;
-using Xunit.Serialization;
-#if !ASPNETCORE50
-using System.Runtime.Serialization;
-#endif
 
 namespace Xunit.Sdk
 {
     /// <summary>
     /// The default implementation of <see cref="ITestMethod"/>.
     /// </summary>
-    [Serializable]
     [DebuggerDisplay(@"\{ class = {TestClass.Class.Name}, method = {Method.Name} \}")]
-    public class TestMethod : LongLivedMarshalByRefObject, ITestMethod, ISerializable, IGetTypeData
+    public class TestMethod : LongLivedMarshalByRefObject, ITestMethod
     {
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -42,39 +36,19 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITestClass TestClass { get; set; }
 
-        // -------------------- Serialization --------------------
-
         /// <inheritdoc/>
-        [SecurityCritical]
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void Serialize(IXunitSerializationInfo info)
         {
             info.AddValue("MethodName", Method.Name);
             info.AddValue("TestClass", TestClass);
         }
 
         /// <inheritdoc/>
-        public void GetData(XunitSerializationInfo info)
-        {
-            info.AddValue("MethodName", Method.Name);
-            info.AddValue("TestClass", TestClass);
-        }
-
-        /// <inheritdoc/>
-        protected TestMethod(SerializationInfo info, StreamingContext context)
+        public void Deserialize(IXunitSerializationInfo info)
         {
             TestClass = info.GetValue<ITestClass>("TestClass");
 
-            var methodName = info.GetString("MethodName");
-
-            Method = TestClass.Class.GetMethod(methodName, includePrivateMethod: true);
-        }
-
-        /// <inheritdoc/>
-        public void SetData(XunitSerializationInfo info)
-        {
-            TestClass = info.GetValue<ITestClass>("TestClass");
-
-            var methodName = info.GetString("MethodName");
+            var methodName = info.GetValue<string>("MethodName");
 
             Method = TestClass.Class.GetMethod(methodName, includePrivateMethod: true);
         }

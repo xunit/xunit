@@ -1,7 +1,6 @@
 using System;
+using System.ComponentModel;
 using System.Globalization;
-using System.Runtime.Serialization;
-using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -9,23 +8,18 @@ using Xunit.Sdk;
 
 namespace TestUtility
 {
-    [Serializable]
     public class CulturedXunitTestCase : XunitTestCase
     {
         private string culture;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Called by the de-serializer", error: true)]
+        public CulturedXunitTestCase() { }
 
         public CulturedXunitTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, string culture)
             : base(defaultMethodDisplay, testMethod)
         {
             Initialize(culture);
-        }
-
-        protected CulturedXunitTestCase(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            culture = info.GetString("Culture");
-
-            Traits.Add("Culture", culture);
         }
 
         void Initialize(string culture)
@@ -37,12 +31,18 @@ namespace TestUtility
             DisplayName += String.Format(" [{0}]", culture);
         }
 
-        [SecurityCritical]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        public override void Deserialize(IXunitSerializationInfo data)
         {
-            info.AddValue("Culture", culture);
+            base.Deserialize(data);
 
-            base.GetObjectData(info, context);
+            Initialize(data.GetValue<string>("Culture"));
+        }
+
+        public override void Serialize(IXunitSerializationInfo data)
+        {
+            base.Serialize(data);
+
+            data.AddValue("Culture", culture);
         }
 
         public override async Task<RunSummary> RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)

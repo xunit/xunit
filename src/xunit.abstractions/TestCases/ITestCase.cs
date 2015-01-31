@@ -8,7 +8,7 @@ namespace Xunit.Abstractions
     /// the case of dynamically generated data for data driven tests, the test case may actually return
     /// multiple results when run.
     /// </summary>
-    public interface ITestCase
+    public interface ITestCase : IXunitSerializable
     {
         /// <summary>
         /// Gets the display name of the test case.

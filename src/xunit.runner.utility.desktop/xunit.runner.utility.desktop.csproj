@@ -81,9 +81,6 @@
     <Compile Include="..\common\RemoteAppDomainManager.cs">
       <Link>Common\RemoteAppDomainManager.cs</Link>
     </Compile>
-    <Compile Include="..\common\SerializationInfoExtensions.cs">
-      <Link>Common\SerializationInfoExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\common\SourceInformation.cs">
       <Link>Common\SourceInformation.cs</Link>
     </Compile>

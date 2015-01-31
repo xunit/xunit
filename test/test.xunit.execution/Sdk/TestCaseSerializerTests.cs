@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using Xunit;
 using Xunit.Sdk;
 
@@ -72,7 +73,8 @@ public class TestCaseSerializerTests
 
             var ex = Record.Exception(() => SerializationHelper.Serialize(testCase));
 
-            Assert.IsType<SerializationException>(ex);
+            Assert.IsType<ArgumentException>(ex);
+            Assert.StartsWith("There is at least one object in this array that cannot be serialized", ex.Message);
         }
     }
 

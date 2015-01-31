@@ -4,18 +4,14 @@ using System.Diagnostics;
 using System.Security;
 using Xunit.Abstractions;
 using Xunit.Serialization;
-#if !ASPNETCORE50
-using System.Runtime.Serialization;
-#endif
 
 namespace Xunit.Sdk
 {
     /// <summary>
     /// The default implementation of <see cref="ITestCollection"/>.
     /// </summary>
-    [Serializable]
     [DebuggerDisplay(@"\{ id = {UniqueID}, display = {DisplayName} \}")]
-    public class TestCollection : LongLivedMarshalByRefObject, ITestCollection, ISerializable, IGetTypeData
+    public class TestCollection : LongLivedMarshalByRefObject, ITestCollection
     {
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -50,11 +46,8 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public Guid UniqueID { get; set; }
 
-        // -------------------- Serialization --------------------
-
         /// <inheritdoc/>
-        [SecurityCritical]
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void Serialize(IXunitSerializationInfo info)
         {
             info.AddValue("DisplayName", DisplayName);
             info.AddValue("TestAssembly", TestAssembly);
@@ -73,47 +66,14 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void GetData(XunitSerializationInfo info)
+        public void Deserialize(IXunitSerializationInfo info)
         {
-            info.AddValue("DisplayName", DisplayName);
-            info.AddValue("TestAssembly", TestAssembly);
-            info.AddValue("UniqueID", UniqueID.ToString());
-
-            if (CollectionDefinition != null)
-            {
-                info.AddValue("DeclarationAssemblyName", CollectionDefinition.Assembly.Name);
-                info.AddValue("DeclarationTypeName", CollectionDefinition.Name);
-            }
-            else
-            {
-                info.AddValue("DeclarationAssemblyName", null);
-                info.AddValue("DeclarationTypeName", null);
-            }
-        }
-
-        /// <inheritdoc/>
-        protected TestCollection(SerializationInfo info, StreamingContext context)
-        {
-            DisplayName = info.GetString("DisplayName");
+            DisplayName = info.GetValue<string>("DisplayName");
             TestAssembly = info.GetValue<ITestAssembly>("TestAssembly");
-            UniqueID = Guid.Parse(info.GetString("UniqueID"));
+            UniqueID = Guid.Parse(info.GetValue<string>("UniqueID"));
 
-            var assemblyName = info.GetString("DeclarationAssemblyName");
-            var typeName = info.GetString("DeclarationTypeName");
-
-            if (!String.IsNullOrWhiteSpace(assemblyName) && !String.IsNullOrWhiteSpace(typeName))
-                CollectionDefinition = Reflector.Wrap(Reflector.GetType(assemblyName, typeName));
-        }
-
-        /// <inheritdoc/>
-        public void SetData(XunitSerializationInfo info)
-        {
-            DisplayName = info.GetString("DisplayName");
-            TestAssembly = info.GetValue<ITestAssembly>("TestAssembly");
-            UniqueID = Guid.Parse(info.GetString("UniqueID"));
-
-            var assemblyName = info.GetString("DeclarationAssemblyName");
-            var typeName = info.GetString("DeclarationTypeName");
+            var assemblyName = info.GetValue<string>("DeclarationAssemblyName");
+            var typeName = info.GetValue<string>("DeclarationTypeName");
 
             if (!String.IsNullOrWhiteSpace(assemblyName) && !String.IsNullOrWhiteSpace(typeName))
                 CollectionDefinition = Reflector.Wrap(Reflector.GetType(assemblyName, typeName));

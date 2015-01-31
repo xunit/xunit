@@ -114,11 +114,8 @@
     <Compile Include="..\common\LongLivedMarshalByRefObject_Execution_NoAppDomain.cs">
       <Link>Common\LongLivedMarshalByRefObject_Execution_NoAppDomain.cs</Link>
     </Compile>
-    <Compile Include="..\common\SerializationHelper_Strings.cs">
-      <Link>Common\SerializationHelper_Strings.cs</Link>
-    </Compile>
-    <Compile Include="..\common\SerializationInfoExtensions.cs">
-      <Link>Common\SerializationInfoExtensions.cs</Link>
+    <Compile Include="..\common\SerializationHelper.cs">
+      <Link>Common\SerializationHelper.cs</Link>
     </Compile>
     <Compile Include="..\common\SourceInformation.cs">
       <Link>Common\SourceInformation.cs</Link>
@@ -151,7 +148,6 @@
       <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
     </Compile>
     <Compile Include="Sdk\ExecutionContext.cs" />
-    <Compile Include="Serialization\Serializable.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\xunit.execution\**\*.cs">

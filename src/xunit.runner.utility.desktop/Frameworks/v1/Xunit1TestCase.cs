@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Security;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -11,12 +10,16 @@ namespace Xunit
     /// An implementation of <see cref="ITestCase"/> that adapts xUnit.net v1's XML-based APIs
     /// into xUnit.net v2's object-based APIs.
     /// </summary>
-    [Serializable]
-    public class Xunit1TestCase : ITestAssembly, ITestCollection, ITestClass, ITestMethod, ITestCase, ISerializable
+    public class Xunit1TestCase : ITestAssembly, ITestCollection, ITestClass, ITestMethod, ITestCase, IXunitSerializable
     {
         static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
-        readonly Xunit1ReflectionWrapper reflectionWrapper;
+        Xunit1ReflectionWrapper reflectionWrapper;
+
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Called by the de-serializer", error: true)]
+        public Xunit1TestCase() { }
 
         /// <summary>
         /// Initializes a new instance  of the <see cref="Xunit1TestCase"/> class.
@@ -45,26 +48,6 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        protected Xunit1TestCase(SerializationInfo info, StreamingContext context)
-        {
-            reflectionWrapper = new Xunit1ReflectionWrapper(
-                info.GetString("AssemblyFileName"),
-                info.GetString("TypeName"),
-                info.GetString("MethodName")
-            );
-
-            ConfigFileName = info.GetString("ConfigFileName");
-            DisplayName = info.GetString("DisplayName");
-            SkipReason = info.GetString("SkipReason");
-            SourceInformation = info.GetValue<SourceInformation>("SourceInformation");
-
-            Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            var keys = info.GetValue<List<string>>("Traits.Keys");
-            foreach (var key in keys)
-                Traits.Add(key, info.GetValue<List<string>>(String.Format("Traits[{0}]", key)));
-        }
-
-        /// <inheritdoc/>
         public string DisplayName { get; set; }
 
         /// <inheritdoc/>
@@ -89,21 +72,38 @@ namespace Xunit
         public void Dispose() { }
 
         /// <inheritdoc/>
-        [SecurityCritical]
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public void Deserialize(IXunitSerializationInfo data)
         {
-            info.AddValue("AssemblyFileName", reflectionWrapper.AssemblyFileName);
-            info.AddValue("ConfigFileName", ConfigFileName);
-            info.AddValue("MethodName", reflectionWrapper.MethodName);
-            info.AddValue("TypeName", reflectionWrapper.TypeName);
+            reflectionWrapper = new Xunit1ReflectionWrapper(
+                data.GetValue<string>("AssemblyFileName"),
+                data.GetValue<string>("TypeName"),
+                data.GetValue<string>("MethodName")
+            );
 
-            info.AddValue("DisplayName", DisplayName);
-            info.AddValue("SkipReason", SkipReason);
-            info.AddValue("SourceInformation", SourceInformation);
+            ConfigFileName = data.GetValue<string>("ConfigFileName");
+            DisplayName = data.GetValue<string>("DisplayName");
+            SkipReason = data.GetValue<string>("SkipReason");
+            SourceInformation = data.GetValue<SourceInformation>("SourceInformation");
 
-            info.AddValue("Traits.Keys", Traits.Keys.ToList());
+            Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            var keys = data.GetValue<string[]>("Traits.Keys");
+            foreach (var key in keys)
+                Traits.Add(key, data.GetValue<string[]>(String.Format("Traits[{0}]", key)).ToList());
+        }
+
+        /// <inheritdoc/>
+        public void Serialize(IXunitSerializationInfo data)
+        {
+            data.AddValue("AssemblyFileName", reflectionWrapper.AssemblyFileName);
+            data.AddValue("ConfigFileName", ConfigFileName);
+            data.AddValue("MethodName", reflectionWrapper.MethodName);
+            data.AddValue("TypeName", reflectionWrapper.TypeName);
+            data.AddValue("DisplayName", DisplayName);
+            data.AddValue("SkipReason", SkipReason);
+            data.AddValue("SourceInformation", SourceInformation);
+            data.AddValue("Traits.Keys", Traits.Keys.ToArray());
             foreach (var key in Traits.Keys)
-                info.AddValue(String.Format("Traits[{0}]", key), Traits[key]);
+                data.AddValue(String.Format("Traits[{0}]", key), Traits[key].ToArray());
         }
 
         /// <inheritdoc/>

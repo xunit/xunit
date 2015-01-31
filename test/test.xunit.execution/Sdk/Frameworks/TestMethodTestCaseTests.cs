@@ -1,11 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.Serialization;
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 
 public class TestMethodTestCaseTests
@@ -93,40 +91,34 @@ public class TestMethodTestCaseTests
         [Fact]
         public static void CanRoundTrip_PublicClass_PublicTestMethod()
         {
-            var serializer = new BinaryFormatter();
             var testCase = TestableTestMethodTestCase.Create<Serialization>("CanRoundTrip_PublicClass_PublicTestMethod");
-            var memoryStream = new MemoryStream();
 
-            serializer.Serialize(memoryStream, testCase);
-            memoryStream.Position = 0;
+            var serialized = XunitSerializationInfo.Serialize(testCase);
+            var deserialized = XunitSerializationInfo.Deserialize(typeof(TestableTestMethodTestCase), serialized);
 
-            serializer.Deserialize(memoryStream);  // Should not throw
+            Assert.NotNull(deserialized);
         }
 
         [Fact]
         public static void CanRoundTrip_PublicClass_PrivateTestMethod()
         {
-            var serializer = new BinaryFormatter();
             var testCase = TestableTestMethodTestCase.Create<Serialization>("CanRoundTrip_PublicClass_PrivateTestMethod");
-            var memoryStream = new MemoryStream();
 
-            serializer.Serialize(memoryStream, testCase);
-            memoryStream.Position = 0;
+            var serialized = XunitSerializationInfo.Serialize(testCase);
+            var deserialized = XunitSerializationInfo.Deserialize(typeof(TestableTestMethodTestCase), serialized);
 
-            serializer.Deserialize(memoryStream);  // Should not throw
+            Assert.NotNull(deserialized);
         }
 
         [Fact]
-        public static void CannotRoundTrip_PrivateClass()
+        public static void CanRoundTrip_PrivateClass()
         {
-            var serializer = new BinaryFormatter();
             var testCase = TestableTestMethodTestCase.Create<PrivateClass>("TestMethod");
-            var memoryStream = new MemoryStream();
 
-            serializer.Serialize(memoryStream, testCase);
-            memoryStream.Position = 0;
+            var serialized = XunitSerializationInfo.Serialize(testCase);
+            var deserialized = XunitSerializationInfo.Deserialize(typeof(TestableTestMethodTestCase), serialized);
 
-            serializer.Deserialize(memoryStream);  // Should not throw
+            Assert.NotNull(deserialized);
         }
 
         class PrivateClass
@@ -168,13 +160,12 @@ public class TestMethodTestCaseTests
         }
     }
 
-    [Serializable]
     class TestableTestMethodTestCase : TestMethodTestCase
     {
+        public TestableTestMethodTestCase() { }
+
         public TestableTestMethodTestCase(ITestMethod testMethod, object[] testMethodArguments = null, TestMethodDisplay defaultMethodDisplay = TestMethodDisplay.ClassAndMethod)
             : base(defaultMethodDisplay, testMethod, testMethodArguments) { }
-
-        protected TestableTestMethodTestCase(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         public static TestableTestMethodTestCase Create<TClass>(string methodName, object[] testMethodArguments = null)
         {

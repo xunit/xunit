@@ -37,7 +37,6 @@
       serialize test cases to be run on devices without native serialization.
     -->
     <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll"                 target="build\_Desktop\" />
-    <file src="xunit.execution.desktop-NoSerialization\bin\Release\xunit.execution.desktop.dll" target="build\_DesktopNoSerialization\" />
 
     <file src="xunit.core\build\xunit.core.props"                                       target="build\monoandroid\" />
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.dll" target="build\monoandroid\" />
@@ -47,7 +46,7 @@
 
     <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
 
-    <file src="xunit.core\build\xunit.core.WithDesktopNoSerialization.props"        target="build\portable-win81+wpa81\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.WithDesktop.props"                       target="build\portable-win81+wpa81\xunit.core.props" />
     <file src="xunit.core\build\xunit.core.universal.targets"                       target="build\portable-win81+wpa81\xunit.core.targets" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.dll" target="build\portable-win81+wpa81\" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pri" target="build\portable-win81+wpa81\" />

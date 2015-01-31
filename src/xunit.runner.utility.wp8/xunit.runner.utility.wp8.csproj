@@ -129,9 +129,6 @@
     <Compile Include="..\common\RemoteAppDomainManager_WPA81.cs">
       <Link>Common\RemoteAppDomainManager_WPA81.cs</Link>
     </Compile>
-    <Compile Include="..\common\SerializationInfoExtensions.cs">
-      <Link>Common\SerializationInfoExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\common\SourceInformation.cs">
       <Link>Common\SourceInformation.cs</Link>
     </Compile>
@@ -146,12 +143,6 @@
     </Compile>
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.execution.universal\Serialization\Serializable.cs">
-      <Link>Serialization\Serializable.cs</Link>
-    </Compile>
-    <Compile Include="..\xunit.execution\Serialization\IGetTypeData.cs">
-      <Link>Serialization\IGetTypeData.cs</Link>
     </Compile>
     <Compile Include="..\xunit.execution\Serialization\XunitSerializationInfo.cs">
       <Link>Serialization\XunitSerializationInfo.cs</Link>

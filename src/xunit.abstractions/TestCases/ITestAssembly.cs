@@ -3,7 +3,7 @@ namespace Xunit.Abstractions
     /// <summary>
     /// Represents a test assembly.
     /// </summary>
-    public interface ITestAssembly
+    public interface ITestAssembly : IXunitSerializable
     {
         /// <summary>
         /// Gets the assembly that this test assembly belongs to.

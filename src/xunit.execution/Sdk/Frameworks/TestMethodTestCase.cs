@@ -2,13 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security;
 using System.Text;
 using Xunit.Abstractions;
-using Xunit.Serialization;
-#if !ASPNETCORE50
-using System.Runtime.Serialization;
-#endif
 
 #if !WINDOWS_PHONE_APP
 using System.Security.Cryptography;
@@ -24,8 +19,7 @@ namespace Xunit.Sdk
     /// A base class implementation of <see cref="ITestCase"/> which is based on test cases being
     /// related directly to test methods.
     /// </summary>
-    [Serializable]
-    public abstract class TestMethodTestCase : LongLivedMarshalByRefObject, ITestCase, ISerializable, IGetTypeData, IDisposable
+    public abstract class TestMethodTestCase : LongLivedMarshalByRefObject, ITestCase, IDisposable
     {
         private Dictionary<string, List<string>> traits;
         private string skipReason;
@@ -251,40 +245,20 @@ namespace Xunit.Sdk
             stream.WriteByte(0);
         }
 
-        // -------------------- Serialization --------------------
-
         /// <inheritdoc/>
-        [SecurityCritical]
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        public virtual void Serialize(IXunitSerializationInfo data)
         {
-            info.AddValue("TestMethod", TestMethod);
-            info.AddValue("TestMethodArguments", TestMethodArguments);
-            info.AddValue("DefaultMethodDisplay", DefaultMethodDisplay.ToString());
-        }
-
-        /// <inheritdoc/>
-        public virtual void GetData(XunitSerializationInfo data)
-        {
-            // TODO: Should throw when TestMethodArguments is not null/empty?
             data.AddValue("TestMethod", TestMethod);
             data.AddValue("TestMethodArguments", TestMethodArguments);
             data.AddValue("DefaultMethodDisplay", DefaultMethodDisplay.ToString());
         }
 
         /// <inheritdoc/>
-        protected TestMethodTestCase(SerializationInfo info, StreamingContext context)
-        {
-            TestMethod = info.GetValue<ITestMethod>("TestMethod");
-            TestMethodArguments = info.GetValue<object[]>("TestMethodArguments");
-            DefaultMethodDisplay = (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), info.GetString("DefaultMethodDisplay"));
-        }
-
-        /// <inheritdoc/>
-        public virtual void SetData(XunitSerializationInfo data)
+        public virtual void Deserialize(IXunitSerializationInfo data)
         {
             TestMethod = data.GetValue<ITestMethod>("TestMethod");
-            TestMethodArguments = null;
-            DefaultMethodDisplay = (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), data.GetString("DefaultMethodDisplay"));
+            TestMethodArguments = data.GetValue<object[]>("TestMethodArguments");
+            DefaultMethodDisplay = (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), data.GetValue<string>("DefaultMethodDisplay"));
         }
     }
 }

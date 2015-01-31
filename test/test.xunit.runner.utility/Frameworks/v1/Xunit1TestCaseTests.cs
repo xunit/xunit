@@ -1,72 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
+using Xunit.Sdk;
 
 public class Xunit1TestCaseTests
 {
     public class Serialization
     {
         [Fact]
-        public void CanRoundTrip_PublicClass_PublicTestMethod()
+        public static void CanRoundTrip_PublicClass_PublicTestMethod()
         {
-            var serializer = new BinaryFormatter();
             var testCase = Create(typeof(Serialization), "CanRoundTrip_PublicClass_PublicTestMethod");
-            var memoryStream = new MemoryStream();
 
-            serializer.Serialize(memoryStream, testCase);
-            memoryStream.Position = 0;
+            var serialized = SerializationHelper.Serialize(testCase);
+            var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
 
-            serializer.Deserialize(memoryStream);  // Should not throw
+            Assert.NotNull(deserialized);
         }
 
         [Fact]
-        void CanRoundTrip_PublicClass_PrivateTestMethod()
+        public static void CanRoundTrip_PublicClass_PrivateTestMethod()
         {
-            var serializer = new BinaryFormatter();
             var testCase = Create(typeof(Serialization), "CanRoundTrip_PublicClass_PrivateTestMethod");
-            var memoryStream = new MemoryStream();
 
-            serializer.Serialize(memoryStream, testCase);
-            memoryStream.Position = 0;
+            var serialized = SerializationHelper.Serialize(testCase);
+            var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
 
-            serializer.Deserialize(memoryStream);  // Should not throw
+            Assert.NotNull(deserialized);
         }
 
         [Fact]
-        public void CannotRoundTrip_PrivateClass()
+        public static void CanRoundTrip_PrivateClass()
         {
-            var serializer = new BinaryFormatter();
             var testCase = Create(typeof(PrivateClass), "TestMethod");
-            var memoryStream = new MemoryStream();
 
-            serializer.Serialize(memoryStream, testCase);
-            memoryStream.Position = 0;
+            var serialized = SerializationHelper.Serialize(testCase);
+            var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
 
-            serializer.Deserialize(memoryStream);  // Should not throw
+            Assert.NotNull(deserialized);
         }
 
         [Fact]
-        public void RoundTrippedTraitsAreCaseInsensitive()
+        public static void RoundTrippedTraitsAreCaseInsensitive()
         {
-            var serializer = new BinaryFormatter();
             var traits = new Dictionary<string, List<string>> { { "foo", new List<string> { "bar" } } };
             var testCase = Create(typeof(Serialization), "CanRoundTrip_PublicClass_PrivateTestMethod", traits);
-            var memoryStream = new MemoryStream();
 
-            serializer.Serialize(memoryStream, testCase);
-            memoryStream.Position = 0;
+            var serialized = SerializationHelper.Serialize(testCase);
+            var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
 
-            var deserializedTestCase = (Xunit1TestCase)serializer.Deserialize(memoryStream);
-
-            Assert.True(deserializedTestCase.Traits.Contains("fOo", "bAr", StringComparer.OrdinalIgnoreCase));
+            Assert.True(deserialized.Traits.Contains("fOo", "bAr", StringComparer.OrdinalIgnoreCase));
         }
 
         class PrivateClass
         {
             [Fact]
-            public void TestMethod()
+            public static void TestMethod()
             {
                 Assert.True(false);
             }
@@ -76,7 +65,7 @@ public class Xunit1TestCaseTests
     public class UniqueID
     {
         [Fact]
-        public void UniqueIDIsStable()
+        public static void UniqueIDIsStable()
         {
             var typeUnderTest = typeof(ClassUnderTest);
             var assemblyFileName = typeUnderTest.Assembly.GetLocalCodeBase();
@@ -89,7 +78,7 @@ public class Xunit1TestCaseTests
         class ClassUnderTest
         {
             [Fact]
-            public void TestMethod() { }
+            public static void TestMethod() { }
         }
     }
 

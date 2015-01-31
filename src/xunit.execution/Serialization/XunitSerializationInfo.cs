@@ -4,13 +4,14 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Xunit.Abstractions;
 
 namespace Xunit.Serialization
 {
     /// <summary>
     /// A mirror class of the CLR's <see cref="T:System.Runtime.Serialization.SerializationInfo"/> class.
     /// </summary>
-    public class XunitSerializationInfo
+    public class XunitSerializationInfo : IXunitSerializationInfo
     {
         private readonly IDictionary<string, Tuple<object, Type>> data = new Dictionary<string, Tuple<object, Type>>();
 
@@ -18,18 +19,13 @@ namespace Xunit.Serialization
         /// Initializes a new instance of the <see cref="XunitSerializationInfo"/> class.
         /// </summary>
         /// <param name="object">The data to copy into the serialization info</param>
-        public XunitSerializationInfo(IGetTypeData @object = null)
+        public XunitSerializationInfo(IXunitSerializable @object = null)
         {
             if (@object != null)
-                @object.GetData(this);
+                @object.Serialize(this);
         }
 
-        /// <summary>
-        /// Adds a value to the collection.
-        /// </summary>
-        /// <param name="key">The key</param>
-        /// <param name="value">The value</param>
-        /// <param name="type">The value's type</param>
+        /// <inheritdoc/>
         public void AddValue(string key, object value, Type type = null)
         {
             if (type == null)
@@ -38,27 +34,13 @@ namespace Xunit.Serialization
             data[key] = Tuple.Create(value, type);
         }
 
-        /// <summary>
-        /// Gets a string value from the collection.
-        /// </summary>
-        /// <param name="key">The key</param>
-        /// <returns>The string value, if present; <c>null</c>, otherwise</returns>
-        public string GetString(string key)
+        /// <inheritdoc/>
+        public T GetValue<T>(string key)
         {
-            Tuple<object, Type> val;
-
-            if (data.TryGetValue(key, out val))
-                return (string)val.Item1;
-
-            return null;
+            return (T)GetValue(key, typeof(T));
         }
 
-        /// <summary>
-        /// Gets a value from the collection.
-        /// </summary>
-        /// <param name="key">The key</param>
-        /// <param name="type">The value type</param>
-        /// <returns>The string value, if present; <c>null</c>, otherwise</returns>
+        /// <inheritdoc/>
         public object GetValue(string key, Type type)
         {
             Tuple<object, Type> val;
@@ -78,7 +60,7 @@ namespace Xunit.Serialization
         /// <returns></returns>
         public string ToSerializedString()
         {
-            var valueTree = String.Join("\n", data.Select(kvp => String.Format("{0}:{1}:{2}", kvp.Key, kvp.Value.Item2.AssemblyQualifiedName, Serialize(kvp.Value.Item1))));
+            var valueTree = String.Join("\n", data.Select(kvp => String.Format("{0}:{1}:{2}", kvp.Key, kvp.Value.Item2.FullName, Serialize(kvp.Value.Item1))));
             return ToBase64(valueTree);
         }
 
@@ -93,8 +75,8 @@ namespace Xunit.Serialization
             if (serializedValue == "")
                 return null;
 
-            if (typeof(IGetTypeData).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
-                return DeserializeGetTypeData(type, serializedValue);
+            if (typeof(IXunitSerializable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+                return DeserializeSerializable(type, serializedValue);
 
             if (type == typeof(string))
                 return FromBase64(serializedValue);
@@ -102,16 +84,28 @@ namespace Xunit.Serialization
             if (type == typeof(int?) || type == typeof(int))
                 return Int32.Parse(serializedValue, CultureInfo.InvariantCulture);
 
+            if (type == typeof(long?) || type == typeof(long))
+                return Int64.Parse(serializedValue, CultureInfo.InvariantCulture);
+
+            if (type == typeof(float?) || type == typeof(float))
+                return Single.Parse(serializedValue, CultureInfo.InvariantCulture);
+
+            if (type == typeof(double?) || type == typeof(double))
+                return Double.Parse(serializedValue, CultureInfo.InvariantCulture);
+
+            if (type == typeof(decimal?) || type == typeof(decimal))
+                return Decimal.Parse(serializedValue, CultureInfo.InvariantCulture);
+
             if (type.IsArray)
             {
-                var arrSer = (ArraySerializer)DeserializeGetTypeData(typeof(ArraySerializer), serializedValue);
+                var arrSer = (ArraySerializer)DeserializeSerializable(typeof(ArraySerializer), serializedValue);
                 return arrSer.ArrayData;
             }
 
             throw new ArgumentException("We don't know how to de-serialize type " + type.FullName, "serializedValue");
         }
 
-        static IGetTypeData DeserializeGetTypeData(Type type, string serializedValue)
+        static IXunitSerializable DeserializeSerializable(Type type, string serializedValue)
         {
             var serializationInfo = new XunitSerializationInfo();
             var elements = FromBase64(serializedValue).Split('\n');
@@ -123,11 +117,11 @@ namespace Xunit.Serialization
                     throw new ArgumentException("Could not split element into 3 pieces: " + element);
 
                 var pieceType = Type.GetType(pieces[1]);
-                serializationInfo.data[pieces[0]] = Tuple.Create(Deserialize(pieceType, pieces[2]), pieceType);
+                serializationInfo.data[pieces[0]] = new Tuple<object, Type>(Deserialize(pieceType, pieces[2]), pieceType);
             }
 
-            var value = (IGetTypeData)Activator.CreateInstance(type);
-            value.SetData(serializationInfo);
+            var value = (IXunitSerializable)Activator.CreateInstance(type);
+            value.Deserialize(serializationInfo);
             return value;
         }
 
@@ -141,11 +135,11 @@ namespace Xunit.Serialization
             if (value == null)
                 return "";
 
-            var getTypeData = value as IGetTypeData;
-            if (getTypeData != null)
+            var serializable = value as IXunitSerializable;
+            if (serializable != null)
             {
                 var info = new XunitSerializationInfo();
-                getTypeData.GetData(info);
+                serializable.Serialize(info);
                 return info.ToSerializedString();
             }
 
@@ -153,42 +147,65 @@ namespace Xunit.Serialization
             if (stringData != null)
                 return ToBase64(stringData);
 
-            var nullableIntData = value as int?;
-            if (nullableIntData != null)
-                return nullableIntData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            var intData = value as int?;
+            if (intData != null)
+                return intData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var longData = value as long?;
+            if (longData != null)
+                return longData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var floatData = value as float?;
+            if (floatData != null)
+                return floatData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var doubleData = value as double?;
+            if (doubleData != null)
+                return doubleData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var decimalData = value as decimal?;
+            if (decimalData != null)
+                return decimalData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
             var array = value as object[];
             if (array != null)
             {
                 var info = new XunitSerializationInfo();
                 var arraySer = new ArraySerializer(array);
-                arraySer.GetData(info);
+                arraySer.Serialize(info);
                 return info.ToSerializedString();
             }
 
             throw new ArgumentException("We don't know how to serialize type " + value.GetType().FullName, "value");
         }
 
+        static readonly Type[] supportedSerializationTypes = new[] {
+            typeof(IXunitSerializable),
+            typeof(string),
+            typeof(int),     typeof(int?),
+            typeof(long),    typeof(long?),
+            typeof(float),   typeof(float?),
+            typeof(double),  typeof(double?),
+            typeof(decimal), typeof(decimal?),
+        };
+
         private static bool CanSerializeObject(object value)
         {
             if (value == null)
                 return true;
 
-            var getTypeData = value as IGetTypeData;
-            if (getTypeData != null)
-                return true;
+            var valueType = value.GetType();
+            if (valueType.IsArray)
+                return ((object[])value).All(CanSerializeObject);
 
-            var stringData = value as string;
-            if (stringData != null)
+#if NEW_REFLECTION
+            var typeInfo = valueType.GetTypeInfo();
+            if (supportedSerializationTypes.Any(supportedType => supportedType.GetTypeInfo().IsAssignableFrom(typeInfo)))
                 return true;
-
-            var nullableIntData = value as int?;
-            if (nullableIntData != null)
+#else
+            if (supportedSerializationTypes.Any(supportedType => supportedType.IsAssignableFrom(valueType)))
                 return true;
-
-            var array = value as object[];
-            if (array != null)
-                return true;
+#endif
 
             return false;
         }
@@ -205,40 +222,42 @@ namespace Xunit.Serialization
             return Convert.ToBase64String(bytes);
         }
 
-        internal class ArraySerializer : IGetTypeData
+        internal class ArraySerializer : IXunitSerializable
         {
-            private object[] array;
+            object[] array;
+            readonly Type elementType;
+
             public object[] ArrayData { get { return array; } }
+
+            public ArraySerializer() { }
 
             public ArraySerializer(object[] array)
             {
                 if (array == null)
                     throw new ArgumentNullException("array");
 
-                // If not empty, verify we can serialize it
-                if (array.Length > 0 && !array.All(CanSerializeObject))
-                    throw new ArgumentException("We don't know how to serialize type " + array[0].GetType().FullName, "array");
+                if (!CanSerializeObject(array))
+                    throw new ArgumentException("There is at least one object in this array that cannot be serialized", "array");
 
                 this.array = array;
+                this.elementType = array.GetType().GetElementType();
             }
 
-            public void GetData(XunitSerializationInfo info)
+            public void Serialize(IXunitSerializationInfo info)
             {
                 info.AddValue("Length", array.Length);
-                if (array.Length > 0)
-                    info.AddValue("ElementType", array[0].GetType().AssemblyQualifiedName);
+                info.AddValue("ElementType", elementType.FullName);
 
                 for (var i = 0; i < array.Length; i++)
                     info.AddValue("Item" + i, array[i]);
             }
 
-            public void SetData(XunitSerializationInfo info)
+            public void Deserialize(IXunitSerializationInfo info)
             {
                 var len = info.GetValue<int>("Length");
-                var arrTypeStr = info.GetString("ElementType");
-                var arrType = arrTypeStr != null ? Type.GetType(arrTypeStr) : typeof(object);
+                var arrType = Type.GetType(info.GetValue<string>("ElementType"));
 
-                array = (object[])Array.CreateInstance(arrType, len);
+                array = Array.CreateInstance(arrType, len) as object[];
 
                 for (var i = 0; i < array.Length; i++)
                     array[i] = info.GetValue("Item" + i, arrType);

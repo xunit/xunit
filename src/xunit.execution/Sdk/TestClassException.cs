@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-#if !ASPNETCORE50
-using System.Runtime.Serialization;
-#endif
 
 namespace Xunit.Sdk
 {
@@ -12,7 +9,9 @@ namespace Xunit.Sdk
     /// creating the fixture data for the test class.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-    [Serializable]
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
+    [System.Serializable]
+#endif
     public class TestClassException : Exception
     {
         /// <summary>
@@ -24,7 +23,7 @@ namespace Xunit.Sdk
 
 #if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
         /// <inheritdoc/>
-        protected TestClassException(SerializationInfo info, StreamingContext context)
+        protected TestClassException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
             : base(info, context) { }
 #endif
     }

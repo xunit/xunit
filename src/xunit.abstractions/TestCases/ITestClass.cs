@@ -3,7 +3,7 @@ namespace Xunit.Abstractions
     /// <summary>
     /// Represents a test class.
     /// </summary>
-    public interface ITestClass
+    public interface ITestClass : IXunitSerializable
     {
         /// <summary>
         /// Gets the class that this test case is attached to.

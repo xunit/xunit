@@ -64,11 +64,8 @@
     <Compile Include="..\common\LongLivedMarshalByRefObject_Execution.cs">
       <Link>Common\LongLivedMarshalByRefObject_Execution.cs</Link>
     </Compile>
-    <Compile Include="..\common\SerializationHelper_BinarySerializer.cs">
-      <Link>Common\SerializationHelper_BinarySerializer.cs</Link>
-    </Compile>
-    <Compile Include="..\common\SerializationInfoExtensions.cs">
-      <Link>Common\SerializationInfoExtensions.cs</Link>
+    <Compile Include="..\common\SerializationHelper.cs">
+      <Link>Common\SerializationHelper.cs</Link>
     </Compile>
     <Compile Include="..\common\SourceInformation.cs">
       <Link>Common\SourceInformation.cs</Link>

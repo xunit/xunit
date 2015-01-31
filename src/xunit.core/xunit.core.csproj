@@ -104,7 +104,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build\xunit.core.win8.targets" />
-    <None Include="build\xunit.core.WithDesktopNoSerialization.props" />
     <None Include="build\xunit.core.WithDesktop.props" />
     <None Include="build\xunit.core.props" />
     <None Include="build\xunit.core.universal.targets" />

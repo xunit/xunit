@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents source information about a test case.
     /// </summary>
-    public interface ISourceInformation
+    public interface ISourceInformation : IXunitSerializable
     {
         /// <summary>
         /// Gets or sets the source file name. A <c>null</c> value indicates that the

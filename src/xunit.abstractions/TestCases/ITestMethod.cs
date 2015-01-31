@@ -3,7 +3,7 @@ namespace Xunit.Abstractions
     /// <summary>
     /// Represents a test method.
     /// </summary>
-    public interface ITestMethod
+    public interface ITestMethod : IXunitSerializable
     {
         /// <summary>
         /// Gets the method associated with this test method.

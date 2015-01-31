@@ -7,7 +7,7 @@ namespace Xunit.Abstractions
     /// xUnit.net. Test cases which are in the same test collection will not be run in parallel
     /// against sibling tests, but will run in parallel against tests in other collections.
     /// </summary>
-    public interface ITestCollection
+    public interface ITestCollection : IXunitSerializable
     {
         /// <summary>
         /// Gets the type that the test collection was defined with, if available; may be <c>null</c>

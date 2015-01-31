@@ -1,7 +1,7 @@
-﻿#if !ASPNET50
-
-using System;
+﻿using System;
+using System.Linq;
 using System.Reflection;
+using Xunit.Abstractions;
 using Xunit.Serialization;
 
 namespace Xunit.Sdk
@@ -26,9 +26,18 @@ namespace Xunit.Sdk
             if (pieces.Length != 2)
                 throw new ArgumentException("De-serialized string is in the incorrect format.");
 
+            var typeName = pieces[0];
+
+#if NO_APPDOMAIN
             var deserializedType = Type.GetType(pieces[0]);
-            if (!typeof(IGetTypeData).GetTypeInfo().IsAssignableFrom(deserializedType.GetTypeInfo()))
-                throw new ArgumentException("Cannot de-serialize an object that does not implement IGetTypeData", "T");
+#else
+            var deserializedType = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType(typeName)).FirstOrDefault(t => t != null);
+#endif
+            if (deserializedType == null)
+                throw new ArgumentException("Could not load type " + pieces[0], "serializedValue");
+
+            if (!typeof(IXunitSerializable).GetTypeInfo().IsAssignableFrom(deserializedType.GetTypeInfo()))
+                throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "T");
 
             var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
             if (obj is XunitSerializationInfo.ArraySerializer)
@@ -51,14 +60,12 @@ namespace Xunit.Sdk
             if (array != null)
                 value = new XunitSerializationInfo.ArraySerializer(array);
 
-            var getData = value as IGetTypeData;
-            if (getData == null)
-                throw new ArgumentException("Cannot serialize an object that does not implement IGetTypeData", "value");
+            var serializable = value as IXunitSerializable;
+            if (serializable == null)
+                throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "value");
 
-            var serializationInfo = new XunitSerializationInfo(getData);
-            return String.Format("{0}:{1}", value.GetType().AssemblyQualifiedName, serializationInfo.ToSerializedString());
+            var serializationInfo = new XunitSerializationInfo(serializable);
+            return String.Format("{0}:{1}", value.GetType().FullName, serializationInfo.ToSerializedString());
         }
     }
 }
-
-#endif
