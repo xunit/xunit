@@ -31,6 +31,11 @@ namespace TestUtility
             DisplayName += String.Format(" [{0}]", culture);
         }
 
+        protected override string GetUniqueID()
+        {
+            return String.Format("{0} [{1}]", base.GetUniqueID(), culture);
+        }
+
         public override void Deserialize(IXunitSerializationInfo data)
         {
             base.Deserialize(data);
