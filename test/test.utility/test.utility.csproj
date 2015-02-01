@@ -130,7 +130,6 @@
     <Compile Include="Abstractions\AttributeWrapper.cs" />
     <Compile Include="Abstractions\MethodWrapper.cs" />
     <Compile Include="Abstractions\TypeWrapper.cs" />
-    <Compile Include="SerializationUtility.cs" />
     <Compile Include="SpyBeforeAfterTest.cs" />
     <Compile Include="SpyMessageBus.cs" />
     <Compile Include="AcceptanceTest.cs" />

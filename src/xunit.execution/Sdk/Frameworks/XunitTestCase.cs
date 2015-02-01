@@ -43,11 +43,15 @@ namespace Xunit.Sdk
             foreach (var traitAttribute in TestMethod.Method.GetCustomAttributes(typeof(ITraitAttribute))
                                                             .Concat(TestMethod.TestClass.Class.GetCustomAttributes(typeof(ITraitAttribute))))
             {
-                var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).First();
-                var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(discovererAttribute);
-                if (discoverer != null)
-                    foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
-                        Traits.Add(keyValuePair.Key, keyValuePair.Value);
+                var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
+                if (discovererAttribute != null)
+                {
+                    var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(discovererAttribute);
+                    if (discoverer != null)
+                        foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
+                            Traits.Add(keyValuePair.Key, keyValuePair.Value);
+                }
+                // TODO: Log an environmental warning about the missing discoverer attribute
             }
         }
 

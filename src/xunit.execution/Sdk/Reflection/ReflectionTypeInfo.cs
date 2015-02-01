@@ -95,7 +95,7 @@ namespace Xunit.Sdk
         public IMethodInfo GetMethod(string methodName, bool includePrivateMethod)
         {
             var method = Type.GetRuntimeMethods()
-                             .SingleOrDefault(m => (includePrivateMethod || m.IsPublic && m.DeclaringType != typeof(object)) && m.Name == methodName);
+                             .FirstOrDefault(m => (includePrivateMethod || m.IsPublic && m.DeclaringType != typeof(object)) && m.Name == methodName);
             if (method == null)
                 return null;
 

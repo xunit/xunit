@@ -43,6 +43,7 @@
         "../common/TestDiscoveryVisitor.cs",
         "../common/TestMessageVisitor.cs",
         "../common/TestOptionsNames.cs",
+        "../common/XunitSerializationInfo.cs",
         "../common/XunitWorkerThread_Thread.cs",
         "../xunit.assert/asserts/sdk/ArgumentFormatter.cs",
         "../xunit.assert/asserts/sdk/AssertEqualityComparer.cs",

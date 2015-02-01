@@ -55,11 +55,17 @@
     <Compile Include="..\..\src\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\SerializationHelper.cs">
+      <Link>Common\SerializationHelper.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
     <Compile Include="..\..\src\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
+    </Compile>
+    <Compile Include="..\..\src\common\XunitSerializationInfo.cs">
+      <Link>Common\XunitSerializationInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\src\xunit.runner.utility.desktop\Frameworks\v1\Xunit1ExceptionUtility.cs">
       <Link>Frameworks\v1\Xunit1ExceptionUtility.cs</Link>

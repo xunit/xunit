@@ -11,9 +11,9 @@ namespace Xunit.Serialization
     /// <summary>
     /// A mirror class of the CLR's <see cref="T:System.Runtime.Serialization.SerializationInfo"/> class.
     /// </summary>
-    public class XunitSerializationInfo : IXunitSerializationInfo
+    internal class XunitSerializationInfo : IXunitSerializationInfo
     {
-        private readonly IDictionary<string, Tuple<object, Type>> data = new Dictionary<string, Tuple<object, Type>>();
+        private readonly IDictionary<string, SerializationData> data = new Dictionary<string, SerializationData>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitSerializationInfo"/> class.
@@ -31,7 +31,7 @@ namespace Xunit.Serialization
             if (type == null)
                 type = value == null ? typeof(object) : value.GetType();
 
-            data[key] = Tuple.Create(value, type);
+            data[key] = new SerializationData(value, type);
         }
 
         /// <inheritdoc/>
@@ -43,13 +43,18 @@ namespace Xunit.Serialization
         /// <inheritdoc/>
         public object GetValue(string key, Type type)
         {
-            Tuple<object, Type> val;
+            SerializationData val;
 
             if (data.TryGetValue(key, out val))
-                return val.Item1;
+                return val.Value;
 
+#if NEW_REFLECTION
             if (type.GetTypeInfo().IsValueType)
                 return Activator.CreateInstance(type);
+#else
+            if (type.IsValueType)
+                return Activator.CreateInstance(type);
+#endif
 
             return null;
         }
@@ -60,7 +65,7 @@ namespace Xunit.Serialization
         /// <returns></returns>
         public string ToSerializedString()
         {
-            var valueTree = String.Join("\n", data.Select(kvp => String.Format("{0}:{1}:{2}", kvp.Key, kvp.Value.Item2.FullName, Serialize(kvp.Value.Item1))));
+            var valueTree = String.Join("\n", data.Select(kvp => String.Format("{0}:{1}:{2}", kvp.Key, kvp.Value.Type.AssemblyQualifiedName, Serialize(kvp.Value.Value))).ToArray());
             return ToBase64(valueTree);
         }
 
@@ -75,8 +80,13 @@ namespace Xunit.Serialization
             if (serializedValue == "")
                 return null;
 
+#if NEW_REFLECTION
             if (typeof(IXunitSerializable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
                 return DeserializeSerializable(type, serializedValue);
+#else
+            if (typeof(IXunitSerializable).IsAssignableFrom(type))
+                return DeserializeSerializable(type, serializedValue);
+#endif
 
             if (type == typeof(string))
                 return FromBase64(serializedValue);
@@ -117,7 +127,7 @@ namespace Xunit.Serialization
                     throw new ArgumentException("Could not split element into 3 pieces: " + element);
 
                 var pieceType = Type.GetType(pieces[1]);
-                serializationInfo.data[pieces[0]] = new Tuple<object, Type>(Deserialize(pieceType, pieces[2]), pieceType);
+                serializationInfo.data[pieces[0]] = new SerializationData(Deserialize(pieceType, pieces[2]), pieceType);
             }
 
             var value = (IXunitSerializable)Activator.CreateInstance(type);
@@ -240,7 +250,7 @@ namespace Xunit.Serialization
                     throw new ArgumentException("There is at least one object in this array that cannot be serialized", "array");
 
                 this.array = array;
-                this.elementType = array.GetType().GetElementType();
+                elementType = array.GetType().GetElementType();
             }
 
             public void Serialize(IXunitSerializationInfo info)
@@ -261,6 +271,18 @@ namespace Xunit.Serialization
 
                 for (var i = 0; i < array.Length; i++)
                     array[i] = info.GetValue("Item" + i, arrType);
+            }
+        }
+
+        class SerializationData
+        {
+            public object Value;
+            public Type Type;
+
+            public SerializationData(object value, Type type)
+            {
+                Value = value;
+                Type = type;
             }
         }
     }

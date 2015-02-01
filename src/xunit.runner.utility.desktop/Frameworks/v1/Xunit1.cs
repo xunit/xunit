@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Xunit
 {
@@ -16,8 +15,6 @@ namespace Xunit
     /// </summary>
     public class Xunit1 : IFrontController
     {
-        static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
-
         readonly string assemblyFileName;
         readonly string configFileName;
         readonly IXunit1Executor executor;
@@ -74,8 +71,7 @@ namespace Xunit
         /// <inheritdoc/>
         public ITestCase Deserialize(string value)
         {
-            using (var stream = new MemoryStream(Convert.FromBase64String(value)))
-                return (Xunit1TestCase)BinaryFormatter.Deserialize(stream);
+            return SerializationHelper.Deserialize<ITestCase>(value);
         }
 
         /// <inheritdoc/>
@@ -178,24 +174,28 @@ namespace Xunit
         {
             var results = new Xunit1RunSummary();
             var environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
-            var testCollection = testCases.First().TestMethod.TestClass.TestCollection;
+            var firstTestCase = testCases.FirstOrDefault();
+            var testCollection = firstTestCase == null ? null : firstTestCase.TestMethod.TestClass.TestCollection;
 
-            try
+            if (testCollection != null)
             {
-                if (messageSink.OnMessage(new TestAssemblyStarting(testCases, testCollection.TestAssembly, DateTime.Now, environment, TestFrameworkDisplayName)))
-                    results = RunTestCollection(testCollection, testCases, messageSink);
-            }
-            catch (Exception ex)
-            {
-                var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(ex);
+                try
+                {
+                    if (messageSink.OnMessage(new TestAssemblyStarting(testCases, testCollection.TestAssembly, DateTime.Now, environment, TestFrameworkDisplayName)))
+                        results = RunTestCollection(testCollection, testCases, messageSink);
+                }
+                catch (Exception ex)
+                {
+                    var failureInformation = Xunit1ExceptionUtility.ConvertToFailureInformation(ex);
 
-                messageSink.OnMessage(new ErrorMessage(testCases, failureInformation.ExceptionTypes,
-                    failureInformation.Messages, failureInformation.StackTraces,
-                    failureInformation.ExceptionParentIndices));
-            }
-            finally
-            {
-                messageSink.OnMessage(new TestAssemblyFinished(testCases, testCollection.TestAssembly, results.Time, results.Total, results.Failed, results.Skipped));
+                    messageSink.OnMessage(new ErrorMessage(testCases, failureInformation.ExceptionTypes,
+                        failureInformation.Messages, failureInformation.StackTraces,
+                        failureInformation.ExceptionParentIndices));
+                }
+                finally
+                {
+                    messageSink.OnMessage(new TestAssemblyFinished(testCases, testCollection.TestAssembly, results.Time, results.Total, results.Failed, results.Skipped));
+                }
             }
         }
 
@@ -242,11 +242,7 @@ namespace Xunit
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
         {
-            using (var stream = new MemoryStream())
-            {
-                BinaryFormatter.Serialize(stream, testCase);
-                return Convert.ToBase64String(stream.GetBuffer());
-            }
+            return SerializationHelper.Serialize(testCase);
         }
 
         class Comparer : IEqualityComparer<ITestClass>

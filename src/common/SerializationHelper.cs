@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Serializes and de-serializes objects
     /// </summary>
-    public static class SerializationHelper
+    internal static class SerializationHelper
     {
         /// <summary>
         /// De-serializes an object.
@@ -26,18 +26,17 @@ namespace Xunit.Sdk
             if (pieces.Length != 2)
                 throw new ArgumentException("De-serialized string is in the incorrect format.");
 
-            var typeName = pieces[0];
-
-#if NO_APPDOMAIN
             var deserializedType = Type.GetType(pieces[0]);
-#else
-            var deserializedType = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType(typeName)).FirstOrDefault(t => t != null);
-#endif
             if (deserializedType == null)
                 throw new ArgumentException("Could not load type " + pieces[0], "serializedValue");
 
+#if NEW_REFLECTION
             if (!typeof(IXunitSerializable).GetTypeInfo().IsAssignableFrom(deserializedType.GetTypeInfo()))
                 throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "T");
+#else
+            if (!typeof(IXunitSerializable).IsAssignableFrom(deserializedType))
+                throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "T");
+#endif
 
             var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
             if (obj is XunitSerializationInfo.ArraySerializer)
@@ -65,7 +64,7 @@ namespace Xunit.Sdk
                 throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "value");
 
             var serializationInfo = new XunitSerializationInfo(serializable);
-            return String.Format("{0}:{1}", value.GetType().FullName, serializationInfo.ToSerializedString());
+            return String.Format("{0}:{1}", value.GetType().AssemblyQualifiedName, serializationInfo.ToSerializedString());
         }
     }
 }
