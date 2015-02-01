@@ -129,9 +129,9 @@ namespace Xunit.Sdk
             var methodGenericArgCount = method.GetGenericArguments().Length;
 
             return baseType.GetMatchingMethods(method)
-                           .SingleOrDefault(m => m.Name == method.Name
-                                              && m.GetGenericArguments().Length == methodGenericArgCount
-                                              && TypeListComparer.Equals(m.GetParameters().Select(p => p.ParameterType).ToArray(), methodParameters));
+                           .FirstOrDefault(m => m.Name == method.Name
+                                             && m.GetGenericArguments().Length == methodGenericArgCount
+                                             && TypeListComparer.Equals(m.GetParameters().Select(p => p.ParameterType).ToArray(), methodParameters));
         }
 
         /// <inheritdoc/>

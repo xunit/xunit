@@ -85,6 +85,9 @@
     <Compile Include="..\common\RemoteAppDomainManager_NoAppDomain.cs">
       <Link>Common\RemoteAppDomainManager_NoAppDomain.cs</Link>
     </Compile>
+    <Compile Include="..\common\SerializationHelper.cs">
+      <Link>Common\SerializationHelper.cs</Link>
+    </Compile>
     <Compile Include="..\common\SourceInformation.cs">
       <Link>Common\SourceInformation.cs</Link>
     </Compile>
@@ -99,6 +102,9 @@
     </Compile>
     <Compile Include="..\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
+    </Compile>
+    <Compile Include="..\common\XunitSerializationInfo.cs">
+      <Link>Common\XunitSerializationInfo.cs</Link>
     </Compile>
     <Compile Include="..\xunit.runner.utility.desktop\Frameworks\v1\IXunit1Executor.cs">
       <Link>Frameworks\v1\IXunit1Executor.cs</Link>

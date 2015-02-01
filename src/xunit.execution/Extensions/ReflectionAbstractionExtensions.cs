@@ -91,7 +91,7 @@ public static class ReflectionAbstractionExtensions
                             method.Name == methodInfo.Name
                       select method;
 
-        return methods.SingleOrDefault();
+        return methods.FirstOrDefault();
     }
 
     /// <summary>

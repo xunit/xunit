@@ -81,6 +81,9 @@
     <Compile Include="..\common\RemoteAppDomainManager.cs">
       <Link>Common\RemoteAppDomainManager.cs</Link>
     </Compile>
+    <Compile Include="..\common\SerializationHelper.cs">
+      <Link>Common\SerializationHelper.cs</Link>
+    </Compile>
     <Compile Include="..\common\SourceInformation.cs">
       <Link>Common\SourceInformation.cs</Link>
     </Compile>
@@ -98,6 +101,9 @@
     </Compile>
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\common\XunitSerializationInfo.cs">
+      <Link>Common\XunitSerializationInfo.cs</Link>
     </Compile>
     <Compile Include="Frameworks\v1\IXunit1Executor.cs" />
     <Compile Include="Frameworks\v1\TestClassCallbackHandler.cs" />

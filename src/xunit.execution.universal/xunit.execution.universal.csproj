@@ -135,6 +135,9 @@
     <Compile Include="..\common\WinRTFile.cs">
       <Link>Common\WinRTFile.cs</Link>
     </Compile>
+    <Compile Include="..\common\XunitSerializationInfo.cs">
+      <Link>Common\XunitSerializationInfo.cs</Link>
+    </Compile>
     <Compile Include="..\common\XunitWorkerThread_ThreadPool.cs">
       <Link>Common\XunitWorkerThread_ThreadPool.cs</Link>
     </Compile>

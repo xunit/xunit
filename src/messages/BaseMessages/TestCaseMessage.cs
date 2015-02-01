@@ -19,6 +19,6 @@ namespace Xunit
             : base(new[] { testCase }, testCase.TestMethod) { }
 
         /// <inheritdoc/>
-        public ITestCase TestCase { get { return TestCases.First(); } }
+        public ITestCase TestCase { get { return TestCases.FirstOrDefault(); } }
     }
 }
