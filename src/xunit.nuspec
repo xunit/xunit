@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
-  <metadata>
+  <metadata minClientVersion="2.8.3">
     <id>xunit</id>
     <version>99.99.99</version>
     <title>xUnit.net</title>

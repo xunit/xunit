@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
-  <metadata>
+  <metadata minClientVersion="2.8.3">
     <id>xunit.runner.utility.visualstudio.win8</id>
     <version>99.99.99</version>
     <title>xUnit.net [Runner Utility, for Visual Studio Win8]</title>
