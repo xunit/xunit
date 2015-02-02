@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
-  <metadata minClientVersion="2.5">
+  <metadata minClientVersion="2.8.3">
     <id>xunit.core</id>
     <version>99.99.99</version>
     <title>xUnit.net [Core Unit Testing Framework]</title>
@@ -36,7 +36,7 @@
       A no-serialization desktop DLL is also available for Visual Studio to discovery and correctly
       serialize test cases to be run on devices without native serialization.
     -->
-    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll"                 target="build\_Desktop\" />
+    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll" target="build\_Desktop\" />
 
     <file src="xunit.core\build\xunit.core.props"                                       target="build\monoandroid\" />
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.dll" target="build\monoandroid\" />
