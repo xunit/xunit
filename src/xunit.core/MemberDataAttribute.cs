@@ -17,115 +17,27 @@ namespace Xunit
     [CLSCompliant(false)]
     [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    public sealed class MemberDataAttribute : DataAttribute
+    public sealed class MemberDataAttribute : MemberDataAttributeBase
     {
         /// <summary>
-        /// Creates a new instance of <see cref="MemberDataAttribute"/>.
+        /// Initializes a new instance of the <see cref="MemberDataAttribute"/> class.
         /// </summary>
         /// <param name="memberName">The name of the public static member on the test class that will provide the test data</param>
         /// <param name="parameters">The parameters for the member (only supported for methods; ignored for everything else)</param>
         public MemberDataAttribute(string memberName, params object[] parameters)
-        {
-            MemberName = memberName;
-            Parameters = parameters;
-        }
-
-        /// <summary>
-        /// Returns <c>true</c> if the data attribute wants to skip enumerating data during discovery.
-        /// This will cause the theory to yield a single test case for all data, and the data discovery
-        /// will be during during test execution instead of discovery.
-        /// </summary>
-        public bool DisableDiscoveryEnumeration { get; set; }
-
-        /// <summary>
-        /// Gets the member name.
-        /// </summary>
-        public string MemberName { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the type to retrieve the member from. If not set, then the property will be
-        /// retrieved from the unit test class.
-        /// </summary>
-        public Type MemberType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the parameters passed to the member. Only supported for static methods.
-        /// </summary>
-        public object[] Parameters { get; private set; }
+            : base(memberName, parameters) { }
 
         /// <inheritdoc/>
-        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+        protected override object[] ConvertDataItem(MethodInfo testMethod, object item)
         {
-            Guard.ArgumentNotNull("testMethod", testMethod);
-
-            var type = MemberType ?? testMethod.DeclaringType;
-            var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
-            if (accessor == null)
-                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Could not find public static member (property, field, or method) named '{0}' on {1}", MemberName, type.FullName));
-
-            object obj = accessor();
-            if (obj == null)
+            if (item == null)
                 return null;
 
-            var dataItems = obj as IEnumerable<object[]>;
-            if (dataItems == null)
-                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Property {0} on {1} did not return IEnumerable<object[]>", MemberName, type.FullName));
+            var array = item as object[];
+            if (array == null)
+                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Property {0} on {1} yielded an item that is not an object[]", MemberName, MemberType ?? testMethod.DeclaringType));
 
-            return dataItems;
-        }
-
-        private Func<IEnumerable<object[]>> GetFieldAccessor(Type type)
-        {
-            FieldInfo fieldInfo = null;
-            for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
-            {
-                fieldInfo = reflectionType.GetRuntimeField(MemberName);
-                if (fieldInfo != null)
-                    break;
-            }
-
-            if (fieldInfo == null || !fieldInfo.IsStatic)
-                return null;
-
-            return () => (IEnumerable<object[]>)fieldInfo.GetValue(null);
-        }
-
-        private Func<IEnumerable<object[]>> GetMethodAccessor(Type type)
-        {
-            MethodInfo methodInfo = null;
-            var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(ToParameterType).ToArray();
-            for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
-            {
-                methodInfo = reflectionType.GetRuntimeMethod(MemberName, parameterTypes);
-                if (methodInfo != null)
-                    break;
-            }
-
-            if (methodInfo == null || !methodInfo.IsStatic)
-                return null;
-
-            return () => (IEnumerable<object[]>)methodInfo.Invoke(null, Parameters);
-        }
-
-        private Func<IEnumerable<object[]>> GetPropertyAccessor(Type type)
-        {
-            PropertyInfo propInfo = null;
-            for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
-            {
-                propInfo = reflectionType.GetRuntimeProperty(MemberName);
-                if (propInfo != null)
-                    break;
-            }
-
-            if (propInfo == null || propInfo.GetMethod == null || !propInfo.GetMethod.IsStatic)
-                return null;
-
-            return () => (IEnumerable<object[]>)propInfo.GetValue(null, null);
-        }
-
-        private Type ToParameterType(object value)
-        {
-            return value == null ? typeof(object) : value.GetType();
+            return array;
         }
     }
 }
