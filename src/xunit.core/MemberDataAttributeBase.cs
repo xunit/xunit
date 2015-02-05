@@ -12,19 +12,19 @@ namespace Xunit
     /// 1. A static property
     /// 2. A static field
     /// 3. A static method (with parameters)
-    /// The member must return something compatible with IEnumerable&lt;object[]&gt; with the test data.
+    /// The member must return something compatible with IEnumerable&lt;object&gt; with the test data.
     /// </summary>
     [CLSCompliant(false)]
     [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    public sealed class MemberDataAttribute : DataAttribute
+    public abstract class MemberDataAttributeBase : DataAttribute
     {
         /// <summary>
         /// Creates a new instance of <see cref="MemberDataAttribute"/>.
         /// </summary>
         /// <param name="memberName">The name of the public static member on the test class that will provide the test data</param>
         /// <param name="parameters">The parameters for the member (only supported for methods; ignored for everything else)</param>
-        public MemberDataAttribute(string memberName, params object[] parameters)
+        protected MemberDataAttributeBase(string memberName, params object[] parameters)
         {
             MemberName = memberName;
             Parameters = parameters;
@@ -67,14 +67,22 @@ namespace Xunit
             if (obj == null)
                 return null;
 
-            var dataItems = obj as IEnumerable<object[]>;
+            var dataItems = obj as IEnumerable<object>;
             if (dataItems == null)
-                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Property {0} on {1} did not return IEnumerable<object[]>", MemberName, type.FullName));
+                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Property {0} on {1} did not return IEnumerable<object>", MemberName, type.FullName));
 
-            return dataItems;
+            return dataItems.Select(item => ConvertDataItem(testMethod, item));
         }
 
-        private Func<IEnumerable<object[]>> GetFieldAccessor(Type type)
+        /// <summary>
+        /// Converts an item yielded by the data member to an object array, for return from <see cref="GetData"/>.
+        /// </summary>
+        /// <param name="testMethod">The method that is being tested.</param>
+        /// <param name="item">An item yielded from the data member.</param>
+        /// <returns>An <see cref="T:object[]"/> suitable for return from <see cref="GetData"/>.</returns>
+        protected abstract object[] ConvertDataItem(MethodInfo testMethod, object item);
+
+        private Func<object> GetFieldAccessor(Type type)
         {
             FieldInfo fieldInfo = null;
             for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
@@ -87,10 +95,10 @@ namespace Xunit
             if (fieldInfo == null || !fieldInfo.IsStatic)
                 return null;
 
-            return () => (IEnumerable<object[]>)fieldInfo.GetValue(null);
+            return () => fieldInfo.GetValue(null);
         }
 
-        private Func<IEnumerable<object[]>> GetMethodAccessor(Type type)
+        private Func<object> GetMethodAccessor(Type type)
         {
             MethodInfo methodInfo = null;
             var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(ToParameterType).ToArray();
@@ -104,10 +112,10 @@ namespace Xunit
             if (methodInfo == null || !methodInfo.IsStatic)
                 return null;
 
-            return () => (IEnumerable<object[]>)methodInfo.Invoke(null, Parameters);
+            return () => methodInfo.Invoke(null, Parameters);
         }
 
-        private Func<IEnumerable<object[]>> GetPropertyAccessor(Type type)
+        private Func<object> GetPropertyAccessor(Type type)
         {
             PropertyInfo propInfo = null;
             for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
@@ -120,7 +128,7 @@ namespace Xunit
             if (propInfo == null || propInfo.GetMethod == null || !propInfo.GetMethod.IsStatic)
                 return null;
 
-            return () => (IEnumerable<object[]>)propInfo.GetValue(null, null);
+            return () => propInfo.GetValue(null, null);
         }
 
         private Type ToParameterType(object value)
