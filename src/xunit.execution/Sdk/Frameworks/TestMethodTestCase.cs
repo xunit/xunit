@@ -206,9 +206,7 @@ namespace Xunit.Sdk
 #elif ASPNETCORE50
                 byte[] hash;
                 using (var hasher = SHA1.Create())
-                {
                     hash = hasher.ComputeHash(stream);
-                }
 #else
                 var hash = Hasher.ComputeHash(stream);
 #endif

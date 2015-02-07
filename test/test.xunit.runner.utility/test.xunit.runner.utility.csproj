@@ -52,6 +52,9 @@
     <Compile Include="..\..\src\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\ExecutionHelper.cs">
+      <Link>Common\ExecutionHelper.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>

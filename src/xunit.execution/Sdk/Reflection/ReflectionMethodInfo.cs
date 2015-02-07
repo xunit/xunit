@@ -82,7 +82,7 @@ namespace Xunit.Sdk
 
         static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, string assemblyQualifiedAttributeTypeName)
         {
-            var attributeType = Reflector.GetType(assemblyQualifiedAttributeTypeName);
+            var attributeType = SerializationHelper.GetType(assemblyQualifiedAttributeTypeName);
 
             return GetCustomAttributes(method, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
         }

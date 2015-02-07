@@ -65,7 +65,7 @@ namespace Xunit.Sdk
         public static IDataDiscoverer GetDataDiscoverer(IAttributeInfo dataDiscovererAttribute)
         {
             var args = dataDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var discovererType = Reflector.GetType(args[1], args[0]);
+            var discovererType = SerializationHelper.GetType(args[1], args[0]);
             if (discovererType == null)
                 return null;
 
@@ -88,7 +88,7 @@ namespace Xunit.Sdk
         public static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo testCaseOrdererAttribute)
         {
             var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var ordererType = Reflector.GetType(args[1], args[0]);
+            var ordererType = SerializationHelper.GetType(args[1], args[0]);
             if (ordererType == null)
                 return null;
 
@@ -111,7 +111,7 @@ namespace Xunit.Sdk
         public static ITestCollectionOrderer GetTestCollectionOrderer(IAttributeInfo testCollectionOrdererAttribute)
         {
             var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var ordererType = Reflector.GetType(args[1], args[0]);
+            var ordererType = SerializationHelper.GetType(args[1], args[0]);
             if (ordererType == null)
                 return null;
 
@@ -132,7 +132,7 @@ namespace Xunit.Sdk
         public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(IAttributeInfo testFrameworkAttribute)
         {
             var args = testFrameworkAttribute.GetConstructorArguments().Cast<string>().ToArray();
-            var testFrameworkDiscovererType = Reflector.GetType(args[1], args[0]);
+            var testFrameworkDiscovererType = SerializationHelper.GetType(args[1], args[0]);
             if (testFrameworkDiscovererType == null)
                 return null;
 
@@ -155,7 +155,7 @@ namespace Xunit.Sdk
         public static ITraitDiscoverer GetTraitDiscoverer(IAttributeInfo traitDiscovererAttribute)
         {
             var args = traitDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var discovererType = Reflector.GetType(args[1], args[0]);
+            var discovererType = SerializationHelper.GetType(args[1], args[0]);
             if (discovererType == null)
                 return null;
 
@@ -206,7 +206,7 @@ namespace Xunit.Sdk
                 return typeof(CollectionPerClassTestCollectionFactory);
             }
 
-            var result = Reflector.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
+            var result = SerializationHelper.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
             if (result == null || !IsCompatibleTestCollectionFactory(result))
                 return typeof(CollectionPerClassTestCollectionFactory);
 

@@ -52,7 +52,7 @@ namespace Xunit.Sdk
             var assemblyName = info.GetValue<string>("ClassAssemblyName");
             var typeName = info.GetValue<string>("ClassTypeName");
 
-            Class = Reflector.Wrap(Reflector.GetType(assemblyName, typeName));
+            Class = Reflector.Wrap(SerializationHelper.GetType(assemblyName, typeName));
         }
     }
 }

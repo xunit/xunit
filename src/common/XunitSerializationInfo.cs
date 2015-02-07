@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Xunit.Serialization
 {
@@ -126,7 +127,7 @@ namespace Xunit.Serialization
                 if (pieces.Length != 3)
                     throw new ArgumentException("Could not split element into 3 pieces: " + element);
 
-                var pieceType = Type.GetType(pieces[1]);
+                var pieceType = SerializationHelper.GetType(pieces[1]);
                 serializationInfo.data[pieces[0]] = new SerializationData(Deserialize(pieceType, pieces[2]), pieceType);
             }
 
@@ -265,7 +266,7 @@ namespace Xunit.Serialization
             public void Deserialize(IXunitSerializationInfo info)
             {
                 var len = info.GetValue<int>("Length");
-                var arrType = Type.GetType(info.GetValue<string>("ElementType"));
+                var arrType = SerializationHelper.GetType(info.GetValue<string>("ElementType"));
 
                 array = Array.CreateInstance(arrType, len) as object[];
 
