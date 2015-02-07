@@ -87,7 +87,7 @@ namespace Xunit.Sdk
                 return true;
 
             var args = testCaseDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var discovererType = Reflector.GetType(args[1], args[0]);
+            var discovererType = SerializationHelper.GetType(args[1], args[0]);
             if (discovererType == null)
                 return true;
 

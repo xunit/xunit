@@ -14,7 +14,7 @@ namespace Xunit.Sdk
         public Type GetTestFrameworkType(IAttributeInfo attribute)
         {
             var args = attribute.GetConstructorArguments().Cast<string>().ToArray();
-            return Reflector.GetType(args[1], args[0]);
+            return SerializationHelper.GetType(args[1], args[0]);
         }
     }
 }

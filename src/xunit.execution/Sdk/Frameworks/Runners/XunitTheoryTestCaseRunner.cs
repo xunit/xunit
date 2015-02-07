@@ -52,7 +52,7 @@ namespace Xunit.Sdk
                 {
                     var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                     var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    var discovererType = Reflector.GetType(args[1], args[0]);
+                    var discovererType = SerializationHelper.GetType(args[1], args[0]);
                     var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(discovererType);
 
                     foreach (var dataRow in discoverer.GetData(dataAttribute, TestCase.TestMethod.Method))
