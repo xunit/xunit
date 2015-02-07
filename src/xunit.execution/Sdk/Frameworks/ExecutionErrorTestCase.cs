@@ -44,7 +44,7 @@ namespace Xunit.Sdk
                                                   ExceptionAggregator aggregator,
                                                   CancellationTokenSource cancellationTokenSource)
         {
-            return new ErrorMessageTestCaseRunner(this, messageBus, aggregator, cancellationTokenSource).RunAsync();
+            return new ExecutionErrorTestCaseRunner(this, messageBus, aggregator, cancellationTokenSource).RunAsync();
         }
 
         /// <inheritdoc/>
