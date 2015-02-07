@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -13,24 +14,29 @@ namespace Xunit.Sdk
     /// a use of this test case to emit an error message when a theory method is found
     /// that has no test data associated with it.
     /// </summary>
-    public class LambdaTestCase : XunitTestCase
+    public class ExecutionErrorTestCase : XunitTestCase
     {
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Called by the de-serializer", error: true)]
+        public ExecutionErrorTestCase() { }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="LambdaTestCase"/> class.
+        /// Initializes a new instance of the <see cref="ExecutionErrorTestCase"/> class.
         /// </summary>
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="testMethod">The test method.</param>
-        /// <param name="lambda">The code to run for the test.</param>
-        public LambdaTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, Action lambda)
+        /// <param name="errorMessage">The error message to report for the test.</param>
+        public ExecutionErrorTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, string errorMessage)
             : base(defaultMethodDisplay, testMethod)
         {
-            Lambda = lambda;
+            ErrorMessage = errorMessage;
         }
 
         /// <summary>
-        /// Gets the lambda that this test case will run.
+        /// Gets the error message that will be display when the test is run.
         /// </summary>
-        public Action Lambda { get; private set; }
+        public string ErrorMessage { get; private set; }
 
         /// <inheritdoc/>
         public override Task<RunSummary> RunAsync(IMessageBus messageBus,
@@ -38,7 +44,23 @@ namespace Xunit.Sdk
                                                   ExceptionAggregator aggregator,
                                                   CancellationTokenSource cancellationTokenSource)
         {
-            return new LambdaTestCaseRunner(this, messageBus, aggregator, cancellationTokenSource).RunAsync();
+            return new ErrorMessageTestCaseRunner(this, messageBus, aggregator, cancellationTokenSource).RunAsync();
+        }
+
+        /// <inheritdoc/>
+        public override void Serialize(IXunitSerializationInfo data)
+        {
+            base.Serialize(data);
+
+            data.AddValue("ErrorMessage", ErrorMessage);
+        }
+
+        /// <inheritdoc/>
+        public override void Deserialize(IXunitSerializationInfo data)
+        {
+            base.Deserialize(data);
+
+            ErrorMessage = data.GetValue<string>("ErrorMessage");
         }
     }
 }

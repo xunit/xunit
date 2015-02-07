@@ -89,6 +89,12 @@ public static class Mocks
         return result;
     }
 
+    public static ExecutionErrorTestCase ExecutionErrorTestCase(string message)
+    {
+        var testMethod = Mocks.TestMethod();
+        return new ExecutionErrorTestCase(TestMethodDisplay.ClassAndMethod, testMethod, message);
+    }
+
     public static IReflectionAttributeInfo FactAttribute(string displayName = null, string skip = null)
     {
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
@@ -96,13 +102,6 @@ public static class Mocks
         result.GetNamedArgument<string>("DisplayName").Returns(displayName);
         result.GetNamedArgument<string>("Skip").Returns(skip);
         return result;
-    }
-
-    public static LambdaTestCase LambdaTestCase(Action lambda)
-    {
-        var testMethod = Mocks.TestMethod();
-
-        return new LambdaTestCase(TestMethodDisplay.ClassAndMethod, testMethod, lambda);
     }
 
     static IEnumerable<IAttributeInfo> LookupAttribute(string fullyQualifiedTypeName, IReflectionAttributeInfo[] attributes)

@@ -53,8 +53,8 @@ namespace Xunit.Sdk
 
                     // REVIEW: Could we re-write LambdaTestCase to just be for exceptions?
                     if (results.Count == 0)
-                        results.Add(new LambdaTestCase(defaultMethodDisplay, testMethod,
-                                                       () => { throw new InvalidOperationException(String.Format("No data found for {0}.{1}", testMethod.TestClass.Class.Name, testMethod.Method.Name)); }));
+                        results.Add(new ExecutionErrorTestCase(defaultMethodDisplay, testMethod,
+                                                               String.Format("No data found for {0}.{1}", testMethod.TestClass.Class.Name, testMethod.Method.Name)));
 
                     return results;
                 }
