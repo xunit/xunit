@@ -3,6 +3,7 @@
 packages
 help
 AppPackages
+TestResults
 
 *.suo
 *.user
