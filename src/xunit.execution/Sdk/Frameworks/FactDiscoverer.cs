@@ -18,7 +18,7 @@ namespace Xunit.Sdk
 
             IXunitTestCase testCase;
             if (testMethod.Method.GetParameters().Any())
-                testCase = new LambdaTestCase(methodDisplay, testMethod, () => { throw new InvalidOperationException("[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?"); });
+                testCase = new ExecutionErrorTestCase(methodDisplay, testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
             else
                 testCase = new XunitTestCase(methodDisplay, testMethod);
 
