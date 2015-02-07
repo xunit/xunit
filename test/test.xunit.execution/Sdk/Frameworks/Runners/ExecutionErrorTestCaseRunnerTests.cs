@@ -5,7 +5,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-public class ErrorMessageTestCaseRunnerTests : IDisposable
+public class ExecutionErrorTestCaseRunnerTests : IDisposable
 {
     readonly ExceptionAggregator aggregator = new ExceptionAggregator();
     readonly SpyMessageBus messageBus = new SpyMessageBus();
@@ -21,12 +21,12 @@ public class ErrorMessageTestCaseRunnerTests : IDisposable
     public async void Messages()
     {
         var testCase = Mocks.ExecutionErrorTestCase("This is my error message");
-        var runner = new ErrorMessageTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
+        var runner = new ExecutionErrorTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
 
         var result = await runner.RunAsync();
 
         Assert.Equal(1, result.Total);
-        Assert.NotEqual(0m, result.Time);
+        Assert.Equal(0m, result.Time);
         Assert.Collection(messageBus.Messages,
             msg =>
             {
@@ -46,7 +46,7 @@ public class ErrorMessageTestCaseRunnerTests : IDisposable
                 var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
                 Assert.Same(testCase.TestMethod.TestClass.TestCollection, failed.TestCollection);
                 Assert.Same(testCase, failed.TestCase);
-                Assert.NotEqual(0m, failed.ExecutionTime);
+                Assert.Equal(0m, failed.ExecutionTime);
                 Assert.Empty(failed.Output);
                 Assert.Collection(failed.ExceptionTypes, type => Assert.Equal("System.InvalidOperationException", type));
                 Assert.Collection(failed.Messages, type => Assert.Equal("This is my error message", type));
@@ -57,7 +57,7 @@ public class ErrorMessageTestCaseRunnerTests : IDisposable
                 Assert.Same(testCase.TestMethod.TestClass.TestCollection, testFinished.TestCollection);
                 Assert.Same(testCase, testFinished.TestCase);
                 Assert.Equal("MockType.MockMethod", testFinished.Test.DisplayName);
-                Assert.NotEqual(0m, testFinished.ExecutionTime);
+                Assert.Equal(0m, testFinished.ExecutionTime);
                 Assert.Empty(testFinished.Output);
             },
             msg =>
@@ -65,7 +65,7 @@ public class ErrorMessageTestCaseRunnerTests : IDisposable
                 var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
                 Assert.Same(testCase.TestMethod.TestClass.TestCollection, testCaseFinished.TestCollection);
                 Assert.Same(testCase, testCaseFinished.TestCase);
-                Assert.NotEqual(0m, testCaseFinished.ExecutionTime);
+                Assert.Equal(0m, testCaseFinished.ExecutionTime);
                 Assert.Equal(1, testCaseFinished.TestsRun);
                 Assert.Equal(1, testCaseFinished.TestsFailed);
                 Assert.Equal(0, testCaseFinished.TestsSkipped);
@@ -81,7 +81,7 @@ public class ErrorMessageTestCaseRunnerTests : IDisposable
     {
         var testCase = Mocks.ExecutionErrorTestCase("This is my error message");
         var messageBus = new SpyMessageBus(msg => !(messageTypeToCancelOn.IsAssignableFrom(msg.GetType())));
-        var runner = new ErrorMessageTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
+        var runner = new ExecutionErrorTestCaseRunner(testCase, messageBus, aggregator, tokenSource);
 
         await runner.RunAsync();
 
