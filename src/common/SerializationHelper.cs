@@ -64,7 +64,7 @@ namespace Xunit.Sdk
                 throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "value");
 
             var serializationInfo = new XunitSerializationInfo(serializable);
-            return String.Format("{0}:{1}", value.GetType().AssemblyQualifiedName, serializationInfo.ToSerializedString());
+            return String.Format("{0}:{1}", GetTypeNameForSerialization(value.GetType()), serializationInfo.ToSerializedString());
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyQualifiedTypeName)
         {
-            var parts = assemblyQualifiedTypeName.Split(new[] { ',' }, 2).Select(x => x.Trim()).ToList();
+            var parts = assemblyQualifiedTypeName.Split(new[] { ',' }).Select(x => x.Trim()).ToList();
             if (parts.Count == 0)
                 return null;
 
@@ -92,12 +92,9 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
-            // Take a generic reference to xunit.execution.dll and swap it out for the currently execution execution library
-            if (String.Equals(assemblyName, "xunit.execution", StringComparison.OrdinalIgnoreCase) ||
-                assemblyName.StartsWith("xunit.execution.", StringComparison.OrdinalIgnoreCase))
-            {
-                assemblyName = ExecutionHelper.AssemblyName.Replace(".dll", "");
-            }
+            // Take a generic reference to xunit.execution.dll and swap it out for the current execution library
+            if (String.Equals(assemblyName, "xunit.execution", StringComparison.OrdinalIgnoreCase))
+                assemblyName = ExecutionHelper.AssemblyName;
 
 #if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
             Assembly assembly = null;
@@ -126,6 +123,19 @@ namespace Xunit.Sdk
                 return null;
 
             return assembly.GetType(typeName);
+        }
+
+        /// <summary>
+        /// Gets an assembly qualified type name for serialization, with special dispensation for types which
+        /// originate in the execution assembly.
+        /// </summary>
+        public static string GetTypeNameForSerialization(Type type)
+        {
+            var pieces = type.AssemblyQualifiedName.Split(',').Select(p => p.Trim()).ToArray();
+            if (pieces.Length > 1 && String.Equals(pieces[1], ExecutionHelper.AssemblyName, StringComparison.OrdinalIgnoreCase))
+                pieces[1] = "xunit.execution";
+
+            return String.Join(", ", pieces);
         }
     }
 }

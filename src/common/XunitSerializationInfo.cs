@@ -66,7 +66,7 @@ namespace Xunit.Serialization
         /// <returns></returns>
         public string ToSerializedString()
         {
-            var valueTree = String.Join("\n", data.Select(kvp => String.Format("{0}:{1}:{2}", kvp.Key, kvp.Value.Type.AssemblyQualifiedName, Serialize(kvp.Value.Value))).ToArray());
+            var valueTree = String.Join("\n", data.Select(kvp => String.Format("{0}:{1}:{2}", kvp.Key, SerializationHelper.GetTypeNameForSerialization(kvp.Value.Type), Serialize(kvp.Value.Value))).ToArray());
             return ToBase64(valueTree);
         }
 

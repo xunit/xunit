@@ -46,7 +46,7 @@ public class AcceptanceTestAssembly : IDisposable
 
     public string XunitExecutionDllFilename
     {
-        get { return Path.Combine(BasePath, ExecutionHelper.AssemblyName); }
+        get { return Path.Combine(BasePath, ExecutionHelper.AssemblyFileName); }
     }
 
     void Compile(string code, string[] references)

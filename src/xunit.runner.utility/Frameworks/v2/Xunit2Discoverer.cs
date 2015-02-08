@@ -126,7 +126,7 @@ namespace Xunit
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
             Guard.FileExists("assemblyFileName", assemblyFileName);
 
-            return Path.Combine(Path.GetDirectoryName(assemblyFileName), ExecutionHelper.AssemblyName);
+            return Path.Combine(Path.GetDirectoryName(assemblyFileName), ExecutionHelper.AssemblyFileName);
         }
 
         static string GetXunitExecutionAssemblyPath(IAssemblyInfo assemblyInfo)
@@ -134,7 +134,7 @@ namespace Xunit
             Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
             Guard.ArgumentNotNullOrEmpty("assemblyInfo.AssemblyPath", assemblyInfo.AssemblyPath);
 
-            return Path.Combine(Path.GetDirectoryName(assemblyInfo.AssemblyPath), ExecutionHelper.AssemblyName);
+            return Path.Combine(Path.GetDirectoryName(assemblyInfo.AssemblyPath), ExecutionHelper.AssemblyFileName);
         }
 
         /// <inheritdoc/>
