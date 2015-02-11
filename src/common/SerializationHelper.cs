@@ -132,10 +132,13 @@ namespace Xunit.Sdk
         public static string GetTypeNameForSerialization(Type type)
         {
             var pieces = type.AssemblyQualifiedName.Split(',').Select(p => p.Trim()).ToArray();
-            if (pieces.Length > 1 && String.Equals(pieces[1], ExecutionHelper.AssemblyName, StringComparison.OrdinalIgnoreCase))
+            if (pieces.Length < 2 || String.Equals(pieces[1], "mscorlib", StringComparison.OrdinalIgnoreCase))
+                return pieces[0];
+
+            if (String.Equals(pieces[1], ExecutionHelper.AssemblyName, StringComparison.OrdinalIgnoreCase))
                 pieces[1] = "xunit.execution";
 
-            return String.Join(", ", pieces);
+            return String.Format("{0}, {1}", pieces[0], pieces[1]);
         }
     }
 }
