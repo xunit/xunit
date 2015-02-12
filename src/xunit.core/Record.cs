@@ -5,7 +5,11 @@ using System.Threading.Tasks;
 
 namespace Xunit
 {
-    public partial class Assert
+    /// <summary>
+    /// Allows the user to record actions for a test.
+    /// </summary>
+    [SuppressMessage("Microsoft.Design", "CA1053:StaticHolderTypesShouldNotHaveConstructors", Justification = "This is not marked as static because we want people to be able to derive from it")]
+    public partial class Record
     {
         /// <summary>
         /// Records any exception which is thrown by the given code.
@@ -13,9 +17,9 @@ namespace Xunit
         /// <param name="testCode">The code which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
-        protected static Exception RecordException(Action testCode)
+        public static Exception Exception(Action testCode)
         {
-            Assert.GuardArgumentNotNull("testCode", testCode);
+            GuardArgumentNotNull("testCode", testCode);
 
             try
             {
@@ -35,9 +39,9 @@ namespace Xunit
         /// <param name="testCode">The code which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
-        protected static Exception RecordException(Func<object> testCode)
+        public static Exception Exception(Func<object> testCode)
         {
-            Assert.GuardArgumentNotNull("testCode", testCode);
+            GuardArgumentNotNull("testCode", testCode);
             Task task;
 
             try
@@ -58,7 +62,7 @@ namespace Xunit
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
-        protected static Exception RecordException(Func<Task> testCode) { throw new NotImplementedException(); }
+        public static Exception Exception(Func<Task> testCode) { throw new NotImplementedException(); }
 
         /// <summary>
         /// Records any exception which is thrown by the given task.
@@ -66,9 +70,9 @@ namespace Xunit
         /// <param name="testCode">The task which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
-        protected static async Task<Exception> RecordExceptionAsync(Func<Task> testCode)
+        public static async Task<Exception> ExceptionAsync(Func<Task> testCode)
         {
-            Assert.GuardArgumentNotNull("testCode", testCode);
+            GuardArgumentNotNull("testCode", testCode);
 
             try
             {
@@ -79,6 +83,13 @@ namespace Xunit
             {
                 return ex;
             }
+        }
+
+        /// <summary/>
+        internal static void GuardArgumentNotNull(string argName, object argValue)
+        {
+            if (argValue == null)
+                throw new ArgumentNullException(argName);
         }
     }
 }

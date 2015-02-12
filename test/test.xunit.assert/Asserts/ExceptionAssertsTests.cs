@@ -9,7 +9,7 @@ public class ExceptionAssertsTests
     public class Throws_Generic_Action
     {
         [Fact]
-        public void ExpectExceptionButCodeDoesNotThrow()
+        public static void ExpectExceptionButCodeDoesNotThrow()
         {
             try
             {
@@ -22,7 +22,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void ExpectExceptionButCodeThrowsDerivedException()
+        public static void ExpectExceptionButCodeThrowsDerivedException()
         {
             try
             {
@@ -37,7 +37,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        public static void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             try
             {
@@ -46,7 +46,7 @@ public class ExceptionAssertsTests
             catch (AssertActualExpectedException exception)
             {
                 Assert.Contains("Throws_Generic_Action.ThrowingMethod", exception.StackTrace);
-                Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
+                Assert.DoesNotContain("Xunit.Assert.Throws", exception.StackTrace);
             }
         }
 
@@ -57,7 +57,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void GotExpectedException()
+        public static void GotExpectedException()
         {
             Action testCode = () => { throw new ArgumentException(); };
 
@@ -70,7 +70,7 @@ public class ExceptionAssertsTests
     public class Throws_Generic_Func
     {
         [Fact]
-        public void GuardClause()
+        public static void GuardClause()
         {
             Func<object> testCode = () => Task.Run(() => 0);
 
@@ -81,7 +81,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void ExpectExceptionButCodeDoesNotThrow()
+        public static void ExpectExceptionButCodeDoesNotThrow()
         {
             var accessor = new StubAccessor();
 
@@ -96,7 +96,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void ExpectExceptionButCodeThrowsDerivedException()
+        public static void ExpectExceptionButCodeThrowsDerivedException()
         {
             var accessor = new StubAccessor();
 
@@ -111,7 +111,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        public static void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             var accessor = new StubAccessor();
 
@@ -122,12 +122,12 @@ public class ExceptionAssertsTests
             catch (AssertActualExpectedException exception)
             {
                 Assert.Contains("StubAccessor.get_FailingProperty", exception.StackTrace);
-                Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
+                Assert.DoesNotContain("Xunit.Assert.Throws", exception.StackTrace);
             }
         }
 
         [Fact]
-        public void GotExpectedException()
+        public static void GotExpectedException()
         {
             var accessor = new StubAccessor();
 
@@ -140,7 +140,7 @@ public class ExceptionAssertsTests
     public class ThrowsAsync_Generic
     {
         [Fact]
-        public async void ExpectExceptionButCodeDoesNotThrow()
+        public static async void ExpectExceptionButCodeDoesNotThrow()
         {
             try
             {
@@ -153,7 +153,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void ExpectExceptionButCodeThrowsDerivedException()
+        public static async void ExpectExceptionButCodeThrowsDerivedException()
         {
             try
             {
@@ -168,7 +168,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void GotExpectedException()
+        public static async void GotExpectedException()
         {
             Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException(); });
 
@@ -181,7 +181,7 @@ public class ExceptionAssertsTests
     public class ThrowsAny_Generic_Action
     {
         [Fact]
-        public void ExpectExceptionButCodeDoesNotThrow()
+        public static void ExpectExceptionButCodeDoesNotThrow()
         {
             try
             {
@@ -194,7 +194,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        public static void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             try
             {
@@ -203,7 +203,7 @@ public class ExceptionAssertsTests
             catch (AssertActualExpectedException exception)
             {
                 Assert.Contains("ThrowsAny_Generic_Action.ThrowingMethod", exception.StackTrace);
-                Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
+                Assert.DoesNotContain("Xunit.Assert.ThrowsAny", exception.StackTrace);
             }
         }
 
@@ -214,7 +214,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void GotExpectedException()
+        public static void GotExpectedException()
         {
             Action testCode = () => { throw new ArgumentException(); };
 
@@ -224,7 +224,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void GotDerivedException()
+        public static void GotDerivedException()
         {
             Action testCode = () => { throw new ArgumentException(); };
 
@@ -237,7 +237,7 @@ public class ExceptionAssertsTests
     public class ThrowsAny_Generic_Func
     {
         [Fact]
-        public void GuardClause()
+        public static void GuardClause()
         {
             Func<object> testCode = () => Task.Run(() => 0);
 
@@ -248,7 +248,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void ExpectExceptionButCodeDoesNotThrow()
+        public static void ExpectExceptionButCodeDoesNotThrow()
         {
             var accessor = new StubAccessor();
 
@@ -263,7 +263,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        public static void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             var accessor = new StubAccessor();
 
@@ -274,12 +274,12 @@ public class ExceptionAssertsTests
             catch (AssertActualExpectedException exception)
             {
                 Assert.Contains("StubAccessor.get_FailingProperty", exception.StackTrace);
-                Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
+                Assert.DoesNotContain("Xunit.Assert.ThrowsAny", exception.StackTrace);
             }
         }
 
         [Fact]
-        public void GotExpectedException()
+        public static void GotExpectedException()
         {
             var accessor = new StubAccessor();
 
@@ -289,7 +289,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void GotDerivedException()
+        public static void GotDerivedException()
         {
             var accessor = new StubAccessor();
 
@@ -302,7 +302,7 @@ public class ExceptionAssertsTests
     public class ThrowsAnyAsync_Generic
     {
         [Fact]
-        public async void ExpectExceptionButCodeDoesNotThrow()
+        public static async void ExpectExceptionButCodeDoesNotThrow()
         {
             try
             {
@@ -315,7 +315,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void GotExpectedException()
+        public static async void GotExpectedException()
         {
             Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException(); });
 
@@ -325,7 +325,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void GotDerivedException()
+        public static async void GotDerivedException()
         {
             try
             {
@@ -343,7 +343,7 @@ public class ExceptionAssertsTests
     public class Throws_NonGeneric_Action
     {
         [Fact]
-        public void ExpectExceptionButCodeDoesNotThrow()
+        public static void ExpectExceptionButCodeDoesNotThrow()
         {
             try
             {
@@ -356,7 +356,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void ExpectExceptionButCodeThrowsDerivedException()
+        public static void ExpectExceptionButCodeThrowsDerivedException()
         {
             try
             {
@@ -369,7 +369,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void GotExpectedException()
+        public static void GotExpectedException()
         {
             var ex = Assert.Throws(typeof(ArgumentException), () => { throw new ArgumentException(); });
 
@@ -381,7 +381,7 @@ public class ExceptionAssertsTests
     public class Throws_NonGeneric_Func
     {
         [Fact]
-        public void GuardClause()
+        public static void GuardClause()
         {
             Func<object> testCode = () => Task.Run(() => { });
 
@@ -392,7 +392,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void ExpectExceptionButCodeDoesNotThrow()
+        public static void ExpectExceptionButCodeDoesNotThrow()
         {
             var accessor = new StubAccessor();
 
@@ -407,7 +407,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void ExpectExceptionButCodeThrowsDerivedException()
+        public static void ExpectExceptionButCodeThrowsDerivedException()
         {
             var accessor = new StubAccessor();
 
@@ -422,7 +422,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void GotExpectedException()
+        public static void GotExpectedException()
         {
             var accessor = new StubAccessor();
 
@@ -436,7 +436,7 @@ public class ExceptionAssertsTests
     public class ThrowsAsync_NonGeneric
     {
         [Fact]
-        public async void ExpectExceptionButCodeDoesNotThrow()
+        public static async void ExpectExceptionButCodeDoesNotThrow()
         {
             try
             {
@@ -451,7 +451,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void ExpectExceptionButCodeThrowsDerivedException()
+        public static async void ExpectExceptionButCodeThrowsDerivedException()
         {
             try
             {
@@ -466,7 +466,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void GotExpectedException()
+        public static async void GotExpectedException()
         {
             Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException(); });
 
@@ -480,7 +480,7 @@ public class ExceptionAssertsTests
     public class ThrowsArgument_Action
     {
         [Fact]
-        public void ExpectExceptionButCodeDoesNotThrow()
+        public static void ExpectExceptionButCodeDoesNotThrow()
         {
             Action testCode = () => { };
 
@@ -491,7 +491,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void ExpectExceptionButCodeThrowsDerivedException()
+        public static void ExpectExceptionButCodeThrowsDerivedException()
         {
             Action testCode = () => { throw new InvalidOperationException(); };
 
@@ -504,14 +504,14 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        public static void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             Action testCode = () => ThrowingMethod();
 
             var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName", testCode));
 
             Assert.Contains("ThrowsArgument_Action.ThrowingMethod", ex.StackTrace);
-            Assert.DoesNotContain("Xunit.Assert", ex.StackTrace);
+            Assert.DoesNotContain("Xunit.Assert.Throws", ex.StackTrace);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -521,7 +521,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void GotExpectedException()
+        public static void GotExpectedException()
         {
             Action testCode = () => { throw new ArgumentException("message", "paramName"); };
 
@@ -531,7 +531,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void MismatchedParameterName()
+        public static void MismatchedParameterName()
         {
             Action testCode = () => { throw new ArgumentException("message", "paramName2"); };
 
@@ -546,7 +546,7 @@ public class ExceptionAssertsTests
     public class ThrowsArgument_Func
     {
         [Fact]
-        public void GuardClause()
+        public static void GuardClause()
         {
             Func<object> testCode = () => Task.Run(() => { throw new ArgumentException("foo", "param"); });
 
@@ -560,7 +560,7 @@ public class ExceptionAssertsTests
     public class ThrowsArgumentAsync
     {
         [Fact]
-        public async void ExpectExceptionButCodeDoesNotThrow()
+        public static async void ExpectExceptionButCodeDoesNotThrow()
         {
             Func<Task> testCode = () => Task.Run(() => { });
 
@@ -571,7 +571,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void ExpectExceptionButCodeThrowsDerivedException()
+        public static async void ExpectExceptionButCodeThrowsDerivedException()
         {
             Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
 
@@ -584,14 +584,14 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        public static async void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             Func<Task> testCode = () => Task.Run(() => ThrowingMethod());
 
             var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
             Assert.Contains("ThrowsArgumentAsync.ThrowingMethod", ex.StackTrace);
-            Assert.DoesNotContain("Xunit.Assert", ex.StackTrace);
+            Assert.DoesNotContain("Xunit.Assert.ThrowsAsync", ex.StackTrace);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -601,7 +601,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void GotExpectedException()
+        public static async void GotExpectedException()
         {
             var ex = await Assert.ThrowsAsync<ArgumentException>("paramName", () => Task.Run(() => { throw new ArgumentException("message", "paramName"); }));
 
@@ -609,7 +609,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public async void MismatchedParameterName()
+        public static async void MismatchedParameterName()
         {
             Func<Task> testCode = () => Task.Run(() => { throw new ArgumentException("message", "paramName2"); });
 
@@ -624,7 +624,7 @@ public class ExceptionAssertsTests
     public class ThrowsArgumentNull_Action
     {
         [Fact]
-        public void ExpectExceptionButCodeDoesNotThrow()
+        public static void ExpectExceptionButCodeDoesNotThrow()
         {
             Action testCode = () => { };
 
@@ -635,7 +635,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void ExpectExceptionButCodeThrowsDerivedException()
+        public static void ExpectExceptionButCodeThrowsDerivedException()
         {
             Action testCode = () => { throw new InvalidOperationException(); };
 
@@ -648,14 +648,14 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
+        public static void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             Action testCode = () => ThrowingMethod();
 
             var ex = Record.Exception(() => Assert.Throws<ArgumentNullException>("paramName", testCode));
 
             Assert.Contains("ThrowsArgumentNull_Action.ThrowingMethod", ex.StackTrace);
-            Assert.DoesNotContain("Xunit.Assert", ex.StackTrace);
+            Assert.DoesNotContain("Xunit.Assert.Throws", ex.StackTrace);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -665,7 +665,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void GotExpectedException()
+        public static void GotExpectedException()
         {
             Action testCode = () => { throw new ArgumentNullException("paramName"); };
 
@@ -675,7 +675,7 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
-        public void MismatchedParameterName()
+        public static void MismatchedParameterName()
         {
             Action testCode = () => { throw new ArgumentNullException("paramName2"); };
 

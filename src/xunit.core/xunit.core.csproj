@@ -69,6 +69,7 @@
     <Compile Include="ITestCollectionOrderer.cs" />
     <Compile Include="MemberDataAttribute.cs" />
     <Compile Include="Extensions\PropertyDataAttribute.cs" />
+    <Compile Include="Record.cs" />
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
     <Compile Include="Sdk\DataAttribute.cs" />
     <Compile Include="Sdk\MemberDataDiscoverer.cs" />

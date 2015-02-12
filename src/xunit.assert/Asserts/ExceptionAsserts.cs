@@ -18,7 +18,7 @@ namespace Xunit
         public static T Throws<T>(Action testCode)
             where T : Exception
         {
-            return (T)Throws(typeof(T), Record.Exception(testCode));
+            return (T)Throws(typeof(T), RecordException(testCode));
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Xunit
         public static T Throws<T>(Func<object> testCode)
             where T : Exception
         {
-            return (T)Throws(typeof(T), Record.Exception(testCode));
+            return (T)Throws(typeof(T), RecordException(testCode));
         }
 
         /// <summary/>
@@ -50,7 +50,7 @@ namespace Xunit
         public static async Task<T> ThrowsAsync<T>(Func<Task> testCode)
             where T : Exception
         {
-            return (T)Throws(typeof(T), await Record.ExceptionAsync(testCode));
+            return (T)Throws(typeof(T), await RecordExceptionAsync(testCode));
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Xunit
         public static T ThrowsAny<T>(Action testCode)
             where T : Exception
         {
-            return (T)ThrowsAny(typeof(T), Record.Exception(testCode));
+            return (T)ThrowsAny(typeof(T), RecordException(testCode));
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Xunit
         public static T ThrowsAny<T>(Func<object> testCode)
             where T : Exception
         {
-            return (T)ThrowsAny(typeof(T), Record.Exception(testCode));
+            return (T)ThrowsAny(typeof(T), RecordException(testCode));
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Xunit
         public static async Task<T> ThrowsAnyAsync<T>(Func<Task> testCode)
             where T : Exception
         {
-            return (T)ThrowsAny(typeof(T), await Record.ExceptionAsync(testCode));
+            return (T)ThrowsAny(typeof(T), await RecordExceptionAsync(testCode));
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Xunit
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
         public static Exception Throws(Type exceptionType, Action testCode)
         {
-            return Throws(exceptionType, Record.Exception(testCode));
+            return Throws(exceptionType, RecordException(testCode));
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Xunit
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
         public static Exception Throws(Type exceptionType, Func<object> testCode)
         {
-            return Throws(exceptionType, Record.Exception(testCode));
+            return Throws(exceptionType, RecordException(testCode));
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Xunit
         /// <exception cref="ThrowsException">Thrown when an exception was not thrown, or when an exception of the incorrect type is thrown</exception>
         public static async Task<Exception> ThrowsAsync(Type exceptionType, Func<Task> testCode)
         {
-            return Throws(exceptionType, await Record.ExceptionAsync(testCode));
+            return Throws(exceptionType, await RecordExceptionAsync(testCode));
         }
 
         private static Exception Throws(Type exceptionType, Exception exception)
