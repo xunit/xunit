@@ -23,13 +23,19 @@ namespace Xunit.ConsoleClient
 
         public bool AppVeyor { get; protected set; }
 
+        public bool Debug { get; protected set; }
+
         public int? MaxParallelThreads { get; set; }
+
+        public bool NoLogo { get; protected set; }
 
         public XunitProject Project { get; protected set; }
 
         public bool? ParallelizeAssemblies { get; protected set; }
 
         public bool? ParallelizeTestCollections { get; set; }
+
+        public bool Quiet { get; protected set; }
 
         public bool TeamCity { get; protected set; }
 
@@ -104,7 +110,22 @@ namespace Xunit.ConsoleClient
                 if (!optionName.StartsWith("-"))
                     throw new ArgumentException(String.Format("unknown command line option: {0}", option.Key));
 
-                if (optionName == "-wait")
+                if (optionName == "-nologo")
+                {
+                    GuardNoOptionValue(option);
+                    NoLogo = true;
+                }
+                else if (optionName == "-quiet")
+                {
+                    GuardNoOptionValue(option);
+                    Quiet = true;
+                }
+                else if (optionName == "-debug")
+                {
+                    GuardNoOptionValue(option);
+                    Debug = true;
+                }
+                else if (optionName == "-wait")
                 {
                     GuardNoOptionValue(option);
                     Wait = true;

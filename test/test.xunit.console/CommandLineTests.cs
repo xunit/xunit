@@ -172,6 +172,29 @@ public class CommandLineTests
         }
     }
 
+    public class DebugOption
+    {
+        [Fact]
+        public static void DebugNotSetDebugIsFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.Debug);
+        }
+
+        [Fact]
+        public static void DebugSetDebugIsTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-debug" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.Debug);
+        }
+    }
+
     public class MaxThreadsOption
     {
         [Fact]
@@ -207,6 +230,29 @@ public class CommandLineTests
         }
     }
 
+    public class NoLogoOption
+    {
+        [Fact]
+        public static void NoLogoNotSetNoLogoIsFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.NoLogo);
+        }
+
+        [Fact]
+        public static void NoLogoSetNoLogoIsTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-nologo" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.NoLogo);
+        }
+    }
+
     public class NoShadowOption
     {
         [Fact]
@@ -229,6 +275,29 @@ public class CommandLineTests
 
             var assembly = Assert.Single(commandLine.Project.Assemblies);
             Assert.False(assembly.ShadowCopy);
+        }
+    }
+
+    public class QuietOption
+    {
+        [Fact]
+        public static void QuietNotSetQuietIsFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.Quiet);
+        }
+
+        [Fact]
+        public static void QuietSetQuietIsTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-quiet" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.Quiet);
         }
     }
 
