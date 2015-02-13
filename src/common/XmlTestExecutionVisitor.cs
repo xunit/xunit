@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using Xunit.Abstractions;
@@ -40,7 +41,7 @@ namespace Xunit
                     new XAttribute("name", XmlEscape(testResult.Test.DisplayName)),
                     new XAttribute("type", testResult.TestCase.TestMethod.TestClass.Class.Name),
                     new XAttribute("method", testResult.TestCase.TestMethod.Method.Name),
-                    new XAttribute("time", testResult.ExecutionTime.ToString()),
+                    new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture)),
                     new XAttribute("result", resultText)
                 );
 
@@ -106,7 +107,7 @@ namespace Xunit
                     new XAttribute("passed", Total - Failed - Skipped),
                     new XAttribute("failed", Failed),
                     new XAttribute("skipped", Skipped),
-                    new XAttribute("time", Time.ToString("0.000")),
+                    new XAttribute("time", Time.ToString("0.000", CultureInfo.InvariantCulture)),
                     new XAttribute("errors", Errors)
                 );
 
@@ -125,8 +126,8 @@ namespace Xunit
                     new XAttribute("name", assemblyStarting.TestAssembly.Assembly.AssemblyPath),
                     new XAttribute("environment", assemblyStarting.TestEnvironment),
                     new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName),
-                    new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd")),
-                    new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss"))
+                    new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                    new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss", CultureInfo.InvariantCulture))
                 );
 
                 if (assemblyStarting.TestAssembly.ConfigFileName != null)
@@ -147,7 +148,7 @@ namespace Xunit
                     new XAttribute("failed", testCollectionFinished.TestsFailed),
                     new XAttribute("skipped", testCollectionFinished.TestsSkipped),
                     new XAttribute("name", XmlEscape(testCollectionFinished.TestCollection.DisplayName)),
-                    new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000"))
+                    new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture))
                 );
             }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -123,7 +124,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("2064", assemblyElement.Attribute("passed").Value);
             Assert.Equal("42", assemblyElement.Attribute("failed").Value);
             Assert.Equal("6", assemblyElement.Attribute("skipped").Value);
-            Assert.Equal(123.457M.ToString(), assemblyElement.Attribute("time").Value);
+            Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), assemblyElement.Attribute("time").Value);
             Assert.Equal("1", assemblyElement.Attribute("errors").Value);
         }
 
@@ -152,7 +153,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("2064", collectionElement.Attribute("passed").Value);
             Assert.Equal("42", collectionElement.Attribute("failed").Value);
             Assert.Equal("6", collectionElement.Attribute("skipped").Value);
-            Assert.Equal(123.457M.ToString(), collectionElement.Attribute("time").Value);
+            Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), collectionElement.Attribute("time").Value);
         }
 
         [CulturedFact]
@@ -179,7 +180,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Pass", testElement.Attribute("result").Value);
-            Assert.Equal(123.4567809M.ToString(), testElement.Attribute("time").Value);
+            Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
             Assert.Equal("test output", testElement.Element("output").Value);
             Assert.Null(testElement.Attribute("source-file"));
             Assert.Null(testElement.Attribute("source-line"));
@@ -212,7 +213,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Pass", testElement.Attribute("result").Value);
-            Assert.Equal(123.4567809M.ToString(), testElement.Attribute("time").Value);
+            Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
             Assert.Null(testElement.Attribute("output"));
             Assert.Null(testElement.Attribute("source-file"));
             Assert.Null(testElement.Attribute("source-line"));
@@ -247,7 +248,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Fail", testElement.Attribute("result").Value);
-            Assert.Equal(123.4567809M.ToString(), testElement.Attribute("time").Value);
+            Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
             Assert.Equal("test output", testElement.Element("output").Value);
             var failureElement = Assert.Single(testElement.Elements("failure"));
             Assert.Equal("Exception Type", failureElement.Attribute("exception-type").Value);
@@ -302,7 +303,7 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Skip", testElement.Attribute("result").Value);
-            Assert.Equal(0.0M.ToString(), testElement.Attribute("time").Value);
+            Assert.Equal(0.0M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
             var reasonElement = Assert.Single(testElement.Elements("reason"));
             Assert.Equal("Skip Reason", reasonElement.Value);
             Assert.Empty(testElement.Elements("failure"));
