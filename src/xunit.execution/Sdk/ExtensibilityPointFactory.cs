@@ -13,11 +13,29 @@ namespace Xunit.Sdk
     {
         static readonly DisposalTracker disposalTracker = new DisposalTracker();
         static readonly ConcurrentDictionary<Type, object> instances = new ConcurrentDictionary<Type, object>();
-        static readonly TypeInfo testAssemblyTypeInfo = typeof(ITestAssembly).GetTypeInfo();
 
-        private static object CreateInstance(Type type, object[] ctorArgs)
+        static object CreateInstance(IMessageSink diagnosticMessageSink, Type type, object[] ctorArgs)
         {
-            var result = Activator.CreateInstance(type, ctorArgs ?? new object[0]);
+            ctorArgs = ctorArgs ?? new object[0];
+            object result = null;
+
+            try
+            {
+                var ctorArgsWithMessageSink = ctorArgs.Concat(new object[] { diagnosticMessageSink }).ToArray();
+                result = Activator.CreateInstance(type, ctorArgsWithMessageSink);
+            }
+            catch
+            {
+                try
+                {
+                    result = Activator.CreateInstance(type, ctorArgs);
+                }
+                catch (MissingMemberException)
+                {
+                    diagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find constructor for '{0}' with arguments type(s): {1}", type.FullName, String.Join(", ", ctorArgs.Select(a => a == null ? "(unknown)" : a.GetType().FullName))));
+                    throw;
+                }
+            }
 
             var disposable = result as IDisposable;
             if (disposable != null)
@@ -41,155 +59,188 @@ namespace Xunit.Sdk
         /// so classes retrieved from this factory must be stateless and thread-safe.
         /// </summary>
         /// <typeparam name="TInterface">The interface type.</typeparam>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="type">The implementation type.</param>
-        /// <param name="ctorArgs">The constructor arguments.</param>
+        /// <param name="ctorArgs">The constructor arguments. Since diagnostic message sinks are optional,
+        /// the code first looks for a type that takes the given arguments plus the message sink, and only
+        /// falls back to the message sink-less constructor if none was found.</param>
         /// <returns>The instance of the type.</returns>
-        public static TInterface Get<TInterface>(Type type, object[] ctorArgs = null)
+        public static TInterface Get<TInterface>(IMessageSink diagnosticMessageSink, Type type, object[] ctorArgs = null)
         {
-            return (TInterface)instances.GetOrAdd(type, () => CreateInstance(type, ctorArgs));
+            return (TInterface)instances.GetOrAdd(type, () => CreateInstance(diagnosticMessageSink, type, ctorArgs));
         }
 
         /// <summary>
         /// Gets a data discoverer.
         /// </summary>
-        public static IDataDiscoverer GetDataDiscoverer(Type discovererType)
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="discovererType">The discoverer type</param>
+        public static IDataDiscoverer GetDataDiscoverer(IMessageSink diagnosticMessageSink, Type discovererType)
         {
-            return Get<IDataDiscoverer>(discovererType);
+            return Get<IDataDiscoverer>(diagnosticMessageSink, discovererType);
         }
 
         /// <summary>
         /// Gets a data discoverer, as specified in a reflected <see cref="DataDiscovererAttribute"/>.
         /// </summary>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="dataDiscovererAttribute">The data discoverer attribute</param>
         /// <returns>The data discoverer, if the type is loadable; <c>null</c>, otherwise.</returns>
-        public static IDataDiscoverer GetDataDiscoverer(IAttributeInfo dataDiscovererAttribute)
+        public static IDataDiscoverer GetDataDiscoverer(IMessageSink diagnosticMessageSink, IAttributeInfo dataDiscovererAttribute)
         {
             var args = dataDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
             var discovererType = SerializationHelper.GetType(args[1], args[0]);
             if (discovererType == null)
                 return null;
 
-            return GetDataDiscoverer(discovererType);
+            return GetDataDiscoverer(diagnosticMessageSink, discovererType);
         }
 
         /// <summary>
         /// Gets a test case orderer.
         /// </summary>
-        public static ITestCaseOrderer GetTestCaseOrderer(Type ordererType)
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="ordererType">The test case orderer type</param>
+        public static ITestCaseOrderer GetTestCaseOrderer(IMessageSink diagnosticMessageSink, Type ordererType)
         {
-            return Get<ITestCaseOrderer>(ordererType);
+            return Get<ITestCaseOrderer>(diagnosticMessageSink, ordererType);
         }
 
         /// <summary>
         /// Gets a test case orderer, as specified in a reflected <see cref="TestCaseOrdererAttribute"/>.
         /// </summary>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="testCaseOrdererAttribute">The test case orderer attribute.</param>
         /// <returns>The test case orderer, if the type is loadable; <c>null</c>, otherwise.</returns>
-        public static ITestCaseOrderer GetTestCaseOrderer(IAttributeInfo testCaseOrdererAttribute)
+        public static ITestCaseOrderer GetTestCaseOrderer(IMessageSink diagnosticMessageSink, IAttributeInfo testCaseOrdererAttribute)
         {
             var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
             var ordererType = SerializationHelper.GetType(args[1], args[0]);
             if (ordererType == null)
                 return null;
 
-            return GetTestCaseOrderer(ordererType);
+            return GetTestCaseOrderer(diagnosticMessageSink, ordererType);
         }
 
         /// <summary>
         /// Gets a test collection orderer.
         /// </summary>
-        public static ITestCollectionOrderer GetTestCollectionOrderer(Type ordererType)
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="ordererType">The test collection orderer type</param>
+        public static ITestCollectionOrderer GetTestCollectionOrderer(IMessageSink diagnosticMessageSink, Type ordererType)
         {
-            return Get<ITestCollectionOrderer>(ordererType);
+            return Get<ITestCollectionOrderer>(diagnosticMessageSink, ordererType);
         }
 
         /// <summary>
         /// Gets a test collection orderer, as specified in a reflected <see cref="TestCollectionOrdererAttribute"/>.
         /// </summary>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="testCollectionOrdererAttribute">The test collection orderer attribute.</param>
         /// <returns>The test collection orderer, if the type is loadable; <c>null</c>, otherwise.</returns>
-        public static ITestCollectionOrderer GetTestCollectionOrderer(IAttributeInfo testCollectionOrdererAttribute)
+        public static ITestCollectionOrderer GetTestCollectionOrderer(IMessageSink diagnosticMessageSink, IAttributeInfo testCollectionOrdererAttribute)
         {
             var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
             var ordererType = SerializationHelper.GetType(args[1], args[0]);
             if (ordererType == null)
                 return null;
 
-            return GetTestCollectionOrderer(ordererType);
+            return GetTestCollectionOrderer(diagnosticMessageSink, ordererType);
         }
 
         /// <summary>
         /// Gets a test framework discoverer.
         /// </summary>
-        public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(Type frameworkType)
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="frameworkType">The test framework type discoverer type</param>
+        public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(IMessageSink diagnosticMessageSink, Type frameworkType)
         {
-            return Get<ITestFrameworkTypeDiscoverer>(frameworkType);
+            return Get<ITestFrameworkTypeDiscoverer>(diagnosticMessageSink, frameworkType);
         }
 
         /// <summary>
         /// Gets a test framework discoverer, as specified in a reflected <see cref="TestFrameworkDiscovererAttribute"/>.
         /// </summary>
-        public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(IAttributeInfo testFrameworkAttribute)
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="testFrameworkDiscovererAttribute">The test framework discoverer attribute</param>
+        public static ITestFrameworkTypeDiscoverer GetTestFrameworkTypeDiscoverer(IMessageSink diagnosticMessageSink, IAttributeInfo testFrameworkDiscovererAttribute)
         {
-            var args = testFrameworkAttribute.GetConstructorArguments().Cast<string>().ToArray();
+            var args = testFrameworkDiscovererAttribute.GetConstructorArguments().Cast<string>().ToArray();
             var testFrameworkDiscovererType = SerializationHelper.GetType(args[1], args[0]);
             if (testFrameworkDiscovererType == null)
                 return null;
 
-            return GetTestFrameworkTypeDiscoverer(testFrameworkDiscovererType);
+            return GetTestFrameworkTypeDiscoverer(diagnosticMessageSink, testFrameworkDiscovererType);
         }
 
         /// <summary>
         /// Gets a trait discoverer.
         /// </summary>
-        public static ITraitDiscoverer GetTraitDiscoverer(Type discovererType)
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="traitDiscovererType">The trait discoverer type</param>
+        public static ITraitDiscoverer GetTraitDiscoverer(IMessageSink diagnosticMessageSink, Type traitDiscovererType)
         {
-            return Get<ITraitDiscoverer>(discovererType);
+            return Get<ITraitDiscoverer>(diagnosticMessageSink, traitDiscovererType);
         }
 
         /// <summary>
         /// Gets a trait discoverer, as specified in a reflected <see cref="TraitDiscovererAttribute"/>.
         /// </summary>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="traitDiscovererAttribute">The trait discoverer attribute.</param>
         /// <returns>The trait discoverer, if the type is loadable; <c>null</c>, otherwise.</returns>
-        public static ITraitDiscoverer GetTraitDiscoverer(IAttributeInfo traitDiscovererAttribute)
+        public static ITraitDiscoverer GetTraitDiscoverer(IMessageSink diagnosticMessageSink, IAttributeInfo traitDiscovererAttribute)
         {
             var args = traitDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
             var discovererType = SerializationHelper.GetType(args[1], args[0]);
             if (discovererType == null)
                 return null;
 
-            return GetTraitDiscoverer(discovererType);
+            return GetTraitDiscoverer(diagnosticMessageSink, discovererType);
         }
 
         /// <summary>
         /// Gets an xUnit.net v2 test discoverer.
         /// </summary>
-        public static IXunitTestCaseDiscoverer GetXunitTestCaseDiscoverer(Type discovererType)
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="testCaseDiscovererType">The test case discoverer type</param>
+        public static IXunitTestCaseDiscoverer GetXunitTestCaseDiscoverer(IMessageSink diagnosticMessageSink, Type testCaseDiscovererType)
         {
-            return Get<IXunitTestCaseDiscoverer>(discovererType);
+            return Get<IXunitTestCaseDiscoverer>(diagnosticMessageSink, testCaseDiscovererType);
         }
 
         /// <summary>
         /// Gets an xUnit.net v2 test collection factory.
         /// </summary>
-        public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(Type factoryType, ITestAssembly testAssembly)
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="testCollectionFactoryType">The test collection factory type</param>
+        /// <param name="testAssembly">The test assembly under test</param>
+        public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(IMessageSink diagnosticMessageSink, Type testCollectionFactoryType, ITestAssembly testAssembly)
         {
-            return Get<IXunitTestCollectionFactory>(factoryType, new[] { testAssembly });
+            return Get<IXunitTestCollectionFactory>(diagnosticMessageSink, testCollectionFactoryType, new object[] { testAssembly });
         }
 
         /// <summary>
         /// Gets an xUnit.net v2 test collection factory, as specified in a reflected <see cref="CollectionBehaviorAttribute"/>.
         /// </summary>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="collectionBehaviorAttribute">The collection behavior attribute.</param>
         /// <param name="testAssembly">The test assembly.</param>
         /// <returns>The collection factory.</returns>
-        public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(IAttributeInfo collectionBehaviorAttribute, ITestAssembly testAssembly)
+        public static IXunitTestCollectionFactory GetXunitTestCollectionFactory(IMessageSink diagnosticMessageSink, IAttributeInfo collectionBehaviorAttribute, ITestAssembly testAssembly)
         {
-            return GetXunitTestCollectionFactory(GetTestCollectionFactoryType(collectionBehaviorAttribute), testAssembly);
+            try
+            {
+                var testCollectionFactoryType = GetTestCollectionFactoryType(diagnosticMessageSink, collectionBehaviorAttribute);
+                return GetXunitTestCollectionFactory(diagnosticMessageSink, testCollectionFactoryType, testAssembly);
+            }
+            catch
+            {
+                return new CollectionPerClassTestCollectionFactory(testAssembly, diagnosticMessageSink);
+            }
         }
 
-        static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehaviorAttribute)
+        static Type GetTestCollectionFactoryType(IMessageSink diagnosticMessageSink, IAttributeInfo collectionBehaviorAttribute)
         {
             if (collectionBehaviorAttribute == null)
                 return typeof(CollectionPerClassTestCollectionFactory);
@@ -207,28 +258,20 @@ namespace Xunit.Sdk
             }
 
             var result = SerializationHelper.GetType((string)ctorArgs[1], (string)ctorArgs[0]);
-            if (result == null || !IsCompatibleTestCollectionFactory(result))
+            if (result == null)
+            {
+                diagnosticMessageSink.OnMessage(new DiagnosticMessage("Unable to create test collection factory type '{0}, {1}'", ctorArgs[1], ctorArgs[0]));
                 return typeof(CollectionPerClassTestCollectionFactory);
+            }
+
+            var resultTypeInfo = result.GetTypeInfo();
+            if (!typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(resultTypeInfo))
+            {
+                diagnosticMessageSink.OnMessage(new DiagnosticMessage("Test collection factory type '{0}, {1}' does not implement IXunitTestCollectionFactory", ctorArgs[1], ctorArgs[0]));
+                return typeof(CollectionPerClassTestCollectionFactory);
+            }
 
             return result;
-        }
-
-        private static bool IsCompatibleTestCollectionFactory(Type result)
-        {
-            var resultTypeInfo = result.GetTypeInfo();
-
-            if (!typeof(IXunitTestCollectionFactory).GetTypeInfo().IsAssignableFrom(resultTypeInfo))
-                return false;
-
-            return resultTypeInfo.DeclaredConstructors
-                                 .Any(ctor =>
-                                      {
-                                          var parameters = ctor.GetParameters();
-                                          if (parameters.Length != 1)
-                                              return false;
-
-                                          return testAssemblyTypeInfo.IsAssignableFrom(parameters[0].ParameterType.GetTypeInfo());
-                                      });
         }
     }
 }

@@ -94,6 +94,7 @@
     <Compile Include="Utility\TransformFactory.cs" />
     <Compile Include="Visitors\AppVeyorVisitor.cs" />
     <Compile Include="Visitors\AppVeyorLogger.cs" />
+    <Compile Include="Visitors\DiagnosticMessageVisitor.cs" />
     <Compile Include="Visitors\StandardOutputVisitor.cs" />
     <Compile Include="Visitors\TeamCityVisitor.cs" />
   </ItemGroup>

@@ -19,10 +19,14 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="assemblyName">Name of the test assembly.</param>
         /// <param name="sourceInformationProvider">The source line number information provider.</param>
-        protected TestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider)
+        /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
+        protected TestFrameworkExecutor(AssemblyName assemblyName,
+                                        ISourceInformationProvider sourceInformationProvider,
+                                        IMessageSink diagnosticMessageSink)
         {
             DisposalTracker = new DisposalTracker();
             SourceInformationProvider = sourceInformationProvider;
+            DiagnosticMessageSink = diagnosticMessageSink;
 
 #if !WIN8_STORE || WINDOWS_PHONE_APP || WINDOWS_PHONE
             var assembly = Assembly.Load(assemblyName);
@@ -36,6 +40,11 @@ namespace Xunit.Sdk
         /// Gets the assembly information of the assembly under test.
         /// </summary>
         protected IAssemblyInfo AssemblyInfo { get; set; }
+
+        /// <summary>
+        /// Gets the message sink to send diagnostic messages to.
+        /// </summary>
+        protected IMessageSink DiagnosticMessageSink { get; set; }
 
         /// <summary>
         /// Gets the disposal tracker for the test framework discoverer.
@@ -67,9 +76,9 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public virtual void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
+        public virtual void RunAll(IMessageSink executionMessageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
         {
-            Guard.ArgumentNotNull("messageSink", messageSink);
+            Guard.ArgumentNotNull("executionMessageSink", executionMessageSink);
             Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
             Guard.ArgumentNotNull("executionOptions", executionOptions);
 
@@ -81,25 +90,25 @@ namespace Xunit.Sdk
                 discoverySink.Finished.WaitOne();
             }
 
-            RunTestCases(discoverySink.TestCases.Cast<TTestCase>(), messageSink, executionOptions);
+            RunTestCases(discoverySink.TestCases.Cast<TTestCase>(), executionMessageSink, executionOptions);
         }
 
         /// <inheritdoc/>
-        public virtual void RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
+        public virtual void RunTests(IEnumerable<ITestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions)
         {
             Guard.ArgumentNotNull("testCases", testCases);
-            Guard.ArgumentNotNull("messageSink", messageSink);
+            Guard.ArgumentNotNull("executionMessageSink", executionMessageSink);
             Guard.ArgumentNotNull("executionOptions", executionOptions);
 
-            RunTestCases(testCases.Cast<TTestCase>(), messageSink, executionOptions);
+            RunTestCases(testCases.Cast<TTestCase>(), executionMessageSink, executionOptions);
         }
 
         /// <summary>
         /// Override to run test cases.
         /// </summary>
         /// <param name="testCases">The test cases to be run.</param>
-        /// <param name="messageSink">The message sink to report run status to.</param>
+        /// <param name="executionMessageSink">The message sink to report run status to.</param>
         /// <param name="executionOptions">The user's requested execution options.</param>
-        protected abstract void RunTestCases(IEnumerable<TTestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions);
+        protected abstract void RunTestCases(IEnumerable<TTestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions);
     }
 }

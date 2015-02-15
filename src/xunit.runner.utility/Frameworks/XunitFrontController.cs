@@ -13,6 +13,7 @@ namespace Xunit
     {
         readonly string assemblyFileName;
         readonly string configFileName;
+        readonly IMessageSink diagnosticMessageSink;
         IFrontController innerController;
         readonly bool shadowCopy;
         private readonly string shadowCopyFolder;
@@ -34,13 +35,20 @@ namespace Xunit
         /// will be automatically (randomly) generated</param>
         /// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
         /// tests to be discovered and run without locking assembly files on disk.</param>
-        public XunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null, ISourceInformationProvider sourceInformationProvider = null)
+        /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
+        public XunitFrontController(string assemblyFileName,
+                                    string configFileName = null,
+                                    bool shadowCopy = true,
+                                    string shadowCopyFolder = null,
+                                    ISourceInformationProvider sourceInformationProvider = null,
+                                    IMessageSink diagnosticMessageSink = null)
         {
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
             this.shadowCopy = shadowCopy;
             this.shadowCopyFolder = shadowCopyFolder;
             this.sourceInformationProvider = sourceInformationProvider;
+            this.diagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
 
             Guard.FileExists("assemblyFileName", assemblyFileName);
 
@@ -96,7 +104,7 @@ namespace Xunit
 #if !ANDROID && !ASPNET50 && !ASPNETCORE50
             if (File.Exists(xunitExecutionPath))
 #endif
-                return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+                return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 #if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
             if (File.Exists(xunitPath))
                 return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);

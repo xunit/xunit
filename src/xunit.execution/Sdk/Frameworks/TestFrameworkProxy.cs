@@ -17,44 +17,14 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testAssemblyObject">The test assembly (expected to implement <see cref="IAssemblyInfo"/>).</param>
         /// <param name="sourceInformationProviderObject">The source information provider (expected to implement <see cref="ISourceInformationProvider"/>).</param>
-        public TestFrameworkProxy(object testAssemblyObject, object sourceInformationProviderObject)
+        /// <param name="diagnosticMessageSinkObject">The diagnostic message sink (expected to implement <see cref="IMessageSink"/>).</param>
+        public TestFrameworkProxy(object testAssemblyObject, object sourceInformationProviderObject, object diagnosticMessageSinkObject)
         {
             var testAssembly = (IAssemblyInfo)testAssemblyObject;
             var sourceInformationProvider = (ISourceInformationProvider)sourceInformationProviderObject;
-
-            var testFrameworkType = typeof(XunitTestFramework);
-
-            try
-            {
-                var testFrameworkAttr = testAssembly.GetCustomAttributes(typeof(ITestFrameworkAttribute)).FirstOrDefault();
-                if (testFrameworkAttr != null)
-                {
-                    var discovererAttr = testFrameworkAttr.GetCustomAttributes(typeof(TestFrameworkDiscovererAttribute)).FirstOrDefault();
-                    if (discovererAttr != null)
-                    {
-                        var discoverer = ExtensibilityPointFactory.GetTestFrameworkTypeDiscoverer(discovererAttr);
-                        if (discoverer != null)
-                            testFrameworkType = discoverer.GetTestFrameworkType(testFrameworkAttr);
-                        // else                     // TODO: Log environmental error
-                    }
-                    // else                     // TODO: Log environmental error
-                }
-            }
-            catch
-            {
-                // TODO: Log environmental error
-            }
-
-            try
-            {
-                InnerTestFramework = (ITestFramework)Activator.CreateInstance(testFrameworkType);
-            }
-            catch
-            {
-                // TODO: Log environmental error
-                InnerTestFramework = new XunitTestFramework();
-            }
-
+            var diagnosticMessageSink = new MessageSinkWrapper((IMessageSink)diagnosticMessageSinkObject);
+            var testFrameworkType = GetTestFrameworkType(testAssembly, diagnosticMessageSink);
+            InnerTestFramework = CreateInnerTestFramework(testFrameworkType, diagnosticMessageSink);
             SourceInformationProvider = sourceInformationProvider;
         }
 
@@ -69,6 +39,28 @@ namespace Xunit.Sdk
             set { InnerTestFramework.SourceInformationProvider = value; }
         }
 
+        static ITestFramework CreateInnerTestFramework(Type testFrameworkType, IMessageSink diagnosticMessageSink)
+        {
+            try
+            {
+                var ctorWithSink = testFrameworkType.GetTypeInfo().DeclaredConstructors
+                                                                  .FirstOrDefault(ctor =>
+                                                                  {
+                                                                      var paramInfos = ctor.GetParameters();
+                                                                      return paramInfos.Length == 1 && paramInfos[0].ParameterType == typeof(IMessageSink);
+                                                                  });
+                if (ctorWithSink != null)
+                    return (ITestFramework)ctorWithSink.Invoke(new object[] { diagnosticMessageSink });
+
+                return (ITestFramework)Activator.CreateInstance(testFrameworkType);
+            }
+            catch (Exception ex)
+            {
+                diagnosticMessageSink.OnMessage(new DiagnosticMessage("Exception thrown during test framework construction: {0}", ex.Unwrap()));
+                return new XunitTestFramework(diagnosticMessageSink);
+            }
+        }
+
         /// <inheritdoc/>
         public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assembly)
         {
@@ -81,10 +73,62 @@ namespace Xunit.Sdk
             return InnerTestFramework.GetExecutor(assemblyName);
         }
 
+        static Type GetTestFrameworkType(IAssemblyInfo testAssembly, IMessageSink diagnosticMessageSink)
+        {
+            try
+            {
+                var testFrameworkAttr = testAssembly.GetCustomAttributes(typeof(ITestFrameworkAttribute)).FirstOrDefault();
+                if (testFrameworkAttr != null)
+                {
+                    var discovererAttr = testFrameworkAttr.GetCustomAttributes(typeof(TestFrameworkDiscovererAttribute)).FirstOrDefault();
+                    if (discovererAttr != null)
+                    {
+                        var discoverer = ExtensibilityPointFactory.GetTestFrameworkTypeDiscoverer(diagnosticMessageSink, discovererAttr);
+                        if (discoverer != null)
+                            return discoverer.GetTestFrameworkType(testFrameworkAttr);
+
+                        var ctorArgs = discovererAttr.GetConstructorArguments().ToArray();
+                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Unable to create custom test framework discoverer type '{0}, {1}'", ctorArgs[1], ctorArgs[0]));
+                    }
+                    else
+                    {
+                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test framework attribute was not decorated with [TestFrameworkDiscoverer]"));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                diagnosticMessageSink.OnMessage(new DiagnosticMessage("Exception thrown during test framework discoverer construction: {0}", ex.Unwrap()));
+            }
+
+            return typeof(XunitTestFramework);
+        }
+
         /// <inheritdoc/>
         public void Dispose()
         {
             InnerTestFramework.Dispose();
+        }
+
+        /// <summary>
+        /// INTERNAL CLASS. DO NOT USE.
+        /// </summary>
+        public class MessageSinkWrapper : IMessageSink
+        {
+            /// <summary/>
+            public readonly IMessageSink InnerSink;
+
+            /// <summary/>
+            public MessageSinkWrapper(IMessageSink innerSink)
+            {
+                InnerSink = innerSink;
+            }
+
+            /// <summary/>
+            public bool OnMessage(IMessageSinkMessage message)
+            {
+                return InnerSink.OnMessage(message);
+            }
         }
     }
 }

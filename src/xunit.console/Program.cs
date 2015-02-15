@@ -100,7 +100,7 @@ namespace Xunit.ConsoleClient
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("xUnit.net console test runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
-            Console.WriteLine("Copyright (C) 2014 Outercurve Foundation.");
+            Console.WriteLine("Copyright (C) 2015 Outercurve Foundation.");
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Gray;
         }
@@ -272,19 +272,23 @@ namespace Xunit.ConsoleClient
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
+                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
+
                 lock (consoleLock)
                 {
                     if (assembly.Configuration.DiagnosticMessagesOrDefault)
                         Console.WriteLine("Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
-                                          Path.GetFileNameWithoutExtension(assembly.AssemblyFilename),
-                                          discoveryOptions.GetMethodDisplay(),
-                                          !executionOptions.GetDisableParallelization(),
-                                          executionOptions.GetMaxParallelThreads());
+                                          assemblyDisplayName,
+                                          discoveryOptions.GetMethodDisplayOrDefault(),
+                                          !executionOptions.GetDisableParallelizationOrDefault(),
+                                          executionOptions.GetMaxParallelThreadsOrDefault());
                     else if (!quiet)
-                        Console.WriteLine("Discovering: {0}", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
+                        Console.WriteLine("Discovering: {0}", assemblyDisplayName);
                 }
 
-                using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy))
+                var diagnosticMessageVisitor = new DiagnosticMessageVisitor(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
+
+                using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: discoveryOptions);

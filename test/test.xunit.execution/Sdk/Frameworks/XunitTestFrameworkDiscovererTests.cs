@@ -15,9 +15,11 @@ public class XunitTestFrameworkDiscovererTests
         {
             var assembly = Substitute.For<IAssemblyInfo>();
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
+            var diagnosticMessageSink = SpyMessageSink.Create();
 
-            Assert.Throws<ArgumentNullException>("assemblyInfo", () => new XunitTestFrameworkDiscoverer(null, sourceProvider));
-            Assert.Throws<ArgumentNullException>("sourceProvider", () => new XunitTestFrameworkDiscoverer(assembly, null));
+            Assert.Throws<ArgumentNullException>("assemblyInfo", () => new XunitTestFrameworkDiscoverer(null, sourceProvider, diagnosticMessageSink));
+            Assert.Throws<ArgumentNullException>("sourceProvider", () => new XunitTestFrameworkDiscoverer(assembly, null, diagnosticMessageSink));
+            Assert.Throws<ArgumentNullException>("diagnosticMessageSink", () => new XunitTestFrameworkDiscoverer(assembly, sourceProvider, null));
         }
     }
 
@@ -28,8 +30,8 @@ public class XunitTestFrameworkDiscovererTests
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
 
-            Assert.Throws<ArgumentNullException>("messageSink", () => framework.Find(includeSourceInformation: false, messageSink: null, discoveryOptions: TestFrameworkOptions.ForDiscovery()));
-            Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(includeSourceInformation: false, messageSink: Substitute.For<IMessageSink>(), discoveryOptions: null));
+            Assert.Throws<ArgumentNullException>("discoveryMessageSink", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: null, discoveryOptions: TestFrameworkOptions.ForDiscovery()));
+            Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(includeSourceInformation: false, discoveryMessageSink: Substitute.For<IMessageSink>(), discoveryOptions: null));
         }
 
         [Fact]
@@ -129,10 +131,10 @@ public class XunitTestFrameworkDiscovererTests
             var sink = Substitute.For<IMessageSink>();
             var options = TestFrameworkOptions.ForDiscovery();
 
-            Assert.Throws<ArgumentNullException>("typeName", () => framework.Find(typeName: null, includeSourceInformation: false, messageSink: sink, discoveryOptions: options));
-            Assert.Throws<ArgumentException>("typeName", () => framework.Find(typeName: "", includeSourceInformation: false, messageSink: sink, discoveryOptions: options));
-            Assert.Throws<ArgumentNullException>("messageSink", () => framework.Find(typeName, includeSourceInformation: false, messageSink: null, discoveryOptions: options));
-            Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(typeName, includeSourceInformation: false, messageSink: sink, discoveryOptions: null));
+            Assert.Throws<ArgumentNullException>("typeName", () => framework.Find(typeName: null, includeSourceInformation: false, discoveryMessageSink: sink, discoveryOptions: options));
+            Assert.Throws<ArgumentException>("typeName", () => framework.Find(typeName: "", includeSourceInformation: false, discoveryMessageSink: sink, discoveryOptions: options));
+            Assert.Throws<ArgumentNullException>("discoveryMessageSink", () => framework.Find(typeName, includeSourceInformation: false, discoveryMessageSink: null, discoveryOptions: options));
+            Assert.Throws<ArgumentNullException>("discoveryOptions", () => framework.Find(typeName, includeSourceInformation: false, discoveryMessageSink: sink, discoveryOptions: null));
         }
 
         [Fact]
@@ -409,12 +411,12 @@ public class XunitTestFrameworkDiscovererTests
 
         protected TestableXunitTestFrameworkDiscoverer(IAssemblyInfo assembly,
                                                        ISourceInformationProvider sourceProvider,
-                                                       IXunitTestCollectionFactory collectionFactory,
-                                                       IMessageAggregator messageAggregator)
+                                                       IMessageSink diagnosticMessageSink,
+                                                       IXunitTestCollectionFactory collectionFactory)
             : base(assembly,
                    sourceProvider ?? Substitute.For<ISourceInformationProvider>(),
-                   collectionFactory,
-                   messageAggregator)
+                   diagnosticMessageSink ?? new Xunit.NullMessageSink(),
+                   collectionFactory)
         {
             Assembly = assembly;
             Visitor = new TestDiscoveryVisitor();
@@ -435,10 +437,10 @@ public class XunitTestFrameworkDiscovererTests
 
         public static TestableXunitTestFrameworkDiscoverer Create(IAssemblyInfo assembly = null,
                                                                   ISourceInformationProvider sourceProvider = null,
-                                                                  IXunitTestCollectionFactory collectionFactory = null,
-                                                                  IMessageAggregator messageAggregator = null)
+                                                                  IMessageSink diagnosticMessageSink = null,
+                                                                  IXunitTestCollectionFactory collectionFactory = null)
         {
-            return new TestableXunitTestFrameworkDiscoverer(assembly ?? Mocks.AssemblyInfo(), sourceProvider, collectionFactory, messageAggregator);
+            return new TestableXunitTestFrameworkDiscoverer(assembly ?? Mocks.AssemblyInfo(), sourceProvider, diagnosticMessageSink, collectionFactory);
         }
 
         public new ITestClass CreateTestClass(ITypeInfo @class)

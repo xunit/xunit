@@ -89,10 +89,10 @@ public static class Mocks
         return result;
     }
 
-    public static ExecutionErrorTestCase ExecutionErrorTestCase(string message)
+    public static ExecutionErrorTestCase ExecutionErrorTestCase(string message, IMessageSink diagnosticMessageSink = null)
     {
         var testMethod = Mocks.TestMethod();
-        return new ExecutionErrorTestCase(TestMethodDisplay.ClassAndMethod, testMethod, message);
+        return new ExecutionErrorTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, testMethod, message);
     }
 
     public static IReflectionAttributeInfo FactAttribute(string displayName = null, string skip = null)
@@ -383,6 +383,14 @@ public static class Mocks
         return result;
     }
 
+    public static IReflectionAttributeInfo TraitAttribute<T>()
+        where T : Attribute, new()
+    {
+        var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
+        result.Attribute.Returns(new T());
+        return result;
+    }
+
     public static IReflectionAttributeInfo TraitAttribute(string name, string value)
     {
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
@@ -412,18 +420,18 @@ public static class Mocks
         return result;
     }
 
-    public static XunitTestCase XunitTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null, object[] testMethodArguments = null)
+    public static XunitTestCase XunitTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null, object[] testMethodArguments = null, IMessageSink diagnosticMessageSink = null)
     {
         var method = Mocks.TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-        return new XunitTestCase(TestMethodDisplay.ClassAndMethod, method, testMethodArguments);
+        return new XunitTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, method, testMethodArguments);
     }
 
-    public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null)
+    public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null, IMessageSink diagnosticMessageSink = null)
     {
         var method = Mocks.TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-        return new XunitTheoryTestCase(TestMethodDisplay.ClassAndMethod, method);
+        return new XunitTheoryTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, method);
     }
 
     // Helpers

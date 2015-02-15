@@ -14,6 +14,7 @@ namespace Xunit.Sdk
     public class XunitTestClassRunner : TestClassRunner<IXunitTestCase>
     {
         readonly IDictionary<Type, object> collectionFixtureMappings;
+        readonly IMessageSink diagnosticMessageSink;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
@@ -21,6 +22,7 @@ namespace Xunit.Sdk
         /// <param name="testClass">The test class to be run.</param>
         /// <param name="class">The test class that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
@@ -29,6 +31,7 @@ namespace Xunit.Sdk
         public XunitTestClassRunner(ITestClass testClass,
                                     IReflectionTypeInfo @class,
                                     IEnumerable<IXunitTestCase> testCases,
+                                    IMessageSink diagnosticMessageSink,
                                     IMessageBus messageBus,
                                     ITestCaseOrderer testCaseOrderer,
                                     ExceptionAggregator aggregator,
@@ -36,6 +39,7 @@ namespace Xunit.Sdk
                                     IDictionary<Type, object> collectionFixtureMappings)
             : base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
+            this.diagnosticMessageSink = diagnosticMessageSink;
             this.collectionFixtureMappings = collectionFixtureMappings;
 
             ClassFixtureMappings = new Dictionary<Type, object>();
@@ -64,7 +68,7 @@ namespace Xunit.Sdk
         {
             var ordererAttribute = Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (ordererAttribute != null)
-                TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(ordererAttribute);
+                TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(diagnosticMessageSink, ordererAttribute);
 
             var testClassTypeInfo = Class.Type.GetTypeInfo();
             if (testClassTypeInfo.ImplementedInterfaces.Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
@@ -95,7 +99,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
         {
-            return new XunitTestMethodRunner(testMethod, Class, method, testCases, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
+            return new XunitTestMethodRunner(testMethod, Class, method, testCases, diagnosticMessageSink, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
         }
 
         /// <inheritdoc/>

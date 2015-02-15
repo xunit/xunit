@@ -36,6 +36,7 @@
         "../common/GlobalAssemblyInfo.cs",
         "../common/Guard.cs",
         "../common/LongLivedMarshalByRefObject_Runner_NoAppDomain.cs",
+        "../common/NullMessageSink.cs",
         "../common/RemoteAppDomainManager_NoAppDomain.cs",
         "../common/SerializationInfoExtensions.cs",
         "../common/SourceInformation.cs",

@@ -16,8 +16,11 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="assemblyName">Name of the test assembly.</param>
         /// <param name="sourceInformationProvider">The source line number information provider.</param>
-        public XunitTestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider)
-            : base(assemblyName, sourceInformationProvider)
+        /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
+        public XunitTestFrameworkExecutor(AssemblyName assemblyName,
+                                          ISourceInformationProvider sourceInformationProvider,
+                                          IMessageSink diagnosticMessageSink)
+            : base(assemblyName, sourceInformationProvider, diagnosticMessageSink)
         {
             string config = null;
 #if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
@@ -34,13 +37,13 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override ITestFrameworkDiscoverer CreateDiscoverer()
         {
-            return new XunitTestFrameworkDiscoverer(AssemblyInfo, SourceInformationProvider);
+            return new XunitTestFrameworkDiscoverer(AssemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
         }
 
         /// <inheritdoc/>
-        protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
+        protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions)
         {
-            using (var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, messageSink, executionOptions))
+            using (var assemblyRunner = new XunitTestAssemblyRunner(TestAssembly, testCases, DiagnosticMessageSink, executionMessageSink, executionOptions))
                 await assemblyRunner.RunAsync();
         }
     }

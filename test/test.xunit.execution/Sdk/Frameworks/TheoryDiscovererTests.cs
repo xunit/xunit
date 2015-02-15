@@ -54,7 +54,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     public void DiscoveryOptions_PreEnumerateTheoriesSetToTrue_YieldsTestCasePerDataRow()
     {
         discoveryOptions.SetPreEnumerateTheories(true);
-        var discoverer = new TheoryDiscoverer();
+        var discoverer = TestableTheoryDiscoverer.Create();
         var testMethod = Mocks.TestMethod(typeof(MultipleDataClass), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -69,7 +69,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     public void DiscoveryOptions_PreEnumerateTheoriesSetToFalse_YieldsSingleTheoryTestCase()
     {
         discoveryOptions.SetPreEnumerateTheories(false);
-        var discoverer = new TheoryDiscoverer();
+        var discoverer = TestableTheoryDiscoverer.Create();
         var testMethod = Mocks.TestMethod(typeof(MultipleDataClass), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -98,7 +98,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     [Fact]
     public void ThrowingData()
     {
-        var discoverer = new TheoryDiscoverer();
+        var discoverer = TestableTheoryDiscoverer.Create();
         var testMethod = Mocks.TestMethod(typeof(ThrowingDataClass), "TheoryWithMisbehavingData");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -126,7 +126,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     [Fact]
     public void DataDiscovererReturningNullYieldsSingleTheoryTestCase()
     {
-        var discoverer = new TheoryDiscoverer();
+        var discoverer = TestableTheoryDiscoverer.Create();
         var theoryAttribute = Mocks.TheoryAttribute();
         var dataAttribute = Mocks.DataAttribute();
         var testMethod = Mocks.TestMethod(methodAttributes: new[] { theoryAttribute, dataAttribute });
@@ -141,7 +141,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     [Fact]
     public void NonSerializableDataYieldsSingleTheoryTestCase()
     {
-        var discoverer = new TheoryDiscoverer();
+        var discoverer = TestableTheoryDiscoverer.Create();
         var testMethod = Mocks.TestMethod(typeof(NonSerializableDataClass), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -170,7 +170,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     [Fact]
     public void NonDiscoveryEnumeratedDataYieldsSingleTheoryTestCase()
     {
-        var discoverer = new TheoryDiscoverer();
+        var discoverer = TestableTheoryDiscoverer.Create();
         var testMethod = Mocks.TestMethod(typeof(NonDiscoveryEnumeratedData), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -195,7 +195,7 @@ public class TheoryDiscovererTests : AcceptanceTest
     [Fact]
     public void MixedDiscoveryEnumerationDataYieldSingleTheoryTestCase()
     {
-        var discoverer = new TheoryDiscoverer();
+        var discoverer = TestableTheoryDiscoverer.Create();
         var testMethod = Mocks.TestMethod(typeof(MixedDiscoveryEnumeratedData), "TheoryMethod");
         var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
 
@@ -249,5 +249,15 @@ public class TheoryDiscovererTests : AcceptanceTest
         [InlineData(42)]
         [InlineData(2112)]
         public void TestMethod(int value) { }
+    }
+
+    class TestableTheoryDiscoverer : TheoryDiscoverer
+    {
+        public TestableTheoryDiscoverer(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink) { }
+
+        public static TestableTheoryDiscoverer Create()
+        {
+            return new TestableTheoryDiscoverer(SpyMessageSink.Create());
+        }
     }
 }

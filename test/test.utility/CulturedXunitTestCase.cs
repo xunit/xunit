@@ -16,8 +16,8 @@ namespace TestUtility
         [Obsolete("Called by the de-serializer", error: true)]
         public CulturedXunitTestCase() { }
 
-        public CulturedXunitTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, string culture)
-            : base(defaultMethodDisplay, testMethod)
+        public CulturedXunitTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, string culture)
+            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod)
         {
             Initialize(culture);
         }
@@ -50,7 +50,11 @@ namespace TestUtility
             data.AddValue("Culture", culture);
         }
 
-        public override async Task<RunSummary> RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        public override async Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink,
+                                                        IMessageBus messageBus,
+                                                        object[] constructorArguments,
+                                                        ExceptionAggregator aggregator,
+                                                        CancellationTokenSource cancellationTokenSource)
         {
             var originalCulture = Thread.CurrentThread.CurrentCulture;
             var originalUICulture = Thread.CurrentThread.CurrentUICulture;
@@ -61,7 +65,7 @@ namespace TestUtility
                 Thread.CurrentThread.CurrentCulture = cultureInfo;
                 Thread.CurrentThread.CurrentUICulture = cultureInfo;
 
-                return await base.RunAsync(messageBus, constructorArguments, aggregator, cancellationTokenSource);
+                return await base.RunAsync(diagnosticMessageSink, messageBus, constructorArguments, aggregator, cancellationTokenSource);
             }
             finally
             {

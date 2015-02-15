@@ -180,12 +180,13 @@ public class XunitTestClassRunnerTests
         TestableXunitTestClassRunner(ITestClass testClass,
                                      IReflectionTypeInfo @class,
                                      IEnumerable<IXunitTestCase> testCases,
+                                     IMessageSink diagnosticMessageSink,
                                      IMessageBus messageBus,
                                      ITestCaseOrderer testCaseOrderer,
                                      ExceptionAggregator aggregator,
                                      CancellationTokenSource cancellationTokenSource,
                                      IDictionary<Type, object> collectionFixtureMappings)
-            : base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings) { }
+            : base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings) { }
 
         public new Dictionary<Type, object> ClassFixtureMappings
         {
@@ -203,6 +204,7 @@ public class XunitTestClassRunnerTests
                 testCase.TestMethod.TestClass,
                 (IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
                 new[] { testCase },
+                SpyMessageSink.Create(),
                 new SpyMessageBus(),
                 new MockTestCaseOrderer(),
                 new ExceptionAggregator(),

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using TestDriven.Framework;
@@ -24,8 +25,9 @@ namespace Xunit.Runner.TdNet
             this.testListener = testListener;
 
             var assemblyFileName = assembly.GetLocalCodeBase();
-            xunit = new Xunit2(new NullSourceInformationProvider(), assemblyFileName);
             configuration = ConfigReader.Load(assemblyFileName);
+            var diagnosticMessageVisitor = new DiagnosticMessageVisitor(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
+            xunit = new Xunit2(new NullSourceInformationProvider(), assemblyFileName, diagnosticMessageSink: diagnosticMessageVisitor);
             toDispose.Push(xunit);
         }
 

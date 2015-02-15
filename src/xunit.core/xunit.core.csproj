@@ -77,7 +77,6 @@
     <Compile Include="Sdk\DataDiscovererAttribute.cs" />
     <Compile Include="Sdk\ExceptionAggregator.cs" />
     <Compile Include="Sdk\IDataDiscoverer.cs" />
-    <Compile Include="Sdk\IMessageAggregator.cs" />
     <Compile Include="Sdk\IMessageBus.cs" />
     <Compile Include="Sdk\InlineDataDiscoverer.cs" />
     <Compile Include="Sdk\ITestCaseOrderer.cs" />

@@ -25,16 +25,19 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testAssembly">The assembly that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
-        /// <param name="messageSink">The message sink to report run status to.</param>
+        /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
+        /// <param name="executionMessageSink">The message sink to report run status to.</param>
         /// <param name="executionOptions">The user's requested execution options.</param>
         public TestAssemblyRunner(ITestAssembly testAssembly,
                                   IEnumerable<TTestCase> testCases,
-                                  IMessageSink messageSink,
+                                  IMessageSink diagnosticMessageSink,
+                                  IMessageSink executionMessageSink,
                                   ITestFrameworkExecutionOptions executionOptions)
         {
             TestAssembly = testAssembly;
             TestCases = testCases;
-            MessageSink = messageSink;
+            DiagnosticMessageSink = diagnosticMessageSink;
+            ExecutionMessageSink = executionMessageSink;
             ExecutionOptions = executionOptions;
             TestCaseOrderer = new DefaultTestCaseOrderer();
             TestCollectionOrderer = new DefaultTestCollectionOrderer();
@@ -52,9 +55,14 @@ namespace Xunit.Sdk
         protected ITestFrameworkExecutionOptions ExecutionOptions { get; set; }
 
         /// <summary>
+        /// Gets or sets the message sink to report diagnostic messages to.
+        /// </summary>
+        protected IMessageSink DiagnosticMessageSink { get; set; }
+
+        /// <summary>
         /// Gets or sets the message sink to report run status to.
         /// </summary>
-        protected IMessageSink MessageSink { get; set; }
+        protected IMessageSink ExecutionMessageSink { get; set; }
 
         /// <summary>
         /// Gets or sets the assembly that contains the tests to be run.
@@ -132,9 +140,9 @@ namespace Xunit.Sdk
         protected virtual IMessageBus CreateMessageBus()
         {
             if (ExecutionOptions.SynchronousMessageReportingOrDefault())
-                return new SynchronousMessageBus(MessageSink);
+                return new SynchronousMessageBus(ExecutionMessageSink);
 
-            return new MessageBus(MessageSink);
+            return new MessageBus(ExecutionMessageSink);
         }
 
         /// <summary>

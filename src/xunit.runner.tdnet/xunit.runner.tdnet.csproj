@@ -64,6 +64,7 @@
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
       <Link>Visitors\TestDiscoveryVisitor.cs</Link>
     </Compile>
+    <Compile Include="Visitors\DiagnosticMessageVisitor.cs" />
     <Compile Include="Visitors\ResultVisitor.cs" />
     <Compile Include="TdNetRunnerHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

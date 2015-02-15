@@ -18,17 +18,17 @@ namespace Xunit.Abstractions
         /// <summary>
         /// Starts the process of running all the tests in the assembly.
         /// </summary>
-        /// <param name="messageSink">The message sink to report results back to.</param>
+        /// <param name="executionMessageSink">The message sink to report results back to.</param>
         /// <param name="discoveryOptions">The options to be used during test discovery.</param>
         /// <param name="executionOptions">The options to be used during test execution.</param>
-        void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions);
+        void RunAll(IMessageSink executionMessageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions);
 
         /// <summary>
         /// Starts the process of running selected tests in the assembly.
         /// </summary>
         /// <param name="testCases">The test cases to run.</param>
-        /// <param name="messageSink">The message sink to report results back to.</param>
+        /// <param name="executionMessageSink">The message sink to report results back to.</param>
         /// <param name="executionOptions">The options to be used during test execution.</param>
-        void RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions);
+        void RunTests(IEnumerable<ITestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions);
     }
 }

@@ -20,15 +20,20 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTheoryTestCase"/> class.
         /// </summary>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="testMethod">The method under test.</param>
-        public XunitTheoryTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod)
-            : base(defaultMethodDisplay, testMethod) { }
+        public XunitTheoryTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod)
+            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod) { }
 
         /// <inheritdoc />
-        public override Task<RunSummary> RunAsync(IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
+        public override Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink,
+                                                  IMessageBus messageBus,
+                                                  object[] constructorArguments,
+                                                  ExceptionAggregator aggregator,
+                                                  CancellationTokenSource cancellationTokenSource)
         {
-            return new XunitTheoryTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
+            return new XunitTheoryTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource).RunAsync();
         }
     }
 }

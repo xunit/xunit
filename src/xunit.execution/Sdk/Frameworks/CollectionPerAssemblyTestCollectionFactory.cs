@@ -22,20 +22,13 @@ namespace Xunit.Sdk
         /// Initializes a new instance of the <see cref="CollectionPerAssemblyTestCollectionFactory" /> class.
         /// </summary>
         /// <param name="testAssembly">The assembly.</param>
-        public CollectionPerAssemblyTestCollectionFactory(ITestAssembly testAssembly)
-            : this(testAssembly, MessageAggregator.Instance) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CollectionPerAssemblyTestCollectionFactory" /> class.
-        /// </summary>
-        /// <param name="testAssembly">The assembly.</param>
-        /// <param name="messageAggregator">The message aggregator used to report <see cref="EnvironmentalWarning"/> messages.</param>
-        public CollectionPerAssemblyTestCollectionFactory(ITestAssembly testAssembly, IMessageAggregator messageAggregator)
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        public CollectionPerAssemblyTestCollectionFactory(ITestAssembly testAssembly, IMessageSink diagnosticMessageSink)
         {
             this.testAssembly = testAssembly;
 
             defaultCollection = new TestCollection(testAssembly, null, "Test collection for " + Path.GetFileName(testAssembly.Assembly.AssemblyPath));
-            collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, messageAggregator);
+            collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, diagnosticMessageSink);
         }
 
         /// <inheritdoc/>

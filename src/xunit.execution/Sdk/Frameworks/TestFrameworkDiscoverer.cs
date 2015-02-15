@@ -20,16 +20,17 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="assemblyInfo">The test assembly.</param>
         /// <param name="sourceProvider">The source information provider.</param>
-        /// <param name="messageAggregator">The message aggregator to receive environmental warnings from.</param>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         public TestFrameworkDiscoverer(IAssemblyInfo assemblyInfo,
                                        ISourceInformationProvider sourceProvider,
-                                       IMessageAggregator messageAggregator)
+                                       IMessageSink diagnosticMessageSink)
         {
             Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
             Guard.ArgumentNotNull("sourceProvider", sourceProvider);
+            Guard.ArgumentNotNull("diagnosticMessageSink", diagnosticMessageSink);
 
-            Aggregator = messageAggregator ?? MessageAggregator.Instance;
             AssemblyInfo = assemblyInfo;
+            DiagnosticMessageSink = diagnosticMessageSink;
             DisposalTracker = new DisposalTracker();
             SourceProvider = sourceProvider;
 
@@ -46,14 +47,14 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Gets the message aggregator used to provide environmental warnings.
-        /// </summary>
-        protected IMessageAggregator Aggregator { get; set; }
-
-        /// <summary>
         /// Gets the assembly that's being discovered.
         /// </summary>
         protected IAssemblyInfo AssemblyInfo { get; set; }
+
+        /// <summary>
+        /// Gets the message sink used to report diagnostic messages.
+        /// </summary>
+        protected IMessageSink DiagnosticMessageSink { get; set; }
 
         /// <summary>
         /// Gets the disposal tracker for the test framework discoverer.
@@ -85,14 +86,14 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
+        public void Find(bool includeSourceInformation, IMessageSink discoveryMessageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            Guard.ArgumentNotNull("messageSink", messageSink);
+            Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
             Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
             Task.Run(() =>
             {
-                using (var messageBus = CreateMessageBus(messageSink, discoveryOptions))
+                using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
                 using (new PreserveWorkingFolder(AssemblyInfo))
                 {
                     foreach (var type in AssemblyInfo.GetTypes(includePrivateTypes: false).Where(IsValidTestClass))
@@ -102,8 +103,7 @@ namespace Xunit.Sdk
                             break;
                     }
 
-                    var warnings = Aggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                    messageBus.QueueMessage(new DiscoveryCompleteMessage(warnings));
+                    messageBus.QueueMessage(new DiscoveryCompleteMessage());
                 }
             });
         }
@@ -117,15 +117,15 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
+        public void Find(string typeName, bool includeSourceInformation, IMessageSink discoveryMessageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             Guard.ArgumentNotNullOrEmpty("typeName", typeName);
-            Guard.ArgumentNotNull("messageSink", messageSink);
+            Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
             Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
             Task.Run(() =>
             {
-                using (var messageBus = CreateMessageBus(messageSink, discoveryOptions))
+                using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
                 using (new PreserveWorkingFolder(AssemblyInfo))
                 {
                     var typeInfo = AssemblyInfo.GetType(typeName);
@@ -135,8 +135,7 @@ namespace Xunit.Sdk
                         FindTestsForTypeAndWrapExceptions(testClass, includeSourceInformation, messageBus, discoveryOptions);
                     }
 
-                    var warnings = Aggregator.GetAndClear<EnvironmentalWarning>().Select(w => w.Message).ToList();
-                    messageBus.QueueMessage(new DiscoveryCompleteMessage(warnings));
+                    messageBus.QueueMessage(new DiscoveryCompleteMessage());
                 }
             });
         }
@@ -159,7 +158,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                Aggregator.Add(new EnvironmentalWarning { Message = String.Format("Exception during discovery:{0}{1}", Environment.NewLine, ex) });
+                DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Exception during discovery:{0}{1}", Environment.NewLine, ex));
                 return true; // Keep going on to the next type
             }
         }

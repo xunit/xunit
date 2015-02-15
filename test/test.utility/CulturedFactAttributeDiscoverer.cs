@@ -8,6 +8,13 @@ namespace TestUtility
 {
     public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
     {
+        readonly IMessageSink diagnosticMessageSink;
+
+        public CulturedFactAttributeDiscoverer(IMessageSink diagnosticMessageSink)
+        {
+            this.diagnosticMessageSink = diagnosticMessageSink;
+        }
+
         public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
             var ctorArgs = factAttribute.GetConstructorArguments().ToArray();
@@ -16,7 +23,7 @@ namespace TestUtility
             if (cultures == null || cultures.Length == 0)
                 cultures = new[] { "en-US", "fr-FR" };
 
-            return cultures.Select(culture => new CulturedXunitTestCase(discoveryOptions.MethodDisplayOrDefault(), testMethod, culture)).ToList();
+            return cultures.Select(culture => new CulturedXunitTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, culture)).ToList();
         }
     }
 }

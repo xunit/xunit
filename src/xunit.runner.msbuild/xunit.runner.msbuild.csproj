@@ -72,6 +72,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\TraitParser.cs" />
+    <Compile Include="Visitors\DiagnosticMessageVisitor.cs" />
     <Compile Include="Visitors\MSBuildVisitor.cs" />
     <Compile Include="Visitors\StandardOutputVisitor.cs" />
     <Compile Include="Utility\TeamCityDisplayNameFormatter.cs" />

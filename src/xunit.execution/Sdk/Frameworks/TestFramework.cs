@@ -15,11 +15,20 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFramework"/> class.
         /// </summary>
-        public TestFramework()
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        public TestFramework(IMessageSink diagnosticMessageSink)
         {
+            Guard.ArgumentNotNull("diagnosticMessageSink", diagnosticMessageSink);
+
+            DiagnosticMessageSink = diagnosticMessageSink;
             DisposalTracker = new DisposalTracker();
             SourceInformationProvider = NullSourceInformationProvider.Instance;
         }
+
+        /// <summary>
+        /// Gets the message sink used to send diagnostic messages.
+        /// </summary>
+        public IMessageSink DiagnosticMessageSink { get; private set; }
 
         /// <summary>
         /// Gets the disposal tracker for the test framework.

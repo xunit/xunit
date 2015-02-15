@@ -7,7 +7,7 @@ namespace Xunit.Sdk
 {
     /// <summary>
     /// A helper class that gets the list of test collection definitions for a given assembly.
-    /// Reports any misconfigurations of the test assembly via <see cref="IMessageAggregator"/>.
+    /// Reports any misconfigurations of the test assembly via the diagnostic message sink.
     /// </summary>
     public static class TestCollectionFactoryHelper
     {
@@ -15,9 +15,9 @@ namespace Xunit.Sdk
         /// Gets the test collection definitions for the given assembly.
         /// </summary>
         /// <param name="assemblyInfo">The assembly.</param>
-        /// <param name="messageAggregator">The message aggregator.</param>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <returns>A list of mappings from test collection name to test collection definitions (as <see cref="ITypeInfo"/></returns>
-        public static Dictionary<string, ITypeInfo> GetTestCollectionDefinitions(IAssemblyInfo assemblyInfo, IMessageAggregator messageAggregator)
+        public static Dictionary<string, ITypeInfo> GetTestCollectionDefinitions(IAssemblyInfo assemblyInfo, IMessageSink diagnosticMessageSink)
         {
             var attributeTypesByName =
                 assemblyInfo.GetTypes(false)
@@ -35,12 +35,9 @@ namespace Xunit.Sdk
                 result[grouping.Key] = types[0];
 
                 if (types.Count > 1)
-                    messageAggregator.Add(new EnvironmentalWarning
-                    {
-                        Message = String.Format("Multiple test collections declared with name '{0}': {1}",
-                                                grouping.Key,
-                                                String.Join(", ", types.Select(type => type.Name)))
-                    });
+                    diagnosticMessageSink.OnMessage(new DiagnosticMessage("Multiple test collections declared with name '{0}': {1}",
+                                                                          grouping.Key,
+                                                                          String.Join(", ", types.Select(type => type.Name))));
             }
 
             return result;

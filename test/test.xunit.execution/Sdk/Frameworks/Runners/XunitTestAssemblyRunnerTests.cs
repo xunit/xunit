@@ -247,9 +247,10 @@ public class XunitTestAssemblyRunnerTests
 
         TestableXunitTestAssemblyRunner(ITestAssembly testAssembly,
                                         IEnumerable<IXunitTestCase> testCases,
-                                        IMessageSink messageSink,
+                                        IMessageSink diagnosticMessageSink,
+                                        IMessageSink executionMessageSink,
                                         ITestFrameworkExecutionOptions executionOptions)
-            : base(testAssembly, testCases, messageSink, executionOptions) { }
+            : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions) { }
 
         public static TestableXunitTestAssemblyRunner Create(ITestAssembly assembly = null,
                                                              IXunitTestCase[] testCases = null,
@@ -261,6 +262,7 @@ public class XunitTestAssemblyRunnerTests
             return new TestableXunitTestAssemblyRunner(
                 assembly ?? testCases.First().TestMethod.TestClass.TestCollection.TestAssembly,
                 testCases ?? new IXunitTestCase[0],
+                SpyMessageSink.Create(),
                 SpyMessageSink.Create(),
                 executionOptions ?? TestFrameworkOptions.ForExecution()
             );

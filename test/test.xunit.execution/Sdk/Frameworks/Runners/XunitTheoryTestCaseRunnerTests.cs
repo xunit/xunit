@@ -109,8 +109,15 @@ public class XunitTheoryTestCaseRunnerTests
 
     class TestableXunitTheoryTestCaseRunner : XunitTheoryTestCaseRunner
     {
-        TestableXunitTheoryTestCaseRunner(IXunitTestCase testCase, string displayName, string skipReason, object[] constructorArguments, IMessageBus messageBus, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
-            : base(testCase, displayName, skipReason, constructorArguments, messageBus, aggregator, cancellationTokenSource) { }
+        TestableXunitTheoryTestCaseRunner(IXunitTestCase testCase, 
+                                          string displayName, 
+                                          string skipReason, 
+                                          object[] constructorArguments, 
+                                          IMessageSink diagnosticMessageSink,
+                                          IMessageBus messageBus, 
+                                          ExceptionAggregator aggregator, 
+                                          CancellationTokenSource cancellationTokenSource)
+            : base(testCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource) { }
 
         public static TestableXunitTheoryTestCaseRunner Create<TClassUnderTest>(string methodName, IMessageBus messageBus, string displayName = null)
         {
@@ -119,6 +126,7 @@ public class XunitTheoryTestCaseRunnerTests
                 displayName,
                 null,
                 new object[0],
+                SpyMessageSink.Create(),
                 messageBus,
                 new ExceptionAggregator(),
                 new CancellationTokenSource()

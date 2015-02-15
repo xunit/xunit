@@ -141,7 +141,7 @@ namespace Xunit
             }
             finally
             {
-                messageSink.OnMessage(new DiscoveryCompleteMessage(new string[0]));
+                messageSink.OnMessage(new DiscoveryCompleteMessage());
             }
         }
 

@@ -6,11 +6,5 @@ namespace Xunit.Abstractions
     /// This message indicates that the discovery process has been completed for
     /// the requested assembly.
     /// </summary>
-    public interface IDiscoveryCompleteMessage : IMessageSinkMessage
-    {
-        /// <summary>
-        /// Gets the list of warnings that were raised during discovery.
-        /// </summary>
-        IEnumerable<string> Warnings { get; }
-    }
+    public interface IDiscoveryCompleteMessage : IMessageSinkMessage { }
 }

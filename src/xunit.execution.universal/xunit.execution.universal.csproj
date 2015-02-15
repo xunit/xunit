@@ -114,6 +114,9 @@
     <Compile Include="..\common\LongLivedMarshalByRefObject_Execution_NoAppDomain.cs">
       <Link>Common\LongLivedMarshalByRefObject_Execution_NoAppDomain.cs</Link>
     </Compile>
+    <Compile Include="..\common\NullMessageSink.cs">
+      <Link>Common\NullMessageSink.cs</Link>
+    </Compile>
     <Compile Include="..\common\SerializationHelper.cs">
       <Link>Common\SerializationHelper.cs</Link>
     </Compile>

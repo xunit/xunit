@@ -33,7 +33,7 @@ public class SerializationTests
     {
         var sourceProvider = new NullSourceInformationProvider();
         var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
-        var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider);
+        var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider, SpyMessageSink.Create());
         var visitor = new TestDiscoveryVisitor();
 
         discoverer.Find(typeof(ClassWithFacts).FullName, false, visitor, TestFrameworkOptions.ForDiscovery());
@@ -66,7 +66,7 @@ public class SerializationTests
     {
         var sourceProvider = new NullSourceInformationProvider();
         var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
-        var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider);
+        var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider, SpyMessageSink.Create());
         var visitor = new TestDiscoveryVisitor();
 
         discoverer.Find(typeof(ClassWithTheory).FullName, false, visitor, TestFrameworkOptions.ForDiscovery());
@@ -98,7 +98,7 @@ public class SerializationTests
     {
         var sourceProvider = new NullSourceInformationProvider();
         var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
-        var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider);
+        var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider, SpyMessageSink.Create());
         var visitor = new TestDiscoveryVisitor();
 
         discoverer.Find(typeof(ClassWithNonSerializableTheoryData).FullName, false, visitor, TestFrameworkOptions.ForDiscovery());
@@ -119,5 +119,4 @@ public class SerializationTests
         [MemberData("Data")]
         public void Test(object x) { }
     }
-
 }

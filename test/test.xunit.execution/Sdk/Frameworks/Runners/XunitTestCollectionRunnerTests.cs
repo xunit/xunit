@@ -75,17 +75,19 @@ public class XunitTestCollectionRunnerTests
     {
         TestableXunitTestCollectionRunner(ITestCollection testCollection,
                                           IEnumerable<IXunitTestCase> testCases,
+                                          IMessageSink diagnosticMessageSink,
                                           IMessageBus messageBus,
                                           ITestCaseOrderer testCaseOrderer,
                                           ExceptionAggregator aggregator,
                                           CancellationTokenSource cancellationTokenSource)
-            : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource) { }
+            : base(testCollection, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource) { }
 
         public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase)
         {
             return new TestableXunitTestCollectionRunner(
                 testCase.TestMethod.TestClass.TestCollection,
                 new[] { testCase },
+                SpyMessageSink.Create(),
                 new SpyMessageBus(),
                 new MockTestCaseOrderer(),
                 new ExceptionAggregator(),

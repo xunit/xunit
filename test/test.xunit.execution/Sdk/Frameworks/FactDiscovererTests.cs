@@ -25,26 +25,26 @@ public class FactDiscovererTests
     [Fact]
     public async void FactWithoutParameters_ReturnsTestCaseThatRunsFact()
     {
-        var discoverer = new FactDiscoverer();
+        var discoverer = TestableFactDiscoverer.Create();
         var testMethod = Mocks.TestMethod(typeof(ClassUnderTest), "FactWithNoParameters");
 
         var testCases = discoverer.Discover(options, testMethod, factAttribute);
 
         var testCase = Assert.Single(testCases);
-        await testCase.RunAsync(messageBus, new object[0], aggregator, cancellationTokenSource);
+        await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);
         Assert.Single(messageBus.Messages.OfType<ITestPassed>());
     }
 
     [Fact]
     public async void FactWithParameters_ReturnsTestCaseWhichThrows()
     {
-        var discoverer = new FactDiscoverer();
+        var discoverer = TestableFactDiscoverer.Create();
         var testMethod = Mocks.TestMethod(typeof(ClassUnderTest), "FactWithParameters");
 
         var testCases = discoverer.Discover(options, testMethod, factAttribute);
 
         var testCase = Assert.Single(testCases);
-        await testCase.RunAsync(messageBus, new object[0], aggregator, cancellationTokenSource);
+        await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);
         var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
         Assert.Equal(typeof(InvalidOperationException).FullName, failed.ExceptionTypes.Single());
         Assert.Equal("[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?", failed.Messages.Single());
@@ -57,5 +57,15 @@ public class FactDiscovererTests
 
         [Fact]
         public void FactWithParameters(int x) { }
+    }
+
+    class TestableFactDiscoverer : FactDiscoverer
+    {
+        public TestableFactDiscoverer(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink) { }
+
+        public static TestableFactDiscoverer Create()
+        {
+            return new TestableFactDiscoverer(SpyMessageSink.Create());
+        }
     }
 }
