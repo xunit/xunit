@@ -38,13 +38,13 @@
           <xsl:value-of select="@time"/>
         </xsl:attribute>
         <results>
-          <xsl:apply-templates select="class"/>
+          <xsl:apply-templates select="collection"/>
         </results>
       </test-suite>
     </test-results>
   </xsl:template>
 
-  <xsl:template match="class">
+  <xsl:template match="collection">
     <test-suite>
       <xsl:attribute name="name">
         <xsl:value-of select="@name"/>
