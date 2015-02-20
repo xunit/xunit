@@ -10,7 +10,7 @@
     <RootNamespace>Xunit</RootNamespace>
     <AssemblyName>xunit.execution.desktop</AssemblyName>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Signing.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\signing.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
