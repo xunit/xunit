@@ -11,6 +11,7 @@ public class XunitSerializationInfoTests
         get
         {
             yield return new object[] { typeof(string), "Hello, world!" };
+            yield return new object[] { typeof(string), "" };
             yield return new object[] { typeof(string), null };
             yield return new object[] { typeof(int), int.MaxValue };
             yield return new object[] { typeof(int?), int.MinValue };

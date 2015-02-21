@@ -72,6 +72,10 @@ namespace Xunit.Serialization
         {
             var serializedType = SerializationHelper.GetTypeNameForSerialization(triple.Type);
             var serializedValue = Serialize(triple.Value);
+            // Leaving off the colon is how we indicate null-ness
+            if (serializedValue == null)
+                return String.Format("{0}:{1}", triple.Key, serializedType);
+
             return String.Format("{0}:{1}:{2}", triple.Key, serializedType, serializedValue);
         }
 
@@ -83,11 +87,11 @@ namespace Xunit.Serialization
         public static XunitSerializationTriple DeserializeTriple(string value)
         {
             var pieces = value.Split(new[] { ':' }, 3);
-            if (pieces.Length != 3)
+            if (pieces.Length < 2)
                 throw new ArgumentException("Data does not appear to be a valid serialized triple: " + value);
 
             var pieceType = SerializationHelper.GetType(pieces[1]);
-            object deserializedValue = Deserialize(pieceType, pieces[2]);
+            var deserializedValue = pieces.Length == 3 ? Deserialize(pieceType, pieces[2]) : null;
 
             return new XunitSerializationTriple(pieces[0], deserializedValue, pieceType);
         }
@@ -100,7 +104,7 @@ namespace Xunit.Serialization
         /// <returns>The de-serialized object</returns>
         public static object Deserialize(Type type, string serializedValue)
         {
-            if (serializedValue == "")
+            if (serializedValue == null)
                 return null;
 
             if (typeof(IXunitSerializable).IsAssignableFrom(type))
@@ -157,7 +161,7 @@ namespace Xunit.Serialization
         public static string Serialize(object value)
         {
             if (value == null)
-                return "";
+                return null;
 
             var serializable = value as IXunitSerializable;
             if (serializable != null)
