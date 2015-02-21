@@ -58,6 +58,9 @@
     <Compile Include="..\..\src\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\NewReflectionExtensions.cs">
+      <Link>Common\NewReflectionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\SerializationHelper.cs">
       <Link>Common\SerializationHelper.cs</Link>
     </Compile>

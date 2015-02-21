@@ -55,6 +55,9 @@
     <Compile Include="..\..\src\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\..\src\common\NewReflectionExtensions.cs">
+      <Link>Common\NewReflectionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\src\common\SerializationHelper.cs">
       <Link>Common\SerializationHelper.cs</Link>
     </Compile>
@@ -78,10 +81,12 @@
     <Compile Include="Acceptance\FixtureAcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2TheoryAcceptanceTests.cs" />
+    <Compile Include="Common\SerializationHelperTests.cs" />
     <Compile Include="Common\XmlTestExecutionVisitorTests.cs" />
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Common\XunitSerializationInfoTests.cs" />
     <Compile Include="Extensions\ReflectionAbstractionExtensionsTests.cs" />
     <Compile Include="Sdk\ArgumentFormatterTests.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />

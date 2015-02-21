@@ -64,6 +64,9 @@
     <Compile Include="..\common\LongLivedMarshalByRefObject_Execution.cs">
       <Link>Common\LongLivedMarshalByRefObject_Execution.cs</Link>
     </Compile>
+    <Compile Include="..\common\NewReflectionExtensions.cs">
+      <Link>Common\NewReflectionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\NullMessageSink.cs">
       <Link>Common\NullMessageSink.cs</Link>
     </Compile>

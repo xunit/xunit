@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -30,13 +32,8 @@ namespace Xunit.Sdk
             if (deserializedType == null)
                 throw new ArgumentException("Could not load type " + pieces[0], "serializedValue");
 
-#if NEW_REFLECTION
-            if (!typeof(IXunitSerializable).GetTypeInfo().IsAssignableFrom(deserializedType.GetTypeInfo()))
-                throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "T");
-#else
             if (!typeof(IXunitSerializable).IsAssignableFrom(deserializedType))
                 throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "T");
-#endif
 
             var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
             if (obj is XunitSerializationInfo.ArraySerializer)
@@ -74,7 +71,68 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyQualifiedTypeName)
         {
-            var parts = assemblyQualifiedTypeName.Split(new[] { ',' }).Select(x => x.Trim()).ToList();
+            var firstOpenSquare = assemblyQualifiedTypeName.IndexOf('[');
+            if (firstOpenSquare > 0)
+            {
+                var backtick = assemblyQualifiedTypeName.IndexOf('`');
+                if (backtick > 0 && backtick < firstOpenSquare)
+                {
+                    // Run the string looking for the matching closing square brace. Can't just assume the last one
+                    // is the end, since the type could be trailed by array designators.
+                    var depth = 1;
+                    var lastOpenSquare = firstOpenSquare + 1;
+                    var sawNonArrayDesignator = false;
+                    for (; depth > 0 && lastOpenSquare < assemblyQualifiedTypeName.Length; ++lastOpenSquare)
+                    {
+                        switch (assemblyQualifiedTypeName[lastOpenSquare])
+                        {
+                            case '[': ++depth; break;
+                            case ']': --depth; break;
+                            case ',': break;
+                            default: sawNonArrayDesignator = true; break;
+                        }
+                    }
+
+                    if (sawNonArrayDesignator)
+                    {
+                        if (depth != 0)  // Malformed, because we never closed what we opened
+                            return null;
+
+                        var genericArgument = assemblyQualifiedTypeName.Substring(firstOpenSquare + 1, lastOpenSquare - firstOpenSquare - 2);  // Strip surrounding [ and ]
+                        var innerTypeNames = SplitAtOuterCommas(genericArgument).Select(x => x.Substring(1, x.Length - 2)).ToArray();  // Strip surrounding [ and ] from each type name
+                        var innerTypes = innerTypeNames.Select(GetType).ToArray();
+                        if (innerTypes.Any(t => t == null))
+                            return null;
+
+                        var genericDefinitionName = assemblyQualifiedTypeName.Substring(0, firstOpenSquare) + assemblyQualifiedTypeName.Substring(lastOpenSquare);
+                        var genericDefinition = GetType(genericDefinitionName);
+                        if (genericDefinition == null)
+                            return null;
+
+                        // Push array ranks so we can get down to the actual generic definition
+                        var arrayRanks = new Stack<int>();
+                        while (genericDefinition.IsArray)
+                        {
+                            arrayRanks.Push(genericDefinition.GetArrayRank());
+                            genericDefinition = genericDefinition.GetElementType();
+                        }
+
+                        var closedGenericType = genericDefinition.MakeGenericType(innerTypes);
+                        while (arrayRanks.Count > 0)
+                        {
+                            var rank = arrayRanks.Pop();
+                            if (rank > 1)
+                                closedGenericType = closedGenericType.MakeArrayType(rank);
+                            else
+                                closedGenericType = closedGenericType.MakeArrayType();
+                        }
+
+                        return closedGenericType;
+                    }
+                }
+            }
+
+            var parts = SplitAtOuterCommas(assemblyQualifiedTypeName).Select(x => x.Trim()).ToList();
             if (parts.Count == 0)
                 return null;
 
@@ -131,14 +189,69 @@ namespace Xunit.Sdk
         /// </summary>
         public static string GetTypeNameForSerialization(Type type)
         {
-            var pieces = type.AssemblyQualifiedName.Split(',').Select(p => p.Trim()).ToArray();
-            if (pieces.Length < 2 || String.Equals(pieces[1], "mscorlib", StringComparison.OrdinalIgnoreCase))
-                return pieces[0];
+            var typeName = type.FullName;
+            var assemblyName = type.GetAssembly().FullName.Split(',')[0];
 
-            if (String.Equals(pieces[1], ExecutionHelper.AssemblyName, StringComparison.OrdinalIgnoreCase))
-                pieces[1] = "xunit.execution";
+            var arrayRanks = new Stack<int>();
+            while (type.IsArray)
+            {
+                arrayRanks.Push(type.GetArrayRank());
+                type = type.GetElementType();
+            }
 
-            return String.Format("{0}, {1}", pieces[0], pieces[1]);
+            if (type.IsGenericType())
+            {
+                var typeDefinition = type.GetGenericTypeDefinition();
+                var innerTypes = type.GetGenericArguments().Select(t => String.Format("[{0}]", GetTypeNameForSerialization(t))).ToArray();
+                typeName = String.Format("{0}[{1}]", typeDefinition.FullName, String.Join(",", innerTypes));
+
+                while (arrayRanks.Count > 0)
+                {
+                    typeName += '[';
+                    for (var commas = arrayRanks.Pop() - 1; commas > 0; --commas)
+                        typeName += ',';
+                    typeName += ']';
+                }
+            }
+
+            if (String.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase))
+                return typeName;
+
+            if (String.Equals(assemblyName, ExecutionHelper.AssemblyName, StringComparison.OrdinalIgnoreCase))
+                assemblyName = "xunit.execution";
+
+            return String.Format("{0}, {1}", typeName, assemblyName);
+        }
+
+        private static IList<string> SplitAtOuterCommas(string value)
+        {
+            List<string> results = new List<string>();
+
+            var startIndex = 0;
+            var endIndex = 0;
+            var depth = 0;
+
+            for (; endIndex < value.Length; ++endIndex)
+            {
+                switch (value[endIndex])
+                {
+                    case '[': ++depth; break;
+                    case ']': --depth; break;
+                    case ',':
+                        if (depth == 0)
+                        {
+                            results.Add(value.Substring(startIndex, endIndex - startIndex));
+                            startIndex = endIndex + 1;
+                        }
+                        break;
+                }
+            }
+
+            if (depth != 0 || startIndex >= endIndex)
+                return new List<string>();
+
+            results.Add(value.Substring(startIndex, endIndex - startIndex));
+            return results;
         }
     }
 }

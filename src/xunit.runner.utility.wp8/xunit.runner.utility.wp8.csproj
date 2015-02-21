@@ -126,6 +126,9 @@
     <Compile Include="..\common\LongLivedMarshalByRefObject_Runner_NoAppDomain.cs">
       <Link>Common\LongLivedMarshalByRefObject_Runner_NoAppDomain.cs</Link>
     </Compile>
+    <Compile Include="..\common\NewReflectionExtensions.cs">
+      <Link>Common\NewReflectionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\NullMessageSink.cs">
       <Link>Common\NullMessageSink.cs</Link>
     </Compile>

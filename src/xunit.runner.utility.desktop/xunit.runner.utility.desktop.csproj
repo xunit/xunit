@@ -78,6 +78,9 @@
     <Compile Include="..\common\LongLivedMarshalByRefObject_Runner.cs">
       <Link>Common\LongLivedMarshalByRefObject_Runner.cs</Link>
     </Compile>
+    <Compile Include="..\common\NewReflectionExtensions.cs">
+      <Link>Common\NewReflectionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\NullMessageSink.cs">
       <Link>Common\NullMessageSink.cs</Link>
     </Compile>

@@ -14,7 +14,7 @@ namespace Xunit.Serialization
     /// </summary>
     internal class XunitSerializationInfo : IXunitSerializationInfo
     {
-        private readonly IDictionary<string, SerializationData> data = new Dictionary<string, SerializationData>();
+        private readonly IDictionary<string, XunitSerializationTriple> data = new Dictionary<string, XunitSerializationTriple>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitSerializationInfo"/> class.
@@ -32,7 +32,7 @@ namespace Xunit.Serialization
             if (type == null)
                 type = value == null ? typeof(object) : value.GetType();
 
-            data[key] = new SerializationData(value, type);
+            data[key] = new XunitSerializationTriple(key, value, type);
         }
 
         /// <inheritdoc/>
@@ -44,18 +44,13 @@ namespace Xunit.Serialization
         /// <inheritdoc/>
         public object GetValue(string key, Type type)
         {
-            SerializationData val;
+            XunitSerializationTriple val;
 
             if (data.TryGetValue(key, out val))
                 return val.Value;
 
-#if NEW_REFLECTION
-            if (type.GetTypeInfo().IsValueType)
+            if (type.IsValueType())
                 return Activator.CreateInstance(type);
-#else
-            if (type.IsValueType)
-                return Activator.CreateInstance(type);
-#endif
 
             return null;
         }
@@ -63,11 +58,38 @@ namespace Xunit.Serialization
         /// <summary>
         /// Returns BASE64 encoded string that represents the entirety of the data.
         /// </summary>
-        /// <returns></returns>
         public string ToSerializedString()
         {
-            var valueTree = String.Join("\n", data.Select(kvp => String.Format("{0}:{1}:{2}", kvp.Key, SerializationHelper.GetTypeNameForSerialization(kvp.Value.Type), Serialize(kvp.Value.Value))).ToArray());
-            return ToBase64(valueTree);
+            return ToBase64(String.Join("\n", data.Select(kvp => SerializeTriple(kvp.Value)).ToArray()));
+        }
+
+        /// <summary>
+        /// Returns a triple for a key/value pair of data in a complex object
+        /// </summary>
+        /// <param name="triple">The triple to be serialized</param>
+        /// <returns>The serialized version of the triple</returns>
+        public static string SerializeTriple(XunitSerializationTriple triple)
+        {
+            var serializedType = SerializationHelper.GetTypeNameForSerialization(triple.Type);
+            var serializedValue = Serialize(triple.Value);
+            return String.Format("{0}:{1}:{2}", triple.Key, serializedType, serializedValue);
+        }
+
+        /// <summary>
+        /// Returns the triple values out of a serialized triple.
+        /// </summary>
+        /// <param name="value">The serialized triple</param>
+        /// <returns>The de-serialized triple</returns>
+        public static XunitSerializationTriple DeserializeTriple(string value)
+        {
+            var pieces = value.Split(new[] { ':' }, 3);
+            if (pieces.Length != 3)
+                throw new ArgumentException("Data does not appear to be a valid serialized triple: " + value);
+
+            var pieceType = SerializationHelper.GetType(pieces[1]);
+            object deserializedValue = Deserialize(pieceType, pieces[2]);
+
+            return new XunitSerializationTriple(pieces[0], deserializedValue, pieceType);
         }
 
         /// <summary>
@@ -81,13 +103,8 @@ namespace Xunit.Serialization
             if (serializedValue == "")
                 return null;
 
-#if NEW_REFLECTION
-            if (typeof(IXunitSerializable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
-                return DeserializeSerializable(type, serializedValue);
-#else
             if (typeof(IXunitSerializable).IsAssignableFrom(type))
                 return DeserializeSerializable(type, serializedValue);
-#endif
 
             if (type == typeof(string))
                 return FromBase64(serializedValue);
@@ -123,12 +140,8 @@ namespace Xunit.Serialization
 
             foreach (var element in elements)
             {
-                var pieces = element.Split(new[] { ':' }, 3);
-                if (pieces.Length != 3)
-                    throw new ArgumentException("Could not split element into 3 pieces: " + element);
-
-                var pieceType = SerializationHelper.GetType(pieces[1]);
-                serializationInfo.data[pieces[0]] = new SerializationData(Deserialize(pieceType, pieces[2]), pieceType);
+                var triple = DeserializeTriple(element);
+                serializationInfo.data[triple.Key] = triple;
             }
 
             var value = (IXunitSerializable)Activator.CreateInstance(type);
@@ -209,14 +222,8 @@ namespace Xunit.Serialization
             if (valueType.IsArray)
                 return ((object[])value).All(CanSerializeObject);
 
-#if NEW_REFLECTION
-            var typeInfo = valueType.GetTypeInfo();
-            if (supportedSerializationTypes.Any(supportedType => supportedType.GetTypeInfo().IsAssignableFrom(typeInfo)))
-                return true;
-#else
             if (supportedSerializationTypes.Any(supportedType => supportedType.IsAssignableFrom(valueType)))
                 return true;
-#endif
 
             return false;
         }
@@ -274,17 +281,40 @@ namespace Xunit.Serialization
                     array[i] = info.GetValue("Item" + i, arrType);
             }
         }
+    }
 
-        class SerializationData
+    /// <summary>
+    /// Represents a triple of information used when serializing complex types: the property name,
+    /// the value to be serialized, and the value's type.
+    /// </summary>
+    internal class XunitSerializationTriple
+    {
+        /// <summary>
+        /// Gets the triple's key
+        /// </summary>
+        public readonly string Key;
+
+        /// <summary>
+        /// Gets the triple's value
+        /// </summary>
+        public readonly object Value;
+
+        /// <summary>
+        /// Gets the triple's value type
+        /// </summary>
+        public readonly Type Type;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitSerializationTriple"/> class.
+        /// </summary>
+        /// <param name="key">The triple's key</param>
+        /// <param name="value">The triple's value</param>
+        /// <param name="type">The triple's value type</param>
+        public XunitSerializationTriple(string key, object value, Type type)
         {
-            public object Value;
-            public Type Type;
-
-            public SerializationData(object value, Type type)
-            {
-                Value = value;
-                Type = type;
-            }
+            Key = key;
+            Value = value;
+            Type = type;
         }
     }
 }

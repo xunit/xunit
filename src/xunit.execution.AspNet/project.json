@@ -38,6 +38,7 @@
         "../common/GlobalAssemblyInfo.cs",
         "../common/Guard.cs",
         "../common/LongLivedMarshalByRefObject_Execution_NoAppDomain.cs",
+        "../common/NewReflectionExtensions.cs",
         "../common/NullMessageSink.cs",
         "../common/SerializationHelper.cs",
         "../common/SourceInformation.cs",
