@@ -52,6 +52,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="xunit.extensions\DataTheories\AcceptanceTests\AcceptanceTestData.xls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

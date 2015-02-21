@@ -15,9 +15,9 @@ public class ConfigReader_ConfigurationTests
         }
 
         [Fact]
-        public static void NoConfigurationFile_ReturnsDefaultValues()
+        public static void EmptyConfigurationFile_ReturnsDefaultValues()
         {
-            var result = ConfigReader.Load(assemblyFileName);
+            var result = ConfigReader.Load(assemblyFileName, Path.Combine(Path.GetDirectoryName(assemblyFileName), "ConfigReader_Empty.config"));
 
             Assert.False(result.DiagnosticMessagesOrDefault);
             Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
