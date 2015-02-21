@@ -26,8 +26,8 @@ namespace Xunit.ConsoleClient
             {
                 if (args.Length == 0 || args[0] == "-?")
                 {
-                    PrintUsage();
                     PrintHeader();
+                    PrintUsage();
                     return 1;
                 }
 
