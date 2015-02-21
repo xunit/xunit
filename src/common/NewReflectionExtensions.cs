@@ -26,6 +26,14 @@ internal static class NewReflectionExtensions
 #endif
     }
 
+    public static bool IsEnum(this Type type)
+    {
+#if NEW_REFLECTION
+        return type.GetTypeInfo().IsEnum;
+#else
+        return type.IsEnum;
+#endif
+    }
 
     public static bool IsGenericType(this Type type)
     {
@@ -36,6 +44,11 @@ internal static class NewReflectionExtensions
 #endif
     }
 
+    public static bool IsNullableEnum(this Type type)
+    {
+        return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>) && type.GetGenericArguments()[0].IsEnum();
+    }
+
     public static bool IsValueType(this Type type)
     {
 #if NEW_REFLECTION
@@ -43,6 +56,15 @@ internal static class NewReflectionExtensions
 #else
         return type.IsValueType;
 #endif
+    }
+
+    public static Type UnwrapNullable(this Type type)
+    {
+        if (!type.IsGenericType())
+            return type;
+        if (type.GetGenericTypeDefinition() != typeof(Nullable<>))
+            return type;
+        return type.GetGenericArguments()[0];
     }
 
     // Existing methods

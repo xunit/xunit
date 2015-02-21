@@ -131,6 +131,9 @@ namespace Xunit.Serialization
             if (type == typeof(bool?) || type == typeof(bool))
                 return Boolean.Parse(serializedValue);
 
+            if (type.IsEnum() || type.IsNullableEnum())
+                return Enum.Parse(type.UnwrapNullable(), serializedValue);
+
             if (type.IsArray)
             {
                 var arrSer = (ArraySerializer)DeserializeSerializable(typeof(ArraySerializer), serializedValue);
@@ -202,6 +205,9 @@ namespace Xunit.Serialization
             if (booleanData != null)
                 return booleanData.GetValueOrDefault().ToString();
 
+            if (value.GetType().IsEnum())
+                return value.ToString();
+
             var array = value as object[];
             if (array != null)
             {
@@ -222,6 +228,7 @@ namespace Xunit.Serialization
             typeof(float),   typeof(float?),
             typeof(double),  typeof(double?),
             typeof(decimal), typeof(decimal?),
+            typeof(bool),    typeof(bool?),
         };
 
         private static bool CanSerializeObject(object value)
@@ -232,6 +239,9 @@ namespace Xunit.Serialization
             var valueType = value.GetType();
             if (valueType.IsArray)
                 return ((object[])value).All(CanSerializeObject);
+
+            if (valueType.IsEnum() || valueType.IsNullableEnum())
+                return true;
 
             if (supportedSerializationTypes.Any(supportedType => supportedType.IsAssignableFrom(valueType)))
                 return true;

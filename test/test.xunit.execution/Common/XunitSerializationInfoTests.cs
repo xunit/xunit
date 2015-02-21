@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Serialization;
@@ -31,7 +32,10 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(bool), true };
             yield return new object[] { typeof(bool?), false };
             yield return new object[] { typeof(bool?), null };
-            yield return new object[] { typeof(object[]), new object[] { int.MinValue, long.MaxValue, null, 1.1f, -2.2, decimal.MaxValue } };
+            yield return new object[] { typeof(HttpStatusCode), HttpStatusCode.OK };
+            yield return new object[] { typeof(HttpStatusCode?), HttpStatusCode.PartialContent };
+            yield return new object[] { typeof(HttpStatusCode?), null };
+            yield return new object[] { typeof(object[]), new object[] { int.MinValue, long.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, HttpStatusCode.OK } };
         }
     }
 
