@@ -131,6 +131,18 @@ namespace Xunit.Serialization
             if (type == typeof(bool?) || type == typeof(bool))
                 return Boolean.Parse(serializedValue);
 
+            if (type == typeof(DateTime?) || type == typeof(DateTime))
+            {
+                var styles = serializedValue.EndsWith("Z") ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
+                return DateTime.Parse(serializedValue, CultureInfo.InvariantCulture, styles);
+            }
+
+            if (type == typeof(DateTimeOffset?) || type == typeof(DateTimeOffset))
+            {
+                var styles = serializedValue.EndsWith("Z") ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
+                return DateTimeOffset.Parse(serializedValue, CultureInfo.InvariantCulture, styles);
+            }
+
             if (type.IsEnum() || type.IsNullableEnum())
                 return Enum.Parse(type.UnwrapNullable(), serializedValue);
 
@@ -205,6 +217,14 @@ namespace Xunit.Serialization
             if (booleanData != null)
                 return booleanData.GetValueOrDefault().ToString();
 
+            var datetimeData = value as DateTime?;
+            if (datetimeData != null)
+                return datetimeData.GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
+
+            var datetimeoffsetData = value as DateTimeOffset?;
+            if (datetimeoffsetData != null)
+                return datetimeoffsetData.GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
+
             if (value.GetType().IsEnum())
                 return value.ToString();
 
@@ -223,12 +243,14 @@ namespace Xunit.Serialization
         static readonly Type[] supportedSerializationTypes = new[] {
             typeof(IXunitSerializable),
             typeof(string),
-            typeof(int),     typeof(int?),
-            typeof(long),    typeof(long?),
-            typeof(float),   typeof(float?),
-            typeof(double),  typeof(double?),
-            typeof(decimal), typeof(decimal?),
-            typeof(bool),    typeof(bool?),
+            typeof(int),            typeof(int?),
+            typeof(long),           typeof(long?),
+            typeof(float),          typeof(float?),
+            typeof(double),         typeof(double?),
+            typeof(decimal),        typeof(decimal?),
+            typeof(bool),           typeof(bool?),
+            typeof(DateTime),       typeof(DateTime?),
+            typeof(DateTimeOffset), typeof(DateTimeOffset?),
         };
 
         private static bool CanSerializeObject(object value)
