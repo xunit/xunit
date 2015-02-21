@@ -189,6 +189,9 @@ namespace Xunit.Sdk
         /// </summary>
         public static string GetTypeNameForSerialization(Type type)
         {
+            if (typeof(Type).IsAssignableFrom(type))
+                type = typeof(Type);
+
             var typeName = type.FullName;
             var assemblyName = type.GetAssembly().FullName.Split(',')[0];
 

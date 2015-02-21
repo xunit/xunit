@@ -143,6 +143,9 @@ namespace Xunit.Serialization
                 return DateTimeOffset.Parse(serializedValue, CultureInfo.InvariantCulture, styles);
             }
 
+            if (type == typeof(Type))
+                return SerializationHelper.GetType(serializedValue);
+
             if (type.IsEnum() || type.IsNullableEnum())
                 return Enum.Parse(type.UnwrapNullable(), serializedValue);
 
@@ -225,6 +228,10 @@ namespace Xunit.Serialization
             if (datetimeoffsetData != null)
                 return datetimeoffsetData.GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
 
+            var typeData = value as Type;
+            if (typeData != null)
+                return SerializationHelper.GetTypeNameForSerialization(typeData);
+
             if (value.GetType().IsEnum())
                 return value.ToString();
 
@@ -243,6 +250,7 @@ namespace Xunit.Serialization
         static readonly Type[] supportedSerializationTypes = new[] {
             typeof(IXunitSerializable),
             typeof(string),
+            typeof(Type),
             typeof(int),            typeof(int?),
             typeof(long),           typeof(long?),
             typeof(float),          typeof(float?),

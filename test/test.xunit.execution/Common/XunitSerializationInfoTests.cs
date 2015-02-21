@@ -41,7 +41,9 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(DateTimeOffset), DateTimeOffset.Now };
             yield return new object[] { typeof(DateTimeOffset?), DateTimeOffset.UtcNow };
             yield return new object[] { typeof(DateTimeOffset?), null };
-            yield return new object[] { typeof(object[]), new object[] { int.MinValue, long.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, HttpStatusCode.OK, DateTime.Now, DateTimeOffset.UtcNow } };
+            yield return new object[] { typeof(Type), typeof(object) };
+            yield return new object[] { typeof(Type), null };
+            yield return new object[] { typeof(object[]), new object[] { int.MinValue, long.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, HttpStatusCode.OK, DateTime.Now, DateTimeOffset.UtcNow, typeof(decimal) } };
         }
     }
 
