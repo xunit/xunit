@@ -28,6 +28,9 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(decimal), decimal.MaxValue };
             yield return new object[] { typeof(decimal?), decimal.MinValue };
             yield return new object[] { typeof(decimal?), null };
+            yield return new object[] { typeof(bool), true };
+            yield return new object[] { typeof(bool?), false };
+            yield return new object[] { typeof(bool?), null };
             yield return new object[] { typeof(object[]), new object[] { int.MinValue, long.MaxValue, null, 1.1f, -2.2, decimal.MaxValue } };
         }
     }

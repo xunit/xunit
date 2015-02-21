@@ -128,6 +128,9 @@ namespace Xunit.Serialization
             if (type == typeof(decimal?) || type == typeof(decimal))
                 return Decimal.Parse(serializedValue, CultureInfo.InvariantCulture);
 
+            if (type == typeof(bool?) || type == typeof(bool))
+                return Boolean.Parse(serializedValue);
+
             if (type.IsArray)
             {
                 var arrSer = (ArraySerializer)DeserializeSerializable(typeof(ArraySerializer), serializedValue);
@@ -194,6 +197,10 @@ namespace Xunit.Serialization
             var decimalData = value as decimal?;
             if (decimalData != null)
                 return decimalData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var booleanData = value as bool?;
+            if (booleanData != null)
+                return booleanData.GetValueOrDefault().ToString();
 
             var array = value as object[];
             if (array != null)
