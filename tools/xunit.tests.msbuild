@@ -19,6 +19,7 @@
   <Target Name="Test">
     <xunit
         Assemblies="..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll"
+        SerializeTestCases="true"
         Xml="..\TestResults-v1-$(PROCESSOR_ARCHITECTURE).xml"
         Html="..\TestResults-v1-$(PROCESSOR_ARCHITECTURE).html"
     />
@@ -28,6 +29,7 @@
         ParallelizeAssemblies="$(ParallelizeTests)"
         ParallelizeTestCollections="$(ParallelizeTests)"
         MaxParallelThreads="$(MaxParallelThreads)"
+        SerializeTestCases="true"
         Xml="..\TestResults-$(PROCESSOR_ARCHITECTURE).xml"
         Html="..\TestResults-$(PROCESSOR_ARCHITECTURE).html"
     />

@@ -53,6 +53,9 @@ namespace Xunit.Runner.MSBuild
 
         public bool ParallelizeTestCollections { set { parallelizeTestCollections = value; } }
 
+        // To be used by the xUnit.net team for diagnostic purposes only
+        public bool SerializeTestCases { get; set; }
+
         public bool ShadowCopy { get; set; }
 
         public bool TeamCity { get; set; }
@@ -260,6 +263,9 @@ namespace Xunit.Runner.MSBuild
                         completionMessages.TryAdd(assemblyDisplayName, new ExecutionSummary());
                     else
                     {
+                        if (SerializeTestCases)
+                            filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
+
                         using (var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement))
                         {
                             controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
