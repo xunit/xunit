@@ -21,8 +21,7 @@
     <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.dll" target="tools\" />
     
     <!-- Console runner -->
-    <file src="xunit.console\HTML.xslt"                                    target="tools\" />
-    <file src="xunit.console\xUnit1.xslt"                                  target="tools\" />
+    <file src="xunit.console\*.xslt"                                       target="tools\" />
     <file src="xunit.console\bin\Release\xunit.console.exe"                target="tools\" />
     <file src="xunit.console\bin\Release\xunit.console.exe.config"         target="tools\" />
     <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe"        target="tools\" />
