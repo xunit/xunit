@@ -123,6 +123,7 @@ public class xunitTests
             var task = Substitute.For<ITaskItem>();
             task.GetMetadata("FullPath").Returns("C:\\Full\\Path\\Name.dll");
             var xunit = new Testable_xunit { CreateVisitor_Result = visitor, Assemblies = new[] { task } };
+            xunit.DiscoveryTestCases.Add(Mocks.TestCase());
 
             var result = xunit.Execute();
 

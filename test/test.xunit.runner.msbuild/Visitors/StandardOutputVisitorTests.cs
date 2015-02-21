@@ -117,6 +117,7 @@ public class StandardOutputVisitorTests
             var assemblyStarting = Substitute.For<ITestAssemblyStarting>();
             assemblyStarting.TestAssembly.Returns(assembly);
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
+            assemblyFinished.TestAssembly.Returns(assembly);
             assemblyFinished.TestsRun.Returns(2112);
             assemblyFinished.TestsFailed.Returns(42);
             assemblyFinished.TestsSkipped.Returns(6);

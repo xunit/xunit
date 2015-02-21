@@ -160,7 +160,7 @@ namespace Xunit.Runner.MSBuild
                     var totalTestsSkipped = completionMessages.Values.Sum(summary => summary.Skipped);
                     var totalTime = completionMessages.Values.Sum(summary => summary.Time).ToString("0.000s");
                     var totalErrors = completionMessages.Values.Sum(summary => summary.Errors);
-                    var longestAssemblyName = completionMessages.Keys.Max(key => Path.GetFileNameWithoutExtension(key).Length);
+                    var longestAssemblyName = completionMessages.Keys.Max(key => key.Length);
                     var longestTotal = totalTestsRun.ToString().Length;
                     var longestFailed = totalTestsFailed.ToString().Length;
                     var longestSkipped = totalTestsSkipped.ToString().Length;
@@ -170,7 +170,7 @@ namespace Xunit.Runner.MSBuild
                     foreach (var message in completionMessages.OrderBy(m => m.Key))
                         Log.LogMessage(MessageImportance.High,
                                        "   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Time: {5}",
-                                       Path.GetFileNameWithoutExtension(message.Key).PadRight(longestAssemblyName),
+                                       message.Key.PadRight(longestAssemblyName),
                                        message.Value.Total.ToString().PadLeft(longestTotal),
                                        message.Value.Errors.ToString().PadLeft(longestErrors),
                                        message.Value.Failed.ToString().PadLeft(longestFailed),
@@ -255,15 +255,12 @@ namespace Xunit.Runner.MSBuild
 
                     Log.LogMessage(MessageImportance.High, "  Discovered:  {0}", assemblyDisplayName);
 
-                    using (var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement))
+                    var filteredTestCases = discoveryVisitor.TestCases.Where(Filters.Filter).ToList();
+                    if (filteredTestCases.Count == 0)
+                        completionMessages.TryAdd(assemblyDisplayName, new ExecutionSummary());
+                    else
                     {
-                        var filteredTestCases = discoveryVisitor.TestCases.Where(Filters.Filter).ToList();
-                        if (filteredTestCases.Count == 0)
-                        {
-                            Log.LogError("{0} has no tests to run", Path.GetFileNameWithoutExtension(assemblyFileName));
-                            ExitCode = 1;
-                        }
-                        else
+                        using (var resultsVisitor = CreateVisitor(assemblyFileName, assemblyElement))
                         {
                             controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
                             resultsVisitor.Finished.WaitOne();

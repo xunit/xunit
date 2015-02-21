@@ -208,13 +208,24 @@ namespace Xunit.ConsoleClient
                     var longestErrors = totalErrors.ToString().Length;
 
                     foreach (var message in completionMessages.OrderBy(m => m.Key))
-                        Console.WriteLine("   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Time: {5}",
-                                          message.Key.PadRight(longestAssemblyName),
-                                          message.Value.Total.ToString().PadLeft(longestTotal),
-                                          message.Value.Errors.ToString().PadLeft(longestErrors),
-                                          message.Value.Failed.ToString().PadLeft(longestFailed),
-                                          message.Value.Skipped.ToString().PadLeft(longestSkipped),
-                                          message.Value.Time.ToString("0.000s").PadLeft(longestTime));
+                    {
+                        if (message.Value.Total == 0)
+                        {
+                            Console.Write("   {0}  ", message.Key.PadRight(longestAssemblyName));
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Total: {0}", "0".PadLeft(longestTotal));
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        }
+                        else
+                            Console.WriteLine("   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Time: {5}",
+                                              message.Key.PadRight(longestAssemblyName),
+                                              message.Value.Total.ToString().PadLeft(longestTotal),
+                                              message.Value.Errors.ToString().PadLeft(longestErrors),
+                                              message.Value.Failed.ToString().PadLeft(longestFailed),
+                                              message.Value.Skipped.ToString().PadLeft(longestSkipped),
+                                              message.Value.Time.ToString("0.000s").PadLeft(longestTime));
+
+                    }
 
                     if (completionMessages.Count > 1)
                         Console.WriteLine("   {0}         {1}          {2}          {3}           {4}        {5}" + Environment.NewLine +
@@ -298,19 +309,12 @@ namespace Xunit.ConsoleClient
                         lock (consoleLock)
                             Console.WriteLine("Discovered:  {0}", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
 
-                    var resultsVisitor = CreateVisitor(consoleLock, quiet, defaultDirectory, assemblyElement, teamCity, appVeyor);
                     var filteredTestCases = discoveryVisitor.TestCases.Where(filters.Filter).ToList();
                     if (filteredTestCases.Count == 0)
-                    {
-                        lock (consoleLock)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("ERROR:       {0} has no tests to run", Path.GetFileNameWithoutExtension(assembly.AssemblyFilename));
-                            Console.ForegroundColor = ConsoleColor.Gray;
-                        }
-                    }
+                        completionMessages.TryAdd(Path.GetFileName(assembly.AssemblyFilename), new ExecutionSummary());
                     else
                     {
+                        var resultsVisitor = CreateVisitor(consoleLock, quiet, defaultDirectory, assemblyElement, teamCity, appVeyor);
                         controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
                         resultsVisitor.Finished.WaitOne();
                     }

@@ -8,7 +8,6 @@ namespace Xunit.ConsoleClient
 {
     public class StandardOutputVisitor : XmlTestExecutionVisitor
     {
-        string assemblyFileName;
         readonly object consoleLock;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
         readonly string defaultDirectory;
@@ -30,11 +29,9 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
         {
-            assemblyFileName = Path.GetFileName(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
-
             if (!quiet)
                 lock (consoleLock)
-                    Console.WriteLine("Starting:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+                    Console.WriteLine("Starting:    {0}", Path.GetFileNameWithoutExtension(assemblyStarting.TestAssembly.Assembly.AssemblyPath));
 
             return base.Visit(assemblyStarting);
         }
@@ -43,13 +40,14 @@ namespace Xunit.ConsoleClient
         {
             // Base class does computation of results, so call it first.
             var result = base.Visit(assemblyFinished);
+            var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFinished.TestAssembly.Assembly.AssemblyPath);
 
             if (!quiet)
                 lock (consoleLock)
-                    Console.WriteLine("Finished:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+                    Console.WriteLine("Finished:    {0}", assemblyDisplayName);
 
             if (completionMessages != null)
-                completionMessages.TryAdd(Path.GetFileNameWithoutExtension(assemblyFileName), new ExecutionSummary
+                completionMessages.TryAdd(assemblyDisplayName, new ExecutionSummary
                 {
                     Total = assemblyFinished.TestsRun,
                     Failed = assemblyFinished.TestsFailed,

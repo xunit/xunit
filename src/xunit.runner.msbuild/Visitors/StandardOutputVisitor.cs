@@ -17,8 +17,6 @@ namespace Xunit.Runner.MSBuild
         private readonly static Regex stackFrameRegex = GetStackFrameRegex();
         private readonly bool verbose;
 
-        private string assemblyFileName;
-
         public StandardOutputVisitor(TaskLoggingHelper log,
                                      XElement assemblyElement,
                                      bool verbose,
@@ -66,8 +64,8 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
         {
-            assemblyFileName = Path.GetFileName(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
-            Log.LogMessage(MessageImportance.High, "  Starting:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+            var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
+            Log.LogMessage(MessageImportance.High, "  Starting:    {0}", assemblyDisplayName);
 
             return base.Visit(assemblyStarting);
         }
@@ -76,11 +74,12 @@ namespace Xunit.Runner.MSBuild
         {
             // Base class does computation of results, so call it first.
             var result = base.Visit(assemblyFinished);
+            var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFinished.TestAssembly.Assembly.AssemblyPath);
 
-            Log.LogMessage(MessageImportance.High, "  Finished:    {0}", Path.GetFileNameWithoutExtension(assemblyFileName));
+            Log.LogMessage(MessageImportance.High, "  Finished:    {0}", assemblyDisplayName);
 
             if (completionMessages != null)
-                completionMessages.TryAdd(assemblyFileName, new ExecutionSummary
+                completionMessages.TryAdd(assemblyDisplayName, new ExecutionSummary
                 {
                     Total = assemblyFinished.TestsRun,
                     Failed = assemblyFinished.TestsFailed,
