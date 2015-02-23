@@ -6,42 +6,54 @@
     <xsl:apply-templates/>
   </xsl:template>
 
-  <xsl:template match="assembly">
-    <test-results>
-      <xsl:attribute name="name">
-        <xsl:value-of select="@name"/>
-      </xsl:attribute>
+  <xsl:template match="assemblies">
+    <test-results name="Test results">
       <xsl:attribute name="date">
-        <xsl:value-of select="@run-date"/>
+        <xsl:value-of select="assembly[1]/@run-date"/>
       </xsl:attribute>
       <xsl:attribute name="time">
-        <xsl:value-of select="@run-time"/>
+        <xsl:value-of select="assembly[1]/@run-time"/>
       </xsl:attribute>
       <xsl:attribute name="total">
-        <xsl:value-of select="@total"/>
+        <xsl:value-of select="sum(assembly/@total)"/>
       </xsl:attribute>
       <xsl:attribute name="failures">
-        <xsl:value-of select="@failed"/>
+        <xsl:value-of select="sum(assembly/@failed)"/>
       </xsl:attribute>
       <xsl:attribute name="not-run">
-        <xsl:value-of select="@skipped"/>
+        <xsl:value-of select="sum(assembly/@skipped)"/>
       </xsl:attribute>
-      <test-suite>
-        <xsl:attribute name="name">
-          <xsl:value-of select="@name"/>
-        </xsl:attribute>
+      <test-suite name="xUnit.net Tests">
         <xsl:attribute name="success">
-          <xsl:if test="@failed > 0">False</xsl:if>
-          <xsl:if test="@failed = 0">True</xsl:if>
+          <xsl:if test="sum(assembly/@failed) > 0">False</xsl:if>
+          <xsl:if test="sum(assembly/@failed) = 0">True</xsl:if>
         </xsl:attribute>
         <xsl:attribute name="time">
-          <xsl:value-of select="@time"/>
+          <xsl:value-of select="sum(assembly/@time)"/>
         </xsl:attribute>
         <results>
-          <xsl:apply-templates select="collection"/>
+          <xsl:apply-templates select="assembly"/>
         </results>
       </test-suite>
     </test-results>
+  </xsl:template>
+
+  <xsl:template match="assembly">
+    <test-suite>
+      <xsl:attribute name="name">
+        <xsl:value-of select="@name"/>
+      </xsl:attribute>
+      <xsl:attribute name="success">
+        <xsl:if test="@failed > 0">False</xsl:if>
+        <xsl:if test="@failed = 0">True</xsl:if>
+      </xsl:attribute>
+      <xsl:attribute name="time">
+        <xsl:value-of select="@time"/>
+      </xsl:attribute>
+      <results>
+        <xsl:apply-templates select="collection"/>
+      </results>
+    </test-suite>
   </xsl:template>
 
   <xsl:template match="collection">
