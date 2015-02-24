@@ -9,6 +9,9 @@ namespace Xunit
     /// <summary>
     /// Represents options passed to a test framework for discovery or execution.
     /// </summary>
+#if !ASPNETCORE50
+    [DebuggerDisplay("{ToDebuggerDisplay(),nq}")]
+#endif
     public class TestFrameworkOptions : LongLivedMarshalByRefObject, ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
     {
         readonly Dictionary<string, object> properties = new Dictionary<string, object>();

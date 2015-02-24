@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !ASPNETCORE50
+
+using System;
 using System.IO;
 using System.Reflection;
 
@@ -60,3 +62,5 @@ namespace Xunit
         }
     }
 }
+
+#endif

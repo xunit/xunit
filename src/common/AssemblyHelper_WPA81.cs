@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !ASPNET50
+
+using System;
 
 namespace Xunit
 {
@@ -15,3 +17,5 @@ namespace Xunit
         public void Dispose() { }
     }
 }
+
+#endif

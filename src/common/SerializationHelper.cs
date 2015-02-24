@@ -154,7 +154,7 @@ namespace Xunit.Sdk
             if (String.Equals(assemblyName, "xunit.execution", StringComparison.OrdinalIgnoreCase))
                 assemblyName = ExecutionHelper.AssemblyName;
 
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
             Assembly assembly = null;
             try
             {
