@@ -15,8 +15,6 @@ using System.Reflection;
 [assembly: AssemblyTitle("xUnit.net Execution (Windows Phone 8 Silverlight)")]
 #elif NO_APPDOMAIN
 [assembly: AssemblyTitle("xUnit.net Execution (Windows 8)")]
-#elif NO_SERIALIZATION
-[assembly: AssemblyTitle("xUnit.net Execution (Desktop [String Serialization])")]
 #else
 [assembly: AssemblyTitle("xUnit.net Execution (Desktop)")]
 #endif
