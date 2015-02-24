@@ -37,7 +37,7 @@ namespace Xunit.Sdk
             var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
             string config = null;
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE
             config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
             var testAssembly = new TestAssembly(assemblyInfo, config);

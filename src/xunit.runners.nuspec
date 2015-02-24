@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata minClientVersion="2.8.3">
+  <metadata minClientVersion="2.8.1">
     <id>xunit.runners</id>
     <version>99.99.99</version>
     <title>xUnit.net [Runners]</title>

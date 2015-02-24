@@ -104,7 +104,7 @@ namespace Xunit.Sdk
 
         static string GetVersion()
         {
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE
             var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
             return attr == null ? "(unknown version)" : attr.FrameworkDisplayName;
 #else
@@ -169,7 +169,7 @@ namespace Xunit.Sdk
         {
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE
             var currentDirectory = Directory.GetCurrentDirectory();
 #endif
             var testFrameworkEnvironment = GetTestFrameworkEnvironment();
@@ -177,7 +177,7 @@ namespace Xunit.Sdk
 
             using (var messageBus = CreateMessageBus())
             {
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
 #endif
 
@@ -201,7 +201,7 @@ namespace Xunit.Sdk
                     finally
                     {
                         messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE
                         Directory.SetCurrentDirectory(currentDirectory);
 #endif
                     }

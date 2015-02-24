@@ -1,5 +1,3 @@
-#if !ASPNETCORE50
-
 using System;
 using System.IO;
 using System.Reflection;
@@ -22,5 +20,3 @@ internal static class AssemblyExtensions
         return codeBase.Replace('/', Path.DirectorySeparatorChar);
     }
 }
-
-#endif

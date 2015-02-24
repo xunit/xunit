@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
-  <metadata minClientVersion="2.8.3">
+  <metadata minClientVersion="2.8.1">
     <id>xunit.extensibility.execution</id>
     <version>99.99.99</version>
     <title>xUnit.net [Extensibility: Execution]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
       Includes xunit.execution.*.dll for extensibility purposes.
-      Supported platforms: Desktop .NET 4.5+, ASP.NET 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
+      Supported platforms: Desktop .NET 4.5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -19,25 +19,8 @@
         <dependency id="xunit.extensibility.core" version="[99.99.99]" />
       </group>
     </dependencies>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="mscorlib" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Reflection" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Runtime" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Threading.Tasks" targetFramework="aspnet50" />
-    </frameworkAssemblies>
   </metadata>
   <files>
-    <file src="xunit.execution.AspNet\bin\Release\aspnet50\xunit.execution.AspNet.dll" target="lib\aspnet50\" />
-    <file src="xunit.execution.AspNet\bin\Release\aspnet50\xunit.execution.AspNet.pdb" target="lib\aspnet50\" />
-    <file src="xunit.execution.AspNet\bin\Release\aspnet50\xunit.execution.AspNet.xml" target="lib\aspnet50\" />
-
-    <file src="xunit.execution.AspNet\bin\Release\aspnetcore50\xunit.execution.AspNet.dll" target="lib\aspnetcore50\" />
-    <file src="xunit.execution.AspNet\bin\Release\aspnetcore50\xunit.execution.AspNet.pdb" target="lib\aspnetcore50\" />
-    <file src="xunit.execution.AspNet\bin\Release\aspnetcore50\xunit.execution.AspNet.xml" target="lib\aspnetcore50\" />
-
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.dll" target="lib\monoandroid\" />
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.pdb" target="lib\monoandroid\" />
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.xml" target="lib\monoandroid\" />

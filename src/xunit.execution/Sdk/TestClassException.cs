@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// creating the fixture data for the test class.
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE
     [System.Serializable]
 #endif
     public class TestClassException : Exception
@@ -21,7 +21,7 @@ namespace Xunit.Sdk
         public TestClassException(string message)
             : base(message) { }
 
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE
         /// <inheritdoc/>
         protected TestClassException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
             : base(info, context) { }

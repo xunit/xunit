@@ -15,8 +15,6 @@ namespace Xunit
         public static readonly string AssemblyName = "xunit.execution.universal";
 #elif WINDOWS_PHONE
         public static readonly string AssemblyName = "xunit.execution.wp8";
-#elif ASPNET50 || ASPNETCORE50
-        public static readonly string AssemblyName = "xunit.execution.AspNet";
 #elif NO_APPDOMAIN
         public static readonly string AssemblyName = "xunit.execution.win8";
 #else

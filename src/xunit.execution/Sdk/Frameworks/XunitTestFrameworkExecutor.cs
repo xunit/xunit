@@ -23,7 +23,7 @@ namespace Xunit.Sdk
             : base(assemblyName, sourceInformationProvider, diagnosticMessageSink)
         {
             string config = null;
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE
             config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
             TestAssembly = new TestAssembly(AssemblyInfo, config);

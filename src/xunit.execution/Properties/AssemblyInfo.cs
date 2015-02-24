@@ -7,8 +7,6 @@ using System.Reflection;
 [assembly: AssemblyTitle("xUnit.net Execution (MonoTouch)")]
 #elif __IOS__
 [assembly: AssemblyTitle("xUnit.net Execution (iOS Universal)")]
-#elif ASPNET50 || ASPNETCORE50
-[assembly: AssemblyTitle("xUnit.net Execution (ASP.NET)")]
 #elif WINDOWS_PHONE_APP
 [assembly: AssemblyTitle("xUnit.net Execution (Universal [WPA81, WIN81])")]
 #elif WINDOWS_PHONE

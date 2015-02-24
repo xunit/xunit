@@ -88,9 +88,6 @@
         Files="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe.config" />
     <Delete
         Files="src\xunit.console\xunit.console.x86.csproj" />
-
-    <!-- Build aspnet projects -->
-    <Exec Command="cmd /c tools\build-aspnet.cmd $(Configuration)" />
   </Target>
 
   <Target Name="_Test32" DependsOnTargets="Build">

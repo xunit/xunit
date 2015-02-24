@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
-  <metadata minClientVersion="2.8.3">
+  <metadata minClientVersion="2.8.1">
     <id>xunit.assert</id>
     <version>99.99.99</version>
     <title>xUnit.net [Assertion Library]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
       Includes the assertion library from xUnit.net (xunit.assert.dll).
-      Supported platforms: Desktop .NET 4.5+, ASP.NET 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal, Portable Libraries (supporting Profile259).
+      Supported platforms: Desktop .NET 4.5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal, Portable Libraries (supporting Profile259).
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -16,8 +16,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
   </metadata>
   <files>
-    <file src="xunit.assert\bin\Release\xunit.assert.dll" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.assert\bin\Release\xunit.assert.pdb" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.assert\bin\Release\xunit.assert.xml" target="lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.assert\bin\Release\xunit.assert.dll" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.assert\bin\Release\xunit.assert.pdb" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.assert\bin\Release\xunit.assert.xml" target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
   </files>
 </package>
