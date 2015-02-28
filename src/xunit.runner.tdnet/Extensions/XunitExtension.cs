@@ -19,7 +19,7 @@ namespace Xunit.Runner.TdNet
             return methodInfo == null ? null : methodInfo.MethodInfo;
         }
 
-        public static TestResult ToTdNetTestResult(this ITestResultMessage testResult, TestState testState)
+        public static TestResult ToTdNetTestResult(this ITestResultMessage testResult, TestState testState, int totalTests)
         {
             return new TestResult
             {
@@ -28,7 +28,7 @@ namespace Xunit.Runner.TdNet
                 Name = testResult.Test.DisplayName,
                 State = testState,
                 TimeSpan = new TimeSpan((long)(10000.0M * testResult.ExecutionTime)),
-                TotalTests = 1,
+                TotalTests = totalTests,
             };
         }
     }

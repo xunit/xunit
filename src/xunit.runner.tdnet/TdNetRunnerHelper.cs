@@ -31,17 +31,17 @@ namespace Xunit.Runner.TdNet
             toDispose.Push(xunit);
         }
 
-        public virtual IEnumerable<ITestCase> Discover()
+        public virtual IReadOnlyList<ITestCase> Discover()
         {
             return Discover(sink => xunit.Find(false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
         }
 
-        private IEnumerable<ITestCase> Discover(Type type)
+        private IReadOnlyList<ITestCase> Discover(Type type)
         {
             return Discover(sink => xunit.Find(type.FullName, false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
         }
 
-        private IEnumerable<ITestCase> Discover(Action<IMessageSink> discoveryAction)
+        private IReadOnlyList<ITestCase> Discover(Action<IMessageSink> discoveryAction)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace Xunit.Runner.TdNet
             catch (Exception ex)
             {
                 testListener.WriteLine("Error during test discovery:\r\n" + ex, Category.Error);
-                return Enumerable.Empty<ITestCase>();
+                return new ITestCase[0];
             }
         }
 
@@ -64,21 +64,18 @@ namespace Xunit.Runner.TdNet
                 disposable.Dispose();
         }
 
-        public virtual TestRunState Run(IEnumerable<ITestCase> testCases = null, TestRunState initialRunState = TestRunState.NoTests)
+        public virtual TestRunState Run(IReadOnlyList<ITestCase> testCases = null, TestRunState initialRunState = TestRunState.NoTests)
         {
             try
             {
-                if (testCases != null)
-                    testCases = testCases.ToList();
+                if (testCases == null)
+                    testCases = Discover();
 
-                var visitor = new ResultVisitor(testListener) { TestRunState = initialRunState };
+                var visitor = new ResultVisitor(testListener, testCases.Count) { TestRunState = initialRunState };
                 toDispose.Push(visitor);
 
                 var executionOptions = TestFrameworkOptions.ForExecution(configuration);
-                if (testCases == null)
-                    xunit.RunAll(visitor, TestFrameworkOptions.ForDiscovery(configuration), executionOptions);
-                else
-                    xunit.RunTests(testCases, visitor, executionOptions);
+                xunit.RunTests(testCases, visitor, executionOptions);
 
                 visitor.Finished.WaitOne();
 
@@ -95,9 +92,9 @@ namespace Xunit.Runner.TdNet
         {
             var state = Run(Discover(type), initialRunState);
 
-            foreach (MemberInfo memberInfo in type.GetMembers())
+            foreach (var memberInfo in type.GetMembers())
             {
-                Type childType = memberInfo as Type;
+                var childType = memberInfo as Type;
                 if (childType != null)
                     state = RunClass(childType, state);
             }

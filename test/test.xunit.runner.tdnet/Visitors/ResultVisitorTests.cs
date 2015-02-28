@@ -12,7 +12,7 @@ public class ResultVisitorTests
     public static void SignalsFinishedEventUponReceiptOfITestAssemblyFinished()
     {
         var listener = Substitute.For<ITestListener>();
-        var visitor = new ResultVisitor(listener);
+        var visitor = new ResultVisitor(listener, 42);
         var message = Substitute.For<ITestAssemblyFinished>();
 
         visitor.OnMessage(message);
@@ -26,7 +26,7 @@ public class ResultVisitorTests
         public static void DefaultRunStateIsNoTests()
         {
             var listener = Substitute.For<ITestListener>();
-            var visitor = new ResultVisitor(listener);
+            var visitor = new ResultVisitor(listener, 42);
 
             Assert.Equal(TestRunState.NoTests, visitor.TestRunState);
         }
@@ -38,7 +38,7 @@ public class ResultVisitorTests
         public static void FailureSetsStateToFailed(TestRunState initialState)
         {
             var listener = Substitute.For<ITestListener>();
-            var visitor = new ResultVisitor(listener) { TestRunState = initialState };
+            var visitor = new ResultVisitor(listener, 42) { TestRunState = initialState };
 
             visitor.OnMessage(Mocks.TestFailed(typeof(Object), "GetHashCode"));
 
@@ -49,7 +49,7 @@ public class ResultVisitorTests
         public static void Success_MovesToSuccess()
         {
             var listener = Substitute.For<ITestListener>();
-            var visitor = new ResultVisitor(listener) { TestRunState = TestRunState.NoTests };
+            var visitor = new ResultVisitor(listener, 42) { TestRunState = TestRunState.NoTests };
 
             visitor.OnMessage(Substitute.For<ITestPassed>());
 
@@ -63,7 +63,7 @@ public class ResultVisitorTests
         public static void Success_StaysInCurrentState(TestRunState initialState)
         {
             var listener = Substitute.For<ITestListener>();
-            var visitor = new ResultVisitor(listener) { TestRunState = initialState };
+            var visitor = new ResultVisitor(listener, 42) { TestRunState = initialState };
 
             visitor.OnMessage(Substitute.For<ITestPassed>());
 
@@ -74,7 +74,7 @@ public class ResultVisitorTests
         public static void Skip_MovesToSuccess()
         {
             var listener = Substitute.For<ITestListener>();
-            var visitor = new ResultVisitor(listener) { TestRunState = TestRunState.NoTests };
+            var visitor = new ResultVisitor(listener, 42) { TestRunState = TestRunState.NoTests };
 
             visitor.OnMessage(Substitute.For<ITestSkipped>());
 
@@ -88,7 +88,7 @@ public class ResultVisitorTests
         public static void Skip_StaysInCurrentState(TestRunState initialState)
         {
             var listener = Substitute.For<ITestListener>();
-            var visitor = new ResultVisitor(listener) { TestRunState = initialState };
+            var visitor = new ResultVisitor(listener, 42) { TestRunState = initialState };
 
             visitor.OnMessage(Substitute.For<ITestSkipped>());
 
@@ -151,7 +151,7 @@ public class ResultVisitorTests
         public static void LogsTestFailure(IMessageSinkMessage message, string messageType)
         {
             var listener = Substitute.For<ITestListener>();
-            using (var visitor = new ResultVisitor(listener) { TestRunState = TestRunState.NoTests })
+            using (var visitor = new ResultVisitor(listener, 42) { TestRunState = TestRunState.NoTests })
             {
                 visitor.OnMessage(message);
 
@@ -175,7 +175,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             listener.WhenAny(l => l.TestFinished(null))
                     .Do<TestResult>(result => testResult = result);
-            var visitor = new ResultVisitor(listener);
+            var visitor = new ResultVisitor(listener, 42);
             var message = Mocks.TestPassed(typeof(string), "Contains", "Display Name", executionTime: 123.45M);
 
             visitor.OnMessage(message);
@@ -186,7 +186,7 @@ public class ResultVisitorTests
             Assert.Equal("Display Name", testResult.Name);
             Assert.Equal(TestState.Passed, testResult.State);
             Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
-            Assert.Equal(1, testResult.TotalTests);
+            Assert.Equal(42, testResult.TotalTests);
         }
 
         [Fact]
@@ -207,7 +207,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             listener.WhenAny(l => l.TestFinished(null))
                     .Do<TestResult>(result => testResult = result);
-            var visitor = new ResultVisitor(listener);
+            var visitor = new ResultVisitor(listener, 42);
             var message = Mocks.TestFailed(typeof(string), "Contains", "Display Name", executionTime: 123.45M, ex: ex);
 
             visitor.OnMessage(message);
@@ -218,7 +218,7 @@ public class ResultVisitorTests
             Assert.Equal("Display Name", testResult.Name);
             Assert.Equal(TestState.Failed, testResult.State);
             Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
-            Assert.Equal(1, testResult.TotalTests);
+            Assert.Equal(42, testResult.TotalTests);
             Assert.Equal("System.Exception : " + ex.Message, testResult.Message);
             Assert.Equal(ex.StackTrace, testResult.StackTrace);
         }
@@ -230,7 +230,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             listener.WhenAny(l => l.TestFinished(null))
                     .Do<TestResult>(result => testResult = result);
-            var visitor = new ResultVisitor(listener);
+            var visitor = new ResultVisitor(listener, 42);
             var message = Mocks.TestSkipped(typeof(string), "Contains", "Display Name", executionTime: 123.45M, skipReason: "I forgot how to run");
 
             visitor.OnMessage(message);
@@ -241,7 +241,7 @@ public class ResultVisitorTests
             Assert.Equal("Display Name", testResult.Name);
             Assert.Equal(TestState.Ignored, testResult.State);
             Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
-            Assert.Equal(1, testResult.TotalTests);
+            Assert.Equal(42, testResult.TotalTests);
             Assert.Equal("I forgot how to run", testResult.Message);
         }
     }

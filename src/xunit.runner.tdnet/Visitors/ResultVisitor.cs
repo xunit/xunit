@@ -6,8 +6,11 @@ namespace Xunit.Runner.TdNet
 {
     public class ResultVisitor : TestMessageVisitor<ITestAssemblyFinished>
     {
-        public ResultVisitor(ITestListener listener)
+        readonly int totalTests;
+
+        public ResultVisitor(ITestListener listener, int totalTests)
         {
+            this.totalTests = totalTests;
             TestListener = listener;
             TestRunState = TestRunState.NoTests;
         }
@@ -19,7 +22,7 @@ namespace Xunit.Runner.TdNet
         {
             TestRunState = TestRunState.Failure;
 
-            var testResult = failed.ToTdNetTestResult(TestState.Failed);
+            var testResult = failed.ToTdNetTestResult(TestState.Failed, totalTests);
 
             testResult.Message = ExceptionUtility.CombineMessages(failed);
             testResult.StackTrace = ExceptionUtility.CombineStackTraces(failed);
@@ -36,7 +39,7 @@ namespace Xunit.Runner.TdNet
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
 
-            var testResult = passed.ToTdNetTestResult(TestState.Passed);
+            var testResult = passed.ToTdNetTestResult(TestState.Passed, totalTests);
 
             TestListener.TestFinished(testResult);
 
@@ -50,7 +53,7 @@ namespace Xunit.Runner.TdNet
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
 
-            var testResult = skipped.ToTdNetTestResult(TestState.Ignored);
+            var testResult = skipped.ToTdNetTestResult(TestState.Ignored, totalTests);
 
             testResult.Message = skipped.Reason;
 
@@ -131,7 +134,7 @@ namespace Xunit.Runner.TdNet
                 return;
 
             TestListener.WriteLine(String.Format("Output from {0}:", name), Category.Output);
-            foreach (string line in output.Trim().Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+            foreach (var line in output.Trim().Split(new[] { Environment.NewLine }, StringSplitOptions.None))
                 TestListener.WriteLine(String.Format("  {0}", line), Category.Output);
         }
     }
