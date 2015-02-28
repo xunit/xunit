@@ -17,15 +17,6 @@ internal static class NewReflectionExtensions
 #endif
     }
 
-    public static MethodInfo GetDeclaredMethod(this Type type, string methodName)
-    {
-#if NEW_REFLECTION
-        return type.GetTypeInfo().GetDeclaredMethod(methodName);
-#else
-        return type.GetMethod(methodName);
-#endif
-    }
-
     public static bool IsEnum(this Type type)
     {
 #if NEW_REFLECTION
