@@ -27,7 +27,7 @@ public class SerializationHelperTests
     {
         var name = SerializationHelper.GetTypeNameForSerialization(type);
 
-        Assert.Equal<object>(expectedName, name);
+        Assert.Equal(expectedName, name);
 
         var deserializedType = SerializationHelper.GetType(name);
 

@@ -230,10 +230,19 @@ namespace Xunit.Serialization
 
             var typeData = value as Type;
             if (typeData != null)
+            {
+                if (!typeData.IsFromLocalAssembly())
+                    throw new ArgumentException(String.Format("We cannot serialize type {0} because it lives in the GAC", typeData.FullName), "value");
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
+            }
 
-            if (value.GetType().IsEnum())
+            var valueType = value.GetType();
+            if (valueType.IsEnum())
+            {
+                if (!valueType.IsFromLocalAssembly())
+                    throw new ArgumentException(String.Format("We cannot serialize enum {0}.{1} because it lives in the GAC", valueType.FullName, value), "value");
                 return value.ToString();
+            }
 
             var array = value as object[];
             if (array != null)
@@ -244,7 +253,7 @@ namespace Xunit.Serialization
                 return info.ToSerializedString();
             }
 
-            throw new ArgumentException("We don't know how to serialize type " + value.GetType().FullName, "value");
+            throw new ArgumentException("We don't know how to serialize type " + valueType.FullName, "value");
         }
 
         static readonly Type[] supportedSerializationTypes = new[] {

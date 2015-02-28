@@ -525,7 +525,6 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.NotNull(z);
             }
         }
-
     }
 
     public class PropertyDataTests : AcceptanceTest

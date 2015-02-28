@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -165,6 +166,28 @@ public class TheoryDiscovererTests : AcceptanceTest
     {
         [Theory, NonSerializableData]
         public void TheoryMethod(object a) { }
+    }
+
+    [Fact]
+    public void TheoryWithNonSerializableEnumYieldsSingleTheoryTestCase()
+    {
+        var discoverer = TestableTheoryDiscoverer.Create();
+        var testMethod = Mocks.TestMethod(typeof(NonSerializableEnumDataClass), "TheTest");
+        var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+        var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute);
+
+        var testCase = Assert.Single(testCases);
+        var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
+        Assert.Equal("TheoryDiscovererTests+NonSerializableEnumDataClass.TheTest", theoryTestCase.DisplayName);
+    }
+
+    public class NonSerializableEnumDataClass
+    {
+        [Theory]
+        [InlineData(42)]
+        [InlineData(ConformanceLevel.Auto)]
+        public void TheTest(object x) { }
     }
 
     [Fact]

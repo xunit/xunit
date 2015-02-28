@@ -26,6 +26,25 @@ internal static class NewReflectionExtensions
 #endif
     }
 
+    public static bool IsFromLocalAssembly(this Type type)
+    {
+        var assemblyName = type.GetAssembly().GetName().Name;
+
+        try
+        {
+#if NEW_REFLECTION
+            Assembly.Load(new AssemblyName { Name = assemblyName });
+#else
+            Assembly.Load(assemblyName);
+#endif
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public static bool IsGenericType(this Type type)
     {
 #if NEW_REFLECTION

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Serialization;
@@ -32,9 +33,9 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(bool), true };
             yield return new object[] { typeof(bool?), false };
             yield return new object[] { typeof(bool?), null };
-            yield return new object[] { typeof(HttpStatusCode), HttpStatusCode.OK };
-            yield return new object[] { typeof(HttpStatusCode?), HttpStatusCode.PartialContent };
-            yield return new object[] { typeof(HttpStatusCode?), null };
+            yield return new object[] { typeof(MyEnum), MyEnum.SomeValue };
+            yield return new object[] { typeof(MyEnum?), MyEnum.SomeValue };
+            yield return new object[] { typeof(MyEnum?), null };
             yield return new object[] { typeof(DateTime), DateTime.Now };
             yield return new object[] { typeof(DateTime?), DateTime.UtcNow };
             yield return new object[] { typeof(DateTime?), null };
@@ -43,9 +44,11 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(DateTimeOffset?), null };
             yield return new object[] { typeof(Type), typeof(object) };
             yield return new object[] { typeof(Type), null };
-            yield return new object[] { typeof(object[]), new object[] { int.MinValue, long.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, HttpStatusCode.OK, DateTime.Now, DateTimeOffset.UtcNow, typeof(decimal) } };
+            yield return new object[] { typeof(object[]), new object[] { int.MinValue, long.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, MyEnum.SomeValue, DateTime.Now, DateTimeOffset.UtcNow, typeof(decimal) } };
         }
     }
+
+    enum MyEnum { SomeValue }
 
     public class Serialize
     {
@@ -77,6 +80,70 @@ public class XunitSerializationInfoTests
             var argEx = Assert.IsType<ArgumentException>(ex);
             Assert.Equal("value", argEx.ParamName);
             Assert.StartsWith("We don't know how to serialize type System.Object", argEx.Message);
+        }
+
+        [Fact]
+        public static void CanSerializeEnumFromMscorlib()
+        {
+            var data = Base64FormattingOptions.InsertLineBreaks;
+
+            var result = XunitSerializationInfo.Serialize(data);
+
+            Assert.Equal("InsertLineBreaks", result);
+        }
+
+        [Fact]
+        public static void CanSerializeEnumFromLocalAssembly()
+        {
+            var data = MyEnum.SomeValue;
+
+            var result = XunitSerializationInfo.Serialize(data);
+
+            Assert.Equal("SomeValue", result);
+        }
+
+        [Fact]
+        public static void CannotSerializeEnumFromGAC()
+        {
+            var data = ConformanceLevel.Auto;
+
+            var ex = Record.Exception(() => XunitSerializationInfo.Serialize(data));
+
+            var argEx = Assert.IsType<ArgumentException>(ex);
+            Assert.Equal("value", argEx.ParamName);
+            Assert.StartsWith("We cannot serialize enum System.Xml.ConformanceLevel.Auto because it lives in the GAC", argEx.Message);
+        }
+
+        [Fact]
+        public static void CanSerializeTypeFromMscorlib()
+        {
+            var data = typeof(string);
+
+            var result = XunitSerializationInfo.Serialize(data);
+
+            Assert.Equal("System.String", result);
+        }
+
+        [Fact]
+        public static void CanSerializeTypeFromLocalAssembly()
+        {
+            var data = typeof(XunitSerializationInfo);
+
+            var result = XunitSerializationInfo.Serialize(data);
+
+            Assert.Equal("Xunit.Serialization.XunitSerializationInfo, test.xunit.execution", result);
+        }
+
+        [Fact]
+        public static void CannotSerializeTypeFromGAC()
+        {
+            var data = typeof(XmlDocument);
+
+            var ex = Record.Exception(() => XunitSerializationInfo.Serialize(data));
+
+            var argEx = Assert.IsType<ArgumentException>(ex);
+            Assert.Equal("value", argEx.ParamName);
+            Assert.StartsWith("We cannot serialize type System.Xml.XmlDocument because it lives in the GAC", argEx.Message);
         }
     }
 
