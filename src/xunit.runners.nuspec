@@ -29,5 +29,6 @@
     
     <!-- MSBuild runner -->
     <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll" target="tools\" />
+    <file src="xunit.runner.msbuild\build\xunit.runners.props"            target="build\" />
   </files>
 </package>
