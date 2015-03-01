@@ -51,7 +51,7 @@ namespace Xunit.Sdk
         protected TTestCase TestCase { get; set; }
 
         /// <summary>
-        /// This method is called just after <see cref="ITestCaseStarting"/> it sent, but before any test collections are run.
+        /// This method is called just after <see cref="ITestCaseStarting"/> is sent, but before any test collections are run.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual Task AfterTestCaseStartingAsync()
