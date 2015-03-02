@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.execution", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.utility", "test\test.xunit.runner.utility\test.xunit.runner.utility.csproj", "{8CFA4522-D8B4-4BE9-A01A-A7F7124B5FCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.tdnet", "src\xunit.runner.tdnet\xunit.runner.tdnet.csproj", "{C9B3978D-DA2C-4F3B-8FC5-1E024EF2F6E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.tdnet", "test\test.xunit.runner.tdnet\test.xunit.runner.tdnet.csproj", "{5DE631D1-860E-40CB-89D4-75D0F7F7D941}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.console", "src\xunit.console\xunit.console.csproj", "{19C75545-5E0E-4E38-9995-511ED2DF6D30}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit1", "test\test.xunit1\test.xunit1.csproj", "{61615231-0BD8-43FA-903E-27F5A5A5E3F6}"
@@ -75,6 +79,14 @@ Global
 		{8CFA4522-D8B4-4BE9-A01A-A7F7124B5FCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CFA4522-D8B4-4BE9-A01A-A7F7124B5FCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CFA4522-D8B4-4BE9-A01A-A7F7124B5FCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9B3978D-DA2C-4F3B-8FC5-1E024EF2F6E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9B3978D-DA2C-4F3B-8FC5-1E024EF2F6E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9B3978D-DA2C-4F3B-8FC5-1E024EF2F6E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9B3978D-DA2C-4F3B-8FC5-1E024EF2F6E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DE631D1-860E-40CB-89D4-75D0F7F7D941}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DE631D1-860E-40CB-89D4-75D0F7F7D941}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DE631D1-860E-40CB-89D4-75D0F7F7D941}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DE631D1-860E-40CB-89D4-75D0F7F7D941}.Release|Any CPU.Build.0 = Release|Any CPU
 		{19C75545-5E0E-4E38-9995-511ED2DF6D30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{19C75545-5E0E-4E38-9995-511ED2DF6D30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19C75545-5E0E-4E38-9995-511ED2DF6D30}.Release|Any CPU.ActiveCfg = Release|Any CPU
