@@ -15,7 +15,7 @@ namespace Xunit1
 
             Assert.Equal("One or more exceptions were thrown from After methods during test cleanup", result.Message);
             Assert.Contains("System.Exception thrown: Exception Message", result.StackTrace);
-            Assert.Contains("AfterTestExceptionTests.<SingleException>b__0", result.StackTrace);
+            Assert.Contains("AfterTestExceptionTests", result.StackTrace);
             Assert.Contains("Xunit.Record.Exception", result.StackTrace);
         }
 

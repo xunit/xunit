@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
@@ -65,11 +66,11 @@ namespace Xunit1
         [Fact]
         public void MixedEnumerationShowDifferencePoint()
         {
-            var expectedValue = MakeEnumeration(1, 42, "Hello");
-            var actualValue = MakeEnumeration(1, 2.3, "Goodbye");
+            var expectedValue = MakeEnumeration(1, 42, "Hello").ToList();
+            var actualValue = MakeEnumeration(1, 2.3, "Goodbye").ToList();
 
             string expectedMessage =
-                String.Format("Message{0}Position: First difference is at position 1{0}Expected: <MakeEnumeration>d__2 {{ 1, 42, \"Hello\" }}{0}Actual:   <MakeEnumeration>d__2 {{ 1, {1}, \"Goodbye\" }}", Environment.NewLine, 2.3);
+                String.Format("Message{0}Position: First difference is at position 1{0}Expected: List<Object> {{ 1, 42, \"Hello\" }}{0}Actual:   List<Object> {{ 1, {1}, \"Goodbye\" }}", Environment.NewLine, 2.3);
 
             AssertActualExpectedException ex =
                 new AssertActualExpectedException(expectedValue, actualValue, "Message");
