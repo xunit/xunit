@@ -27,7 +27,7 @@
       <frameworkAssembly assemblyName="System.Core" targetFramework="aspnet50" />
       <frameworkAssembly assemblyName="System.Runtime" targetFramework="aspnet50" />
       <frameworkAssembly assemblyName="System.Web" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.XML" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Xml" targetFramework="aspnet50" />
     </frameworkAssemblies>
   </metadata>
   <files>
