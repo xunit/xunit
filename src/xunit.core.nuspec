@@ -24,32 +24,38 @@
     <!--
       The platforms here which copy both native and desktop DLLs are done to support the Visual Studio
       runner. It needs both because it does discovery on the desktop, and execution on the device.
-      A no-serialization desktop DLL is also available for Visual Studio to discovery and correctly
-      serialize test cases to be run on devices without native serialization.
     -->
+    <!-- common -->
     <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll" target="build\_Desktop\" />
 
+    <!-- monoandroid -->
     <file src="xunit.core\build\xunit.core.props"                                       target="build\monoandroid\" />
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.dll" target="build\monoandroid\" />
 
+    <!-- monotouch -->
     <file src="xunit.core\build\xunit.core.props"                                          target="build\monotouch\" />
     <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.dll" target="build\monotouch\" />
 
+    <!-- portable -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
 
+    <!-- universal -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props"                       target="build\portable-win81+wpa81\xunit.core.props" />
     <file src="xunit.core\build\xunit.core.universal.targets"                       target="build\portable-win81+wpa81\xunit.core.targets" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.dll" target="build\portable-win81+wpa81\" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pri" target="build\portable-win81+wpa81\" />
 
+    <!-- win8 -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props"             target="build\win8\xunit.core.props" />
     <file src="xunit.core\build\xunit.core.win8.targets"                  target="build\win8\xunit.core.targets" />
     <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.dll" target="build\win8\" />
 
+    <!-- wp8 -->
     <file src="xunit.core\build\xunit.core.props"                       target="build\wp8\" />
     <file src="xunit.core\build\xunit.core.wp8.targets"                 target="build\wp8\xunit.core.targets" />
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.dll" target="build\wp8\" />
 
+    <!-- Xamarin.iOS -->
     <file src="xunit.core\build\xunit.core.props"                                                  target="build\Xamarin.iOS\" />
     <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.dll" target="build\Xamarin.iOS\" />
   </files>
