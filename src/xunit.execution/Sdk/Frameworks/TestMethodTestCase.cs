@@ -31,7 +31,7 @@ namespace Xunit.Sdk
 
 #if WINDOWS_PHONE_APP
         readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
-#else
+#elif !ASPNETCORE50
         readonly static HashAlgorithm Hasher = new SHA1Managed();
 #endif
 
@@ -203,6 +203,10 @@ namespace Xunit.Sdk
 #if WINDOWS_PHONE_APP
                 var buffer = CryptographicBuffer.CreateFromByteArray(stream.ToArray());
                 var hash = Hasher.HashData(buffer).ToArray();
+#elif ASPNETCORE50
+                byte[] hash;
+                using (var hasher = SHA1.Create())
+                    hash = hasher.ComputeHash(stream);
 #else
                 var hash = Hasher.ComputeHash(stream);
 #endif

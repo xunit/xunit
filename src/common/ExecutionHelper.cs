@@ -25,6 +25,8 @@ namespace Xunit
         public static readonly string PlatformSpecificAssemblySuffix = "universal";
 #elif WINDOWS_PHONE
         public static readonly string PlatformSpecificAssemblySuffix = "wp8";
+#elif ASPNET50 || ASPNETCORE50
+        public static readonly string PlatformSpecificAssemblySuffix = "AspNet";
 #elif NO_APPDOMAIN
         public static readonly string PlatformSpecificAssemblySuffix = "win8";
 #else

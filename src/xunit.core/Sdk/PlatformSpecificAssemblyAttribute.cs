@@ -9,6 +9,7 @@ namespace Xunit.Sdk
     /// "My.Assembly.win8", etc.). This affects both extensibility points which require specifying
     /// a string-based type name and assembly, as well as serialization. The supported platform target
     /// names include:
+    ///   "AspNet" (for ASP.NET 5 tests),
     ///   "desktop" (for desktop and PCL tests),
     ///   "iOS-Universal" (for Xamarin test projects targeting iOS),
     ///   "MonoAndroid" (for Xamarin MonoAndroid tests),
@@ -20,7 +21,6 @@ namespace Xunit.Sdk
     /// file systems like Linux), so ensure that your assembly file name casing is consistent, and
     /// that you use the suffixes here with the exact case shown.
     /// </summary>
-
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
     public sealed class PlatformSpecificAssemblyAttribute : Attribute { }
 }

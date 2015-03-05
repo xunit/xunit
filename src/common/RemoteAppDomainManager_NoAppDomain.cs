@@ -31,8 +31,12 @@ namespace Xunit
         {
             try
             {
+#if ASPNETCORE50
+                return (TObject)Activator.CreateInstance(Assembly.Load(new AssemblyName(assemblyName)).GetType(typeName), args);
+#else
                 var objHandle = Activator.CreateInstance(AppDomain.CurrentDomain, assemblyName, typeName, false, BindingFlags.Default, null, args, null, null);
                 return (TObject)objHandle.Unwrap();
+#endif
             }
             catch (TargetInvocationException ex)
             {

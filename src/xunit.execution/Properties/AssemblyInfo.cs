@@ -8,6 +8,10 @@ using Xunit.Sdk;
 [assembly: AssemblyTitle("xUnit.net Execution (MonoTouch)")]
 #elif __IOS__
 [assembly: AssemblyTitle("xUnit.net Execution (iOS Universal)")]
+#elif ASPNETCORE50
+[assembly: AssemblyTitle("xUnit.net Execution (ASP.NET Core)")]
+#elif ASPNET50
+[assembly: AssemblyTitle("xUnit.net Execution (ASP.NET)")]
 #elif WINDOWS_PHONE_APP
 [assembly: AssemblyTitle("xUnit.net Execution (Universal [WPA81, WIN81])")]
 #elif WINDOWS_PHONE
