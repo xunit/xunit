@@ -37,7 +37,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.XML" />
+    <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="TestDriven.Framework">
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
