@@ -88,6 +88,7 @@
     <Compile Include="Sdk\IXunitTestCaseDiscoverer.cs" />
     <Compile Include="Sdk\IXunitTestCase.cs" />
     <Compile Include="Sdk\IXunitTestCollectionFactory.cs" />
+    <Compile Include="Sdk\PlatformSpecificAssemblyAttribute.cs" />
     <Compile Include="Sdk\RunSummary.cs" />
     <Compile Include="Sdk\TestFrameworkDiscovererAttribute.cs" />
     <Compile Include="Sdk\XunitTestCaseDiscovererAttribute.cs" />

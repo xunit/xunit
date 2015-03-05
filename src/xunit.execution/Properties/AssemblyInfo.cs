@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Xunit.Sdk;
 
 #if ANDROID
 [assembly: AssemblyTitle("xUnit.net Execution (MonoAndroid)")]
@@ -18,3 +19,4 @@ using System.Reflection;
 #endif
 
 [assembly: CLSCompliant(true)]
+[assembly: PlatformSpecificAssembly]

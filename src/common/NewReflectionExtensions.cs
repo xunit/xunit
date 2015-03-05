@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 
 /// <summary>
@@ -14,6 +15,15 @@ internal static class NewReflectionExtensions
         return type.GetTypeInfo().Assembly;
 #else
         return type.Assembly;
+#endif
+    }
+
+    public static Attribute[] GetCustomAttributes(this Assembly assembly)
+    {
+#if NEW_REFLECTION
+        return assembly.GetCustomAttributes<Attribute>().ToArray();
+#else
+        return assembly.GetCustomAttributes(inherit: false).Cast<Attribute>().ToArray();
 #endif
     }
 
