@@ -207,6 +207,47 @@ public class XunitTestAssemblyRunnerTests
                 throw new NotImplementedException();
             }
         }
+
+        [Fact]
+        public static void SettingUnknownTestCaseOrderLogsDiagnosticMessage()
+        {
+            var ordererAttribute = Mocks.TestCaseOrdererAttribute("UnknownType", "UnknownAssembly");
+            var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+
+            runner.Initialize();
+
+            Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
+            var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+            Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test case orderer", diagnosticMessage.Message);
+        }
+
+        [Fact]
+        public static void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
+        {
+            var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyCtorThrowingTestCaseOrderer>();
+            var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+
+            runner.Initialize();
+
+            Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
+            var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+            Assert.StartsWith("Assembly-level test case orderer 'XunitTestAssemblyRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' threw 'System.DivideByZeroException' during construction:", diagnosticMessage.Message);
+        }
+
+        class MyCtorThrowingTestCaseOrderer : ITestCaseOrderer
+        {
+            public MyCtorThrowingTestCaseOrderer()
+            {
+                throw new DivideByZeroException();
+            }
+
+            public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+            {
+                return Enumerable.Empty<TTestCase>();
+            }
+        }
     }
 
     public class TestCollectionOrderer
@@ -243,14 +284,19 @@ public class XunitTestAssemblyRunnerTests
 
     class TestableXunitTestAssemblyRunner : XunitTestAssemblyRunner
     {
+        public List<IMessageSinkMessage> DiagnosticMessages;
+
         public ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>> TestCasesRun = new ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>>();
 
         TestableXunitTestAssemblyRunner(ITestAssembly testAssembly,
                                         IEnumerable<IXunitTestCase> testCases,
-                                        IMessageSink diagnosticMessageSink,
+                                        List<IMessageSinkMessage> diagnosticMessages,
                                         IMessageSink executionMessageSink,
                                         ITestFrameworkExecutionOptions executionOptions)
-            : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions) { }
+            : base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
+        {
+            DiagnosticMessages = diagnosticMessages;
+        }
 
         public static TestableXunitTestAssemblyRunner Create(ITestAssembly assembly = null,
                                                              IXunitTestCase[] testCases = null,
@@ -262,7 +308,7 @@ public class XunitTestAssemblyRunnerTests
             return new TestableXunitTestAssemblyRunner(
                 assembly ?? testCases.First().TestMethod.TestClass.TestCollection.TestAssembly,
                 testCases ?? new IXunitTestCase[0],
-                SpyMessageSink.Create(),
+                new List<IMessageSinkMessage>(),
                 SpyMessageSink.Create(),
                 executionOptions ?? TestFrameworkOptions.ForExecution()
             );

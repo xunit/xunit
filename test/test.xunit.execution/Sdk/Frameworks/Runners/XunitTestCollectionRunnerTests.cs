@@ -37,16 +37,66 @@ public class XunitTestCollectionRunnerTests
         Assert.True(fixtureUnderTest.Disposed);
     }
 
-    [Fact]
-    public static async void UsesCustomTestOrderer()
+    public class TestCaseOrderer
     {
-        var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), null);
-        var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
-        var runner = TestableXunitTestCollectionRunner.Create(testCase);
+        [Fact]
+        public static async void UsesCustomTestOrderer()
+        {
+            var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), null);
+            var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
+            var runner = TestableXunitTestCollectionRunner.Create(testCase);
 
-        await runner.RunAsync();
+            await runner.RunAsync();
 
-        Assert.IsType<CustomTestCaseOrderer>(runner.TestCaseOrderer);
+            Assert.IsType<CustomTestCaseOrderer>(runner.TestCaseOrderer);
+        }
+
+        [Fact]
+        public static async void SettingUnknownTestCaseOrderLogsDiagnosticMessage()
+        {
+            var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithUnknownTestCaseOrderer)), "TestCollectionDisplayName");
+            var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
+            var runner = TestableXunitTestCollectionRunner.Create(testCase);
+
+            await runner.RunAsync();
+
+            Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
+            var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+            Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for collection-level test case orderer on test collection 'TestCollectionDisplayName'", diagnosticMessage.Message);
+        }
+
+        [TestCaseOrderer("UnknownType", "UnknownAssembly")]
+        class CollectionWithUnknownTestCaseOrderer { }
+
+        [Fact]
+        public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
+        {
+            var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCtorThrowingTestCaseOrderer)), "TestCollectionDisplayName");
+            var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
+            var runner = TestableXunitTestCollectionRunner.Create(testCase);
+
+            await runner.RunAsync();
+
+            Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
+            var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+            Assert.StartsWith("Collection-level test case orderer 'XunitTestCollectionRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test collection 'TestCollectionDisplayName' threw 'System.DivideByZeroException' during construction:", diagnosticMessage.Message);
+        }
+
+        [TestCaseOrderer("XunitTestCollectionRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer", "test.xunit.execution")]
+        class CollectionWithCtorThrowingTestCaseOrderer { }
+
+        class MyCtorThrowingTestCaseOrderer : ITestCaseOrderer
+        {
+            public MyCtorThrowingTestCaseOrderer()
+            {
+                throw new DivideByZeroException();
+            }
+
+            public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+            {
+                return Enumerable.Empty<TTestCase>();
+            }
+        }
     }
 
     class FixtureUnderTest : IDisposable
@@ -73,21 +123,26 @@ public class XunitTestCollectionRunnerTests
 
     class TestableXunitTestCollectionRunner : XunitTestCollectionRunner
     {
+        public List<IMessageSinkMessage> DiagnosticMessages;
+
         TestableXunitTestCollectionRunner(ITestCollection testCollection,
                                           IEnumerable<IXunitTestCase> testCases,
-                                          IMessageSink diagnosticMessageSink,
+                                          List<IMessageSinkMessage> diagnosticMessages,
                                           IMessageBus messageBus,
                                           ITestCaseOrderer testCaseOrderer,
                                           ExceptionAggregator aggregator,
                                           CancellationTokenSource cancellationTokenSource)
-            : base(testCollection, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource) { }
+            : base(testCollection, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+        {
+            DiagnosticMessages = diagnosticMessages;
+        }
 
         public static TestableXunitTestCollectionRunner Create(IXunitTestCase testCase)
         {
             return new TestableXunitTestCollectionRunner(
                 testCase.TestMethod.TestClass.TestCollection,
                 new[] { testCase },
-                SpyMessageSink.Create(),
+                new List<IMessageSinkMessage>(),
                 new SpyMessageBus(),
                 new MockTestCaseOrderer(),
                 new ExceptionAggregator(),

@@ -14,7 +14,6 @@ namespace Xunit.Sdk
     public class XunitTestClassRunner : TestClassRunner<IXunitTestCase>
     {
         readonly IDictionary<Type, object> collectionFixtureMappings;
-        readonly IMessageSink diagnosticMessageSink;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
@@ -37,9 +36,8 @@ namespace Xunit.Sdk
                                     ExceptionAggregator aggregator,
                                     CancellationTokenSource cancellationTokenSource,
                                     IDictionary<Type, object> collectionFixtureMappings)
-            : base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+            : base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
-            this.diagnosticMessageSink = diagnosticMessageSink;
             this.collectionFixtureMappings = collectionFixtureMappings;
 
             ClassFixtureMappings = new Dictionary<Type, object>();
@@ -68,7 +66,25 @@ namespace Xunit.Sdk
         {
             var ordererAttribute = Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (ordererAttribute != null)
-                TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(diagnosticMessageSink, ordererAttribute);
+            {
+                try
+                {
+                    var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(DiagnosticMessageSink, ordererAttribute);
+                    if (testCaseOrderer != null)
+                        TestCaseOrderer = testCaseOrderer;
+                    else
+                    {
+                        var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for class-level test case orderer on test class '{2}'", args[0], args[1], TestClass.Class.Name));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var innerEx = ex.Unwrap();
+                    var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Class-level test case orderer '{0}' for test class '{1}' threw '{2}' during construction: {3}", args[0], TestClass.Class.Name, innerEx.GetType().FullName, innerEx.StackTrace));
+                }
+            }
 
             var testClassTypeInfo = Class.Type.GetTypeInfo();
             if (testClassTypeInfo.ImplementedInterfaces.Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
@@ -99,7 +115,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
         {
-            return new XunitTestMethodRunner(testMethod, Class, method, testCases, diagnosticMessageSink, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
+            return new XunitTestMethodRunner(testMethod, Class, method, testCases, DiagnosticMessageSink, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
         }
 
         /// <inheritdoc/>

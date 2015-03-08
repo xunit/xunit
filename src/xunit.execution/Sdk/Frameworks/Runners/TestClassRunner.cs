@@ -23,6 +23,7 @@ namespace Xunit.Sdk
         /// <param name="testClass">The test class to be run.</param>
         /// <param name="class">The test class that contains the tests to be run.</param>
         /// <param name="testCases">The test cases to be run.</param>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
@@ -30,6 +31,7 @@ namespace Xunit.Sdk
         public TestClassRunner(ITestClass testClass,
                                IReflectionTypeInfo @class,
                                IEnumerable<TTestCase> testCases,
+                               IMessageSink diagnosticMessageSink,
                                IMessageBus messageBus,
                                ITestCaseOrderer testCaseOrderer,
                                ExceptionAggregator aggregator,
@@ -38,6 +40,7 @@ namespace Xunit.Sdk
             TestClass = testClass;
             Class = @class;
             TestCases = testCases;
+            DiagnosticMessageSink = diagnosticMessageSink;
             MessageBus = messageBus;
             TestCaseOrderer = testCaseOrderer;
             Aggregator = aggregator;
@@ -58,6 +61,11 @@ namespace Xunit.Sdk
         /// Gets or sets the CLR class that contains the tests to be run.
         /// </summary>
         protected IReflectionTypeInfo Class { get; set; }
+
+        /// <summary>
+        /// Gets the message sink used to send diagnostic messages.
+        /// </summary>
+        protected IMessageSink DiagnosticMessageSink { get; private set; }
 
         /// <summary>
         /// Gets or sets the message bus to report run status to.
@@ -185,7 +193,18 @@ namespace Xunit.Sdk
         protected virtual async Task<RunSummary> RunTestMethodsAsync()
         {
             var summary = new RunSummary();
-            var orderedTestCases = TestCaseOrderer.OrderTestCases(TestCases);
+            IEnumerable<TTestCase> orderedTestCases;
+            try
+            {
+                orderedTestCases = TestCaseOrderer.OrderTestCases(TestCases);
+            }
+            catch (Exception ex)
+            {
+                var innerEx = ex.Unwrap();
+                DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Test case orderer '{0}' threw '{1}' during ordering: {2}", TestCaseOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.StackTrace));
+                orderedTestCases = TestCases.ToList();
+            }
+
             var constructorArguments = CreateTestClassConstructorArguments();
 
             foreach (var method in orderedTestCases.GroupBy(tc => tc.TestMethod, TestMethodComparer.Instance))

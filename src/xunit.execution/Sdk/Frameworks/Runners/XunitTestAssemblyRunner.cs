@@ -101,7 +101,25 @@ namespace Xunit.Sdk
 
             var testCaseOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (testCaseOrdererAttribute != null)
-                TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(DiagnosticMessageSink, testCaseOrdererAttribute);
+            {
+                try
+                {
+                    var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(DiagnosticMessageSink, testCaseOrdererAttribute);
+                    if (testCaseOrderer != null)
+                        TestCaseOrderer = testCaseOrderer;
+                    else
+                    {
+                        var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test case orderer", args[0], args[1]));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var innerEx = ex.Unwrap();
+                    var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}", args[0], innerEx.GetType().FullName, innerEx.StackTrace));
+                }
+            }
 
             var testCollectionOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCollectionOrdererAttribute)).SingleOrDefault();
             if (testCollectionOrdererAttribute != null)

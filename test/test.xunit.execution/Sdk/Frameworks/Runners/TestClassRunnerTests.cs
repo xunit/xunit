@@ -199,35 +199,79 @@ public class TestClassRunnerTests
         Assert.Equal("Passing", tuple.Item1.Name);
     }
 
-    [Fact]
-    public static async void TestsOrdererIsUsedToDetermineRunOrder()
+    public class TestCaseOrderer
     {
-        var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
-        var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
-        var other1 = Mocks.TestCase<ClassUnderTest>("Other");
-        var other2 = Mocks.TestCase<ClassUnderTest>("Other");
-        var runner = TestableTestClassRunner.Create(testCases: new[] { passing1, other1, passing2, other2 }, orderer: new MockTestCaseOrderer(reverse: true));
+        [Fact]
+        public static async void TestsOrdererIsUsedToDetermineRunOrder()
+        {
+            var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
+            var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
+            var other1 = Mocks.TestCase<ClassUnderTest>("Other");
+            var other2 = Mocks.TestCase<ClassUnderTest>("Other");
+            var runner = TestableTestClassRunner.Create(testCases: new[] { passing1, other1, passing2, other2 }, orderer: new MockTestCaseOrderer(reverse: true));
 
-        await runner.RunAsync();
+            await runner.RunAsync();
 
-        Assert.Collection(runner.MethodsRun,
-            tuple =>
+            Assert.Collection(runner.MethodsRun,
+                tuple =>
+                {
+                    Assert.Equal("Other", tuple.Item1.Name);
+                    Assert.Collection(tuple.Item2,
+                        testCase => Assert.Same(other2, testCase),
+                        testCase => Assert.Same(other1, testCase)
+                    );
+                },
+                tuple =>
+                {
+                    Assert.Equal("Passing", tuple.Item1.Name);
+                    Assert.Collection(tuple.Item2,
+                        testCase => Assert.Same(passing2, testCase),
+                        testCase => Assert.Same(passing1, testCase)
+                    );
+                }
+            );
+        }
+
+        [Fact]
+        public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
+        {
+            var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
+            var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
+            var other1 = Mocks.TestCase<ClassUnderTest>("Other");
+            var other2 = Mocks.TestCase<ClassUnderTest>("Other");
+            var runner = TestableTestClassRunner.Create(testCases: new[] { passing1, other1, passing2, other2 }, orderer: new ThrowingOrderer());
+
+            await runner.RunAsync();
+
+            Assert.Collection(runner.MethodsRun,
+                tuple =>
+                {
+                    Assert.Equal("Passing", tuple.Item1.Name);
+                    Assert.Collection(tuple.Item2,
+                        testCase => Assert.Same(passing1, testCase),
+                        testCase => Assert.Same(passing2, testCase)
+                    );
+                },
+                tuple =>
+                {
+                    Assert.Equal("Other", tuple.Item1.Name);
+                    Assert.Collection(tuple.Item2,
+                        testCase => Assert.Same(other1, testCase),
+                        testCase => Assert.Same(other2, testCase)
+                    );
+                }
+            );
+            var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+            Assert.StartsWith("Test case orderer 'TestClassRunnerTests+TestCaseOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering:", diagnosticMessage.Message);
+        }
+
+        class ThrowingOrderer : ITestCaseOrderer
+        {
+            public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
             {
-                Assert.Equal("Other", tuple.Item1.Name);
-                Assert.Collection(tuple.Item2,
-                    testCase => Assert.Same(other2, testCase),
-                    testCase => Assert.Same(other1, testCase)
-                );
-            },
-            tuple =>
-            {
-                Assert.Equal("Passing", tuple.Item1.Name);
-                Assert.Collection(tuple.Item2,
-                    testCase => Assert.Same(passing2, testCase),
-                    testCase => Assert.Same(passing1, testCase)
-                );
+                throw new DivideByZeroException();
             }
-        );
+        }
     }
 
     [Fact]
@@ -304,12 +348,14 @@ public class TestClassRunnerTests
         public bool AfterTestClassStarting_Called;
         public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
         public bool BeforeTestClassFinished_Called;
+        public List<IMessageSinkMessage> DiagnosticMessages;
         public Exception RunTestMethodAsync_AggregatorResult;
         public readonly CancellationTokenSource TokenSource;
 
         TestableTestClassRunner(ITestClass testClass,
                                 IReflectionTypeInfo @class,
                                 IEnumerable<ITestCase> testCases,
+                                List<IMessageSinkMessage> diagnosticMessages,
                                 IMessageBus messageBus,
                                 ITestCaseOrderer testCaseOrderer,
                                 ExceptionAggregator aggregator,
@@ -318,8 +364,9 @@ public class TestClassRunnerTests
                                 object[] availableArguments,
                                 RunSummary result,
                                 bool cancelInRunTestMethodAsync)
-            : base(testClass, @class, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+            : base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
+            DiagnosticMessages = diagnosticMessages;
             TokenSource = cancellationTokenSource;
 
             this.constructor = constructor;
@@ -352,6 +399,7 @@ public class TestClassRunnerTests
                 firstTest.TestMethod.TestClass,
                 (IReflectionTypeInfo)firstTest.TestMethod.TestClass.Class,
                 testCases,
+                new List<IMessageSinkMessage>(),
                 messageBus ?? new SpyMessageBus(),
                 orderer ?? new MockTestCaseOrderer(),
                 aggregator,
