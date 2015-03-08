@@ -201,7 +201,7 @@ namespace Xunit.Sdk
                 type = type.GetElementType();
             }
 
-            if (type.IsGenericType())
+            if (type.IsGenericType() && !type.IsGenericTypeDefinition())
             {
                 var typeDefinition = type.GetGenericTypeDefinition();
                 var innerTypes = type.GetGenericArguments().Select(t => String.Format("[{0}]", GetTypeNameForSerialization(t))).ToArray();

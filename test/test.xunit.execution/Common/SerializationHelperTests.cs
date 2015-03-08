@@ -7,6 +7,8 @@ public class SerializationHelperTests
     [Theory]
     // Types in mscorlib show up as simple names
     [InlineData(typeof(object), "System.Object")]
+    // Open generic types can be round-tripped
+    [InlineData(typeof(TestCaseRunner<>), "Xunit.Sdk.TestCaseRunner`1, xunit.execution.{Platform}")]
     // Types outside of mscorlib include their assembly name
     [InlineData(typeof(FactAttribute), "Xunit.FactAttribute, xunit.core")]
     // Types in platform-specific libraries show up with substitution tokens

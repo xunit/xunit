@@ -64,6 +64,15 @@ internal static class NewReflectionExtensions
 #endif
     }
 
+    public static bool IsGenericTypeDefinition(this Type type)
+    {
+#if NEW_REFLECTION
+        return type.GetTypeInfo().IsGenericTypeDefinition;
+#else
+        return type.IsGenericTypeDefinition;
+#endif
+    }
+
     public static bool IsNullableEnum(this Type type)
     {
         return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>) && type.GetGenericArguments()[0].IsEnum();
