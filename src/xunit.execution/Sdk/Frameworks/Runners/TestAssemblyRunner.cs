@@ -149,13 +149,24 @@ namespace Xunit.Sdk
         /// Orders the test collections using the <see cref="TestCollectionOrderer"/>.
         /// </summary>
         /// <returns>Test collections (and the associated test cases) in run order</returns>
-        protected List<Tuple<ITestCollection, List<TTestCase>>> OrderTestCases()
+        protected List<Tuple<ITestCollection, List<TTestCase>>> OrderTestCollections()
         {
             var testCasesByCollection =
                 TestCases.GroupBy(tc => tc.TestMethod.TestClass.TestCollection, TestCollectionComparer.Instance)
                          .ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
 
-            var orderedTestCollections = TestCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
+            IEnumerable<ITestCollection> orderedTestCollections;
+
+            try
+            {
+                orderedTestCollections = TestCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
+            }
+            catch (Exception ex)
+            {
+                var innerEx = ex.Unwrap();
+                DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Test collection orderer '{0}' threw '{1}' during ordering: {2}", TestCollectionOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.StackTrace));
+                orderedTestCollections = testCasesByCollection.Keys.ToList();
+            }
 
             return orderedTestCollections.Select(collection => Tuple.Create(collection, testCasesByCollection[collection]))
                                          .ToList();
@@ -221,7 +232,7 @@ namespace Xunit.Sdk
         {
             var summary = new RunSummary();
 
-            foreach (var collection in OrderTestCases())
+            foreach (var collection in OrderTestCollections())
             {
                 summary.Aggregate(await RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource));
                 if (cancellationTokenSource.IsCancellationRequested)

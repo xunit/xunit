@@ -260,15 +260,18 @@ public static class Mocks
         return new TestCollection(Mocks.TestAssembly(assembly), definition, displayName);
     }
 
-    public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrderer>()
+    public static IReflectionAttributeInfo TestCollectionOrdererAttribute(string typeName, string assemblyName)
     {
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
-        var ordererType = typeof(TOrderer);
-        var typeName = ordererType.FullName;
-        var assemblyName = ordererType.Assembly.FullName;
         result.Attribute.Returns(new TestCollectionOrdererAttribute(typeName, assemblyName));
         result.GetConstructorArguments().Returns(new object[] { typeName, assemblyName });
         return result;
+    }
+
+    public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrderer>()
+    {
+        var ordererType = typeof(TOrderer);
+        return TestCollectionOrdererAttribute(ordererType.FullName, ordererType.Assembly.FullName);
     }
 
     public static ITestFailed TestFailed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M, Exception ex = null)

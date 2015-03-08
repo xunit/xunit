@@ -271,6 +271,47 @@ public class XunitTestAssemblyRunnerTests
                 return TestCollections.OrderByDescending(c => c.DisplayName);
             }
         }
+
+        [Fact]
+        public static void SettingUnknownTestCollectionOrderLogsDiagnosticMessage()
+        {
+            var ordererAttribute = Mocks.TestCollectionOrdererAttribute("UnknownType", "UnknownAssembly");
+            var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+
+            runner.Initialize();
+
+            Assert.IsType<DefaultTestCollectionOrderer>(runner.TestCollectionOrderer);
+            var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+            Assert.Equal("Could not find type 'UnknownType' in UnknownAssembly for assembly-level test collection orderer", diagnosticMessage.Message);
+        }
+
+        [Fact]
+        public static void SettingTestCollectionOrdererWithThrowingConstructorLogsDiagnosticMessage()
+        {
+            var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyCtorThrowingTestCollectionOrderer>();
+            var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+
+            runner.Initialize();
+
+            Assert.IsType<DefaultTestCaseOrderer>(runner.TestCaseOrderer);
+            var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+            Assert.StartsWith("Assembly-level test collection orderer 'XunitTestAssemblyRunnerTests+TestCollectionOrderer+MyCtorThrowingTestCollectionOrderer' threw 'System.DivideByZeroException' during construction:", diagnosticMessage.Message);
+        }
+
+        class MyCtorThrowingTestCollectionOrderer : ITestCollectionOrderer
+        {
+            public MyCtorThrowingTestCollectionOrderer()
+            {
+                throw new DivideByZeroException();
+            }
+
+            public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections)
+            {
+                return Enumerable.Empty<ITestCollection>();
+            }
+        }
     }
 
     class ClassUnderTest

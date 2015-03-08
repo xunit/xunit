@@ -275,6 +275,38 @@ public class TestAssemblyRunnerTests
                 return TestCollections.OrderByDescending(c => c.DisplayName);
             }
         }
+
+        [Fact]
+        public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
+        {
+            var collection1 = Mocks.TestCollection(displayName: "AAA");
+            var testCase1 = Mocks.TestCase(collection1);
+            var collection2 = Mocks.TestCollection(displayName: "ZZZZ");
+            var testCase2 = Mocks.TestCase(collection2);
+            var collection3 = Mocks.TestCollection(displayName: "MM");
+            var testCase3 = Mocks.TestCase(collection3);
+            var testCases = new[] { testCase1, testCase2, testCase3 };
+            var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
+            runner.TestCollectionOrderer = new ThrowingOrderer();
+
+            await runner.RunAsync();
+
+            Assert.Collection(runner.CollectionsRun,
+                collection => Assert.Same(collection1, collection.Item1),
+                collection => Assert.Same(collection2, collection.Item1),
+                collection => Assert.Same(collection3, collection.Item1)
+            );
+            var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+            Assert.StartsWith("Test collection orderer 'TestAssemblyRunnerTests+TestCollectionOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering:", diagnosticMessage.Message);
+        }
+
+        class ThrowingOrderer : ITestCollectionOrderer
+        {
+            public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections)
+            {
+                throw new DivideByZeroException();
+            }
+        }
     }
 
     class TestableTestAssemblyRunner : TestAssemblyRunner<ITestCase>
@@ -287,17 +319,20 @@ public class TestAssemblyRunnerTests
         public bool AfterTestAssemblyStarting_Called;
         public Action<ExceptionAggregator> BeforeTestAssemblyFinished_Callback = _ => { };
         public bool BeforeTestAssemblyFinished_Called;
+        public List<IMessageSinkMessage> DiagnosticMessages;
         public Exception RunTestCollectionAsync_AggregatorResult;
 
         TestableTestAssemblyRunner(ITestAssembly testAssembly,
                                    IEnumerable<ITestCase> testCases,
-                                   IMessageSink diagnosticMessageSink,
+                                   List<IMessageSinkMessage> diagnosticMessages,
                                    IMessageSink executionMessageSink,
                                    ITestFrameworkExecutionOptions executionOptions,
                                    RunSummary result,
                                    bool cancelInRunTestCollectionAsync)
-            : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
+            : base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
         {
+            DiagnosticMessages = diagnosticMessages;
+
             this.result = result;
             this.cancelInRunTestCollectionAsync = cancelInRunTestCollectionAsync;
         }
@@ -306,13 +341,12 @@ public class TestAssemblyRunnerTests
                                                         RunSummary result = null,
                                                         ITestCase[] testCases = null,
                                                         ITestFrameworkExecutionOptions executionOptions = null,
-                                                        bool cancelInRunTestCollectionAsync = false,
-                                                        IMessageSink diagnosticMessageSink = null)
+                                                        bool cancelInRunTestCollectionAsync = false)
         {
             return new TestableTestAssemblyRunner(
                 Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
                 testCases ?? new[] { Substitute.For<ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
-                diagnosticMessageSink ?? SpyMessageSink.Create(),
+                new List<IMessageSinkMessage>(),
                 executionMessageSink ?? SpyMessageSink.Create(),
                 executionOptions ?? TestFrameworkOptions.ForExecution(),
                 result ?? new RunSummary(),
