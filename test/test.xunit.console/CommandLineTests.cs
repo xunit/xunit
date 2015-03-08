@@ -195,6 +195,29 @@ public class CommandLineTests
         }
     }
 
+    public class SerializeOption
+    {
+        [Fact]
+        public static void SerializeNotSetSerializeIsFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.Serialize);
+        }
+
+        [Fact]
+        public static void SerializeSetSerializeIsTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-serialize" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.Serialize);
+        }
+    }
+
     public class MaxThreadsOption
     {
         [Fact]

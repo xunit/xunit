@@ -37,6 +37,8 @@ namespace Xunit.ConsoleClient
 
         public bool Quiet { get; protected set; }
 
+        public bool Serialize { get; protected set; }
+
         public bool TeamCity { get; protected set; }
 
         public bool Wait { get; protected set; }
@@ -124,6 +126,11 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     Debug = true;
+                }
+                else if (optionName == "-serialize")
+                {
+                    GuardNoOptionValue(option);
+                    Serialize = true;
                 }
                 else if (optionName == "-wait")
                 {
