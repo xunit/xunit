@@ -1,0 +1,6 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask
+    AssemblyFile="$(MSBuildThisFileDirectory)xunit.runner.msbuild.dll"
+    Condition="Exists('$(MSBuildThisFileDirectory)xunit.runner.msbuild.dll')"
+    TaskName="Xunit.Runner.MSBuild.xunit"/>
+</Project>

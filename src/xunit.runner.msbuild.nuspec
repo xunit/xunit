@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata minClientVersion="2.8.1">
+    <id>xunit.runner.msbuild</id>
+    <version>99.99.99</version>
+    <title>xUnit.net [Runner: MSBuild]</title>
+    <authors>James Newkirk, Brad Wilson</authors>
+    <description>
+      MSBuild runner for the xUnit.net framework.
+      Supported platforms: Desktop .NET 4.5+.
+    </description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/xunit/xunit</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+  </metadata>
+  <files>
+    <file src="xunit.console\*.xslt"                                              target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.runner.msbuild\bin\Release\xunit.abstractions.dll"           target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.utility.desktop.dll" target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll"         target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"             target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="build\_"                                                           target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\_" />
+  </files>
+</package>

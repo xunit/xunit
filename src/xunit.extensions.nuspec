@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
-    <id>xunit.runners</id>
+    <id>xunit.extensions</id>
     <version>99.99.99</version>
-    <title>xUnit.net [Runners]</title>
+    <title>xUnit.net [Extensions]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
       NOTE: This empty package exists to assist users upgrading from xUnit.net v1.x to v2.x.
@@ -13,8 +13,12 @@
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <dependencies>
+      <dependency id="xunit" version="[99.99.99]" />
+    </dependencies>
   </metadata>
   <files>
-    <file src="readme_upgrade_runners.txt" target="readme.txt" />
+    <file src="readme_upgrade_extensions.txt" target="readme.txt" />
+    <file src="build\_"                       target="lib\_" />
   </files>
 </package>
