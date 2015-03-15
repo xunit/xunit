@@ -12,10 +12,17 @@ namespace Xunit1
     public class AssemblyResultTests : IDisposable
     {
         static readonly string assembly = "StubAssembly";
+        static readonly string fullPathName = @"C:\Foo\Bar";
 
         protected AssemblyBuilder builder;
         static readonly string filename = "StubAssembly.dll";
         protected ModuleBuilder moduleBuilder;
+
+        static AssemblyResultTests()
+        {
+            // Let the system compute it for non-Windows systems
+            fullPathName = Path.GetFullPath(fullPathName);
+        }
 
         public AssemblyResultTests()
         {
@@ -52,9 +59,9 @@ namespace Xunit1
         [Fact]
         public void AssemblyResultConfigFilename()
         {
-            AssemblyResult assemblyResult = new AssemblyResult(filename, @"C:\Foo\Bar");
+            AssemblyResult assemblyResult = new AssemblyResult(filename, fullPathName);
 
-            Assert.Equal(@"C:\Foo\Bar", assemblyResult.ConfigFilename);
+            Assert.Equal(fullPathName, assemblyResult.ConfigFilename);
         }
 
         [Fact]
@@ -63,13 +70,13 @@ namespace Xunit1
             XmlDocument doc = new XmlDocument();
             doc.LoadXml("<foo/>");
             XmlNode parentNode = doc.ChildNodes[0];
-            AssemblyResult assemblyResult = new AssemblyResult(filename, @"C:\Foo\Bar");
+            AssemblyResult assemblyResult = new AssemblyResult(filename, fullPathName);
 
             XmlNode resultNode = assemblyResult.ToXml(parentNode);
 
             Assert.Equal("assembly", resultNode.Name);
             Assert.Equal(Path.GetFullPath(filename), resultNode.Attributes["name"].Value);
-            Assert.Equal(@"C:\Foo\Bar", resultNode.Attributes["configFile"].Value);
+            Assert.Equal(fullPathName, resultNode.Attributes["configFile"].Value);
             Assert.NotNull(resultNode.Attributes["run-date"]);
             Assert.NotNull(resultNode.Attributes["run-time"]);
             Assert.Equal("0.000", resultNode.Attributes["time"].Value);

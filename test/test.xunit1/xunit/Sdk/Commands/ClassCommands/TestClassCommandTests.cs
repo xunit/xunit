@@ -11,26 +11,6 @@ namespace Xunit1
         public class Fixtures
         {
             [Fact]
-            public void FixtureDataDisposeFailure()
-            {
-                TestClassCommand command = new TestClassCommand(typeof(DataDisposeFailureSpy));
-                DataDisposeFailureSpy.Reset();
-                DataDisposeFailureSpy.dummyTestCalled = 0;
-                DataDisposeThrow.Exception = new Exception();
-
-                ClassResult result = TestClassCommandRunner.Execute(command, null, null, null);
-
-                Assert.Equal(1, DataDisposeFailureSpy.dataCtorCalled);
-                Assert.Equal(1, DataDisposeFailureSpy.ctorCalled);
-                Assert.Equal(1, DataDisposeFailureSpy.dummyTestCalled);
-                Assert.Equal(1, DataDisposeFailureSpy.disposeCalled);
-                Assert.Equal(1, DataDisposeFailureSpy.dataDisposeCalled);
-                Assert.Equal("ctorData ctor setFixture dispose disposeData ", DataDisposeFailureSpy.callOrder);
-                Assert.NotNull(result.Message);
-                Assert.Equal("System.Exception", result.ExceptionType);
-            }
-
-            [Fact]
             public void FixtureDataDisposeFailure_InvocationException()
             {
                 TestClassCommand command = new TestClassCommand(typeof(DataDisposeFailureSpy));
@@ -39,27 +19,6 @@ namespace Xunit1
                 ClassResult result = TestClassCommandRunner.Execute(command, null, null, null);
 
                 Assert.Equal("System.Reflection.TargetInvocationException", result.ExceptionType);
-            }
-
-            [Fact]
-            public void FixtureDataConstructorFailure()
-            {
-                TestClassCommand command = new TestClassCommand();
-                command.TypeUnderTest = Reflector.Wrap(typeof(DataCtorFailureSpy));
-                DataCtorFailureSpy.Reset();
-                DataCtorFailureSpy.dummyTestCalled = 0;
-                DataCtorThrow.Exception = new Exception();
-
-                ClassResult result = TestClassCommandRunner.Execute(command, null, null, null);
-
-                Assert.Equal(1, DataCtorFailureSpy.dataCtorCalled);
-                Assert.Equal(0, DataCtorFailureSpy.ctorCalled);
-                Assert.Equal(0, DataCtorFailureSpy.dummyTestCalled);
-                Assert.Equal(0, DataCtorFailureSpy.disposeCalled);
-                Assert.Equal(1, DataCtorFailureSpy.dataDisposeCalled);
-                Assert.Equal("ctorData disposeData ", DataCtorFailureSpy.callOrder);
-                Assert.NotNull(result.Message);
-                Assert.Equal("System.Exception", result.ExceptionType);
             }
 
             [Fact]

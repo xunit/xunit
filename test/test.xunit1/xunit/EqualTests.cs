@@ -67,7 +67,7 @@ namespace Xunit1
 
                 EqualException ex = Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
 
-                Assert.Contains("First difference is at position 4\r\n", ex.Message);
+                Assert.Contains("First difference is at position 4" + Environment.NewLine, ex.Message);
             }
 
             [Fact]

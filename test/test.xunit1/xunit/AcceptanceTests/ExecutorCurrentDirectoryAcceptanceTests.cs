@@ -20,8 +20,8 @@ namespace Xunit1
                 [Fact]
                 public void ChangeDirectory()
                 {
-                    string tempPath = Path.GetFullPath(Path.GetTempPath()).TrimEnd('\\');
-                    string currentPath = Path.GetFullPath(Directory.GetCurrentDirectory()).TrimEnd('\\');
+                    string tempPath = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar);
+                    string currentPath = Path.GetFullPath(Directory.GetCurrentDirectory()).TrimEnd(Path.DirectorySeparatorChar);
                     Assert.Equal(tempPath, currentPath);
                 }
             }
