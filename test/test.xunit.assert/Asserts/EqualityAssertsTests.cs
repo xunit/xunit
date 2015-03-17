@@ -277,14 +277,14 @@ public class EqualityAssertsTests
             Assert.NotEqual(0.11111M, 0.11444M, 3);
         }
 
-        [Fact]
+        [CulturedFact]
         public void Failure()
         {
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111M, 0.11444M, 2));
 
             Assert.Equal("Assert.NotEqual() Failure" + Environment.NewLine +
-                         "Expected: Not 0.11 (rounded from 0.11111)" + Environment.NewLine +
-                         "Actual:   0.11 (rounded from 0.11444)", ex.Message);
+                         String.Format("Expected: Not {0} (rounded from {1})", 0.11M, 0.11111) + Environment.NewLine +
+                         String.Format("Actual:   {0} (rounded from {1})", 0.11M, 0.11444), ex.Message);
         }
     }
 
@@ -296,14 +296,14 @@ public class EqualityAssertsTests
             Assert.NotEqual(0.11111, 0.11444, 3);
         }
 
-        [Fact]
+        [CulturedFact]
         public void Failure()
         {
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111, 0.11444, 2));
 
             Assert.Equal("Assert.NotEqual() Failure" + Environment.NewLine +
-                         "Expected: Not 0.11 (rounded from 0.11111)" + Environment.NewLine +
-                         "Actual:   0.11 (rounded from 0.11444)", ex.Message);
+                         String.Format("Expected: Not {0} (rounded from {1})", 0.11M, 0.11111) + Environment.NewLine +
+                         String.Format("Actual:   {0} (rounded from {1})", 0.11M, 0.11444), ex.Message);
         }
     }
 
