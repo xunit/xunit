@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata minClientVersion="2.8.1">
     <id>xunit.extensibility.core</id>
-    <version>99.99.99</version>
+    <version>99.99.99-dev</version>
     <title>xUnit.net [Extensibility: Core]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>

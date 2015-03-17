@@ -2,7 +2,7 @@
 <package>
   <metadata minClientVersion="2.8.1">
     <id>xunit.assert.source</id>
-    <version>99.99.99</version>
+    <version>99.99.99-dev</version>
     <title>xUnit.net [Assertion Library, as source]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>Includes the current assertion library from xUnit.net, as source into your project.</description>
