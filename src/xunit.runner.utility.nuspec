@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
-  <metadata minClientVersion="2.8.1">
+  <metadata minClientVersion="2.8.3">
     <id>xunit.runner.utility</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner Utility]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
       Includes the version-independent runner for xUnit.net to run both v1 and v2 tests (xunit.runner.utility.dll).
-      Supported platforms: Desktop .NET 3.5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
+      Supported platforms: Desktop .NET 3.5+, ASP.NET 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -18,9 +18,40 @@
       <group>
         <dependency id="xunit.abstractions" version="[2.0.0]" />
       </group>
+      <group targetFramework="aspnet50">
+        <dependency id="xunit.abstractions" version="[2.0.0]" />
+      </group>
+      <group targetFramework="aspnetcore50">
+        <dependency id="System.Diagnostics.Tools" version="4.0.0-beta-22605" />
+        <dependency id="System.IO.FileSystem" version="4.0.0-beta-22605" />
+        <dependency id="System.Linq" version="4.0.0-beta-22605" />
+        <dependency id="System.Reflection" version="4.0.10-beta-22605" />
+        <dependency id="System.Runtime.Extensions" version="4.0.10-beta-22605" />
+        <dependency id="System.Threading" version="4.0.10-beta-22605" />
+        <dependency id="xunit.abstractions" version="[2.0.0]" />
+      </group>
     </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="mscorlib" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Collections" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Reflection" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Runtime" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Web" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="System.Xml" targetFramework="aspnet50" />
+    </frameworkAssemblies>
   </metadata>
   <files>
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnet50\xunit.runner.utility.AspNet.dll" target="lib\aspnet50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnet50\xunit.runner.utility.AspNet.pdb" target="lib\aspnet50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnet50\xunit.runner.utility.AspNet.xml" target="lib\aspnet50\" />
+
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnetcore50\xunit.runner.utility.AspNet.dll" target="lib\aspnetcore50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnetcore50\xunit.runner.utility.AspNet.pdb" target="lib\aspnetcore50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\aspnetcore50\xunit.runner.utility.AspNet.xml" target="lib\aspnetcore50\" />
+
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.dll" target="lib\monoandroid\" />
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.pdb" target="lib\monoandroid\" />
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.xml" target="lib\monoandroid\" />

@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
-  <metadata minClientVersion="2.8.1">
+  <metadata minClientVersion="2.8.3">
     <id>xunit.core</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Core Unit Testing Framework]</title>
     <authors>James Newkirk, Brad Wilson</authors>
     <description>
       Includes the libraries for writing unit tests with xUnit.net.
-      Supported platforms: Desktop .NET 4.5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal, Portable Libraries (supporting Profile259).
+      Supported platforms: Desktop .NET 4.5+, ASP.NET 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal, Portable Libraries (supporting Profile259).
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -17,6 +17,15 @@
     <dependencies>
       <group>
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
+      </group>
+      <!-- Include execution in ASP.NET 5, because there's no other way to get the DLL referenced -->
+      <group targetFramework="aspnet50">
+        <dependency id="xunit.extensibility.core" version="[99.99.99]" />
+        <dependency id="xunit.extensibility.execution" version="[99.99.99]" />
+      </group>
+      <group targetFramework="aspnetcore50">
+        <dependency id="xunit.extensibility.core" version="[99.99.99]" />
+        <dependency id="xunit.extensibility.execution" version="[99.99.99]" />
       </group>
     </dependencies>
   </metadata>
@@ -37,7 +46,7 @@
     <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.dll" target="build\monotouch\" />
 
     <!-- portable -->
-    <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
 
     <!-- universal -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props"                       target="build\portable-win81+wpa81\xunit.core.props" />

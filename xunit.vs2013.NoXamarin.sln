@@ -47,21 +47,47 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Targets", "Targets", "{942F
 		tools\xunit.tests.msbuild = tools\xunit.tests.msbuild
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "abstractions", "abstractions", "{C987FBEE-4FE7-46CA-8175-9531F5DEBB29}"
+	ProjectSection(SolutionItems) = preProject
+		src\xunit.abstractions\project.json = src\xunit.abstractions\project.json
+	EndProjectSection
+	ProjectSection(FolderGlobals) = preProject
+		project_1json__JSONSchema = http://www.asp.net/media/4878834/project.json
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runners", "runners", "{C11636E8-A3D7-4B0C-BC1E-2726B02A101F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runners", "runners", "{9D9F81DC-EE05-43B4-AF77-8EFE32024E82}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{A727699B-E50A-4F83-8627-8BE64237582C}"
+	ProjectSection(SolutionItems) = preProject
+		src\xunit.core\project.json = src\xunit.core\project.json
+	EndProjectSection
+	ProjectSection(FolderGlobals) = preProject
+		project_1json__JSONSchema = http://www.asp.net/media/4878834/project.json
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{AE42309B-BFBE-4253-8AD6-BBFD676152ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "v1", "v1", "{C86F3A8E-8D96-4B0C-AA02-0293F278F1B3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "execution", "execution", "{72690AF2-D51A-4FD2-BD59-17FADACC29A1}"
+	ProjectSection(SolutionItems) = preProject
+		src\xunit.execution.AspNet\project.json = src\xunit.execution.AspNet\project.json
+	EndProjectSection
+	ProjectSection(FolderGlobals) = preProject
+		project_1json__JSONSchema = http://www.asp.net/media/4878834/project.json
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.desktop", "src\xunit.execution.desktop\xunit.execution.desktop.csproj", "{09EF9917-4B00-4646-8C3F-96EFACC8BF51}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runner.utility", "runner.utility", "{A36A630E-A604-47E6-894E-732946960182}"
+	ProjectSection(SolutionItems) = preProject
+		src\xunit.runner.utility.AspNet\project.json = src\xunit.runner.utility.AspNet\project.json
+	EndProjectSection
+	ProjectSection(FolderGlobals) = preProject
+		project_1json__JSONSchema = http://www.asp.net/media/4878834/project.json
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.desktop", "src\xunit.runner.utility.desktop\xunit.runner.utility.desktop.csproj", "{EFC3F529-3686-416B-9C67-36EC914C776A}"
 EndProject
