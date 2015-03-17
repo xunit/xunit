@@ -42,6 +42,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit.abstractions">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.abstractions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs">
@@ -107,10 +110,6 @@
     <Compile Include="Resources\Resource.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
-      <Project>{77743589-f177-4007-97b8-50b82a1c7044}</Project>
-      <Name>xunit.abstractions.pcl</Name>
-    </ProjectReference>
     <ProjectReference Include="..\xunit.core\xunit.core.csproj">
       <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>
       <Name>xunit.core</Name>
@@ -123,6 +122,9 @@
     <Compile Include="..\messages\**\*.cs">
       <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

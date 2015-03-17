@@ -42,6 +42,9 @@
     <Reference Include="TestDriven.Framework">
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="xunit.abstractions">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
@@ -59,10 +62,6 @@
     <Compile Include="xunitTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
-      <Project>{77743589-f177-4007-97b8-50b82a1c7044}</Project>
-      <Name>xunit.abstractions.pcl</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.execution.desktop\xunit.execution.desktop.csproj">
       <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
       <Name>xunit.execution.desktop</Name>

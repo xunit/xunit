@@ -67,6 +67,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="xunit.abstractions">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandLineTests.cs" />
@@ -77,10 +80,6 @@
     <Compile Include="Utility\TeamCityVisitorTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\xunit.abstractions.pcl\xunit.abstractions.pcl.csproj">
-      <Project>{77743589-f177-4007-97b8-50b82a1c7044}</Project>
-      <Name>xunit.abstractions.pcl</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">
       <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>
       <Name>xunit.assert</Name>

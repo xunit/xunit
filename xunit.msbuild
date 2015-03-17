@@ -20,7 +20,7 @@
     <KvmPath Condition="'$(KvmPath)' == ''">$(SolutionDir)\tools\kvm.cmd</KvmPath>
   </PropertyGroup>
   <ItemGroup>
-    <NuspecFiles Include="**\*.nuspec" />
+    <NuspecFiles Include="src\*.nuspec" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
     <PackageSource Include="https://nuget.org/api/v2/" />
