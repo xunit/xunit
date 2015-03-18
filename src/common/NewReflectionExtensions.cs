@@ -21,7 +21,7 @@ internal static class NewReflectionExtensions
     public static Attribute[] GetCustomAttributes(this Assembly assembly)
     {
 #if NEW_REFLECTION
-        return assembly.GetCustomAttributes();
+        return assembly.GetCustomAttributes<Attribute>().ToArray();
 #else
         return assembly.GetCustomAttributes(inherit: false).Cast<Attribute>().ToArray();
 #endif
