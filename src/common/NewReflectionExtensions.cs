@@ -18,6 +18,7 @@ internal static class NewReflectionExtensions
 #endif
     }
 
+#if !ASPNET50 && !ASPNETCORE50
     public static Attribute[] GetCustomAttributes(this Assembly assembly)
     {
 #if NEW_REFLECTION
@@ -26,6 +27,7 @@ internal static class NewReflectionExtensions
         return assembly.GetCustomAttributes(inherit: false).Cast<Attribute>().ToArray();
 #endif
     }
+#endif
 
     public static bool IsEnum(this Type type)
     {
