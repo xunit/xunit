@@ -4,7 +4,7 @@
     <id>xunit.runner.utility</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner Utility]</title>
-    <authors>James Newkirk, Brad Wilson</authors>
+    <authors>James Newkirk,Brad Wilson</authors>
     <description>
       Includes the version-independent runner for xUnit.net to run both v1 and v2 tests (xunit.runner.utility.dll).
       Supported platforms: Desktop .NET 3.5+, ASP.NET 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.

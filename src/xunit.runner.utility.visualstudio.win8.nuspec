@@ -4,7 +4,7 @@
     <id>xunit.runner.utility.visualstudio.win8</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner Utility, for Visual Studio Win8]</title>
-    <authors>James Newkirk, Brad Wilson</authors>
+    <authors>James Newkirk,Brad Wilson</authors>
     <description>PRIVATE PACKAGE. DO NOT USE.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>

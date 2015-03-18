@@ -4,7 +4,7 @@
     <id>xunit.abstractions</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Abstractions]</title>
-    <authors>James Newkirk, Brad Wilson</authors>
+    <authors>James Newkirk,Brad Wilson</authors>
     <description>
       Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).
       Supported platforms: Desktop .NET 3.5+, ASP.NET Core 5+, Modern Windows 8+, Windows Phone 8+ (Silverlight), Windows Phone 8.1+ (Universal), Portable Libraries (supporting Profile259).

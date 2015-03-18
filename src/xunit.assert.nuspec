@@ -4,7 +4,7 @@
     <id>xunit.assert</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Assertion Library]</title>
-    <authors>James Newkirk, Brad Wilson</authors>
+    <authors>James Newkirk,Brad Wilson</authors>
     <description>
       Includes the assertion library from xUnit.net (xunit.assert.dll).
       Supported platforms: Desktop .NET 4.5+, ASP.NET 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal, Portable Libraries (supporting Profile259).

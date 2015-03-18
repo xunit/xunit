@@ -4,7 +4,7 @@
     <id>xunit.runner.console</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner: Console]</title>
-    <authors>James Newkirk, Brad Wilson</authors>
+    <authors>James Newkirk,Brad Wilson</authors>
     <description>
       Console runner for the xUnit.net framework.
       Supported platforms: Desktop .NET 4.5+.

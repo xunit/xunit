@@ -4,7 +4,7 @@
     <id>xunit.runner.msbuild</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner: MSBuild]</title>
-    <authors>James Newkirk, Brad Wilson</authors>
+    <authors>James Newkirk,Brad Wilson</authors>
     <description>
       MSBuild runner for the xUnit.net framework.
       Supported platforms: Desktop .NET 4.5+.
