@@ -295,7 +295,7 @@ public class XunitTestInvokerTests
             );
         }
 
-        public override Task<decimal> InvokeTestMethodAsync(object testClassInstance)
+        protected override Task<decimal> InvokeTestMethodAsync(object testClassInstance)
         {
             if (lambda == null)
                 return base.InvokeTestMethodAsync(testClassInstance);

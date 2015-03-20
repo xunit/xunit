@@ -178,7 +178,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testClassInstance">The test class instance</param>
         /// <returns>Returns the time taken to invoke the test method</returns>
-        public virtual async Task<decimal> InvokeTestMethodAsync(object testClassInstance)
+        protected virtual async Task<decimal> InvokeTestMethodAsync(object testClassInstance)
         {
             var oldSyncContext = SynchronizationContext.Current;
 
