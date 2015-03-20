@@ -160,7 +160,7 @@ namespace Xunit.Sdk
                     {
                         await BeforeTestMethodInvokedAsync();
 
-                        if (!Aggregator.HasExceptions)
+                        if (!CancellationTokenSource.IsCancellationRequested && !Aggregator.HasExceptions)
                             await InvokeTestMethodAsync(testClassInstance);
 
                         await AfterTestMethodInvokedAsync();
