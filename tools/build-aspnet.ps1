@@ -5,7 +5,7 @@ param(
 Push-Location $(join-path $(split-path $MyInvocation.MyCommand.Definition) "..")
 
 # Have to bust the cache, because of broken packages from the CLR team
-Remove-Item -Recurse -Force $(join-path $env:USERPROFILE ".kpm\packages") -ErrorAction SilentlyContinue | out-null
+Remove-Item -Recurse -Force $(join-path $env:USERPROFILE ".dnx\packages") -ErrorAction SilentlyContinue | out-null
 
 # Make sure beta 3 is installed and in use
 tools\dnvm.ps1 install latest -runtime CoreCLR -arch x86
