@@ -30,3 +30,5 @@ Test*.xml
 
 Index.dat
 Storage.dat
+
+project.lock.json

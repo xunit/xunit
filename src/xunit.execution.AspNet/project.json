@@ -10,18 +10,18 @@
         },
         "aspnetcore50": {
             "dependencies": {
-                "System.Collections.Concurrent": "4.0.0-beta-22605",
-                "System.Diagnostics.Debug": "4.0.10-beta-22605",
-                "System.Diagnostics.Tools": "4.0.0-beta-22605",
-                "System.Globalization": "4.0.10-beta-22605",
-                "System.Linq": "4.0.0-beta-22605",
-                "System.Reflection": "4.0.10-beta-22605",
-                "System.Reflection.Extensions": "4.0.0-beta-22605",
-                "System.Runtime.Extensions": "4.0.10-beta-22605",
-                "System.Security.Cryptography.Hashing.Algorithms": "4.0.0-beta-22605",
-                "System.Threading": "4.0.10-beta-22605",
-                "System.Threading.Thread": "4.0.0-beta-22605",
-                "System.Threading.ThreadPool": "4.0.10-beta-22605"
+                "System.Collections.Concurrent": "4.0.0-*",
+                "System.Diagnostics.Debug": "4.0.10-*",
+                "System.Diagnostics.Tools": "4.0.0-*",
+                "System.Globalization": "4.0.10-*",
+                "System.Linq": "4.0.0-*",
+                "System.Reflection": "4.0.10-*",
+                "System.Reflection.Extensions": "4.0.0-*",
+                "System.Runtime.Extensions": "4.0.10-*",
+                "System.Security.Cryptography.Hashing.Algorithms": "4.0.0-*",
+                "System.Threading": "4.0.10-*",
+                "System.Threading.Thread": "4.0.0-*",
+                "System.Threading.ThreadPool": "4.0.10-*"
             }
         }
     },
@@ -29,7 +29,7 @@
         "define": [ "XUNIT_CORE_DLL", "NET45", "NO_APPDOMAIN", "NEW_REFLECTION" ],
         "warningsAsErrors": true
     },
-    "code": [
+    "compile": [
         "../common/AssemblyExtensions.cs",
         "../common/DictionaryExtensions.cs",
         "../common/ExceptionExtensions.cs",

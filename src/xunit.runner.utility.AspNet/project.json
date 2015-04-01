@@ -11,12 +11,12 @@
         },
         "aspnetcore50": {
             "dependencies": {
-                "System.Diagnostics.Tools": "4.0.0-beta-22605",
-                "System.IO.FileSystem": "4.0.0-beta-22605",
-                "System.Linq": "4.0.0-beta-22605",
-                "System.Reflection": "4.0.10-beta-22605",
-                "System.Runtime.Extensions": "4.0.10-beta-22605",
-                "System.Threading": "4.0.10-beta-22605"
+                "System.Diagnostics.Tools": "4.0.0-*",
+                "System.IO.FileSystem": "4.0.0-*",
+                "System.Linq": "4.0.0-*",
+                "System.Reflection": "4.0.10-*",
+                "System.Runtime.Extensions": "4.0.10-*",
+                "System.Threading": "4.0.10-*"
             }
         }
     },
@@ -24,7 +24,7 @@
         "define": [ "NET", "NO_APPDOMAIN", "NEW_REFLECTION" ],
         "warningsAsErrors": true
     },
-    "code": [
+    "compile": [
         "../common/AssemblyExtensions.cs",
         "../common/AssemblyHelper.cs",
         "../common/AssemblyHelper_WPA81.cs",

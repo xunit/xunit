@@ -8,12 +8,12 @@ Push-Location $(join-path $(split-path $MyInvocation.MyCommand.Definition) "..")
 Remove-Item -Recurse -Force $(join-path $env:USERPROFILE ".kpm\packages") -ErrorAction SilentlyContinue | out-null
 
 # Make sure beta 3 is installed and in use
-tools\kvm.ps1 install 1.0.0-beta3 -runtime CoreCLR -x86
-tools\kvm.ps1 install 1.0.0-beta3 -runtime CLR -x86
+tools\dnvm.ps1 install latest -runtime CoreCLR -arch x86
+tools\dnvm.ps1 install latest -runtime CLR -arch x86
 
 # Restore packages and build
-kpm restore
-kpm build src\xunit.runner.utility.AspNet --configuration $Configuration
-kpm build src\xunit.execution.AspNet --configuration $Configuration
+dnu restore
+dnu build src\xunit.runner.utility.AspNet --configuration $Configuration
+dnu build src\xunit.execution.AspNet --configuration $Configuration
 
 Pop-Location
