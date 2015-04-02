@@ -7,7 +7,7 @@
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
       Includes xunit.execution.*.dll for extensibility purposes.
-      Supported platforms: Desktop .NET 4.5+, ASP.NET 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
+      Supported platforms: Desktop .NET 4.5+, DNX 4.5.1+, DNX Core 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -16,9 +16,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
       <group>
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="dnx451">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
       <group targetFramework="dnxcore50">
@@ -49,13 +46,13 @@
     </frameworkAssemblies>
   </metadata>
   <files>
-    <file src="xunit.execution.AspNet\bin\Release\dnx451\xunit.execution.AspNet.dll" target="lib\dnx451\" />
-    <file src="xunit.execution.AspNet\bin\Release\dnx451\xunit.execution.AspNet.pdb" target="lib\dnx451\" />
-    <file src="xunit.execution.AspNet\bin\Release\dnx451\xunit.execution.AspNet.xml" target="lib\dnx451\" />
+    <file src="xunit.execution.dnx\bin\Release\dnx451\xunit.execution.dnx.dll" target="lib\dnx451\" />
+    <file src="xunit.execution.dnx\bin\Release\dnx451\xunit.execution.dnx.pdb" target="lib\dnx451\" />
+    <file src="xunit.execution.dnx\bin\Release\dnx451\xunit.execution.dnx.xml" target="lib\dnx451\" />
 
-    <file src="xunit.execution.AspNet\bin\Release\dnxcore50\xunit.execution.AspNet.dll" target="lib\dnxcore50\" />
-    <file src="xunit.execution.AspNet\bin\Release\dnxcore50\xunit.execution.AspNet.pdb" target="lib\dnxcore50\" />
-    <file src="xunit.execution.AspNet\bin\Release\dnxcore50\xunit.execution.AspNet.xml" target="lib\dnxcore50\" />
+    <file src="xunit.execution.dnx\bin\Release\dnxcore50\xunit.execution.dnx.dll" target="lib\dnxcore50\" />
+    <file src="xunit.execution.dnx\bin\Release\dnxcore50\xunit.execution.dnx.pdb" target="lib\dnxcore50\" />
+    <file src="xunit.execution.dnx\bin\Release\dnxcore50\xunit.execution.dnx.xml" target="lib\dnxcore50\" />
 
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.dll" target="lib\monoandroid\" />
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.pdb" target="lib\monoandroid\" />

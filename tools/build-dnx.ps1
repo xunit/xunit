@@ -13,7 +13,7 @@ tools\dnvm.ps1 install latest -runtime CLR -arch x86
 
 # Restore packages and build
 dnu restore
-dnu build src\xunit.runner.utility.AspNet --configuration $Configuration
-dnu build src\xunit.execution.AspNet --configuration $Configuration
+dnu build src\xunit.runner.utility.dnx --configuration $Configuration
+dnu build src\xunit.execution.dnx --configuration $Configuration
 
 Pop-Location

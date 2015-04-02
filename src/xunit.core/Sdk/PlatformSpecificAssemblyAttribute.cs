@@ -9,8 +9,8 @@ namespace Xunit.Sdk
     /// "My.Assembly.win8", etc.). This affects both extensibility points which require specifying
     /// a string-based type name and assembly, as well as serialization. The supported platform target
     /// names include:
-    ///   "AspNet" (for ASP.NET 5 tests),
     ///   "desktop" (for desktop and PCL tests),
+    ///   "dnx" (for DNX tests),
     ///   "iOS-Universal" (for Xamarin test projects targeting iOS),
     ///   "MonoAndroid" (for Xamarin MonoAndroid tests),
     ///   "MonoTouch" (for Xamarin MonoTouch tests),

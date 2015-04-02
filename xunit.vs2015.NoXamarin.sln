@@ -100,13 +100,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{52
 		src\xunit.runners.nuspec = src\xunit.runners.nuspec
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.execution.AspNet", "src\xunit.execution.AspNet\xunit.execution.AspNet.kproj", "{BAD239CF-765B-4C12-8AE2-D799D077ABDF}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.execution.dnx", "src\xunit.execution.dnx\xunit.execution.dnx.kproj", "{BAD239CF-765B-4C12-8AE2-D799D077ABDF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4FEC8604-E544-43C2-979C-F0815B5770E2} = {4FEC8604-E544-43C2-979C-F0815B5770E2}
 		{1B843C0F-8E08-4BA9-8C85-EEAF779A0774} = {1B843C0F-8E08-4BA9-8C85-EEAF779A0774}
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.runner.utility.AspNet", "src\xunit.runner.utility.AspNet\xunit.runner.utility.AspNet.kproj", "{34CBD6A6-BDB6-4EC0-A86C-097ADF685AF2}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.runner.utility.dnx", "src\xunit.runner.utility.dnx\xunit.runner.utility.dnx.kproj", "{34CBD6A6-BDB6-4EC0-A86C-097ADF685AF2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4FEC8604-E544-43C2-979C-F0815B5770E2} = {4FEC8604-E544-43C2-979C-F0815B5770E2}
 	EndProjectSection

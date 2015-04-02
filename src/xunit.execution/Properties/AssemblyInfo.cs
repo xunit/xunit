@@ -9,9 +9,9 @@ using Xunit.Sdk;
 #elif __IOS__
 [assembly: AssemblyTitle("xUnit.net Execution (iOS Universal)")]
 #elif DNXCORE50
-[assembly: AssemblyTitle("xUnit.net Execution (ASP.NET Core)")]
+[assembly: AssemblyTitle("xUnit.net Execution (DNX Core)")]
 #elif DNX451
-[assembly: AssemblyTitle("xUnit.net Execution (ASP.NET)")]
+[assembly: AssemblyTitle("xUnit.net Execution (DNX)")]
 #elif WINDOWS_PHONE_APP
 [assembly: AssemblyTitle("xUnit.net Execution (Universal [WPA81, WIN81])")]
 #elif WINDOWS_PHONE

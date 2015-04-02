@@ -8,9 +8,9 @@ using System.Reflection;
 #elif __IOS__ 
 [assembly: AssemblyTitle("xUnit.net Runner Utility (iOS Universal)")]
 #elif DNX451
-[assembly: AssemblyTitle("xUnit.net Runner Utility (ASP.NET)")]
+[assembly: AssemblyTitle("xUnit.net Runner Utility (DNX)")]
 #elif DNXCORE50
-[assembly: AssemblyTitle("xUnit.net Runner Utility (ASP.NET Core)")]
+[assembly: AssemblyTitle("xUnit.net Runner Utility (DNX Core)")]
 #elif WINDOWS_PHONE_APP
 [assembly: AssemblyTitle("xUnit.net Runner Utility (Universal [WPA81, WIN81])")]
 #elif WINDOWS_PHONE

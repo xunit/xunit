@@ -13,7 +13,7 @@ namespace Xunit
         /// <returns>The test assembly configuration.</returns>
         public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null)
         {
-            // TODO: Figure out the configuration story for ASP.NET test projects
+            // TODO: Figure out the configuration story for DNX test projects
             return new TestAssemblyConfiguration();
         }
     }
