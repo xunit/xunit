@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
-  <metadata minClientVersion="2.8.3">
+  <metadata minClientVersion="2.8.5">
     <id>xunit.core</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Core Unit Testing Framework]</title>
@@ -19,11 +19,11 @@
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
       <!-- Include execution in ASP.NET 5, because there's no other way to get the DLL referenced -->
-      <group targetFramework="aspnet50">
+      <group targetFramework="dnx451">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
         <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
       </group>
-      <group targetFramework="aspnetcore50">
+      <group targetFramework="dnxcore50">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
         <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
       </group>
@@ -46,7 +46,7 @@
     <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.dll" target="build\monotouch\" />
 
     <!-- portable -->
-    <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+dnxcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
 
     <!-- universal -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props"                       target="build\portable-win81+wpa81\xunit.core.props" />

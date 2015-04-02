@@ -1,6 +1,6 @@
 {
     "frameworks": {
-        "aspnet50": {
+        "dnx451": {
             "frameworkAssemblies": {
                 "System.Collections": "",
                 "System.Reflection": "",
@@ -9,7 +9,7 @@
                 "System.Xml": ""
             }
         },
-        "aspnetcore50": {
+        "dnxcore50": {
             "dependencies": {
                 "System.Diagnostics.Tools": "4.0.0-*",
                 "System.IO.FileSystem": "4.0.0-*",

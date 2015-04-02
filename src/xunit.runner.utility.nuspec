@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
-  <metadata minClientVersion="2.8.3">
+  <metadata minClientVersion="2.8.5">
     <id>xunit.runner.utility</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner Utility]</title>
@@ -18,10 +18,10 @@
       <group>
         <dependency id="xunit.abstractions" version="[2.0.0]" />
       </group>
-      <group targetFramework="aspnet50">
+      <group targetFramework="dnx451">
         <dependency id="xunit.abstractions" version="[2.0.0]" />
       </group>
-      <group targetFramework="aspnetcore50">
+      <group targetFramework="dnxcore50">
         <dependency id="System.Diagnostics.Tools" version="4.0.0-beta-22605" />
         <dependency id="System.IO.FileSystem" version="4.0.0-beta-22605" />
         <dependency id="System.Linq" version="4.0.0-beta-22605" />
@@ -32,25 +32,25 @@
       </group>
     </dependencies>
     <frameworkAssemblies>
-      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="mscorlib" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Collections" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Reflection" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Runtime" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Web" targetFramework="aspnet50" />
-      <frameworkAssembly assemblyName="System.Xml" targetFramework="aspnet50" />
+      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="dnx451" />
+      <frameworkAssembly assemblyName="mscorlib" targetFramework="dnx451" />
+      <frameworkAssembly assemblyName="System" targetFramework="dnx451" />
+      <frameworkAssembly assemblyName="System.Collections" targetFramework="dnx451" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="dnx451" />
+      <frameworkAssembly assemblyName="System.Reflection" targetFramework="dnx451" />
+      <frameworkAssembly assemblyName="System.Runtime" targetFramework="dnx451" />
+      <frameworkAssembly assemblyName="System.Web" targetFramework="dnx451" />
+      <frameworkAssembly assemblyName="System.Xml" targetFramework="dnx451" />
     </frameworkAssemblies>
   </metadata>
   <files>
-    <file src="xunit.runner.utility.AspNet\bin\Release\aspnet50\xunit.runner.utility.AspNet.dll" target="lib\aspnet50\" />
-    <file src="xunit.runner.utility.AspNet\bin\Release\aspnet50\xunit.runner.utility.AspNet.pdb" target="lib\aspnet50\" />
-    <file src="xunit.runner.utility.AspNet\bin\Release\aspnet50\xunit.runner.utility.AspNet.xml" target="lib\aspnet50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\dnx451\xunit.runner.utility.AspNet.dll" target="lib\dnx451\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\dnx451\xunit.runner.utility.AspNet.pdb" target="lib\dnx451\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\dnx451\xunit.runner.utility.AspNet.xml" target="lib\dnx451\" />
 
-    <file src="xunit.runner.utility.AspNet\bin\Release\aspnetcore50\xunit.runner.utility.AspNet.dll" target="lib\aspnetcore50\" />
-    <file src="xunit.runner.utility.AspNet\bin\Release\aspnetcore50\xunit.runner.utility.AspNet.pdb" target="lib\aspnetcore50\" />
-    <file src="xunit.runner.utility.AspNet\bin\Release\aspnetcore50\xunit.runner.utility.AspNet.xml" target="lib\aspnetcore50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\dnxcore50\xunit.runner.utility.AspNet.dll" target="lib\dnxcore50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\dnxcore50\xunit.runner.utility.AspNet.pdb" target="lib\dnxcore50\" />
+    <file src="xunit.runner.utility.AspNet\bin\Release\dnxcore50\xunit.runner.utility.AspNet.xml" target="lib\dnxcore50\" />
 
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.dll" target="lib\monoandroid\" />
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.pdb" target="lib\monoandroid\" />

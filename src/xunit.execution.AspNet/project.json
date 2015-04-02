@@ -1,6 +1,6 @@
 {
     "frameworks": {
-        "aspnet50": {
+        "dnx451": {
             "frameworkAssemblies": {
                 "System.Collections": "",
                 "System.Reflection": "",
@@ -8,7 +8,7 @@
                 "System.Threading.Tasks": ""
             }
         },
-        "aspnetcore50": {
+        "dnxcore50": {
             "dependencies": {
                 "System.Collections.Concurrent": "4.0.0-*",
                 "System.Diagnostics.Debug": "4.0.10-*",

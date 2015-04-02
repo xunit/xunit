@@ -7,9 +7,9 @@ using System.Reflection;
 [assembly: AssemblyTitle("xUnit.net Runner Utility (MonoTouch)")]
 #elif __IOS__ 
 [assembly: AssemblyTitle("xUnit.net Runner Utility (iOS Universal)")]
-#elif ASPNET50
+#elif DNX451
 [assembly: AssemblyTitle("xUnit.net Runner Utility (ASP.NET)")]
-#elif ASPNETCORE50
+#elif DNXCORE50
 [assembly: AssemblyTitle("xUnit.net Runner Utility (ASP.NET Core)")]
 #elif WINDOWS_PHONE_APP
 [assembly: AssemblyTitle("xUnit.net Runner Utility (Universal [WPA81, WIN81])")]
