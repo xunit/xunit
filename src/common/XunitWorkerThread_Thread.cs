@@ -9,7 +9,7 @@ namespace Xunit.Sdk
 
         public XunitWorkerThread(Action threadProc)
         {
-            thread = new Thread(() => threadProc());
+            thread = new Thread(() => threadProc()) { IsBackground = true };
             thread.Start();
         }
 
