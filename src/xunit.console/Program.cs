@@ -244,7 +244,6 @@ namespace Xunit.ConsoleClient
                                           totalTestsSkipped,
                                           totalTime,
                                           clockTime.Elapsed.TotalSeconds.ToString("0.000s"));
-
                 }
             }
 
