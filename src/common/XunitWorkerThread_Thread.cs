@@ -15,7 +15,8 @@ namespace Xunit.Sdk
 
         public void Join()
         {
-            thread.Join();
+            if (thread != Thread.CurrentThread)
+                thread.Join();
         }
 
         public static void QueueUserWorkItem(Action backgroundTask)
