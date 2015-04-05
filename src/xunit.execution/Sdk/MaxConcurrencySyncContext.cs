@@ -20,7 +20,7 @@ namespace Xunit.Sdk
         readonly AutoResetEvent workReady = new AutoResetEvent(false);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MaxConcurrencyTaskScheduler"/> class.
+        /// Initializes a new instance of the <see cref="MaxConcurrencySyncContext"/> class.
         /// </summary>
         /// <param name="maximumConcurrencyLevel">The maximum number of tasks to run at any one time.</param>
         public MaxConcurrencySyncContext(int maximumConcurrencyLevel)
