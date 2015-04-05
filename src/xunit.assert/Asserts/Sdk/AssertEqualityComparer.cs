@@ -87,20 +87,33 @@ namespace Xunit.Sdk
             if (enumerableX == null || enumerableY == null)
                 return null;
 
-            var enumeratorX = enumerableX.GetEnumerator();
-            var enumeratorY = enumerableY.GetEnumerator();
-            var equalityComparer = innerComparerFactory();
-
-            while (true)
+            IEnumerator enumeratorX = null, enumeratorY = null;
+            try
             {
-                var hasNextX = enumeratorX.MoveNext();
-                var hasNextY = enumeratorY.MoveNext();
+                enumeratorX = enumerableX.GetEnumerator();
+                enumeratorY = enumerableY.GetEnumerator();
+                var equalityComparer = innerComparerFactory();
 
-                if (!hasNextX || !hasNextY)
-                    return hasNextX == hasNextY;
+                while (true)
+                {
+                    var hasNextX = enumeratorX.MoveNext();
+                    var hasNextY = enumeratorY.MoveNext();
 
-                if (!equalityComparer.Equals(enumeratorX.Current, enumeratorY.Current))
-                    return false;
+                    if (!hasNextX || !hasNextY)
+                        return hasNextX == hasNextY;
+
+                    if (!equalityComparer.Equals(enumeratorX.Current, enumeratorY.Current))
+                        return false;
+                }
+            }
+            finally
+            {
+                var asDisposable = enumeratorX as IDisposable;
+                if (asDisposable != null)
+                    asDisposable.Dispose();
+                asDisposable = enumeratorY as IDisposable;
+                if (asDisposable != null)
+                    asDisposable.Dispose();
             }
         }
 
