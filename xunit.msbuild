@@ -14,10 +14,11 @@
     <ParallelizeTests Condition="'$(ParallelizeTests)' == ''">true</ParallelizeTests>
     <MaxParallelThreads Condition="'$(MaxParallelThreads)' == ''">0</MaxParallelThreads>
     <TrackFileAccess>false</TrackFileAccess>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)</SolutionDir>
-    <NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(SolutionDir)\.nuget\nuget.exe</NuGetExePath>
+    <SolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">$(MSBuildProjectDirectory)</SolutionDir>
+    <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(SolutionDir)\.nuget\nuget.exe</NuGetExePath>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">normal</RequestedVerbosity>
     <KvmPath Condition="'$(KvmPath)' == ''">$(SolutionDir)\tools\kvm.cmd</KvmPath>
+    <MyGetUrl Condition="'$(MyGetUrl)' == ''">https://www.myget.org/F/xunit/api/v2/package</MyGetUrl>
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="src\*.nuspec" />
@@ -142,11 +143,11 @@
     <Zip Files="@(Binaries)" ZipFileName="binaries.zip" StripPath="true" />
   </Target>
 
-  <Target Name="PushMyGet" DependsOnTargets="_DownloadNuGet" Condition=" '$(GitBranch)' == 'master' Or '$(GitBranch)' == 'refs/heads/master' ">
+  <Target Name="PushMyGet" DependsOnTargets="_DownloadNuGet" Condition=" '$(ForcePushMyGet)' == 'true' Or '$(GitBranch)' == 'master' Or '$(GitBranch)' == 'refs/heads/master' ">
     <ItemGroup>
       <NupkgFiles Include="*.nupkg" />
     </ItemGroup>
-    <Exec Command='"$(NuGetExePath)" push %(NupkgFiles.Identity) -NonInteractive -Source https://www.myget.org/F/xunit/api/v2/package' />
+    <Exec Command='"$(NuGetExePath)" push %(NupkgFiles.Identity) -NonInteractive -Source $(MyGetUrl)' />
   </Target>
 
   <Target Name="PushNuGet" DependsOnTargets="_DownloadNuGet">
