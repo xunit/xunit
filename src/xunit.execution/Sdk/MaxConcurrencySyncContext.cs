@@ -13,13 +13,14 @@ namespace Xunit.Sdk
     /// </summary>
     public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
     {
+        bool disposed = false;
         readonly ManualResetEvent terminate = new ManualResetEvent(false);
         readonly List<XunitWorkerThread> workerThreads;
         readonly ConcurrentQueue<Tuple<SendOrPostCallback, object, ExecutionContext>> workQueue = new ConcurrentQueue<Tuple<SendOrPostCallback, object, ExecutionContext>>();
         readonly AutoResetEvent workReady = new AutoResetEvent(false);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MaxConcurrencyTaskScheduler"/> class.
+        /// Initializes a new instance of the <see cref="MaxConcurrencySyncContext"/> class.
         /// </summary>
         /// <param name="maximumConcurrencyLevel">The maximum number of tasks to run at any one time.</param>
         public MaxConcurrencySyncContext(int maximumConcurrencyLevel)
@@ -32,6 +33,10 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public void Dispose()
         {
+            if (disposed)
+                return;
+
+            disposed = true;
             terminate.Set();
 
             foreach (var workerThread in workerThreads)
@@ -44,9 +49,17 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public override void Post(SendOrPostCallback d, object state)
         {
-            var context = ExecutionContext.Capture();
-            workQueue.Enqueue(Tuple.Create(d, state, context));
-            workReady.Set();
+            // HACK: DNX on Unix seems to be calling this after it's disposed. In that case,
+            // we'll just execute the code directly, which is a violation of the contract
+            // but should be safe in this situation.
+            if (disposed)
+                Send(d, state);
+            else
+            {
+                var context = ExecutionContext.Capture();
+                workQueue.Enqueue(Tuple.Create(d, state, context));
+                workReady.Set();
+            }
         }
 
         /// <inheritdoc/>
