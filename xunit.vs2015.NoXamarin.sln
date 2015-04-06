@@ -43,7 +43,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Targets", "Targets", "{942F0424-C972-4983-8A66-B8EB64A28F23}"
 	ProjectSection(SolutionItems) = preProject
 		xunit.msbuild = xunit.msbuild
-		tools\xunit.targets = tools\xunit.targets
 		tools\xunit.tests.msbuild = tools\xunit.tests.msbuild
 	EndProjectSection
 EndProject
@@ -95,9 +94,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{52
 		src\xunit.extensibility.core.nuspec = src\xunit.extensibility.core.nuspec
 		src\xunit.extensibility.execution.nuspec = src\xunit.extensibility.execution.nuspec
 		src\xunit.nuspec = src\xunit.nuspec
+		src\xunit.runner.console.nuspec = src\xunit.runner.console.nuspec
+		src\xunit.runner.msbuild.nuspec = src\xunit.runner.msbuild.nuspec
 		src\xunit.runner.utility.nuspec = src\xunit.runner.utility.nuspec
 		src\xunit.runner.utility.visualstudio.win8.nuspec = src\xunit.runner.utility.visualstudio.win8.nuspec
-		src\xunit.runners.nuspec = src\xunit.runners.nuspec
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.execution.dnx", "src\xunit.execution.dnx\xunit.execution.dnx.kproj", "{BAD239CF-765B-4C12-8AE2-D799D077ABDF}"
