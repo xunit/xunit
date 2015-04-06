@@ -43,16 +43,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Targets", "Targets", "{942F0424-C972-4983-8A66-B8EB64A28F23}"
 	ProjectSection(SolutionItems) = preProject
 		xunit.msbuild = xunit.msbuild
-		tools\xunit.targets = tools\xunit.targets
 		tools\xunit.tests.msbuild = tools\xunit.tests.msbuild
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "abstractions", "abstractions", "{C987FBEE-4FE7-46CA-8175-9531F5DEBB29}"
-	ProjectSection(SolutionItems) = preProject
-		src\xunit.abstractions\project.json = src\xunit.abstractions\project.json
-	EndProjectSection
-	ProjectSection(FolderGlobals) = preProject
-		project_1json__JSONSchema = http://www.asp.net/media/4878834/project.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runners", "runners", "{C11636E8-A3D7-4B0C-BC1E-2726B02A101F}"
@@ -127,9 +118,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{52
 		src\xunit.extensibility.core.nuspec = src\xunit.extensibility.core.nuspec
 		src\xunit.extensibility.execution.nuspec = src\xunit.extensibility.execution.nuspec
 		src\xunit.nuspec = src\xunit.nuspec
+		src\xunit.runner.console.nuspec = src\xunit.runner.console.nuspec
+		src\xunit.runner.msbuild.nuspec = src\xunit.runner.msbuild.nuspec
 		src\xunit.runner.utility.nuspec = src\xunit.runner.utility.nuspec
 		src\xunit.runner.utility.visualstudio.win8.nuspec = src\xunit.runner.utility.visualstudio.win8.nuspec
-		src\xunit.runners.nuspec = src\xunit.runners.nuspec
 	EndProjectSection
 EndProject
 Global
