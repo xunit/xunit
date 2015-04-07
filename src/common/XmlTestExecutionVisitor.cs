@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Globalization;
-using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using Xunit.Abstractions;
 
@@ -270,7 +270,15 @@ namespace Xunit
             if (value == null)
                 return String.Empty;
 
-            return value.Replace("\0", "\\0");
+            value = Escape(value);
+            var escapedValue = new StringBuilder(value.Length);
+            for (var idx = 0; idx < value.Length; ++idx)
+                if (value[idx] < 32)
+                    escapedValue.AppendFormat("\\x{0}", ((byte)value[idx]).ToString("x2"));
+                else
+                    escapedValue.Append(value[idx]);
+
+            return escapedValue.ToString();
         }
     }
 }
