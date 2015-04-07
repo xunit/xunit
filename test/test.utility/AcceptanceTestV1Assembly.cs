@@ -10,6 +10,7 @@ public class AcceptanceTestV1Assembly : AcceptanceTestAssembly
         base.AddStandardReferences(parameters);
 
         parameters.ReferencedAssemblies.Add(Path.Combine(BasePath, "xunit.dll"));
+        parameters.ReferencedAssemblies.Add(Path.Combine(BasePath, "xunit.extensions.dll"));
     }
 
     public static AcceptanceTestV1Assembly Create(string code, params string[] references)

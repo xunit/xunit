@@ -209,16 +209,22 @@ namespace Xunit
             var results = new Xunit1RunSummary();
             results.Continue = messageSink.OnMessage(new TestCollectionStarting(testCases, testCollection));
 
-            if (results.Continue)
-                foreach (var testClassGroup in testCases.GroupBy(tc => tc.TestMethod.TestClass, Comparer.Instance))
-                {
-                    var classResults = RunTestClass(testClassGroup.Key, testClassGroup.ToList(), messageSink);
-                    results.Aggregate(classResults);
-                    if (!classResults.Continue)
-                        break;
-                }
+            try
+            {
+                if (results.Continue)
+                    foreach (var testClassGroup in testCases.GroupBy(tc => tc.TestMethod.TestClass, Comparer.Instance))
+                    {
+                        var classResults = RunTestClass(testClassGroup.Key, testClassGroup.ToList(), messageSink);
+                        results.Aggregate(classResults);
+                        if (!classResults.Continue)
+                            break;
+                    }
+            }
+            finally
+            {
+                results.Continue = messageSink.OnMessage(new TestCollectionFinished(testCases, testCollection, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
+            }
 
-            results.Continue = messageSink.OnMessage(new TestCollectionFinished(testCases, testCollection, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
             return results;
         }
 
@@ -228,14 +234,20 @@ namespace Xunit
             var results = handler.TestClassResults;
             results.Continue = messageSink.OnMessage(new TestClassStarting(testCases, testClass));
 
-            if (results.Continue)
+            try
             {
-                var methodNames = testCases.Select(tc => tc.TestMethod.Method.Name).ToList();
-                executor.RunTests(testClass.Class.Name, methodNames, handler);
-                handler.LastNodeArrived.WaitOne();
+                if (results.Continue)
+                {
+                    var methodNames = testCases.Select(tc => tc.TestMethod.Method.Name).ToList();
+                    executor.RunTests(testClass.Class.Name, methodNames, handler);
+                    handler.LastNodeArrived.WaitOne();
+                }
+            }
+            finally
+            {
+                results.Continue = messageSink.OnMessage(new TestClassFinished(testCases, testClass, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
             }
 
-            results.Continue = messageSink.OnMessage(new TestClassFinished(testCases, testClass, results.Time, results.Total, results.Failed, results.Skipped)) && results.Continue;
             return results;
         }
 

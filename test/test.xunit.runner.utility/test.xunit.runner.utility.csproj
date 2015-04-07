@@ -139,7 +139,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
-    <Copy SourceFiles="..\..\packages\xunit.1.9.2\lib\net20\xunit.dll" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="..\..\packages\xunit.1.9.2\lib\net20\xunit.dll;..\..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
