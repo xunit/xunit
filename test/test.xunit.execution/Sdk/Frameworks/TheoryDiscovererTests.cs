@@ -7,7 +7,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-public class TheoryDiscovererTests : AcceptanceTest
+public class TheoryDiscovererTests : AcceptanceTestV2
 {
     readonly ITestFrameworkDiscoveryOptions discoveryOptions = TestFrameworkOptions.ForDiscovery();
 

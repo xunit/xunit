@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-public class AsyncAcceptanceTests : AcceptanceTest
+public class AsyncAcceptanceTests : AcceptanceTestV2
 {
     [Fact]
     public void AsyncTaskTestsRunCorrectly()

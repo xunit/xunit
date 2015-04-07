@@ -1,75 +1,59 @@
-using System;
+﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.CSharp;
-using Xunit;
 
-public class AcceptanceTestAssembly : IDisposable
+public abstract class AcceptanceTestAssembly : IDisposable
 {
-    readonly AssemblyName assemblyName;
-    readonly string filename;
-
-    public AcceptanceTestAssembly(string code, params string[] references)
+    protected AcceptanceTestAssembly()
     {
-        filename = Path.Combine(BasePath, Path.GetRandomFileName() + ".dll");
+        FileName = Path.Combine(BasePath, Path.GetRandomFileName() + ".dll");
+        PdbName = Path.Combine(BasePath, Path.GetFileNameWithoutExtension(FileName) + ".pdb");
 
-        assemblyName = new AssemblyName()
+        AssemblyName = new AssemblyName()
         {
-            Name = Path.GetFileNameWithoutExtension(filename),
-            CodeBase = Path.GetDirectoryName(Path.GetFullPath(filename))
+            Name = Path.GetFileNameWithoutExtension(FileName),
+            CodeBase = Path.GetDirectoryName(Path.GetFullPath(FileName))
         };
-
-        Compile(code, references);
     }
 
-    public AssemblyName AssemblyName
-    {
-        get { return assemblyName; }
-    }
+    public AssemblyName AssemblyName { get; protected set; }
 
     public static string BasePath
     {
         get { return Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase()); }
     }
 
-    public string FileName
-    {
-        get { return filename; }
-    }
+    public string FileName { get; protected set; }
 
-    public string XunitCoreDllFilename
-    {
-        get { return Path.Combine(BasePath, "xunit.core.dll"); }
-    }
+    public string PdbName { get; protected set; }
 
-    public string XunitExecutionDllFilename
+    protected virtual void AddStandardReferences(CompilerParameters parameters)
     {
-        get { return Path.Combine(BasePath, ExecutionHelper.AssemblyFileName); }
-    }
-
-    void Compile(string code, string[] references)
-    {
-        var parameters = new CompilerParameters()
-        {
-            OutputAssembly = filename,
-            IncludeDebugInformation = true
-        };
-
         parameters.ReferencedAssemblies.Add("mscorlib.dll");
         parameters.ReferencedAssemblies.Add("System.dll");
         parameters.ReferencedAssemblies.Add("System.Core.dll");
         parameters.ReferencedAssemblies.Add("System.Data.dll");
         parameters.ReferencedAssemblies.Add("System.Runtime.dll");
         parameters.ReferencedAssemblies.Add("System.Xml.dll");
-        parameters.ReferencedAssemblies.Add(XunitCoreDllFilename);
-        parameters.ReferencedAssemblies.Add(XunitExecutionDllFilename);
+    }
+
+    protected void Compile(string code, string[] references)
+    {
+        var parameters = new CompilerParameters()
+        {
+            OutputAssembly = FileName,
+            IncludeDebugInformation = true
+        };
+
+        AddStandardReferences(parameters);
 
         if (references != null)
-            foreach (string reference in references)
+            foreach (var reference in references)
             {
-                string localFilename = Path.Combine(BasePath, reference);
+                var localFilename = Path.Combine(BasePath, reference);
 
                 if (File.Exists(localFilename))
                     parameters.ReferencedAssemblies.Add(localFilename);
@@ -94,7 +78,10 @@ public class AcceptanceTestAssembly : IDisposable
 
     public void Dispose()
     {
-        if (File.Exists(filename))
-            File.Delete(filename);
+        if (File.Exists(FileName))
+            File.Delete(FileName);
+
+        if (File.Exists(PdbName))
+            File.Delete(PdbName);
     }
 }

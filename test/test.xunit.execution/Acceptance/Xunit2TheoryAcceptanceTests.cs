@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 public class Xunit2TheoryAcceptanceTests
 {
-    public class TheoryTests : AcceptanceTest
+    public class TheoryTests : AcceptanceTestV2
     {
         [Fact]
         public void Skipped()
@@ -83,7 +83,7 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class InlineDataTests : AcceptanceTest
+    public class InlineDataTests : AcceptanceTestV2
     {
         [Fact]
         public void RunsForEachDataElement()
@@ -141,7 +141,7 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class MissingDataTests : AcceptanceTest
+    public class MissingDataTests : AcceptanceTestV2
     {
         [Fact]
         public void MissingDataThrows()
@@ -162,7 +162,7 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class DataConversionTests : AcceptanceTest
+    public class DataConversionTests : AcceptanceTestV2
     {
         [Fact]
         public void IncompatibleDataThrows()
@@ -309,7 +309,7 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class FieldDataTests : AcceptanceTest
+    public class FieldDataTests : AcceptanceTestV2
     {
         [Fact]
         public void RunsForEachDataElement()
@@ -400,7 +400,7 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class MethodDataTests : AcceptanceTest
+    public class MethodDataTests : AcceptanceTestV2
     {
         [Fact]
         public void RunsForEachDataElement()
@@ -527,7 +527,7 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class PropertyDataTests : AcceptanceTest
+    public class PropertyDataTests : AcceptanceTestV2
     {
         [Fact]
         public void RunsForEachDataElement()
@@ -622,7 +622,7 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class ErrorAggregation : AcceptanceTest
+    public class ErrorAggregation : AcceptanceTestV2
     {
         [Fact]
         public void EachTheoryHasIndividualExceptionMessage()
@@ -657,7 +657,7 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class OverloadedMethodTests : AcceptanceTest
+    public class OverloadedMethodTests : AcceptanceTestV2
     {
         [Fact]
         public void TestMethodMessagesOnlySentOnce()

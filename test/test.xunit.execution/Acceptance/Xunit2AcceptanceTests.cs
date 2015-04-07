@@ -7,7 +7,7 @@ using Xunit.Sdk;
 
 public class Xunit2AcceptanceTests
 {
-    public class EndToEndMessageInspection : AcceptanceTest
+    public class EndToEndMessageInspection : AcceptanceTestV2
     {
         [Fact]
         public void NoTests()
@@ -125,7 +125,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class SkippedTests : AcceptanceTest
+    public class SkippedTests : AcceptanceTestV2
     {
         [Fact]
         public void SingleSkippedTest()
@@ -144,7 +144,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class FailingTests : AcceptanceTest
+    public class FailingTests : AcceptanceTestV2
     {
         [Fact]
         public void SingleFailingTest()
@@ -162,7 +162,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class ClassFailures : AcceptanceTest
+    public class ClassFailures : AcceptanceTestV2
     {
         [Fact]
         public void TestFailureResultsFromThrowingCtorInTestClass()
@@ -234,7 +234,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class StaticClassSupport : AcceptanceTest
+    public class StaticClassSupport : AcceptanceTestV2
     {
         [Fact]
         public void TestsCanBeInStaticClasses()
@@ -253,7 +253,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class ErrorAggregation : AcceptanceTest
+    public class ErrorAggregation : AcceptanceTestV2
     {
         [Fact]
         public void EachTestMethodHasIndividualExceptionMessage()
@@ -283,7 +283,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class TestOrdering : AcceptanceTest
+    public class TestOrdering : AcceptanceTestV2
     {
         [Fact]
         public void OverrideOfOrderingAtCollectionLevel()
@@ -351,7 +351,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class CustomFacts : AcceptanceTest
+    public class CustomFacts : AcceptanceTestV2
     {
         [Fact]
         public void CanUseCustomFactAttribute()
@@ -393,7 +393,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class TestOutput : AcceptanceTest
+    public class TestOutput : AcceptanceTestV2
     {
         [Fact]
         public void SendOutputMessages()

@@ -32,7 +32,7 @@ public class XunitTestCaseTests
         Assert.Equal("Skip Reason", testCase.SkipReason);
     }
 
-    public class Traits : AcceptanceTest
+    public class Traits : AcceptanceTestV2
     {
         [Fact]
         public static void TraitsOnTestMethod()

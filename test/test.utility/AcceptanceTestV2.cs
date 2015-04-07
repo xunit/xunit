@@ -4,7 +4,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-public class AcceptanceTest : IDisposable
+public class AcceptanceTestV2 : IDisposable
 {
     protected Xunit2 Xunit2 { get; private set; }
 

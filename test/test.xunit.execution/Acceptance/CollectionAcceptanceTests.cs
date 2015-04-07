@@ -3,7 +3,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-public class CollectionAcceptanceTests : AcceptanceTest
+public class CollectionAcceptanceTests : AcceptanceTestV2
 {
     [Fact]
     public void TwoClasses_OneInExplicitCollection_OneInDefaultCollection()
