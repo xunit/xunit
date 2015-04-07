@@ -10,10 +10,10 @@ public class ExceptionUtilityTests
 {
     class FailureInformation : IFailureInformation, IEnumerable
     {
-        List<int> exceptionParentIndices = new List<int>();
-        List<string> exceptionTypes = new List<string>();
-        List<string> messages = new List<string>();
-        List<string> stackTraces = new List<string>();
+        readonly List<int> exceptionParentIndices = new List<int>();
+        readonly List<string> exceptionTypes = new List<string>();
+        readonly List<string> messages = new List<string>();
+        readonly List<string> stackTraces = new List<string>();
 
         public string[] ExceptionTypes
         {
@@ -46,6 +46,26 @@ public class ExceptionUtilityTests
             messages.Add(message);
             stackTraces.Add(stackTrace);
             exceptionParentIndices.Add(index);
+        }
+
+        public void AddExceptionType(string exceptionTypeName)
+        {
+            exceptionTypes.Add(exceptionTypeName);
+        }
+
+        public void AddIndex(int index)
+        {
+            exceptionParentIndices.Add(index);
+        }
+
+        public void AddMessage(string message)
+        {
+            messages.Add(message);
+        }
+
+        public void AddStackTrace(string stackTrace)
+        {
+            stackTraces.Add(stackTrace);
         }
 
         public IEnumerator GetEnumerator()
@@ -108,6 +128,26 @@ public class ExceptionUtilityTests
                        + "---- System.DivideByZeroException : inner #1" + Environment.NewLine
                        + "---- System.NotImplementedException : inner #2" + Environment.NewLine
                        + "---- this is crazy", result);
+        }
+
+        [Fact]
+        public void MissingExceptionTypes()
+        {
+            var failureInfo = new FailureInformation();
+            failureInfo.AddMessage("Message 1");
+            failureInfo.AddMessage("Message 2");
+            failureInfo.AddMessage("Message 3");
+            failureInfo.AddIndex(-1);
+            failureInfo.AddIndex(0);
+            failureInfo.AddIndex(0);
+            failureInfo.AddExceptionType("ExceptionType1");
+            failureInfo.AddExceptionType("Xunit.Sdk.ExceptionType2");
+
+            var result = ExceptionUtility.CombineMessages(failureInfo);
+
+            Assert.Equal("ExceptionType1 : Message 1" + Environment.NewLine +
+                         "---- Message 2" + Environment.NewLine +
+                         "----  : Message 3", result);
         }
     }
 
@@ -183,6 +223,29 @@ public class ExceptionUtilityTests
                 line => Assert.Equal("----- Inner Stack Trace #3 (Xunit.Sdk.XunitException) -----", line),
                 line => Assert.Contains("at ExceptionUtilityTests.CombineStackTraces", line)
             );
+        }
+
+        [Fact]
+        public void MissingStackTracesAndExceptionTypes()
+        {
+            var failureInfo = new FailureInformation();
+            failureInfo.AddMessage("Message 1");
+            failureInfo.AddMessage("Message 2");
+            failureInfo.AddMessage("Message 3");
+            failureInfo.AddIndex(-1);
+            failureInfo.AddIndex(0);
+            failureInfo.AddIndex(0);
+            failureInfo.AddExceptionType("ExceptionType1");
+            failureInfo.AddExceptionType("Xunit.Sdk.ExceptionType2");
+            failureInfo.AddStackTrace("Stack Trace 1");
+            failureInfo.AddStackTrace("Stack Trace 2");
+
+            var result = ExceptionUtility.CombineStackTraces(failureInfo);
+
+            Assert.Equal("Stack Trace 1" + Environment.NewLine +
+                         "----- Inner Stack Trace #1 (Xunit.Sdk.ExceptionType2) -----" + Environment.NewLine +
+                         "Stack Trace 2" + Environment.NewLine +
+                         "----- Inner Stack Trace #2 () -----" + Environment.NewLine, result);
         }
     }
 }

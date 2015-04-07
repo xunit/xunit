@@ -118,22 +118,24 @@
     <Compile Include="..\..\src\common\TestOptionsNames.cs">
       <Link>Common\TestOptionsNames.cs</Link>
     </Compile>
-    <Compile Include="CulturedFactAttribute.cs" />
-    <Compile Include="CulturedFactAttributeDiscoverer.cs" />
-    <Compile Include="CulturedXunitTestCase.cs" />
-    <Compile Include="InterfaceProxy.cs" />
-    <Compile Include="MockTestCaseOrderer.cs" />
-    <Compile Include="NSubstituteExtensions.cs" />
-    <Compile Include="PreserveWorkingDirectoryAttribute.cs" />
     <Compile Include="Abstractions\AssemblyWrapper.cs" />
     <Compile Include="Abstractions\AttributeWrapper.cs" />
     <Compile Include="Abstractions\MethodWrapper.cs" />
     <Compile Include="Abstractions\TypeWrapper.cs" />
+    <Compile Include="AcceptanceTestAssembly.cs" />
+    <Compile Include="AcceptanceTestV1Assembly.cs" />
+    <Compile Include="AcceptanceTestV2.cs" />
+    <Compile Include="AcceptanceTestV2Assembly.cs" />
+    <Compile Include="CulturedFactAttribute.cs" />
+    <Compile Include="CulturedFactAttributeDiscoverer.cs" />
+    <Compile Include="CulturedXunitTestCase.cs" />
+    <Compile Include="InterfaceProxy.cs" />
+    <Compile Include="Mocks.cs" />
+    <Compile Include="MockTestCaseOrderer.cs" />
+    <Compile Include="NSubstituteExtensions.cs" />
+    <Compile Include="PreserveWorkingDirectoryAttribute.cs" />
     <Compile Include="SpyBeforeAfterTest.cs" />
     <Compile Include="SpyMessageBus.cs" />
-    <Compile Include="AcceptanceTest.cs" />
-    <Compile Include="AcceptanceTestAssembly.cs" />
-    <Compile Include="Mocks.cs" />
     <Compile Include="SpyMessageSink.cs" />
     <Compile Include="TempFile.cs" />
   </ItemGroup>

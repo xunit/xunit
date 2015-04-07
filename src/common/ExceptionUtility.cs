@@ -47,9 +47,9 @@ namespace Xunit
 
             var results = new List<string>();
 
-            foreach (string line in SplitLines(stack))
+            foreach (var line in SplitLines(stack))
             {
-                string trimmedLine = line.TrimStart();
+                var trimmedLine = line.TrimStart();
                 if (!ExcludeStackFrame(trimmedLine))
                     results.Add(line);
             }
@@ -57,26 +57,42 @@ namespace Xunit
             return string.Join(Environment.NewLine, results.ToArray());
         }
 
+        static string GetAt(string[] values, int index)
+        {
+            if (values == null || index < 0 || values.Length <= index)
+                return String.Empty;
+
+            return values[index] ?? String.Empty;
+        }
+
+        static int GetAt(int[] values, int index)
+        {
+            if (values == null || values.Length <= index)
+                return -1;
+
+            return values[index];
+        }
+
         static string GetMessage(IFailureInformation failureInfo, int index, int level)
         {
-            string result = "";
+            var result = "";
 
             if (level > 0)
             {
-                for (int idx = 0; idx < level; idx++)
+                for (var idx = 0; idx < level; idx++)
                     result += "----";
 
                 result += " ";
             }
 
-            var exceptionType = failureInfo.ExceptionTypes[index];
+            var exceptionType = GetAt(failureInfo.ExceptionTypes, index);
             if (GetNamespace(exceptionType) != "Xunit.Sdk")
                 result += exceptionType + " : ";
 
-            result += failureInfo.Messages[index];
+            result += GetAt(failureInfo.Messages, index);
 
-            for (int subIndex = index + 1; subIndex < failureInfo.ExceptionParentIndices.Length; ++subIndex)
-                if (failureInfo.ExceptionParentIndices[subIndex] == index)
+            for (var subIndex = index + 1; subIndex < failureInfo.ExceptionParentIndices.Length; ++subIndex)
+                if (GetAt(failureInfo.ExceptionParentIndices, subIndex) == index)
                     result += Environment.NewLine + GetMessage(failureInfo, subIndex, level + 1);
 
             return result;
@@ -93,26 +109,26 @@ namespace Xunit
 
         static string GetStackTrace(IFailureInformation failureInfo, int index)
         {
-            string result = FilterStackTrace(failureInfo.StackTraces[index]);
+            var result = FilterStackTrace(GetAt(failureInfo.StackTraces, index));
 
             var children = new List<int>();
-            for (int subIndex = index + 1; subIndex < failureInfo.ExceptionParentIndices.Length; ++subIndex)
-                if (failureInfo.ExceptionParentIndices[subIndex] == index)
+            for (var subIndex = index + 1; subIndex < failureInfo.ExceptionParentIndices.Length; ++subIndex)
+                if (GetAt(failureInfo.ExceptionParentIndices, subIndex) == index)
                     children.Add(subIndex);
 
             if (children.Count > 1)
             {
-                for (int idx = 0; idx < children.Count; ++idx)
+                for (var idx = 0; idx < children.Count; ++idx)
                     result += String.Format("{0}----- Inner Stack Trace #{1} ({2}) -----{0}{3}",
                                             Environment.NewLine,
                                             idx + 1,
-                                            failureInfo.ExceptionTypes[children[idx]],
+                                            GetAt(failureInfo.ExceptionTypes, children[idx]),
                                             GetStackTrace(failureInfo, children[idx]));
             }
             else if (children.Count == 1)
-                result += Environment.NewLine +
-                          "----- Inner Stack Trace -----" + Environment.NewLine +
-                          GetStackTrace(failureInfo, children[0]);
+                result += string.Format("{0}----- Inner Stack Trace -----{0}{1}",
+                                        Environment.NewLine,
+                                        GetStackTrace(failureInfo, children[0]));
 
             return result;
         }
@@ -122,7 +138,7 @@ namespace Xunit
         {
             while (true)
             {
-                int idx = input.IndexOf(Environment.NewLine);
+                var idx = input.IndexOf(Environment.NewLine);
 
                 if (idx < 0)
                 {

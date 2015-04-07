@@ -6,7 +6,7 @@ using Xunit.Sdk;
 
 public class FixtureAcceptanceTests
 {
-    public class Constructors : AcceptanceTest
+    public class Constructors : AcceptanceTestV2
     {
         [Fact]
         public void TestClassMustHaveSinglePublicConstructor()
@@ -65,7 +65,7 @@ public class FixtureAcceptanceTests
         }
     }
 
-    public class ClassFixture : AcceptanceTest
+    public class ClassFixture : AcceptanceTestV2
     {
         [Fact]
         public void TestClassWithExtraArgumentToConstructorResultsInFailedTest()
@@ -151,7 +151,7 @@ public class FixtureAcceptanceTests
         }
     }
 
-    public class CollectionFixture : AcceptanceTest
+    public class CollectionFixture : AcceptanceTestV2
     {
         [Fact]
         public void TestClassCannotBeDecoratedWithICollectionFixture()

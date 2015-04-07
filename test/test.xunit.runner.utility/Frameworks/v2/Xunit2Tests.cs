@@ -1,24 +1,16 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 
 public class Xunit2Tests
 {
-    static AssemblyName GetXunitAssemblyName()
-    {
-        string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase()), "xunit.execution.dll");
-        return Assembly.LoadFile(path).GetName();
-    }
-
     public class EnumerateTests
     {
         [Fact]
         public void NoTestMethods()
         {
-            using (var assm = new AcceptanceTestAssembly(code: ""))
+            using (var assm = AcceptanceTestV2Assembly.Create(code: ""))
             using (var controller = new TestableXunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -44,7 +36,7 @@ public class Xunit2Tests
                 }
             ";
 
-            using (var assm = new AcceptanceTestAssembly(code))
+            using (var assm = AcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -94,7 +86,7 @@ public class Xunit2Tests
                 }
             ";
 
-            using (var assembly = new AcceptanceTestAssembly(code))
+            using (var assembly = AcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -137,7 +129,7 @@ public class Xunit2Tests
                 }
             ";
 
-            using (var assembly = new AcceptanceTestAssembly(code))
+            using (var assembly = AcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
