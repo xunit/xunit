@@ -56,7 +56,8 @@ namespace Xunit.Sdk
             var assemblyPath = info.GetValue<string>("AssemblyPath");
             var assembly = System.Reflection.Assembly.Load(new AssemblyName
             {
-                Name = Path.GetFileNameWithoutExtension(assemblyPath)
+                Name = Path.GetFileNameWithoutExtension(assemblyPath),
+                Version = new Version(0, 0)
             });
 
             ConfigFileName = info.GetValue<string>("ConfigFileName");
