@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using Xunit.Abstractions;
 
@@ -80,7 +81,7 @@ namespace Xunit
             var name = Assembly.Load(xunitExecutionAssemblyPath);
 #elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
             // WPA81 needs an AssemblyName that has the assembly short name (w/o extension)
-            var name = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath) }).GetName();
+            var name = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0) }).GetName();
 #else
             var name = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
 #endif
