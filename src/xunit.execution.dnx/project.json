@@ -47,9 +47,9 @@
         "../common/TestOptionsNames.cs",
         "../common/XunitSerializationInfo.cs",
         "../common/XunitWorkerThread_Thread.cs",
-        "../xunit.assert/asserts/sdk/ArgumentFormatter.cs",
-        "../xunit.assert/asserts/sdk/AssertEqualityComparer.cs",
-        "../xunit.assert/asserts/sdk/AssertEqualityComparerAdapter.cs",
+        "../xunit.assert/Asserts/Sdk/ArgumentFormatter.cs",
+        "../xunit.assert/Asserts/Sdk/AssertEqualityComparer.cs",
+        "../xunit.assert/Asserts/Sdk/AssertEqualityComparerAdapter.cs",
         "../xunit.execution/**/*.cs",
         "../xunit.execution.universal/Serialization/Serializable.cs",
         "../messages/**/*.cs"
