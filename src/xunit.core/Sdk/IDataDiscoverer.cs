@@ -35,7 +35,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Returns <c>true</c> if the data attribute supports enumeration during
         /// discovery; <c>false</c> otherwise. Data attributes with expensive computational
-        /// costs should return <c>false</c>.
+        /// costs and/or randomized data sets should return <c>false</c>.
         /// </summary>
         bool SupportsDiscoveryEnumeration(IAttributeInfo dataAttribute, IMethodInfo testMethod);
     }
