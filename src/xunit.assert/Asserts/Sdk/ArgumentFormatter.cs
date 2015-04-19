@@ -20,6 +20,26 @@ namespace Xunit.Sdk
         static readonly object[] EmptyObjects = new object[0];
         static readonly Type[] EmptyTypes = new Type[0];
 
+        // List of system types => C# type names
+        static readonly Dictionary<TypeInfo, string> TypeMappings = new Dictionary<TypeInfo, string>
+        {
+            { typeof(bool).GetTypeInfo(), "bool" },
+            { typeof(byte).GetTypeInfo(), "byte" },
+            { typeof(sbyte).GetTypeInfo(), "sbyte" },
+            { typeof(char).GetTypeInfo(), "char" },
+            { typeof(decimal).GetTypeInfo(), "decimal" },
+            { typeof(double).GetTypeInfo(), "double" },
+            { typeof(float).GetTypeInfo(), "float" },
+            { typeof(int).GetTypeInfo(), "int" },
+            { typeof(uint).GetTypeInfo(), "uint" },
+            { typeof(long).GetTypeInfo(), "long" },
+            { typeof(ulong).GetTypeInfo(), "ulong" },
+            { typeof(object).GetTypeInfo(), "object" },
+            { typeof(short).GetTypeInfo(), "short" },
+            { typeof(ushort).GetTypeInfo(), "ushort" },
+            { typeof(string).GetTypeInfo(), "string" },
+        };
+
         /// <summary>
         /// Format the value for presentation.
         /// </summary>
@@ -37,10 +57,16 @@ namespace Xunit.Sdk
 
             var valueAsType = value as Type;
             if (valueAsType != null)
-                return String.Format("typeof({0})", valueAsType.FullName);
+                return String.Format("typeof({0})", FormatTypeName(valueAsType));
 
             if (value is char)
-                return String.Format("'{0}'", value);
+            {
+                var charValue = (char)value;
+                if (char.IsLetterOrDigit(charValue) || char.IsPunctuation(charValue) || char.IsSymbol(charValue) || charValue == ' ')
+                    return String.Format("'{0}'", value);
+
+                return String.Format("0x{0:x4}", (int)charValue);
+            }
 
             if (value is DateTime || value is DateTimeOffset)
                 return String.Format("{0:o}", value);
@@ -114,6 +140,43 @@ namespace Xunit.Sdk
                 printedValues += ", ...";
 
             return String.Format("[{0}]", printedValues);
+        }
+
+        private static string FormatTypeName(Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            var arraySuffix = "";
+
+            // Deconstruct and re-construct array
+            while (typeInfo.IsArray)
+            {
+                var rank = typeInfo.GetArrayRank();
+                arraySuffix += string.Format("[{0}]", new String(',', rank - 1));
+                typeInfo = typeInfo.GetElementType().GetTypeInfo();
+            }
+
+            // Map C# built-in type names
+            string result;
+            if (TypeMappings.TryGetValue(typeInfo, out result))
+                return result + arraySuffix;
+
+            // Strip off generic suffix
+            var name = typeInfo.FullName;
+            var tickIdx = name.IndexOf('`');
+            if (tickIdx > 0)
+                name = name.Substring(0, tickIdx);
+
+            if (typeInfo.IsGenericTypeDefinition)
+                name = String.Format("{0}<{1}>", name, new string(',', typeInfo.GenericTypeParameters.Length - 1));
+            else if (typeInfo.IsGenericType)
+            {
+                if (typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    name = FormatTypeName(typeInfo.GenericTypeArguments[0]) + "?";
+                else
+                    name = String.Format("{0}<{1}>", name, string.Join(", ", typeInfo.GenericTypeArguments.Select(FormatTypeName)));
+            }
+
+            return name + arraySuffix;
         }
 
         private static string WrapAndGetFormattedValue(Func<object> getter, int depth)

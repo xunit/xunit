@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -110,14 +109,32 @@ namespace Xunit.Serialization
             if (typeof(IXunitSerializable).IsAssignableFrom(type))
                 return DeserializeSerializable(type, serializedValue);
 
+            if (type == typeof(char?) || type == typeof(char))
+                return (char)UInt16.Parse(serializedValue, CultureInfo.InvariantCulture);
+
             if (type == typeof(string))
                 return FromBase64(serializedValue);
+
+            if (type == typeof(byte?) || type == typeof(byte))
+                return Byte.Parse(serializedValue, CultureInfo.InvariantCulture);
+
+            if (type == typeof(short?) || type == typeof(short))
+                return Int16.Parse(serializedValue, CultureInfo.InvariantCulture);
+
+            if (type == typeof(ushort?) || type == typeof(ushort))
+                return UInt16.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(int?) || type == typeof(int))
                 return Int32.Parse(serializedValue, CultureInfo.InvariantCulture);
 
+            if (type == typeof(uint?) || type == typeof(uint))
+                return UInt32.Parse(serializedValue, CultureInfo.InvariantCulture);
+
             if (type == typeof(long?) || type == typeof(long))
                 return Int64.Parse(serializedValue, CultureInfo.InvariantCulture);
+
+            if (type == typeof(ulong?) || type == typeof(ulong))
+                return UInt64.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(float?) || type == typeof(float))
                 return Single.Parse(serializedValue, CultureInfo.InvariantCulture);
@@ -192,13 +209,37 @@ namespace Xunit.Serialization
                 return info.ToSerializedString();
             }
 
+            var charData = value as char?;
+            if (charData != null)
+                return ((ushort)charData.GetValueOrDefault()).ToString(CultureInfo.InvariantCulture);
+
             var stringData = value as string;
             if (stringData != null)
                 return ToBase64(stringData);
 
+            var byteData = value as byte?;
+            if (byteData != null)
+                return byteData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var ushortData = value as ushort?;
+            if (ushortData != null)
+                return ushortData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var shortData = value as short?;
+            if (shortData != null)
+                return shortData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var uintData = value as uint?;
+            if (uintData != null)
+                return uintData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
             var intData = value as int?;
             if (intData != null)
                 return intData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
+            var ulongData = value as ulong?;
+            if (ulongData != null)
+                return ulongData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
             var longData = value as long?;
             if (longData != null)
@@ -244,11 +285,11 @@ namespace Xunit.Serialization
                 return value.ToString();
             }
 
-            var array = value as object[];
-            if (array != null)
+            var arrayData = value as Array;
+            if (arrayData != null)
             {
                 var info = new XunitSerializationInfo();
-                var arraySer = new ArraySerializer(array);
+                var arraySer = new ArraySerializer(arrayData);
                 arraySer.Serialize(info);
                 return info.ToSerializedString();
             }
@@ -258,10 +299,16 @@ namespace Xunit.Serialization
 
         static readonly Type[] supportedSerializationTypes = new[] {
             typeof(IXunitSerializable),
+            typeof(char),           typeof(char?),
             typeof(string),
             typeof(Type),
+            typeof(byte),           typeof(byte?),
+            typeof(short),          typeof(short?),
+            typeof(ushort),         typeof(ushort?),
             typeof(int),            typeof(int?),
+            typeof(uint),           typeof(uint?),
             typeof(long),           typeof(long?),
+            typeof(ulong),          typeof(ulong?),
             typeof(float),          typeof(float?),
             typeof(double),         typeof(double?),
             typeof(decimal),        typeof(decimal?),
@@ -277,7 +324,7 @@ namespace Xunit.Serialization
 
             var valueType = value.GetType();
             if (valueType.IsArray)
-                return ((object[])value).All(CanSerializeObject);
+                return ((Array)value).Cast<object>().All(CanSerializeObject);
 
             if (valueType.IsEnum() || valueType.IsNullableEnum())
                 return true;
@@ -302,14 +349,14 @@ namespace Xunit.Serialization
 
         internal class ArraySerializer : IXunitSerializable
         {
-            object[] array;
+            Array array;
             readonly Type elementType;
 
-            public object[] ArrayData { get { return array; } }
+            public Array ArrayData { get { return array; } }
 
             public ArraySerializer() { }
 
-            public ArraySerializer(object[] array)
+            public ArraySerializer(Array array)
             {
                 if (array == null)
                     throw new ArgumentNullException("array");
@@ -324,10 +371,10 @@ namespace Xunit.Serialization
             public void Serialize(IXunitSerializationInfo info)
             {
                 info.AddValue("Length", array.Length);
-                info.AddValue("ElementType", elementType.FullName);
+                info.AddValue("ElementType", SerializationHelper.GetTypeNameForSerialization(elementType));
 
                 for (var i = 0; i < array.Length; i++)
-                    info.AddValue("Item" + i, array[i]);
+                    info.AddValue("Item" + i, array.GetValue(i));
             }
 
             public void Deserialize(IXunitSerializationInfo info)
@@ -335,10 +382,10 @@ namespace Xunit.Serialization
                 var len = info.GetValue<int>("Length");
                 var arrType = SerializationHelper.GetType(info.GetValue<string>("ElementType"));
 
-                array = Array.CreateInstance(arrType, len) as object[];
+                array = Array.CreateInstance(arrType, len);
 
                 for (var i = 0; i < array.Length; i++)
-                    array[i] = info.GetValue("Item" + i, arrType);
+                    array.SetValue(info.GetValue("Item" + i, arrType), i);
             }
         }
     }

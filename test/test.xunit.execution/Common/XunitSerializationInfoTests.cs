@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
@@ -12,15 +11,33 @@ public class XunitSerializationInfoTests
     {
         get
         {
+            yield return new object[] { typeof(char), char.MaxValue };
+            yield return new object[] { typeof(char?), char.MinValue };
+            yield return new object[] { typeof(char?), null };
             yield return new object[] { typeof(string), "Hello, world!" };
             yield return new object[] { typeof(string), "" };
             yield return new object[] { typeof(string), null };
+            yield return new object[] { typeof(byte), byte.MaxValue };
+            yield return new object[] { typeof(byte?), byte.MinValue };
+            yield return new object[] { typeof(byte?), null };
+            yield return new object[] { typeof(short), short.MaxValue };
+            yield return new object[] { typeof(short?), short.MinValue };
+            yield return new object[] { typeof(short?), null };
+            yield return new object[] { typeof(ushort), ushort.MaxValue };
+            yield return new object[] { typeof(ushort?), ushort.MinValue };
+            yield return new object[] { typeof(ushort?), null };
             yield return new object[] { typeof(int), int.MaxValue };
             yield return new object[] { typeof(int?), int.MinValue };
             yield return new object[] { typeof(int?), null };
+            yield return new object[] { typeof(uint), uint.MaxValue };
+            yield return new object[] { typeof(uint?), uint.MinValue };
+            yield return new object[] { typeof(uint?), null };
             yield return new object[] { typeof(long), long.MaxValue };
             yield return new object[] { typeof(long?), long.MinValue };
             yield return new object[] { typeof(long?), null };
+            yield return new object[] { typeof(ulong), ulong.MaxValue };
+            yield return new object[] { typeof(ulong?), ulong.MinValue };
+            yield return new object[] { typeof(ulong?), null };
             yield return new object[] { typeof(float), 1.1f };
             yield return new object[] { typeof(float?), -1.1f };
             yield return new object[] { typeof(float?), null };
@@ -44,11 +61,12 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(DateTimeOffset?), null };
             yield return new object[] { typeof(Type), typeof(object) };
             yield return new object[] { typeof(Type), null };
-            yield return new object[] { typeof(object[]), new object[] { int.MinValue, long.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, MyEnum.SomeValue, DateTime.Now, DateTimeOffset.UtcNow, typeof(decimal) } };
+            yield return new object[] { typeof(MyEnum[]), new MyEnum[] { MyEnum.SomeValue, MyEnum.OtherValue } };
+            yield return new object[] { typeof(object[]), new object[] { char.MaxValue, byte.MaxValue, short.MinValue, ushort.MaxValue, int.MinValue, uint.MaxValue, long.MinValue, ulong.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, MyEnum.SomeValue, DateTime.Now, DateTimeOffset.UtcNow, typeof(decimal) } };
         }
     }
 
-    enum MyEnum { SomeValue }
+    enum MyEnum { SomeValue, OtherValue }
 
     public class Serialize
     {
