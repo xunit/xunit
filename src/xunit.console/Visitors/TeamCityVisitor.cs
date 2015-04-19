@@ -26,8 +26,13 @@ namespace Xunit.ConsoleClient
 
         void LogFinish(ITestResultMessage testResult)
         {
+            var formattedName = TeamCityEscape(displayNameFormatter.DisplayName(testResult.Test));
+
+            if (!string.IsNullOrWhiteSpace(testResult.Output))
+                console.WriteLine("##teamcity[testStdOut name='{0}' out='{1}']", formattedName, TeamCityEscape(testResult.Output));
+
             console.WriteLine("##teamcity[testFinished name='{0}' duration='{1}' flowId='{2}']",
-                              TeamCityEscape(displayNameFormatter.DisplayName(testResult.Test)),
+                              formattedName,
                               (int)(testResult.ExecutionTime * 1000M),
                               ToFlowId(testResult.TestCollection.DisplayName));
         }

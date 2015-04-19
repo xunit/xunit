@@ -123,7 +123,7 @@ public class TeamCityVisitorTests
     public class OnMessage_TestFailed
     {
         [Fact]
-        public static void LogsTestNameWithExceptionAndStackTrace()
+        public static void LogsTestNameWithExceptionAndStackTraceAndOutput()
         {
             var testFailed = Substitute.For<ITestFailed>();
             var test = Mocks.Test(null, "???");
@@ -133,6 +133,7 @@ public class TeamCityVisitorTests
             testFailed.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
             testFailed.ExceptionTypes.Returns(new[] { "ExceptionType" });
             testFailed.ExceptionParentIndices.Returns(new[] { -1 });
+            testFailed.Output.Returns("This is\t\r\noutput");
             var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
             formatter.DisplayName(test).Returns("This is my display name \t\r\n");
 
@@ -144,6 +145,7 @@ public class TeamCityVisitorTests
 
                 Assert.Collection(logger.Messages,
                     msg => Assert.Equal("##teamcity[testFailed name='This is my display name \t|r|n' details='ExceptionType : This is my message \t|r|n|r|nLine 1|r|nLine 2|r|nLine 3' flowId='myFlowId']", msg),
+                    msg => Assert.Equal("##teamcity[testStdOut name='This is my display name \t|r|n' out='This is\t|r|noutput']", msg),
                     msg => Assert.Equal("##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
                 );
             }
@@ -153,12 +155,13 @@ public class TeamCityVisitorTests
     public class OnMessage_TestPassed
     {
         [Fact]
-        public static void LogsTestName()
+        public static void LogsTestNameAndOutput()
         {
             var testPassed = Substitute.For<ITestPassed>();
             var test = Mocks.Test(null, "???");
             testPassed.Test.Returns(test);
             testPassed.ExecutionTime.Returns(1.2345M);
+            testPassed.Output.Returns("This is\t\r\noutput");
             var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
             formatter.DisplayName(test).Returns("This is my display name \t\r\n");
 
@@ -169,6 +172,7 @@ public class TeamCityVisitorTests
                 visitor.OnMessage(testPassed);
 
                 Assert.Collection(logger.Messages,
+                    msg => Assert.Equal("##teamcity[testStdOut name='This is my display name \t|r|n' out='This is\t|r|noutput']", msg),
                     msg => Assert.Equal("##teamcity[testFinished name='This is my display name \t|r|n' duration='1234' flowId='myFlowId']", msg)
                 );
             }
