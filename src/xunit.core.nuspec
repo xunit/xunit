@@ -27,6 +27,17 @@
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
         <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
       </group>
+      
+      <!-- For Xamarin.iOS and Xamarin.Android, the linker will not honor unused assemblies in the output dir; we must ref them -->
+      <group targetFramework="Xamarin.iOS">
+        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
+      </group>
+      <group targetFramework="MonoTouch">
+        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
+      </group>      
+      <group targetFramework="MonoAndroid">
+        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
+      </group>
     </dependencies>
   </metadata>
   <files>
