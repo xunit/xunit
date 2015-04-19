@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using Xunit.Sdk;
@@ -64,10 +65,21 @@ public class ArgumentFormatterTests
             Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
         }
 
-        [CulturedFact]
-        public static void TypeValue()
+        [Theory]
+        [InlineData(typeof(string), "typeof(string)")]
+        [InlineData(typeof(int[]), "typeof(int[])")]
+        [InlineData(typeof(DateTime[,]), "typeof(System.DateTime[,])")]
+        [InlineData(typeof(decimal[][,]), "typeof(decimal[][,])")]
+        [InlineData(typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)")]
+        [InlineData(typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)")]
+        [InlineData(typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)")]
+        [InlineData(typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, System.DateTime>)")]
+        [InlineData(typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], System.DateTime[,][]>)")]
+        [InlineData(typeof(bool?), "typeof(bool?)")]
+        [InlineData(typeof(bool?[]), "typeof(bool?[])")]
+        public static void TypeValue(Type type, string expected)
         {
-            Assert.Equal("typeof(System.String)", ArgumentFormatter.Format(typeof(string)));
+            Assert.Equal(expected, ArgumentFormatter.Format(type));
         }
     }
 
