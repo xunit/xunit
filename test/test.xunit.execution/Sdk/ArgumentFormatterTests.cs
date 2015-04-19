@@ -25,10 +25,21 @@ public class ArgumentFormatterTests
             Assert.Equal("\"----|----1----|----2----|----3----|----4----|----5\"...", ArgumentFormatter.Format("----|----1----|----2----|----3----|----4----|----5-"));
         }
 
-        [CulturedFact]
-        public static void CharacterValue()
+        [Theory]
+        // Printable
+        [InlineData(' ', "' '")]
+        [InlineData('a', "'a'")]
+        [InlineData('1', "'1'")]
+        [InlineData('!', "'!'")]
+        [InlineData('©', "'©'")]
+        [InlineData('╬', "'╬'")]
+        [InlineData('ئ', "'ئ'")]
+        // Unprintable
+        [InlineData(char.MinValue, "0x0000")]
+        [InlineData(char.MaxValue, "0xffff")]
+        public static void CharacterValue(char value, string expected)
         {
-            Assert.Equal("'a'", ArgumentFormatter.Format('a'));
+            Assert.Equal(expected, ArgumentFormatter.Format(value));
         }
 
         [CulturedFact]

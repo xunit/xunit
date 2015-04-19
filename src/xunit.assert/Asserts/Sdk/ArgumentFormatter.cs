@@ -40,7 +40,13 @@ namespace Xunit.Sdk
                 return String.Format("typeof({0})", valueAsType.FullName);
 
             if (value is char)
-                return String.Format("'{0}'", value);
+            {
+                var charValue = (char)value;
+                if (char.IsLetterOrDigit(charValue) || char.IsPunctuation(charValue) || char.IsSymbol(charValue) || charValue == ' ')
+                    return String.Format("'{0}'", value);
+
+                return String.Format("0x{0:x4}", (int)charValue);
+            }
 
             if (value is DateTime || value is DateTimeOffset)
                 return String.Format("{0:o}", value);
