@@ -285,11 +285,11 @@ namespace Xunit.Serialization
                 return value.ToString();
             }
 
-            var array = value as object[];
-            if (array != null)
+            var arrayData = value as Array;
+            if (arrayData != null)
             {
                 var info = new XunitSerializationInfo();
-                var arraySer = new ArraySerializer(array);
+                var arraySer = new ArraySerializer(arrayData);
                 arraySer.Serialize(info);
                 return info.ToSerializedString();
             }
@@ -324,7 +324,7 @@ namespace Xunit.Serialization
 
             var valueType = value.GetType();
             if (valueType.IsArray)
-                return ((object[])value).All(CanSerializeObject);
+                return ((Array)value).Cast<object>().All(CanSerializeObject);
 
             if (valueType.IsEnum() || valueType.IsNullableEnum())
                 return true;
@@ -349,14 +349,14 @@ namespace Xunit.Serialization
 
         internal class ArraySerializer : IXunitSerializable
         {
-            object[] array;
+            Array array;
             readonly Type elementType;
 
-            public object[] ArrayData { get { return array; } }
+            public Array ArrayData { get { return array; } }
 
             public ArraySerializer() { }
 
-            public ArraySerializer(object[] array)
+            public ArraySerializer(Array array)
             {
                 if (array == null)
                     throw new ArgumentNullException("array");
@@ -371,10 +371,10 @@ namespace Xunit.Serialization
             public void Serialize(IXunitSerializationInfo info)
             {
                 info.AddValue("Length", array.Length);
-                info.AddValue("ElementType", elementType.FullName);
+                info.AddValue("ElementType", SerializationHelper.GetTypeNameForSerialization(elementType));
 
                 for (var i = 0; i < array.Length; i++)
-                    info.AddValue("Item" + i, array[i]);
+                    info.AddValue("Item" + i, array.GetValue(i));
             }
 
             public void Deserialize(IXunitSerializationInfo info)
@@ -382,10 +382,10 @@ namespace Xunit.Serialization
                 var len = info.GetValue<int>("Length");
                 var arrType = SerializationHelper.GetType(info.GetValue<string>("ElementType"));
 
-                array = Array.CreateInstance(arrType, len) as object[];
+                array = Array.CreateInstance(arrType, len);
 
                 for (var i = 0; i < array.Length; i++)
-                    array[i] = info.GetValue("Item" + i, arrType);
+                    array.SetValue(info.GetValue("Item" + i, arrType), i);
             }
         }
     }

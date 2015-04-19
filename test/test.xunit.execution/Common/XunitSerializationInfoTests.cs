@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
@@ -62,11 +61,12 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(DateTimeOffset?), null };
             yield return new object[] { typeof(Type), typeof(object) };
             yield return new object[] { typeof(Type), null };
+            yield return new object[] { typeof(MyEnum[]), new MyEnum[] { MyEnum.SomeValue, MyEnum.OtherValue } };
             yield return new object[] { typeof(object[]), new object[] { char.MaxValue, byte.MaxValue, short.MinValue, ushort.MaxValue, int.MinValue, uint.MaxValue, long.MinValue, ulong.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, MyEnum.SomeValue, DateTime.Now, DateTimeOffset.UtcNow, typeof(decimal) } };
         }
     }
 
-    enum MyEnum { SomeValue }
+    enum MyEnum { SomeValue, OtherValue }
 
     public class Serialize
     {
