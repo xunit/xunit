@@ -111,9 +111,27 @@ namespace Xunit.Sdk
             var ati = attribute.GetType();
 
             foreach (var namedArg in attributeData.NamedArguments)
-                (ati.GetRuntimeProperty(namedArg.MemberName)).SetValue(attribute, namedArg.TypedValue.Value, index: null);
+                (ati.GetRuntimeProperty(namedArg.MemberName)).SetValue(attribute, GetTypedValue(namedArg.TypedValue), index: null);
 
             return attribute;
+        }
+
+        object GetTypedValue(CustomAttributeTypedArgument arg)
+        {
+            var collect = arg.Value as IReadOnlyCollection<CustomAttributeTypedArgument>;
+
+            if (collect == null)
+                return arg.Value;
+
+            var argType = arg.ArgumentType.GetElementType();
+            Array destinationArray = Array.CreateInstance(argType, collect.Count);
+
+            if (argType.IsEnum())
+                Array.Copy(collect.Select(x => Enum.ToObject(argType, x.Value)).ToArray(), destinationArray, collect.Count);
+            else
+                Array.Copy(collect.Select(x => x.Value).ToArray(), destinationArray, collect.Count);
+
+            return destinationArray;
         }
 
         /// <inheritdoc/>
