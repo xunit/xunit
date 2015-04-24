@@ -1029,4 +1029,64 @@ public class ReflectorTests
             Assert.Single(results);
         }
     }
+
+    public class ArrayTypesFromAttribute
+    {
+        enum FactState
+        {
+            Pause = 0,
+            Start,
+            Stop
+        }
+
+        class SuperFact : Attribute
+        {
+            public int[] Numbers { get; set; }
+            public Type[] Types { get; set; }
+            public FactState[] States { get; set; }
+            public System.Collections.Generic.List<Type> ListTypes { get; set; }
+        }
+
+        [Fact]
+        [SuperFact(Numbers = new[] { 1, 2, 3 })]
+        public void ValueTypeArray()
+        {
+            var expected = new[] { 1, 2, 3 };
+            var result = typeof(ArrayTypesFromAttribute).GetMethods().Single(m => m.Name == "ValueTypeArray")
+                .CustomAttributes.Where(x => x.AttributeType.Equals(typeof(SuperFact)))
+                .Select(Reflector.Wrap)
+                .Single();
+
+            Assert.True(expected.SequenceEqual((result.Attribute as SuperFact).Numbers));
+            Assert.True(expected.SequenceEqual(result.GetNamedArgument<int[]>("Numbers")));
+        }
+
+        [Fact]
+        [SuperFact(Types = new[] { typeof(string), typeof(FactAttribute) })]
+        public void ReferenceTypeArray()
+        {
+            var expected = new[] { typeof(string), typeof(FactAttribute) };
+            var result = typeof(ArrayTypesFromAttribute).GetMethods().Single(m => m.Name == "ReferenceTypeArray")
+                .CustomAttributes.Where(x => x.AttributeType.Equals(typeof(SuperFact)))
+                .Select(Reflector.Wrap)
+                .Single();
+
+            Assert.True(expected.SequenceEqual((result.Attribute as SuperFact).Types));
+            Assert.True(expected.SequenceEqual(result.GetNamedArgument<Type[]>("Types")));
+        }
+
+        [Fact]
+        [SuperFact(States = new[] { FactState.Pause, FactState.Start, FactState.Stop })]
+        public void EnumTypeArray()
+        {
+            var expected = new[] { FactState.Pause, FactState.Start, FactState.Stop };
+            var result = typeof(ArrayTypesFromAttribute).GetMethods().Single(m => m.Name == "EnumTypeArray")
+                .CustomAttributes.Where(x => x.AttributeType.Equals(typeof(SuperFact)))
+                .Select(Reflector.Wrap)
+                .Single();
+
+            Assert.True(expected.SequenceEqual((result.Attribute as SuperFact).States));
+            Assert.True(expected.SequenceEqual(result.GetNamedArgument<FactState[]>("States")));
+        }
+    }
 }
