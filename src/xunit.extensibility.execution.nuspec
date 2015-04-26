@@ -74,6 +74,11 @@
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.xml" target="lib\portable-wpa81+win81\" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pri" target="lib\portable-wpa81+win81\" />
 
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.dll" target="lib\win81\" />
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pdb" target="lib\win81\" />
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.xml" target="lib\win81\" />
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pri" target="lib\win81\" />    
+
     <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.dll" target="lib\win8\" />
     <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.pdb" target="lib\win8\" />
     <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.xml" target="lib\win8\" />
