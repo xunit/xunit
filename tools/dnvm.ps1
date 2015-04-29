@@ -1,5 +1,12 @@
 #Requires -Version 3
 
+if (Test-Path env:WEBSITE_SITE_NAME)
+{
+    # This script is run in Azure Web Sites
+    # Disable progress indicator
+    $ProgressPreference = "SilentlyContinue"
+}
+
 $ScriptPath = $MyInvocation.MyCommand.Definition
 
 $Script:UseWriteHost = $true
@@ -59,7 +66,7 @@ function _WriteOut {
 
 ### Constants
 $ProductVersion="1.0.0"
-$BuildVersion="beta5-10353"
+$BuildVersion="beta4-10366"
 $Authors="Microsoft Open Technologies, Inc."
 
 # If the Version hasn't been replaced...
@@ -76,7 +83,7 @@ Set-Variable -Option Constant "CommandFriendlyName" ".NET Version Manager"
 Set-Variable -Option Constant "DefaultUserDirectoryName" ".dnx"
 Set-Variable -Option Constant "OldUserDirectoryNames" @(".kre", ".k")
 Set-Variable -Option Constant "RuntimePackageName" "dnx"
-Set-Variable -Option Constant "DefaultFeed" "https://www.myget.org/F/aspnetvnext/api/v2"
+Set-Variable -Option Constant "DefaultFeed" "https://www.nuget.org/api/v2"
 Set-Variable -Option Constant "CrossGenCommand" "k-crossgen"
 Set-Variable -Option Constant "CommandPrefix" "dnvm-"
 Set-Variable -Option Constant "DefaultArchitecture" "x86"
@@ -1004,7 +1011,6 @@ function dnvm-install {
 
     if(Test-Path $RuntimeFolder) {
         _WriteOut "'$runtimeFullName' is already installed."
-        dnvm-use $PackageVersion -Architecture:$Architecture -Runtime:$Runtime -Persistent:$Persistent
     }
     else {
         $Architecture = GetArch $Architecture
