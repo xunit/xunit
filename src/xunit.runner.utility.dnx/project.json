@@ -1,4 +1,5 @@
 {
+    "version": "99.99.99-dev",
     "frameworks": {
         "dnx451": {
             "frameworkAssemblies": {
