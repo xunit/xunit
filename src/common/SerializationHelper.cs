@@ -153,7 +153,7 @@ namespace Xunit.Sdk
             if (assemblyName.EndsWith(ExecutionHelper.SubstitutionToken))
                 assemblyName = assemblyName.Substring(0, assemblyName.Length - ExecutionHelper.SubstitutionToken.Length + 1) + ExecutionHelper.PlatformSpecificAssemblySuffix;
 
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNXCORE50
             Assembly assembly = null;
             try
             {

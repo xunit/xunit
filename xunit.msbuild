@@ -9,7 +9,7 @@
   <!-- Settings -->
 
   <PropertyGroup>
-    <SolutionName Condition="'$(SolutionName)' == ''">xunit.vs2013.sln</SolutionName>
+    <SolutionName Condition="'$(SolutionName)' == ''">xunit.vs2015.sln</SolutionName>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <ParallelizeTests Condition="'$(ParallelizeTests)' == ''">true</ParallelizeTests>
     <MaxParallelThreads Condition="'$(MaxParallelThreads)' == ''">0</MaxParallelThreads>
@@ -22,6 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="src\*.nuspec" />
+    <ProjectJsonFiles Include="src\*.dnx\project.json" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
     <PackageSource Include="https://nuget.org/api/v2/" />
@@ -59,6 +60,7 @@
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install githublink -Pre -Source http://www.myget.org/F/b4ff5f68eccf4f6bbfed74f055f88d8f/ -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\githublink\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\$(SolutionName)&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
+    <Exec Command="powershell -NoProfile -NonInteractive -ExecutionPolicy Unrestricted tools\dnu-package-restore.ps1" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
@@ -89,9 +91,6 @@
         Files="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe.config" />
     <Delete
         Files="src\xunit.console\xunit.console.x86.csproj" />
-
-    <!-- Build aspnet projects -->
-    <Exec Command="powershell -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned tools\build-aspnet.ps1 $(Configuration)" />
   </Target>
 
   <Target Name="_Test32" DependsOnTargets="Build">
@@ -117,7 +116,7 @@
     <RegexReplace
         Pattern='99\.99\.99-dev'
         Replacement='$(BuildSemanticVersion)'
-        Files='@(NuspecFiles)'
+        Files='@(NuspecFiles);@(ProjectJsonFiles)'
         Condition=" '$(BuildSemanticVersion)' != '' "/>
   </Target>
 

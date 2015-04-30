@@ -38,7 +38,7 @@ internal static class Guard
     [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "This method may not be called by all users of Guard.")]
     public static void FileExists(string argName, string fileName)
     {
-#if !ANDROID && !ASPNET50 && !ASPNETCORE50
+#if !ANDROID && !DNX451 && !DNXCORE50
         Guard.ArgumentNotNullOrEmpty(argName, fileName);
         Guard.ArgumentValid("assemblyFileName",
                             String.Format("File not found: {0}", fileName),

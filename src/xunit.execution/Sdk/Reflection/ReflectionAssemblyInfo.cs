@@ -36,7 +36,7 @@ namespace Xunit.Sdk
             {
                 Assembly = Assembly.Load(Path.GetFileNameWithoutExtension(assemblyFileName));
             }
-#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNET50 || ASPNETCORE50
+#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
             Assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName), Version = new Version(0, 0) });
 #elif ANDROID
             Assembly = Assembly.Load(assemblyFileName);
@@ -53,7 +53,7 @@ namespace Xunit.Sdk
         {
             get
             {
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNET50 || ASPNETCORE50
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
                 return Assembly.GetName().Name + ".dll"; // Return the short name on WPA81 as that's all that can be loaded
 #else
                 return Assembly.GetLocalCodeBase();

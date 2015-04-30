@@ -79,7 +79,7 @@ namespace Xunit
 #if ANDROID
             // Android needs to just load the assembly
             var name = Assembly.Load(xunitExecutionAssemblyPath);
-#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNET50 || ASPNETCORE50
+#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
             // WPA81 needs an AssemblyName that has the assembly short name (w/o extension)
             var name = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0) }).GetName();
 #else
