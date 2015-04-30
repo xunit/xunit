@@ -50,6 +50,19 @@ public class FactDiscovererTests
         Assert.Equal("[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?", failed.Messages.Single());
     }
 
+    [Fact]
+    public async void FactWithTheory_ReturnsTestCaseWhichThrows()
+    {
+        var discoverer = TestableFactDiscoverer.Create();
+        var testMethod = Mocks.TestMethod(typeof(InvalidClass), "InvalidTest");
+
+        var testCases = discoverer.Discover(options, testMethod, factAttribute);
+
+        var testCase = Assert.Single(testCases);
+        var ex = await Assert.ThrowsAsync(typeof(InvalidOperationException),() => testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource));
+        Assert.Equal("Only one [Fact] attribute or its derived type is allowed on a method. Method: FactDiscovererTests+InvalidClass.InvalidTest [Fact] Attributes: Xunit.FactAttribute, Xunit.TheoryAttribute", ex.Message);
+    }
+
     class ClassUnderTest
     {
         [Fact]
@@ -57,6 +70,13 @@ public class FactDiscovererTests
 
         [Fact]
         public void FactWithParameters(int x) { }
+    }
+
+    class InvalidClass
+    {
+        [Fact]
+        [Theory]
+        public void InvalidTest() { }
     }
 
     class TestableFactDiscoverer : FactDiscoverer

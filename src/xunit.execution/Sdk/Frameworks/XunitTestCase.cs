@@ -48,6 +48,14 @@ namespace Xunit.Sdk
         {
             base.Initialize();
 
+            var factAttributes = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute));
+            if (factAttributes.Count() > 1)
+            {
+                var attributes = string.Join(", ", factAttributes);
+                var msg = string.Format("Method: {0}.{1} [Fact] Attributes: {2}", TestMethod.TestClass.Class.Name, TestMethod.Method.Name, attributes);
+                throw new InvalidOperationException("Only one [Fact] attribute or its derived type is allowed on a method. " + msg);
+            }
+
             var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
             var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
 
