@@ -91,7 +91,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
             Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
-            Task.Run(() =>
+            XunitWorkerThread.QueueUserWorkItem(() =>
             {
                 using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
                 using (new PreserveWorkingFolder(AssemblyInfo))
@@ -123,7 +123,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
             Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
-            Task.Run(() =>
+            XunitWorkerThread.QueueUserWorkItem(() =>
             {
                 using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
                 using (new PreserveWorkingFolder(AssemblyInfo))
