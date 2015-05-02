@@ -176,10 +176,19 @@ namespace Xunit.Sdk
                 collection => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource),
                                                                                  cancellationTokenSource.Token,
                                                                                  TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler,
-                                                                                 scheduler)
+                                                                                 scheduler).Unwrap()
             ).ToArray();
 
-            var summaries = await Task.WhenAll(tasks.Select(t => t.Unwrap()));
+            var summaries = new List<RunSummary>();
+
+            foreach (var task in tasks)
+            {
+                try
+                {
+                    summaries.Add(await task);
+                }
+                catch (TaskCanceledException) { }
+            }
 
             return new RunSummary()
             {
