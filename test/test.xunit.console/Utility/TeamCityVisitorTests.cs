@@ -63,7 +63,7 @@ public class TeamCityVisitorTests
         {
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, null, null))
+            using (var visitor = new TeamCityVisitor(logger, false, null, null))
             {
                 visitor.OnMessage(message);
 
@@ -89,7 +89,29 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
+            {
+                visitor.OnMessage(collectionFinished);
+
+                Assert.Single(logger.Messages, "##teamcity[testSuiteFinished name='formattedTestCollectionDisplayName' flowId='myFlowId']");
+            }
+        }
+
+        [Fact]
+        public static void LogsMessageWhenNoskip()
+        {
+            var collectionFinished = Substitute.For<ITestCollectionFinished>();
+            collectionFinished.TestsRun.Returns(2112);
+            collectionFinished.TestsFailed.Returns(42 + 6);
+            collectionFinished.TestsSkipped.Returns(6);
+            collectionFinished.ExecutionTime.Returns(123.4567M);
+            collectionFinished.TestCollection.DisplayName.Returns("Display Name");
+            var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
+            formatter.DisplayName(collectionFinished.TestCollection).Returns("formattedTestCollectionDisplayName");
+
+            var logger = new SpyConsoleLogger();
+
+            using (var visitor = new TeamCityVisitor(logger, true, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(collectionFinished);
 
@@ -110,7 +132,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(collectionStarting);
 
@@ -139,7 +161,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testFailed);
 
@@ -167,7 +189,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testPassed);
 
@@ -193,12 +215,37 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testSkipped);
 
                 Assert.Collection(logger.Messages,
                     msg => Assert.Equal("##teamcity[testIgnored name='This is my display name \t|r|n' message='This is my skip reason \t|r|n' flowId='myFlowId']", msg),
+                    msg => Assert.Equal("##teamcity[testFinished name='This is my display name \t|r|n' duration='0' flowId='myFlowId']", msg)
+                );
+            }
+        }
+
+        [Fact]
+        public static void LogsTestNameAsErrorWithNoskip()
+        {
+            var testSkipped = Substitute.For<ITestSkipped>();
+            var test = Mocks.Test(null, "???");
+            testSkipped.Test.Returns(test);
+            var testcase = Mocks.TestCase(typeof(OnMessage_TestSkipped), "LogsTestNameAsErrorWithNoskip", skipReason: "This is my skip reason \t\r\n");
+            test.TestCase.Returns(testcase);
+            testSkipped.Reason.Returns("This is my skip reason \t\r\n");
+            var formatter = Substitute.For<TeamCityDisplayNameFormatter>();
+            formatter.DisplayName(test).Returns("This is my display name \t\r\n");
+
+            var logger = new SpyConsoleLogger();
+
+            using (var visitor = new TeamCityVisitor(logger, true, null, null, _ => "myFlowId", formatter))
+            {
+                visitor.OnMessage(testSkipped);
+
+                Assert.Collection(logger.Messages,
+                    msg => Assert.Equal("##teamcity[testFailed name='This is my display name \t|r|n' details='FAIL_SKIP: This is my skip reason \t|r|n' flowId='myFlowId']", msg),
                     msg => Assert.Equal("##teamcity[testFinished name='This is my display name \t|r|n' duration='0' flowId='myFlowId']", msg)
                 );
             }
@@ -218,7 +265,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testStarting);
 

@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
-    public class AppVeyorVisitor : XmlTestExecutionVisitor
+    public class AppVeyorVisitor : XmlConsoleTestExecutionVisitor
     {
         const string FrameworkName = "xUnit";
 
@@ -20,11 +20,12 @@ namespace Xunit.ConsoleClient
         readonly ConcurrentDictionary<string, int> testMethods = new ConcurrentDictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         public AppVeyorVisitor(object consoleLock,
+                               bool noskips,
                                string defaultDirectory,
                                XElement assemblyElement,
                                Func<bool> cancelThunk,
                                ConcurrentDictionary<string, ExecutionSummary> completionMessages = null)
-            : base(assemblyElement, cancelThunk)
+            : base(noskips, assemblyElement, cancelThunk)
         {
             this.consoleLock = consoleLock;
             this.defaultDirectory = defaultDirectory;
@@ -53,7 +54,7 @@ namespace Xunit.ConsoleClient
                 completionMessages.TryAdd(assemblyFileName, new ExecutionSummary
                 {
                     Total = assemblyFinished.TestsRun,
-                    Failed = assemblyFinished.TestsFailed,
+                    Failed = assemblyFinished.TestsFailed + (noskips ? assemblyFinished.TestsSkipped : 0),
                     Skipped = assemblyFinished.TestsSkipped,
                     Time = assemblyFinished.ExecutionTime,
                     Errors = Errors
@@ -96,6 +97,25 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
+            if (noskips)
+            {
+                AppVeyorLogger.UpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName), FrameworkName, assemblyFileName, "Failed",
+                                          Convert.ToInt64(testSkipped.ExecutionTime * 1000), "FAIL_SKIP", null, null, null);
+
+                lock (consoleLock)
+                {
+                    Console.WriteLine("   {0} [FAIL_SKIP]", Escape(testSkipped.Test.DisplayName));
+                    Console.WriteLine("      {0}", Escape(testSkipped.Reason));
+                }
+
+                var testFailed = new TestFailed(testSkipped.Test, testSkipped.ExecutionTime, testSkipped.Reason,
+                                                new [] { "FAIL_SKIP" },
+                                                new [] { testSkipped.Reason },
+                                                new [] { "" },
+                                                new [] { -1 });
+                return this.Visit(testFailed);
+            }
+
             AppVeyorLogger.UpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName), FrameworkName, assemblyFileName, "Skipped",
                                       Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null, null);
 

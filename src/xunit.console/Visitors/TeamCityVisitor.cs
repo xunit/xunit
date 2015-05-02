@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
-    public class TeamCityVisitor : XmlTestExecutionVisitor
+    public class TeamCityVisitor : XmlConsoleTestExecutionVisitor
     {
         readonly ConsoleLogger console;
         readonly TeamCityDisplayNameFormatter displayNameFormatter;
@@ -13,11 +13,12 @@ namespace Xunit.ConsoleClient
         readonly Func<string, string> flowIdMapper;
 
         public TeamCityVisitor(ConsoleLogger console,
+                               bool noskips,
                                XElement assembliesElement,
                                Func<bool> cancelThunk,
                                Func<string, string> flowIdMapper = null,
                                TeamCityDisplayNameFormatter displayNameFormatter = null)
-            : base(assembliesElement, cancelThunk)
+            : base(noskips, assembliesElement, cancelThunk)
         {
             this.console = console;
             this.flowIdMapper = flowIdMapper ?? (_ => Guid.NewGuid().ToString("N"));
@@ -79,6 +80,21 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
+            if (noskips)
+            {
+                console.WriteLine("##teamcity[testFailed name='{0}' details='{1}' flowId='{2}']",
+                                  TeamCityEscape(displayNameFormatter.DisplayName(testSkipped.Test)),
+                                  TeamCityEscape("FAIL_SKIP: " + testSkipped.Reason),
+                                  ToFlowId(testSkipped.TestCollection.DisplayName));
+                LogFinish(testSkipped);
+                var testFailed = new TestFailed(testSkipped.Test, testSkipped.ExecutionTime, testSkipped.Reason,
+                                                new [] { "FAIL_SKIP" },
+                                                new [] { testSkipped.Reason },
+                                                new [] { "" },
+                                                new [] { -1 });
+                return base.Visit(testFailed);
+            }
+
             console.WriteLine("##teamcity[testIgnored name='{0}' message='{1}' flowId='{2}']",
                               TeamCityEscape(displayNameFormatter.DisplayName(testSkipped.Test)),
                               TeamCityEscape(testSkipped.Reason),

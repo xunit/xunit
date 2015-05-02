@@ -102,6 +102,7 @@
     <Compile Include="Visitors\DiagnosticMessageVisitor.cs" />
     <Compile Include="Visitors\StandardOutputVisitor.cs" />
     <Compile Include="Visitors\TeamCityVisitor.cs" />
+    <Compile Include="Visitors\XmlConsoleTestExecutionVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NUnitXml.xslt">
