@@ -25,7 +25,6 @@ namespace Xunit.Runner.MSBuild
 
         public xunit()
         {
-            ParallelizeTestCollections = true;
             ShadowCopy = true;
             TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
         }
