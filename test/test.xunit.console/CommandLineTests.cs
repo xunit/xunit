@@ -195,6 +195,29 @@ public class CommandLineTests
         }
     }
 
+    public class DiagnosticsOption
+    {
+        [Fact]
+        public static void DiagnosticsNotSetDebugIsFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.DiagnosticMessages);
+        }
+
+        [Fact]
+        public static void DiagnosticsSetDebugIsTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-diagnostics" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.DiagnosticMessages);
+        }
+    }
+
     public class SerializeOption
     {
         [Fact]
@@ -241,11 +264,27 @@ public class CommandLineTests
         {
             var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "abc"));
 
-            Assert.Equal("incorrect argument value for -maxthreads", ex.Message);
+            Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)", ex.Message);
         }
 
         [Fact]
-        public static void SetsMaxParallelThreads()
+        public static void Default_SetsToNull()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "default");
+
+            Assert.Null(commandLine.MaxParallelThreads);
+        }
+
+        [Fact]
+        public static void Unlimited_SetsToZero()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "unlimited");
+
+            Assert.Equal(0, commandLine.MaxParallelThreads);
+        }
+
+        [Fact]
+        public static void PositiveNumber_SetsMaxParallelThreads()
         {
             var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "16");
 

@@ -56,7 +56,7 @@ namespace Xunit.ConsoleClient
 
                 var failCount = RunProject(defaultDirectory, commandLine.Project, commandLine.Quiet, commandLine.Serialize, commandLine.TeamCity, commandLine.AppVeyor,
                                            commandLine.ParallelizeAssemblies, commandLine.ParallelizeTestCollections,
-                                           commandLine.MaxParallelThreads);
+                                           commandLine.MaxParallelThreads, commandLine.DiagnosticMessages);
 
                 if (commandLine.Wait)
                 {
@@ -120,14 +120,16 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         :   assemblies - only parallelize assemblies");
             Console.WriteLine("                         :   all - parallelize assemblies & collections");
             Console.WriteLine("  -maxthreads count      : maximum thread count for collection parallelization");
-            Console.WriteLine("                         :   0 - run with unbounded thread count");
-            Console.WriteLine("                         :   >0 - limit task thread pool size to 'count'");
+            Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
+            Console.WriteLine("                         :   unlimited - run with unbounded thread count");
+            Console.WriteLine("                         :   (number)  - limit task thread pool size to 'count'");
             Console.WriteLine("  -noshadow              : do not shadow copy assemblies");
             Console.WriteLine("  -teamcity              : forces TeamCity mode (normally auto-detected)");
             Console.WriteLine("  -appveyor              : forces AppVeyor CI mode (normally auto-detected)");
             Console.WriteLine("  -nologo                : do not show the copyright message");
             Console.WriteLine("  -quiet                 : do not show progress messages");
             Console.WriteLine("  -wait                  : wait for input after completion");
+            Console.WriteLine("  -diagnostics           : enable diagnostics messages for all test assemblies");
             Console.WriteLine("  -debug                 : launch the debugger to debug the tests");
             Console.WriteLine("  -serialize             : serialize all test cases (for diagnostic purposes only)");
             Console.WriteLine("  -trait \"name=value\"    : only run tests with matching name/value traits");
@@ -148,7 +150,16 @@ namespace Xunit.ConsoleClient
             );
         }
 
-        static int RunProject(string defaultDirectory, XunitProject project, bool quiet, bool serialize, bool teamcity, bool appVeyor, bool? parallelizeAssemblies, bool? parallelizeTestCollections, int? maxThreadCount)
+        static int RunProject(string defaultDirectory,
+                              XunitProject project,
+                              bool quiet,
+                              bool serialize,
+                              bool teamcity,
+                              bool appVeyor,
+                              bool? parallelizeAssemblies,
+                              bool? parallelizeTestCollections,
+                              int? maxThreadCount,
+                              bool diagnosticMessages)
         {
             XElement assembliesElement = null;
             var xmlTransformers = TransformFactory.GetXmlTransformers(project);
@@ -169,7 +180,7 @@ namespace Xunit.ConsoleClient
 
                 if (parallelizeAssemblies.GetValueOrDefault())
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, defaultDirectory, assembly, quiet, serialize, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, project.Filters)));
+                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, defaultDirectory, assembly, quiet, serialize, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, diagnosticMessages, project.Filters)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -178,7 +189,7 @@ namespace Xunit.ConsoleClient
                 {
                     foreach (var assembly in project.Assemblies)
                     {
-                        var assemblyElement = ExecuteAssembly(consoleLock, defaultDirectory, assembly, quiet, serialize, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, project.Filters);
+                        var assemblyElement = ExecuteAssembly(consoleLock, defaultDirectory, assembly, quiet, serialize, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, diagnosticMessages, project.Filters);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -264,7 +275,18 @@ namespace Xunit.ConsoleClient
             return new StandardOutputVisitor(consoleLock, quiet, defaultDirectory, assemblyElement, () => cancel, completionMessages);
         }
 
-        static XElement ExecuteAssembly(object consoleLock, string defaultDirectory, XunitProjectAssembly assembly, bool quiet, bool serialize, bool needsXml, bool teamCity, bool appVeyor, bool? parallelizeTestCollections, int? maxThreadCount, XunitFilters filters)
+        static XElement ExecuteAssembly(object consoleLock,
+                                        string defaultDirectory,
+                                        XunitProjectAssembly assembly,
+                                        bool quiet,
+                                        bool serialize,
+                                        bool needsXml,
+                                        bool teamCity,
+                                        bool appVeyor,
+                                        bool? parallelizeTestCollections,
+                                        int? maxThreadCount,
+                                        bool diagnosticMessages,
+                                        XunitFilters filters)
         {
             if (cancel)
                 return null;
@@ -276,9 +298,12 @@ namespace Xunit.ConsoleClient
                 if (!ValidateFileExists(consoleLock, assembly.AssemblyFilename) || !ValidateFileExists(consoleLock, assembly.ConfigFilename))
                     return null;
 
+                if (diagnosticMessages)
+                    assembly.Configuration.DiagnosticMessages = true;
+
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
                 var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
-                if (maxThreadCount.HasValue)
+                if (maxThreadCount.HasValue && maxThreadCount.Value > -1)
                     executionOptions.SetMaxParallelThreads(maxThreadCount.GetValueOrDefault());
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());

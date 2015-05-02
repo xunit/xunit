@@ -25,6 +25,8 @@ namespace Xunit.ConsoleClient
 
         public bool Debug { get; protected set; }
 
+        public bool DiagnosticMessages { get; protected set; }
+
         public int? MaxParallelThreads { get; set; }
 
         public bool NoLogo { get; protected set; }
@@ -137,16 +139,34 @@ namespace Xunit.ConsoleClient
                     GuardNoOptionValue(option);
                     Wait = true;
                 }
+                else if (optionName == "-diagnostics")
+                {
+                    GuardNoOptionValue(option);
+                    DiagnosticMessages = true;
+                }
                 else if (optionName == "-maxthreads")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -maxthreads");
 
-                    int threadValue;
-                    if (!Int32.TryParse(option.Value, out threadValue) || threadValue < 0)
-                        throw new ArgumentException("incorrect argument value for -maxthreads");
+                    switch (option.Value)
+                    {
+                        case "default":
+                            MaxParallelThreads = null;
+                            break;
 
-                    MaxParallelThreads = threadValue;
+                        case "unlimited":
+                            MaxParallelThreads = 0;
+                            break;
+
+                        default:
+                            int threadValue;
+                            if (!Int32.TryParse(option.Value, out threadValue) || threadValue < 0)
+                                throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)");
+
+                            MaxParallelThreads = threadValue;
+                            break;
+                    }
                 }
                 else if (optionName == "-parallel")
                 {
