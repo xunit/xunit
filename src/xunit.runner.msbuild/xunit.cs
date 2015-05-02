@@ -32,6 +32,8 @@ namespace Xunit.Runner.MSBuild
         [Required]
         public ITaskItem[] Assemblies { get; set; }
 
+        public bool DiagnosticMessages { get; set; }
+
         public string ExcludeTraits { get; set; }
 
         [Output]
@@ -41,7 +43,7 @@ namespace Xunit.Runner.MSBuild
 
         public string IncludeTraits { get; set; }
 
-        public int MaxParallelThreads { set { maxParallelThreads = value; } }
+        public string MaxParallelThreads { get; set; }
 
         protected bool NeedsXml
         {
@@ -109,6 +111,28 @@ namespace Xunit.Runner.MSBuild
 
             if (NeedsXml)
                 assembliesElement = new XElement("assemblies");
+
+            switch (MaxParallelThreads)
+            {
+                case null:
+                case "default":
+                    break;
+
+                case "unlimited":
+                    maxParallelThreads = 0;
+                    break;
+
+                default:
+                    int threadValue;
+                    if (!Int32.TryParse(MaxParallelThreads, out threadValue) || threadValue < 0)
+                    {
+                        Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', or a positive number", MaxParallelThreads);
+                        return false;
+                    }
+
+                    maxParallelThreads = threadValue;
+                    break;
+            }
 
             var originalWorkingFolder = Directory.GetCurrentDirectory();
 
@@ -230,9 +254,12 @@ namespace Xunit.Runner.MSBuild
 
             try
             {
+                if (DiagnosticMessages)
+                    configuration.DiagnosticMessages = true;
+
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(configuration);
                 var executionOptions = TestFrameworkOptions.ForExecution(configuration);
-                if (maxParallelThreads.HasValue)
+                if (maxParallelThreads.HasValue && maxParallelThreads.Value > -1)
                     executionOptions.SetMaxParallelThreads(maxParallelThreads);
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections);
