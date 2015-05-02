@@ -116,7 +116,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="build\xunit.runners.props" />
+    <None Include="build\xunit.runner.msbuild.props" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
