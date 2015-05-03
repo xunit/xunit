@@ -310,17 +310,18 @@ namespace Xunit.ConsoleClient
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
 
-                lock (consoleLock)
-                {
-                    if (assembly.Configuration.DiagnosticMessagesOrDefault)
-                        Console.WriteLine("Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
-                                          assemblyDisplayName,
-                                          discoveryOptions.GetMethodDisplayOrDefault(),
-                                          !executionOptions.GetDisableParallelizationOrDefault(),
-                                          executionOptions.GetMaxParallelThreadsOrDefault());
-                    else if (!quiet)
-                        Console.WriteLine("Discovering: {0}", assemblyDisplayName);
-                }
+                if (!quiet)
+                    lock (consoleLock)
+                    {
+                        if (assembly.Configuration.DiagnosticMessagesOrDefault)
+                            Console.WriteLine("Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
+                                              assemblyDisplayName,
+                                              discoveryOptions.GetMethodDisplayOrDefault(),
+                                              !executionOptions.GetDisableParallelizationOrDefault(),
+                                              executionOptions.GetMaxParallelThreadsOrDefault());
+                        else
+                            Console.WriteLine("Discovering: {0}", assemblyDisplayName);
+                    }
 
                 var diagnosticMessageVisitor = new DiagnosticMessageVisitor(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
 
