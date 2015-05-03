@@ -4,6 +4,6 @@ $solutionPath = [System.IO.Path]::GetFullPath($(join-path $toolsPath ".."))
 $globalJson = join-path $solutionPath "global.json"
 $dnxVersion = (ConvertFrom-JSON ([System.IO.File]::ReadAllText($globalJson))).sdk.version
 
-& $dnvm install $dnxVersion
+& $dnvm install $dnxVersion -u
 & $dnvm use $dnxVersion
 & dnu restore $solutionPath
