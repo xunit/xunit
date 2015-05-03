@@ -391,6 +391,28 @@ public class Xunit2AcceptanceTests
             [MyCustomArrayFact("1", "2", "3")]
             public void Passing() { }
         }
+
+        [Fact]
+        public void CannotMixMultipleFactDerivedAttributes()
+        {
+            var msgs = Run<ITestFailed>(typeof(ClassWithMultipleFacts)).ToList();
+
+            Assert.Collection(msgs,
+                msg =>
+                {
+                    Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing", msg.Test.DisplayName);
+                    Assert.Equal("System.InvalidOperationException", msg.ExceptionTypes.Single());
+                    Assert.Equal("Test method 'Xunit2AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing' has multiple [Fact]-derived attributes", msg.Messages.Single());
+                }
+            );
+        }
+
+        class ClassWithMultipleFacts
+        {
+            [Fact]
+            [MyCustomFact]
+            public void Passing() { }
+        }
     }
 
     public class TestOutput : AcceptanceTestV2

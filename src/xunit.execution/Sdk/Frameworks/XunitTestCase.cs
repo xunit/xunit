@@ -48,7 +48,7 @@ namespace Xunit.Sdk
         {
             base.Initialize();
 
-            var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+            var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
             var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
 
             DisplayName = TypeUtility.GetDisplayNameWithArguments(TestMethod.Method, baseDisplayName, TestMethodArguments, MethodGenericTypes);

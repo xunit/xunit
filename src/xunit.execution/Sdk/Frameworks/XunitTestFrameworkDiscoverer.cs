@@ -70,7 +70,15 @@ namespace Xunit.Sdk
         /// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
         protected virtual bool FindTestsForMethod(ITestMethod testMethod, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
+            var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).ToList();
+            if (factAttributes.Count > 1)
+            {
+                var message = string.Format("Test method '{0}.{1}' has multiple [Fact]-derived attributes", testMethod.TestClass.Class.Name, testMethod.Method.Name);
+                var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, testMethod, message);
+                return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
+            }
+
+            var factAttribute = factAttributes.FirstOrDefault();
             if (factAttribute == null)
                 return true;
 
