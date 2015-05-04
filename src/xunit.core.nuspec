@@ -71,6 +71,12 @@
     <file src="xunit.core\build\xunit.core.WithDesktop.props"             target="build\win8\xunit.core.props" />
     <file src="xunit.core\build\xunit.core.win8.targets"                  target="build\win8\xunit.core.targets" />
     <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.dll" target="build\win8\" />
+    
+    <!-- win81 -->
+    <file src="xunit.core\build\xunit.core.WithDesktop.props"                       target="build\win81\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.universal.targets"                       target="build\win81\xunit.core.targets" />
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.dll" target="build\win81\" />
+    <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pri" target="build\win81\" />
 
     <!-- wp8 -->
     <file src="xunit.core\build\xunit.core.props"                       target="build\wp8\" />
