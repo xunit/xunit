@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
-    public class StandardOutputVisitor : XmlConsoleTestExecutionVisitor
+    public class StandardOutputVisitor : XmlTestExecutionVisitor
     {
         readonly object consoleLock;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
@@ -15,12 +15,11 @@ namespace Xunit.ConsoleClient
 
         public StandardOutputVisitor(object consoleLock,
                                      bool quiet,
-                                     bool noskips,
                                      string defaultDirectory,
                                      XElement assemblyElement,
                                      Func<bool> cancelThunk,
                                      ConcurrentDictionary<string, ExecutionSummary> completionMessages = null)
-            : base(noskips, assemblyElement, cancelThunk)
+            : base(assemblyElement, cancelThunk)
         {
             this.consoleLock = consoleLock;
             this.quiet = quiet;
@@ -51,7 +50,7 @@ namespace Xunit.ConsoleClient
                 completionMessages.TryAdd(assemblyDisplayName, new ExecutionSummary
                 {
                     Total = assemblyFinished.TestsRun,
-                    Failed = assemblyFinished.TestsFailed + (noskips ? assemblyFinished.TestsSkipped : 0),
+                    Failed = assemblyFinished.TestsFailed,
                     Skipped = assemblyFinished.TestsSkipped,
                     Time = assemblyFinished.ExecutionTime,
                     Errors = Errors
@@ -83,16 +82,6 @@ namespace Xunit.ConsoleClient
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
-            if (noskips)
-            {
-                var testFailed = new TestFailed(testSkipped.Test, testSkipped.ExecutionTime, testSkipped.Reason,
-                                                new [] { "FAIL_SKIP" },
-                                                new [] { testSkipped.Reason },
-                                                new [] { "" },
-                                                new [] { -1 });
-                return this.Visit(testFailed);
-            }
-
             lock (consoleLock)
             {
                 // TODO: Thread-safe way to figure out the default foreground color

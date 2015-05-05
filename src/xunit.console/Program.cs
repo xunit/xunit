@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
@@ -266,14 +267,20 @@ namespace Xunit.ConsoleClient
             return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
         }
 
-        static XmlTestExecutionVisitor CreateVisitor(object consoleLock, bool quiet, bool noskips, string defaultDirectory, XElement assemblyElement, bool teamCity, bool appVeyor)
+        static TestMessageVisitor<ITestAssemblyFinished> CreateVisitor(object consoleLock, bool quiet, bool noskips, string defaultDirectory, XElement assemblyElement, bool teamCity, bool appVeyor)
         {
+            XmlTestExecutionVisitor visitor = null;
             if (teamCity)
-                return new TeamCityVisitor(consoleLogger, noskips, assemblyElement, () => cancel, displayNameFormatter: teamCityDisplayNameFormatter);
+                visitor = new TeamCityVisitor(consoleLogger, assemblyElement, () => cancel, displayNameFormatter: teamCityDisplayNameFormatter);
             else if (appVeyor)
-                return new AppVeyorVisitor(consoleLock, noskips, defaultDirectory, assemblyElement, () => cancel, completionMessages);
+                visitor = new AppVeyorVisitor(consoleLock, defaultDirectory, assemblyElement, () => cancel, completionMessages);
+            else
+                visitor = new StandardOutputVisitor(consoleLock, quiet, defaultDirectory, assemblyElement, () => cancel, completionMessages);
 
-            return new StandardOutputVisitor(consoleLock, quiet, noskips, defaultDirectory, assemblyElement, () => cancel, completionMessages);
+            if (noskips)
+                return new NoSkipVisitor(visitor);
+
+            return visitor;
         }
 
         static XElement ExecuteAssembly(object consoleLock,

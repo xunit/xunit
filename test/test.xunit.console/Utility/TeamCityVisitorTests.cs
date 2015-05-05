@@ -63,7 +63,7 @@ public class TeamCityVisitorTests
         {
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, false, null, null))
+            using (var visitor = new TeamCityVisitor(logger, null, null))
             {
                 visitor.OnMessage(message);
 
@@ -89,7 +89,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(collectionFinished);
 
@@ -102,7 +102,7 @@ public class TeamCityVisitorTests
         {
             var collectionFinished = Substitute.For<ITestCollectionFinished>();
             collectionFinished.TestsRun.Returns(2112);
-            collectionFinished.TestsFailed.Returns(42 + 6);
+            collectionFinished.TestsFailed.Returns(42);
             collectionFinished.TestsSkipped.Returns(6);
             collectionFinished.ExecutionTime.Returns(123.4567M);
             collectionFinished.TestCollection.DisplayName.Returns("Display Name");
@@ -111,7 +111,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, true, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(collectionFinished);
 
@@ -132,7 +132,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(collectionStarting);
 
@@ -161,7 +161,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testFailed);
 
@@ -189,7 +189,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testPassed);
 
@@ -215,7 +215,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testSkipped);
 
@@ -240,14 +240,18 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, true, null, null, _ => "myFlowId", formatter))
+            using (var tcvisitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
-                visitor.OnMessage(testSkipped);
+                using (var visitor = new NoSkipVisitor(tcvisitor))
+                {
+                    visitor.OnMessage(testSkipped);
 
-                Assert.Collection(logger.Messages,
-                    msg => Assert.Equal("##teamcity[testFailed name='This is my display name \t|r|n' details='FAIL_SKIP: This is my skip reason \t|r|n' flowId='myFlowId']", msg),
-                    msg => Assert.Equal("##teamcity[testFinished name='This is my display name \t|r|n' duration='0' flowId='myFlowId']", msg)
-                );
+                    Assert.Collection(logger.Messages,
+                        msg => Assert.Equal("##teamcity[testFailed name='This is my display name \t|r|n' details='FAIL_SKIP : This is my skip reason \t|r|n|r|n' flowId='myFlowId']", msg),
+                        msg => Assert.Equal("##teamcity[testStdOut name='This is my display name \t|r|n' out='This is my skip reason \t|r|n']", msg),
+                        msg => Assert.Equal("##teamcity[testFinished name='This is my display name \t|r|n' duration='0' flowId='myFlowId']", msg)
+                    );
+                }
             }
         }
     }
@@ -265,7 +269,7 @@ public class TeamCityVisitorTests
 
             var logger = new SpyConsoleLogger();
 
-            using (var visitor = new TeamCityVisitor(logger, false, null, null, _ => "myFlowId", formatter))
+            using (var visitor = new TeamCityVisitor(logger, null, null, _ => "myFlowId", formatter))
             {
                 visitor.OnMessage(testStarting);
 
