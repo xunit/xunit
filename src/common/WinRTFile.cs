@@ -32,8 +32,8 @@ namespace System.IO
             {
                 return null;
             }
-           
-            var fileName = Path.GetFileName(path).ToLower();
+
+            var fileName = Path.GetFileName(path);
 
             try
             {
