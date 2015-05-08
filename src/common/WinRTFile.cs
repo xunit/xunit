@@ -27,20 +27,32 @@ namespace System.IO
                 return null;
 
             var folder = Package.Current.InstalledLocation;
-
-            if (!path.Contains(folder.Path))
+            
+            if (Path.GetDirectoryName(path) != string.Empty && !path.Contains(folder.Path))
+            {
                 return null;
-
-            var fileName = Path.GetFileName(path);
-            var fileAsync = folder.GetFileAsync(fileName);
+            }
+           
+            var fileName = Path.GetFileName(path).ToLower();
 
             try
             {
+                var fileAsync = folder.GetFileAsync(fileName);
                 fileAsync.AsTask().Wait();
                 return fileAsync.GetResults();
             }
             catch
             {
+                // look for an exe file with the same filename
+                try
+                {
+                    var fileAsync = folder.GetFileAsync(Path.GetFileNameWithoutExtension(path) + ".exe");
+                    fileAsync.AsTask().Wait();
+                    return fileAsync.GetResults();
+                }
+                catch
+                {
+                }
                 return null;
             }
         }
