@@ -82,10 +82,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "execution", "execution", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runner.utility", "runner.utility", "{2B780476-EC2C-45FC-B04E-4CDF2EF93509}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.win8", "src\xunit.execution.win8\xunit.execution.win8.csproj", "{141612DE-2D07-4968-ABAF-09FD05B7951E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.win8", "src\xunit.runner.utility.win8\xunit.runner.utility.win8.csproj", "{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.universal", "src\xunit.execution.universal\xunit.execution.universal.csproj", "{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.universal", "src\xunit.runner.utility.universal\xunit.runner.utility.universal.csproj", "{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7}"
@@ -109,7 +105,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{52
 		src\xunit.runner.console.nuspec = src\xunit.runner.console.nuspec
 		src\xunit.runner.msbuild.nuspec = src\xunit.runner.msbuild.nuspec
 		src\xunit.runner.utility.nuspec = src\xunit.runner.utility.nuspec
-		src\xunit.runner.utility.visualstudio.win8.nuspec = src\xunit.runner.utility.visualstudio.win8.nuspec
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.execution.dnx", "src\xunit.execution.dnx\xunit.execution.dnx.xproj", "{BAD239CF-765B-4C12-8AE2-D799D077ABDF}"
@@ -205,14 +200,6 @@ Global
 		{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{141612DE-2D07-4968-ABAF-09FD05B7951E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{141612DE-2D07-4968-ABAF-09FD05B7951E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{141612DE-2D07-4968-ABAF-09FD05B7951E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{141612DE-2D07-4968-ABAF-09FD05B7951E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51}.Release|Any CPU.Build.0 = Release|Any CPU
 		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -279,8 +266,6 @@ Global
 		{F4B09674-BED9-4AA9-A9AC-6F1683B2BBF9} = {A36A630E-A604-47E6-894E-732946960182}
 		{C50B1A3D-B2F9-468F-8280-526B0D712107} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{2B780476-EC2C-45FC-B04E-4CDF2EF93509} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
-		{141612DE-2D07-4968-ABAF-09FD05B7951E} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
-		{4F42FE0E-04D0-4E84-9C4C-91B9C6649E51} = {A36A630E-A604-47E6-894E-732946960182}
 		{87DA8400-E929-4A02-A0CC-A8DD5404E3ED} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 		{9D0DAA1D-F2DF-4A8A-9D0B-FFAA091A4EE7} = {A36A630E-A604-47E6-894E-732946960182}
 		{AA80CCD7-6DD1-4122-9A85-B8F9FD9F113E} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}

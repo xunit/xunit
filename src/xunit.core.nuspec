@@ -7,7 +7,7 @@
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
       Includes the libraries for writing unit tests with xUnit.net.
-      Supported platforms: Desktop .NET 4.5+, DNX 4.5.1+, DNX Core 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal, Portable Libraries (supporting Profile259).
+      Supported platforms: Desktop .NET 4.5+, DNX 4.5.1+, DNX Core 5+, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal, Portable Libraries (supporting Profile259).
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -59,18 +59,13 @@
     <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.dll" target="build\monotouch\" />
 
     <!-- portable -->
-    <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+dnxcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+dnxcore50+win81+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
 
     <!-- universal -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props"                       target="build\portable-win81+wpa81\xunit.core.props" />
     <file src="xunit.core\build\xunit.core.universal.targets"                       target="build\portable-win81+wpa81\xunit.core.targets" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.dll" target="build\portable-win81+wpa81\" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pri" target="build\portable-win81+wpa81\" />
-
-    <!-- win8 -->
-    <file src="xunit.core\build\xunit.core.WithDesktop.props"             target="build\win8\xunit.core.props" />
-    <file src="xunit.core\build\xunit.core.win8.targets"                  target="build\win8\xunit.core.targets" />
-    <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.dll" target="build\win8\" />
 
     <!-- wp8 -->
     <file src="xunit.core\build\xunit.core.props"                       target="build\wp8\" />

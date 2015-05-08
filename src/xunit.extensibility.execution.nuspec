@@ -7,7 +7,7 @@
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
       Includes xunit.execution.*.dll for extensibility purposes.
-      Supported platforms: Desktop .NET 4.5+, DNX 4.5.1+, DNX Core 5+, Modern Windows 8, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
+      Supported platforms: Desktop .NET 4.5+, DNX 4.5.1+, DNX Core 5+, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -70,10 +70,6 @@
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pdb" target="lib\portable-wpa81+win81\" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.xml" target="lib\portable-wpa81+win81\" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pri" target="lib\portable-wpa81+win81\" />
-
-    <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.dll" target="lib\win8\" />
-    <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.pdb" target="lib\win8\" />
-    <file src="xunit.execution.win8\bin\Release\xunit.execution.win8.xml" target="lib\win8\" />
 
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.dll" target="lib\wp8\" />
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.pdb" target="lib\wp8\" />

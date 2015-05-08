@@ -120,7 +120,10 @@
   </Target>
 
   <Target Name='GitHubLink'>
-    <Exec Command='packages\githublink\tools\GitHubLink.exe $(MSBuildThisFileDirectory) -u https://github.com/xunit/xunit -commit $(CommitHash)' IgnoreExitCode='true' />
+    <Warning Condition=" '$(CommitHash)' == '' "
+        Text="Skipping GitHubLink because CommitHash was not specified." />
+    <Exec Condition=" '$(CommitHash)' != '' "
+        Command='packages\githublink\tools\GitHubLink.exe $(MSBuildThisFileDirectory) -u https://github.com/xunit/xunit -commit $(CommitHash)' IgnoreExitCode='true' />
   </Target>
 
   <Target Name='Packages'>
