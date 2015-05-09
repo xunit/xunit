@@ -16,8 +16,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
   </metadata>
   <files>
-    <file src="xunit.assert\bin\Release\xunit.assert.dll" target="lib\portable-net45+dnxcore50+win81+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.assert\bin\Release\xunit.assert.pdb" target="lib\portable-net45+dnxcore50+win81+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.assert\bin\Release\xunit.assert.xml" target="lib\portable-net45+dnxcore50+win81+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.assert\bin\Release\xunit.assert.dll" target="lib\portable-net45+dnxcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.assert\bin\Release\xunit.assert.pdb" target="lib\portable-net45+dnxcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.assert\bin\Release\xunit.assert.xml" target="lib\portable-net45+dnxcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
   </files>
 </package>

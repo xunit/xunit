@@ -59,7 +59,7 @@
     <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.dll" target="build\monotouch\" />
 
     <!-- portable -->
-    <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+dnxcore50+win81+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+dnxcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" />
 
     <!-- universal -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props"                       target="build\portable-win81+wpa81\xunit.core.props" />
