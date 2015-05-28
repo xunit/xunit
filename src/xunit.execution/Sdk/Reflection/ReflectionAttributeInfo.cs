@@ -43,6 +43,9 @@ namespace Xunit.Sdk
                 else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsEnum)
                     value = Enum.Parse(argument.ArgumentType, value.ToString());
 
+                if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsArray)
+                    value = Reflector.ConvertArguments(new[] { value }, new[] { argument.ArgumentType })[0];
+
                 yield return value;
             }
         }

@@ -138,6 +138,25 @@ public class Xunit2TheoryAcceptanceTests
             [InlineData(new[] { 42, 2112 }, new[] { "SELF", "PARENT1", "PARENT2", "PARENT3" }, null, 10.5, "Hello, world!")]
             public void TestMethod(int[] v1, string[] v2, float[] v3, double v4, string v5) { }
         }
+
+        [Fact]
+        public void ValueArraysWithObjectParameterInjectCorrectType()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForValueArraysWithObjectParameter));
+
+            var passing = Assert.Single(testMessages.Cast<ITestPassed>());
+            Assert.Contains("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForValueArraysWithObjectParameter.TestMethod", passing.Test.DisplayName);
+        }
+
+        class ClassUnderTestForValueArraysWithObjectParameter
+        {
+            [Theory]
+            [InlineData(new[] { 42, 2112 }, typeof(int[]))]
+            public void TestMethod(object value, Type expected)
+            {
+                Assert.IsType(expected, value);
+            }
+        }
     }
 
     public class MissingDataTests : AcceptanceTestV2
