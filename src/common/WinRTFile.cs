@@ -17,7 +17,7 @@ namespace System.IO
             if (storageFile == null)
                 throw new FileNotFoundException("Could not open file for read", path);
 
-           return storageFile.OpenStreamForReadAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+           return storageFile.OpenStreamForReadAsync().GetAwaiter().GetResult();
         }
 
         // Helpers
@@ -39,7 +39,7 @@ namespace System.IO
             try
             {
                 var fileAsync = folder.GetFileAsync(fileName);
-                return fileAsync.AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                return fileAsync.AsTask().GetAwaiter().GetResult();
             }
             catch
             {
@@ -47,7 +47,7 @@ namespace System.IO
                 try
                 {
                     var fileAsync = folder.GetFileAsync(Path.GetFileNameWithoutExtension(path) + ".exe");
-                    return fileAsync.AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                    return fileAsync.AsTask().GetAwaiter().GetResult();
                 }
                 catch
                 {

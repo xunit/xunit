@@ -17,9 +17,8 @@ namespace System.IO
         {
             var list = new List<string>();
             var extension = Path.GetExtension(searchOption);
-            var filesAsync = Package.Current.InstalledLocation.GetFilesAsync().AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
-            //filesAsync.AsTask().Wait();
-
+            var filesAsync = Package.Current.InstalledLocation.GetFilesAsync().AsTask().GetAwaiter().GetResult();
+    
             foreach (var file in filesAsync)
             {
                 if (string.Equals(Path.GetExtension(file.Path), extension, StringComparison.OrdinalIgnoreCase))
