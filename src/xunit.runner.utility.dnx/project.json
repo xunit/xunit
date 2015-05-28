@@ -12,6 +12,7 @@
         },
         "dnxcore50": {
             "dependencies": {
+                "System.Collections": "4.0.10-*",
                 "System.Diagnostics.Tools": "4.0.0-*",
                 "System.IO.FileSystem": "4.0.0-*",
                 "System.Linq": "4.0.0-*",
