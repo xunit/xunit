@@ -17,12 +17,13 @@ namespace System.IO
         {
             var list = new List<string>();
             var extension = Path.GetExtension(searchOption);
-            var filesAsync = Package.Current.InstalledLocation.GetFilesAsync();
-            filesAsync.AsTask().Wait();
-
-            foreach (var file in filesAsync.GetResults())
+            var filesAsync = Package.Current.InstalledLocation.GetFilesAsync().AsTask().GetAwaiter().GetResult();
+    
+            foreach (var file in filesAsync)
+            {
                 if (string.Equals(Path.GetExtension(file.Path), extension, StringComparison.OrdinalIgnoreCase))
                     list.Add(file.Path);
+            }
 
             return list.ToArray();
         }
