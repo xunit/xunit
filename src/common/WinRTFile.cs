@@ -28,21 +28,28 @@ namespace System.IO
 
             var folder = Package.Current.InstalledLocation;
 
-            if (!path.Contains(folder.Path))
+            if (Path.GetDirectoryName(path) != string.Empty && !path.Contains(folder.Path))
                 return null;
 
             var fileName = Path.GetFileName(path);
-            var fileAsync = folder.GetFileAsync(fileName);
 
             try
             {
-                fileAsync.AsTask().Wait();
-                return fileAsync.GetResults();
+                var fileAsync = folder.GetFileAsync(fileName);
+                return fileAsync.AsTask().GetAwaiter().GetResult();
             }
             catch
             {
-                return null;
+                // Look for an executable with the same name
+                try
+                {
+                    var fileAsync = folder.GetFileAsync(Path.GetFileNameWithoutExtension(path) + ".exe");
+                    return fileAsync.AsTask().GetAwaiter().GetResult();
+                }
+                catch { }
             }
+
+            return null;
         }
     }
 }
