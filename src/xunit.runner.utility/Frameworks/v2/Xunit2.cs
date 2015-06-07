@@ -38,7 +38,7 @@ namespace Xunit
             var assemblyName = assm.GetName();
 #elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
             var assm = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) });
-            var assemblyName = new AssemblyName { Name = assm.GetName().Name, Version = new Version(0, 0) };
+            var assemblyName = new AssemblyName { Name = assm.GetName().Name, Version = new Version(0, 0, 0, 0) };
 #else
             var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
 #endif
