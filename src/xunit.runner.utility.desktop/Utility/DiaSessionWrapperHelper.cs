@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,6 +12,7 @@ namespace Xunit
         static readonly Func<MethodInfo, Type> GetStateMachineType = InitializeGetStateMachineType();
 
         readonly Assembly assembly;
+        readonly Dictionary<string, Type> typeNameMap;
 
         public DiaSessionWrapperHelper(string assemblyFileName)
         {
@@ -23,8 +25,9 @@ namespace Xunit
                 {
                     try
                     {
-                        // First try to load it normally
-                        return Assembly.ReflectionOnlyLoad(args.Name);
+                        // Try to load it normally
+                        var name = AppDomain.CurrentDomain.ApplyPolicy(args.Name);
+                        return Assembly.ReflectionOnlyLoad(name);
                     }
                     catch
                     {
@@ -48,6 +51,27 @@ namespace Xunit
                 };
             }
             catch { }
+
+            if (assembly != null)
+            {
+                Type[] types = null;
+
+                try
+                {
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types;
+                }
+                catch { }  // Ignore anything other than ReflectionTypeLoadException
+
+                if (types != null)
+                    typeNameMap = types.Where(t => t != null && !string.IsNullOrEmpty(t.FullName))
+                                       .ToDictionary(k => k.FullName);
+                else
+                    typeNameMap = new Dictionary<string, Type>();
+            }
         }
 
         static Type GetStateMachineType_NoOp(MethodInfo method)
@@ -129,8 +153,8 @@ namespace Xunit
                 if (assembly == null)
                     return;
 
-                Type type = assembly.GetType(typeName);
-                if (type != null)
+                Type type;
+                if (typeNameMap.TryGetValue(typeName, out type) && type != null)
                 {
                     MethodInfo method = type.GetMethod(methodName);
                     if (method != null)
