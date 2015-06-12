@@ -28,7 +28,9 @@ namespace Xunit
                     try
                     {
                         // First try to load it normally
-                        return Assembly.ReflectionOnlyLoad(args.Name);
+                        var name = AppDomain.CurrentDomain.ApplyPolicy(args.Name);
+                        
+                        return Assembly.ReflectionOnlyLoad(name);
                     }
                     catch
                     {
@@ -73,7 +75,8 @@ namespace Xunit
 
                 if (types != null)
                 {
-                    typeNameMap = types.ToDictionary(k => k.FullName);
+                    typeNameMap = types.Where(t => t != null && !string.IsNullOrEmpty(t.FullName))
+                                       .ToDictionary(k => k.FullName);
                 }
                 else
                 {
