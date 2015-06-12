@@ -159,7 +159,7 @@ namespace Xunit.Sdk
             {
                 // Make sure we only use the short form for WPA81
                 var an = new AssemblyName(assemblyName);
-                assembly = Assembly.Load(new AssemblyName { Name = an.Name, Version = new Version(0, 0) });
+                assembly = Assembly.Load(new AssemblyName { Name = an.Name, Version = new Version(0, 0, 0, 0) });
 
             }
             catch { }

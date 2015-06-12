@@ -37,7 +37,7 @@ namespace Xunit.Sdk
                 Assembly = Assembly.Load(Path.GetFileNameWithoutExtension(assemblyFileName));
             }
 #elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
-            Assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName), Version = new Version(0, 0) });
+            Assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName), Version = new Version(0, 0, 0, 0) });
 #elif ANDROID
             Assembly = Assembly.Load(assemblyFileName);
 #else
