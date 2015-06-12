@@ -75,6 +75,10 @@ namespace Xunit
                 {
                     typeNameMap = types.ToDictionary(k => k.FullName);
                 }
+                else
+                {
+                    typeNameMap = new Dictionary<string, Type>();
+                }
             }
         }
         
