@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 
 namespace Xunit
 {
@@ -11,6 +13,8 @@ namespace Xunit
         static readonly Func<MethodInfo, Type> GetStateMachineType = InitializeGetStateMachineType();
 
         readonly Assembly assembly;
+
+        readonly Dictionary<string, Type> typeNameMap;
 
         public DiaSessionWrapperHelper(string assemblyFileName)
         {
@@ -48,8 +52,32 @@ namespace Xunit
                 };
             }
             catch { }
-        }
 
+            
+            if (assembly != null)
+            {
+                Type[] types = null;
+                try
+                {
+                    // Try to get all types early
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    // if we get here, we couldn't load all of the types, so get what we can
+                    types = ex.Types;
+                }
+                catch
+                {
+                } // we don't care about anything else
+
+                if (types != null)
+                {
+                    typeNameMap = types.ToDictionary(k => k.FullName);
+                }
+            }
+        }
+        
         static Type GetStateMachineType_NoOp(MethodInfo method)
         {
             return null;
@@ -129,8 +157,8 @@ namespace Xunit
                 if (assembly == null)
                     return;
 
-                Type type = assembly.GetType(typeName);
-                if (type != null)
+                Type type;
+                if(typeNameMap.TryGetValue(typeName, out type) && type != null)
                 {
                     MethodInfo method = type.GetMethod(methodName);
                     if (method != null)
