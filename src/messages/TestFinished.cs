@@ -19,7 +19,7 @@ namespace Xunit
             : base(test)
         {
             ExecutionTime = executionTime;
-            Output = output ?? String.Empty;
+            Output = output ?? string.Empty;
         }
 
         /// <inheritdoc/>

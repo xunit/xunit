@@ -54,7 +54,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override async Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator)
         {
-            var output = String.Empty;
+            var output = string.Empty;
             var testOutputHelper = ConstructorArguments.OfType<TestOutputHelper>().FirstOrDefault();
             if (testOutputHelper != null)
                 testOutputHelper.Initialize(MessageBus, Test);

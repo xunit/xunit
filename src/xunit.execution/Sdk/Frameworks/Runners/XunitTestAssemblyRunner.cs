@@ -56,11 +56,11 @@ namespace Xunit.Sdk
 
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly);
 
-            return String.Format("{0} [{1}, {2}{3}]",
+            return string.Format("{0} [{1}, {2}{3}]",
                                  base.GetTestFrameworkEnvironment(),
                                  testCollectionFactory.DisplayName,
                                  disableParallelization ? "non-parallel" : "parallel",
-                                 maxParallelThreads > 0 ? String.Format(" ({0} threads)", maxParallelThreads) : "");
+                                 maxParallelThreads > 0 ? string.Format(" ({0} threads)", maxParallelThreads) : "");
         }
 
         /// <summary>

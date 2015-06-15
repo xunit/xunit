@@ -51,14 +51,14 @@ namespace Xunit.Sdk
             get
             {
                 if (IndexFailurePoint >= 0)
-                    return String.Format(CultureInfo.CurrentCulture,
+                    return string.Format(CultureInfo.CurrentCulture,
                                          "{0}{3}Error during comparison of item at index {1}{3}Inner exception: {2}",
                                          base.Message,
                                          IndexFailurePoint,
                                          innerException,
                                          Environment.NewLine);
 
-                return String.Format(CultureInfo.CurrentCulture,
+                return string.Format(CultureInfo.CurrentCulture,
                                      "{0}{3}Expected item count: {1}{3}Actual item count:   {2}",
                                      base.Message,
                                      ExpectedCount,
@@ -88,7 +88,7 @@ namespace Xunit.Sdk
                                       .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                                       .Select((value, idx) => idx > 0 ? "        " + value : value);
 
-            return String.Join(Environment.NewLine, lines);
+            return string.Join(Environment.NewLine, lines);
         }
     }
 }

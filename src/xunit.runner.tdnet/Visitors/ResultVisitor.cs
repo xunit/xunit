@@ -71,42 +71,42 @@ namespace Xunit.Runner.TdNet
 
         protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
         {
-            ReportError(String.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+            ReportError(string.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
         {
-            ReportError(String.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+            ReportError(string.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
         {
-            ReportError(String.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+            ReportError(string.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
         {
-            ReportError(String.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+            ReportError(string.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
-            ReportError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
+            ReportError(string.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
         {
-            ReportError(String.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+            ReportError(string.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
@@ -117,7 +117,7 @@ namespace Xunit.Runner.TdNet
 
             var testResult = new TestResult
             {
-                Name = String.Format("*** {0} ***", messageType),
+                Name = string.Format("*** {0} ***", messageType),
                 State = TestState.Failed,
                 TimeSpan = TimeSpan.Zero,
                 TotalTests = 1,
@@ -130,12 +130,12 @@ namespace Xunit.Runner.TdNet
 
         private void WriteOutput(string name, string output)
         {
-            if (String.IsNullOrWhiteSpace(output))
+            if (string.IsNullOrWhiteSpace(output))
                 return;
 
-            TestListener.WriteLine(String.Format("Output from {0}:", name), Category.Output);
+            TestListener.WriteLine(string.Format("Output from {0}:", name), Category.Output);
             foreach (var line in output.Trim().Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-                TestListener.WriteLine(String.Format("  {0}", line), Category.Output);
+                TestListener.WriteLine(string.Format("  {0}", line), Category.Output);
         }
     }
 }

@@ -16,6 +16,6 @@ namespace Xunit.Sdk
         /// <param name="expectedRegexPattern">The regular expression pattern expected not to match</param>
         /// <param name="actual">The actual value</param>
         public DoesNotMatchException(object expectedRegexPattern, object actual)
-            : base(String.Format(CultureInfo.CurrentCulture, "Assert.DoesNotMatch() Failure:{2}Regex: {0}{2}Value: {1}", expectedRegexPattern, actual, Environment.NewLine)) { }
+            : base(string.Format(CultureInfo.CurrentCulture, "Assert.DoesNotMatch() Failure:{2}Regex: {0}{2}Value: {1}", expectedRegexPattern, actual, Environment.NewLine)) { }
     }
 }

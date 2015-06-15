@@ -22,7 +22,7 @@ public class TraitParserTests
         {
             var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
-            new TraitParser().Parse(String.Empty, traits);
+            new TraitParser().Parse(string.Empty, traits);
 
             Assert.Empty(traits);
         }

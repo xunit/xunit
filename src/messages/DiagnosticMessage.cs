@@ -33,7 +33,7 @@ namespace Xunit
         /// <param name="args">The arguments used to format the message</param>
         public DiagnosticMessage(string format, params object[] args)
         {
-            Message = String.Format(format, args);
+            Message = string.Format(format, args);
         }
 
         /// <inheritdoc/>

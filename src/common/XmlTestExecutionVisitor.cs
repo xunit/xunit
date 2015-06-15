@@ -253,14 +253,14 @@ namespace Xunit
             return new XElement("failure",
                 new XAttribute("exception-type", failureInfo.ExceptionTypes[0]),
                 new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(failureInfo)))),
-                new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? String.Empty))
+                new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? string.Empty))
             );
         }
 
         protected static string Escape(string value)
         {
             if (value == null)
-                return String.Empty;
+                return string.Empty;
 
             return value.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\0", "\\0");
         }
@@ -268,7 +268,7 @@ namespace Xunit
         protected static string XmlEscape(string value)
         {
             if (value == null)
-                return String.Empty;
+                return string.Empty;
 
             value = Escape(value);
             var escapedValue = new StringBuilder(value.Length);

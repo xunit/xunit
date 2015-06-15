@@ -83,7 +83,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("format", format);
             Guard.ArgumentNotNull("args", args);
 
-            QueueTestCaseOutput(String.Format(format, args) + Environment.NewLine);
+            QueueTestCaseOutput(string.Format(format, args) + Environment.NewLine);
         }
     }
 }

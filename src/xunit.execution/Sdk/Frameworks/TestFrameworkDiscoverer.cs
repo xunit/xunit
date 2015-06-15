@@ -207,7 +207,7 @@ namespace Xunit.Sdk
 #if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNX451 && !DNXCORE50
                 originalWorkingFolder = Directory.GetCurrentDirectory();
 
-                if (!String.IsNullOrEmpty(assemblyInfo.AssemblyPath))
+                if (!string.IsNullOrEmpty(assemblyInfo.AssemblyPath))
                     Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
 #endif
             }

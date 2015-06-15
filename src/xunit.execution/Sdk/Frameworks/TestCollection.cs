@@ -75,7 +75,7 @@ namespace Xunit.Sdk
             var assemblyName = info.GetValue<string>("DeclarationAssemblyName");
             var typeName = info.GetValue<string>("DeclarationTypeName");
 
-            if (!String.IsNullOrWhiteSpace(assemblyName) && !String.IsNullOrWhiteSpace(typeName))
+            if (!string.IsNullOrWhiteSpace(assemblyName) && !string.IsNullOrWhiteSpace(typeName))
                 CollectionDefinition = Reflector.Wrap(SerializationHelper.GetType(assemblyName, typeName));
         }
     }

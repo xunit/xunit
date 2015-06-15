@@ -36,11 +36,11 @@ namespace TestUtility
 
         public TestRunnerResult RunTests(string type, List<string> methods)
         {
-            Actions.Add(String.Format("RunTests: Assembly={0} ConfigFile={1} Type={2} Methods={3}",
+            Actions.Add(string.Format("RunTests: Assembly={0} ConfigFile={1} Type={2} Methods={3}",
                                       executor.AssemblyFilename,
                                       executor.ConfigFilename ?? "(null)",
                                       type,
-                                      String.Join(", ", methods.ToArray())));
+                                      string.Join(", ", methods.ToArray())));
 
             return TestRunnerResult.Passed;
         }

@@ -85,7 +85,7 @@ namespace Xunit1
             Assert.Equal("0", resultNode.Attributes["failed"].Value);
             Assert.Equal("0", resultNode.Attributes["skipped"].Value);
             Assert.Contains("xUnit.net", resultNode.Attributes["test-framework"].Value);
-            string expectedEnvironment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
+            string expectedEnvironment = string.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
             Assert.Equal(expectedEnvironment, resultNode.Attributes["environment"].Value);
         }
 

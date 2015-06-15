@@ -61,7 +61,7 @@ namespace Xunit.Sdk
                 throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "value");
 
             var serializationInfo = new XunitSerializationInfo(serializable);
-            return String.Format("{0}:{1}", GetTypeNameForSerialization(value.GetType()), serializationInfo.ToSerializedString());
+            return string.Format("{0}:{1}", GetTypeNameForSerialization(value.GetType()), serializationInfo.ToSerializedString());
         }
 
         /// <summary>
@@ -204,8 +204,8 @@ namespace Xunit.Sdk
             if (type.IsGenericType() && !type.IsGenericTypeDefinition())
             {
                 var typeDefinition = type.GetGenericTypeDefinition();
-                var innerTypes = type.GetGenericArguments().Select(t => String.Format("[{0}]", GetTypeNameForSerialization(t))).ToArray();
-                typeName = String.Format("{0}[{1}]", typeDefinition.FullName, String.Join(",", innerTypes));
+                var innerTypes = type.GetGenericArguments().Select(t => string.Format("[{0}]", GetTypeNameForSerialization(t))).ToArray();
+                typeName = string.Format("{0}[{1}]", typeDefinition.FullName, string.Join(",", innerTypes));
 
                 while (arrayRanks.Count > 0)
                 {
@@ -216,14 +216,14 @@ namespace Xunit.Sdk
                 }
             }
 
-            if (String.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase))
                 return typeName;
 
             // If this is a platform specific assembly, strip off the trailing . and name and replace it with the token
             if (type.GetAssembly().GetCustomAttributes().FirstOrDefault(a => a != null && a.GetType().FullName == "Xunit.Sdk.PlatformSpecificAssemblyAttribute") != null)
                 assemblyName = assemblyName.Substring(0, assemblyName.LastIndexOf('.')) + ExecutionHelper.SubstitutionToken;
 
-            return String.Format("{0}, {1}", typeName, assemblyName);
+            return string.Format("{0}, {1}", typeName, assemblyName);
         }
 
         private static IList<string> SplitAtOuterCommas(string value)

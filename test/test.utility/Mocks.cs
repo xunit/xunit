@@ -209,7 +209,7 @@ public static class Mocks
         var traits = GetTraits(testMethod.Method);
 
         var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
-        result.DisplayName.Returns(displayName ?? String.Format("{0}.{1}", type, methodName));
+        result.DisplayName.Returns(displayName ?? string.Format("{0}.{1}", type, methodName));
         result.SkipReason.Returns(skipReason);
         result.TestMethod.Returns(testMethod);
         result.Traits.Returns(traits);
@@ -337,7 +337,7 @@ public static class Mocks
         var @class = Mocks.TestClass(type, collection);
         var methodInfo = type.GetMethod(methodName);
         if (methodInfo == null)
-            throw new Exception(String.Format("Unknown method: {0}.{1}", type.FullName, methodName));
+            throw new Exception(string.Format("Unknown method: {0}.{1}", type.FullName, methodName));
 
         return new TestMethod(@class, Reflector.Wrap(methodInfo));
     }

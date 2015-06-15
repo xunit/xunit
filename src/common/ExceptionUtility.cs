@@ -60,9 +60,9 @@ namespace Xunit
         static string GetAt(string[] values, int index)
         {
             if (values == null || index < 0 || values.Length <= index)
-                return String.Empty;
+                return string.Empty;
 
-            return values[index] ?? String.Empty;
+            return values[index] ?? string.Empty;
         }
 
         static int GetAt(int[] values, int index)
@@ -119,7 +119,7 @@ namespace Xunit
             if (children.Count > 1)
             {
                 for (var idx = 0; idx < children.Count; ++idx)
-                    result += String.Format("{0}----- Inner Stack Trace #{1} ({2}) -----{0}{3}",
+                    result += string.Format("{0}----- Inner Stack Trace #{1} ({2}) -----{0}{3}",
                                             Environment.NewLine,
                                             idx + 1,
                                             GetAt(failureInfo.ExceptionTypes, children[idx]),
@@ -133,7 +133,7 @@ namespace Xunit
             return result;
         }
 
-        // Our own custom String.Split because Silverlight/CoreCLR doesn't support the version we were using
+        // Our own custom string.Split because Silverlight/CoreCLR doesn't support the version we were using
         static IEnumerable<string> SplitLines(string input)
         {
             while (true)

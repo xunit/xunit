@@ -80,7 +80,7 @@ namespace Xunit.Sdk
             Tuple<string, string> printedExpected = ShortenAndEncode(Expected, ExpectedIndex, '↓');
             Tuple<string, string> printedActual = ShortenAndEncode(Actual, ActualIndex, '↑');
 
-            return String.Format(
+            return string.Format(
                 CultureInfo.CurrentCulture,
                 "{1}{0}          {2}{0}Expected: {3}{0}Actual:   {4}{0}          {5}",
                 Environment.NewLine,

@@ -16,7 +16,7 @@ namespace Xunit.Sdk
         /// <param name="expected">The expected string value</param>
         /// <param name="actual">The actual value</param>
         public EndsWithException(string expected, string actual)
-            : base(String.Format(CultureInfo.CurrentCulture, "Assert.EndsWith() Failure:{2}Expected: {0}{2}Actual:   {1}", ShortenExpected(expected, actual) ?? "(null)", ShortenActual(expected, actual) ?? "(null)", Environment.NewLine)) { }
+            : base(string.Format(CultureInfo.CurrentCulture, "Assert.EndsWith() Failure:{2}Expected: {0}{2}Actual:   {1}", ShortenExpected(expected, actual) ?? "(null)", ShortenActual(expected, actual) ?? "(null)", Environment.NewLine)) { }
 
         static string ShortenExpected(string expected, string actual)
         {

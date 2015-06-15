@@ -16,7 +16,7 @@ namespace Xunit
                 testCollection.TestAssembly.Assembly.Name,
                 key => Interlocked.Increment(ref assemblyCount));
 
-            return String.Concat(testCollection.DisplayName, " (", id, ")");
+            return string.Concat(testCollection.DisplayName, " (", id, ")");
         }
 
         public virtual string DisplayName(ITest test)

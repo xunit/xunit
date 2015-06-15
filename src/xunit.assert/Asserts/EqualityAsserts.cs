@@ -50,8 +50,8 @@ namespace Xunit
 
             if (!GetEqualityComparer<double>().Equals(expectedRounded, actualRounded))
                 throw new EqualException(
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
+                    string.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
+                    string.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
                 );
         }
 
@@ -70,8 +70,8 @@ namespace Xunit
 
             if (!GetEqualityComparer<decimal>().Equals(expectedRounded, actualRounded))
                 throw new EqualException(
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
+                    string.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
+                    string.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
                 );
         }
 
@@ -130,8 +130,8 @@ namespace Xunit
 
             if (GetEqualityComparer<double>().Equals(expectedRounded, actualRounded))
                 throw new NotEqualException(
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
+                    string.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
+                    string.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
                 );
         }
 
@@ -150,8 +150,8 @@ namespace Xunit
 
             if (GetEqualityComparer<decimal>().Equals(expectedRounded, actualRounded))
                 throw new NotEqualException(
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
-                    String.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
+                    string.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", expectedRounded, expected),
+                    string.Format(CultureInfo.CurrentCulture, "{0} (rounded from {1})", actualRounded, actual)
                 );
         }
 

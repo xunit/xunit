@@ -73,7 +73,7 @@ namespace Xunit
                 ValueType =>
                 {
                     int result;
-                    if (Int32.TryParse(ValueType, out result))
+                    if (int.TryParse(ValueType, out result))
                         return result;
                     return null;
                 });

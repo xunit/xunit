@@ -41,7 +41,7 @@ internal static class Guard
 #if !ANDROID && !DNX451 && !DNXCORE50
         Guard.ArgumentNotNullOrEmpty(argName, fileName);
         Guard.ArgumentValid("assemblyFileName",
-                            String.Format("File not found: {0}", fileName),
+                            string.Format("File not found: {0}", fileName),
                             File.Exists(fileName));
 #endif
     }

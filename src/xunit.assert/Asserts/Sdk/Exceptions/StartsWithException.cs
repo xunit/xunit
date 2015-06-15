@@ -16,7 +16,7 @@ namespace Xunit.Sdk
         /// <param name="expected">The expected string value</param>
         /// <param name="actual">The actual value</param>
         public StartsWithException(string expected, string actual)
-            : base(String.Format(CultureInfo.CurrentCulture, "Assert.StartsWith() Failure:{2}Expected: {0}{2}Actual:   {1}", expected ?? "(null)", ShortenActual(expected, actual) ?? "(null)", Environment.NewLine)) { }
+            : base(string.Format(CultureInfo.CurrentCulture, "Assert.StartsWith() Failure:{2}Expected: {0}{2}Actual:   {1}", expected ?? "(null)", ShortenActual(expected, actual) ?? "(null)", Environment.NewLine)) { }
         
         static string ShortenActual(string expected, string actual)
         {

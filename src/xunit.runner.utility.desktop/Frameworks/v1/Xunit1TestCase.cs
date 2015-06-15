@@ -88,7 +88,7 @@ namespace Xunit
             Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             var keys = data.GetValue<string[]>("Traits.Keys");
             foreach (var key in keys)
-                Traits.Add(key, data.GetValue<string[]>(String.Format("Traits[{0}]", key)).ToList());
+                Traits.Add(key, data.GetValue<string[]>(string.Format("Traits[{0}]", key)).ToList());
         }
 
         /// <inheritdoc/>
@@ -103,7 +103,7 @@ namespace Xunit
             data.AddValue("SourceInformation", SourceInformation);
             data.AddValue("Traits.Keys", Traits.Keys.ToArray());
             foreach (var key in Traits.Keys)
-                data.AddValue(String.Format("Traits[{0}]", key), Traits[key].ToArray());
+                data.AddValue(string.Format("Traits[{0}]", key), Traits[key].ToArray());
         }
 
         /// <inheritdoc/>
@@ -116,7 +116,7 @@ namespace Xunit
         ITypeInfo ITestCollection.CollectionDefinition { get { return null; } }
 
         /// <inheritdoc/>
-        string ITestCollection.DisplayName { get { return String.Format("xUnit.net v1 Tests for {0}", reflectionWrapper.AssemblyFileName); } }
+        string ITestCollection.DisplayName { get { return string.Format("xUnit.net v1 Tests for {0}", reflectionWrapper.AssemblyFileName); } }
 
         /// <inheritdoc/>
         ITestAssembly ITestCollection.TestAssembly { get { return this; } }

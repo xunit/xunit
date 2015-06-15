@@ -33,7 +33,7 @@ namespace Xunit.Sdk
             for (var idx = 0; idx < genericTypes.Length; idx++)
                 simpleNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
 
-            return String.Format(CultureInfo.CurrentCulture, "{0}<{1}>", baseTypeName, String.Join(", ", simpleNames));
+            return string.Format(CultureInfo.CurrentCulture, "{0}<{1}>", baseTypeName, string.Join(", ", simpleNames));
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Xunit.Sdk
             for (; idx < parameterInfos.Length; idx++)  // Fill-in any missing parameters with "???"
                 displayValues[idx] = GetParameterName(parameterInfos, idx) + ": ???";
 
-            return String.Format(CultureInfo.CurrentCulture, "{0}({1})", baseDisplayName, String.Join(", ", displayValues));
+            return string.Format(CultureInfo.CurrentCulture, "{0}({1})", baseDisplayName, string.Join(", ", displayValues));
         }
 
         static string GetParameterName(IParameterInfo[] parameters, int index)
@@ -76,19 +76,19 @@ namespace Xunit.Sdk
 
         static string ParameterToDisplayValue(string parameterName, object parameterValue)
         {
-            return String.Format(CultureInfo.CurrentCulture, "{0}: {1}", parameterName, ArgumentFormatter.Format(parameterValue));
+            return string.Format(CultureInfo.CurrentCulture, "{0}: {1}", parameterName, ArgumentFormatter.Format(parameterValue));
         }
 
         static string ResolveGenericDisplay(ITypeInfo[] genericTypes)
         {
             if (genericTypes == null || genericTypes.Length == 0)
-                return String.Empty;
+                return string.Empty;
 
             var typeNames = new string[genericTypes.Length];
             for (var idx = 0; idx < genericTypes.Length; idx++)
                 typeNames[idx] = ConvertToSimpleTypeName(genericTypes[idx]);
 
-            return String.Format(CultureInfo.CurrentCulture, "<{0}>", String.Join(", ", typeNames));
+            return string.Format(CultureInfo.CurrentCulture, "<{0}>", string.Join(", ", typeNames));
         }
 
         /// <summary>

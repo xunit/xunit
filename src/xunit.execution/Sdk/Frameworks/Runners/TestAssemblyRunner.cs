@@ -99,7 +99,7 @@ namespace Xunit.Sdk
         /// </summary>
         protected virtual string GetTestFrameworkEnvironment()
         {
-            return String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, GetVersion());
+            return string.Format("{0}-bit .NET {1}", IntPtr.Size * 8, GetVersion());
         }
 
         static string GetVersion()

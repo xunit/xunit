@@ -39,19 +39,19 @@ namespace Xunit.Sdk
             {
                 var formattedErrors = errors.Select(error =>
                 {
-                    var indexString = String.Format(CultureInfo.CurrentCulture, "[{0}]: ", error.Item1);
+                    var indexString = string.Format(CultureInfo.CurrentCulture, "[{0}]: ", error.Item1);
                     var spaces = Environment.NewLine + "".PadRight(indexString.Length);
 
                     return indexString + error.Item2.ToString().Replace(Environment.NewLine, spaces);
                 });
 
-                return String.Format(CultureInfo.CurrentCulture,
+                return string.Format(CultureInfo.CurrentCulture,
                                      "{0}: {1} out of {2} items in the collection did not pass.{3}{4}",
                                      base.Message,
                                      errors.Count,
                                      totalItems,
                                      Environment.NewLine,
-                                     String.Join(Environment.NewLine, formattedErrors));
+                                     string.Join(Environment.NewLine, formattedErrors));
             }
         }
     }

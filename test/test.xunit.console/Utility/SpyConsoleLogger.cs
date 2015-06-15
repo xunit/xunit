@@ -8,6 +8,6 @@ public class SpyConsoleLogger : ConsoleLogger
 
     public override void WriteLine(string format, params object[] arg)
     {
-        Messages.Add(String.Format(format, arg));
+        Messages.Add(string.Format(format, arg));
     }
 }

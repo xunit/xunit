@@ -59,7 +59,7 @@ namespace Xunit.Serialization
         /// </summary>
         public string ToSerializedString()
         {
-            return ToBase64(String.Join("\n", data.Select(kvp => SerializeTriple(kvp.Value)).ToArray()));
+            return ToBase64(string.Join("\n", data.Select(kvp => SerializeTriple(kvp.Value)).ToArray()));
         }
 
         /// <summary>
@@ -73,9 +73,9 @@ namespace Xunit.Serialization
             var serializedValue = Serialize(triple.Value);
             // Leaving off the colon is how we indicate null-ness
             if (serializedValue == null)
-                return String.Format("{0}:{1}", triple.Key, serializedType);
+                return string.Format("{0}:{1}", triple.Key, serializedType);
 
-            return String.Format("{0}:{1}:{2}", triple.Key, serializedType, serializedValue);
+            return string.Format("{0}:{1}:{2}", triple.Key, serializedType, serializedValue);
         }
 
         /// <summary>
@@ -110,43 +110,43 @@ namespace Xunit.Serialization
                 return DeserializeSerializable(type, serializedValue);
 
             if (type == typeof(char?) || type == typeof(char))
-                return (char)UInt16.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return (char)ushort.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(string))
                 return FromBase64(serializedValue);
 
             if (type == typeof(byte?) || type == typeof(byte))
-                return Byte.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return byte.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(short?) || type == typeof(short))
-                return Int16.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return short.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(ushort?) || type == typeof(ushort))
-                return UInt16.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return ushort.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(int?) || type == typeof(int))
-                return Int32.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return int.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(uint?) || type == typeof(uint))
-                return UInt32.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return uint.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(long?) || type == typeof(long))
-                return Int64.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return long.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(ulong?) || type == typeof(ulong))
-                return UInt64.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return ulong.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(float?) || type == typeof(float))
-                return Single.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return float.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(double?) || type == typeof(double))
-                return Double.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return double.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(decimal?) || type == typeof(decimal))
-                return Decimal.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return decimal.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(bool?) || type == typeof(bool))
-                return Boolean.Parse(serializedValue);
+                return bool.Parse(serializedValue);
 
             if (type == typeof(DateTime?) || type == typeof(DateTime))
             {
@@ -273,7 +273,7 @@ namespace Xunit.Serialization
             if (typeData != null)
             {
                 if (!typeData.IsFromLocalAssembly())
-                    throw new ArgumentException(String.Format("We cannot serialize type {0} because it lives in the GAC", typeData.FullName), "value");
+                    throw new ArgumentException(string.Format("We cannot serialize type {0} because it lives in the GAC", typeData.FullName), "value");
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
             }
 
@@ -281,7 +281,7 @@ namespace Xunit.Serialization
             if (valueType.IsEnum())
             {
                 if (!valueType.IsFromLocalAssembly())
-                    throw new ArgumentException(String.Format("We cannot serialize enum {0}.{1} because it lives in the GAC", valueType.FullName, value), "value");
+                    throw new ArgumentException(string.Format("We cannot serialize enum {0}.{1} because it lives in the GAC", valueType.FullName, value), "value");
                 return value.ToString();
             }
 

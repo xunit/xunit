@@ -45,7 +45,7 @@ namespace Xunit
         {
             // This is not supported with v1, since there is no code in the remote AppDomain
             // that would give us this information.
-            get { return String.Empty; }
+            get { return string.Empty; }
         }
 
         /// <inheritdoc/>
@@ -173,7 +173,7 @@ namespace Xunit
         public void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
             var results = new Xunit1RunSummary();
-            var environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
+            var environment = string.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
             var firstTestCase = testCases.FirstOrDefault();
             var testCollection = firstTestCase == null ? null : firstTestCase.TestMethod.TestClass.TestCollection;
 

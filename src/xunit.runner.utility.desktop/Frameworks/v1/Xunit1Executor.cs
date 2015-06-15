@@ -33,7 +33,7 @@ namespace Xunit
             xunitAssemblyPath = GetXunitAssemblyPath(testAssemblyFileName);
             xunitAssemblyName = AssemblyName.GetAssemblyName(xunitAssemblyPath);
             executor = CreateObject("Xunit.Sdk.Executor", testAssemblyFileName);
-            TestFrameworkDisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", AssemblyName.GetAssemblyName(xunitAssemblyPath).Version);
+            TestFrameworkDisplayName = string.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", AssemblyName.GetAssemblyName(xunitAssemblyPath).Version);
         }
 
         /// <inheritdoc/>

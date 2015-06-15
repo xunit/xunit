@@ -25,7 +25,7 @@ namespace Xunit
             AssemblyFileName = assemblyFileName;
             TypeName = typeName;
             MethodName = methodName;
-            UniqueID = String.Format("{0}.{1} ({2})", typeName, methodName, assemblyFileName);
+            UniqueID = string.Format("{0}.{1} ({2})", typeName, methodName, assemblyFileName);
         }
 
         /// <summary>

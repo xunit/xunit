@@ -37,7 +37,7 @@ namespace Xunit.Runner.MSBuild
                 {
                     var match = stackFrameRegex.Match(frame);
                     if (match.Success)
-                        return Tuple.Create(match.Groups["file"].Value, Int32.Parse(match.Groups["line"].Value));
+                        return Tuple.Create(match.Groups["file"].Value, int.Parse(match.Groups["line"].Value));
                 }
             }
 
@@ -59,7 +59,7 @@ namespace Xunit.Runner.MSBuild
             }
             wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");
 
-            return new Regex(String.Format("{0} .* {1}", wordAt, wordsInLine));
+            return new Regex(string.Format("{0} .* {1}", wordAt, wordsInLine));
         }
 
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
@@ -97,7 +97,7 @@ namespace Xunit.Runner.MSBuild
             Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}: {1}", Escape(testFailed.Test.DisplayName), Escape(ExceptionUtility.CombineMessages(testFailed)));
 
             var combinedStackTrace = ExceptionUtility.CombineStackTraces(testFailed);
-            if (!String.IsNullOrWhiteSpace(combinedStackTrace))
+            if (!string.IsNullOrWhiteSpace(combinedStackTrace))
                 Log.LogError(null, null, null, stackFrameInfo.Item1, stackFrameInfo.Item2, 0, 0, 0, "{0}", combinedStackTrace);
 
             return base.Visit(testFailed);
@@ -137,42 +137,42 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
         {
-            WriteError(String.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+            WriteError(string.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
         {
-            WriteError(String.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+            WriteError(string.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
         {
-            WriteError(String.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+            WriteError(string.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
         {
-            WriteError(String.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+            WriteError(string.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
-            WriteError(String.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
+            WriteError(string.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
         {
-            WriteError(String.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+            WriteError(string.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }

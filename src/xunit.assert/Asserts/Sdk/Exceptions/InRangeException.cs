@@ -60,7 +60,7 @@ namespace Xunit.Sdk
         {
             get
             {
-                return String.Format(CultureInfo.CurrentCulture,
+                return string.Format(CultureInfo.CurrentCulture,
                                      "{0}\r\nRange:  ({1} - {2})\r\nActual: {3}",
                                      base.Message, Low, High, Actual ?? "(null)");
             }

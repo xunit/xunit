@@ -31,7 +31,7 @@ namespace Xunit.ConsoleClient
             if (file.StartsWith(defaultDirectory, StringComparison.OrdinalIgnoreCase))
                 file = file.Substring(defaultDirectory.Length);
 
-            return String.Format("{0}({1},0): at {2}",
+            return string.Format("{0}({1},0): at {2}",
                                  file,
                                  match.Groups["line"].Value,
                                  match.Groups["method"].Value);
@@ -48,7 +48,7 @@ namespace Xunit.ConsoleClient
             foreach (string frame in stack.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
                 results.Add(TransformFrame(frame, defaultDirectory));
 
-            return String.Join(Environment.NewLine, results.ToArray());
+            return string.Join(Environment.NewLine, results.ToArray());
         }
     }
 }

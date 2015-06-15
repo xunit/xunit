@@ -32,7 +32,7 @@ namespace Xunit.Sdk
                 }
                 catch (MissingMemberException)
                 {
-                    diagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find constructor for '{0}' with arguments type(s): {1}", type.FullName, String.Join(", ", ctorArgs.Select(a => a == null ? "(unknown)" : a.GetType().FullName))));
+                    diagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find constructor for '{0}' with arguments type(s): {1}", type.FullName, string.Join(", ", ctorArgs.Select(a => a == null ? "(unknown)" : a.GetType().FullName))));
                     throw;
                 }
             }

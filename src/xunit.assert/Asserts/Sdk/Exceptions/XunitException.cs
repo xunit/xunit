@@ -69,7 +69,7 @@ namespace Xunit.Sdk
             if (message == null || message.Length <= 0)
                 result = className;
             else
-                result = String.Format("{0}: {1}", className, message);
+                result = string.Format("{0}: {1}", className, message);
 
             string stackTrace = StackTrace;
             if (stackTrace != null)

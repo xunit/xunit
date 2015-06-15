@@ -72,7 +72,7 @@ public class xunitTests
 
         private static bool ValidateWelcomeBanner(BuildMessageEventArgs eventArgs)
         {
-            Assert.Equal(String.Format("xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version), eventArgs.Message);
+            Assert.Equal(string.Format("xUnit.net MSBuild runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version), eventArgs.Message);
             Assert.Equal(MessageImportance.High, eventArgs.Importance);
             return true;
         }
@@ -341,7 +341,7 @@ public class xunitTests
 
         protected override XElement ExecuteAssembly(string assemblyFilename, string configFileName, TestAssemblyConfiguration configuration)
         {
-            ExecuteAssembly_Calls.Add(String.Format("{0}, {1}", assemblyFilename ?? "(null)", configFileName ?? "(null)"));
+            ExecuteAssembly_Calls.Add(string.Format("{0}, {1}", assemblyFilename ?? "(null)", configFileName ?? "(null)"));
 
             return base.ExecuteAssembly(assemblyFilename, configFileName, configuration);
         }

@@ -57,8 +57,8 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
         {
-            var argText = String.Join(", ", unusedArguments.Select(arg => String.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
-            return String.Format("The following constructor parameters did not have matching fixture data: {0}", argText);
+            var argText = string.Join(", ", unusedArguments.Select(arg => string.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
+            return string.Format("The following constructor parameters did not have matching fixture data: {0}", argText);
         }
 
         /// <inheritdoc/>

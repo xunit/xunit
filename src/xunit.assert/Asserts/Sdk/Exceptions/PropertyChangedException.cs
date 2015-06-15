@@ -16,6 +16,6 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="propertyName">The name of the property that was expected to be changed.</param>
         public PropertyChangedException(string propertyName)
-            : base(String.Format(CultureInfo.CurrentCulture, "Assert.PropertyChanged failure: Property {0} was not set", propertyName)) { }
+            : base(string.Format(CultureInfo.CurrentCulture, "Assert.PropertyChanged failure: Property {0} was not set", propertyName)) { }
     }
 }

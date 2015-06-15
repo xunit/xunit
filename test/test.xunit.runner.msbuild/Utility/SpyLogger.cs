@@ -30,19 +30,19 @@ public class SpyLogger : TaskLoggingHelper
 
     private void Log(BuildMessageEventArgs eventArgs)
     {
-        Messages.Add(String.Format("MESSAGE[{0}]: {1}", eventArgs.Importance, eventArgs.Message));
+        Messages.Add(string.Format("MESSAGE[{0}]: {1}", eventArgs.Importance, eventArgs.Message));
     }
 
     private void Log(BuildWarningEventArgs eventArgs)
     {
-        Messages.Add(String.Format("WARNING: {0}", eventArgs.Message));
+        Messages.Add(string.Format("WARNING: {0}", eventArgs.Message));
     }
 
     private void Log(BuildErrorEventArgs eventArgs)
     {
         if (includeSourceInformation)
-            Messages.Add(String.Format("ERROR: [FILE {0}][LINE {1}] {2}", eventArgs.File, eventArgs.LineNumber, eventArgs.Message));
+            Messages.Add(string.Format("ERROR: [FILE {0}][LINE {1}] {2}", eventArgs.File, eventArgs.LineNumber, eventArgs.Message));
         else
-            Messages.Add(String.Format("ERROR: {0}", eventArgs.Message));
+            Messages.Add(string.Format("ERROR: {0}", eventArgs.Message));
     }
 }

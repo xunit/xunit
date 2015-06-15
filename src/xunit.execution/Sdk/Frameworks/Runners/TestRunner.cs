@@ -125,7 +125,7 @@ namespace Xunit.Sdk
         public async Task<RunSummary> RunAsync()
         {
             var runSummary = new RunSummary { Total = 1 };
-            var output = String.Empty;
+            var output = string.Empty;
 
             if (!MessageBus.QueueMessage(new TestStarting(Test)))
                 CancellationTokenSource.Cancel();
@@ -133,7 +133,7 @@ namespace Xunit.Sdk
             {
                 AfterTestStarting();
 
-                if (!String.IsNullOrEmpty(SkipReason))
+                if (!string.IsNullOrEmpty(SkipReason))
                 {
                     runSummary.Skipped++;
 

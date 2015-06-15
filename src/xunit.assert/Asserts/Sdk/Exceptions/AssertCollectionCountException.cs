@@ -16,6 +16,6 @@ namespace Xunit.Sdk
         /// <param name="expectedCount">The expected number of items in the collection.</param>
         /// <param name="actualCount">The actual number of items in the collection.</param>
         public AssertCollectionCountException(int expectedCount, int actualCount)
-            : base(String.Format(CultureInfo.CurrentCulture, "The collection contained {0} matching element(s) instead of {1}.", actualCount, expectedCount)) { }
+            : base(string.Format(CultureInfo.CurrentCulture, "The collection contained {0} matching element(s) instead of {1}.", actualCount, expectedCount)) { }
     }
 }

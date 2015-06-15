@@ -130,8 +130,8 @@ namespace Xunit.Sdk
         /// </summary>
         protected virtual string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
         {
-            var argText = String.Join(", ", unusedArguments.Select(arg => String.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
-            return String.Format("The following constructor parameters did not have matching arguments: {0}", argText);
+            var argText = string.Join(", ", unusedArguments.Select(arg => string.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
+            return string.Format("The following constructor parameters did not have matching arguments: {0}", argText);
         }
 
         /// <summary>

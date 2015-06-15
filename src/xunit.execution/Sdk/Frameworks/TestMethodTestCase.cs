@@ -61,7 +61,7 @@ namespace Xunit.Sdk
             get
             {
                 if (DefaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
-                    return String.Format("{0}.{1}", TestMethod.TestClass.Class.Name, TestMethod.Method.Name);
+                    return string.Format("{0}.{1}", TestMethod.TestClass.Class.Name, TestMethod.Method.Name);
 
                 return TestMethod.Method.Name;
             }
@@ -211,7 +211,7 @@ namespace Xunit.Sdk
                 var hash = Hasher.ComputeHash(stream);
 #endif
 
-                return String.Join("", hash.Select(x => x.ToString("x2")).ToArray());
+                return string.Join("", hash.Select(x => x.ToString("x2")).ToArray());
             }
         }
 

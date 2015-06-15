@@ -28,12 +28,12 @@ namespace TestUtility
 
             Traits.Add("Culture", culture);
 
-            DisplayName += String.Format(" [{0}]", culture);
+            DisplayName += string.Format(" [{0}]", culture);
         }
 
         protected override string GetUniqueID()
         {
-            return String.Format("{0} [{1}]", base.GetUniqueID(), culture);
+            return string.Format("{0} [{1}]", base.GetUniqueID(), culture);
         }
 
         public override void Deserialize(IXunitSerializationInfo data)

@@ -17,15 +17,15 @@ namespace Xunit.Runner.MSBuild
 
         public void Parse(string traits, Dictionary<string, List<string>> traitsDictionary)
         {
-            if (!String.IsNullOrEmpty(traits))
+            if (!string.IsNullOrEmpty(traits))
             {
                 foreach (var trait in traits.Split(TraitSeperator, StringSplitOptions.RemoveEmptyEntries))
                 {
                     var pieces = trait.Split(KeyValueSeperator, 2);
 
-                    if (pieces.Length != 2 || String.IsNullOrEmpty(pieces[0]) || String.IsNullOrEmpty(pieces[1]))
+                    if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
                     {
-                        OnWarning(String.Format("Invalid trait '{0}'. The format should be 'name=value'. This trait will be ignored.", trait));
+                        OnWarning(string.Format("Invalid trait '{0}'. The format should be 'name=value'. This trait will be ignored.", trait));
                         continue;
                     }
 

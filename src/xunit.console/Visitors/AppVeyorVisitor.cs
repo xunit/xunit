@@ -79,7 +79,7 @@ namespace Xunit.ConsoleClient
         {
             var testName = testStarting.Test.DisplayName;
             if (testMethods.ContainsKey(testName))
-                testName = String.Format("{0} {1}", testName, testMethods[testName]);
+                testName = string.Format("{0} {1}", testName, testMethods[testName]);
 
             AppVeyorLogger.AddTest(testName, FrameworkName, assemblyFileName, "Running", null, null, null, null, null);
 
@@ -140,7 +140,7 @@ namespace Xunit.ConsoleClient
             if (testMethods.ContainsKey(methodName))
             {
                 number = testMethods[methodName];
-                testName = String.Format("{0} {1}", methodName, number);
+                testName = string.Format("{0} {1}", methodName, number);
             }
 
             testMethods[methodName] = number + 1;
@@ -150,7 +150,7 @@ namespace Xunit.ConsoleClient
 
         void WriteStackTrace(string stackTrace)
         {
-            if (String.IsNullOrWhiteSpace(stackTrace))
+            if (string.IsNullOrWhiteSpace(stackTrace))
                 return;
 
             Console.Error.WriteLine("      Stack Trace:");

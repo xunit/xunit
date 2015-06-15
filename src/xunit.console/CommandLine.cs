@@ -63,7 +63,7 @@ namespace Xunit.ConsoleClient
         static void GuardNoOptionValue(KeyValuePair<string, string> option)
         {
             if (option.Value != null)
-                throw new ArgumentException(String.Format("error: unknown command line option: {0}", option.Value));
+                throw new ArgumentException(string.Format("error: unknown command line option: {0}", option.Value));
         }
 
         public static CommandLine Parse(params string[] args)
@@ -82,9 +82,9 @@ namespace Xunit.ConsoleClient
 
                 var assemblyFile = arguments.Pop();
                 if (assemblyFile.EndsWith(".config", StringComparison.OrdinalIgnoreCase))
-                    throw new ArgumentException(String.Format("expecting assembly, got config file: {0}", assemblyFile));
+                    throw new ArgumentException(string.Format("expecting assembly, got config file: {0}", assemblyFile));
                 if (!fileExists(assemblyFile))
-                    throw new ArgumentException(String.Format("file not found: {0}", assemblyFile));
+                    throw new ArgumentException(string.Format("file not found: {0}", assemblyFile));
 
                 string configFile = null;
                 if (arguments.Count > 0)
@@ -94,7 +94,7 @@ namespace Xunit.ConsoleClient
                     {
                         configFile = arguments.Pop();
                         if (!fileExists(configFile))
-                            throw new ArgumentException(String.Format("config file not found: {0}", configFile));
+                            throw new ArgumentException(string.Format("config file not found: {0}", configFile));
                     }
                 }
 
@@ -112,7 +112,7 @@ namespace Xunit.ConsoleClient
                 var optionName = option.Key.ToLowerInvariant();
 
                 if (!optionName.StartsWith("-"))
-                    throw new ArgumentException(String.Format("unknown command line option: {0}", option.Key));
+                    throw new ArgumentException(string.Format("unknown command line option: {0}", option.Key));
 
                 if (optionName == "-nologo")
                 {
@@ -161,7 +161,7 @@ namespace Xunit.ConsoleClient
 
                         default:
                             int threadValue;
-                            if (!Int32.TryParse(option.Value, out threadValue) || threadValue < 0)
+                            if (!int.TryParse(option.Value, out threadValue) || threadValue < 0)
                                 throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)");
 
                             MaxParallelThreads = threadValue;
@@ -223,7 +223,7 @@ namespace Xunit.ConsoleClient
                         throw new ArgumentException("missing argument for -trait");
 
                     var pieces = option.Value.Split('=');
-                    if (pieces.Length != 2 || String.IsNullOrEmpty(pieces[0]) || String.IsNullOrEmpty(pieces[1]))
+                    if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
                         throw new ArgumentException("incorrect argument format for -trait (should be \"name=value\")");
 
                     var name = pieces[0];
@@ -236,7 +236,7 @@ namespace Xunit.ConsoleClient
                         throw new ArgumentException("missing argument for -notrait");
 
                     var pieces = option.Value.Split('=');
-                    if (pieces.Length != 2 || String.IsNullOrEmpty(pieces[0]) || String.IsNullOrEmpty(pieces[1]))
+                    if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
                         throw new ArgumentException("incorrect argument format for -notrait (should be \"name=value\")");
 
                     var name = pieces[0];
@@ -260,7 +260,7 @@ namespace Xunit.ConsoleClient
                 else
                 {
                     if (option.Value == null)
-                        throw new ArgumentException(String.Format("missing filename for {0}", option.Key));
+                        throw new ArgumentException(string.Format("missing filename for {0}", option.Key));
 
                     project.Output.Add(optionName.Substring(1), option.Value);
                 }

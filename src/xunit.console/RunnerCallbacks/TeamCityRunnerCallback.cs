@@ -82,7 +82,7 @@
 //        static string Escape(string value)
 //        {
 //            if (value == null)
-//                return String.Empty;
+//                return string.Empty;
 
 //            return value.Replace("|", "||")
 //                        .Replace("'", "|'")

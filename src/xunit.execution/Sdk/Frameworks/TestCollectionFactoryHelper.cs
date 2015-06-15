@@ -37,7 +37,7 @@ namespace Xunit.Sdk
                 if (types.Count > 1)
                     diagnosticMessageSink.OnMessage(new DiagnosticMessage("Multiple test collections declared with name '{0}': {1}",
                                                                           grouping.Key,
-                                                                          String.Join(", ", types.Select(type => type.Name))));
+                                                                          string.Join(", ", types.Select(type => type.Name))));
             }
 
             return result;

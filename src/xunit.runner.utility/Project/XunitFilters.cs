@@ -66,7 +66,7 @@ namespace Xunit
             if (IncludedClasses.Count != 0 && IncludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
                 return true;
 
-            if (IncludedMethods.Count != 0 && IncludedMethods.Contains(String.Format("{0}.{1}", testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name)))
+            if (IncludedMethods.Count != 0 && IncludedMethods.Contains(string.Format("{0}.{1}", testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name)))
                 return true;
 
             return false;

@@ -87,7 +87,7 @@ namespace Xunit
         static int? GetInt(string value)
         {
             int result;
-            if (Int32.TryParse(value, out result))
+            if (int.TryParse(value, out result))
                 return result;
             return null;
         }

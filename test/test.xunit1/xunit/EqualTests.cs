@@ -172,31 +172,31 @@ namespace Xunit1
             [Fact]
             public void DoubleNegativeInfinityEqualsNegativeInfinity()
             {
-                Assert.Equal(Double.NegativeInfinity, Double.NegativeInfinity);
+                Assert.Equal(double.NegativeInfinity, double.NegativeInfinity);
             }
 
             [Fact]
             public void DoubleNegativeInfinityNotEquals()
             {
-                Assert.Throws<EqualException>(() => Assert.Equal(1.23, Double.NegativeInfinity));
+                Assert.Throws<EqualException>(() => Assert.Equal(1.23, double.NegativeInfinity));
             }
 
             [Fact]
             public void DoublePositiveInfinityEqualsPositiveInfinity()
             {
-                Assert.Equal(Double.PositiveInfinity, Double.PositiveInfinity);
+                Assert.Equal(double.PositiveInfinity, double.PositiveInfinity);
             }
 
             [Fact]
             public void DoublePositiveInfinityNotEquals()
             {
-                Assert.Throws<EqualException>(() => Assert.Equal(1.23, Double.PositiveInfinity));
+                Assert.Throws<EqualException>(() => Assert.Equal(1.23, double.PositiveInfinity));
             }
 
             [Fact]
             public void DoublePositiveInfinityNotEqualsNegativeInfinity()
             {
-                Assert.Throws<EqualException>(() => Assert.Equal(Double.NegativeInfinity, Double.PositiveInfinity));
+                Assert.Throws<EqualException>(() => Assert.Equal(double.NegativeInfinity, double.PositiveInfinity));
             }
         }
 
@@ -266,19 +266,19 @@ namespace Xunit1
             [Fact]
             public void EqualsNaNFails()
             {
-                Assert.Throws<EqualException>(() => Assert.Equal(Double.NaN, 1.234));
+                Assert.Throws<EqualException>(() => Assert.Equal(double.NaN, 1.234));
             }
 
             [Fact]
             public void NanEqualsFails()
             {
-                Assert.Throws<EqualException>(() => Assert.Equal(1.234, Double.NaN));
+                Assert.Throws<EqualException>(() => Assert.Equal(1.234, double.NaN));
             }
 
             [Fact]
             public void NanEqualsNaNSucceeds()
             {
-                Assert.Equal(Double.NaN, Double.NaN);
+                Assert.Equal(double.NaN, double.NaN);
             }
         }
 
@@ -487,31 +487,31 @@ namespace Xunit1
             [Fact]
             public void SingleNegativeInfinityEqualsNegativeInfinity()
             {
-                Assert.Equal(Single.NegativeInfinity, Single.NegativeInfinity);
+                Assert.Equal(float.NegativeInfinity, float.NegativeInfinity);
             }
 
             [Fact]
             public void SingleNumberNotEqualNegativeInfinity()
             {
-                Assert.Throws<EqualException>(() => Assert.Equal(1.23f, Single.NegativeInfinity));
+                Assert.Throws<EqualException>(() => Assert.Equal(1.23f, float.NegativeInfinity));
             }
 
             [Fact]
             public void SingleNumberNotEqualPositiiveInfinity()
             {
-                Assert.Throws<EqualException>(() => Assert.Equal(1.23f, Single.PositiveInfinity));
+                Assert.Throws<EqualException>(() => Assert.Equal(1.23f, float.PositiveInfinity));
             }
 
             [Fact]
             public void SinglePositiveInfinityEqualsPositiveInfinity()
             {
-                Assert.Equal(Single.PositiveInfinity, Single.PositiveInfinity);
+                Assert.Equal(float.PositiveInfinity, float.PositiveInfinity);
             }
 
             [Fact]
             public void SinglePositiveInfinityNotEqualNegativeInfinity()
             {
-                Assert.Throws<EqualException>(() => Assert.Equal(Single.NegativeInfinity, Single.PositiveInfinity));
+                Assert.Throws<EqualException>(() => Assert.Equal(float.NegativeInfinity, float.PositiveInfinity));
             }
         }
 
@@ -588,8 +588,8 @@ namespace Xunit1
             public void AssertEqualWithDoubleWithPrecisionFailure()
             {
                 var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111, 0.11444, 3));
-                Assert.Equal(String.Format("{0} (rounded from {1})", 0.111, 0.11111), ex.Expected);
-                Assert.Equal(String.Format("{0} (rounded from {1})", 0.114, 0.11444), ex.Actual);
+                Assert.Equal(string.Format("{0} (rounded from {1})", 0.111, 0.11111), ex.Expected);
+                Assert.Equal(string.Format("{0} (rounded from {1})", 0.114, 0.11444), ex.Actual);
             }
 
             [Fact]
@@ -602,8 +602,8 @@ namespace Xunit1
             public void AssertEqualWithDecimalWithPrecisionFailure()
             {
                 var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111M, 0.11444M, 3));
-                Assert.Equal(String.Format("{0} (rounded from {1})", 0.111M, 0.11111M), ex.Expected);
-                Assert.Equal(String.Format("{0} (rounded from {1})", 0.114M, 0.11444M), ex.Actual);
+                Assert.Equal(string.Format("{0} (rounded from {1})", 0.111M, 0.11111M), ex.Expected);
+                Assert.Equal(string.Format("{0} (rounded from {1})", 0.114M, 0.11444M), ex.Actual);
             }
         }
     }

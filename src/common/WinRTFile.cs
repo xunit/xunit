@@ -23,7 +23,7 @@ namespace System.IO
 
         static StorageFile GetStorageFile(string path)
         {
-            if (String.IsNullOrWhiteSpace(path))
+            if (string.IsNullOrWhiteSpace(path))
                 return null;
 
             var folder = Package.Current.InstalledLocation;

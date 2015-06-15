@@ -16,7 +16,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the display name of the xUnit.net v2 test framework.
         /// </summary>
-        public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).GetTypeInfo().Assembly.GetName().Version);
+        public static readonly string DisplayName = string.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).GetTypeInfo().Assembly.GetName().Version);
 
         readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
 
@@ -43,7 +43,7 @@ namespace Xunit.Sdk
             var testAssembly = new TestAssembly(assemblyInfo, config);
 
             TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(diagnosticMessageSink, collectionBehaviorAttribute, testAssembly);
-            TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",
+            TestFrameworkDisplayName = string.Format("{0} [{1}, {2}]",
                                                      DisplayName,
                                                      TestCollectionFactory.DisplayName,
                                                      disableParallelization ? "non-parallel" : "parallel");

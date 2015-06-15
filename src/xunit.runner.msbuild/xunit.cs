@@ -107,7 +107,7 @@ namespace Xunit.Runner.MSBuild
         {
             RemotingUtility.CleanUpRegisteredChannels();
             XElement assembliesElement = null;
-            var environment = String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
+            var environment = string.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
 
             if (NeedsXml)
                 assembliesElement = new XElement("assemblies");
@@ -124,7 +124,7 @@ namespace Xunit.Runner.MSBuild
 
                 default:
                     int threadValue;
-                    if (!Int32.TryParse(MaxParallelThreads, out threadValue) || threadValue < 0)
+                    if (!int.TryParse(MaxParallelThreads, out threadValue) || threadValue < 0)
                     {
                         Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', or a positive number", MaxParallelThreads);
                         return false;

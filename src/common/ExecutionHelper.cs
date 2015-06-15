@@ -9,7 +9,7 @@ namespace Xunit
         /// </summary>
         public static string AssemblyFileName
         {
-            get { return String.Format("xunit.execution.{0}.dll", PlatformSpecificAssemblySuffix); }
+            get { return string.Format("xunit.execution.{0}.dll", PlatformSpecificAssemblySuffix); }
         }
 
         /// <summary>

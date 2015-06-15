@@ -16,6 +16,6 @@ namespace Xunit.Sdk
         /// <param name="expectedRegexPattern">The expected regular expression pattern</param>
         /// <param name="actual">The actual value</param>
         public MatchesException(object expectedRegexPattern, object actual)
-            : base(String.Format(CultureInfo.CurrentCulture, "Assert.Matches() Failure:{2}Regex: {0}{2}Value: {1}", expectedRegexPattern, actual, Environment.NewLine)) { }
+            : base(string.Format(CultureInfo.CurrentCulture, "Assert.Matches() Failure:{2}Regex: {0}{2}Value: {1}", expectedRegexPattern, actual, Environment.NewLine)) { }
     }
 }

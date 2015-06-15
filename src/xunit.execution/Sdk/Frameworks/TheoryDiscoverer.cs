@@ -63,7 +63,7 @@ namespace Xunit.Sdk
 
                     if (results.Count == 0)
                         results.Add(new ExecutionErrorTestCase(diagnosticMessageSink, defaultMethodDisplay, testMethod,
-                                                               String.Format("No data found for {0}.{1}", testMethod.TestClass.Class.Name, testMethod.Method.Name)));
+                                                               string.Format("No data found for {0}.{1}", testMethod.TestClass.Class.Name, testMethod.Method.Name)));
 
                     return results;
                 }

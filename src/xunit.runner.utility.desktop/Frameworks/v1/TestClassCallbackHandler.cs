@@ -65,10 +65,10 @@ namespace Xunit
                 @continue = messageSink.OnMessage(errorMessage);
             }
 
-            TestClassResults.Time = Decimal.Parse(xml.Attributes["time"].Value, CultureInfo.InvariantCulture);
-            TestClassResults.Total = Int32.Parse(xml.Attributes["total"].Value, CultureInfo.InvariantCulture);
-            TestClassResults.Failed = Int32.Parse(xml.Attributes["failed"].Value, CultureInfo.InvariantCulture);
-            TestClassResults.Skipped = Int32.Parse(xml.Attributes["skipped"].Value, CultureInfo.InvariantCulture);
+            TestClassResults.Time = decimal.Parse(xml.Attributes["time"].Value, CultureInfo.InvariantCulture);
+            TestClassResults.Total = int.Parse(xml.Attributes["total"].Value, CultureInfo.InvariantCulture);
+            TestClassResults.Failed = int.Parse(xml.Attributes["failed"].Value, CultureInfo.InvariantCulture);
+            TestClassResults.Skipped = int.Parse(xml.Attributes["skipped"].Value, CultureInfo.InvariantCulture);
             return @continue && TestClassResults.Continue;
         }
 
@@ -85,9 +85,9 @@ namespace Xunit
             var @continue = true;
             var testCase = FindTestCase(xml.Attributes["type"].Value, xml.Attributes["method"].Value);
             var timeAttribute = xml.Attributes["time"];
-            var time = timeAttribute == null ? 0M : Decimal.Parse(timeAttribute.Value, CultureInfo.InvariantCulture);
+            var time = timeAttribute == null ? 0M : decimal.Parse(timeAttribute.Value, CultureInfo.InvariantCulture);
             var outputElement = xml.SelectSingleNode("output");
-            var output = outputElement == null ? String.Empty : outputElement.InnerText;
+            var output = outputElement == null ? string.Empty : outputElement.InnerText;
             ITestCaseMessage resultMessage = null;
 
             if (currentTest == null)  // There is no <start> node for skipped tests, or with xUnit prior to v1.1
@@ -128,7 +128,7 @@ namespace Xunit
 
             // Since we don't get live output from xUnit.net v1, we just send a single output message just before
             // the result message (if there was any output).
-            if (!String.IsNullOrEmpty(output))
+            if (!string.IsNullOrEmpty(output))
                 @continue = messageSink.OnMessage(new TestOutput(currentTest, output)) && @continue;
 
             if (resultMessage != null)

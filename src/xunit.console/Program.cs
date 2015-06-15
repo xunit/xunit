@@ -145,7 +145,7 @@ namespace Xunit.ConsoleClient
 
             TransformFactory.AvailableTransforms.ForEach(
                 transform => Console.WriteLine("  {0} : {1}",
-                                               String.Format("-{0} <filename>", transform.CommandLine).PadRight(22).Substring(0, 22),
+                                               string.Format("-{0} <filename>", transform.CommandLine).PadRight(22).Substring(0, 22),
                                                transform.Description)
             );
         }
@@ -366,7 +366,7 @@ namespace Xunit.ConsoleClient
 
         static bool ValidateFileExists(object consoleLock, string fileName)
         {
-            if (String.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
+            if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
                 return true;
 
             lock (consoleLock)

@@ -13,7 +13,7 @@ internal static class AssemblyExtensions
             return null;
 
         if (!codeBase.StartsWith("file:///"))
-            throw new ArgumentException(String.Format("Code base {0} in wrong format; must start with file:///", codeBase), "assembly");
+            throw new ArgumentException(string.Format("Code base {0} in wrong format; must start with file:///", codeBase), "assembly");
 
         codeBase = codeBase.Substring(8);
         if (Path.DirectorySeparatorChar == '/')
