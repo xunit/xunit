@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if ! [ -x "$(command -v mono)" ]; then
   echo >&2 "Could not find 'mono' on the path."
