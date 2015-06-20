@@ -64,6 +64,14 @@ namespace Xunit.Sdk
             return string.Format("{0}:{1}", GetTypeNameForSerialization(value.GetType()), serializationInfo.ToSerializedString());
         }
 
+        /// <summary>Gets whether the specified <paramref name="value"/> is serializable with <see cref="Serialize"/>.</summary>
+        /// <param name="value">The object to test for serializability.</param>
+        /// <returns>true if the object can be serialized; otherwise, false.</returns>
+        internal static bool IsSerializable(object value)
+        {
+            return XunitSerializationInfo.CanSerializeObject(value);
+        }
+
         /// <summary>
         /// Converts an assembly qualified type name into a <see cref="Type"/> object.
         /// </summary>

@@ -317,20 +317,47 @@ namespace Xunit.Serialization
             typeof(DateTimeOffset), typeof(DateTimeOffset?),
         };
 
-        private static bool CanSerializeObject(object value)
+        internal static bool CanSerializeObject(object value)
         {
             if (value == null)
                 return true;
 
             var valueType = value.GetType();
+
             if (valueType.IsArray)
-                return ((Array)value).Cast<object>().All(CanSerializeObject);
-
-            if (valueType.IsEnum() || valueType.IsNullableEnum())
+            {
+                object[] vector = value as object[];
+                if (vector != null)
+                {
+                    // Avoid enumerator allocation and bounds lookups that comes from enumerating a System.Array
+                    foreach (object obj in vector)
+                    {
+                        if (!CanSerializeObject(obj))
+                            return false;
+                    }
+                }
+                else
+                {
+                    foreach (object obj in ((Array)value))
+                    {
+                        if (!CanSerializeObject(obj))
+                            return false;
+                    }
+                }
                 return true;
+            }
 
-            if (supportedSerializationTypes.Any(supportedType => supportedType.IsAssignableFrom(valueType)))
-                return true;
+            foreach (Type supportedType in supportedSerializationTypes)
+            {
+                if (supportedType.IsAssignableFrom(valueType))
+                    return true;
+            }
+
+            Type typeToCheck = valueType;
+            if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
+            {
+                return typeToCheck.IsFromLocalAssembly();
+            }
 
             return false;
         }
