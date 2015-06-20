@@ -131,7 +131,7 @@ namespace Xunit.Sdk
         /// </summary>
         protected virtual Task AfterTestMethodInvokedAsync()
         {
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace Xunit.Sdk
         /// </summary>
         protected virtual Task BeforeTestMethodInvokedAsync()
         {
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <summary>

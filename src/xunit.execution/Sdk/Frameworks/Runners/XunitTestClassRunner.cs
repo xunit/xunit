@@ -100,7 +100,7 @@ namespace Xunit.Sdk
                     CreateFixture(interfaceType);
             }
 
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>
@@ -109,7 +109,7 @@ namespace Xunit.Sdk
             foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
 
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>
