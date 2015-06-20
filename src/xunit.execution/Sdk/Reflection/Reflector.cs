@@ -11,7 +11,7 @@ namespace Xunit.Sdk
     /// </summary>
     public static class Reflector
     {
-        readonly static object[] EmptyArgs = new object[0];
+        internal readonly static object[] EmptyArgs = new object[0];
         readonly static Type[] EmptyTypes = new Type[0];
         readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "Cast");
         readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "ToArray");

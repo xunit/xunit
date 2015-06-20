@@ -52,9 +52,7 @@ namespace Xunit.Sdk
 
         internal static AttributeUsageAttribute GetAttributeUsage(Type attributeType)
         {
-            return attributeType.GetTypeInfo().GetCustomAttributes(typeof(AttributeUsageAttribute), true)
-                                .Cast<AttributeUsageAttribute>()
-                                .FirstOrDefault()
+            return (AttributeUsageAttribute)attributeType.GetTypeInfo().GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
                 ?? DefaultAttributeUsageAttribute;
         }
 
@@ -83,13 +81,22 @@ namespace Xunit.Sdk
 
             if (type != null)
             {
-                results = type.GetTypeInfo().CustomAttributes
-                                            .Where(attr => attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
-                                            .OrderBy(attr => attr.AttributeType.Name)
-                                            .Select(Reflector.Wrap)
-                                            .Cast<IAttributeInfo>();
+                List<ReflectionAttributeInfo> list = null;
+                foreach (CustomAttributeData attr in type.GetTypeInfo().CustomAttributes)
+                {
+                    if (attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
+                    {
+                        if (list == null) list = new List<ReflectionAttributeInfo>();
+                        list.Add(new ReflectionAttributeInfo(attr));
+                    }
+                }
+                if (list != null)
+                {
+                    list.Sort((left, right) => left.AttributeData.AttributeType.Name.CompareTo(right.AttributeData.AttributeType.Name));
+                }
+                results = list ?? Enumerable.Empty<IAttributeInfo>();
 
-                if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || !results.Any()))
+                if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
                     results = results.Concat(GetCustomAttributes(type.GetTypeInfo().BaseType, attributeType, attributeUsage));
             }
 
@@ -99,10 +106,19 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public TValue GetNamedArgument<TValue>(string propertyName)
         {
-            var propInfo = Attribute.GetType().GetRuntimeProperties().FirstOrDefault(pi => pi.Name == propertyName);
+            PropertyInfo propInfo = default(PropertyInfo);
+            foreach (var pi in Attribute.GetType().GetRuntimeProperties())
+            {
+                if (pi.Name == propertyName)
+                {
+                    propInfo = pi;
+                    break;
+                }
+            }
+
             Guard.ArgumentValid("propertyName", string.Format("Could not find property {0} on instance of {1}", propertyName, Attribute.GetType().FullName), propInfo != null);
 
-            return (TValue)propInfo.GetValue(Attribute, new object[0]);
+            return (TValue)propInfo.GetValue(Attribute, Reflector.EmptyArgs);
         }
 
         Attribute Instantiate(CustomAttributeData attributeData)

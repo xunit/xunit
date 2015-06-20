@@ -53,7 +53,7 @@ namespace Xunit.Sdk
             if (arguments == null)
                 return baseDisplayName;
 
-            var parameterInfos = method.GetParameters().ToArray();
+            var parameterInfos = method.GetParameters().CastOrToArray();
             var displayValues = new string[Math.Max(arguments.Length, parameterInfos.Length)];
             int idx;
 
@@ -139,7 +139,7 @@ namespace Xunit.Sdk
         {
             var genericTypes = method.GetGenericArguments().ToArray();
             var resolvedTypes = new ITypeInfo[genericTypes.Length];
-            var parameterInfos = method.GetParameters().ToArray();
+            var parameterInfos = method.GetParameters().CastOrToArray();
 
             for (var idx = 0; idx < genericTypes.Length; ++idx)
                 resolvedTypes[idx] = ResolveGenericType(genericTypes[idx], parameters, parameterInfos);

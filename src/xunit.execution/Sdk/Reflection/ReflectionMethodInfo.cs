@@ -77,7 +77,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
-            return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).ToList();
+            return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).CastOrToList();
         }
 
         static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, string assemblyQualifiedAttributeTypeName)
@@ -89,17 +89,22 @@ namespace Xunit.Sdk
 
         static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType, AttributeUsageAttribute attributeUsage)
         {
+            List<ReflectionAttributeInfo> list = null;
+            foreach (CustomAttributeData attr in method.CustomAttributes)
+            {
+                if (attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
+                {
+                    if (list == null) list = new List<ReflectionAttributeInfo>();
+                    list.Add(new ReflectionAttributeInfo(attr));
+                }
+            }
+            if (list != null)
+            {
+                list.Sort((left, right) => left.AttributeData.AttributeType.Name.CompareTo(right.AttributeData.AttributeType.Name));
+            }
+            IEnumerable<IAttributeInfo> results = list ?? Enumerable.Empty<IAttributeInfo>();
 
-            // TODO: Does this need to be CustomAttributeData?
-            IEnumerable<IAttributeInfo> results =
-                method.CustomAttributes
-                      .Where(attr => attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
-                      .OrderBy(attr => attr.AttributeType.Name)
-                      .Select(Reflector.Wrap)
-                      .Cast<IAttributeInfo>()
-                      .ToList();
-
-            if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || !results.Any()))
+            if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
             {
                 // Need to find the parent method, which may not necessarily be on the parent type
                 var baseMethod = GetParent(method);
@@ -113,7 +118,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<ITypeInfo> GetGenericArguments()
         {
-            return MethodInfo.GetGenericArguments().Select(Reflector.Wrap).ToArray();
+            return MethodInfo.GetGenericArguments().Select(t => Reflector.Wrap(t)).ToArray();
         }
 
         static MethodInfo GetParent(MethodInfo method)
@@ -151,9 +156,8 @@ namespace Xunit.Sdk
         public IEnumerable<IParameterInfo> GetParameters()
         {
             return MethodInfo.GetParameters()
-                             .Select(Reflector.Wrap)
-                             .Cast<IParameterInfo>()
-                             .ToList();
+                             .Select(p => Reflector.Wrap(p))
+                             .ToArray();
         }
 
         class GenericTypeComparer : IEqualityComparer

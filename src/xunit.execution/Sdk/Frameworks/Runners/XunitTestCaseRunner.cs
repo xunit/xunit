@@ -42,7 +42,11 @@ namespace Xunit.Sdk
             TestClass = TestCase.TestMethod.TestClass.Class.ToRuntimeType();
             TestMethod = TestCase.Method.ToRuntimeMethod();
 
-            var parameterTypes = TestMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+            ParameterInfo[] parameters = TestMethod.GetParameters();
+            Type[] parameterTypes = new Type[parameters.Length];
+            for (int i = 0; i < parameters.Length; i++)
+                parameterTypes[i] = parameters[i].ParameterType;
+
             TestMethodArguments = Reflector.ConvertArguments(testMethodArguments, parameterTypes);
 
             beforeAfterAttributes =

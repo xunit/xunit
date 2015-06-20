@@ -73,7 +73,7 @@ namespace Xunit.Sdk
             return Assembly.CustomAttributes
                            .Where(attr => attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
                            .OrderBy(attr => attr.AttributeType.Name)
-                           .Select(Reflector.Wrap)
+                           .Select(a => Reflector.Wrap(a))
                            .Cast<IAttributeInfo>()
                            .ToList();
         }
@@ -92,11 +92,11 @@ namespace Xunit.Sdk
 
             try
             {
-                return selector.Select(Reflector.Wrap).Cast<ITypeInfo>();
+                return selector.Select(t => Reflector.Wrap(t)).Cast<ITypeInfo>();
             }
             catch (ReflectionTypeLoadException ex)
             {
-                return ex.Types.Select(Reflector.Wrap).Cast<ITypeInfo>();
+                return ex.Types.Select(t => Reflector.Wrap(t)).Cast<ITypeInfo>();
             }
         }
 
