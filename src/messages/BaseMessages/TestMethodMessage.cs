@@ -21,6 +21,15 @@ namespace Xunit
             TestMethod = testMethod;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestMethodMessage"/> class.
+        /// </summary>
+        internal TestMethodMessage(ITestCase testCase, ITestMethod testMethod)
+            : base(testCase, testMethod.TestClass)
+        {
+            TestMethod = testMethod;
+        }
+
         /// <inheritdoc/>
         public ITestMethod TestMethod { get; set; }
     }
