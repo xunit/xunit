@@ -130,13 +130,32 @@ namespace Xunit.Sdk
             if (baseType == null)
                 return null;
 
-            var methodParameters = method.GetParameters().Select(p => p.ParameterType).ToArray();
+            var methodParameters = method.GetParameters();
             var methodGenericArgCount = method.GetGenericArguments().Length;
 
-            return baseType.GetMatchingMethods(method)
-                           .FirstOrDefault(m => m.Name == method.Name
-                                             && m.GetGenericArguments().Length == methodGenericArgCount
-                                             && TypeListComparer.Equals(m.GetParameters().Select(p => p.ParameterType).ToArray(), methodParameters));
+            foreach (MethodInfo m in baseType.GetMatchingMethods(method))
+            {
+                if (m.Name == method.Name &&
+                    m.GetGenericArguments().Length == methodGenericArgCount &&
+                    ParametersHaveSameTypes(methodParameters, m.GetParameters()))
+                    return m;
+            }
+
+            return null;
+        }
+
+        private static bool ParametersHaveSameTypes(ParameterInfo[] left, ParameterInfo[] right)
+        {
+            if (left.Length != right.Length)
+                return false;
+
+            for (int i = 0; i < left.Length; i++)
+            {
+                if (!TypeComparer.Equals(left[i].ParameterType, right[i].ParameterType))
+                    return false;
+            }
+
+            return true;
         }
 
         /// <inheritdoc/>

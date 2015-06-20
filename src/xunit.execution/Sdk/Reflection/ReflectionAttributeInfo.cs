@@ -44,7 +44,7 @@ namespace Xunit.Sdk
                     value = Enum.Parse(argument.ArgumentType, value.ToString());
 
                 if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsArray)
-                    value = Reflector.ConvertArguments(new[] { value }, new[] { argument.ArgumentType })[0];
+                    value = Reflector.ConvertArgument(value, argument.ArgumentType);
 
                 yield return value;
             }
@@ -124,13 +124,23 @@ namespace Xunit.Sdk
         Attribute Instantiate(CustomAttributeData attributeData)
         {
             var ctorArgs = GetConstructorArguments().ToArray();
-            var ctorArgTypes = attributeData.ConstructorArguments.Select(ci => ci.ArgumentType).ToArray();
+            Type[] ctorArgTypes = Reflector.EmptyTypes;
+            if (ctorArgs.Length > 0)
+            {
+                ctorArgTypes = new Type[attributeData.ConstructorArguments.Count];
+                for (int i = 0; i < ctorArgTypes.Length; i++)
+                    ctorArgTypes[i] = attributeData.ConstructorArguments[i].ArgumentType;
+            }
+
             var attribute = (Attribute)Activator.CreateInstance(attributeData.AttributeType, Reflector.ConvertArguments(ctorArgs, ctorArgTypes));
 
             var ati = attribute.GetType();
 
-            foreach (var namedArg in attributeData.NamedArguments)
+            for (int i = 0; i < attributeData.NamedArguments.Count; i++)
+            {
+                var namedArg = attributeData.NamedArguments[i];
                 (ati.GetRuntimeProperty(namedArg.MemberName)).SetValue(attribute, GetTypedValue(namedArg.TypedValue), index: null);
+            }
 
             return attribute;
         }
