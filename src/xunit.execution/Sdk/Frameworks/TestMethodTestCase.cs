@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Xunit.Abstractions;
+using System.Diagnostics;
 
 #if !WINDOWS_PHONE_APP
 using System.Security.Cryptography;
@@ -27,7 +29,7 @@ namespace Xunit.Sdk
         bool initialized;
         IMethodInfo method;
         ITypeInfo[] methodGenericTypes;
-        Lazy<string> uniqueID;
+        string uniqueID;
 
 #if WINDOWS_PHONE_APP
         readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
@@ -160,7 +162,10 @@ namespace Xunit.Sdk
             get
             {
                 EnsureInitialized();
-                return uniqueID.Value;
+                return
+                    uniqueID ??
+                    Interlocked.CompareExchange(ref uniqueID, GetUniqueID(), null) ??
+                    uniqueID;
             }
         }
 
@@ -210,9 +215,32 @@ namespace Xunit.Sdk
 #else
                 var hash = Hasher.ComputeHash(stream);
 #endif
-
-                return string.Join("", hash.Select(x => x.ToString("x2")).ToArray());
+                return BytesToHexString(hash);
             }
+        }
+
+        /// <summary>Converts an array of bytes to its hexadecimal value as a string.</summary>
+        /// <param name="bytes">The bytes.</param>
+        /// <returns>A string containing the hexademical representation of the provided bytes.</returns>
+        private static string BytesToHexString(byte[] bytes)
+        {
+            char[] chars = new char[bytes.Length * 2];
+            int i = 0;
+            foreach (byte b in bytes)
+            {
+                chars[i++] = NibbleToHexChar(b >> 4);
+                chars[i++] = NibbleToHexChar(b & 0xF);
+            }
+            return new string(chars);
+        }
+
+        /// <summary>Gets a hexademical digit character from the 4-bit value.</summary>
+        /// <param name="b">A value in the range [0, 15].</param>
+        /// <returns>A character in the range ['0','9'] or ['a','f'].</returns>
+        private static char NibbleToHexChar(int b)
+        {
+            Debug.Assert(b < 16);
+            return (char)(b < 10 ? b + '0' : (b - 10) + 'a');
         }
 
         /// <summary>
@@ -232,8 +260,6 @@ namespace Xunit.Sdk
 
             var baseDisplayName = BaseDisplayName;
             displayName = TypeUtility.GetDisplayNameWithArguments(Method, baseDisplayName, TestMethodArguments, MethodGenericTypes);
-
-            uniqueID = new Lazy<string>(GetUniqueID, true);
         }
 
         static void Write(Stream stream, string value)
