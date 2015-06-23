@@ -31,6 +31,8 @@ namespace Xunit.ConsoleClient
 
         public bool NoLogo { get; protected set; }
 
+        public bool NoSkips { get; protected set; }
+
         public XunitProject Project { get; protected set; }
 
         public bool? ParallelizeAssemblies { get; protected set; }
@@ -118,6 +120,11 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     NoLogo = true;
+                }
+                else if (optionName == "-noskips")
+                {
+                    GuardNoOptionValue(option);
+                    NoSkips = true;
                 }
                 else if (optionName == "-quiet")
                 {

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
@@ -54,7 +55,7 @@ namespace Xunit.ConsoleClient
                 if (!commandLine.NoLogo)
                     PrintHeader();
 
-                var failCount = RunProject(defaultDirectory, commandLine.Project, commandLine.Quiet, commandLine.Serialize, commandLine.TeamCity, commandLine.AppVeyor,
+                var failCount = RunProject(defaultDirectory, commandLine.Project, commandLine.Quiet, commandLine.NoSkips, commandLine.Serialize, commandLine.TeamCity, commandLine.AppVeyor,
                                            commandLine.ParallelizeAssemblies, commandLine.ParallelizeTestCollections,
                                            commandLine.MaxParallelThreads, commandLine.DiagnosticMessages);
 
@@ -153,6 +154,7 @@ namespace Xunit.ConsoleClient
         static int RunProject(string defaultDirectory,
                               XunitProject project,
                               bool quiet,
+                              bool noskips,
                               bool serialize,
                               bool teamcity,
                               bool appVeyor,
@@ -180,7 +182,7 @@ namespace Xunit.ConsoleClient
 
                 if (parallelizeAssemblies.GetValueOrDefault())
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, defaultDirectory, assembly, quiet, serialize, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, diagnosticMessages, project.Filters)));
+                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, defaultDirectory, assembly, quiet, noskips, serialize, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, diagnosticMessages, project.Filters)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -189,7 +191,7 @@ namespace Xunit.ConsoleClient
                 {
                     foreach (var assembly in project.Assemblies)
                     {
-                        var assemblyElement = ExecuteAssembly(consoleLock, defaultDirectory, assembly, quiet, serialize, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, diagnosticMessages, project.Filters);
+                        var assemblyElement = ExecuteAssembly(consoleLock, defaultDirectory, assembly, quiet, noskips, serialize, needsXml, teamcity, appVeyor, parallelizeTestCollections, maxThreadCount, diagnosticMessages, project.Filters);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -265,20 +267,27 @@ namespace Xunit.ConsoleClient
             return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
         }
 
-        static XmlTestExecutionVisitor CreateVisitor(object consoleLock, bool quiet, string defaultDirectory, XElement assemblyElement, bool teamCity, bool appVeyor)
+        static TestMessageVisitor<ITestAssemblyFinished> CreateVisitor(object consoleLock, bool quiet, bool noskips, string defaultDirectory, XElement assemblyElement, bool teamCity, bool appVeyor)
         {
+            XmlTestExecutionVisitor visitor = null;
             if (teamCity)
-                return new TeamCityVisitor(consoleLogger, assemblyElement, () => cancel, displayNameFormatter: teamCityDisplayNameFormatter);
+                visitor = new TeamCityVisitor(consoleLogger, assemblyElement, () => cancel, displayNameFormatter: teamCityDisplayNameFormatter);
             else if (appVeyor)
-                return new AppVeyorVisitor(consoleLock, defaultDirectory, assemblyElement, () => cancel, completionMessages);
+                visitor = new AppVeyorVisitor(consoleLock, defaultDirectory, assemblyElement, () => cancel, completionMessages);
+            else
+                visitor = new StandardOutputVisitor(consoleLock, quiet, defaultDirectory, assemblyElement, () => cancel, completionMessages);
 
-            return new StandardOutputVisitor(consoleLock, quiet, defaultDirectory, assemblyElement, () => cancel, completionMessages);
+            if (noskips)
+                return new NoSkipVisitor(visitor);
+
+            return visitor;
         }
 
         static XElement ExecuteAssembly(object consoleLock,
                                         string defaultDirectory,
                                         XunitProjectAssembly assembly,
                                         bool quiet,
+                                        bool noskips,
                                         bool serialize,
                                         bool needsXml,
                                         bool teamCity,
@@ -343,7 +352,7 @@ namespace Xunit.ConsoleClient
                         if (serialize)
                             filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
 
-                        var resultsVisitor = CreateVisitor(consoleLock, quiet, defaultDirectory, assemblyElement, teamCity, appVeyor);
+                        var resultsVisitor = CreateVisitor(consoleLock, quiet, noskips, defaultDirectory, assemblyElement, teamCity, appVeyor);
                         controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
                         resultsVisitor.Finished.WaitOne();
                     }

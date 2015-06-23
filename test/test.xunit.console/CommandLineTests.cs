@@ -340,6 +340,39 @@ public class CommandLineTests
         }
     }
 
+    public class NoSkipsErrorOption
+    {
+        [Fact]
+        public static void NoSkipsOptionNotPassedNoSkipsFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.NoSkips);
+        }
+
+        [Fact]
+        public static void NoSkipsOptionNoSkipsIsTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-noskips" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.NoSkips);
+        }
+
+        [Fact]
+        public static void NoSkipsOptionIgnoreCaseNoSkipsIsTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-nOsKiPs" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.NoSkips);
+        }
+    }
+
     public class QuietOption
     {
         [Fact]

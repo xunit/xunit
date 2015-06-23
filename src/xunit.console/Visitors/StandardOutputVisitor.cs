@@ -85,6 +85,7 @@ namespace Xunit.ConsoleClient
             lock (consoleLock)
             {
                 // TODO: Thread-safe way to figure out the default foreground color
+
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("   {0} [SKIP]", Escape(testSkipped.Test.DisplayName));
                 Console.ForegroundColor = ConsoleColor.Gray;

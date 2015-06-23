@@ -100,6 +100,7 @@
     <Compile Include="Visitors\AppVeyorVisitor.cs" />
     <Compile Include="Visitors\AppVeyorLogger.cs" />
     <Compile Include="Visitors\DiagnosticMessageVisitor.cs" />
+    <Compile Include="Visitors\NoSkipVisitor.cs" />
     <Compile Include="Visitors\StandardOutputVisitor.cs" />
     <Compile Include="Visitors\TeamCityVisitor.cs" />
   </ItemGroup>
