@@ -64,6 +64,14 @@ namespace Xunit.Sdk
             return string.Format("{0}:{1}", GetTypeNameForSerialization(value.GetType()), serializationInfo.ToSerializedString());
         }
 
+        /// <summary>Gets whether the specified <paramref name="value"/> is serializable with <see cref="Serialize"/>.</summary>
+        /// <param name="value">The object to test for serializability.</param>
+        /// <returns>true if the object can be serialized; otherwise, false.</returns>
+        internal static bool IsSerializable(object value)
+        {
+            return XunitSerializationInfo.CanSerializeObject(value);
+        }
+
         /// <summary>
         /// Converts an assembly qualified type name into a <see cref="Type"/> object.
         /// </summary>
@@ -99,8 +107,8 @@ namespace Xunit.Sdk
                             return null;
 
                         var genericArgument = assemblyQualifiedTypeName.Substring(firstOpenSquare + 1, lastOpenSquare - firstOpenSquare - 2);  // Strip surrounding [ and ]
-                        var innerTypeNames = SplitAtOuterCommas(genericArgument).Select(x => x.Substring(1, x.Length - 2)).ToArray();  // Strip surrounding [ and ] from each type name
-                        var innerTypes = innerTypeNames.Select(GetType).ToArray();
+                        var innerTypeNames = SplitAtOuterCommas(genericArgument).Select(x => x.Substring(1, x.Length - 2));  // Strip surrounding [ and ] from each type name
+                        var innerTypes = innerTypeNames.Select(s => GetType(s)).ToArray();
                         if (innerTypes.Any(t => t == null))
                             return null;
 
@@ -132,14 +140,11 @@ namespace Xunit.Sdk
                 }
             }
 
-            var parts = SplitAtOuterCommas(assemblyQualifiedTypeName).Select(x => x.Trim()).ToList();
-            if (parts.Count == 0)
-                return null;
-
-            if (parts.Count == 1)
-                return Type.GetType(parts[0]);
-
-            return GetType(parts[1], parts[0]);
+            IList<string> parts = SplitAtOuterCommas(assemblyQualifiedTypeName, trimWhitespace: true);
+            return 
+                parts.Count == 0 ? null :
+                parts.Count == 1 ? Type.GetType(parts[0]) :
+                GetType(parts[1], parts[0]);
         }
 
         /// <summary>
@@ -226,9 +231,32 @@ namespace Xunit.Sdk
             return string.Format("{0}, {1}", typeName, assemblyName);
         }
 
-        private static IList<string> SplitAtOuterCommas(string value)
+        /// <summary>
+        /// Retrieves a substring from the string, with whitespace trimmed on both ends.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <param name="startIndex">The starting index.</param>
+        /// <param name="length">The length.</param>
+        /// <returns>
+        /// A substring starting no earlier than startIndex and ending no later
+        /// than startIndex + length.
+        /// </returns>
+        private static string SubstringTrim(string str, int startIndex, int length)
         {
-            var results = new List<string>();
+            int endIndex = startIndex + length;
+
+            while (startIndex < endIndex && char.IsWhiteSpace(str[startIndex]))
+                startIndex++;
+
+            while (endIndex > startIndex && char.IsWhiteSpace(str[endIndex - 1]))
+                endIndex--;
+
+            return str.Substring(startIndex, endIndex - startIndex);
+        }
+
+        private static IList<string> SplitAtOuterCommas(string value, bool trimWhitespace = false)
+        {
+            List<string> results = new List<string>();
 
             var startIndex = 0;
             var endIndex = 0;
@@ -243,7 +271,9 @@ namespace Xunit.Sdk
                     case ',':
                         if (depth == 0)
                         {
-                            results.Add(value.Substring(startIndex, endIndex - startIndex));
+                            results.Add(trimWhitespace ?
+                                SubstringTrim(value, startIndex, endIndex - startIndex) :
+                                value.Substring(startIndex, endIndex - startIndex));
                             startIndex = endIndex + 1;
                         }
                         break;
@@ -251,9 +281,16 @@ namespace Xunit.Sdk
             }
 
             if (depth != 0 || startIndex >= endIndex)
-                return new List<string>();
+            {
+                results.Clear();
+            }
+            else
+            {
+                results.Add(trimWhitespace ?
+                    SubstringTrim(value, startIndex, endIndex - startIndex) :
+                    value.Substring(startIndex, endIndex - startIndex));
+            }
 
-            results.Add(value.Substring(startIndex, endIndex - startIndex));
             return results;
         }
     }

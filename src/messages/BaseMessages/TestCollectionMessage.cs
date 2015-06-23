@@ -21,6 +21,15 @@ namespace Xunit
             TestCollection = testCollection;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestCollectionMessage"/> class.
+        /// </summary>
+        internal TestCollectionMessage(ITestCase testCase, ITestCollection testCollection)
+            : base(testCase, testCollection.TestAssembly)
+        {
+            TestCollection = testCollection;
+        }
+
         /// <inheritdoc/>
         public ITestCollection TestCollection { get; private set; }
     }

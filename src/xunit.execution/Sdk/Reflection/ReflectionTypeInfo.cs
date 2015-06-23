@@ -35,7 +35,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<ITypeInfo> Interfaces
         {
-            get { return Type.GetTypeInfo().ImplementedInterfaces.Select(Reflector.Wrap).Cast<ITypeInfo>().ToList(); }
+            get { return Type.GetTypeInfo().ImplementedInterfaces.Select(i => Reflector.Wrap(i)).ToList(); }
         }
 
         /// <inheritdoc/>
@@ -80,14 +80,14 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
-            return ReflectionAttributeInfo.GetCustomAttributes(Type, assemblyQualifiedAttributeTypeName).ToList();
+            return ReflectionAttributeInfo.GetCustomAttributes(Type, assemblyQualifiedAttributeTypeName).CastOrToList();
         }
 
         /// <inheritdoc/>
         public IEnumerable<ITypeInfo> GetGenericArguments()
         {
             return Type.GetTypeInfo().GenericTypeArguments
-                       .Select(Reflector.Wrap)
+                       .Select(t => Reflector.Wrap(t))
                        .ToList();
         }
 
@@ -105,10 +105,12 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
         {
-            return Type.GetRuntimeMethods().Where(m => includePrivateMethods || m.IsPublic)
-                       .Select(Reflector.Wrap)
-                       .Cast<IMethodInfo>()
-                       .ToList();
+            var methodInfos = Type.GetRuntimeMethods();
+            if (!includePrivateMethods)
+            {
+                methodInfos = methodInfos.Where(m => m.IsPublic);
+            }
+            return methodInfos.Select(m => Reflector.Wrap(m)).ToList();
         }
 
         /// <inheritdoc/>

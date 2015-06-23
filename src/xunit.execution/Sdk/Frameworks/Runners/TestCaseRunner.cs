@@ -56,7 +56,7 @@ namespace Xunit.Sdk
         /// </summary>
         protected virtual Task AfterTestCaseStartingAsync()
         {
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Xunit.Sdk
         /// </summary>
         protected virtual Task BeforeTestCaseFinishedAsync()
         {
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <summary>
