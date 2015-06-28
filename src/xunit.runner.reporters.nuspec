@@ -15,11 +15,12 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <group>
+      <group targetFramework="net45">
         <dependency id="xunit.runner.utility" version="99.99.99-dev" />
       </group>
       <group targetFramework="dnx451">
         <dependency id="Newtonsoft.Json" version="6.0.6" />
+        <dependency id="xunit.runner.utility" version="99.99.99-dev" />
       </group>
       <group targetFramework="dnxcore50">
         <dependency id="Newtonsoft.Json" version="6.0.6" />
@@ -28,6 +29,7 @@
         <dependency id="System.Linq" version="4.0.0-beta-23019" />
         <dependency id="System.Net.Http" version="4.0.0-beta-23019" />
         <dependency id="System.Threading" version="4.0.10-beta-23019" />
+        <dependency id="xunit.runner.utility" version="99.99.99-dev" />
       </group>
     </dependencies>
     <frameworkAssemblies>
