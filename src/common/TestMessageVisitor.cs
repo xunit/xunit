@@ -31,49 +31,67 @@ namespace Xunit
             return true;
         }
 
+        /// <summary>
+        /// Dispatches the message to the given callback, if it's of the correct type.
+        /// The callback is provided with both the message and this instance of the visitor.
+        /// </summary>
+        /// <typeparam name="TMessage">The message type</typeparam>
+        /// <param name="message">The message</param>
+        /// <param name="callback">The callback</param>
+        /// <returns>The result of the callback, if called; <c>true</c>, otherwise</returns>
+        private bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TestMessageVisitor, TMessage, bool> callback)
+            where TMessage : class, IMessageSinkMessage
+        {
+            var castMessage = message as TMessage;
+            if (castMessage != null)
+                return callback(this, castMessage);
+
+            return true;
+        }
+
         /// <inheritdoc/>
         public virtual bool OnMessage(IMessageSinkMessage message)
         {
             return
 #if !XUNIT_CORE_DLL
-                DoVisit<ITestAssemblyDiscoveryFinished>(message, Visit) &&
-                DoVisit<ITestAssemblyDiscoveryStarting>(message, Visit) &&
-                DoVisit<ITestExecutionSummary>(message, Visit) &&
+                DoVisit<ITestAssemblyDiscoveryFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestAssemblyDiscoveryStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestExecutionSummary>(message, (t, m) => t.Visit(m)) &&
 #endif
-                DoVisit<IAfterTestFinished>(message, Visit) &&
-                DoVisit<IAfterTestStarting>(message, Visit) &&
-                DoVisit<IBeforeTestFinished>(message, Visit) &&
-                DoVisit<IBeforeTestStarting>(message, Visit) &&
-                DoVisit<IDiagnosticMessage>(message, Visit) &&
-                DoVisit<IDiscoveryCompleteMessage>(message, Visit) &&
-                DoVisit<IErrorMessage>(message, Visit) &&
-                DoVisit<ITestAssemblyCleanupFailure>(message, Visit) &&
-                DoVisit<ITestAssemblyFinished>(message, Visit) &&
-                DoVisit<ITestAssemblyStarting>(message, Visit) &&
-                DoVisit<ITestCaseCleanupFailure>(message, Visit) &&
-                DoVisit<ITestCaseDiscoveryMessage>(message, Visit) &&
-                DoVisit<ITestCaseFinished>(message, Visit) &&
-                DoVisit<ITestOutput>(message, Visit) &&
-                DoVisit<ITestCaseStarting>(message, Visit) &&
-                DoVisit<ITestClassCleanupFailure>(message, Visit) &&
-                DoVisit<ITestClassConstructionFinished>(message, Visit) &&
-                DoVisit<ITestClassConstructionStarting>(message, Visit) &&
-                DoVisit<ITestClassDisposeFinished>(message, Visit) &&
-                DoVisit<ITestClassDisposeStarting>(message, Visit) &&
-                DoVisit<ITestClassFinished>(message, Visit) &&
-                DoVisit<ITestClassStarting>(message, Visit) &&
-                DoVisit<ITestCleanupFailure>(message, Visit) &&
-                DoVisit<ITestCollectionCleanupFailure>(message, Visit) &&
-                DoVisit<ITestCollectionFinished>(message, Visit) &&
-                DoVisit<ITestCollectionStarting>(message, Visit) &&
-                DoVisit<ITestFailed>(message, Visit) &&
-                DoVisit<ITestFinished>(message, Visit) &&
-                DoVisit<ITestMethodCleanupFailure>(message, Visit) &&
-                DoVisit<ITestMethodFinished>(message, Visit) &&
-                DoVisit<ITestMethodStarting>(message, Visit) &&
-                DoVisit<ITestPassed>(message, Visit) &&
-                DoVisit<ITestSkipped>(message, Visit) &&
-                DoVisit<ITestStarting>(message, Visit);
+                DoVisit<IAfterTestFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<IAfterTestStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<IBeforeTestFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<IBeforeTestStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<IDiagnosticMessage>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<IDiscoveryCompleteMessage>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<IErrorMessage>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestAssemblyCleanupFailure>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestAssemblyFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestAssemblyStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestCaseCleanupFailure>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestCaseDiscoveryMessage>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestCaseFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestOutput>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestCaseStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestClassCleanupFailure>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestClassConstructionFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestClassConstructionStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestClassDisposeFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestClassDisposeStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestClassFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestClassStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestCleanupFailure>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestCollectionCleanupFailure>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestCollectionFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestCollectionStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestFailed>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestMethodCleanupFailure>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestMethodFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestMethodStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestPassed>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestSkipped>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestStarting>(message, (t, m) => t.Visit(m));
         }
 
 #if !XUNIT_CORE_DLL

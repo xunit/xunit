@@ -22,6 +22,15 @@ namespace Xunit
             TestCases = testCases.ToList();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestAssemblyMessage"/> class.
+        /// </summary>
+        internal TestAssemblyMessage(ITestCase testCase, ITestAssembly testAssembly)
+        {
+            TestAssembly = testAssembly;
+            TestCases = new ITestCase[] { testCase };
+        }
+
         /// <inheritdoc/>
         public ITestAssembly TestAssembly { get; set; }
 

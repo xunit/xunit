@@ -82,7 +82,7 @@ namespace Xunit.Sdk
                 }
             }
 
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>
@@ -91,7 +91,7 @@ namespace Xunit.Sdk
             foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
 
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>

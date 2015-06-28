@@ -16,7 +16,7 @@ namespace Xunit
         /// Initializes a new instance of the <see cref="TestCaseMessage"/> class.
         /// </summary>
         public TestCaseMessage(ITestCase testCase)
-            : base(new[] { testCase }, testCase.TestMethod) { }
+            : base(testCase, testCase.TestMethod) { }
 
         /// <inheritdoc/>
         public ITestCase TestCase { get { return TestCases.FirstOrDefault(); } }

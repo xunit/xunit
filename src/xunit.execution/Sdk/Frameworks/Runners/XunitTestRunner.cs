@@ -55,7 +55,15 @@ namespace Xunit.Sdk
         protected override async Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator)
         {
             var output = string.Empty;
-            var testOutputHelper = ConstructorArguments.OfType<TestOutputHelper>().FirstOrDefault();
+
+            TestOutputHelper testOutputHelper = null;
+            foreach (object obj in ConstructorArguments)
+            {
+                testOutputHelper = obj as TestOutputHelper;
+                if (testOutputHelper != null)
+                    break;
+            }
+
             if (testOutputHelper != null)
                 testOutputHelper.Initialize(MessageBus, Test);
 
@@ -75,9 +83,9 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
-        protected virtual async Task<decimal> InvokeTestMethodAsync(ExceptionAggregator aggregator)
+        protected virtual Task<decimal> InvokeTestMethodAsync(ExceptionAggregator aggregator)
         {
-            return await new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, BeforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
+            return new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, BeforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
         }
     }
 }

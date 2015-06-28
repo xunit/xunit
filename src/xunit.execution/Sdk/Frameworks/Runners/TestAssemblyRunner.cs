@@ -118,7 +118,7 @@ namespace Xunit.Sdk
         /// </summary>
         protected virtual Task AfterTestAssemblyStartingAsync()
         {
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Xunit.Sdk
         /// </summary>
         protected virtual Task BeforeTestAssemblyFinishedAsync()
         {
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <summary>

@@ -150,14 +150,14 @@ namespace Xunit.Sdk
         protected override Task AfterTestAssemblyStartingAsync()
         {
             Initialize();
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>
         protected override Task BeforeTestAssemblyFinishedAsync()
         {
             SetSynchronizationContext(originalSyncContext);
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>

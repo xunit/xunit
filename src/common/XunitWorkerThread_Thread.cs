@@ -9,8 +9,8 @@ namespace Xunit.Sdk
 
         public XunitWorkerThread(Action threadProc)
         {
-            thread = new Thread(() => threadProc()) { IsBackground = true };
-            thread.Start();
+            thread = new Thread(s => ((Action)s)()) { IsBackground = true };
+            thread.Start(threadProc);
         }
 
         public void Join()
@@ -21,7 +21,7 @@ namespace Xunit.Sdk
 
         public static void QueueUserWorkItem(Action backgroundTask)
         {
-            ThreadPool.QueueUserWorkItem(_ => backgroundTask());
+            ThreadPool.QueueUserWorkItem(s => ((Action)s)(), backgroundTask);
         }
     }
 }

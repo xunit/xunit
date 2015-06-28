@@ -51,12 +51,12 @@ namespace Xunit.Sdk
                         // down below so that we get the composite test case.
                         foreach (var dataRow in discoverer.GetData(dataAttribute, testMethod.Method))
                         {
-                            // Attempt to serialize the test case, since we need a way to uniquely identify a test
-                            // and serialization is the best way to do that. If it's not serializable, this will
-                            // throw and we will fall back to a single theory test case that gets its data
-                            // at runtime.
+                            // Determine whether we can serialize the test case, since we need a way to uniquely 
+                            // identify a test and serialization is the best way to do that. If it's not serializable, 
+                            // this will throw and we will fall back to a single theory test case that gets its data at runtime.
                             var testCase = new XunitTestCase(diagnosticMessageSink, defaultMethodDisplay, testMethod, dataRow);
-                            SerializationHelper.Serialize(testCase);
+                            if (!SerializationHelper.IsSerializable(dataRow))
+                                return new XunitTestCase[] { new XunitTheoryTestCase(diagnosticMessageSink, defaultMethodDisplay, testMethod) };
                             results.Add(testCase);
                         }
                     }
@@ -67,7 +67,7 @@ namespace Xunit.Sdk
 
                     return results;
                 }
-                catch { }  // If there are serialization issues with the theory data, fall through to return just the XunitTestCase
+                catch { }  // If something goes wrong, fall through to return just the XunitTestCase
             }
 
             return new XunitTestCase[] { new XunitTheoryTestCase(diagnosticMessageSink, defaultMethodDisplay, testMethod) };

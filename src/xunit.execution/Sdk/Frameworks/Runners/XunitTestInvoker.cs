@@ -80,7 +80,7 @@ namespace Xunit.Sdk
                     break;
             }
 
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>
@@ -98,7 +98,7 @@ namespace Xunit.Sdk
                     CancellationTokenSource.Cancel();
             }
 
-            return Task.FromResult(0);
+            return CommonTasks.Completed;
         }
     }
 }
