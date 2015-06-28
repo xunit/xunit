@@ -36,4 +36,9 @@
     />
   </Target>
 
+  <Target Name="Console">
+    <exec Command="..\src\xunit.console\bin\$(Configuration)\xunit.console.exe ..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll" />
+    <exec Command="..\src\xunit.console\bin\$(Configuration)\xunit.console.exe @(TestAssemblies->'%(identity)', ' ') -parallel all" />
+  </Target>
+
 </Project>

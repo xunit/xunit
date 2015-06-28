@@ -75,7 +75,7 @@ namespace Xunit
             {
                 var frameInfo = StackFrameInfo.FromFailure(failureInfo);
 
-                Logger.LogError(frameInfo, "   [{0}] {1}", failureType, Escape(failureInfo.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)"));
+                Logger.LogError(frameInfo, "    [{0}] {1}", failureType, Escape(failureInfo.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)"));
 
                 foreach (var messageLine in ExceptionUtility.CombineMessages(failureInfo).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
                     Logger.LogImportantMessage(frameInfo, "      {0}", messageLine);
@@ -95,7 +95,7 @@ namespace Xunit
             Logger.LogMessage(frameInfo, "      Stack Trace:");
 
             foreach (var stackFrame in stackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-                Logger.LogImportantMessage(frameInfo, "         {0}", StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory));
+                Logger.LogImportantMessage(frameInfo, "        {0}", StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory));
         }
 
         /// <inheritdoc/>
@@ -112,9 +112,16 @@ namespace Xunit
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryFinished.Assembly);
 
             if (discoveryFinished.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
-                Logger.LogImportantMessage("Discovered:  {0} (running {1} of {2} test cases)", assemblyDisplayName, discoveryFinished.TestCasesToRun, discoveryFinished.TestCasesDiscovered);
+            {
+                var count =
+                    discoveryFinished.TestCasesToRun == discoveryFinished.TestCasesDiscovered
+                        ? discoveryFinished.TestCasesDiscovered.ToString()
+                        : string.Format("{0} of {1}", discoveryFinished.TestCasesToRun, discoveryFinished.TestCasesDiscovered);
+
+                Logger.LogImportantMessage("  Discovered:  {0} (running {1} test case{2})", assemblyDisplayName, count, discoveryFinished.TestCasesToRun == 1 ? "" : "s");
+            }
             else
-                Logger.LogImportantMessage("Discovered:  {0}", assemblyDisplayName);
+                Logger.LogImportantMessage("  Discovered:  {0}", assemblyDisplayName);
 
             return base.Visit(discoveryFinished);
         }
@@ -125,13 +132,13 @@ namespace Xunit
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryStarting.Assembly);
 
             if (discoveryStarting.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
-                Logger.LogImportantMessage("Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
+                Logger.LogImportantMessage("  Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
                                            assemblyDisplayName,
                                            discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault(),
                                            !discoveryStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off",
                                            discoveryStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault());
             else
-                Logger.LogImportantMessage("Discovering: {0}", assemblyDisplayName);
+                Logger.LogImportantMessage("  Discovering: {0}", assemblyDisplayName);
 
             return base.Visit(discoveryStarting);
         }
@@ -147,7 +154,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestAssemblyFinished assemblyFinished)
         {
-            Logger.LogImportantMessage("Finished:    {0}", GetAssemblyDisplayName(assemblyFinished));
+            Logger.LogImportantMessage("  Finished:    {0}", GetAssemblyDisplayName(assemblyFinished));
 
             return base.Visit(assemblyFinished);
         }
@@ -155,7 +162,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
         {
-            Logger.LogImportantMessage("Starting:    {0}", GetAssemblyDisplayName(assemblyStarting));
+            Logger.LogImportantMessage("  Starting:    {0}", GetAssemblyDisplayName(assemblyStarting));
 
             return base.Visit(assemblyStarting);
         }
@@ -207,7 +214,7 @@ namespace Xunit
             {
                 var frameInfo = StackFrameInfo.FromFailure(testFailed);
 
-                Logger.LogError(frameInfo, "   {0} [FAIL]", Escape(testFailed.Test.DisplayName));
+                Logger.LogError(frameInfo, "    {0} [FAIL]", Escape(testFailed.Test.DisplayName));
 
                 foreach (var messageLine in ExceptionUtility.CombineMessages(testFailed).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
                     Logger.LogImportantMessage(frameInfo, "      {0}", messageLine);
@@ -231,7 +238,7 @@ namespace Xunit
         {
             lock (Logger.LockObject)
             {
-                Logger.LogWarning("   {0} [SKIP]", Escape(testSkipped.Test.DisplayName));
+                Logger.LogWarning("    {0} [SKIP]", Escape(testSkipped.Test.DisplayName));
                 Logger.LogImportantMessage("      {0}", Escape(testSkipped.Reason));
             }
 
@@ -246,7 +253,6 @@ namespace Xunit
         /// <param name="executionSummary">The execution summary to display.</param>
         public static void WriteDefaultSummary(IRunnerLogger logger, ITestExecutionSummary executionSummary)
         {
-            logger.LogImportantMessage("");
             logger.LogImportantMessage("=== TEST EXECUTION SUMMARY ===");
 
             var totalTestsRun = executionSummary.Summaries.Sum(summary => summary.Value.Total);

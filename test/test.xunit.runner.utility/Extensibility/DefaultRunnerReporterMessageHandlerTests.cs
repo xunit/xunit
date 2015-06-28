@@ -77,13 +77,13 @@ public class DefaultRunnerReporterMessageHandlerTests
             handler.OnMessage(message);
 
             Assert.Collection(handler.Messages,
-                msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>    [" + messageType + "] ExceptionType", msg),
+                msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>     [" + messageType + "] ExceptionType", msg),
                 msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       ExceptionType : This is my message \t", msg),
                 msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       Message Line 2", msg),
                 msg => Assert.Equal("[--- @ SomeFolder\\SomeClass.cs:18] =>       Stack Trace:", msg),
-                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>          Line 1", msg),
-                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>          SomeFolder\\SomeClass.cs(18,0): at SomeClass.SomeMethod()", msg),
-                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>          Line 3", msg)
+                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         Line 1", msg),
+                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         SomeFolder\\SomeClass.cs(18,0): at SomeClass.SomeMethod()", msg),
+                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         Line 3", msg)
             );
         }
     }
@@ -91,11 +91,14 @@ public class DefaultRunnerReporterMessageHandlerTests
     public class OnMessage_ITestAssemblyDiscoveryFinished
     {
         [Theory]
-        [InlineData(false, "[Imp] => Discovered:  testAssembly")]
-        [InlineData(true, "[Imp] => Discovered:  testAssembly (running 42 of 2112 test cases)")]
-        public static void LogsMessage(bool diagnosticMessages, string expectedResult)
+        [InlineData(false, 0, 0, "[Imp] =>   Discovered:  testAssembly")]
+        [InlineData(true, 42, 2112, "[Imp] =>   Discovered:  testAssembly (running 42 of 2112 test cases)")]
+        [InlineData(true, 42, 42, "[Imp] =>   Discovered:  testAssembly (running 42 test cases)")]
+        [InlineData(true, 1, 1, "[Imp] =>   Discovered:  testAssembly (running 1 test case)")]
+        [InlineData(true, 0, 1, "[Imp] =>   Discovered:  testAssembly (running 0 of 1 test cases)")]
+        public static void LogsMessage(bool diagnosticMessages, int toRun, int discovered, string expectedResult)
         {
-            var message = Mocks.TestAssemblyDiscoveryFinished(diagnosticMessages: diagnosticMessages);
+            var message = Mocks.TestAssemblyDiscoveryFinished(diagnosticMessages, toRun, discovered);
             var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
             handler.OnMessage(message);
@@ -108,8 +111,8 @@ public class DefaultRunnerReporterMessageHandlerTests
     public class OnMessage_ITestAssemblyDiscoveryStarting
     {
         [Theory]
-        [InlineData(false, "[Imp] => Discovering: testAssembly")]
-        [InlineData(true, "[Imp] => Discovering: testAssembly (method display = ClassAndMethod, parallel test collections = on, max threads = 42)")]
+        [InlineData(false, "[Imp] =>   Discovering: testAssembly")]
+        [InlineData(true, "[Imp] =>   Discovering: testAssembly (method display = ClassAndMethod, parallel test collections = on, max threads = 42)")]
         public static void LogsMessage(bool diagnosticMessages, string expectedResult)
         {
             var message = Mocks.TestAssemblyDiscoveryStarting(diagnosticMessages: diagnosticMessages);
@@ -133,7 +136,7 @@ public class DefaultRunnerReporterMessageHandlerTests
             handler.OnMessage(message);
 
             var msg = Assert.Single(handler.Messages);
-            Assert.Equal("[Imp] => Finished:    testAssembly", msg);
+            Assert.Equal("[Imp] =>   Finished:    testAssembly", msg);
         }
     }
 
@@ -148,7 +151,7 @@ public class DefaultRunnerReporterMessageHandlerTests
             handler.OnMessage(message);
 
             var msg = Assert.Single(handler.Messages);
-            Assert.Equal("[Imp] => Starting:    testAssembly", msg);
+            Assert.Equal("[Imp] =>   Starting:    testAssembly", msg);
         }
     }
 
@@ -165,7 +168,6 @@ public class DefaultRunnerReporterMessageHandlerTests
             handler.OnMessage(message);
 
             Assert.Collection(handler.Messages,
-                msg => Assert.Equal("[Imp] => ", msg),
                 msg => Assert.Equal("[Imp] => === TEST EXECUTION SUMMARY ===", msg),
                 msg => Assert.Equal("[Imp] =>    assembly  Total: 2112, Errors: 6, Failed: 42, Skipped: 8, Time: 1.235s", msg)
             );
@@ -188,7 +190,6 @@ public class DefaultRunnerReporterMessageHandlerTests
             handler.OnMessage(message);
 
             Assert.Collection(handler.Messages,
-                msg => Assert.Equal("[Imp] => ", msg),
                 msg => Assert.Equal("[Imp] => === TEST EXECUTION SUMMARY ===", msg),
                 msg => Assert.Equal("[Imp] =>    short       Total:  2112, Errors:  6, Failed:  42, Skipped:  8, Time: 1.235s", msg),
                 msg => Assert.Equal("[Imp] =>    nothing     Total:     0", msg),
@@ -211,13 +212,13 @@ public class DefaultRunnerReporterMessageHandlerTests
             handler.OnMessage(message);
 
             Assert.Collection(handler.Messages,
-                msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>    This is my display name \\t\\r\\n [FAIL]", msg),
+                msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>     This is my display name \\t\\r\\n [FAIL]", msg),
                 msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       ExceptionType : This is my message \t", msg),
                 msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>       Message Line 2", msg),
                 msg => Assert.Equal("[--- @ SomeFolder\\SomeClass.cs:18] =>       Stack Trace:", msg),
-                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>          Line 1", msg),
-                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>          SomeFolder\\SomeClass.cs(18,0): at SomeClass.SomeMethod()", msg),
-                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>          Line 3", msg)
+                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         Line 1", msg),
+                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         SomeFolder\\SomeClass.cs(18,0): at SomeClass.SomeMethod()", msg),
+                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         Line 3", msg)
             );
         }
     }
@@ -233,7 +234,7 @@ public class DefaultRunnerReporterMessageHandlerTests
             handler.OnMessage(message);
 
             Assert.Collection(handler.Messages,
-                msg => Assert.Equal("[Wrn] =>    This is my display name \\t\\r\\n [SKIP]", msg),
+                msg => Assert.Equal("[Wrn] =>     This is my display name \\t\\r\\n [SKIP]", msg),
                 msg => Assert.Equal("[Imp] =>       This is my skip reason \\t\\r\\n", msg)
             );
         }

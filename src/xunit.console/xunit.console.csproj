@@ -74,6 +74,9 @@
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\common\XmlAggregateVisitor.cs">
+      <Link>Common\XmlAggregateVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\common\XmlTestExecutionVisitor.cs">
       <Link>Common\XmlTestExecutionVisitor.cs</Link>
     </Compile>
@@ -88,7 +91,6 @@
     <Compile Include="Utility\Transform.cs" />
     <Compile Include="Utility\TransformFactory.cs" />
     <Compile Include="Visitors\DiagnosticMessageVisitor.cs" />
-    <Compile Include="Visitors\XmlAggregateVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NUnitXml.xslt">

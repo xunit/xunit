@@ -201,7 +201,7 @@ public static class Mocks
         return new TestAssembly(Reflector.Wrap(assembly ?? Assembly.GetExecutingAssembly()), configFileName ?? AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
     }
 
-    public static ITestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(bool diagnosticMessages = false)
+    public static ITestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(bool diagnosticMessages = false, int toRun = 42, int discovered = 2112)
     {
         var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
         var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages };
@@ -209,8 +209,8 @@ public static class Mocks
         result.Assembly.Returns(assembly);
         result.DiscoveryOptions.Returns(TestFrameworkOptions.ForDiscovery(config));
         result.ExecutionOptions.Returns(TestFrameworkOptions.ForExecution(config));
-        result.TestCasesDiscovered.Returns(2112);
-        result.TestCasesToRun.Returns(42);
+        result.TestCasesDiscovered.Returns(discovered);
+        result.TestCasesToRun.Returns(toRun);
         return result;
     }
 

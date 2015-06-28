@@ -92,9 +92,9 @@ namespace Xunit.ConsoleClient
         static List<IRunnerReporter> GetAvailableRunnerReporters()
         {
             var result = new List<IRunnerReporter>();
-            var exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+            var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
 
-            foreach (var dllFile in Directory.GetFiles(exePath, "*.dll").Select(f => Path.Combine(exePath, f)))
+            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
             {
                 Type[] types;
 
@@ -114,11 +114,7 @@ namespace Xunit.ConsoleClient
 
                 foreach (var type in types)
                 {
-                    if (type.IsAbstract)
-                        continue;
-                    if (type == typeof(DefaultRunnerReporter))
-                        continue;
-                    if (!type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
                         continue;
                     var ctor = type.GetConstructor(new Type[0]);
                     if (ctor == null)
@@ -150,15 +146,15 @@ namespace Xunit.ConsoleClient
 
         static void PrintHeader()
         {
-            Console.WriteLine("xUnit.net console test runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
-            Console.WriteLine("Copyright (C) 2015 Outercurve Foundation.");
-            Console.WriteLine();
+            Console.WriteLine("xUnit.net Console Runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
         }
 
         static void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
         {
             var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
 
+            Console.WriteLine("Copyright (C) 2015 Outercurve Foundation.");
+            Console.WriteLine();
             Console.WriteLine("usage: {0} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]", executableName);
             Console.WriteLine();
             Console.WriteLine("Note: Configuration files must end in .config");
@@ -198,7 +194,7 @@ namespace Xunit.ConsoleClient
                 Console.WriteLine("Reporters: (optional, choose only one)");
 
                 foreach (var reporter in switchableReporters.OrderBy(r => r.RunnerSwitch))
-                    Console.WriteLine("  -{0} : {1}", reporter.RunnerSwitch.PadRight(21), reporter.Description);
+                    Console.WriteLine("  -{0} : {1}", reporter.RunnerSwitch.ToLowerInvariant().PadRight(21), reporter.Description);
 
                 Console.WriteLine();
             }

@@ -58,6 +58,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\common\AssemblyExtensions.cs">
+      <Link>Common\AssemblyExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
@@ -70,10 +73,14 @@
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\common\XmlAggregateVisitor.cs">
+      <Link>Common\XmlAggregateVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\common\XmlTestExecutionVisitor.cs">
       <Link>Common\XmlTestExecutionVisitor.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\MSBuildLogger.cs" />
     <Compile Include="Utility\TraitParser.cs" />
     <Compile Include="Visitors\DiagnosticMessageVisitor.cs" />
     <Compile Include="Visitors\MSBuildVisitor.cs" />
@@ -88,6 +95,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\xunit.runner.reporters.desktop\xunit.runner.reporters.desktop.csproj">
+      <Project>{331effd9-35dc-4793-8d75-805b92a91935}</Project>
+      <Name>xunit.runner.reporters.desktop</Name>
+    </ProjectReference>
     <ProjectReference Include="..\xunit.runner.utility.desktop\xunit.runner.utility.desktop.csproj">
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
       <Name>xunit.runner.utility.desktop</Name>

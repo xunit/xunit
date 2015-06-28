@@ -255,7 +255,7 @@ namespace Xunit.ConsoleClient
                 else
                 {
                     // Might be a reporter...
-                    var reporter = reporters.FirstOrDefault(r => r.RunnerSwitch == optionName);
+                    var reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, optionName, StringComparison.OrdinalIgnoreCase));
                     if (reporter != null)
                     {
                         GuardNoOptionValue(option);
