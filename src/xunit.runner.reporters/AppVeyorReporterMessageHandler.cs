@@ -1,4 +1,4 @@
-#if !DNXCORE50    // TODO: Add conditional code for DNX to use JSON.NET instead of JSS
+#if !DNXCORE50 && !DNX451    // TODO: Add conditional code for DNX to use JSON.NET instead of JSS
 
 using System;
 using System.Collections.Concurrent;
@@ -64,11 +64,17 @@ namespace Xunit.Runner.Reporters
 
         const int MaxLength = 4096;
 
-        static Lazy<string> apiUrl = new Lazy<string>(GetApiUri);
+        static string apiUrl = "__unknown__";
 
         static string ApiUri
         {
-            get { return apiUrl.Value; }
+            get
+            {
+                if (apiUrl == "__unknown__")
+                    apiUrl = GetApiUri();
+
+                return apiUrl;
+            }
         }
 
         string GetFinishedTestName(string methodName)

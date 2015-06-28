@@ -1,4 +1,4 @@
-#if !DNXCORE50
+#if !DNXCORE50 && !DNX451
 
 using System;
 using System.Collections.Generic;
