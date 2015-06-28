@@ -51,10 +51,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Collections" />
     <Reference Include="System.configuration" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="xunit.abstractions">
@@ -80,9 +77,6 @@
     <Compile Include="..\common\XmlTestExecutionVisitor.cs">
       <Link>Common\XmlTestExecutionVisitor.cs</Link>
     </Compile>
-    <Compile Include="..\xunit.runner.msbuild\Utility\TeamCityDisplayNameFormatter.cs">
-      <Link>Utility\TeamCityDisplayNameFormatter.cs</Link>
-    </Compile>
     <Compile Include="CommandLine.cs" />
     <Compile Include="Config\TransformConfigurationElement.cs" />
     <Compile Include="Config\TransformConfigurationElementCollection.cs" />
@@ -90,18 +84,11 @@
     <Compile Include="ParallelismOption.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RunnerCallbacks\RunnerCallback.cs" />
-    <Compile Include="RunnerCallbacks\StandardRunnerCallback.cs" />
-    <Compile Include="RunnerCallbacks\TeamCityRunnerCallback.cs" />
     <Compile Include="Utility\ConsoleLogger.cs" />
-    <Compile Include="Utility\StackFrameTransformer.cs" />
     <Compile Include="Utility\Transform.cs" />
     <Compile Include="Utility\TransformFactory.cs" />
-    <Compile Include="Visitors\AppVeyorVisitor.cs" />
-    <Compile Include="Visitors\AppVeyorLogger.cs" />
     <Compile Include="Visitors\DiagnosticMessageVisitor.cs" />
-    <Compile Include="Visitors\StandardOutputVisitor.cs" />
-    <Compile Include="Visitors\TeamCityVisitor.cs" />
+    <Compile Include="Visitors\XmlAggregateVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NUnitXml.xslt">
@@ -119,6 +106,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\xunit.runner.reporters.desktop\xunit.runner.reporters.desktop.csproj">
+      <Project>{331effd9-35dc-4793-8d75-805b92a91935}</Project>
+      <Name>xunit.runner.reporters.desktop</Name>
+    </ProjectReference>
     <ProjectReference Include="..\xunit.runner.utility.desktop\xunit.runner.utility.desktop.csproj">
       <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
       <Name>xunit.runner.utility.desktop</Name>
@@ -141,6 +132,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

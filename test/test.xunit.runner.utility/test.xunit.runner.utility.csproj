@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="Common\ConfigReader_ConfigurationTests.cs" />
     <Compile Include="Common\ConfigReader_XDocumentTests.cs" />
+    <Compile Include="Extensibility\DefaultRunnerReporterMessageHandlerTests.cs" />
     <Compile Include="Frameworks\v1\TestClassCallbackHandlerTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1ExceptionUtilityTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCaseTests.cs" />

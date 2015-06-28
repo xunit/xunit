@@ -1,10 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 using Xunit.ConsoleClient;
-using Xunit.Sdk;
 
 public class CommandLineTests
 {
@@ -13,7 +12,7 @@ public class CommandLineTests
         [Fact]
         public static void MissingAssemblyFileNameThrows()
         {
-            var exception = Record.Exception(() => CommandLine.Parse(new[] { "-teamcity" }));
+            var exception = Record.Exception(() => TestableCommandLine.Parse(new[] { "-teamcity" }));
 
             Assert.IsType<ArgumentException>(exception);
             Assert.Equal("must specify at least one assembly", exception.Message);
@@ -25,10 +24,7 @@ public class CommandLineTests
             var arguments = new string[1];
             arguments[0] = "fileName";
 
-            var exception = Record.Exception(() =>
-                            {
-                                CommandLine.Parse(arguments);
-                            });
+            var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
 
             Assert.IsType<ArgumentException>(exception);
             Assert.Equal("file not found: fileName", exception.Message);
@@ -108,67 +104,6 @@ public class CommandLineTests
 
             Assert.IsType<ArgumentException>(exception);
             Assert.Equal("expecting assembly, got config file: assembly2.config", exception.Message);
-        }
-    }
-
-    public class AppVeyorOption
-    {
-        [Fact, AppVeyorEnvironmentRestore]
-        public static void AppVeyorOptionNotPassedAppVeyorFalse()
-        {
-            var arguments = new[] { "assemblyName.dll" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.False(commandLine.AppVeyor);
-        }
-
-        [Fact, AppVeyorEnvironmentRestore(Value = "AppVeyor")]
-        public static void AppVeyorOptionNotPassedEnvironmentSetAppVeyorTrue()
-        {
-            var arguments = new[] { "assemblyName.dll" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.True(commandLine.AppVeyor);
-        }
-
-        [Fact, AppVeyorEnvironmentRestore]
-        public static void AppVeyorOptionAppVeyorTrue()
-        {
-            var arguments = new[] { "assemblyName.dll", "-appveyor" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.True(commandLine.AppVeyor);
-        }
-
-        [Fact, AppVeyorEnvironmentRestore]
-        public static void AppVeyorOptionIgnoreCaseAppVeyorTrue()
-        {
-            var arguments = new[] { "assemblyName.dll", "-aPpVeyOr" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.True(commandLine.AppVeyor);
-        }
-
-        class AppVeyorEnvironmentRestore : BeforeAfterTestAttribute
-        {
-            string originalValue;
-
-            public string Value { get; set; }
-
-            public override void Before(MethodInfo methodUnderTest)
-            {
-                originalValue = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
-                Environment.SetEnvironmentVariable("APPVEYOR_API_URL", Value);
-            }
-
-            public override void After(MethodInfo methodUnderTest)
-            {
-                Environment.SetEnvironmentVariable("APPVEYOR_API_URL", originalValue);
-            }
         }
     }
 
@@ -340,29 +275,6 @@ public class CommandLineTests
         }
     }
 
-    public class QuietOption
-    {
-        [Fact]
-        public static void QuietNotSetQuietIsFalse()
-        {
-            var arguments = new[] { "assemblyName.dll" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.False(commandLine.Quiet);
-        }
-
-        [Fact]
-        public static void QuietSetQuietIsTrue()
-        {
-            var arguments = new[] { "assemblyName.dll", "-quiet" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.True(commandLine.Quiet);
-        }
-    }
-
     public class WaitOption
     {
         [Fact]
@@ -393,67 +305,6 @@ public class CommandLineTests
             var commandLine = TestableCommandLine.Parse(arguments);
 
             Assert.True(commandLine.Wait);
-        }
-    }
-
-    public class TeamCityArgument
-    {
-        [Fact, TeamCityEnvironmentRestore]
-        public static void TeamCityOptionNotPassedTeamCityFalse()
-        {
-            var arguments = new[] { "assemblyName.dll" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.False(commandLine.TeamCity);
-        }
-
-        [Fact, TeamCityEnvironmentRestore(Value = "TeamCity")]
-        public static void TeamCityOptionNotPassedEnvironmentSetTeamCityTrue()
-        {
-            var arguments = new[] { "assemblyName.dll" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.True(commandLine.TeamCity);
-        }
-
-        [Fact, TeamCityEnvironmentRestore]
-        public static void TeamCityOptionTeamCityTrue()
-        {
-            var arguments = new[] { "assemblyName.dll", "-teamcity" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.True(commandLine.TeamCity);
-        }
-
-        [Fact, TeamCityEnvironmentRestore]
-        public static void TeamCityOptionIgnoreCaseTeamCityTrue()
-        {
-            var arguments = new[] { "assemblyName.dll", "-tEaMcItY" };
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            Assert.True(commandLine.TeamCity);
-        }
-
-        class TeamCityEnvironmentRestore : BeforeAfterTestAttribute
-        {
-            string originalValue;
-
-            public string Value { get; set; }
-
-            public override void Before(MethodInfo methodUnderTest)
-            {
-                originalValue = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME");
-                Environment.SetEnvironmentVariable("TEAMCITY_PROJECT_NAME", Value);
-            }
-
-            public override void After(MethodInfo methodUnderTest)
-            {
-                Environment.SetEnvironmentVariable("TEAMCITY_PROJECT_NAME", originalValue);
-            }
         }
     }
 
@@ -780,10 +631,10 @@ public class CommandLineTests
         [Fact]
         public static void ParallelizationOptionsAreNullByDefault()
         {
-            var project = TestableCommandLine.Parse("assemblyName.dll");
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll");
 
-            Assert.Null(project.ParallelizeAssemblies);
-            Assert.Null(project.ParallelizeTestCollections);
+            Assert.Null(commandLine.ParallelizeAssemblies);
+            Assert.Null(commandLine.ParallelizeTestCollections);
         }
 
         [Fact]
@@ -803,10 +654,54 @@ public class CommandLineTests
         [InlineData("all", true, true)]
         public static void ParallelCanBeTurnedOn(string parallelOption, bool expectedAssemblyParallelization, bool expectedCollectionsParallelization)
         {
-            var project = TestableCommandLine.Parse("assemblyName.dll", "-parallel", parallelOption);
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-parallel", parallelOption);
 
-            Assert.Equal(expectedAssemblyParallelization, project.ParallelizeAssemblies);
-            Assert.Equal(expectedCollectionsParallelization, project.ParallelizeTestCollections);
+            Assert.Equal(expectedAssemblyParallelization, commandLine.ParallelizeAssemblies);
+            Assert.Equal(expectedCollectionsParallelization, commandLine.ParallelizeTestCollections);
+        }
+    }
+
+    public class Reporters
+    {
+        [Fact]
+        public void NoReporters_UsesDefaultReporter()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll");
+
+            Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
+        }
+
+        [Fact]
+        public void NoExplicitReporter_NoEnvironmentallyEnabledReporters_UsesDefaultReporter()
+        {
+            var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: false);
+
+            var commandLine = TestableCommandLine.Parse(new[] { implicitReporter }, "assemblyName.dll");
+
+            Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
+        }
+
+        [Fact]
+        public void ExplicitReporter_UsesExplicitReporter()
+        {
+            var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+            var explicitReporter = Mocks.RunnerReporter("switch");
+
+            var commandLine = TestableCommandLine.Parse(new[] { implicitReporter, explicitReporter }, "assemblyName.dll", "-switch");
+
+            Assert.Same(explicitReporter, commandLine.Reporter);
+        }
+
+        [Fact]
+        public void NoExplicitReporter_SelectsFirstEnvironmentallyEnabledReporter()
+        {
+            var explicitReporter = Mocks.RunnerReporter("switch");
+            var implicitReporter1 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+            var implicitReporter2 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+
+            var commandLine = TestableCommandLine.Parse(new[] { explicitReporter, implicitReporter1, implicitReporter2 }, "assemblyName.dll");
+
+            Assert.Same(implicitReporter1, commandLine.Reporter);
         }
     }
 
@@ -838,12 +733,18 @@ public class CommandLineTests
 
     class TestableCommandLine : CommandLine
     {
-        private TestableCommandLine(params string[] arguments)
-            : base(arguments, filename => filename != "badConfig.config") { }
+        private TestableCommandLine(IReadOnlyList<IRunnerReporter> reporters, params string[] arguments)
+            : base(reporters, arguments, filename => filename != "badConfig.config" && filename != "fileName")
+        { }
 
-        public new static TestableCommandLine Parse(params string[] arguments)
+        public static TestableCommandLine Parse(params string[] arguments)
         {
-            return new TestableCommandLine(arguments);
+            return new TestableCommandLine(new IRunnerReporter[0], arguments);
+        }
+
+        public new static TestableCommandLine Parse(IReadOnlyList<IRunnerReporter> reporters, params string[] arguments)
+        {
+            return new TestableCommandLine(reporters, arguments);
         }
     }
 }

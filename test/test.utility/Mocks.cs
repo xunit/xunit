@@ -91,7 +91,7 @@ public static class Mocks
 
     public static ExecutionErrorTestCase ExecutionErrorTestCase(string message, IMessageSink diagnosticMessageSink = null)
     {
-        var testMethod = Mocks.TestMethod();
+        var testMethod = TestMethod();
         return new ExecutionErrorTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, testMethod, message);
     }
 
@@ -156,6 +156,19 @@ public static class Mocks
         return Reflector.Wrap(typeof(TClass));
     }
 
+    public static IRunnerReporter RunnerReporter(string runnerSwitch = null,
+                                                 string description = null,
+                                                 bool isEnvironmentallyEnabled = false,
+                                                 IMessageSink messageSink = null)
+    {
+        var result = Substitute.For<IRunnerReporter, InterfaceProxy<IRunnerReporter>>();
+        result.Description.Returns(description ?? "The runner reporter description");
+        result.IsEnvironmentallyEnabled.Returns(isEnvironmentallyEnabled);
+        result.RunnerSwitch.Returns(runnerSwitch);
+        result.CreateMessageHandler(null).ReturnsForAnyArgs(messageSink ?? Substitute.For<IMessageSink, InterfaceProxy<IMessageSink>>());
+        return result;
+    }
+
     public static ITest Test(ITestCase testCase, string displayName)
     {
         var result = Substitute.For<ITest, InterfaceProxy<ITest>>();
@@ -166,7 +179,7 @@ public static class Mocks
 
     public static ITestAssembly TestAssembly(IReflectionAttributeInfo[] attributes)
     {
-        var assemblyInfo = Mocks.AssemblyInfo(attributes: attributes);
+        var assemblyInfo = AssemblyInfo(attributes: attributes);
 
         var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
         result.Assembly.Returns(assemblyInfo);
@@ -175,7 +188,7 @@ public static class Mocks
 
     public static ITestAssembly TestAssembly(string assemblyFileName, string configFileName = null, ITypeInfo[] types = null, IReflectionAttributeInfo[] attributes = null)
     {
-        var assemblyInfo = Mocks.AssemblyInfo(types, attributes, assemblyFileName);
+        var assemblyInfo = AssemblyInfo(types, attributes, assemblyFileName);
 
         var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
         result.Assembly.Returns(assemblyInfo);
@@ -188,10 +201,50 @@ public static class Mocks
         return new TestAssembly(Reflector.Wrap(assembly ?? Assembly.GetExecutingAssembly()), configFileName ?? AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
     }
 
+    public static ITestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(bool diagnosticMessages = false)
+    {
+        var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
+        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages };
+        var result = Substitute.For<ITestAssemblyDiscoveryFinished, InterfaceProxy<ITestAssemblyDiscoveryFinished>>();
+        result.Assembly.Returns(assembly);
+        result.DiscoveryOptions.Returns(TestFrameworkOptions.ForDiscovery(config));
+        result.ExecutionOptions.Returns(TestFrameworkOptions.ForExecution(config));
+        result.TestCasesDiscovered.Returns(2112);
+        result.TestCasesToRun.Returns(42);
+        return result;
+    }
+
+    public static ITestAssemblyDiscoveryStarting TestAssemblyDiscoveryStarting(bool diagnosticMessages = false)
+    {
+        var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
+        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true };
+        var result = Substitute.For<ITestAssemblyDiscoveryStarting, InterfaceProxy<ITestAssemblyDiscoveryStarting>>();
+        result.Assembly.Returns(assembly);
+        result.DiscoveryOptions.Returns(TestFrameworkOptions.ForDiscovery(config));
+        result.ExecutionOptions.Returns(TestFrameworkOptions.ForExecution(config));
+        return result;
+    }
+
+    public static ITestAssemblyFinished TestAssemblyFinished()
+    {
+        var testAssembly = TestAssembly("testAssembly.dll");
+        var result = Substitute.For<ITestAssemblyFinished, InterfaceProxy<ITestAssemblyFinished>>();
+        result.TestAssembly.Returns(testAssembly);
+        return result;
+    }
+
+    public static ITestAssemblyStarting TestAssemblyStarting()
+    {
+        var testAssembly = TestAssembly("testAssembly.dll");
+        var result = Substitute.For<ITestAssemblyStarting, InterfaceProxy<ITestAssemblyStarting>>();
+        result.TestAssembly.Returns(testAssembly);
+        return result;
+    }
+
     public static ITestCase TestCase(ITestCollection collection = null)
     {
         if (collection == null)
-            collection = Mocks.TestCollection();
+            collection = TestCollection();
 
         var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
         result.TestMethod.TestClass.TestCollection.Returns(collection);
@@ -205,7 +258,7 @@ public static class Mocks
 
     public static ITestCase TestCase(Type type, string methodName, string displayName = null, string skipReason = null, string uniqueID = null)
     {
-        var testMethod = Mocks.TestMethod(type, methodName);
+        var testMethod = TestMethod(type, methodName);
         var traits = GetTraits(testMethod.Method);
 
         var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
@@ -233,8 +286,8 @@ public static class Mocks
 
     public static ITestClass TestClass(string typeName, IReflectionAttributeInfo[] attributes = null)
     {
-        var testCollection = Mocks.TestCollection();
-        var typeInfo = Mocks.TypeInfo(typeName, attributes: attributes);
+        var testCollection = TestCollection();
+        var typeInfo = TypeInfo(typeName, attributes: attributes);
 
         var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
         result.Class.Returns(typeInfo);
@@ -245,7 +298,7 @@ public static class Mocks
     public static TestClass TestClass(Type type, ITestCollection collection = null)
     {
         if (collection == null)
-            collection = Mocks.TestCollection(type.Assembly);
+            collection = TestCollection(type.Assembly);
 
         return new TestClass(collection, Reflector.Wrap(type));
     }
@@ -257,7 +310,25 @@ public static class Mocks
         if (displayName == null)
             displayName = "Mock test collection for " + assembly.GetLocalCodeBase();
 
-        return new TestCollection(Mocks.TestAssembly(assembly), definition, displayName);
+        return new TestCollection(TestAssembly(assembly), definition, displayName);
+    }
+
+    public static ITestCollectionFinished TestCollectionFinished()
+    {
+        var result = Substitute.For<ITestCollectionFinished, InterfaceProxy<ITestCollectionFinished>>();
+        result.TestsRun.Returns(2112);
+        result.TestsFailed.Returns(42);
+        result.TestsSkipped.Returns(6);
+        result.ExecutionTime.Returns(123.4567M);
+        result.TestCollection.DisplayName.Returns("Display Name");
+        return result;
+    }
+
+    public static ITestCollectionStarting TestCollectionStarting()
+    {
+        var result = Substitute.For<ITestCollectionStarting, InterfaceProxy<ITestCollectionStarting>>();
+        result.TestCollection.DisplayName.Returns("Display Name");
+        return result;
     }
 
     public static IReflectionAttributeInfo TestCollectionOrdererAttribute(string typeName, string assemblyName)
@@ -276,8 +347,8 @@ public static class Mocks
 
     public static ITestFailed TestFailed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M, Exception ex = null)
     {
-        var testCase = Mocks.TestCase(type, methodName);
-        var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
+        var testCase = TestCase(type, methodName);
+        var test = Test(testCase, displayName ?? "NO DISPLAY NAME");
         var failureInfo = Xunit.Sdk.ExceptionUtility.ConvertExceptionToFailureInformation(ex ?? new Exception());
 
         var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
@@ -287,6 +358,22 @@ public static class Mocks
         result.Messages.Returns(failureInfo.Messages);
         result.Output.Returns(output);
         result.StackTraces.Returns(failureInfo.StackTraces);
+        result.TestCase.Returns(testCase);
+        result.Test.Returns(test);
+        return result;
+    }
+
+    public static ITestFailed TestFailed(string displayName, decimal executionTime, string exceptionType = null, string exceptionMessage = null, string stackTrace = null, string output = null)
+    {
+        var testCase = TestCase();
+        var test = Test(testCase, displayName);
+        var result = Substitute.For<ITestFailed, InterfaceProxy<ITestFailed>>();
+        result.ExceptionParentIndices.Returns(new[] { -1 });
+        result.ExceptionTypes.Returns(new[] { exceptionType });
+        result.ExecutionTime.Returns(executionTime);
+        result.Messages.Returns(new[] { exceptionMessage });
+        result.Output.Returns(output);
+        result.StackTraces.Returns(new[] { stackTrace });
         result.TestCase.Returns(testCase);
         result.Test.Returns(test);
         return result;
@@ -319,12 +406,12 @@ public static class Mocks
         var factAttribute = methodAttributes.FirstOrDefault(attr => typeof(FactAttribute).IsAssignableFrom(attr.Attribute.GetType()));
         if (factAttribute == null)
         {
-            factAttribute = Mocks.FactAttribute(displayName, skip);
+            factAttribute = FactAttribute(displayName, skip);
             methodAttributes = methodAttributes.Concat(new[] { factAttribute });
         }
 
-        var testClass = Mocks.TestClass(typeName, attributes: classAttributes.ToArray());
-        var methodInfo = Mocks.MethodInfo(methodName, methodAttributes.ToArray(), parameters.ToArray(), testClass.Class);
+        var testClass = TestClass(typeName, attributes: classAttributes.ToArray());
+        var methodInfo = MethodInfo(methodName, methodAttributes.ToArray(), parameters.ToArray(), testClass.Class);
 
         var result = Substitute.For<ITestMethod, InterfaceProxy<ITestMethod>>();
         result.Method.Returns(methodInfo);
@@ -334,7 +421,7 @@ public static class Mocks
 
     public static TestMethod TestMethod(Type type, string methodName, ITestCollection collection = null)
     {
-        var @class = Mocks.TestClass(type, collection);
+        var @class = TestClass(type, collection);
         var methodInfo = type.GetMethod(methodName);
         if (methodInfo == null)
             throw new Exception(string.Format("Unknown method: {0}.{1}", type.FullName, methodName));
@@ -344,8 +431,8 @@ public static class Mocks
 
     public static ITestPassed TestPassed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M)
     {
-        var testCase = Mocks.TestCase(type, methodName);
-        var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
+        var testCase = TestCase(type, methodName);
+        var test = Test(testCase, displayName ?? "NO DISPLAY NAME");
 
         var result = Substitute.For<ITestPassed, InterfaceProxy<ITestPassed>>();
         result.ExecutionTime.Returns(executionTime);
@@ -355,10 +442,21 @@ public static class Mocks
         return result;
     }
 
+    public static ITestPassed TestPassed(string displayName, string output = null)
+    {
+        var testCase = TestCase();
+        var test = Test(testCase, displayName);
+        var result = Substitute.For<ITestPassed, InterfaceProxy<ITestPassed>>();
+        result.Test.Returns(test);
+        result.ExecutionTime.Returns(1.2345M);
+        result.Output.Returns(output);
+        return result;
+    }
+
     public static ITestResultMessage TestResult<TClassUnderTest>(string methodName, string displayName, decimal executionTime)
     {
-        var testCase = Mocks.TestCase<TClassUnderTest>(methodName);
-        var test = Mocks.Test(testCase, displayName);
+        var testCase = TestCase<TClassUnderTest>(methodName);
+        var test = Test(testCase, displayName);
         var result = Substitute.For<ITestResultMessage, InterfaceProxy<ITestResultMessage>>();
         result.TestCase.Returns(testCase);
         result.Test.Returns(test);
@@ -368,14 +466,35 @@ public static class Mocks
 
     public static ITestSkipped TestSkipped(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M, string skipReason = null)
     {
-        var testCase = Mocks.TestCase(type, methodName);
-        var test = Mocks.Test(testCase, displayName ?? "NO DISPLAY NAME");
+        var testCase = TestCase(type, methodName);
+        var test = Test(testCase, displayName ?? "NO DISPLAY NAME");
 
         var result = Substitute.For<ITestSkipped, InterfaceProxy<ITestSkipped>>();
         result.ExecutionTime.Returns(executionTime);
         result.Output.Returns(output);
         result.Reason.Returns(skipReason);
         result.TestCase.Returns(testCase);
+        result.Test.Returns(test);
+        return result;
+    }
+
+    public static ITestSkipped TestSkipped(string displayName, string skipReason = null)
+    {
+        var testCase = TestCase();
+        var test = Test(testCase, displayName);
+
+        var result = Substitute.For<ITestSkipped, InterfaceProxy<ITestSkipped>>();
+        result.Reason.Returns(skipReason);
+        result.TestCase.Returns(testCase);
+        result.Test.Returns(test);
+        return result;
+    }
+
+    public static ITestStarting TestStarting(string displayName)
+    {
+        var testCase = TestCase();
+        var test = Test(testCase, displayName);
+        var result = Substitute.For<ITestStarting, InterfaceProxy<ITestStarting>>();
         result.Test.Returns(test);
         return result;
     }
@@ -400,7 +519,7 @@ public static class Mocks
     public static IReflectionAttributeInfo TraitAttribute(string name, string value)
     {
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
-        var traitDiscovererAttributes = new[] { Mocks.TraitDiscovererAttribute() };
+        var traitDiscovererAttributes = new[] { TraitDiscovererAttribute() };
         result.GetCustomAttributes(typeof(TraitDiscovererAttribute)).Returns(traitDiscovererAttributes);
         result.Attribute.Returns(new TraitAttribute(name, value));
         result.GetConstructorArguments().Returns(new object[] { name, value });
@@ -420,7 +539,7 @@ public static class Mocks
         var result = Substitute.For<ITypeInfo, InterfaceProxy<ITypeInfo>>();
         result.Name.Returns(typeName);
         result.GetMethods(false).ReturnsForAnyArgs(methods ?? new IMethodInfo[0]);
-        var assemblyInfo = Mocks.AssemblyInfo(assemblyFileName: assemblyFileName);
+        var assemblyInfo = AssemblyInfo(assemblyFileName: assemblyFileName);
         result.Assembly.Returns(assemblyInfo);
         result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
         return result;
@@ -428,14 +547,14 @@ public static class Mocks
 
     public static XunitTestCase XunitTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null, object[] testMethodArguments = null, IMessageSink diagnosticMessageSink = null)
     {
-        var method = Mocks.TestMethod(typeof(TClassUnderTest), methodName, collection);
+        var method = TestMethod(typeof(TClassUnderTest), methodName, collection);
 
         return new XunitTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, method, testMethodArguments);
     }
 
     public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null, IMessageSink diagnosticMessageSink = null)
     {
-        var method = Mocks.TestMethod(typeof(TClassUnderTest), methodName, collection);
+        var method = TestMethod(typeof(TClassUnderTest), methodName, collection);
 
         return new XunitTheoryTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, method);
     }

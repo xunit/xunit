@@ -77,7 +77,6 @@
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Utility\SpyConsoleLogger.cs" />
-    <Compile Include="Utility\TeamCityVisitorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">

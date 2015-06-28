@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2894D5A7-927B-4C3B-90CC-BFB95D30468F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Xunit.Runner.Reporters</RootNamespace>
+    <AssemblyName>test.xunit.runner.reporters</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NSubstitute, Version=1.5.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TestDriven.Framework">
+      <HintPath>..\..\tools\TestDriven.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\GlobalTestAssemblyInfo.cs">
+      <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="TeamCityReporterMessageHandlerTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\test.utility\test.utility.csproj">
+      <Project>{4fec8604-e544-43c2-979c-f0815b5770e2}</Project>
+      <Name>test.utility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj">
+      <Project>{80B04AFE-4331-4CDD-B247-864AC6482F7C}</Project>
+      <Name>xunit.assert</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.core\xunit.core.csproj">
+      <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>
+      <Name>xunit.core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.execution.desktop\xunit.execution.desktop.csproj">
+      <Project>{09ef9917-4b00-4646-8c3f-96efacc8bf51}</Project>
+      <Name>xunit.execution.desktop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.reporters.desktop\xunit.runner.reporters.desktop.csproj">
+      <Project>{331effd9-35dc-4793-8d75-805b92a91935}</Project>
+      <Name>xunit.runner.reporters.desktop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj">
+      <Project>{c9b3978d-da2c-4f3b-8fc5-1e024ef2f6e8}</Project>
+      <Name>xunit.runner.tdnet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\xunit.runner.utility.desktop\xunit.runner.utility.desktop.csproj">
+      <Project>{efc3f529-3686-416b-9c67-36ec914c776a}</Project>
+      <Name>xunit.runner.utility.desktop</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

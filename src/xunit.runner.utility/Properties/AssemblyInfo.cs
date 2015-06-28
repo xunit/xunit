@@ -5,7 +5,7 @@ using System.Reflection;
 [assembly: AssemblyTitle("xUnit.net Runner Utility (MonoAndroid)")]
 #elif __IOS__ && ! __UNIFIED__
 [assembly: AssemblyTitle("xUnit.net Runner Utility (MonoTouch)")]
-#elif __IOS__ 
+#elif __IOS__
 [assembly: AssemblyTitle("xUnit.net Runner Utility (iOS Universal)")]
 #elif DNX451
 [assembly: AssemblyTitle("xUnit.net Runner Utility (DNX)")]

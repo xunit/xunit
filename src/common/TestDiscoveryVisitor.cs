@@ -7,7 +7,7 @@ namespace Xunit.Sdk
 namespace Xunit
 #endif
 {
-    internal class TestDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
+    class TestDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
     {
         public TestDiscoveryVisitor()
         {

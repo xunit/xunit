@@ -137,6 +137,7 @@
     <Compile Include="SpyBeforeAfterTest.cs" />
     <Compile Include="SpyMessageBus.cs" />
     <Compile Include="SpyMessageSink.cs" />
+    <Compile Include="SpyRunnerLogger.cs" />
     <Compile Include="TempFile.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

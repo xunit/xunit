@@ -54,6 +54,9 @@
     <Compile Include="..\common\ConfigReader_Configuration.cs">
       <Link>Common\ConfigReader_Configuration.cs</Link>
     </Compile>
+    <Compile Include="..\common\ConsoleRunnerLogger.cs">
+      <Link>Common\ConsoleRunnerLogger.cs</Link>
+    </Compile>
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
@@ -134,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="project.json" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

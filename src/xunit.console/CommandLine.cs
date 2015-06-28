@@ -1,33 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Xunit.ConsoleClient
 {
     public class CommandLine
     {
         readonly Stack<string> arguments = new Stack<string>();
+        readonly IReadOnlyList<IRunnerReporter> reporters;
 
-        protected CommandLine(string[] args, Predicate<string> fileExists = null)
+        protected CommandLine(IReadOnlyList<IRunnerReporter> reporters, string[] args, Predicate<string> fileExists = null)
         {
+            this.reporters = reporters;
+
             if (fileExists == null)
                 fileExists = fileName => File.Exists(fileName);
 
             for (var i = args.Length - 1; i >= 0; i--)
                 arguments.Push(args[i]);
 
-            TeamCity = Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
-            AppVeyor = Environment.GetEnvironmentVariable("APPVEYOR_API_URL") != null;
             Project = Parse(fileExists);
-        }
 
-        public bool AppVeyor { get; protected set; }
+            if (Reporter == null)
+                Reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? new DefaultRunnerReporter();
+        }
 
         public bool Debug { get; protected set; }
 
         public bool DiagnosticMessages { get; protected set; }
 
         public int? MaxParallelThreads { get; set; }
+
+        public bool NoColor { get; protected set; }
 
         public bool NoLogo { get; protected set; }
 
@@ -37,11 +42,9 @@ namespace Xunit.ConsoleClient
 
         public bool? ParallelizeTestCollections { get; set; }
 
-        public bool Quiet { get; protected set; }
+        public IRunnerReporter Reporter { get; protected set; }
 
         public bool Serialize { get; protected set; }
-
-        public bool TeamCity { get; protected set; }
 
         public bool Wait { get; protected set; }
 
@@ -66,9 +69,9 @@ namespace Xunit.ConsoleClient
                 throw new ArgumentException(string.Format("error: unknown command line option: {0}", option.Value));
         }
 
-        public static CommandLine Parse(params string[] args)
+        public static CommandLine Parse(IReadOnlyList<IRunnerReporter> reporters, params string[] args)
         {
-            return new CommandLine(args);
+            return new CommandLine(reporters, args);
         }
 
         protected XunitProject Parse(Predicate<string> fileExists)
@@ -114,37 +117,39 @@ namespace Xunit.ConsoleClient
                 if (!optionName.StartsWith("-"))
                     throw new ArgumentException(string.Format("unknown command line option: {0}", option.Key));
 
-                if (optionName == "-nologo")
+                optionName = optionName.Substring(1);
+
+                if (optionName == "nologo")
                 {
                     GuardNoOptionValue(option);
                     NoLogo = true;
                 }
-                else if (optionName == "-quiet")
+                else if (optionName == "nocolor")
                 {
                     GuardNoOptionValue(option);
-                    Quiet = true;
+                    NoColor = true;
                 }
-                else if (optionName == "-debug")
+                else if (optionName == "debug")
                 {
                     GuardNoOptionValue(option);
                     Debug = true;
                 }
-                else if (optionName == "-serialize")
+                else if (optionName == "serialize")
                 {
                     GuardNoOptionValue(option);
                     Serialize = true;
                 }
-                else if (optionName == "-wait")
+                else if (optionName == "wait")
                 {
                     GuardNoOptionValue(option);
                     Wait = true;
                 }
-                else if (optionName == "-diagnostics")
+                else if (optionName == "diagnostics")
                 {
                     GuardNoOptionValue(option);
                     DiagnosticMessages = true;
                 }
-                else if (optionName == "-maxthreads")
+                else if (optionName == "maxthreads")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -maxthreads");
@@ -168,7 +173,7 @@ namespace Xunit.ConsoleClient
                             break;
                     }
                 }
-                else if (optionName == "-parallel")
+                else if (optionName == "parallel")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -parallel");
@@ -201,23 +206,13 @@ namespace Xunit.ConsoleClient
                             break;
                     }
                 }
-                else if (optionName == "-teamcity")
-                {
-                    GuardNoOptionValue(option);
-                    TeamCity = true;
-                }
-                else if (optionName == "-appveyor")
-                {
-                    GuardNoOptionValue(option);
-                    AppVeyor = true;
-                }
-                else if (optionName == "-noshadow")
+                else if (optionName == "noshadow")
                 {
                     GuardNoOptionValue(option);
                     foreach (var assembly in project.Assemblies)
                         assembly.ShadowCopy = false;
                 }
-                else if (optionName == "-trait")
+                else if (optionName == "trait")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -trait");
@@ -230,7 +225,7 @@ namespace Xunit.ConsoleClient
                     var value = pieces[1];
                     project.Filters.IncludedTraits.Add(name, value);
                 }
-                else if (optionName == "-notrait")
+                else if (optionName == "notrait")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -notrait");
@@ -243,14 +238,14 @@ namespace Xunit.ConsoleClient
                     var value = pieces[1];
                     project.Filters.ExcludedTraits.Add(name, value);
                 }
-                else if (optionName == "-class")
+                else if (optionName == "class")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -class");
 
                     project.Filters.IncludedClasses.Add(option.Value);
                 }
-                else if (optionName == "-method")
+                else if (optionName == "method")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -method");
@@ -259,10 +254,24 @@ namespace Xunit.ConsoleClient
                 }
                 else
                 {
-                    if (option.Value == null)
-                        throw new ArgumentException(string.Format("missing filename for {0}", option.Key));
+                    // Might be a reporter...
+                    var reporter = reporters.FirstOrDefault(r => r.RunnerSwitch == optionName);
+                    if (reporter != null)
+                    {
+                        GuardNoOptionValue(option);
+                        if (Reporter != null)
+                            throw new ArgumentException("only one reporter is allowed");
 
-                    project.Output.Add(optionName.Substring(1), option.Value);
+                        Reporter = reporter;
+                    }
+                    // ...or an result output file
+                    else
+                    {
+                        if (option.Value == null)
+                            throw new ArgumentException(string.Format("missing filename for {0}", option.Key));
+
+                        project.Output.Add(optionName, option.Value);
+                    }
                 }
             }
 

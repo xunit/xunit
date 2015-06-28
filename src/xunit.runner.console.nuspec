@@ -13,12 +13,13 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
   </metadata>
   <files>
-    <file src="xunit.console\*.xslt"                                       target="tools\" />
-    <file src="xunit.console\bin\Release\xunit.abstractions.dll"           target="tools\" />
-    <file src="xunit.console\bin\Release\xunit.runner.utility.desktop.dll" target="tools\" />
-    <file src="xunit.console\bin\Release\xunit.console.exe"                target="tools\" />
-    <file src="xunit.console\bin\Release\xunit.console.exe.config"         target="tools\" />
-    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe"        target="tools\" />
-    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe.config" target="tools\" />
+    <file src="xunit.console\*.xslt"                                         target="tools\" />
+    <file src="xunit.console\bin\Release\xunit.abstractions.dll"             target="tools\" />
+    <file src="xunit.console\bin\Release\xunit.runner.reporters.desktop.dll" target="tools\" />
+    <file src="xunit.console\bin\Release\xunit.runner.utility.desktop.dll"   target="tools\" />
+    <file src="xunit.console\bin\Release\xunit.console.exe"                  target="tools\" />
+    <file src="xunit.console\bin\Release\xunit.console.exe.config"           target="tools\" />
+    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe"          target="tools\" />
+    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe.config"   target="tools\" />
   </files>
 </package>

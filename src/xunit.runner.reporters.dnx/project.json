@@ -1,0 +1,23 @@
+﻿{
+    "version": "99.99.99-dev",
+    "frameworks": {
+        "dnxcore50": {
+            "dependencies": {
+                "System.Collections": "4.0.10-beta-*",
+                "System.Collections.Concurrent": "4.0.10-beta-*",
+                "System.Linq": "4.0.0-beta-*",
+                "System.Threading": "4.0.10-beta-*",
+                "Microsoft.CSharp": "4.0.0-beta-*",
+                "xunit.runner.utility.dnx": ""
+            }
+        }
+    },
+    "compilationOptions": {
+        "define": [ "NET45", "NO_APPDOMAIN", "NEW_REFLECTION" ],
+        "warningsAsErrors": true
+    },
+    "compile": [
+        "../common/GlobalAssemblyInfo.cs",
+        "../xunit.runner.reporters/**/*.cs"
+    ]
+}

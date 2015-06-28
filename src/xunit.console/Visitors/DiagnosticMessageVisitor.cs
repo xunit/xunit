@@ -7,13 +7,15 @@ namespace Xunit.ConsoleClient
     {
         readonly string assemblyDisplayName;
         readonly object consoleLock;
+        readonly bool noColor;
         readonly bool showDiagnostics;
 
-        public DiagnosticMessageVisitor(object consoleLock, string assemblyDisplayName, bool showDiagnostics)
+        public DiagnosticMessageVisitor(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor)
         {
             this.consoleLock = consoleLock;
             this.assemblyDisplayName = assemblyDisplayName;
             this.showDiagnostics = showDiagnostics;
+            this.noColor = noColor;
         }
 
         protected override bool Visit(IDiagnosticMessage diagnosticMessage)
@@ -21,9 +23,13 @@ namespace Xunit.ConsoleClient
             if (showDiagnostics)
                 lock (consoleLock)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    if (!noColor)
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+
                     Console.WriteLine("   {0}: {1}", assemblyDisplayName, diagnosticMessage.Message);
-                    Console.ForegroundColor = ConsoleColor.Gray;
+
+                    if (!noColor)
+                        Console.ResetColor();
                 }
 
             return base.Visit(diagnosticMessage);

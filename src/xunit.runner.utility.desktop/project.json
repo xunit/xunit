@@ -1,10 +1,10 @@
-{
+﻿{
     "version": "99.99.99-dev",
     "frameworks": {
         ".NETPortable,Version=v4.5,Profile=Profile259": {
             "bin": {
-                "assembly": "bin/{configuration}/xunit.core.dll",
-                "pdb": "bin/{configuration}/xunit.core.pdb"
+                "assembly": "bin/{configuration}/xunit.runner.utility.desktop.dll",
+                "pdb": "bin/{configuration}/xunit.runner.utility.desktop.pdb"
             }
         }
     },
