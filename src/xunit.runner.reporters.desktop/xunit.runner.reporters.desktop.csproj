@@ -46,6 +46,7 @@
     <Compile Include="..\xunit.runner.reporters\**\*.cs">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
+    <Compile Include="AppVeyorClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.utility.desktop\xunit.runner.utility.desktop.csproj">

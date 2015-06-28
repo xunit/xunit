@@ -104,6 +104,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{52
 		src\xunit.nuspec = src\xunit.nuspec
 		src\xunit.runner.console.nuspec = src\xunit.runner.console.nuspec
 		src\xunit.runner.msbuild.nuspec = src\xunit.runner.msbuild.nuspec
+		src\xunit.runner.reporters.nuspec = src\xunit.runner.reporters.nuspec
 		src\xunit.runner.utility.nuspec = src\xunit.runner.utility.nuspec
 	EndProjectSection
 EndProject

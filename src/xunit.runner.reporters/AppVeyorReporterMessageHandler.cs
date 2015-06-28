@@ -1,17 +1,14 @@
-#if !DNXCORE50 && !DNX451    // TODO: Add conditional code for DNX to use JSON.NET instead of JSS
-
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Net;
-using System.Text;
-using System.Web.Script.Serialization;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
 {
     public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandler
     {
+        const int MaxLength = 4096;
+
         string assemblyFileName;
         readonly ConcurrentDictionary<string, int> testMethods = new ConcurrentDictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
@@ -62,21 +59,6 @@ namespace Xunit.Runner.Reporters
 
         // AppVeyor API helpers
 
-        const int MaxLength = 4096;
-
-        static string apiUrl = "__unknown__";
-
-        static string ApiUri
-        {
-            get
-            {
-                if (apiUrl == "__unknown__")
-                    apiUrl = GetApiUri();
-
-                return apiUrl;
-            }
-        }
-
         string GetFinishedTestName(string methodName)
         {
             var testName = methodName;
@@ -95,7 +77,7 @@ namespace Xunit.Runner.Reporters
         static void AppVeyorAddTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
                                     string errorMessage, string errorStackTrace, string stdOut, string stdErr)
         {
-            if (ApiUri == null)
+            if (!AppVeyorClient.IsRunningInAppVeyor)
                 return;
 
             var body = new AddUpdateTestRequest
@@ -113,8 +95,7 @@ namespace Xunit.Runner.Reporters
 
             try
             {
-                using (var wc = GetClient())
-                    wc.UploadData("api/tests", "POST", Json(body));
+                AppVeyorClient.SendRequest("api/tests", "POST", body);
             }
             catch (Exception ex)
             {
@@ -125,7 +106,7 @@ namespace Xunit.Runner.Reporters
         static void AppVeyorUpdateTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
                                        string errorMessage, string errorStackTrace, string stdOut, string stdErr)
         {
-            if (ApiUri == null)
+            if (!AppVeyorClient.IsRunningInAppVeyor)
                 return;
 
             var body = new AddUpdateTestRequest
@@ -143,8 +124,7 @@ namespace Xunit.Runner.Reporters
 
             try
             {
-                using (var wc = GetClient())
-                    wc.UploadData("api/tests", "PUT", Json(body));
+                AppVeyorClient.SendRequest("api/tests", "PUT", body);
             }
             catch (Exception ex)
             {
@@ -155,31 +135,6 @@ namespace Xunit.Runner.Reporters
         static string TrimStdOut(string str)
         {
             return str != null && str.Length > MaxLength ? str.Substring(0, MaxLength) : str;
-        }
-
-        static byte[] Json(object data)
-        {
-            var serializer = new JavaScriptSerializer();
-            var json = serializer.Serialize(data);
-            return Encoding.UTF8.GetBytes(json);
-        }
-
-        static WebClient GetClient()
-        {
-            var wc = new WebClient() { BaseAddress = ApiUri };
-            wc.Headers["Accept"] = "application/json";
-            wc.Headers["Content-type"] = "application/json";
-            return wc;
-        }
-
-        static string GetApiUri()
-        {
-            var apiUrl = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
-
-            if (apiUrl != null)
-                apiUrl = apiUrl.TrimEnd('/') + "/";
-
-            return apiUrl;
         }
 
         public class AddUpdateTestRequest
@@ -196,5 +151,3 @@ namespace Xunit.Runner.Reporters
         }
     }
 }
-
-#endif

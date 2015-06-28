@@ -20,18 +20,18 @@
       </group>
       <group targetFramework="dnxcore50">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="System.Collections.Concurrent" version="4.0.0-beta-22605" />
-        <dependency id="System.Diagnostics.Debug" version="4.0.10-beta-22605" />
-        <dependency id="System.Diagnostics.Tools" version="4.0.0-beta-22605" />
-        <dependency id="System.Globalization" version="4.0.10-beta-22605" />
-        <dependency id="System.Linq" version="4.0.0-beta-22605" />
-        <dependency id="System.Reflection" version="4.0.10-beta-22605" />
-        <dependency id="System.Reflection.Extensions" version="4.0.0-beta-22605" />
-        <dependency id="System.Runtime.Extensions" version="4.0.10-beta-22605" />
-        <dependency id="System.Security.Cryptography.Hashing.Algorithms" version="4.0.0-beta-22605" />
-        <dependency id="System.Threading" version="4.0.10-beta-22605" />
-        <dependency id="System.Threading.Thread" version="4.0.0-beta-22605" />
-        <dependency id="System.Threading.ThreadPool" version="4.0.10-beta-22605" />
+        <dependency id="System.Collections.Concurrent" version="4.0.0-beta-23019" />
+        <dependency id="System.Diagnostics.Debug" version="4.0.10-beta-23019" />
+        <dependency id="System.Diagnostics.Tools" version="4.0.0-beta-23019" />
+        <dependency id="System.Globalization" version="4.0.10-beta-23019" />
+        <dependency id="System.Linq" version="4.0.0-beta-23019" />
+        <dependency id="System.Reflection" version="4.0.10-beta-23019" />
+        <dependency id="System.Reflection.Extensions" version="4.0.0-beta-23019" />
+        <dependency id="System.Runtime.Extensions" version="4.0.10-beta-23019" />
+        <dependency id="System.Security.Cryptography.Hashing.Algorithms" version="4.0.0-beta-23019" />
+        <dependency id="System.Threading" version="4.0.10-beta-23019" />
+        <dependency id="System.Threading.Thread" version="4.0.0-beta-23019" />
+        <dependency id="System.Threading.ThreadPool" version="4.0.10-beta-23019" />
       </group>
     </dependencies>
     <frameworkAssemblies>

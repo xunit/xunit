@@ -1,12 +1,17 @@
-﻿{
+{
     "version": "99.99.99-dev",
     "frameworks": {
-        "dnx451": { },
+        "dnx451": {
+            "frameworkAssemblies": {
+                "System.Net.Http": ""
+            }
+        },
         "dnxcore50": {
             "dependencies": {
                 "System.Collections": "4.0.10-beta-*",
                 "System.Collections.Concurrent": "4.0.10-beta-*",
                 "System.Linq": "4.0.0-beta-*",
+                "System.Net.Http": "4.0.0-beta-*",
                 "System.Threading": "4.0.10-beta-*",
                 "Microsoft.CSharp": "4.0.0-beta-*"
             }
@@ -21,6 +26,7 @@
         "../xunit.runner.reporters/**/*.cs"
     ],
     "dependencies": {
+        "Newtonsoft.Json": "6.0.6",
         "xunit.runner.utility.dnx": ""
     }
 }

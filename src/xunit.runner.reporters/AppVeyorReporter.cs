@@ -1,7 +1,4 @@
-#if !DNXCORE50 && !DNX451
-
 using System;
-using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
@@ -29,5 +26,3 @@ namespace Xunit.Runner.Reporters
         }
     }
 }
-
-#endif

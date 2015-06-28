@@ -18,11 +18,16 @@
       <group>
         <dependency id="xunit.runner.utility" version="99.99.99-dev" />
       </group>
+      <group targetFramework="dnx451">
+        <dependency id="Newtonsoft.Json" version="6.0.6" />
+      </group>
       <group targetFramework="dnxcore50">
-        <dependency id="System.Collections" version="4.0.10-beta-22605" />
-        <dependency id="System.Collections.Concurrent" version="4.0.10-beta-22605" />
-        <dependency id="System.Linq" version="4.0.0-beta-22605" />
-        <dependency id="System.Threading" version="4.0.10-beta-22605" />
+        <dependency id="Newtonsoft.Json" version="6.0.6" />
+        <dependency id="System.Collections" version="4.0.10-beta-23019" />
+        <dependency id="System.Collections.Concurrent" version="4.0.10-beta-23019" />
+        <dependency id="System.Linq" version="4.0.0-beta-23019" />
+        <dependency id="System.Net.Http" version="4.0.0-beta-23019" />
+        <dependency id="System.Threading" version="4.0.10-beta-23019" />
       </group>
     </dependencies>
     <frameworkAssemblies>
@@ -31,6 +36,7 @@
       <frameworkAssembly assemblyName="System" targetFramework="dnx451" />
       <frameworkAssembly assemblyName="System.Collections" targetFramework="dnx451" />
       <frameworkAssembly assemblyName="System.Core" targetFramework="dnx451" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework="dnx451" />
       <frameworkAssembly assemblyName="System.Reflection" targetFramework="dnx451" />
       <frameworkAssembly assemblyName="System.Runtime" targetFramework="dnx451" />
     </frameworkAssemblies>
