@@ -283,6 +283,9 @@ namespace Xunit.Runner.MSBuild
 
             try
             {
+                // Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
+                assembly.Configuration.PreEnumerateTheories = false;
+
                 if (DiagnosticMessages)
                     assembly.Configuration.DiagnosticMessages = true;
 
