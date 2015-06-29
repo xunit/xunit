@@ -65,12 +65,12 @@ namespace Xunit.Runner.MSBuild
 
         protected bool NeedsXml
         {
-            get { return Xml != null || XmlV1 != null || Html != null; }
+            get { return Xml != null || XmlV1 != null || Html != null || NUnit != null; }
         }
 
         public bool NoLogo { get; set; }
 
-        // TODO: Add NUnit report support
+        public ITaskItem NUnit { get; set; }
 
         public bool ParallelizeAssemblies { set { parallelizeAssemblies = value; } }
 
@@ -228,6 +228,9 @@ namespace Xunit.Runner.MSBuild
 
                 if (Html != null)
                     Transform("HTML.xslt", assembliesElement, Html);
+
+                if (NUnit != null)
+                    Transform("NUnitXml.xslt", assembliesElement, NUnit);
             }
 
             return ExitCode == 0;
