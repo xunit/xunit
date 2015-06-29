@@ -52,9 +52,12 @@ namespace Xunit.Runner.Reporters
         public static void SendRequest(string url, string method, object body)
         {
             var httpMethod = new HttpMethod(method);
-            var request = new HttpRequestMessage(httpMethod, url);
             var bodyString = JsonConvert.SerializeObject(body);
             var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
+            var content = new ByteArrayContent(bodyBytes);
+            content.Headers.ContentType = jsonMediaType;
+            var request = new HttpRequestMessage(httpMethod, url) { Content = content };
+            request.Headers.Accept.Add(jsonMediaType);
             var response = HttpClient.SendAsync(request).GetAwaiter().GetResult();
             response.EnsureSuccessStatusCode();
         }
