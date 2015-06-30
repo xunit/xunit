@@ -34,11 +34,6 @@
         <dependency id="System.Threading.ThreadPool" version="4.0.10-beta-23019" />
       </group>-->
     </dependencies>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="mscorlib" targetFramework="net45" />
-      <frameworkAssembly assemblyName="System" targetFramework="net45" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="net45" />
-    </frameworkAssemblies>
   </metadata>
   <files>
     <file src="xunit.execution.dnx\bin\Release\dnx451\xunit.execution.dnx.dll" target="lib\dnx451\" />

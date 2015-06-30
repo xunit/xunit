@@ -32,16 +32,6 @@
         <dependency id="xunit.runner.utility" version="99.99.99-dev" />
       </group>
     </dependencies>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="dnx451" />
-      <frameworkAssembly assemblyName="mscorlib" targetFramework="dnx451" />
-      <frameworkAssembly assemblyName="System" targetFramework="dnx451" />
-      <frameworkAssembly assemblyName="System.Collections" targetFramework="dnx451" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="dnx451" />
-      <frameworkAssembly assemblyName="System.Net.Http" targetFramework="dnx451" />
-      <frameworkAssembly assemblyName="System.Reflection" targetFramework="dnx451" />
-      <frameworkAssembly assemblyName="System.Runtime" targetFramework="dnx451" />
-    </frameworkAssemblies>
   </metadata>
   <files>
     <file src="xunit.runner.reporters.desktop\bin\Release\xunit.runner.reporters.desktop.dll" target="lib\net45\" />
