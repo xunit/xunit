@@ -682,14 +682,24 @@ public class CommandLineTests
         }
 
         [Fact]
-        public void ExplicitReporter_UsesExplicitReporter()
+        public void ExplicitReporter_NoEnvironmentalOverride_UsesExplicitReporter()
         {
-            var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
             var explicitReporter = Mocks.RunnerReporter("switch");
 
-            var commandLine = TestableCommandLine.Parse(new[] { implicitReporter, explicitReporter }, "assemblyName.dll", "-switch");
+            var commandLine = TestableCommandLine.Parse(new[] { explicitReporter }, "assemblyName.dll", "-switch");
 
             Assert.Same(explicitReporter, commandLine.Reporter);
+        }
+
+        [Fact]
+        public void ExplicitReporter_WithEnvironmentalOverride_UsesEnvironmentalOverride()
+        {
+            var explicitReporter = Mocks.RunnerReporter("switch");
+            var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+
+            var commandLine = TestableCommandLine.Parse(new[] { explicitReporter, implicitReporter }, "assemblyName.dll", "-switch");
+
+            Assert.Same(implicitReporter, commandLine.Reporter);
         }
 
         [Fact]

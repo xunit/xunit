@@ -148,9 +148,9 @@ namespace Xunit.Runner.MSBuild
             using (AssemblyHelper.SubscribeResolve())
             {
                 var reporters = GetAvailableRunnerReporters();
-                IRunnerReporter reporter = null;
+                var reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
 
-                if (!string.IsNullOrWhiteSpace(Reporter))
+                if (reporter == null && !string.IsNullOrWhiteSpace(Reporter))
                 {
                     reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
                     if (reporter == null)
@@ -166,7 +166,7 @@ namespace Xunit.Runner.MSBuild
                 }
 
                 if (reporter == null)
-                    reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? new DefaultRunnerReporter();
+                    reporter = new DefaultRunnerReporter();
 
                 logger = new MSBuildLogger(Log);
                 reporterMessageHandler = reporter.CreateMessageHandler(logger);
