@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
 {

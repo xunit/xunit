@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
@@ -25,10 +23,6 @@ namespace Xunit.Runner.Reporters
         public IMessageSink CreateMessageHandler(IRunnerLogger logger)
         {
             return new TeamCityReporterMessageHandler(logger);
-        }
-
-        public void ReportRunSummary(IRunnerLogger logger, TimeSpan elapsedClockTime, List<KeyValuePair<string, ExecutionSummary>> summaries)
-        {
         }
     }
 }
