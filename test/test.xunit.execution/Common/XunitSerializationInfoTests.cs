@@ -89,6 +89,29 @@ public class XunitSerializationInfoTests
         }
 
         [Fact]
+        public static void CanRoundTripIXunitSerializableWithNoSerializedData()
+        {
+            var data = new MySerializableWithNoData();
+
+            var serialized = XunitSerializationInfo.Serialize(data);
+            var deserialized = (MySerializableWithNoData)XunitSerializationInfo.Deserialize(typeof(MySerializableWithNoData), serialized);
+
+            Assert.NotNull(deserialized);
+        }
+
+        [Fact]
+        public static void CanRoundTripEmbeddedIXunitSerializableWithNoSerializedData()
+        {
+            var data = new MySerializableWithEmbeddedEmptySerializable { NoData = new MySerializableWithNoData() };
+
+            var serialized = XunitSerializationInfo.Serialize(data);
+            var deserialized = (MySerializableWithEmbeddedEmptySerializable)XunitSerializationInfo.Deserialize(typeof(MySerializableWithEmbeddedEmptySerializable), serialized);
+
+            Assert.NotNull(deserialized);
+            Assert.NotNull(deserialized.NoData);
+        }
+
+        [Fact]
         public static void UnsupportedTypeThrows()
         {
             var data = new object();
@@ -223,6 +246,28 @@ public class XunitSerializationInfoTests
         {
             info.AddValue("IntValue", IntValue);
             info.AddValue("StringValue", StringValue);
+        }
+    }
+
+    class MySerializableWithNoData : IXunitSerializable
+    {
+        public void Deserialize(IXunitSerializationInfo info) { }
+
+        public void Serialize(IXunitSerializationInfo info) { }
+    }
+
+    class MySerializableWithEmbeddedEmptySerializable : IXunitSerializable
+    {
+        public MySerializableWithNoData NoData { get; set; }
+
+        public void Deserialize(IXunitSerializationInfo info)
+        {
+            NoData = info.GetValue<MySerializableWithNoData>("NoData");
+        }
+
+        public void Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue("NoData", NoData);
         }
     }
 }

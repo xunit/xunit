@@ -178,12 +178,17 @@ namespace Xunit.Serialization
         static IXunitSerializable DeserializeSerializable(Type type, string serializedValue)
         {
             var serializationInfo = new XunitSerializationInfo();
-            var elements = FromBase64(serializedValue).Split('\n');
 
-            foreach (var element in elements)
+            // Will end up with an empty string if the serialization type did not serialize any data
+            if (serializedValue != string.Empty)
             {
-                var triple = DeserializeTriple(element);
-                serializationInfo.data[triple.Key] = triple;
+                var elements = FromBase64(serializedValue).Split('\n');
+
+                foreach (var element in elements)
+                {
+                    var triple = DeserializeTriple(element);
+                    serializationInfo.data[triple.Key] = triple;
+                }
             }
 
             var value = (IXunitSerializable)Activator.CreateInstance(type);
