@@ -58,6 +58,7 @@
     <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs">
       <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
     </Compile>
+    <Compile Include="ClassDataAttribute.cs" />
     <Compile Include="CollectionAttribute.cs" />
     <Compile Include="CollectionBehavior.cs" />
     <Compile Include="CollectionBehaviorAttribute.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -155,6 +156,45 @@ public class Xunit2TheoryAcceptanceTests
             public void TestMethod(object value, Type expected)
             {
                 Assert.IsType(expected, value);
+            }
+        }
+    }
+
+    public class ClassDataTests : AcceptanceTestV2
+    {
+        [Fact]
+        public void RunsForEachDataElement()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
+
+            var passing = Assert.Single(testMessages.OfType<ITestPassed>());
+            Assert.Equal(string.Format("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: {0}, z: \"Hello, world!\")", 21.12), passing.Test.DisplayName);
+            var failed = Assert.Single(testMessages.OfType<ITestFailed>());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
+            Assert.Empty(testMessages.OfType<ITestSkipped>());
+        }
+
+        class ClassUnderTest
+        {
+            [Theory]
+            [ClassData(typeof(ClassDataSource))]
+            public void TestViaInlineData(int x, double y, string z)
+            {
+                Assert.NotNull(z);
+            }
+        }
+
+        class ClassDataSource : IEnumerable<object[]>
+        {
+            public IEnumerator<object[]> GetEnumerator()
+            {
+                yield return new object[] { 42, 21.12, "Hello, world!" };
+                yield return new object[] { 0, 0.0, null };
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
         }
     }
