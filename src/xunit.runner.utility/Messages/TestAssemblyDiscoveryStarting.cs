@@ -12,14 +12,11 @@ namespace Xunit
         /// </summary>
         /// <param name="assembly">Information about the assembly that is being discovered</param>
         /// <param name="discoveryOptions">The discovery options</param>
-        /// <param name="executionOptions">The execution options</param>
         public TestAssemblyDiscoveryStarting(XunitProjectAssembly assembly,
-                                             ITestFrameworkDiscoveryOptions discoveryOptions,
-                                             ITestFrameworkExecutionOptions executionOptions)
+                                             ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             Assembly = assembly;
             DiscoveryOptions = discoveryOptions;
-            ExecutionOptions = executionOptions;
         }
 
         /// <inheritdoc/>
@@ -27,8 +24,5 @@ namespace Xunit
 
         /// <inheritdoc/>
         public ITestFrameworkDiscoveryOptions DiscoveryOptions { get; private set; }
-
-        /// <inheritdoc/>
-        public ITestFrameworkExecutionOptions ExecutionOptions { get; private set; }
     }
 }

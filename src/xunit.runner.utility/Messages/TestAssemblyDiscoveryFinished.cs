@@ -12,18 +12,15 @@ namespace Xunit
         /// </summary>
         /// <param name="assembly">Information about the assembly that is being discovered</param>
         /// <param name="discoveryOptions">The discovery options</param>
-        /// <param name="executionOptions">The execution options</param>
         /// <param name="testCasesDiscovered">The number of test cases discovered</param>
         /// <param name="testCasesToRun">The number of test cases to be run</param>
         public TestAssemblyDiscoveryFinished(XunitProjectAssembly assembly,
                                              ITestFrameworkDiscoveryOptions discoveryOptions,
-                                             ITestFrameworkExecutionOptions executionOptions,
                                              int testCasesDiscovered,
                                              int testCasesToRun)
         {
             Assembly = assembly;
             DiscoveryOptions = discoveryOptions;
-            ExecutionOptions = executionOptions;
             TestCasesDiscovered = testCasesDiscovered;
             TestCasesToRun = testCasesToRun;
         }
@@ -33,9 +30,6 @@ namespace Xunit
 
         /// <inheritdoc/>
         public ITestFrameworkDiscoveryOptions DiscoveryOptions { get; private set; }
-
-        /// <inheritdoc/>
-        public ITestFrameworkExecutionOptions ExecutionOptions { get; private set; }
 
         /// <inheritdoc/>
         public int TestCasesDiscovered { get; private set; }

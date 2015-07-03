@@ -132,15 +132,37 @@ namespace Xunit
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryStarting.Assembly);
 
             if (discoveryStarting.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
-                Logger.LogImportantMessage("  Discovering: {0} (method display = {1}, parallel test collections = {2}, max threads = {3})",
+                Logger.LogImportantMessage("  Discovering: {0} (method display = {1})",
                                            assemblyDisplayName,
-                                           discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault(),
-                                           !discoveryStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off",
-                                           discoveryStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault());
+                                           discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault());
             else
                 Logger.LogImportantMessage("  Discovering: {0}", assemblyDisplayName);
 
             return base.Visit(discoveryStarting);
+        }
+
+        /// <inheritdoc/>
+        protected override bool Visit(ITestAssemblyExecutionFinished executionFinished)
+        {
+            Logger.LogImportantMessage("  Finished:    {0}", GetAssemblyDisplayName(executionFinished.Assembly));
+
+            return base.Visit(executionFinished);
+        }
+
+        /// <inheritdoc/>
+        protected override bool Visit(ITestAssemblyExecutionStarting executionStarting)
+        {
+            var assemblyDisplayName = GetAssemblyDisplayName(executionStarting.Assembly);
+
+            if (executionStarting.ExecutionOptions.GetDiagnosticMessagesOrDefault())
+                Logger.LogImportantMessage("  Starting:    {0} (parallel test collections = {1}, max threads = {2})",
+                                           assemblyDisplayName,
+                                           !executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off",
+                                           executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault());
+            else
+                Logger.LogImportantMessage("  Starting:    {0}", assemblyDisplayName);
+
+            return base.Visit(executionStarting);
         }
 
         /// <inheritdoc/>
@@ -149,22 +171,6 @@ namespace Xunit
             LogError(string.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
 
             return base.Visit(cleanupFailure);
-        }
-
-        /// <inheritdoc/>
-        protected override bool Visit(ITestAssemblyFinished assemblyFinished)
-        {
-            Logger.LogImportantMessage("  Finished:    {0}", GetAssemblyDisplayName(assemblyFinished));
-
-            return base.Visit(assemblyFinished);
-        }
-
-        /// <inheritdoc/>
-        protected override bool Visit(ITestAssemblyStarting assemblyStarting)
-        {
-            Logger.LogImportantMessage("  Starting:    {0}", GetAssemblyDisplayName(assemblyStarting));
-
-            return base.Visit(assemblyStarting);
         }
 
         /// <inheritdoc/>

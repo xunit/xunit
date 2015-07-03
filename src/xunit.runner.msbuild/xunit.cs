@@ -307,7 +307,7 @@ namespace Xunit.Runner.MSBuild
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     // Discover & filter the tests
-                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, discoveryOptions, executionOptions));
+                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, discoveryOptions));
 
                     controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: discoveryOptions);
                     discoveryVisitor.Finished.WaitOne();
@@ -316,7 +316,7 @@ namespace Xunit.Runner.MSBuild
                     var filteredTestCases = discoveryVisitor.TestCases.Where(Filters.Filter).ToList();
                     var testCasesToRun = filteredTestCases.Count;
 
-                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, executionOptions, testCasesDiscovered, testCasesToRun));
+                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
 
                     // Run the filtered tests
                     if (testCasesToRun == 0)
@@ -327,8 +327,14 @@ namespace Xunit.Runner.MSBuild
                             filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
 
                         var resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+
+                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
+
                         controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
                         resultsVisitor.Finished.WaitOne();
+
+                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsVisitor.ExecutionSummary));
+
                         if (resultsVisitor.Failed != 0)
                             ExitCode = 1;
                     }

@@ -4,9 +4,9 @@ namespace Xunit
 {
     /// <summary>
     /// A message sent to implementations of <see cref="IRunnerReporter"/> when
-    /// discovery is starting for a test assembly.
+    /// execution is starting for a test assembly.
     /// </summary>
-    public interface ITestAssemblyDiscoveryStarting : IMessageSinkMessage
+    public interface ITestAssemblyExecutionStarting : IMessageSinkMessage
     {
         /// <summary>
         /// Gets information about the assembly being discovered.
@@ -14,8 +14,8 @@ namespace Xunit
         XunitProjectAssembly Assembly { get; }
 
         /// <summary>
-        /// Gets the options that will be used during discovery.
+        /// Gets the options that will be used during execution.
         /// </summary>
-        ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
+        ITestFrameworkExecutionOptions ExecutionOptions { get; }
     }
 }

@@ -14,14 +14,9 @@ namespace Xunit
         XunitProjectAssembly Assembly { get; }
 
         /// <summary>
-        /// Gets the options that will be used during discovery.
+        /// Gets the options that were used during discovery.
         /// </summary>
         ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
-
-        /// <summary>
-        /// Gets the options that will be used during execution.
-        /// </summary>
-        ITestFrameworkExecutionOptions ExecutionOptions { get; }
 
         /// <summary>
         /// Gets the number of test cases that were discovered. This is the raw

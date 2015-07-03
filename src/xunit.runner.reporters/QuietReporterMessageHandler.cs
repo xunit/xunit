@@ -1,5 +1,3 @@
-using Xunit.Abstractions;
-
 namespace Xunit.Runner.Reporters
 {
     public class QuietReporterMessageHandler : DefaultRunnerReporterMessageHandler
@@ -16,12 +14,12 @@ namespace Xunit.Runner.Reporters
             return true;
         }
 
-        protected override bool Visit(ITestAssemblyStarting assemblyStarting)
+        protected override bool Visit(ITestAssemblyExecutionStarting executionStarting)
         {
             return true;
         }
 
-        protected override bool Visit(ITestAssemblyFinished assemblyFinished)
+        protected override bool Visit(ITestAssemblyExecutionFinished executionFinished)
         {
             return true;
         }

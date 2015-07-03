@@ -112,7 +112,7 @@ public class DefaultRunnerReporterMessageHandlerTests
     {
         [Theory]
         [InlineData(false, "[Imp] =>   Discovering: testAssembly")]
-        [InlineData(true, "[Imp] =>   Discovering: testAssembly (method display = ClassAndMethod, parallel test collections = on, max threads = 42)")]
+        [InlineData(true, "[Imp] =>   Discovering: testAssembly (method display = ClassAndMethod)")]
         public static void LogsMessage(bool diagnosticMessages, string expectedResult)
         {
             var message = Mocks.TestAssemblyDiscoveryStarting(diagnosticMessages: diagnosticMessages);
@@ -125,12 +125,12 @@ public class DefaultRunnerReporterMessageHandlerTests
         }
     }
 
-    public class OnMessage_ITestAssemblyFinished
+    public class OnMessage_ITestAssemblyExecutionFinished
     {
         [Fact]
         public static void LogsMessage()
         {
-            var message = Mocks.TestAssemblyFinished();
+            var message = Mocks.TestAssemblyExecutionFinished();
             var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
             handler.OnMessage(message);
@@ -140,18 +140,20 @@ public class DefaultRunnerReporterMessageHandlerTests
         }
     }
 
-    public class OnMessage_ITestAssemblyStarting
+    public class OnMessage_ITestAssemblyExecutionStarting
     {
-        [Fact]
-        public static void LogsMessage()
+        [Theory]
+        [InlineData(false, "[Imp] =>   Starting:    testAssembly")]
+        [InlineData(true, "[Imp] =>   Starting:    testAssembly (parallel test collections = on, max threads = 42)")]
+        public static void LogsMessage(bool diagnosticMessages, string expectedResult)
         {
-            var message = Mocks.TestAssemblyStarting();
+            var message = Mocks.TestAssemblyExecutionStarting(diagnosticMessages: diagnosticMessages);
             var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
             handler.OnMessage(message);
 
             var msg = Assert.Single(handler.Messages);
-            Assert.Equal("[Imp] =>   Starting:    testAssembly", msg);
+            Assert.Equal<object>(expectedResult, msg);
         }
     }
 

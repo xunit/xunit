@@ -56,6 +56,8 @@ namespace Xunit
 #if !XUNIT_CORE_DLL
                 DoVisit<ITestAssemblyDiscoveryFinished>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<ITestAssemblyDiscoveryStarting>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestAssemblyExecutionFinished>(message, (t, m) => t.Visit(m)) &&
+                DoVisit<ITestAssemblyExecutionStarting>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<ITestExecutionSummary>(message, (t, m) => t.Visit(m)) &&
 #endif
                 DoVisit<IAfterTestFinished>(message, (t, m) => t.Visit(m)) &&
@@ -111,6 +113,26 @@ namespace Xunit
         /// <param name="discoveryStarting">The message.</param>
         /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
         protected virtual bool Visit(ITestAssemblyDiscoveryStarting discoveryStarting)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Called when an instance of <see cref="ITestAssemblyExecutionFinished"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="executionFinished">The message.</param>
+        /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(ITestAssemblyExecutionFinished executionFinished)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Called when an instance of <see cref="ITestAssemblyExecutionStarting"/> is sent to the message sink.
+        /// </summary>
+        /// <param name="executionStarting">The message.</param>
+        /// <returns>Return <c>true</c> to continue executing tests; <c>false</c> otherwise.</returns>
+        protected virtual bool Visit(ITestAssemblyExecutionStarting executionStarting)
         {
             return true;
         }
