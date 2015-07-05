@@ -30,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="NSubstitute">
       <HintPath>..\..\packages\NSubstitute.1.5.0.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
@@ -52,12 +48,6 @@
   <ItemGroup>
     <Compile Include="..\..\src\common\AssemblyExtensions.cs">
       <Link>Common\AssemblyExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\common\ConfigReader_dnx.cs">
-      <Link>Common\ConfigReader_dnx.cs</Link>
-    </Compile>
-    <Compile Include="..\..\src\common\ConfigReader_XDocument.cs">
-      <Link>Common\ConfigReader_XDocument.cs</Link>
     </Compile>
     <Compile Include="..\..\src\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
@@ -86,9 +76,7 @@
     <Compile Include="..\..\src\xunit.runner.utility.desktop\Frameworks\v1\Xunit1ExceptionUtility.cs">
       <Link>Frameworks\v1\Xunit1ExceptionUtility.cs</Link>
     </Compile>
-    <Compile Include="Common\ConfigReader_ConfigurationTests.cs" />
-    <Compile Include="Common\ConfigReader_dnxTests.cs" />
-    <Compile Include="Common\ConfigReader_XDocumentTests.cs" />
+    <Compile Include="Common\ConfigReaderTests.cs" />
     <Compile Include="Extensibility\DefaultRunnerReporterMessageHandlerTests.cs" />
     <Compile Include="Frameworks\v1\TestClassCallbackHandlerTests.cs" />
     <Compile Include="Frameworks\v1\Xunit1ExceptionUtilityTests.cs" />

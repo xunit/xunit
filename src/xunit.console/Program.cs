@@ -157,7 +157,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine();
             Console.WriteLine("usage: {0} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]", executableName);
             Console.WriteLine();
-            Console.WriteLine("Note: Configuration files must end in .config");
+            Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
             Console.WriteLine();
             Console.WriteLine("Valid options:");
             Console.WriteLine("  -nologo                : do not show the copyright message");

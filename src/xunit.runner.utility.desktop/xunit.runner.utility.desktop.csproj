@@ -23,14 +23,14 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET;NET35</DefineConstants>
     <DocumentationFile>bin\Debug\xunit.runner.utility.desktop.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET</DefineConstants>
+    <DefineConstants>TRACE;NET;NET35</DefineConstants>
     <DocumentationFile>bin\Release\xunit.runner.utility.desktop.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
@@ -50,9 +50,6 @@
     </Compile>
     <Compile Include="..\common\AssemblyHelper.cs">
       <Link>Common\AssemblyHelper.cs</Link>
-    </Compile>
-    <Compile Include="..\common\ConfigReader_Configuration.cs">
-      <Link>Common\ConfigReader_Configuration.cs</Link>
     </Compile>
     <Compile Include="..\common\ConsoleRunnerLogger.cs">
       <Link>Common\ConsoleRunnerLogger.cs</Link>
@@ -111,6 +108,7 @@
     <Compile Include="..\common\XunitSerializationInfo.cs">
       <Link>Common\XunitSerializationInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\ConfigReader_Configuration.cs" />
     <Compile Include="Frameworks\v1\IXunit1Executor.cs" />
     <Compile Include="Frameworks\v1\TestClassCallbackHandler.cs" />
     <Compile Include="Frameworks\v1\XmlNodeCallbackHandler.cs" />

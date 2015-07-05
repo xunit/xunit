@@ -67,6 +67,12 @@ namespace Xunit.ConsoleClient
                 throw new ArgumentException(string.Format("error: unknown command line option: {0}", option.Value));
         }
 
+        private static bool IsConfigFile(string fileName)
+        {
+            return fileName.EndsWith(".config", StringComparison.OrdinalIgnoreCase)
+                || fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+        }
+
         public static CommandLine Parse(IReadOnlyList<IRunnerReporter> reporters, params string[] args)
         {
             return new CommandLine(reporters, args);
@@ -82,7 +88,7 @@ namespace Xunit.ConsoleClient
                     break;
 
                 var assemblyFile = arguments.Pop();
-                if (assemblyFile.EndsWith(".config", StringComparison.OrdinalIgnoreCase))
+                if (IsConfigFile(assemblyFile))
                     throw new ArgumentException(string.Format("expecting assembly, got config file: {0}", assemblyFile));
                 if (!fileExists(assemblyFile))
                     throw new ArgumentException(string.Format("file not found: {0}", assemblyFile));
@@ -91,7 +97,7 @@ namespace Xunit.ConsoleClient
                 if (arguments.Count > 0)
                 {
                     var value = arguments.Peek();
-                    if (!value.StartsWith("-") && value.EndsWith(".config", StringComparison.OrdinalIgnoreCase))
+                    if (!value.StartsWith("-") && IsConfigFile(value))
                     {
                         configFile = arguments.Pop();
                         if (!fileExists(configFile))

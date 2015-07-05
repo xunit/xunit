@@ -18,22 +18,17 @@
       <group>
         <dependency id="xunit.abstractions" version="[2.0.0]" />
       </group>
-      <group targetFramework="dnx451">
-        <dependency id="Newtonsoft.Json" version="7.0.1" />
-        <dependency id="xunit.abstractions" version="[2.0.0]" />
-      </group>
+      <!--  This is currently broken with DNX Beta 5 because some of these packages end up requiring NuGet 3.0
       <group targetFramework="dnxcore50">
-        <dependency id="Newtonsoft.Json" version="7.0.1" />
-        <!--  This is currently broken with DNX Beta 5 because some of these packages end up requiring NuGet 3.0
         <dependency id="System.Diagnostics.Tools" version="4.0.0-beta-23019" />
         <dependency id="System.IO.FileSystem" version="4.0.0-beta-23019" />
         <dependency id="System.Linq" version="4.0.0-beta-23019" />
         <dependency id="System.Reflection" version="4.0.10-beta-23019" />
         <dependency id="System.Runtime.Extensions" version="4.0.10-beta-23019" />
         <dependency id="System.Threading" version="4.0.10-beta-23019" />
-        -->
         <dependency id="xunit.abstractions" version="[2.0.0]" />
       </group>
+      -->
     </dependencies>
   </metadata>
   <files>

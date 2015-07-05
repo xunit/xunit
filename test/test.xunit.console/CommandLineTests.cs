@@ -38,15 +38,17 @@ public class CommandLineTests
             TestableCommandLine.Parse(arguments);  // Should not throw
         }
 
-        [Fact]
-        public static void DllExistsConfigFileDoesNotExist()
+        [Theory]
+        [InlineData("badConfig.config")]
+        [InlineData("badConfig.json")]
+        public static void DllExistsConfigFileDoesNotExist(string configFile)
         {
-            var arguments = new[] { "assemblyName.dll", "badConfig.config" };
+            var arguments = new[] { "assemblyName.dll", configFile };
 
             var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
 
             Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("config file not found: badConfig.config", exception.Message);
+            Assert.Equal("config file not found: " + configFile, exception.Message);
         }
 
         [Fact]
@@ -72,10 +74,12 @@ public class CommandLineTests
             );
         }
 
-        [Fact]
-        public static void MultipleAssembliesOneWithConfig()
+        [Theory]
+        [InlineData("assembly2.config")]
+        [InlineData("assembly2.json")]
+        public static void MultipleAssembliesOneWithConfig(string configFile)
         {
-            var arguments = new[] { "assemblyName.dll", "assemblyName2.dll", "assembly2.config" };
+            var arguments = new[] { "assemblyName.dll", "assemblyName2.dll", configFile };
 
             var result = TestableCommandLine.Parse(arguments);
 
@@ -89,21 +93,25 @@ public class CommandLineTests
                 a =>
                 {
                     Assert.Equal(Path.GetFullPath("assemblyName2.dll"), a.AssemblyFilename);
-                    Assert.Equal(Path.GetFullPath("assembly2.config"), a.ConfigFilename);
+                    Assert.Equal(Path.GetFullPath(configFile), a.ConfigFilename);
                     Assert.True(a.ShadowCopy);
                 }
             );
         }
 
-        [Fact]
-        public static void ConfigFileWhenExpectingAssemblyThrows()
+        [Theory]
+        [InlineData("assembly1.config", "assembly2.config")]
+        [InlineData("assembly1.config", "assembly2.json")]
+        [InlineData("assembly1.json", "assembly2.config")]
+        [InlineData("assembly1.json", "assembly2.json")]
+        public static void ConfigFileWhenExpectingAssemblyThrows(string configFile1, string configFile2)
         {
-            var arguments = new[] { "assemblyName.dll", "assembly1.config", "assembly2.config" };
+            var arguments = new[] { "assemblyName.dll", configFile1, configFile2 };
 
             var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
 
             Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("expecting assembly, got config file: assembly2.config", exception.Message);
+            Assert.Equal("expecting assembly, got config file: " + configFile2, exception.Message);
         }
     }
 
@@ -744,7 +752,7 @@ public class CommandLineTests
     class TestableCommandLine : CommandLine
     {
         private TestableCommandLine(IReadOnlyList<IRunnerReporter> reporters, params string[] arguments)
-            : base(reporters, arguments, filename => filename != "badConfig.config" && filename != "fileName")
+            : base(reporters, arguments, filename => !filename.StartsWith("badConfig.") && filename != "fileName")
         { }
 
         public static TestableCommandLine Parse(params string[] arguments)

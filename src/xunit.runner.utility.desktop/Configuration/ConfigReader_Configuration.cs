@@ -6,7 +6,7 @@ namespace Xunit
     /// <summary>
     /// This class is used to read configuration information for a test assembly.
     /// </summary>
-    public static class ConfigReader
+    public static class ConfigReader_Configuration
     {
         /// <summary>
         /// Loads the test assembly configuration for the given test assembly.
@@ -19,27 +19,31 @@ namespace Xunit
             if (configFileName == null)
                 configFileName = assemblyFileName + ".config";
 
-            var result = new TestAssemblyConfiguration();
-
-            try
+            if (configFileName.EndsWith(".config"))
             {
-                var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
-                var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
-                if (config != null && config.AppSettings != null)
+                try
                 {
-                    var settings = config.AppSettings.Settings;
+                    var map = new ExeConfigurationFileMap { ExeConfigFilename = configFileName };
+                    var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+                    if (config != null && config.AppSettings != null)
+                    {
+                        var result = new TestAssemblyConfiguration();
+                        var settings = config.AppSettings.Settings;
 
-                    result.DiagnosticMessages = GetBoolean(settings, TestOptionsNames.Configuration.DiagnosticMessages) ?? result.DiagnosticMessages;
-                    result.MaxParallelThreads = GetInt(settings, TestOptionsNames.Configuration.MaxParallelThreads) ?? result.MaxParallelThreads;
-                    result.MethodDisplay = GetEnum<TestMethodDisplay>(settings, TestOptionsNames.Configuration.MethodDisplay) ?? result.MethodDisplay;
-                    result.ParallelizeAssembly = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
-                    result.ParallelizeTestCollections = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
-                    result.PreEnumerateTheories = GetBoolean(settings, TestOptionsNames.Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
+                        result.DiagnosticMessages = GetBoolean(settings, TestOptionsNames.Configuration.DiagnosticMessages) ?? result.DiagnosticMessages;
+                        result.MaxParallelThreads = GetInt(settings, TestOptionsNames.Configuration.MaxParallelThreads) ?? result.MaxParallelThreads;
+                        result.MethodDisplay = GetEnum<TestMethodDisplay>(settings, TestOptionsNames.Configuration.MethodDisplay) ?? result.MethodDisplay;
+                        result.ParallelizeAssembly = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
+                        result.ParallelizeTestCollections = GetBoolean(settings, TestOptionsNames.Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
+                        result.PreEnumerateTheories = GetBoolean(settings, TestOptionsNames.Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
+
+                        return result;
+                    }
                 }
+                catch { }
             }
-            catch (ConfigurationErrorsException) { }
 
-            return result;
+            return null;
         }
 
         static bool? GetBoolean(KeyValueConfigurationCollection settings, string key)

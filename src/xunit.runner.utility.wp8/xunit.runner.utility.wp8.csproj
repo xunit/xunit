@@ -95,9 +95,6 @@
     <Compile Include="..\common\AssemblyHelper_WPA81.cs">
       <Link>Common\AssemblyHelper_WPA81.cs</Link>
     </Compile>
-    <Compile Include="..\common\ConfigReader_XDocument.cs">
-      <Link>Common\ConfigReader_XDocument.cs</Link>
-    </Compile>
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
