@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -12,6 +14,8 @@ namespace Xunit
     public class DefaultRunnerReporterMessageHandler : TestMessageVisitor
     {
         readonly string defaultDirectory = null;
+        readonly ITestFrameworkExecutionOptions defaultExecutionOptions = TestFrameworkOptions.ForExecution();
+        readonly Dictionary<string, ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultRunnerReporterMessageHandler"/> class.
@@ -30,6 +34,12 @@ namespace Xunit
         /// Get the logger used to report messages.
         /// </summary>
         protected IRunnerLogger Logger { get; private set; }
+
+        void AddExecutionOptions(string assemblyFilename, ITestFrameworkExecutionOptions executionOptions)
+        {
+            using (ReaderWriterLockWrapper.WriteLock())
+                executionOptionsByAssembly[assemblyFilename] = executionOptions;
+        }
 
         /// <summary>
         /// Escapes text for display purposes.
@@ -65,16 +75,33 @@ namespace Xunit
         }
 
         /// <summary>
+        /// Get the test framework options for the given assembly. If it cannot find them, then it
+        /// returns a default set of options.
+        /// </summary>
+        /// <param name="assemblyFilename">The test assembly filename</param>
+        /// <returns></returns>
+        protected ITestFrameworkExecutionOptions GetExecutionOptions(string assemblyFilename)
+        {
+            ITestFrameworkExecutionOptions result;
+
+            using (ReaderWriterLockWrapper.ReadLock())
+                if (!executionOptionsByAssembly.TryGetValue(assemblyFilename, out result))
+                    result = defaultExecutionOptions;
+
+            return result;
+        }
+
+        /// <summary>
         /// Logs an error message to the logger.
         /// </summary>
         /// <param name="failureType">The type of the failure</param>
         /// <param name="failureInfo">The failure information</param>
         protected void LogError(string failureType, IFailureInformation failureInfo)
         {
+            var frameInfo = StackFrameInfo.FromFailure(failureInfo);
+
             lock (Logger.LockObject)
             {
-                var frameInfo = StackFrameInfo.FromFailure(failureInfo);
-
                 Logger.LogError(frameInfo, "    [{0}] {1}", failureType, Escape(failureInfo.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)"));
 
                 foreach (var messageLine in ExceptionUtility.CombineMessages(failureInfo).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
@@ -96,6 +123,31 @@ namespace Xunit
 
             foreach (var stackFrame in stackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
                 Logger.LogImportantMessage(frameInfo, "        {0}", StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory));
+        }
+
+        /// <summary>
+        /// Lots test output to the logger.
+        /// </summary>
+        protected virtual void LogOutput(StackFrameInfo frameInfo, string output)
+        {
+            if (string.IsNullOrEmpty(output))
+                return;
+
+            // ITestOutputHelper terminates everything with NewLine, but we really don't need that
+            // extra blank line in our output.
+            if (output.EndsWith(Environment.NewLine))
+                output = output.Substring(0, output.Length - Environment.NewLine.Length);
+
+            Logger.LogMessage(frameInfo, "      Output:");
+
+            foreach (var line in output.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+                Logger.LogImportantMessage(frameInfo, "        {0}", line);
+        }
+
+        void RemoveExecutionOptions(string assemblyFilename)
+        {
+            using (ReaderWriterLockWrapper.WriteLock())
+                executionOptionsByAssembly.Remove(assemblyFilename);
         }
 
         /// <inheritdoc/>
@@ -146,12 +198,16 @@ namespace Xunit
         {
             Logger.LogImportantMessage("  Finished:    {0}", GetAssemblyDisplayName(executionFinished.Assembly));
 
+            RemoveExecutionOptions(executionFinished.Assembly.AssemblyFilename);
+
             return base.Visit(executionFinished);
         }
 
         /// <inheritdoc/>
         protected override bool Visit(ITestAssemblyExecutionStarting executionStarting)
         {
+            AddExecutionOptions(executionStarting.Assembly.AssemblyFilename, executionStarting.ExecutionOptions);
+
             var assemblyDisplayName = GetAssemblyDisplayName(executionStarting.Assembly);
 
             if (executionStarting.ExecutionOptions.GetDiagnosticMessagesOrDefault())
@@ -216,16 +272,17 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestFailed testFailed)
         {
+            var frameInfo = StackFrameInfo.FromFailure(testFailed);
+
             lock (Logger.LockObject)
             {
-                var frameInfo = StackFrameInfo.FromFailure(testFailed);
-
                 Logger.LogError(frameInfo, "    {0} [FAIL]", Escape(testFailed.Test.DisplayName));
 
                 foreach (var messageLine in ExceptionUtility.CombineMessages(testFailed).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
                     Logger.LogImportantMessage(frameInfo, "      {0}", messageLine);
 
                 LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(testFailed));
+                LogOutput(frameInfo, testFailed.Output);
             }
 
             return base.Visit(testFailed);
@@ -237,6 +294,22 @@ namespace Xunit
             LogError(string.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
 
             return base.Visit(cleanupFailure);
+        }
+
+        /// <inheritdoc/>
+        protected override bool Visit(ITestPassed testPassed)
+        {
+            if (!string.IsNullOrEmpty(testPassed.Output) &&
+                GetExecutionOptions(testPassed.TestAssembly.Assembly.AssemblyPath).GetDiagnosticMessagesOrDefault())
+            {
+                lock (Logger.LockObject)
+                {
+                    Logger.LogImportantMessage("    {0} [PASS]", Escape(testPassed.Test.DisplayName));
+                    LogOutput(StackFrameInfo.None, testPassed.Output);
+                }
+            }
+
+            return base.Visit(testPassed);
         }
 
         /// <inheritdoc/>
@@ -305,6 +378,37 @@ namespace Xunit
                                            totalTestsSkipped,
                                            totalTime,
                                            executionSummary.ElapsedClockTime.TotalSeconds.ToString("0.000s"));
+            }
+        }
+
+        class ReaderWriterLockWrapper : IDisposable
+        {
+            static readonly ReaderWriterLockSlim @lock = new ReaderWriterLockSlim();
+            static readonly ReaderWriterLockWrapper lockForRead = new ReaderWriterLockWrapper(() => @lock.ExitReadLock());
+            static readonly ReaderWriterLockWrapper lockForWrite = new ReaderWriterLockWrapper(() => @lock.ExitWriteLock());
+
+            readonly Action unlock;
+
+            ReaderWriterLockWrapper(Action unlock)
+            {
+                this.unlock = unlock;
+            }
+
+            public void Dispose()
+            {
+                unlock();
+            }
+
+            public static IDisposable ReadLock()
+            {
+                @lock.EnterReadLock();
+                return lockForRead;
+            }
+
+            public static IDisposable WriteLock()
+            {
+                @lock.EnterWriteLock();
+                return lockForWrite;
             }
         }
     }

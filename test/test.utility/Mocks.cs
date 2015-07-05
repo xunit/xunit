@@ -235,9 +235,9 @@ public static class Mocks
         return result;
     }
 
-    public static ITestAssemblyExecutionStarting TestAssemblyExecutionStarting(bool diagnosticMessages = false)
+    public static ITestAssemblyExecutionStarting TestAssemblyExecutionStarting(bool diagnosticMessages = false, string assemblyFilename = null)
     {
-        var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
+        var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFilename ?? "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
         var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true };
         var result = Substitute.For<ITestAssemblyExecutionStarting, InterfaceProxy<ITestAssemblyExecutionStarting>>();
         result.Assembly.Returns(assembly);

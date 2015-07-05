@@ -207,7 +207,7 @@ public class DefaultRunnerReporterMessageHandlerTests
         [Fact]
         public void LogsTestNameWithExceptionAndStackTraceAndOutput()
         {
-            var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, output: "This is\t\r\noutput");
+            var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, output: "This is\t" + Environment.NewLine + "output");
             SetupFailureInformation(message);
             var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
@@ -220,7 +220,42 @@ public class DefaultRunnerReporterMessageHandlerTests
                 msg => Assert.Equal("[--- @ SomeFolder\\SomeClass.cs:18] =>       Stack Trace:", msg),
                 msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         Line 1", msg),
                 msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         SomeFolder\\SomeClass.cs(18,0): at SomeClass.SomeMethod()", msg),
-                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         Line 3", msg)
+                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         Line 3", msg),
+                msg => Assert.Equal("[--- @ SomeFolder\\SomeClass.cs:18] =>       Output:", msg),
+                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         This is\t", msg),
+                msg => Assert.Equal("[Imp @ SomeFolder\\SomeClass.cs:18] =>         output", msg)
+            );
+        }
+    }
+
+    public class OnMessage_ITestPassed
+    {
+        [Fact]
+        public void DoesNotLogOutputByDefault()
+        {
+            var message = Mocks.TestPassed("This is my display name \t\r\n", output: "This is\t" + Environment.NewLine + "output");
+            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+
+            handler.OnMessage(message);
+
+            Assert.Empty(handler.Messages);
+        }
+
+        [Fact]
+        public void LogsOutputWhenDiagnosticsAreEnabled()
+        {
+            var message = Mocks.TestPassed("This is my display name \t\r\n", output: "This is\t" + Environment.NewLine + "output");
+            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            handler.OnMessage(Mocks.TestAssemblyExecutionStarting(diagnosticMessages: true, assemblyFilename: message.TestAssembly.Assembly.AssemblyPath));
+            handler.Messages.Clear();  // Ignore any output from the "assembly execution starting" message
+
+            handler.OnMessage(message);
+
+            Assert.Collection(handler.Messages,
+                msg => Assert.Equal("[Imp] =>     This is my display name \\t\\r\\n [PASS]", msg),
+                msg => Assert.Equal("[---] =>       Output:", msg),
+                msg => Assert.Equal("[Imp] =>         This is\t", msg),
+                msg => Assert.Equal("[Imp] =>         output", msg)
             );
         }
     }
@@ -246,7 +281,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 
     class TestableDefaultRunnerReporterMessageHandler : DefaultRunnerReporterMessageHandler
     {
-        public IReadOnlyList<string> Messages;
+        public List<string> Messages;
 
         TestableDefaultRunnerReporterMessageHandler(SpyRunnerLogger logger)
             : base(logger)
