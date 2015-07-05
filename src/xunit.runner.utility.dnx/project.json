@@ -19,7 +19,7 @@
                 "System.Linq": "4.0.0-beta-*",
                 "System.Reflection": "4.0.10-beta-*",
                 "System.Runtime.Extensions": "4.0.10-beta-*",
-                "System.Text.RegularExpressions":  "4.0.10-beta-*",
+                "System.Text.RegularExpressions": "4.0.10-beta-*",
                 "System.Threading": "4.0.10-beta-*"
             }
         }
@@ -56,6 +56,7 @@
         "../messages/**/*.cs"
     ],
     "dependencies": {
+        "Newtonsoft.Json": "7.0.1",
         "xunit.abstractions": "[2.0.0]"
     }
 }

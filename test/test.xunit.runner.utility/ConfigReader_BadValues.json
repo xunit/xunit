@@ -1,0 +1,8 @@
+﻿{
+    "diagnosticMessages": "blarch",
+    "maxParallelThreads": "abc",
+    "methodDisplay": "fooBar",
+    "parallelizeAssembly": true,
+    "parallelizetestcollections": "biff",
+    "preEnumerateTheories": "baz"
+}
