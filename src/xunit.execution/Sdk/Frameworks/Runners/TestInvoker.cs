@@ -144,6 +144,17 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// This method calls the test method via reflection. This is an available override point
+        /// if you need to do some other form of invocation of the actual test method.
+        /// </summary>
+        /// <param name="testClassInstance">The instance of the test class</param>
+        /// <returns>The return value from the test method invocation</returns>
+        protected virtual object CallTestMethod(object testClassInstance)
+        {
+            return TestMethod.Invoke(testClassInstance, TestMethodArguments);
+        }
+
+        /// <summary>
         /// Creates the test class (if necessary), and invokes the test method.
         /// </summary>
         /// <returns>Returns the time (in seconds) spent creating the test class, running
@@ -174,7 +185,10 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Invokes the test method on the given test class instance.
+        /// Invokes the test method on the given test class instance. This method sets up support for "async void"
+        /// test methods, ensures that the test method has the correct number of arguments, then calls <see cref="CallTestMethod"/>
+        /// to do the actual method invocation. It ensure that any async test method is fully completed before returning, and
+        /// returns the measured clock time that the invocation took.
         /// </summary>
         /// <param name="testClassInstance">The test class instance</param>
         /// <returns>Returns the time taken to invoke the test method</returns>
@@ -204,7 +218,7 @@ namespace Xunit.Sdk
                             }
                             else
                             {
-                                var result = TestMethod.Invoke(testClassInstance, TestMethodArguments);
+                                var result = CallTestMethod(testClassInstance);
                                 var task = result as Task;
                                 if (task != null)
                                     await task;
