@@ -19,7 +19,7 @@ namespace Xunit.Sdk
 
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Called by the de-serializer", error: true)]
+        [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
         public XunitTestCase()
         {
             // No way for us to get access to the message sink on the execution deserialization path, but that should

@@ -18,7 +18,7 @@ namespace Xunit
 
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Called by the de-serializer", error: true)]
+        [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
         public Xunit1TestCase() { }
 
         /// <summary>
