@@ -112,6 +112,18 @@ public class XunitSerializationInfoTests
         }
 
         [Fact]
+        public static void IXunitSerializableWithoutParameterlessConstructorThrows()
+        {
+            var data = new MySerializableWithoutParameterlessConstructor(42);
+
+            var serialized = XunitSerializationInfo.Serialize(data);
+            var ex = Record.Exception(() => XunitSerializationInfo.Deserialize(typeof(MySerializableWithoutParameterlessConstructor), serialized));
+
+            Assert.IsType<InvalidOperationException>(ex);
+            Assert.Equal("Could not de-serialize type 'XunitSerializationInfoTests+MySerializableWithoutParameterlessConstructor' because it lacks a parameterless constructor.", ex.Message);
+        }
+
+        [Fact]
         public static void UnsupportedTypeThrows()
         {
             var data = new object();
@@ -268,6 +280,26 @@ public class XunitSerializationInfoTests
         public void Serialize(IXunitSerializationInfo info)
         {
             info.AddValue("NoData", NoData);
+        }
+    }
+
+    class MySerializableWithoutParameterlessConstructor : IXunitSerializable
+    {
+        public MySerializableWithoutParameterlessConstructor(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; private set; }
+
+        public void Deserialize(IXunitSerializationInfo info)
+        {
+            Value = info.GetValue<int>(nameof(Value));
+        }
+
+        public void Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue(nameof(Value), Value);
         }
     }
 }

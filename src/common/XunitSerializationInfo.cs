@@ -191,9 +191,16 @@ namespace Xunit.Serialization
                 }
             }
 
-            var value = (IXunitSerializable)Activator.CreateInstance(type);
-            value.Deserialize(serializationInfo);
-            return value;
+            try
+            {
+                var value = (IXunitSerializable)Activator.CreateInstance(type);
+                value.Deserialize(serializationInfo);
+                return value;
+            }
+            catch (MissingMemberException)
+            {
+                throw new InvalidOperationException(string.Format("Could not de-serialize type '{0}' because it lacks a parameterless constructor.", type.FullName));
+            }
         }
 
         /// <summary>

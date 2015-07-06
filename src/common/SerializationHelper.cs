@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -141,7 +140,7 @@ namespace Xunit.Sdk
             }
 
             IList<string> parts = SplitAtOuterCommas(assemblyQualifiedTypeName, trimWhitespace: true);
-            return 
+            return
                 parts.Count == 0 ? null :
                 parts.Count == 1 ? Type.GetType(parts[0]) :
                 GetType(parts[1], parts[0]);
