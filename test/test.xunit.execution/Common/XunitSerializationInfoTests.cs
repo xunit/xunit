@@ -38,11 +38,11 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(ulong), ulong.MaxValue };
             yield return new object[] { typeof(ulong?), ulong.MinValue };
             yield return new object[] { typeof(ulong?), null };
-            yield return new object[] { typeof(float), 1.1f };
-            yield return new object[] { typeof(float?), -1.1f };
+            yield return new object[] { typeof(float), float.MaxValue };
+            yield return new object[] { typeof(float?), float.MinValue };
             yield return new object[] { typeof(float?), null };
-            yield return new object[] { typeof(double), 2.2 };
-            yield return new object[] { typeof(double?), -2.2 };
+            yield return new object[] { typeof(double), double.MaxValue };
+            yield return new object[] { typeof(double?), double.MinValue };
             yield return new object[] { typeof(double?), null };
             yield return new object[] { typeof(decimal), decimal.MaxValue };
             yield return new object[] { typeof(decimal?), decimal.MinValue };

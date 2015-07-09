@@ -259,11 +259,11 @@ namespace Xunit.Serialization
 
             var floatData = value as float?;
             if (floatData != null)
-                return floatData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+                return floatData.GetValueOrDefault().ToString("R", CultureInfo.InvariantCulture);
 
             var doubleData = value as double?;
             if (doubleData != null)
-                return doubleData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+                return doubleData.GetValueOrDefault().ToString("R", CultureInfo.InvariantCulture);
 
             var decimalData = value as decimal?;
             if (decimalData != null)
