@@ -30,7 +30,7 @@
 
   <!-- Build server targets -->
 
-  <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;GitHubLink;Packages;ZipArtifacts" />
+  <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;GitLink;Packages;ZipArtifacts" />
   <Target Name="TeamCity" DependsOnTargets="CI;PushMyGet" />
 
   <!-- Individual targets -->
@@ -57,7 +57,7 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; install githublink -Pre -Source http://www.myget.org/F/b4ff5f68eccf4f6bbfed74f055f88d8f/ -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\githublink\')" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; install gitlink -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\gitlink\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\$(SolutionName)&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
     <Exec Command="powershell -NoProfile -NonInteractive -ExecutionPolicy Unrestricted tools\dnu-package-restore.ps1" />
   </Target>
@@ -119,11 +119,11 @@
         Condition=" '$(BuildSemanticVersion)' != '' "/>
   </Target>
 
-  <Target Name='GitHubLink'>
+  <Target Name='GitLink'>
     <Warning Condition=" '$(CommitHash)' == '' "
-        Text="Skipping GitHubLink because CommitHash was not specified." />
+        Text="Skipping GitLink because CommitHash was not specified." />
     <Exec Condition=" '$(CommitHash)' != '' "
-        Command='packages\githublink\tools\GitHubLink.exe $(MSBuildThisFileDirectory) -u https://github.com/xunit/xunit -commit $(CommitHash)' IgnoreExitCode='true' />
+        Command='packages\gitlink\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f $(SolutionName) -u https://github.com/xunit/xunit -s $(CommitHash)' IgnoreExitCode='true' />
   </Target>
 
   <Target Name='Packages'>
