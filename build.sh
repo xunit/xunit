@@ -19,7 +19,7 @@ if ! [ -x .nuget/nuget.exe ]; then
   echo "Downloading nuget.exe..."
   echo ""
 
-  curl https://api.nuget.org/downloads/nuget.exe -o .nuget/nuget.exe -L
+  curl https://www.nuget.org/nuget.exe -o .nuget/nuget.exe -L
   if [ $? -ne 0 ]; then
     echo >&2 ""
     echo >&2 "The download of nuget.exe has failed."
