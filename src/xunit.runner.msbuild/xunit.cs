@@ -68,6 +68,8 @@ namespace Xunit.Runner.MSBuild
             get { return Xml != null || XmlV1 != null || Html != null || NUnit != null; }
         }
 
+        public bool NoAppDomain { get; set; }
+
         public bool NoLogo { get; set; }
 
         public ITaskItem NUnit { get; set; }
@@ -303,7 +305,7 @@ namespace Xunit.Runner.MSBuild
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
                 var diagnosticMessageVisitor = new DiagnosticMessageVisitor(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
 
-                using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
+                using (var controller = new XunitFrontController(!NoAppDomain, assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     // Discover & filter the tests

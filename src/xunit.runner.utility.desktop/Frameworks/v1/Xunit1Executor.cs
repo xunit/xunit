@@ -15,21 +15,26 @@ namespace Xunit
     {
         private readonly object executor;
 
-        readonly RemoteAppDomainManager appDomain;
+        readonly IAppDomainManager appDomain;
         readonly AssemblyName xunitAssemblyName;
         readonly string xunitAssemblyPath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit1Executor" /> class.
         /// </summary>
+        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="testAssemblyFileName">The filename of the test assembly.</param>
         /// <param name="configFileName">The filename of the configuration file.</param>
         /// <param name="shadowCopy">Set to <c>true</c> to enable shadow copying the assemblies.</param>
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
-        public Xunit1Executor(string testAssemblyFileName, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null)
+        public Xunit1Executor(bool useAppDomain,
+                              string testAssemblyFileName,
+                              string configFileName = null,
+                              bool shadowCopy = true,
+                              string shadowCopyFolder = null)
         {
-            appDomain = new RemoteAppDomainManager(testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+            appDomain = AppDomainManagerFactory.Create(useAppDomain, testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
             xunitAssemblyPath = GetXunitAssemblyPath(testAssemblyFileName);
             xunitAssemblyName = AssemblyName.GetAssemblyName(xunitAssemblyPath);
             executor = CreateObject("Xunit.Sdk.Executor", testAssemblyFileName);
@@ -41,7 +46,7 @@ namespace Xunit
 
         object CreateObject(string typeName, params object[] args)
         {
-            return appDomain.CreateObject<object>(xunitAssemblyName.FullName, typeName, args);
+            return appDomain.CreateObject<object>(xunitAssemblyName, typeName, args);
         }
 
         /// <inheritdoc/>

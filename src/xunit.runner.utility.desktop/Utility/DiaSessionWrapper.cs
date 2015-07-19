@@ -6,7 +6,7 @@ namespace Xunit
     // discover when a test is an async test (since that requires special handling by DIA).
     internal class DiaSessionWrapper : IDisposable
     {
-        readonly RemoteAppDomainManager appDomainManager;
+        readonly AppDomainManager_AppDomain appDomainManager;
         readonly DiaSessionWrapperHelper helper;
         readonly DiaSession session;
 
@@ -16,8 +16,8 @@ namespace Xunit
 
             var assemblyFileName = typeof(DiaSessionWrapperHelper).Assembly.GetLocalCodeBase();
 
-            appDomainManager = new RemoteAppDomainManager(assemblyFileName, null, true, null);
-            helper = appDomainManager.CreateObject<DiaSessionWrapperHelper>(typeof(DiaSessionWrapperHelper).Assembly.FullName, typeof(DiaSessionWrapperHelper).FullName, assemblyFilename);
+            appDomainManager = new AppDomainManager_AppDomain(assemblyFileName, null, true, null);
+            helper = appDomainManager.CreateObject<DiaSessionWrapperHelper>(typeof(DiaSessionWrapperHelper).Assembly.GetName(), typeof(DiaSessionWrapperHelper).FullName, assemblyFilename);
         }
 
         public DiaNavigationData GetNavigationData(string typeName, string methodName)

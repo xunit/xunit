@@ -21,7 +21,7 @@ public class AcceptanceTestV2 : IDisposable
 
     public List<IMessageSinkMessage> Run(Type[] types)
     {
-        Xunit2 = new Xunit2(new NullSourceInformationProvider(), types[0].Assembly.GetLocalCodeBase(), configFileName: null, shadowCopy: true);
+        Xunit2 = new Xunit2(/* useAppDomain */ true, new NullSourceInformationProvider(), types[0].Assembly.GetLocalCodeBase(), configFileName: null, shadowCopy: true);
 
         var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
         foreach (var type in types)

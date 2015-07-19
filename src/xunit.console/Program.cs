@@ -61,7 +61,7 @@ namespace Xunit.ConsoleClient
 
                 var failCount = RunProject(commandLine.Project, commandLine.Serialize, commandLine.ParallelizeAssemblies,
                                            commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
-                                           commandLine.DiagnosticMessages, commandLine.NoColor);
+                                           commandLine.DiagnosticMessages, commandLine.NoColor, !commandLine.NoAppDomain);
 
                 if (commandLine.Wait)
                 {
@@ -162,6 +162,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("Valid options:");
             Console.WriteLine("  -nologo                : do not show the copyright message");
             Console.WriteLine("  -nocolor               : do not output results with colors");
+            Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
             Console.WriteLine("  -parallel option       : set parallelization based on option");
             Console.WriteLine("                         :   none - turn off all parallelization");
             Console.WriteLine("                         :   collections - only parallelize collections");
@@ -213,9 +214,11 @@ namespace Xunit.ConsoleClient
                               bool? parallelizeTestCollections,
                               int? maxThreadCount,
                               bool diagnosticMessages,
-                              bool noColor)
+                              bool noColor,
+                              bool useAppDomain)
         {
             XElement assembliesElement = null;
+            var clockTime = Stopwatch.StartNew();
             var xmlTransformers = TransformFactory.GetXmlTransformers(project);
             var needsXml = xmlTransformers.Count > 0;
             var consoleLock = new object();
@@ -230,11 +233,9 @@ namespace Xunit.ConsoleClient
 
             using (AssemblyHelper.SubscribeResolve())
             {
-                var clockTime = Stopwatch.StartNew();
-
                 if (parallelizeAssemblies.GetValueOrDefault())
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, project.Filters)));
+                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, useAppDomain, project.Filters)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -243,7 +244,7 @@ namespace Xunit.ConsoleClient
                 {
                     foreach (var assembly in project.Assemblies)
                     {
-                        var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, project.Filters);
+                        var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, useAppDomain, project.Filters);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -270,6 +271,7 @@ namespace Xunit.ConsoleClient
                                         int? maxThreadCount,
                                         bool diagnosticMessages,
                                         bool noColor,
+                                        bool useAppDomain,
                                         XunitFilters filters)
         {
             if (cancel)
@@ -299,7 +301,7 @@ namespace Xunit.ConsoleClient
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
                 var diagnosticMessageVisitor = new DiagnosticMessageVisitor(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
 
-                using (var controller = new XunitFrontController(assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
+                using (var controller = new XunitFrontController(useAppDomain, assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     // Discover & filter the tests

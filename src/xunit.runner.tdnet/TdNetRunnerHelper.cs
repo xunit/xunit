@@ -27,7 +27,7 @@ namespace Xunit.Runner.TdNet
             var assemblyFileName = assembly.GetLocalCodeBase();
             configuration = ConfigReader.Load(assemblyFileName);
             var diagnosticMessageVisitor = new DiagnosticMessageVisitor(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
-            xunit = new Xunit2(new NullSourceInformationProvider(), assemblyFileName, diagnosticMessageSink: diagnosticMessageVisitor);
+            xunit = new Xunit2(/* useAppDomain*/ true, new NullSourceInformationProvider(), assemblyFileName, diagnosticMessageSink: diagnosticMessageVisitor);
             toDispose.Push(xunit);
         }
 

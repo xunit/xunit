@@ -45,6 +45,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\common\AppDomainManagerFactory.cs">
+      <Link>Common\AppDomainManagerFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\common\AppDomainManager_AppDomain.cs">
+      <Link>Common\AppDomainManager_AppDomain.cs</Link>
+    </Compile>
+    <Compile Include="..\common\AppDomainManager_NoAppDomain.cs">
+      <Link>Common\AppDomainManager_NoAppDomain.cs</Link>
+    </Compile>
     <Compile Include="..\common\AssemblyExtensions.cs">
       <Link>Common\AssemblyExtensions.cs</Link>
     </Compile>
@@ -72,6 +81,9 @@
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
+    <Compile Include="..\common\IAppDomainManager.cs">
+      <Link>Common\IAppDomainManager.cs</Link>
+    </Compile>
     <Compile Include="..\common\LongLivedMarshalByRefObject_Runner.cs">
       <Link>Common\LongLivedMarshalByRefObject_Runner.cs</Link>
     </Compile>
@@ -80,9 +92,6 @@
     </Compile>
     <Compile Include="..\common\NullMessageSink.cs">
       <Link>Common\NullMessageSink.cs</Link>
-    </Compile>
-    <Compile Include="..\common\RemoteAppDomainManager.cs">
-      <Link>Common\RemoteAppDomainManager.cs</Link>
     </Compile>
     <Compile Include="..\common\SerializationHelper.cs">
       <Link>Common\SerializationHelper.cs</Link>

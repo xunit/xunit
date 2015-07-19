@@ -19,6 +19,7 @@ namespace Xunit
         private readonly string shadowCopyFolder;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
+        readonly bool useAppDomain;
 
         /// <summary>
         /// This constructor is for unit testing purposes only.
@@ -28,21 +29,24 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitFrontController"/> class.
         /// </summary>
+        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
+        /// tests to be discovered and run without locking assembly files on disk.</param>
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
         /// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
-        /// tests to be discovered and run without locking assembly files on disk.</param>
         /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
-        public XunitFrontController(string assemblyFileName,
+        public XunitFrontController(bool useAppDomain,
+                                    string assemblyFileName,
                                     string configFileName = null,
                                     bool shadowCopy = true,
                                     string shadowCopyFolder = null,
                                     ISourceInformationProvider sourceInformationProvider = null,
                                     IMessageSink diagnosticMessageSink = null)
         {
+            this.useAppDomain = useAppDomain;
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
             this.shadowCopy = shadowCopy;
@@ -104,10 +108,10 @@ namespace Xunit
 #if !ANDROID && !DNX451 && !DNXCORE50
             if (File.Exists(xunitExecutionPath))
 #endif
-                return new Xunit2(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
+                return new Xunit2(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 #if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNX451 && !DNXCORE50
             if (File.Exists(xunitPath))
-                return new Xunit1(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+                return new Xunit1(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #endif
 
 #if XAMARIN || WINDOWS_PHONE_APP || WINDOWS_PHONE

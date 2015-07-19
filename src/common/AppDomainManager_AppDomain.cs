@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Security;
@@ -6,9 +6,9 @@ using System.Security.Permissions;
 
 namespace Xunit
 {
-    internal class RemoteAppDomainManager : IDisposable
+    internal class AppDomainManager_AppDomain : IAppDomainManager
     {
-        public RemoteAppDomainManager(string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
+        public AppDomainManager_AppDomain(string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
 
@@ -50,11 +50,11 @@ namespace Xunit
             return AppDomain.CreateDomain(Path.GetFileNameWithoutExtension(assemblyFilename), System.AppDomain.CurrentDomain.Evidence, setup, new PermissionSet(PermissionState.Unrestricted));
         }
 
-        public TObject CreateObject<TObject>(string assemblyName, string typeName, params object[] args)
+        public TObject CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object[] args)
         {
             try
             {
-                object unwrappedObject = AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName, false, 0, null, args, null, null, null);
+                var unwrappedObject = AppDomain.CreateInstanceAndUnwrap(assemblyName.FullName, typeName, false, 0, null, args, null, null, null);
                 return (TObject)unwrappedObject;
             }
             catch (TargetInvocationException ex)

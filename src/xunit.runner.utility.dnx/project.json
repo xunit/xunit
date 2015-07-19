@@ -29,6 +29,8 @@
         "warningsAsErrors": true
     },
     "compile": [
+        "../common/AppDomainManagerFactory.cs",
+        "../common/AppDomainManager_NoAppDomain.cs",
         "../common/AssemblyExtensions.cs",
         "../common/AssemblyHelper.cs",
         "../common/AssemblyHelper_WPA81.cs",
@@ -40,10 +42,10 @@
         "../common/ExecutionHelper.cs",
         "../common/GlobalAssemblyInfo.cs",
         "../common/Guard.cs",
+        "../common/IAppDomainManager.cs",
         "../common/LongLivedMarshalByRefObject_Runner_NoAppDomain.cs",
         "../common/NewReflectionExtensions.cs",
         "../common/NullMessageSink.cs",
-        "../common/RemoteAppDomainManager_NoAppDomain.cs",
         "../common/SerializationInfoExtensions.cs",
         "../common/SourceInformation.cs",
         "../common/TestDiscoveryVisitor.cs",

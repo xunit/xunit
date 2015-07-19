@@ -150,8 +150,8 @@ public class Xunit2Tests
 
     class TestableXunit2 : Xunit2
     {
-        public TestableXunit2(string assemblyFileName, string configFileName = null, bool shadowCopy = true)
-            : base(new NullSourceInformationProvider(), assemblyFileName, configFileName, shadowCopy)
+        public TestableXunit2(string assemblyFileName, string configFileName = null, bool shadowCopy = true, bool useAppDomain = true)
+            : base(useAppDomain, new NullSourceInformationProvider(), assemblyFileName, configFileName, shadowCopy)
         {
         }
     }

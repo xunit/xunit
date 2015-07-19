@@ -17,6 +17,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2"/> class.
         /// </summary>
+        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="sourceInformationProvider">The source code information provider.</param>
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
@@ -25,13 +26,14 @@ namespace Xunit
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
         /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
-        public Xunit2(ISourceInformationProvider sourceInformationProvider,
+        public Xunit2(bool useAppDomain,
+                      ISourceInformationProvider sourceInformationProvider,
                       string assemblyFileName,
                       string configFileName = null,
                       bool shadowCopy = true,
                       string shadowCopyFolder = null,
                       IMessageSink diagnosticMessageSink = null)
-            : base(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink)
+            : base(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink)
         {
 #if ANDROID
             var assm = Assembly.Load(assemblyFileName);

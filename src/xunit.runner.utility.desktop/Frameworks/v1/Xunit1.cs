@@ -24,6 +24,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit1"/> class.
         /// </summary>
+        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="sourceInformationProvider">Source code information provider.</param>
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
@@ -31,13 +32,18 @@ namespace Xunit
         /// tests to be discovered and run without locking assembly files on disk.</param>
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
-        public Xunit1(ISourceInformationProvider sourceInformationProvider, string assemblyFileName, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null)
+        public Xunit1(bool useAppDomain,
+                      ISourceInformationProvider sourceInformationProvider,
+                      string assemblyFileName,
+                      string configFileName = null,
+                      bool shadowCopy = true,
+                      string shadowCopyFolder = null)
         {
             this.sourceInformationProvider = sourceInformationProvider;
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
 
-            executor = CreateExecutor(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+            executor = CreateExecutor(useAppDomain, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
         }
 
         /// <inheritdoc/>
@@ -57,15 +63,16 @@ namespace Xunit
         /// <summary>
         /// Creates a wrapper to call the Executor call from xUnit.net v1.
         /// </summary>
+        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="testAssemblyFileName">The filename of the assembly under test.</param>
         /// <param name="configFileName">The configuration file to be used for the app domain (optional, may be <c>null</c>).</param>
         /// <param name="shadowCopy">Whether to enable shadow copy for the app domain.</param>
-        /// <returns>The executor wrapper.</returns>
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
-        protected virtual IXunit1Executor CreateExecutor(string testAssemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
+        /// <returns>The executor wrapper.</returns>
+        protected virtual IXunit1Executor CreateExecutor(bool useAppDomain, string testAssemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {
-            return new Xunit1Executor(testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+            return new Xunit1Executor(useAppDomain, testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
         }
 
         /// <inheritdoc/>

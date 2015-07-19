@@ -814,7 +814,7 @@ public class AmbiguouslyNamedTestMethods
 }";
 
             using (var assembly = AcceptanceTestV1Assembly.Create(code))
-            using (var xunit1 = new Xunit1(new NullSourceInformationProvider(), assembly.FileName))
+            using (var xunit1 = new Xunit1(/* useAppDomain */ true, new NullSourceInformationProvider(), assembly.FileName))
             {
                 var spy = new SpyMessageSink<ITestAssemblyFinished>();
                 xunit1.Run(spy);
@@ -842,18 +842,18 @@ public class AmbiguouslyNamedTestMethods
         public string Executor_ShadowCopyFolder;
         public readonly ISourceInformationProvider SourceInformationProvider;
 
-        public TestableXunit1(string assemblyFileName = null, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null)
-            : this(assemblyFileName ?? @"C:\Path\Assembly.dll", configFileName, shadowCopy, shadowCopyFolder, Substitute.For<ISourceInformationProvider>())
+        public TestableXunit1(string assemblyFileName = null, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null, bool useAppDomain = true)
+            : this(useAppDomain, assemblyFileName ?? @"C:\Path\Assembly.dll", configFileName, shadowCopy, shadowCopyFolder, Substitute.For<ISourceInformationProvider>())
         {
         }
 
-        TestableXunit1(string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder, ISourceInformationProvider sourceInformationProvider)
-            : base(sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
+        TestableXunit1(bool useAppDomain, string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder, ISourceInformationProvider sourceInformationProvider)
+            : base(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
         {
             SourceInformationProvider = sourceInformationProvider;
         }
 
-        protected override IXunit1Executor CreateExecutor(string testAssemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
+        protected override IXunit1Executor CreateExecutor(bool useAppDomain, string testAssemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {
             Executor_TestAssemblyFileName = testAssemblyFileName;
             Executor_ConfigFileName = configFileName;

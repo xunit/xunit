@@ -13,13 +13,14 @@ namespace Xunit
     /// </summary>
     public class Xunit2Discoverer : ITestFrameworkDiscoverer
     {
-        readonly RemoteAppDomainManager appDomain;
+        readonly IAppDomainManager appDomain;
         readonly ITestFrameworkDiscoverer discoverer;
         readonly ITestFramework framework;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class.
         /// </summary>
+        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="sourceInformationProvider">The source code information provider.</param>
         /// <param name="assemblyInfo">The assembly to use for discovery</param>
         /// <param name="xunitExecutionAssemblyPath">The path on disk of xunit.execution.dll; if <c>null</c>, then
@@ -27,23 +28,26 @@ namespace Xunit
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
         /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
-        public Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider,
+        public Xunit2Discoverer(bool useAppDomain,
+                                ISourceInformationProvider sourceInformationProvider,
                                 IAssemblyInfo assemblyInfo,
                                 string xunitExecutionAssemblyPath = null,
                                 string shadowCopyFolder = null,
                                 IMessageSink diagnosticMessageSink = null)
-            : this(sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink) { }
+            : this(useAppDomain, sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink) { }
 
         // Used by Xunit2 when initializing for both discovery and execution.
-        internal Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider,
+        internal Xunit2Discoverer(bool useAppDomain,
+                                  ISourceInformationProvider sourceInformationProvider,
                                   string assemblyFileName,
                                   string configFileName,
                                   bool shadowCopy,
                                   string shadowCopyFolder = null,
                                   IMessageSink diagnosticMessageSink = null)
-            : this(sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink) { }
+            : this(useAppDomain, sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink) { }
 
-        Xunit2Discoverer(ISourceInformationProvider sourceInformationProvider,
+        Xunit2Discoverer(bool useAppDomain,
+                         ISourceInformationProvider sourceInformationProvider,
                          IAssemblyInfo assemblyInfo,
                          string assemblyFileName,
                          string xunitExecutionAssemblyPath,
@@ -57,7 +61,8 @@ namespace Xunit
 
             DiagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
 
-            appDomain = new RemoteAppDomainManager(assemblyFileName ?? xunitExecutionAssemblyPath, configFileName, shadowCopy, shadowCopyFolder);
+            var appDomainAssembly = assemblyFileName ?? xunitExecutionAssemblyPath;
+            appDomain = AppDomainManagerFactory.Create(useAppDomain, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder);
 
             var testFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
 
@@ -74,19 +79,17 @@ namespace Xunit
         /// </summary>
         public IMessageSink DiagnosticMessageSink { get; private set; }
 
-        private static string GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
+        private static AssemblyName GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
         {
 #if ANDROID
             // Android needs to just load the assembly
-            var name = Assembly.Load(xunitExecutionAssemblyPath);
+            return Assembly.Load(xunitExecutionAssemblyPath).GetName();
 #elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
             // WPA81 needs an AssemblyName that has the assembly short name (w/o extension)
-            var name = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();
+            return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();
 #else
-            var name = AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
+            return AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
 #endif
-
-            return name.FullName;
         }
 
         /// <summary>
