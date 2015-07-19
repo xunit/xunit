@@ -17,6 +17,7 @@ namespace Xunit.Runner.MSBuild
 {
     public class xunit : MSBuildTask, ICancelableTask
     {
+        bool? appDomains;
         volatile bool cancel;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
         XunitFilters filters;
@@ -30,6 +31,8 @@ namespace Xunit.Runner.MSBuild
         {
             ShadowCopy = true;
         }
+
+        public bool AppDomains { set { appDomains = value; } }
 
         [Required]
         public ITaskItem[] Assemblies { get; set; }
@@ -67,8 +70,6 @@ namespace Xunit.Runner.MSBuild
         {
             get { return Xml != null || XmlV1 != null || Html != null || NUnit != null; }
         }
-
-        public bool NoAppDomain { get; set; }
 
         public bool NoLogo { get; set; }
 
@@ -293,6 +294,8 @@ namespace Xunit.Runner.MSBuild
 
                 if (DiagnosticMessages)
                     assembly.Configuration.DiagnosticMessages = true;
+                if (appDomains.HasValue)
+                    assembly.Configuration.UseAppDomain = appDomains.GetValueOrDefault();
 
                 // Setup discovery and execution options with command-line overrides
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
@@ -304,12 +307,13 @@ namespace Xunit.Runner.MSBuild
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
                 var diagnosticMessageVisitor = new DiagnosticMessageVisitor(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
+                var useAppDomain = assembly.Configuration.UseAppDomainOrDefault;
 
-                using (var controller = new XunitFrontController(!NoAppDomain, assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
+                using (var controller = new XunitFrontController(useAppDomain, assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     // Discover & filter the tests
-                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, discoveryOptions));
+                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, useAppDomain, discoveryOptions));
 
                     controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: discoveryOptions);
                     discoveryVisitor.Finished.WaitOne();

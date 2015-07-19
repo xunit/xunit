@@ -213,11 +213,12 @@ public static class Mocks
         return result;
     }
 
-    public static ITestAssemblyDiscoveryStarting TestAssemblyDiscoveryStarting(bool diagnosticMessages = false)
+    public static ITestAssemblyDiscoveryStarting TestAssemblyDiscoveryStarting(bool diagnosticMessages = false, bool appDomain = false)
     {
         var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
         var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true };
         var result = Substitute.For<ITestAssemblyDiscoveryStarting, InterfaceProxy<ITestAssemblyDiscoveryStarting>>();
+        result.AppDomain.Returns(appDomain);
         result.Assembly.Returns(assembly);
         result.DiscoveryOptions.Returns(TestFrameworkOptions.ForDiscovery(config));
         return result;

@@ -184,9 +184,16 @@ namespace Xunit
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryStarting.Assembly);
 
             if (discoveryStarting.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
+#if NO_APPDOMAIN
                 Logger.LogImportantMessage("  Discovering: {0} (method display = {1})",
                                            assemblyDisplayName,
                                            discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault());
+#else
+                Logger.LogImportantMessage("  Discovering: {0} (app domain = {1}, method display = {2})",
+                                           assemblyDisplayName,
+                                           discoveryStarting.AppDomain ? "on" : "off",
+                                           discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault());
+#endif
             else
                 Logger.LogImportantMessage("  Discovering: {0}", assemblyDisplayName);
 

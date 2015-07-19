@@ -112,10 +112,10 @@ public class DefaultRunnerReporterMessageHandlerTests
     {
         [Theory]
         [InlineData(false, "[Imp] =>   Discovering: testAssembly")]
-        [InlineData(true, "[Imp] =>   Discovering: testAssembly (method display = ClassAndMethod)")]
+        [InlineData(true, "[Imp] =>   Discovering: testAssembly (app domain = on, method display = ClassAndMethod)")]
         public static void LogsMessage(bool diagnosticMessages, string expectedResult)
         {
-            var message = Mocks.TestAssemblyDiscoveryStarting(diagnosticMessages: diagnosticMessages);
+            var message = Mocks.TestAssemblyDiscoveryStarting(diagnosticMessages: diagnosticMessages, appDomain: true);
             var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
             handler.OnMessage(message);

@@ -45,6 +45,8 @@ namespace Xunit
                                     result.ParallelizeTestCollections = booleanValue;
                                 if (string.Equals(propertyName, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
                                     result.PreEnumerateTheories = booleanValue;
+                                if (string.Equals(propertyName, Configuration.UseAppDomain, StringComparison.OrdinalIgnoreCase))
+                                    result.UseAppDomain = booleanValue;
                             }
                             else if (string.Equals(propertyName, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
                             {
@@ -88,6 +90,7 @@ namespace Xunit
             public const string ParallelizeAssembly = "parallelizeAssembly";
             public const string ParallelizeTestCollections = "parallelizeTestCollections";
             public const string PreEnumerateTheories = "preEnumerateTheories";
+            public const string UseAppDomain = "useAppDomain";
         }
     }
 }

@@ -9,6 +9,12 @@ namespace Xunit
     public interface ITestAssemblyDiscoveryStarting : IMessageSinkMessage
     {
         /// <summary>
+        /// Gets a flag which indicates whether the tests will be discovered and run in a
+        /// separate app domain.
+        /// </summary>
+        bool AppDomain { get; }
+
+        /// <summary>
         /// Gets information about the assembly being discovered.
         /// </summary>
         XunitProjectAssembly Assembly { get; }
