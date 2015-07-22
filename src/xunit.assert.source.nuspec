@@ -14,5 +14,6 @@
   </metadata>
   <files>
     <file src="xunit.assert\Asserts\**\*.cs" target="Content\Asserts" />
+    <file src="xunit.assert\Asserts\**\*.cs" target="shared" />
   </files>
 </package>
