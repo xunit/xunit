@@ -48,10 +48,43 @@ namespace Xunit.Sdk
         /// </summary>
         protected Dictionary<Type, object> ClassFixtureMappings { get; set; }
 
-        void CreateFixture(Type fixtureGenericInterfaceType)
+        /// <summary>
+        /// Creates the instance of a class fixture type to be used by the test class. If the fixture can be created,
+        /// it should be placed into the <see cref="ClassFixtureMappings"/> dictionary; if it cannot, then the method
+        /// should record the error by calling <code>Aggregator.Add</code>.
+        /// </summary>
+        /// <param name="fixtureType">The type of the fixture to be created</param>
+        protected virtual void CreateClassFixture(Type fixtureType)
         {
-            var fixtureType = fixtureGenericInterfaceType.GetTypeInfo().GenericTypeArguments.Single();
-            Aggregator.Run(() => ClassFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
+            var ctors = fixtureType.GetTypeInfo()
+                                   .DeclaredConstructors
+                                   .Where(ci => !ci.IsStatic && ci.IsPublic)
+                                   .ToList();
+
+            if (ctors.Count != 1)
+            {
+                Aggregator.Add(new TestClassException(string.Format("Class fixture type '{0}' may only define a single public constructor.", fixtureType.FullName)));
+                return;
+            }
+
+            var ctor = ctors[0];
+            var missingParameters = new List<ParameterInfo>();
+            var ctorArgs = ctor.GetParameters().Select(p =>
+            {
+                object arg;
+                if (!collectionFixtureMappings.TryGetValue(p.ParameterType, out arg))
+                    missingParameters.Add(p);
+                return arg;
+            }).ToArray();
+
+            if (missingParameters.Count > 0)
+                Aggregator.Add(new TestClassException(
+                    string.Format("Class fixture type '{0}' had one or more unresolved constructor arguments: {1}",
+                                    fixtureType.FullName,
+                                    string.Join(", ", missingParameters.Select(p => string.Format("{0} {1}", p.ParameterType.Name, p.Name))))
+                ));
+            else
+                Aggregator.Run(() => ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
         }
 
         /// <inheritdoc/>
@@ -91,13 +124,13 @@ namespace Xunit.Sdk
                 Aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
 
             foreach (var interfaceType in testClassTypeInfo.ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-                CreateFixture(interfaceType);
+                CreateClassFixture(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
 
             if (TestClass.TestCollection.CollectionDefinition != null)
             {
                 var declarationType = ((IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
                 foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-                    CreateFixture(interfaceType);
+                    CreateClassFixture(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
             }
 
             return CommonTasks.Completed;

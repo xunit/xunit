@@ -44,9 +44,14 @@ namespace Xunit.Sdk
         /// </summary>
         protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
 
-        void CreateFixture(Type fixtureGenericInterfaceType)
+        /// <summary>
+        /// Creates the instance of a collection fixture type to be used by the test collection. If the fixture can be created,
+        /// it should be placed into the <see cref="CollectionFixtureMappings"/> dictionary; if it cannot, then the method
+        /// should record the error by calling <code>Aggregator.Add</code>.
+        /// </summary>
+        /// <param name="fixtureType">The type of the fixture to be created</param>
+        protected virtual void CreateCollectionFixture(Type fixtureType)
         {
-            var fixtureType = fixtureGenericInterfaceType.GenericTypeArguments.Single();
             Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
         }
 
@@ -57,7 +62,7 @@ namespace Xunit.Sdk
             {
                 var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
                 foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
-                    CreateFixture(interfaceType);
+                    CreateCollectionFixture(interfaceType.GenericTypeArguments.Single());
 
                 var ordererAttribute = TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
                 if (ordererAttribute != null)

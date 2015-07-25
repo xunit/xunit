@@ -99,7 +99,7 @@ public class XunitTestClassRunnerTests
 
         Assert.Collection(runner.ClassFixtureMappings.OrderBy(mapping => mapping.Key.Name),
             mapping => Assert.IsType<FixtureUnderTest>(mapping.Value),
-            mapping => Assert.IsType<Object>(mapping.Value)
+            mapping => Assert.IsType<object>(mapping.Value)
         );
     }
 
@@ -113,6 +113,74 @@ public class XunitTestClassRunnerTests
 
         var fixtureUnderTest = runner.ClassFixtureMappings.Values.OfType<FixtureUnderTest>().Single();
         Assert.True(fixtureUnderTest.Disposed);
+    }
+
+    [Fact]
+    public static async void MultiplePublicConstructorsOnClassFixture_ReturnsError()
+    {
+        var testCase = Mocks.XunitTestCase<TestClassWithMultiCtorClassFixture>("Passing");
+        var runner = TestableXunitTestClassRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        var ex = Assert.IsType<TestClassException>(runner.RunTestMethodAsync_AggregatorResult);
+        Assert.Equal("Class fixture type 'XunitTestClassRunnerTests+ClassFixtureWithMultipleConstructors' may only define a single public constructor.", ex.Message);
+    }
+
+    class ClassFixtureWithMultipleConstructors
+    {
+        public ClassFixtureWithMultipleConstructors() { }
+        public ClassFixtureWithMultipleConstructors(int unused) { }
+    }
+
+    class TestClassWithMultiCtorClassFixture : IClassFixture<ClassFixtureWithMultipleConstructors>
+    {
+        [Fact]
+        public void Passing() { }
+    }
+
+    [Fact]
+    public static async void UnresolvedConstructorParameterOnClassFixture_ReturnsError()
+    {
+        var testCase = Mocks.XunitTestCase<TestClassWithClassFixtureWithDependency>("Passing");
+        var runner = TestableXunitTestClassRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        var ex = Assert.IsType<TestClassException>(runner.RunTestMethodAsync_AggregatorResult);
+        Assert.Equal("Class fixture type 'XunitTestClassRunnerTests+ClassFixtureWithCollectionFixtureDependency' had one or more unresolved constructor arguments: DependentCollectionFixture collectionFixture", ex.Message);
+    }
+
+    [Fact]
+    public static async void CanInjectCollectionFixtureIntoClassFixture()
+    {
+        var testCase = Mocks.XunitTestCase<TestClassWithClassFixtureWithDependency>("Passing");
+        var collectionFixture = new DependentCollectionFixture();
+        var runner = TestableXunitTestClassRunner.Create(testCase, collectionFixture);
+
+        await runner.RunAsync();
+
+        Assert.Null(runner.RunTestMethodAsync_AggregatorResult);
+        var classFixture = runner.ClassFixtureMappings.Values.OfType<ClassFixtureWithCollectionFixtureDependency>().Single();
+        Assert.Same(collectionFixture, classFixture.CollectionFixture);
+    }
+
+    class DependentCollectionFixture { }
+
+    class ClassFixtureWithCollectionFixtureDependency
+    {
+        public DependentCollectionFixture CollectionFixture;
+
+        public ClassFixtureWithCollectionFixtureDependency(DependentCollectionFixture collectionFixture)
+        {
+            CollectionFixture = collectionFixture;
+        }
+    }
+
+    class TestClassWithClassFixtureWithDependency : IClassFixture<ClassFixtureWithCollectionFixtureDependency>
+    {
+        [Fact]
+        public void Passing() { }
     }
 
     public class TestCaseOrderer
@@ -176,9 +244,7 @@ public class XunitTestClassRunnerTests
             }
 
             public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
-            {
-                return Enumerable.Empty<TTestCase>();
-            }
+                => Enumerable.Empty<TTestCase>();
         }
     }
 
@@ -221,11 +287,8 @@ public class XunitTestClassRunnerTests
 
     class CustomTestCaseOrderer : ITestCaseOrderer
     {
-        public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
-            where TTestCase : ITestCase
-        {
-            return testCases;
-        }
+        public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+            => testCases;
     }
 
     class TestableXunitTestClassRunner : XunitTestClassRunner
@@ -249,18 +312,13 @@ public class XunitTestClassRunnerTests
         }
 
         public new Dictionary<Type, object> ClassFixtureMappings
-        {
-            get { return base.ClassFixtureMappings; }
-        }
+            => base.ClassFixtureMappings;
 
         public new ITestCaseOrderer TestCaseOrderer
-        {
-            get { return base.TestCaseOrderer; }
-        }
+            => base.TestCaseOrderer;
 
         public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures)
-        {
-            return new TestableXunitTestClassRunner(
+            => new TestableXunitTestClassRunner(
                 testCase.TestMethod.TestClass,
                 (IReflectionTypeInfo)testCase.TestMethod.TestClass.Class,
                 new[] { testCase },
@@ -271,7 +329,6 @@ public class XunitTestClassRunnerTests
                 new CancellationTokenSource(),
                 collectionFixtures.ToDictionary(fixture => fixture.GetType())
             );
-        }
 
         protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
         {

@@ -9,5 +9,5 @@
     /// exactly matches the <typeparamref name="TFixture"/>.
     /// </summary>
     /// <typeparam name="TFixture">The type of the fixture.</typeparam>
-    public interface ICollectionFixture<TFixture> where TFixture : class, new() { }
+    public interface ICollectionFixture<TFixture> where TFixture : class { }
 }
