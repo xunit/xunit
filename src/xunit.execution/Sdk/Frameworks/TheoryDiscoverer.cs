@@ -32,12 +32,11 @@ namespace Xunit.Sdk
             if (factAttribute.GetNamedArgument<string>("Skip") != null)
                 return new[] { new XunitTestCase(diagnosticMessageSink, defaultMethodDisplay, testMethod) };
 
-            var dataAttributes = testMethod.Method.GetCustomAttributes(typeof(DataAttribute));
-
             if (discoveryOptions.PreEnumerateTheoriesOrDefault())
             {
                 try
                 {
+                    var dataAttributes = testMethod.Method.GetCustomAttributes(typeof(DataAttribute));
                     var results = new List<XunitTestCase>();
 
                     foreach (var dataAttribute in dataAttributes)
@@ -51,8 +50,8 @@ namespace Xunit.Sdk
                         // down below so that we get the composite test case.
                         foreach (var dataRow in discoverer.GetData(dataAttribute, testMethod.Method))
                         {
-                            // Determine whether we can serialize the test case, since we need a way to uniquely 
-                            // identify a test and serialization is the best way to do that. If it's not serializable, 
+                            // Determine whether we can serialize the test case, since we need a way to uniquely
+                            // identify a test and serialization is the best way to do that. If it's not serializable,
                             // this will throw and we will fall back to a single theory test case that gets its data at runtime.
                             var testCase = new XunitTestCase(diagnosticMessageSink, defaultMethodDisplay, testMethod, dataRow);
                             if (!SerializationHelper.IsSerializable(dataRow))

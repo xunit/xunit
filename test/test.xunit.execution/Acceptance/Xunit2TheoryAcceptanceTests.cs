@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 public class Xunit2TheoryAcceptanceTests
 {
@@ -677,6 +679,38 @@ public class Xunit2TheoryAcceptanceTests
             [Theory]
             [MemberData("DataSource")]
             public void TestViaPropertyData(int x) { }
+        }
+    }
+
+    public class CustomDataTests : AcceptanceTestV2
+    {
+        [Fact]
+        public void TestDataWithInternalConstructor_ReturnsSingleFailingTheory()
+        {
+            var testMessages = Run<IMessageSinkMessage>(typeof(ClassWithCustomDataWithInternalDataCtor));
+
+            var types = testMessages.Select(t => t.GetType()).ToList();
+
+            Assert.Collection(testMessages.OfType<ITestFailed>().OrderBy(t => t.TestCase.DisplayName),
+                failed => Assert.Equal("Constructor on type 'Xunit2TheoryAcceptanceTests+CustomDataTests+MyCustomData' not found.", failed.Messages[0])
+            );
+            Assert.Empty(testMessages.OfType<ITestPassed>());
+            Assert.Empty(testMessages.OfType<ITestSkipped>());
+        }
+
+        internal class MyCustomData : DataAttribute
+        {
+            internal MyCustomData() { }
+
+            public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+                => new[] { new object[] { 42 }, new object[] { 2112 } };
+        }
+
+        class ClassWithCustomDataWithInternalDataCtor
+        {
+            [Theory]
+            [MyCustomData]
+            public void Passing(int unused) { }
         }
     }
 
