@@ -78,14 +78,20 @@ namespace Xunit.Sdk
 
                 Tuple<SendOrPostCallback, object, ExecutionContext> work;
                 while (workQueue.TryDequeue(out work))
-                    ExecutionContext.Run(work.Item3, _ =>
-                    {
-                        var oldSyncContext = SynchronizationContext.Current;
-                        SynchronizationContext.SetSynchronizationContext(this);
-                        work.Item1(_);
-                        SynchronizationContext.SetSynchronizationContext(oldSyncContext);
-                    }, work.Item2);
+                    if (work.Item3 == null)    // Fix for #461, so we don't try to run on a null execution context
+                        RunOnSyncContext(work.Item1, work.Item2);
+                    else
+                        ExecutionContext.Run(work.Item3, _ => RunOnSyncContext(work.Item1, work.Item2), null);
             }
+        }
+
+        [SecuritySafeCritical]
+        void RunOnSyncContext(SendOrPostCallback callback, object state)
+        {
+            var oldSyncContext = Current;
+            SetSynchronizationContext(this);
+            callback(state);
+            SetSynchronizationContext(oldSyncContext);
         }
     }
 }
