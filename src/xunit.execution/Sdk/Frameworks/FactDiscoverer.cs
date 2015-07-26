@@ -42,11 +42,10 @@ namespace Xunit.Sdk
         /// <returns>Returns zero or more test cases represented by the test method.</returns>
         public virtual IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
-            IXunitTestCase testCase;
-            if (testMethod.Method.GetParameters().Any())
-                testCase = new ExecutionErrorTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
-            else
-                testCase = CreateTestCase(discoveryOptions, testMethod, factAttribute);
+            var testCase =
+                testMethod.Method.GetParameters().Any()
+                    ? new ExecutionErrorTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?")
+                    : CreateTestCase(discoveryOptions, testMethod, factAttribute);
 
             return new[] { testCase };
         }

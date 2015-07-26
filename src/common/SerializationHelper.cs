@@ -128,10 +128,7 @@ namespace Xunit.Sdk
                         while (arrayRanks.Count > 0)
                         {
                             var rank = arrayRanks.Pop();
-                            if (rank > 1)
-                                closedGenericType = closedGenericType.MakeArrayType(rank);
-                            else
-                                closedGenericType = closedGenericType.MakeArrayType();
+                            closedGenericType = rank > 1 ? closedGenericType.MakeArrayType(rank) : closedGenericType.MakeArrayType();
                         }
 
                         return closedGenericType;
