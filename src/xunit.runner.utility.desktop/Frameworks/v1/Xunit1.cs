@@ -17,9 +17,12 @@ namespace Xunit
     {
         readonly string assemblyFileName;
         readonly string configFileName;
-        readonly IXunit1Executor executor;
+        IXunit1Executor executor;
+        readonly bool shadowCopy;
+        readonly string shadowCopyFolder;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
+        readonly bool useAppDomain;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit1"/> class.
@@ -39,11 +42,12 @@ namespace Xunit
                       bool shadowCopy = true,
                       string shadowCopyFolder = null)
         {
+            this.useAppDomain = useAppDomain;
             this.sourceInformationProvider = sourceInformationProvider;
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
-
-            executor = CreateExecutor(useAppDomain, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+            this.shadowCopy = shadowCopy;
+            this.shadowCopyFolder = shadowCopyFolder;
         }
 
         /// <inheritdoc/>
@@ -57,23 +61,19 @@ namespace Xunit
         /// <inheritdoc/>
         public string TestFrameworkDisplayName
         {
-            get { return executor.TestFrameworkDisplayName; }
+            get
+            {
+                EnsureInitialized();
+                return executor.TestFrameworkDisplayName;
+            }
         }
 
         /// <summary>
         /// Creates a wrapper to call the Executor call from xUnit.net v1.
         /// </summary>
-        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
-        /// <param name="testAssemblyFileName">The filename of the assembly under test.</param>
-        /// <param name="configFileName">The configuration file to be used for the app domain (optional, may be <c>null</c>).</param>
-        /// <param name="shadowCopy">Whether to enable shadow copy for the app domain.</param>
-        /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
-        /// will be automatically (randomly) generated</param>
         /// <returns>The executor wrapper.</returns>
-        protected virtual IXunit1Executor CreateExecutor(bool useAppDomain, string testAssemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
-        {
-            return new Xunit1Executor(useAppDomain, testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
-        }
+        protected virtual IXunit1Executor CreateExecutor()
+            => new Xunit1Executor(useAppDomain, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
         /// <inheritdoc/>
         public ITestCase Deserialize(string value)
@@ -88,6 +88,13 @@ namespace Xunit
                 disposable.Dispose();
 
             executor.SafeDispose();
+        }
+
+        void EnsureInitialized()
+        {
+            lock (toDispose)
+                if (executor == null)
+                    executor = CreateExecutor();
         }
 
         /// <summary>
@@ -125,6 +132,8 @@ namespace Xunit
 
         void Find(Predicate<ITestCaseDiscoveryMessage> filter, bool includeSourceInformation, IMessageSink messageSink)
         {
+            EnsureInitialized();
+
             try
             {
                 XmlNode assemblyXml = null;
@@ -179,6 +188,8 @@ namespace Xunit
         /// <param name="messageSink">The message sink to report results back to.</param>
         public void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
+            EnsureInitialized();
+
             var results = new Xunit1RunSummary();
             var environment = string.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
             var firstTestCase = testCases.FirstOrDefault();
@@ -260,23 +271,17 @@ namespace Xunit
 
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
-        {
-            return SerializationHelper.Serialize(testCase);
-        }
+            => SerializationHelper.Serialize(testCase);
 
         class Comparer : IEqualityComparer<ITestClass>
         {
             public static readonly Comparer Instance = new Comparer();
 
             public bool Equals(ITestClass x, ITestClass y)
-            {
-                return x.Class.Name == y.Class.Name;
-            }
+                => x.Class.Name == y.Class.Name;
 
             public int GetHashCode(ITestClass obj)
-            {
-                return obj.Class.Name.GetHashCode();
-            }
+                => obj.Class.Name.GetHashCode();
         }
     }
 }

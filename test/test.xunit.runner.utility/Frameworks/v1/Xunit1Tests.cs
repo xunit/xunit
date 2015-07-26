@@ -29,6 +29,7 @@ public class Xunit1Tests
         public void DisposesExecutor()
         {
             var xunit1 = new TestableXunit1();
+            var unused = xunit1.TestFrameworkDisplayName;  // Ensure the executor gets created
 
             xunit1.Dispose();
 
@@ -845,6 +846,10 @@ public class AmbiguouslyNamedTestMethods
         public TestableXunit1(string assemblyFileName = null, string configFileName = null, bool shadowCopy = true, string shadowCopyFolder = null, bool useAppDomain = true)
             : this(useAppDomain, assemblyFileName ?? @"C:\Path\Assembly.dll", configFileName, shadowCopy, shadowCopyFolder, Substitute.For<ISourceInformationProvider>())
         {
+            Executor_TestAssemblyFileName = assemblyFileName;
+            Executor_ConfigFileName = configFileName;
+            Executor_ShadowCopy = shadowCopy;
+            Executor_ShadowCopyFolder = shadowCopyFolder;
         }
 
         TestableXunit1(bool useAppDomain, string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder, ISourceInformationProvider sourceInformationProvider)
@@ -853,14 +858,7 @@ public class AmbiguouslyNamedTestMethods
             SourceInformationProvider = sourceInformationProvider;
         }
 
-        protected override IXunit1Executor CreateExecutor(bool useAppDomain, string testAssemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
-        {
-            Executor_TestAssemblyFileName = testAssemblyFileName;
-            Executor_ConfigFileName = configFileName;
-            Executor_ShadowCopy = shadowCopy;
-            Executor_ShadowCopyFolder = shadowCopyFolder;
-
-            return Executor;
-        }
+        protected override IXunit1Executor CreateExecutor()
+            => Executor;
     }
 }
