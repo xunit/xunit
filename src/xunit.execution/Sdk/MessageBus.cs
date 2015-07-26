@@ -32,8 +32,7 @@ namespace Xunit.Sdk
             while (reporterQueue.TryDequeue(out message))
                 try
                 {
-                    if (!messageSink.OnMessage(message))
-                        continueRunning = false;
+                    continueRunning &= messageSink.OnMessage(message);
                 }
                 catch (Exception ex)
                 {
