@@ -105,7 +105,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            foreach (var method in testClass.Class.GetMethods(includePrivateMethods: true))
+            foreach (var method in testClass.Class.GetMethods(true))
             {
                 var testMethod = new TestMethod(testClass, method);
                 if (!FindTestsForMethod(testMethod, includeSourceInformation, messageBus, discoveryOptions))

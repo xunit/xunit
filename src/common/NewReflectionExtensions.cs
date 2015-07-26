@@ -24,7 +24,7 @@ internal static class NewReflectionExtensions
 #if NEW_REFLECTION
         return assembly.GetCustomAttributes<Attribute>().ToArray();
 #else
-        return assembly.GetCustomAttributes(inherit: false).Cast<Attribute>().ToArray();
+        return assembly.GetCustomAttributes(false).Cast<Attribute>().ToArray();
 #endif
     }
 #endif

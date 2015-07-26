@@ -141,7 +141,7 @@ namespace Xunit.Sdk
             for (int i = 0; i < attributeData.NamedArguments.Count; i++)
             {
                 var namedArg = attributeData.NamedArguments[i];
-                (ati.GetRuntimeProperty(namedArg.MemberName)).SetValue(attribute, GetTypedValue(namedArg.TypedValue), index: null);
+                (ati.GetRuntimeProperty(namedArg.MemberName)).SetValue(attribute, GetTypedValue(namedArg.TypedValue), null);
             }
 
             return attribute;

@@ -136,7 +136,7 @@ namespace Xunit.Sdk
                 }
             }
 
-            IList<string> parts = SplitAtOuterCommas(assemblyQualifiedTypeName, trimWhitespace: true);
+            IList<string> parts = SplitAtOuterCommas(assemblyQualifiedTypeName, true);
             return
                 parts.Count == 0 ? null :
                 parts.Count == 1 ? Type.GetType(parts[0]) :

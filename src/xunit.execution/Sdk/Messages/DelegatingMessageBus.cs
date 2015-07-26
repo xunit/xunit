@@ -55,7 +55,7 @@ namespace Xunit.Sdk
         public DelegatingMessageBus(IMessageBus innerMessageBus, Action<IMessageSinkMessage> callback = null)
             : base(innerMessageBus, callback)
         {
-            Finished = new ManualResetEvent(initialState: false);
+            Finished = new ManualResetEvent(false);
         }
 
         /// <summary>

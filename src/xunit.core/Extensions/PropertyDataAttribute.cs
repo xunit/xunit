@@ -5,7 +5,7 @@ namespace Xunit.Extensions
 {
     /// <summary/>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    [Obsolete("Please replace [PropertyData] with [MemberData]", error: true)]
+    [Obsolete("Please replace [PropertyData] with [MemberData]", true)]
     public sealed class PropertyDataAttribute : Attribute
     {
         /// <summary/>

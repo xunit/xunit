@@ -55,7 +55,7 @@ namespace Xunit.Sdk
         public DelegatingMessageSink(IMessageSink innerSink, Action<IMessageSinkMessage> callback = null)
             : base(innerSink, callback)
         {
-            Finished = new ManualResetEvent(initialState: false);
+            Finished = new ManualResetEvent(false);
         }
 
         /// <summary>

@@ -67,7 +67,7 @@ namespace Xunit
             return GetValue<TValue?>(settings, key,
                 value =>
                 {
-                    try { return (TValue)Enum.Parse(typeof(TValue), value, ignoreCase: true); }
+                    try { return (TValue)Enum.Parse(typeof(TValue), value, true); }
                     catch { return null; }
                 });
         }

@@ -15,7 +15,7 @@ namespace Xunit.Sdk
         readonly IMessageSink messageSink;
         readonly ConcurrentQueue<IMessageSinkMessage> reporterQueue = new ConcurrentQueue<IMessageSinkMessage>();
         readonly XunitWorkerThread reporterThread;
-        readonly AutoResetEvent reporterWorkEvent = new AutoResetEvent(initialState: false);
+        readonly AutoResetEvent reporterWorkEvent = new AutoResetEvent(false);
         volatile bool shutdownRequested;
 
         /// <summary/>

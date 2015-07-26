@@ -50,7 +50,7 @@ namespace Xunit.Sdk
 
             var methodName = info.GetValue<string>("MethodName");
 
-            Method = TestClass.Class.GetMethod(methodName, includePrivateMethod: true);
+            Method = TestClass.Class.GetMethod(methodName, true);
         }
     }
 }

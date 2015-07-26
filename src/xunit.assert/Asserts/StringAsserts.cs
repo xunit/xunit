@@ -166,7 +166,7 @@ namespace Xunit
         /// <exception cref="EqualException">Thrown when the strings are not equivalent.</exception>
         public static void Equal(string expected, string actual)
         {
-            Equal(expected, actual, ignoreCase: false, ignoreLineEndingDifferences: false, ignoreWhiteSpaceDifferences: false);
+            Equal(expected, actual, false, false, false);
         }
 
         /// <summary>

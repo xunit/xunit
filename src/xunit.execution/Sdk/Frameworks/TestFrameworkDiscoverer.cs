@@ -96,7 +96,7 @@ namespace Xunit.Sdk
                 using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
                 using (new PreserveWorkingFolder(AssemblyInfo))
                 {
-                    foreach (var type in AssemblyInfo.GetTypes(includePrivateTypes: false).Where(IsValidTestClass))
+                    foreach (var type in AssemblyInfo.GetTypes(false).Where(IsValidTestClass))
                     {
                         var testClass = CreateTestClass(type);
                         if (!FindTestsForTypeAndWrapExceptions(testClass, includeSourceInformation, messageBus, discoveryOptions))

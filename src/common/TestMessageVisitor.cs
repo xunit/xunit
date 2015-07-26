@@ -503,7 +503,7 @@ namespace Xunit
         /// </summary>
         public TestMessageVisitor()
         {
-            Finished = new ManualResetEvent(initialState: false);
+            Finished = new ManualResetEvent(false);
         }
 
         /// <summary>

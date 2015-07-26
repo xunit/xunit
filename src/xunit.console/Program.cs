@@ -309,7 +309,7 @@ namespace Xunit.ConsoleClient
                     // Discover & filter the tests
                     reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, useAppDomain, discoveryOptions));
 
-                    controller.Find(includeSourceInformation: false, messageSink: discoveryVisitor, discoveryOptions: discoveryOptions);
+                    controller.Find(false, discoveryVisitor, discoveryOptions);
                     discoveryVisitor.Finished.WaitOne();
 
                     var testCasesDiscovered = discoveryVisitor.TestCases.Count;
