@@ -338,7 +338,7 @@ namespace Xunit.Serialization
 
             if (valueType.IsArray)
             {
-                object[] vector = value as object[];
+                var vector = value as object[];
                 if (vector != null)
                 {
                     // Avoid enumerator allocation and bounds lookups that comes from enumerating a System.Array

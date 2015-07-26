@@ -252,7 +252,7 @@ namespace Xunit.Sdk
 
         private static IList<string> SplitAtOuterCommas(string value, bool trimWhitespace = false)
         {
-            List<string> results = new List<string>();
+            var results = new List<string>();
 
             var startIndex = 0;
             var endIndex = 0;

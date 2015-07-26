@@ -433,7 +433,7 @@ namespace System.Collections.Concurrent
 
 			public void EnterReadLock ()
 			{
-				SpinWait sw = new SpinWait ();
+				var sw = new SpinWait ();
 				do {
 					while ((rwlock & (RwWrite | RwWait)) > 0)
 						sw.SpinOnce ();
@@ -452,7 +452,7 @@ namespace System.Collections.Concurrent
 
 			public void EnterWriteLock ()
 			{
-				SpinWait sw = new SpinWait ();
+				var sw = new SpinWait ();
 				do {
 					int state = rwlock;
 					if (state < RwWrite) {

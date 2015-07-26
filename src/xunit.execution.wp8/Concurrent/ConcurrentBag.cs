@@ -214,7 +214,7 @@ namespace System.Collections.Concurrent
 		
 		void System.Collections.ICollection.CopyTo (Array array, int index)
 		{
-			T[] a = array as T[];
+			var a = array as T[];
 			if (a == null)
 				return;
 			

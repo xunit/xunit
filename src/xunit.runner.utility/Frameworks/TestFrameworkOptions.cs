@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -19,10 +20,12 @@ namespace Xunit
         // Force users to use one of the factory methods
         private TestFrameworkOptions() { }
 
+
         /// <summary>
         /// Creates an instance of <see cref="TestFrameworkOptions"/>
         /// </summary>
         /// <param name="configuration">The optional configuration to copy values from.</param>
+        [SuppressMessage("Language Usage Opportunities", "RECS0091:Use 'var' keyword when possible", Justification = "Using var here causes ambiguity with the SetDiagnosticMessages extension method")]
         public static ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration configuration = null)
         {
             ITestFrameworkDiscoveryOptions result = new TestFrameworkOptions();
@@ -41,6 +44,7 @@ namespace Xunit
         /// Creates an instance of <see cref="TestFrameworkOptions"/>
         /// </summary>
         /// <param name="configuration">The optional configuration to copy values from.</param>
+        [SuppressMessage("Language Usage Opportunities", "RECS0091:Use 'var' keyword when possible", Justification = "Using var here causes ambiguity with the SetDiagnosticMessages extension method")]
         public static ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration configuration = null)
         {
             ITestFrameworkExecutionOptions result = new TestFrameworkOptions();

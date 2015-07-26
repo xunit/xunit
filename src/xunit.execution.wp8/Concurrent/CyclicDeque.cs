@@ -210,7 +210,7 @@ namespace System.Threading.Tasks
 
 		IEnumerable<T> RealGetEnumerable (T[] slice, int bottom, int realTop, int initialTop)
 		{
-			int destIndex = (int)(realTop - initialTop - 1);
+			var destIndex = (int)(realTop - initialTop - 1);
 			for (int i = realTop; i < bottom; ++i)
 				yield return slice[++destIndex];
 		}

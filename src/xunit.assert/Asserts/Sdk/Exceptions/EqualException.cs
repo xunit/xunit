@@ -94,8 +94,8 @@ namespace Xunit.Sdk
         {
             int start = Math.Max(position - 20, 0);
             int end = Math.Min(position + 41, value.Length);
-            StringBuilder printedValue = new StringBuilder(100);
-            StringBuilder printedPointer = new StringBuilder(100);
+            var printedValue = new StringBuilder(100);
+            var printedPointer = new StringBuilder(100);
 
             if (start > 0)
             {

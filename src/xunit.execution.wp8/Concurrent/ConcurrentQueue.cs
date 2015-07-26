@@ -59,7 +59,7 @@ namespace System.Collections.Concurrent
 		
 		public void Enqueue (T item)
 		{
-			Node node = new Node ();
+			var node = new Node ();
 			node.Value = item;
 			
 			Node oldTail = null;
@@ -174,7 +174,7 @@ namespace System.Collections.Concurrent
 			if (array.GetLowerBound (0) != 0)
 				throw new ArgumentException ("The array needs to be 0-based");
 
-			T[] dest = array as T[];
+			var dest = array as T[];
 			if (dest == null)
 				throw new ArgumentException ("The array cannot be cast to the collection element type", "array");
 			CopyTo (dest, index);

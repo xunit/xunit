@@ -185,8 +185,8 @@ namespace Xunit.Sdk
         {
             bool IEqualityComparer.Equals(object x, object y)
             {
-                Type typeX = (Type)x;
-                Type typeY = (Type)y;
+                var typeX = (Type)x;
+                var typeY = (Type)y;
 
                 if (typeX.IsGenericParameter && typeY.IsGenericParameter)
                     return typeX.GenericParameterPosition == typeY.GenericParameterPosition;

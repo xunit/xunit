@@ -73,7 +73,7 @@ namespace Xunit.Sdk
         {
             var result = base.OnMessage(message);
 
-            TFinalMessage finalMessage = message as TFinalMessage;
+            var finalMessage = message as TFinalMessage;
             if (finalMessage != null)
             {
                 FinalMessage = finalMessage;

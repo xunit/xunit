@@ -333,7 +333,7 @@ namespace System.Collections.Concurrent
 
 		ICollection<T> GetPart<T> (Func<KeyValuePair<TKey, TValue>, T> extractor)
 		{
-			List<T> temp = new List<T> ();
+			var temp = new List<T> ();
 
 			foreach (KeyValuePair<TKey, TValue> kvp in this)
 				temp.Add (extractor (kvp));
@@ -343,7 +343,7 @@ namespace System.Collections.Concurrent
 
 		void ICollection.CopyTo (Array array, int startIndex)
 		{
-			KeyValuePair<TKey, TValue>[] arr = array as KeyValuePair<TKey, TValue>[];
+			var arr = array as KeyValuePair<TKey, TValue>[];
 			if (arr == null)
 				return;
 
