@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using System.Reflection;
 
 public class TestFrameworkProxyTests
 {

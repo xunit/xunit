@@ -23,13 +23,11 @@
 //
 
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace System.Collections.Concurrent
 {
-	interface IProducerConsumerCollection<T> : IEnumerable<T>, ICollection, IEnumerable
+    interface IProducerConsumerCollection<T> : IEnumerable<T>, ICollection, IEnumerable
 	{
 		bool TryAdd (T item);
 		bool TryTake (out T item);

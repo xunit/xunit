@@ -26,9 +26,7 @@
 
 
 
-using System;
 using System.Collections.Generic;
-using System.Threading;
 
 #if INSIDE_MONO_PARALLEL
 namespace Mono.Threading.Tasks
@@ -39,7 +37,7 @@ namespace System.Threading.Tasks
 #if INSIDE_MONO_PARALLEL
 	public
 #endif
-	class CyclicDeque<T> : IConcurrentDeque<T>
+    class CyclicDeque<T> : IConcurrentDeque<T>
 	{
 		const int BaseSize = 11;
 		

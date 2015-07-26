@@ -25,9 +25,7 @@
 // THE SOFTWARE.
 
 
-using System;
 using System.Collections.Generic;
-using System.Threading;
 
 #if INSIDE_MONO_PARALLEL
 namespace Mono.Threading.Tasks
@@ -38,7 +36,7 @@ namespace System.Threading.Tasks
 #if INSIDE_MONO_PARALLEL
 	public
 #endif
-	interface IConcurrentDeque<T>
+    interface IConcurrentDeque<T>
 	{
 		void PushBottom (T obj);
 		PopResult PopBottom (out T obj);

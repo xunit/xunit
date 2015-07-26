@@ -1,5 +1,4 @@
-﻿using System;
-using TestDriven.Framework;
+﻿using TestDriven.Framework;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.TdNet

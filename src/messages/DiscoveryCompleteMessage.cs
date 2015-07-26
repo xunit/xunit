@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL

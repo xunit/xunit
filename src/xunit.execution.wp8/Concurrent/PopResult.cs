@@ -26,9 +26,6 @@
 
 
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
 
 #if INSIDE_MONO_PARALLEL
 namespace Mono.Threading.Tasks
@@ -39,7 +36,7 @@ namespace System.Threading.Tasks
 #if INSIDE_MONO_PARALLEL
 	public
 #endif
-	enum PopResult	{
+    enum PopResult	{
 		Succeed,
 		Empty,
 		Abort

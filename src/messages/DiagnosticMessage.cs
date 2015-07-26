@@ -1,4 +1,3 @@
-using System;
 using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL

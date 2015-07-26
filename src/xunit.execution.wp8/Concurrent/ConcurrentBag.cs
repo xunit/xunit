@@ -25,8 +25,6 @@
 // THE SOFTWARE.
 
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -36,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace System.Collections.Concurrent
 {
-	[ComVisible (false)]
+    [ComVisible (false)]
 	[DebuggerDisplay ("Count={Count}")]
     [DebuggerTypeProxy (typeof (CollectionDebuggerView<>))]
 class ConcurrentBag<T> : IProducerConsumerCollection<T>, IEnumerable<T>, IEnumerable

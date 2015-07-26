@@ -24,15 +24,12 @@
 
 
 
-using System;
-using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
+using System.Threading;
 
 namespace System.Collections.Concurrent
 {
-	class SplitOrderedList<TKey, T>
+    class SplitOrderedList<TKey, T>
 	{
 		class Node
 		{

@@ -22,16 +22,13 @@
 //
 //
 
-using System;
-using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
+using System.Threading;
 
 namespace System.Collections.Concurrent
 {
 
-	[System.Diagnostics.DebuggerDisplay ("Count={Count}")]
+    [System.Diagnostics.DebuggerDisplay ("Count={Count}")]
 	[System.Diagnostics.DebuggerTypeProxy (typeof (CollectionDebuggerView<>))]
 class ConcurrentQueue<T> : IProducerConsumerCollection<T>, IEnumerable<T>, ICollection,
 	                                  IEnumerable
