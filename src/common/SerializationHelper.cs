@@ -35,8 +35,9 @@ namespace Xunit.Sdk
                 throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "T");
 
             var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
-            if (obj is XunitSerializationInfo.ArraySerializer)
-                obj = ((XunitSerializationInfo.ArraySerializer)obj).ArrayData;
+            var arraySerializer = obj as XunitSerializationInfo.ArraySerializer;
+            if (arraySerializer != null)
+                obj = arraySerializer.ArrayData;
 
             return (T)obj;
         }

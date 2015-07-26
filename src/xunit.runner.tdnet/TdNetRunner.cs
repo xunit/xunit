@@ -22,10 +22,13 @@ namespace Xunit.Runner.TdNet
         {
             using (var helper = CreateHelper(testListener, assembly))
             {
-                if (member is Type)
-                    return helper.RunClass((Type)member);
-                if (member is MethodInfo)
-                    return helper.RunMethod((MethodInfo)member);
+                var type = member as Type;
+                if (type != null)
+                    return helper.RunClass(type);
+
+                var method = member as MethodInfo;
+                if (method != null)
+                    return helper.RunMethod(method);
 
                 return TestRunState.NoTests;
             }
