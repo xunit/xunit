@@ -5,8 +5,8 @@ namespace Xunit.Runner.MSBuild
 {
     public class TraitParser
     {
-        static readonly char[] TraitSeperator = new[] { ';' };
-        static readonly char[] KeyValueSeperator = new[] { '=' };
+        static readonly char[] TraitSeperator = { ';' };
+        static readonly char[] KeyValueSeperator = { '=' };
 
         readonly Action<string> warningHandler;
 

@@ -309,7 +309,7 @@ namespace Xunit.Serialization
             throw new ArgumentException("We don't know how to serialize type " + valueType.FullName, "value");
         }
 
-        static readonly Type[] supportedSerializationTypes = new[] {
+        static readonly Type[] supportedSerializationTypes = {
             typeof(IXunitSerializable),
             typeof(char),           typeof(char?),
             typeof(string),
