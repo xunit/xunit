@@ -169,30 +169,23 @@ namespace Xunit
             {
                 var value = _reader.Read();
                 _column++;
+                switch (value)
+                {
+                    case -1:
+                        // This is the end of file
+                        return -1;
+                    case '\n':
+                        // This is a new line. Let the next loop read the first charactor of the following line.
+                        // Set position ahead of next line
+                        _column = 0;
+                        _line++;
 
-                if (value == -1)
-                {
-                    // This is the end of file
-                    return -1;
-                }
-                else if (value == '\n')
-                {
-                    // This is a new line. Let the next loop read the first charactor of the following line.
-                    // Set position ahead of next line
-                    _column = 0;
-                    _line++;
-
-                    continue;
-                }
-                else if (value == '\r')
-                {
-                    // Skip the carriage return.
-                    // Let the next loop read the following char
-                }
-                else
-                {
-                    // Returns the normal value
-                    return value;
+                        continue;
+                    case '\r':
+                        break;
+                    default:
+                        // Returns the normal value
+                        return value;
                 }
             }
         }
