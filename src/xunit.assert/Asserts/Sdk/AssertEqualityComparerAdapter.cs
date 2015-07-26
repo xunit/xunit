@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit.Sdk
 {
@@ -28,6 +29,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
+        [SuppressMessage("Code Notifications", "RECS0083:Shows NotImplementedException throws in the quick task bar", Justification = "This class is not intended to be used in a hased container")]
         public int GetHashCode(object obj)
         {
             throw new NotImplementedException();

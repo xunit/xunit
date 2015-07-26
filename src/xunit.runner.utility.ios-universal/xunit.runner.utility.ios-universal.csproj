@@ -129,5 +129,8 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\..\packages\RefactoringEssentials.1.1.0\tools\analyzers\RefactoringEssentials.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

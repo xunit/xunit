@@ -177,6 +177,9 @@
       <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\..\packages\RefactoringEssentials.1.1.0\tools\analyzers\RefactoringEssentials.dll" />
+  </ItemGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
