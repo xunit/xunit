@@ -94,14 +94,16 @@ namespace Xunit.Sdk
             {
                 if (attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
                 {
-                    if (list == null) list = new List<ReflectionAttributeInfo>();
+                    if (list == null)
+                        list = new List<ReflectionAttributeInfo>();
+
                     list.Add(new ReflectionAttributeInfo(attr));
                 }
             }
+
             if (list != null)
-            {
-                list.Sort((left, right) => left.AttributeData.AttributeType.Name.CompareTo(right.AttributeData.AttributeType.Name));
-            }
+                list.Sort((left, right) => string.Compare(left.AttributeData.AttributeType.Name, right.AttributeData.AttributeType.Name, StringComparison.Ordinal));
+
             IEnumerable<IAttributeInfo> results = list ?? Enumerable.Empty<IAttributeInfo>();
 
             if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
