@@ -32,7 +32,7 @@ namespace Xunit.Sdk
                 throw new ArgumentException("Could not load type " + pieces[0], "serializedValue");
 
             if (!typeof(IXunitSerializable).IsAssignableFrom(deserializedType))
-                throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "T");
+                throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "serializedValue");
 
             var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
             var arraySerializer = obj as XunitSerializationInfo.ArraySerializer;
