@@ -7,7 +7,7 @@ namespace Xunit
     /// <summary>
     /// Allows the user to record actions for a test.
     /// </summary>
-    public partial class Record
+    public class Record
     {
         /// <summary>
         /// Records any exception which is thrown by the given code.
