@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using Xunit.Abstractions;
 
@@ -34,7 +33,8 @@ namespace Xunit
                                 string xunitExecutionAssemblyPath = null,
                                 string shadowCopyFolder = null,
                                 IMessageSink diagnosticMessageSink = null)
-            : this(useAppDomain, sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink) { }
+            : this(useAppDomain, sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink)
+        { }
 
         // Used by Xunit2 when initializing for both discovery and execution.
         internal Xunit2Discoverer(bool useAppDomain,
@@ -44,7 +44,8 @@ namespace Xunit
                                   bool shadowCopy,
                                   string shadowCopyFolder = null,
                                   IMessageSink diagnosticMessageSink = null)
-            : this(useAppDomain, sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink) { }
+            : this(useAppDomain, sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink)
+        { }
 
         Xunit2Discoverer(bool useAppDomain,
                          ISourceInformationProvider sourceInformationProvider,
@@ -79,14 +80,14 @@ namespace Xunit
         /// </summary>
         public IMessageSink DiagnosticMessageSink { get; private set; }
 
-        private static AssemblyName GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
+        static AssemblyName GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
         {
 #if ANDROID
             // Android needs to just load the assembly
             return Assembly.Load(xunitExecutionAssemblyPath).GetName();
 #elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
-            // WPA81 needs an AssemblyName that has the assembly short name (w/o extension)
-            return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();
+            // Make sure we only use the short form
+            return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new System.Version(0, 0, 0, 0) }).GetName();
 #else
             return AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
 #endif

@@ -26,7 +26,7 @@ namespace Xunit.Sdk
 #if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNXCORE50
             config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
-            TestAssembly = new TestAssembly(AssemblyInfo, config);
+            TestAssembly = new TestAssembly(AssemblyInfo, config, assemblyName.Version);
         }
 
         /// <summary>
@@ -36,9 +36,7 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         protected override ITestFrameworkDiscoverer CreateDiscoverer()
-        {
-            return new XunitTestFrameworkDiscoverer(AssemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
-        }
+            => new XunitTestFrameworkDiscoverer(AssemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
 
         /// <inheritdoc/>
         protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions)

@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using Xunit.Abstractions;
+
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
+using System.IO;
+#endif
 
 namespace Xunit
 {
@@ -36,11 +38,11 @@ namespace Xunit
             : base(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink)
         {
 #if ANDROID
-            var assm = Assembly.Load(assemblyFileName);
-            var assemblyName = assm.GetName();
+            var assemblyName = Assembly.Load(assemblyFileName).GetName();
 #elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
-            var assm = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) });
-            var assemblyName = new AssemblyName { Name = assm.GetName().Name, Version = new Version(0, 0, 0, 0) };
+            // Make sure we only use the short form for WPA81
+            var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
+            var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
 #else
             var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
 #endif

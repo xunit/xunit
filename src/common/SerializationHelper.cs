@@ -154,16 +154,16 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
-            if (assemblyName.EndsWith(ExecutionHelper.SubstitutionToken))
+            if (assemblyName.EndsWith(ExecutionHelper.SubstitutionToken, StringComparison.OrdinalIgnoreCase))
                 assemblyName = assemblyName.Substring(0, assemblyName.Length - ExecutionHelper.SubstitutionToken.Length + 1) + ExecutionHelper.PlatformSpecificAssemblySuffix;
 
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNXCORE50
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
             Assembly assembly = null;
             try
             {
-                // Make sure we only use the short form for WPA81
+                // Make sure we only use the short form
                 var an = new AssemblyName(assemblyName);
-                assembly = Assembly.Load(new AssemblyName { Name = an.Name, Version = new Version(0, 0, 0, 0) });
+                assembly = Assembly.Load(new AssemblyName { Name = an.Name, Version = an.Version });
 
             }
             catch { }
