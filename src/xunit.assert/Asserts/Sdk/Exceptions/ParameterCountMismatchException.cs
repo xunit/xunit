@@ -6,9 +6,5 @@ namespace Xunit.Sdk
     /// Exception to be thrown from theory execution when the number of
     /// parameter values does not the test method signature.
     /// </summary>
-    public class ParameterCountMismatchException : Exception
-    {
-        /// <summary/>
-        public ParameterCountMismatchException() { }
-    }
+    public class ParameterCountMismatchException : Exception { }
 }
