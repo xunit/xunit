@@ -46,9 +46,7 @@ namespace Xunit.Sdk
         /// Gets the list of <see cref="BeforeAfterTestAttribute"/>s for this test.
         /// </summary>
         protected IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
-        {
-            get { return beforeAfterAttributes; }
-        }
+            => beforeAfterAttributes;
 
         /// <inheritdoc/>
         protected override async Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator)
@@ -83,8 +81,6 @@ namespace Xunit.Sdk
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
         protected virtual Task<decimal> InvokeTestMethodAsync(ExceptionAggregator aggregator)
-        {
-            return new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, BeforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
-        }
+            => new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, BeforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
     }
 }

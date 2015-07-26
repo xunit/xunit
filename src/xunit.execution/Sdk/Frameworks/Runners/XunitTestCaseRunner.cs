@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -42,8 +43,8 @@ namespace Xunit.Sdk
             TestClass = TestCase.TestMethod.TestClass.Class.ToRuntimeType();
             TestMethod = TestCase.Method.ToRuntimeMethod();
 
-            ParameterInfo[] parameters = TestMethod.GetParameters();
-            Type[] parameterTypes = new Type[parameters.Length];
+            var parameters = TestMethod.GetParameters();
+            var parameterTypes = new Type[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
                 parameterTypes[i] = parameters[i].ParameterType;
 

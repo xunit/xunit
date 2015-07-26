@@ -48,8 +48,6 @@ namespace Xunit.Sdk
             TestMethodArguments = testMethodArguments;
             Aggregator = aggregator;
             CancellationTokenSource = cancellationTokenSource;
-
-            Timer = new ExecutionTimer();
         }
 
         /// <summary>
@@ -105,7 +103,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets or sets the object which measures execution time.
         /// </summary>
-        protected ExecutionTimer Timer { get; set; }
+        protected ExecutionTimer Timer { get; set; } = new ExecutionTimer();
 
         /// <summary>
         /// Creates the test class, unless the test method is static or there have already been errors. Note that
@@ -130,18 +128,14 @@ namespace Xunit.Sdk
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual Task AfterTestMethodInvokedAsync()
-        {
-            return CommonTasks.Completed;
-        }
+            => CommonTasks.Completed;
 
         /// <summary>
         /// This method is called just before the test method is invoked.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual Task BeforeTestMethodInvokedAsync()
-        {
-            return CommonTasks.Completed;
-        }
+            => CommonTasks.Completed;
 
         /// <summary>
         /// This method calls the test method via reflection. This is an available override point
@@ -150,9 +144,7 @@ namespace Xunit.Sdk
         /// <param name="testClassInstance">The instance of the test class</param>
         /// <returns>The return value from the test method invocation</returns>
         protected virtual object CallTestMethod(object testClassInstance)
-        {
-            return TestMethod.Invoke(testClassInstance, TestMethodArguments);
-        }
+            => TestMethod.Invoke(testClassInstance, TestMethodArguments);
 
         /// <summary>
         /// Creates the test class (if necessary), and invokes the test method.
@@ -243,8 +235,6 @@ namespace Xunit.Sdk
 
         [SecuritySafeCritical]
         static void SetSynchronizationContext(SynchronizationContext context)
-        {
-            SynchronizationContext.SetSynchronizationContext(context);
-        }
+            => SynchronizationContext.SetSynchronizationContext(context);
     }
 }

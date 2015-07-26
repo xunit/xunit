@@ -74,18 +74,14 @@ namespace Xunit.Sdk
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual Task AfterTestCollectionStartingAsync()
-        {
-            return CommonTasks.Completed;
-        }
+            => CommonTasks.Completed;
 
         /// <summary>
         /// This method is called just before <see cref="ITestCollectionFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual Task BeforeTestCollectionFinishedAsync()
-        {
-            return CommonTasks.Completed;
-        }
+            => CommonTasks.Completed;
 
         /// <summary>
         /// Runs the tests in the test collection.

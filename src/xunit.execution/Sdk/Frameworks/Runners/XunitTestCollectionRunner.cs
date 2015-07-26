@@ -35,57 +35,18 @@ namespace Xunit.Sdk
             : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
             this.diagnosticMessageSink = diagnosticMessageSink;
-
-            CollectionFixtureMappings = new Dictionary<Type, object>();
         }
 
         /// <summary>
         /// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStartingAsync"/>.
         /// </summary>
-        protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
-
-        /// <summary>
-        /// Creates the instance of a collection fixture type to be used by the test collection. If the fixture can be created,
-        /// it should be placed into the <see cref="CollectionFixtureMappings"/> dictionary; if it cannot, then the method
-        /// should record the error by calling <code>Aggregator.Add</code>.
-        /// </summary>
-        /// <param name="fixtureType">The type of the fixture to be created</param>
-        protected virtual void CreateCollectionFixture(Type fixtureType)
-        {
-            Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
-        }
+        protected Dictionary<Type, object> CollectionFixtureMappings { get; set; } = new Dictionary<Type, object>();
 
         /// <inheritdoc/>
         protected override Task AfterTestCollectionStartingAsync()
         {
-            if (TestCollection.CollectionDefinition != null)
-            {
-                var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
-                foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
-                    CreateCollectionFixture(interfaceType.GenericTypeArguments.Single());
-
-                var ordererAttribute = TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
-                if (ordererAttribute != null)
-                {
-                    try
-                    {
-                        var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(diagnosticMessageSink, ordererAttribute);
-                        if (testCaseOrderer != null)
-                            TestCaseOrderer = testCaseOrderer;
-                        else
-                        {
-                            var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                            diagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for collection-level test case orderer on test collection '{2}'", args[0], args[1], TestCollection.DisplayName));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        var innerEx = ex.Unwrap();
-                        var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}", args[0], TestCollection.DisplayName, innerEx.GetType().FullName, innerEx.StackTrace));
-                    }
-                }
-            }
+            CreateCollectionFixtures();
+            TestCaseOrderer = GetTestCaseOrderer() ?? TestCaseOrderer;
 
             return CommonTasks.Completed;
         }
@@ -99,10 +60,60 @@ namespace Xunit.Sdk
             return CommonTasks.Completed;
         }
 
+        /// <summary>
+        /// Creates the instance of a collection fixture type to be used by the test collection. If the fixture can be created,
+        /// it should be placed into the <see cref="CollectionFixtureMappings"/> dictionary; if it cannot, then the method
+        /// should record the error by calling <code>Aggregator.Add</code>.
+        /// </summary>
+        /// <param name="fixtureType">The type of the fixture to be created</param>
+        protected virtual void CreateCollectionFixture(Type fixtureType)
+            => Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
+
+        void CreateCollectionFixtures()
+        {
+            if (TestCollection.CollectionDefinition != null)
+            {
+                var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
+                foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+                    CreateCollectionFixture(interfaceType.GenericTypeArguments.Single());
+            }
+        }
+
+        /// <summary>
+        /// Gives an opportunity to override test case orderer. By default, this method gets the
+        /// orderer from the collection definition. If this function returns <c>null</c>, the
+        /// test case orderer passed into the constructor will be used.
+        /// </summary>
+        protected virtual ITestCaseOrderer GetTestCaseOrderer()
+        {
+            if (TestCollection.CollectionDefinition != null)
+            {
+                var ordererAttribute = TestCollection.CollectionDefinition.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
+                if (ordererAttribute != null)
+                {
+                    try
+                    {
+                        var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(diagnosticMessageSink, ordererAttribute);
+                        if (testCaseOrderer != null)
+                            return testCaseOrderer;
+
+                        var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for collection-level test case orderer on test collection '{2}'", args[0], args[1], TestCollection.DisplayName));
+                    }
+                    catch (Exception ex)
+                    {
+                        var innerEx = ex.Unwrap();
+                        var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}", args[0], TestCollection.DisplayName, innerEx.GetType().FullName, innerEx.StackTrace));
+                    }
+                }
+            }
+
+            return null;
+        }
+
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
-        {
-            return new XunitTestClassRunner(testClass, @class, testCases, diagnosticMessageSink, MessageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), CancellationTokenSource, CollectionFixtureMappings).RunAsync();
-        }
+            => new XunitTestClassRunner(testClass, @class, testCases, diagnosticMessageSink, MessageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), CancellationTokenSource, CollectionFixtureMappings).RunAsync();
     }
 }

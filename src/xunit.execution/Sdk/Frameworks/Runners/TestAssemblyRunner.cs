@@ -43,15 +43,12 @@ namespace Xunit.Sdk
             DiagnosticMessageSink = diagnosticMessageSink;
             ExecutionMessageSink = executionMessageSink;
             ExecutionOptions = executionOptions;
-            TestCaseOrderer = new DefaultTestCaseOrderer();
-            TestCollectionOrderer = new DefaultTestCollectionOrderer();
-            Aggregator = new ExceptionAggregator();
         }
 
         /// <summary>
         /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
-        protected ExceptionAggregator Aggregator { get; set; }
+        protected ExceptionAggregator Aggregator { get; set; } = new ExceptionAggregator();
 
         /// <summary>
         /// Gets or sets the user's requested execution options.
@@ -76,12 +73,12 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets or sets the test case orderer that will be used to decide how to order the tests.
         /// </summary>
-        protected ITestCaseOrderer TestCaseOrderer { get; set; }
+        protected ITestCaseOrderer TestCaseOrderer { get; set; } = new DefaultTestCaseOrderer();
 
         /// <summary>
         /// Gets or sets the test collection orderer that will be used to decide how to order the test collections.
         /// </summary>
-        protected ITestCollectionOrderer TestCollectionOrderer { get; set; }
+        protected ITestCollectionOrderer TestCollectionOrderer { get; set; } = new DefaultTestCollectionOrderer();
 
         /// <summary>
         /// Gets or sets the test cases to be run.
@@ -102,9 +99,7 @@ namespace Xunit.Sdk
         /// placed into <see cref="ITestAssemblyStarting.TestEnvironment"/>.
         /// </summary>
         protected virtual string GetTestFrameworkEnvironment()
-        {
-            return string.Format("{0}-bit .NET {1}", IntPtr.Size * 8, GetVersion());
-        }
+            => string.Format("{0}-bit .NET {1}", IntPtr.Size * 8, GetVersion());
 
         static string GetVersion()
         {
@@ -121,18 +116,14 @@ namespace Xunit.Sdk
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual Task AfterTestAssemblyStartingAsync()
-        {
-            return CommonTasks.Completed;
-        }
+            => CommonTasks.Completed;
 
         /// <summary>
         /// This method is called just before <see cref="ITestAssemblyFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual Task BeforeTestAssemblyFinishedAsync()
-        {
-            return CommonTasks.Completed;
-        }
+            => CommonTasks.Completed;
 
         /// <summary>
         /// Creates the message bus to be used for test execution. By default, it inspects

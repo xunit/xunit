@@ -33,7 +33,8 @@ namespace Xunit.Sdk
                                        IMessageSink diagnosticMessageSink,
                                        IMessageSink executionMessageSink,
                                        ITestFrameworkExecutionOptions executionOptions)
-            : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions) { }
+            : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
+        { }
 
         /// <inheritdoc/>
         public override void Dispose()
@@ -45,9 +46,7 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         protected override string GetTestFrameworkDisplayName()
-        {
-            return XunitTestFrameworkDiscoverer.DisplayName;
-        }
+            => XunitTestFrameworkDiscoverer.DisplayName;
 
         /// <inheritdoc/>
         protected override string GetTestFrameworkEnvironment()
@@ -200,14 +199,10 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
-        {
-            return new XunitTestCollectionRunner(testCollection, testCases, DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
-        }
+            => new XunitTestCollectionRunner(testCollection, testCases, DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
 
         [SecuritySafeCritical]
         static void SetSynchronizationContext(SynchronizationContext context)
-        {
-            SynchronizationContext.SetSynchronizationContext(context);
-        }
+            => SynchronizationContext.SetSynchronizationContext(context);
     }
 }

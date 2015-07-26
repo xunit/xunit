@@ -55,18 +55,14 @@ namespace Xunit.Sdk
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual Task AfterTestCaseStartingAsync()
-        {
-            return CommonTasks.Completed;
-        }
+            => CommonTasks.Completed;
 
         /// <summary>
         /// This method is called just before <see cref="ITestCaseFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         protected virtual Task BeforeTestCaseFinishedAsync()
-        {
-            return CommonTasks.Completed;
-        }
+            => CommonTasks.Completed;
 
         /// <summary>
         /// Runs the tests in the test case.

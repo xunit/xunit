@@ -39,14 +39,12 @@ namespace Xunit.Sdk
             : base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
             this.collectionFixtureMappings = collectionFixtureMappings;
-
-            ClassFixtureMappings = new Dictionary<Type, object>();
         }
 
         /// <summary>
         /// Gets the fixture mappings that were created during <see cref="AfterTestClassStartingAsync"/>.
         /// </summary>
-        protected Dictionary<Type, object> ClassFixtureMappings { get; set; }
+        protected Dictionary<Type, object> ClassFixtureMappings { get; set; } = new Dictionary<Type, object>();
 
         /// <summary>
         /// Creates the instance of a class fixture type to be used by the test class. If the fixture can be created,
@@ -147,9 +145,7 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
-        {
-            return new XunitTestMethodRunner(testMethod, Class, method, testCases, DiagnosticMessageSink, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
-        }
+            => new XunitTestMethodRunner(testMethod, Class, method, testCases, DiagnosticMessageSink, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
 
         /// <inheritdoc/>
         protected override ConstructorInfo SelectTestClassConstructor()
