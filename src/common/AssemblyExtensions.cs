@@ -12,7 +12,7 @@ internal static class AssemblyExtensions
         if (codeBase == null)
             return null;
 
-        if (!codeBase.StartsWith("file:///"))
+        if (!codeBase.StartsWith("file:///", StringComparison.Ordinal))
             throw new ArgumentException(string.Format("Code base {0} in wrong format; must start with file:///", codeBase), "assembly");
 
         codeBase = codeBase.Substring(8);

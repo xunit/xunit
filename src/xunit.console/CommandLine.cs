@@ -86,7 +86,7 @@ namespace Xunit.ConsoleClient
 
             while (arguments.Count > 0)
             {
-                if (arguments.Peek().StartsWith("-"))
+                if (arguments.Peek().StartsWith("-", StringComparison.Ordinal))
                     break;
 
                 var assemblyFile = arguments.Pop();
@@ -99,7 +99,7 @@ namespace Xunit.ConsoleClient
                 if (arguments.Count > 0)
                 {
                     var value = arguments.Peek();
-                    if (!value.StartsWith("-") && IsConfigFile(value))
+                    if (!value.StartsWith("-", StringComparison.Ordinal) && IsConfigFile(value))
                     {
                         configFile = arguments.Pop();
                         if (!fileExists(configFile))
@@ -120,7 +120,7 @@ namespace Xunit.ConsoleClient
                 var option = PopOption(arguments);
                 var optionName = option.Key.ToLowerInvariant();
 
-                if (!optionName.StartsWith("-"))
+                if (!optionName.StartsWith("-", StringComparison.Ordinal))
                     throw new ArgumentException(string.Format("unknown command line option: {0}", option.Key));
 
                 optionName = optionName.Substring(1);
@@ -294,7 +294,7 @@ namespace Xunit.ConsoleClient
             var option = arguments.Pop();
             string value = null;
 
-            if (arguments.Count > 0 && !arguments.Peek().StartsWith("-"))
+            if (arguments.Count > 0 && !arguments.Peek().StartsWith("-", StringComparison.Ordinal))
                 value = arguments.Pop();
 
             return new KeyValuePair<string, string>(option, value);
