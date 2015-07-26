@@ -391,8 +391,8 @@ namespace Xunit
         class ReaderWriterLockWrapper : IDisposable
         {
             static readonly ReaderWriterLockSlim @lock = new ReaderWriterLockSlim();
-            static readonly ReaderWriterLockWrapper lockForRead = new ReaderWriterLockWrapper(() => @lock.ExitReadLock());
-            static readonly ReaderWriterLockWrapper lockForWrite = new ReaderWriterLockWrapper(() => @lock.ExitWriteLock());
+            static readonly ReaderWriterLockWrapper lockForRead = new ReaderWriterLockWrapper(@lock.ExitReadLock);
+            static readonly ReaderWriterLockWrapper lockForWrite = new ReaderWriterLockWrapper(@lock.ExitWriteLock);
 
             readonly Action unlock;
 

@@ -113,7 +113,7 @@ namespace Xunit.Sdk
             // so they get properly reported as test case cleanup failures.
             var timer = new ExecutionTimer();
             foreach (var disposable in toDispose)
-                timer.Aggregate(() => cleanupAggregator.Run(() => disposable.Dispose()));
+                timer.Aggregate(() => cleanupAggregator.Run(disposable.Dispose));
 
             runSummary.Time += timer.Total;
             return runSummary;

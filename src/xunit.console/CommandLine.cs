@@ -15,7 +15,7 @@ namespace Xunit.ConsoleClient
             this.reporters = reporters;
 
             if (fileExists == null)
-                fileExists = fileName => File.Exists(fileName);
+                fileExists = File.Exists;
 
             for (var i = args.Length - 1; i >= 0; i--)
                 arguments.Push(args[i]);
