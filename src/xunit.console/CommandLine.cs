@@ -210,7 +210,6 @@ namespace Xunit.ConsoleClient
                             ParallelizeTestCollections = true;
                             break;
 
-                        case ParallelismOption.none:
                         default:
                             ParallelizeAssemblies = false;
                             ParallelizeTestCollections = false;
