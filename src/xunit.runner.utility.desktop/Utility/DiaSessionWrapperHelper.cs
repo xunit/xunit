@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Xunit
 {
-    internal class DiaSessionWrapperHelper : LongLivedMarshalByRefObject
+    class DiaSessionWrapperHelper : LongLivedMarshalByRefObject
     {
         static readonly Func<MethodInfo, Type> GetStateMachineType = InitializeGetStateMachineType();
 

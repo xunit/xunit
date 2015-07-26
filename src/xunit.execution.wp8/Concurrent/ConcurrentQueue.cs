@@ -33,7 +33,7 @@ namespace System.Collections.Concurrent
 
 	[System.Diagnostics.DebuggerDisplay ("Count={Count}")]
 	[System.Diagnostics.DebuggerTypeProxy (typeof (CollectionDebuggerView<>))]
-	internal class ConcurrentQueue<T> : IProducerConsumerCollection<T>, IEnumerable<T>, ICollection,
+class ConcurrentQueue<T> : IProducerConsumerCollection<T>, IEnumerable<T>, ICollection,
 	                                  IEnumerable
 	{
 		class Node

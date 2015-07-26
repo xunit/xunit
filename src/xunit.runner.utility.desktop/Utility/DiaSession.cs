@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Xunit
 {
-    internal class DiaSession : IDisposable
+    class DiaSession : IDisposable
     {
         static readonly MethodInfo methodGetNavigationData;
         static readonly PropertyInfo propertyFileName;

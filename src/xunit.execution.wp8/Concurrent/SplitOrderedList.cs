@@ -32,7 +32,7 @@ using System.Runtime.Serialization;
 
 namespace System.Collections.Concurrent
 {
-	internal class SplitOrderedList<TKey, T>
+	class SplitOrderedList<TKey, T>
 	{
 		class Node
 		{

@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-internal static class AssemblyExtensions
+static class AssemblyExtensions
 {
     public static string GetLocalCodeBase(this Assembly assembly)
     {

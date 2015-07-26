@@ -158,7 +158,7 @@ namespace System.Threading.Tasks
 		}
 	}
 	
-	internal class CircularArray<T>
+	class CircularArray<T>
 	{
 		readonly int baseSize;
 		public readonly int size;

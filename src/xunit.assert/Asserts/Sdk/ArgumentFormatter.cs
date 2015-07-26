@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Formats arguments for display in theories.
     /// </summary>
-    internal static class ArgumentFormatter
+    static class ArgumentFormatter
     {
         const int MAX_DEPTH = 3;
         const int MAX_ENUMERABLE_LENGTH = 5;

@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// Default implementation of <see cref="IEqualityComparer{T}"/> used by the xUnit.net equality assertions.
     /// </summary>
     /// <typeparam name="T">The type that is being compared.</typeparam>
-    internal class AssertEqualityComparer<T> : IEqualityComparer<T>
+    class AssertEqualityComparer<T> : IEqualityComparer<T>
     {
         static readonly IEqualityComparer DefaultInnerComparer = new AssertEqualityComparerAdapter<object>(new AssertEqualityComparer<object>());
         static readonly TypeInfo NullableTypeInfo = typeof(Nullable<>).GetTypeInfo();

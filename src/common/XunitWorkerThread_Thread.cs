@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Xunit.Sdk
 {
-    internal class XunitWorkerThread
+    class XunitWorkerThread
     {
         readonly Thread thread;
 

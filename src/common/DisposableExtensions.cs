@@ -1,6 +1,6 @@
 ﻿using System;
 
-internal static class DisposableExtensions
+static class DisposableExtensions
 {
     public static void SafeDispose(this IDisposable disposable)
     {

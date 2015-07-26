@@ -3,7 +3,7 @@ using Windows.ApplicationModel;
 
 namespace System.IO
 {
-    internal static class Directory
+    static class Directory
     {
         public static bool Exists(string path)
         {

@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Xunit
 {
-    internal class AppDomainManager_NoAppDomain : IAppDomainManager
+    class AppDomainManager_NoAppDomain : IAppDomainManager
     {
         readonly string assemblyFileName;
 

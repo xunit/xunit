@@ -1,4 +1,4 @@
-internal static class TestOptionsNames
+static class TestOptionsNames
 {
     internal static class Discovery
     {

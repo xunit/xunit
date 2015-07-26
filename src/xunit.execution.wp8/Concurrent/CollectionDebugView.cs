@@ -34,7 +34,7 @@ namespace System.Collections.Generic
     //
     // Custom debugger type proxy to display collections as arrays
     //
-    internal sealed class CollectionDebuggerView<T>
+    sealed class CollectionDebuggerView<T>
     {
         readonly ICollection<T> c;
 
@@ -55,7 +55,7 @@ namespace System.Collections.Generic
         }
     }
 
-    internal sealed class CollectionDebuggerView<T, U>
+    sealed class CollectionDebuggerView<T, U>
     {
         readonly ICollection<KeyValuePair<T, U>> c;
 

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Xunit
 {
-    internal class JsonArray : JsonValue
+    class JsonArray : JsonValue
     {
         private readonly JsonValue[] _array;
 
@@ -35,7 +35,7 @@ namespace Xunit
         }
     }
 
-    internal class JsonBoolean : JsonValue
+    class JsonBoolean : JsonValue
     {
         public JsonBoolean(JsonToken token)
             : base(token.Line, token.Column)
@@ -62,7 +62,7 @@ namespace Xunit
         }
     }
 
-    internal class JsonBuffer
+    class JsonBuffer
     {
         public const string ValueNull = "null";
         public const string ValueTrue = "true";
@@ -374,7 +374,7 @@ namespace Xunit
         }
     }
 
-    internal static class JsonDeserializer
+    static class JsonDeserializer
     {
         public static JsonValue Deserialize(TextReader reader)
         {
@@ -546,7 +546,7 @@ namespace Xunit
         }
     }
 
-    internal class JsonDeserializerException : Exception
+    class JsonDeserializerException : Exception
     {
         public JsonDeserializerException(string message, Exception innerException, int line, int column)
             : base(message, innerException)
@@ -574,7 +574,7 @@ namespace Xunit
         public int Column { get; }
     }
 
-    internal static class JsonDeserializerResource
+    static class JsonDeserializerResource
     {
         internal static string Format_IllegalCharacter(int value)
         {
@@ -662,7 +662,7 @@ namespace Xunit
         }
     }
 
-    internal class JsonNull : JsonValue
+    class JsonNull : JsonValue
     {
         public JsonNull(int line, int column)
             : base(line, column)
@@ -670,7 +670,7 @@ namespace Xunit
         }
     }
 
-    internal class JsonNumber : JsonValue
+    class JsonNumber : JsonValue
     {
         private readonly string _raw;
         private readonly double _double;
@@ -712,7 +712,7 @@ namespace Xunit
         }
     }
 
-    internal class JsonObject : JsonValue
+    class JsonObject : JsonValue
     {
         private readonly IDictionary<string, JsonValue> _data;
 
@@ -805,7 +805,7 @@ namespace Xunit
         }
     }
 
-    internal class JsonString : JsonValue
+    class JsonString : JsonValue
     {
         private readonly string _value;
 
@@ -843,7 +843,7 @@ namespace Xunit
         }
     }
 
-    internal struct JsonToken
+    struct JsonToken
     {
         public JsonTokenType Type;
         public string Value;
@@ -851,7 +851,7 @@ namespace Xunit
         public int Column;
     }
 
-    internal enum JsonTokenType
+    enum JsonTokenType
     {
         LeftCurlyBracket,   // [
         LeftSquareBracket,  // {
@@ -867,7 +867,7 @@ namespace Xunit
         EOF
     }
 
-    internal class JsonValue
+    class JsonValue
     {
         public JsonValue(int line, int column)
         {

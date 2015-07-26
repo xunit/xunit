@@ -3,7 +3,7 @@ using Windows.Storage;
 
 namespace System.IO
 {
-    internal static class File
+    static class File
     {
         public static bool Exists(string path)
         {

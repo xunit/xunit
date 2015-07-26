@@ -2,7 +2,7 @@ using System;
 
 namespace Xunit
 {
-    internal static class ExecutionHelper
+    static class ExecutionHelper
     {
         /// <summary>
         /// Gets the file name of the execution DLL (with extension) used to run xUnit.net v2 tests.

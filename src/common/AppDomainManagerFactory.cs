@@ -1,6 +1,6 @@
 namespace Xunit
 {
-    internal static class AppDomainManagerFactory
+    static class AppDomainManagerFactory
     {
         internal static IAppDomainManager Create(bool useAppDomain, string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {

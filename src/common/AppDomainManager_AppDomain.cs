@@ -6,7 +6,7 @@ using System.Security.Permissions;
 
 namespace Xunit
 {
-    internal class AppDomainManager_AppDomain : IAppDomainManager
+    class AppDomainManager_AppDomain : IAppDomainManager
     {
         public AppDomainManager_AppDomain(string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {

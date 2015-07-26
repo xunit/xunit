@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Serializes and de-serializes objects
     /// </summary>
-    internal static class SerializationHelper
+    static class SerializationHelper
     {
         /// <summary>
         /// De-serializes an object.

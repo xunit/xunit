@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Xunit.Sdk
 {
-    internal static class CollectionExtensions
+    static class CollectionExtensions
     {
         public static List<T> CastOrToList<T>(this IEnumerable<T> source)
         {

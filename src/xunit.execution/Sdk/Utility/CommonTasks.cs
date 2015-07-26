@@ -2,7 +2,7 @@
 
 namespace Xunit.Sdk
 {
-    internal static class CommonTasks
+    static class CommonTasks
     {
         internal static readonly Task Completed = Task.FromResult(0);
     }

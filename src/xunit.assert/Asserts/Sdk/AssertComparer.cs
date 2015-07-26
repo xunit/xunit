@@ -8,7 +8,7 @@ namespace Xunit.Sdk
     /// Default implementation of <see cref="IComparer{T}"/> used by the xUnit.net range assertions.
     /// </summary>
     /// <typeparam name="T">The type that is being compared.</typeparam>
-    internal class AssertComparer<T> : IComparer<T> where T : IComparable
+    class AssertComparer<T> : IComparer<T> where T : IComparable
     {
         static readonly TypeInfo NullableTypeInfo = typeof(Nullable<>).GetTypeInfo();
 

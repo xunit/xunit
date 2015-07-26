@@ -5,7 +5,7 @@ using System.Reflection;
 /// <summary>
 /// Methods which help bridge and contain the differences between Type and TypeInfo.
 /// </summary>
-internal static class NewReflectionExtensions
+static class NewReflectionExtensions
 {
     // New methods
 

@@ -11,7 +11,7 @@ namespace Xunit.Serialization
     /// <summary>
     /// A mirror class of the CLR's <see cref="T:System.Runtime.Serialization.SerializationInfo"/> class.
     /// </summary>
-    internal class XunitSerializationInfo : IXunitSerializationInfo
+    class XunitSerializationInfo : IXunitSerializationInfo
     {
         private readonly IDictionary<string, XunitSerializationTriple> data = new Dictionary<string, XunitSerializationTriple>();
 
@@ -433,7 +433,7 @@ namespace Xunit.Serialization
     /// Represents a triple of information used when serializing complex types: the property name,
     /// the value to be serialized, and the value's type.
     /// </summary>
-    internal class XunitSerializationTriple
+    class XunitSerializationTriple
     {
         /// <summary>
         /// Gets the triple's key

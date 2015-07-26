@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-internal static class DictionaryExtensions
+static class DictionaryExtensions
 {
     public static void Add<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, TValue value)
     {

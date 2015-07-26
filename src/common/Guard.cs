@@ -5,7 +5,7 @@ using System.IO;
 /// <summary>
 /// Guard class, used for guard clauses and argument validation
 /// </summary>
-internal static class Guard
+static class Guard
 {
     /// <summary/>
     public static void ArgumentNotNull(string argName, object argValue)

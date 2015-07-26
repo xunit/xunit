@@ -39,7 +39,7 @@ namespace System.Collections.Concurrent
 	[ComVisible (false)]
 	[DebuggerDisplay ("Count={Count}")]
     [DebuggerTypeProxy (typeof (CollectionDebuggerView<>))]
-	internal class ConcurrentBag<T> : IProducerConsumerCollection<T>, IEnumerable<T>, IEnumerable
+class ConcurrentBag<T> : IProducerConsumerCollection<T>, IEnumerable<T>, IEnumerable
 	{
 		// We store hints in a long
 		long hints;

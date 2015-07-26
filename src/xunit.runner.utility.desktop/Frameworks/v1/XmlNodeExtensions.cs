@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using Xunit;
 
-internal static class XmlNodeExtensions
+static class XmlNodeExtensions
 {
     public static Xunit1TestCase ToTestCase(this XmlNode xml, string assemblyFileName, string configFileName)
     {

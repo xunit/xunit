@@ -4,7 +4,7 @@ namespace Xunit
 {
     // This class wraps DiaSession, and uses DiaSessionWrapperHelper in the testing app domain to help us
     // discover when a test is an async test (since that requires special handling by DIA).
-    internal class DiaSessionWrapper : IDisposable
+    class DiaSessionWrapper : IDisposable
     {
         readonly AppDomainManager_AppDomain appDomainManager;
         readonly DiaSessionWrapperHelper helper;

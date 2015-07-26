@@ -3,7 +3,7 @@ using Windows.System.Threading;
 
 namespace Xunit.Sdk
 {
-    internal class XunitWorkerThread
+    class XunitWorkerThread
     {
         public XunitWorkerThread(Action threadProc)
         {
