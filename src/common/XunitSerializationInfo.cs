@@ -172,7 +172,7 @@ namespace Xunit.Serialization
                 return arrSer.ArrayData;
             }
 
-            throw new ArgumentException("We don't know how to de-serialize type " + type.FullName, "serializedValue");
+            throw new ArgumentException("We don't know how to de-serialize type " + type.FullName, nameof(serializedValue));
         }
 
         static IXunitSerializable DeserializeSerializable(Type type, string serializedValue)
@@ -285,7 +285,7 @@ namespace Xunit.Serialization
             if (typeData != null)
             {
                 if (!typeData.IsFromLocalAssembly())
-                    throw new ArgumentException(string.Format("We cannot serialize type {0} because it lives in the GAC", typeData.FullName), "value");
+                    throw new ArgumentException(string.Format("We cannot serialize type {0} because it lives in the GAC", typeData.FullName), nameof(value));
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
             }
 
@@ -293,7 +293,7 @@ namespace Xunit.Serialization
             if (valueType.IsEnum())
             {
                 if (!valueType.IsFromLocalAssembly())
-                    throw new ArgumentException(string.Format("We cannot serialize enum {0}.{1} because it lives in the GAC", valueType.FullName, value), "value");
+                    throw new ArgumentException(string.Format("We cannot serialize enum {0}.{1} because it lives in the GAC", valueType.FullName, value), nameof(value));
                 return value.ToString();
             }
 
@@ -306,7 +306,7 @@ namespace Xunit.Serialization
                 return info.ToSerializedString();
             }
 
-            throw new ArgumentException("We don't know how to serialize type " + valueType.FullName, "value");
+            throw new ArgumentException("We don't know how to serialize type " + valueType.FullName, nameof(value));
         }
 
         static readonly Type[] supportedSerializationTypes = {
@@ -398,10 +398,10 @@ namespace Xunit.Serialization
             public ArraySerializer(Array array)
             {
                 if (array == null)
-                    throw new ArgumentNullException("array");
+                    throw new ArgumentNullException(nameof(array));
 
                 if (!CanSerializeObject(array))
-                    throw new ArgumentException("There is at least one object in this array that cannot be serialized", "array");
+                    throw new ArgumentException("There is at least one object in this array that cannot be serialized", nameof(array));
 
                 this.array = array;
                 elementType = array.GetType().GetElementType();

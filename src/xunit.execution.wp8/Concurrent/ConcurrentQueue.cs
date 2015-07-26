@@ -168,7 +168,7 @@ class ConcurrentQueue<T> : IProducerConsumerCollection<T>, IEnumerable<T>, IColl
 		void ICollection.CopyTo (Array array, int index)
 		{
 			if (array == null)
-				throw new ArgumentNullException ("array");
+				throw new ArgumentNullException (nameof(array));
 			if (array.Rank > 1)
 				throw new ArgumentException ("The array can't be multidimensional");
 			if (array.GetLowerBound (0) != 0)
@@ -176,24 +176,24 @@ class ConcurrentQueue<T> : IProducerConsumerCollection<T>, IEnumerable<T>, IColl
 
 			var dest = array as T[];
 			if (dest == null)
-				throw new ArgumentException ("The array cannot be cast to the collection element type", "array");
+				throw new ArgumentException ("The array cannot be cast to the collection element type", nameof(array));
 			CopyTo (dest, index);
 		}
 		
 		public void CopyTo (T[] array, int index)
 		{
 			if (array == null)
-				throw new ArgumentNullException ("array");
+				throw new ArgumentNullException (nameof(array));
 			if (index < 0)
-				throw new ArgumentOutOfRangeException ("index");
+				throw new ArgumentOutOfRangeException (nameof(index));
 			if (index >= array.Length)
-				throw new ArgumentException ("index is equals or greather than array length", "index");
+				throw new ArgumentException ("index is equals or greather than array length", nameof(index));
 
 			IEnumerator<T> e = InternalGetEnumerator ();
 			int i = index;
 			while (e.MoveNext ()) {
 				if (i == array.Length - index)
-					throw new ArgumentException ("The number of elememts in the collection exceeds the capacity of array", "array");
+					throw new ArgumentException ("The number of elememts in the collection exceeds the capacity of array", nameof(array));
 				array[i++] = e.Current;
 			}
 		}

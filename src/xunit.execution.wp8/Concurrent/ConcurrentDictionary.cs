@@ -89,7 +89,7 @@ class ConcurrentDictionary<TKey, TValue> : IDictionary<TKey, TValue>,
 		void CheckKey (TKey key)
 		{
 			if (key == null)
-				throw new ArgumentNullException ("key");
+				throw new ArgumentNullException (nameof(key));
 		}
 
 		void Add (TKey key, TValue value)
@@ -119,9 +119,9 @@ class ConcurrentDictionary<TKey, TValue> : IDictionary<TKey, TValue>,
 		{
 			CheckKey (key);
 			if (addValueFactory == null)
-				throw new ArgumentNullException ("addValueFactory");
+				throw new ArgumentNullException (nameof(addValueFactory));
 			if (updateValueFactory == null)
-				throw new ArgumentNullException ("updateValueFactory");
+				throw new ArgumentNullException (nameof(updateValueFactory));
 			return internalDictionary.InsertOrUpdate (Hash (key),
 			                                          key,
 			                                          () => Make (key, addValueFactory (key)),

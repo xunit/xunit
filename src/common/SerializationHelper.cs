@@ -21,7 +21,7 @@ namespace Xunit.Sdk
         public static T Deserialize<T>(string serializedValue)
         {
             if (serializedValue == null)
-                throw new ArgumentNullException("serializedValue");
+                throw new ArgumentNullException(nameof(serializedValue));
 
             var pieces = serializedValue.Split(new[] { ':' }, 2);
             if (pieces.Length != 2)
@@ -29,10 +29,10 @@ namespace Xunit.Sdk
 
             var deserializedType = GetType(pieces[0]);
             if (deserializedType == null)
-                throw new ArgumentException("Could not load type " + pieces[0], "serializedValue");
+                throw new ArgumentException("Could not load type " + pieces[0], nameof(serializedValue));
 
             if (!typeof(IXunitSerializable).IsAssignableFrom(deserializedType))
-                throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "serializedValue");
+                throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(serializedValue));
 
             var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
             var arraySerializer = obj as XunitSerializationInfo.ArraySerializer;
@@ -50,7 +50,7 @@ namespace Xunit.Sdk
         public static string Serialize(object value)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
 
             var array = value as object[];
             if (array != null)
@@ -58,7 +58,7 @@ namespace Xunit.Sdk
 
             var serializable = value as IXunitSerializable;
             if (serializable == null)
-                throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, "value");
+                throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(value));
 
             var serializationInfo = new XunitSerializationInfo(serializable);
             return string.Format("{0}:{1}", GetTypeNameForSerialization(value.GetType()), serializationInfo.ToSerializedString());
