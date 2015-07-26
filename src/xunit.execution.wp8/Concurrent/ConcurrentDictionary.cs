@@ -38,9 +38,9 @@ namespace System.Collections.Concurrent
 	  ICollection<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>,
 	  IDictionary, ICollection, IEnumerable
 	{
-		IEqualityComparer<TKey> comparer;
+        readonly IEqualityComparer<TKey> comparer;
 
-		SplitOrderedList<TKey, KeyValuePair<TKey, TValue>> internalDictionary;
+        SplitOrderedList<TKey, KeyValuePair<TKey, TValue>> internalDictionary;
 
 		public ConcurrentDictionary () : this (EqualityComparer<TKey>.Default)
 		{
@@ -392,9 +392,9 @@ namespace System.Collections.Concurrent
 
 		class ConcurrentDictionaryEnumerator : IDictionaryEnumerator
 		{
-			IEnumerator<KeyValuePair<TKey, TValue>> internalEnum;
+            readonly IEnumerator<KeyValuePair<TKey, TValue>> internalEnum;
 
-			public ConcurrentDictionaryEnumerator (IEnumerator<KeyValuePair<TKey, TValue>> internalEnum)
+            public ConcurrentDictionaryEnumerator (IEnumerator<KeyValuePair<TKey, TValue>> internalEnum)
 			{
 				this.internalEnum = internalEnum;
 			}

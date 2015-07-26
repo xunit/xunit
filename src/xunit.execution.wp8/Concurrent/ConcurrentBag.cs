@@ -47,10 +47,11 @@ namespace System.Collections.Concurrent
 		int count;
 		// The container area is where bag are added foreach thread
 		ConcurrentDictionary<int, CyclicDeque<T>> container = new ConcurrentDictionary<int, CyclicDeque<T>> ();
-		// The staging area is where non-empty bag are located for fast iteration
-		ConcurrentDictionary<int, CyclicDeque<T>> staging = new ConcurrentDictionary<int, CyclicDeque<T>> ();
-		
-		public ConcurrentBag ()
+        readonly
+                // The staging area is where non-empty bag are located for fast iteration
+                ConcurrentDictionary<int, CyclicDeque<T>> staging = new ConcurrentDictionary<int, CyclicDeque<T>>();
+
+        public ConcurrentBag ()
 		{
 		}
 		

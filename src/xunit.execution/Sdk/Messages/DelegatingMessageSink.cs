@@ -10,8 +10,8 @@ namespace Xunit.Sdk
     /// </summary>
     public class DelegatingMessageSink : LongLivedMarshalByRefObject, IMessageSink
     {
-        Action<IMessageSinkMessage> callback;
-        IMessageSink innerSink;
+        readonly Action<IMessageSinkMessage> callback;
+        readonly IMessageSink innerSink;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DelegatingMessageSink"/> class.

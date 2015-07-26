@@ -10,7 +10,7 @@ namespace Xunit.Runner.Reporters
     {
         static string apiUrl = "__unknown__";
         static HttpClient httpClient;
-        static MediaTypeWithQualityHeaderValue jsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
+        static readonly MediaTypeWithQualityHeaderValue jsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
 
         static string ApiUri
         {
