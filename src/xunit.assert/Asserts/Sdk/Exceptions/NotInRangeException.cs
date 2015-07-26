@@ -1,5 +1,3 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
 namespace Xunit.Sdk
@@ -7,7 +5,6 @@ namespace Xunit.Sdk
     /// <summary>
     /// Exception thrown when a value is unexpectedly in the given range.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     public class NotInRangeException : XunitException
     {
         readonly string actual;

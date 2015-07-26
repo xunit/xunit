@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 /// <summary>
@@ -16,7 +15,6 @@ internal static class Guard
     }
 
     /// <summary/>
-    [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "This method may not be called by all users of Guard.")]
     public static void ArgumentNotNullOrEmpty(string argName, IEnumerable argValue)
     {
         ArgumentNotNull(argName, argValue);
@@ -26,7 +24,6 @@ internal static class Guard
     }
 
     /// <summary/>
-    [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "This method may not be called by all users of Guard.")]
     public static void ArgumentValid(string argName, string message, bool test)
     {
         if (!test)
@@ -35,7 +32,6 @@ internal static class Guard
 
 #if !XUNIT_CORE_DLL
     /// <summary/>
-    [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "This method may not be called by all users of Guard.")]
     public static void FileExists(string argName, string fileName)
     {
 #if !ANDROID && !DNX451 && !DNXCORE50

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Web.UI;
 using System.Xml;
@@ -32,7 +31,6 @@ namespace Xunit
         /// <summary>
         /// Gets the last node that was sent.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId = "System.Xml.XmlNode", Justification = "This would be a breaking change.")]
         public XmlNode LastNode { get; protected set; }
 
         /// <summary>

@@ -1,13 +1,11 @@
+using System;
+using System.Globalization;
+
 namespace Xunit.Sdk
 {
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Globalization;
-
     /// <summary>
     /// Exception thrown when a string unexpectedly matches a regular expression.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     public class DoesNotMatchException : XunitException
     {
         /// <summary>
@@ -16,6 +14,7 @@ namespace Xunit.Sdk
         /// <param name="expectedRegexPattern">The regular expression pattern expected not to match</param>
         /// <param name="actual">The actual value</param>
         public DoesNotMatchException(object expectedRegexPattern, object actual)
-            : base(string.Format(CultureInfo.CurrentCulture, "Assert.DoesNotMatch() Failure:{2}Regex: {0}{2}Value: {1}", expectedRegexPattern, actual, Environment.NewLine)) { }
+            : base(string.Format(CultureInfo.CurrentCulture, "Assert.DoesNotMatch() Failure:{2}Regex: {0}{2}Value: {1}", expectedRegexPattern, actual, Environment.NewLine))
+        { }
     }
 }

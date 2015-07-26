@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Xunit.Sdk;
 
@@ -40,7 +39,6 @@ namespace Xunit
         /// <typeparam name="T">The type the object should not be</typeparam>
         /// <param name="object">The object to be evaluated</param>
         /// <exception cref="IsNotTypeException">Thrown when the object is the given type</exception>
-        [SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter", Justification = "The generic version is a more convenient shorthand than typeof")]
         public static void IsNotType<T>(object @object)
         {
             IsNotType(typeof(T), @object);

@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Xunit
@@ -8,7 +7,6 @@ namespace Xunit
     /// <summary>
     /// Allows the user to record actions for a test.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1053:StaticHolderTypesShouldNotHaveConstructors", Justification = "This is not marked as static because we want people to be able to derive from it")]
     public partial class Record
     {
         /// <summary>
@@ -16,7 +14,6 @@ namespace Xunit
         /// </summary>
         /// <param name="testCode">The code which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         public static Exception Exception(Action testCode)
         {
             GuardArgumentNotNull("testCode", testCode);
@@ -38,7 +35,6 @@ namespace Xunit
         /// </summary>
         /// <param name="testCode">The code which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         public static Exception Exception(Func<object> testCode)
         {
             GuardArgumentNotNull("testCode", testCode);
@@ -69,7 +65,6 @@ namespace Xunit
         /// </summary>
         /// <param name="testCode">The task which may thrown an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The caught exception is resurfaced to the user.")]
         public static async Task<Exception> ExceptionAsync(Func<Task> testCode)
         {
             GuardArgumentNotNull("testCode", testCode);

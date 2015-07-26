@@ -1,11 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Xunit.Sdk
 {
     /// <summary>
     /// Exception thrown when the value is unexpectedly not of the exact given type.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     public class IsTypeException : AssertActualExpectedException
     {
         /// <summary>
@@ -14,6 +11,7 @@ namespace Xunit.Sdk
         /// <param name="expectedTypeName">The expected type name</param>
         /// <param name="actualTypeName">The actual type name</param>
         public IsTypeException(string expectedTypeName, string actualTypeName)
-            : base(expectedTypeName, actualTypeName, "Assert.IsType() Failure") { }
+            : base(expectedTypeName, actualTypeName, "Assert.IsType() Failure")
+        { }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit.Sdk
 {
@@ -8,7 +7,6 @@ namespace Xunit.Sdk
     /// means there were problems identifying the correct test class constructor, or problems
     /// creating the fixture data for the test class.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
 #if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNXCORE50
     [System.Serializable]
 #endif
@@ -19,12 +17,14 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="message">The exception message.</param>
         public TestClassException(string message)
-            : base(message) { }
+            : base(message)
+        { }
 
 #if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNXCORE50
         /// <inheritdoc/>
         protected TestClassException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
-            : base(info, context) { }
+            : base(info, context)
+        { }
 #endif
     }
 }

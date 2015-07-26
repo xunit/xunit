@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +9,6 @@ namespace Xunit.Sdk
     /// <summary>
     /// Base class for exceptions that have actual and expected values
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     public class AssertActualExpectedException : XunitException
     {
         /// <summary>

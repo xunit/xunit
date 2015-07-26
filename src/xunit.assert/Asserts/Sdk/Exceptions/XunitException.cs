@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit.Sdk
 {
@@ -30,9 +29,9 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="userMessage">The user message to be displayed</param>
         /// <param name="innerException">The inner exception</param>
-        [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
         protected XunitException(string userMessage, Exception innerException)
-            : base(userMessage, innerException) { }
+            : base(userMessage, innerException)
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitException"/> class.

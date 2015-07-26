@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 
@@ -9,7 +8,6 @@ namespace Xunit.Sdk
     /// <summary>
     /// Exception thrown when two values are unexpectedly not equal.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     public class EqualException : AssertActualExpectedException
     {
         static readonly Dictionary<char, string> Encodings = new Dictionary<char, string>

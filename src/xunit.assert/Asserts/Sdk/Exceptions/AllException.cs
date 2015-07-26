@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 
@@ -9,7 +8,6 @@ namespace Xunit.Sdk
     /// <summary>
     /// Exception thrown when an All assertion has one or more items fail an assertion.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     public class AllException : XunitException
     {
         readonly IReadOnlyList<Tuple<int, Exception>> errors;

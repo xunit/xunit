@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit.Sdk
 {
     /// <summary>
     /// Exception thrown when the value is unexpectedly not of the given type or a derived type.
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
     public class IsAssignableFromException : AssertActualExpectedException
     {
         /// <summary>
@@ -15,6 +13,7 @@ namespace Xunit.Sdk
         /// <param name="expected">The expected type</param>
         /// <param name="actual">The actual object value</param>
         public IsAssignableFromException(Type expected, object actual)
-            : base(expected, actual == null ? null : actual.GetType(), "Assert.IsAssignableFrom() Failure") { }
+            : base(expected, actual == null ? null : actual.GetType(), "Assert.IsAssignableFrom() Failure")
+        { }
     }
 }
