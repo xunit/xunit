@@ -140,7 +140,7 @@ public class XunitTestAssemblyRunnerTests
 
     public class RunAsync
     {
-        [Fact]
+        [Fact(Skip = "Flaky test, need a way to ensure thread swaps that's better than Thread.Sleep")]
         public static async void Parallel_MultipleThreads()
         {
             var passing = Mocks.XunitTestCase<ClassUnderTest>("Passing");
