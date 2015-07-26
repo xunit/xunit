@@ -21,11 +21,7 @@ namespace Xunit
 
             bool propertyChangeHappened = false;
 
-            PropertyChangedEventHandler handler = (sender, args) =>
-            {
-                if (propertyName.Equals(args.PropertyName, StringComparison.OrdinalIgnoreCase))
-                    propertyChangeHappened = true;
-            };
+            PropertyChangedEventHandler handler = (sender, args) => propertyChangeHappened |= propertyName.Equals(args.PropertyName, StringComparison.OrdinalIgnoreCase);
 
             @object.PropertyChanged += handler;
 

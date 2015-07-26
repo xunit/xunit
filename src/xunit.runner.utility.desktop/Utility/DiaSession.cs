@@ -31,9 +31,7 @@ namespace Xunit
         public DiaSession(string assemblyFileName)
         {
             this.assemblyFileName = assemblyFileName;
-
-            if (typeDiaSession == null || Environment.GetEnvironmentVariable("XUNIT_SKIP_DIA") != null)
-                sessionHasErrors = true;
+            sessionHasErrors |= (typeDiaSession == null || Environment.GetEnvironmentVariable("XUNIT_SKIP_DIA") != null);
         }
 
         public void Dispose()

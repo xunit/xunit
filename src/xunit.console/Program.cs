@@ -286,9 +286,8 @@ namespace Xunit.ConsoleClient
 
                 // Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
                 assembly.Configuration.PreEnumerateTheories = false;
+                assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
 
-                if (diagnosticMessages)
-                    assembly.Configuration.DiagnosticMessages = true;
                 if (noAppDomain.HasValue)
                     assembly.Configuration.UseAppDomain = !noAppDomain.GetValueOrDefault();
 
