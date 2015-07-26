@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 14.0.22823.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DAED8494-AC8A-4C67-A8F1-616D95ECC302}"
 EndProject
@@ -36,6 +36,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{3AD1513F
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		build.ps1 = build.ps1
+		src\xunit.empty.ruleset = src\xunit.empty.ruleset
+		src\xunit.ruleset = src\xunit.ruleset
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.core", "src\xunit.core\xunit.core.csproj", "{1B843C0F-8E08-4BA9-8C85-EEAF779A0774}"

@@ -11,6 +11,7 @@
     <RootNamespace>Xunit</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>xunit.runner.utility.iOS-Universal</AssemblyName>
+    <CodeAnalysisRuleSet>..\xunit.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

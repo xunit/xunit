@@ -94,7 +94,9 @@ namespace System.Collections.Concurrent
 
 		void Add (TKey key, TValue value)
 		{
+#pragma warning disable RECS0034 // Empty control statement body
 			while (!TryAdd (key, value));
+#pragma warning restore RECS0034 // Empty control statement body
 		}
 
 		void IDictionary<TKey, TValue>.Add (TKey key, TValue value)
