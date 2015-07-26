@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Xunit
@@ -7,6 +8,7 @@ namespace Xunit
     /// <summary>
     /// Allows the user to record actions for a test.
     /// </summary>
+    [SuppressMessage("Language Usage Opportunities", "RECS0014:If all fields, properties and methods members are static, the class can be made static.", Justification = "This is a potential extensibility point")]
     public class Record
     {
         /// <summary>

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Xunit.Runner.Reporters
 {
-    public class AppVeyorClient
+    public static class AppVeyorClient
     {
         static string apiUrl = "__unknown__";
         static HttpClient httpClient;

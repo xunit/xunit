@@ -574,7 +574,7 @@ namespace Xunit
         public int Column { get; }
     }
 
-    internal class JsonDeserializerResource
+    internal static class JsonDeserializerResource
     {
         internal static string Format_IllegalCharacter(int value)
         {
