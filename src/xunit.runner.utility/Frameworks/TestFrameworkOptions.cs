@@ -18,7 +18,7 @@ namespace Xunit
         readonly Dictionary<string, object> properties = new Dictionary<string, object>();
 
         // Force users to use one of the factory methods
-        private TestFrameworkOptions() { }
+        TestFrameworkOptions() { }
 
 
         /// <summary>

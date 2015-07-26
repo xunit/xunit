@@ -10,8 +10,8 @@ namespace Xunit.Sdk
     /// </summary>
     public class DelegatingMessageBus : IMessageBus
     {
-        private readonly Action<IMessageSinkMessage> callback;
-        private readonly IMessageBus innerMessageBus;
+        readonly Action<IMessageSinkMessage> callback;
+        readonly IMessageBus innerMessageBus;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DelegatingMessageBus"/> class.

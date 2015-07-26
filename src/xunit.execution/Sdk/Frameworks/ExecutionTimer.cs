@@ -9,7 +9,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class ExecutionTimer
     {
-        private TimeSpan total;
+        TimeSpan total;
 
         /// <summary>
         /// Returns the total time aggregated across all the actions.

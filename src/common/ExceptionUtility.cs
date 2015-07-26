@@ -98,7 +98,7 @@ namespace Xunit
             return result;
         }
 
-        private static string GetNamespace(string exceptionType)
+        static string GetNamespace(string exceptionType)
         {
             var nsIndex = exceptionType.LastIndexOf('.');
             if (nsIndex > 0)

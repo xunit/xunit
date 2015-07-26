@@ -69,7 +69,7 @@ namespace Xunit.ConsoleClient
                 throw new ArgumentException(string.Format("error: unknown command line option: {0}", option.Value));
         }
 
-        private static bool IsConfigFile(string fileName)
+        static bool IsConfigFile(string fileName)
         {
             return fileName.EndsWith(".config", StringComparison.OrdinalIgnoreCase)
                 || fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);

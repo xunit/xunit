@@ -13,9 +13,9 @@ namespace Xunit.Runner.MSBuild
 {
     public class StandardOutputVisitor : MSBuildVisitor
     {
-        private readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
-        private readonly static Regex stackFrameRegex = GetStackFrameRegex();
-        private readonly bool verbose;
+        readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
+        readonly static Regex stackFrameRegex = GetStackFrameRegex();
+        readonly bool verbose;
 
         public StandardOutputVisitor(TaskLoggingHelper log,
                                      XElement assemblyElement,
@@ -28,7 +28,7 @@ namespace Xunit.Runner.MSBuild
             this.verbose = verbose;
         }
 
-        private static Tuple<string, int> GetStackFrameInfo(IFailureInformation failureInfo)
+        static Tuple<string, int> GetStackFrameInfo(IFailureInformation failureInfo)
         {
             var stackTraces = ExceptionUtility.CombineStackTraces(failureInfo);
             if (stackTraces != null)
@@ -44,7 +44,7 @@ namespace Xunit.Runner.MSBuild
             return Tuple.Create((string)null, 0);
         }
 
-        private static Regex GetStackFrameRegex()
+        static Regex GetStackFrameRegex()
         {
             // Stack trace lines look like this:
             // "   at BooleanAssertsTests.False.AssertFalse() in c:\Dev\xunit\xunit\test\test.xunit.assert\Asserts\BooleanAssertsTests.cs:line 22"

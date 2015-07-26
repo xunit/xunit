@@ -79,7 +79,7 @@ namespace Xunit.Sdk
             return Object.Equals(x, y);
         }
 
-        private bool? CheckIfEnumerablesAreEqual(T x, T y)
+        bool? CheckIfEnumerablesAreEqual(T x, T y)
         {
             var enumerableX = x as IEnumerable;
             var enumerableY = y as IEnumerable;
@@ -117,7 +117,7 @@ namespace Xunit.Sdk
             }
         }
 
-        private bool? CheckIfDictionariesAreEqual(T x, T y)
+        bool? CheckIfDictionariesAreEqual(T x, T y)
         {
             var dictionaryX = x as IDictionary;
             var dictionaryY = y as IDictionary;

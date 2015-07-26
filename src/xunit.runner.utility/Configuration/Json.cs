@@ -11,7 +11,7 @@ namespace Xunit
 {
     class JsonArray : JsonValue
     {
-        private readonly JsonValue[] _array;
+        readonly JsonValue[] _array;
 
         public JsonArray(JsonValue[] array, int line, int column)
             : base(line, column)
@@ -68,12 +68,12 @@ namespace Xunit
         public const string ValueTrue = "true";
         public const string ValueFalse = "false";
 
-        private StringBuilder _buffer = new StringBuilder();
-        private StringBuilder _codePointBuffer = new StringBuilder(4);
-        private readonly TextReader _reader;
-        private JsonToken _token;
-        private int _line;
-        private int _column;
+        StringBuilder _buffer = new StringBuilder();
+        StringBuilder _codePointBuffer = new StringBuilder(4);
+        readonly TextReader _reader;
+        JsonToken _token;
+        int _line;
+        int _column;
 
         public JsonBuffer(TextReader reader)
         {
@@ -163,7 +163,7 @@ namespace Xunit
             return _token;
         }
 
-        private int ReadNextChar()
+        int ReadNextChar()
         {
             while (true)
             {
@@ -190,7 +190,7 @@ namespace Xunit
             }
         }
 
-        private string ReadNumber(int firstRead)
+        string ReadNumber(int firstRead)
         {
 #if NET35
             _buffer = new StringBuilder();
@@ -219,7 +219,7 @@ namespace Xunit
             return _buffer.ToString();
         }
 
-        private void ReadLiteral(string literal)
+        void ReadLiteral(string literal)
         {
             for (int i = 1; i < literal.Length; ++i)
             {
@@ -250,7 +250,7 @@ namespace Xunit
             }
         }
 
-        private string ReadString()
+        string ReadString()
         {
 #if NET35
             _buffer = new StringBuilder();
@@ -368,7 +368,7 @@ namespace Xunit
             return _buffer.ToString();
         }
 
-        private static bool IsWhitespace(int value)
+        static bool IsWhitespace(int value)
         {
             return value == ' ' || value == '\t' || value == '\r';
         }
@@ -399,7 +399,7 @@ namespace Xunit
             return result;
         }
 
-        private static JsonValue DeserializeInternal(JsonToken next, JsonBuffer buffer)
+        static JsonValue DeserializeInternal(JsonToken next, JsonBuffer buffer)
         {
             if (next.Type == JsonTokenType.EOF)
             {
@@ -441,7 +441,7 @@ namespace Xunit
                 next);
         }
 
-        private static JsonArray DeserializeArray(JsonToken head, JsonBuffer buffer)
+        static JsonArray DeserializeArray(JsonToken head, JsonBuffer buffer)
         {
             var list = new List<JsonValue>();
             while (true)
@@ -476,7 +476,7 @@ namespace Xunit
             return new JsonArray(list.ToArray(), head.Line, head.Column);
         }
 
-        private static JsonObject DeserializeObject(JsonToken head, JsonBuffer buffer)
+        static JsonObject DeserializeObject(JsonToken head, JsonBuffer buffer)
         {
             var dictionary = new Dictionary<string, JsonValue>();
 
@@ -672,8 +672,8 @@ namespace Xunit
 
     class JsonNumber : JsonValue
     {
-        private readonly string _raw;
-        private readonly double _double;
+        readonly string _raw;
+        readonly double _double;
 
         public JsonNumber(JsonToken token)
             : base(token.Line, token.Column)
@@ -714,7 +714,7 @@ namespace Xunit
 
     class JsonObject : JsonValue
     {
-        private readonly IDictionary<string, JsonValue> _data;
+        readonly IDictionary<string, JsonValue> _data;
 
         public JsonObject(IDictionary<string, JsonValue> data, int line, int column)
             : base(line, column)
@@ -807,7 +807,7 @@ namespace Xunit
 
     class JsonString : JsonValue
     {
-        private readonly string _value;
+        readonly string _value;
 
         public JsonString(string value, int line, int column)
             : base(line, column)

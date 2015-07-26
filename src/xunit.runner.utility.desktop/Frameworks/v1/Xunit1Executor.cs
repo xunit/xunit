@@ -13,7 +13,7 @@ namespace Xunit
     /// </summary>
     public class Xunit1Executor : IXunit1Executor
     {
-        private readonly object executor;
+        readonly object executor;
 
         readonly IAppDomainManager appDomain;
         readonly AssemblyName xunitAssemblyName;

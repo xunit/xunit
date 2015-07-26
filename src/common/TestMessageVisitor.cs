@@ -39,7 +39,7 @@ namespace Xunit
         /// <param name="message">The message</param>
         /// <param name="callback">The callback</param>
         /// <returns>The result of the callback, if called; <c>true</c>, otherwise</returns>
-        private bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TestMessageVisitor, TMessage, bool> callback)
+        bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TestMessageVisitor, TMessage, bool> callback)
             where TMessage : class, IMessageSinkMessage
         {
             var castMessage = message as TMessage;

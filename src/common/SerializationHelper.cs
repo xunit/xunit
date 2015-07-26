@@ -238,7 +238,7 @@ namespace Xunit.Sdk
         /// A substring starting no earlier than startIndex and ending no later
         /// than startIndex + length.
         /// </returns>
-        private static string SubstringTrim(string str, int startIndex, int length)
+        static string SubstringTrim(string str, int startIndex, int length)
         {
             int endIndex = startIndex + length;
 
@@ -251,7 +251,7 @@ namespace Xunit.Sdk
             return str.Substring(startIndex, endIndex - startIndex);
         }
 
-        private static IList<string> SplitAtOuterCommas(string value, bool trimWhitespace = false)
+        static IList<string> SplitAtOuterCommas(string value, bool trimWhitespace = false)
         {
             var results = new List<string>();
 

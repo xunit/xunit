@@ -26,7 +26,7 @@ namespace Xunit.Sdk
             reporterThread = new XunitWorkerThread(ReporterWorker);
         }
 
-        private void DispatchMessages()
+        void DispatchMessages()
         {
             IMessageSinkMessage message;
             while (reporterQueue.TryDequeue(out message))

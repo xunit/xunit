@@ -50,7 +50,7 @@ namespace Xunit.Sdk
             return Format(value, 1);
         }
 
-        private static string Format(object value, int depth)
+        static string Format(object value, int depth)
         {
             if (value == null)
                 return "null";
@@ -100,7 +100,7 @@ namespace Xunit.Sdk
             return FormatComplexValue(value, depth, type);
         }
 
-        private static string FormatComplexValue(object value, int depth, Type type)
+        static string FormatComplexValue(object value, int depth, Type type)
         {
             if (depth == MAX_DEPTH)
                 return string.Format("{0} {{ ... }}", type.Name);
@@ -128,7 +128,7 @@ namespace Xunit.Sdk
             return string.Format("{0} {{ {1} }}", type.Name, formattedParameters);
         }
 
-        private static string FormatEnumerable(IEnumerable<object> enumerableValues, int depth)
+        static string FormatEnumerable(IEnumerable<object> enumerableValues, int depth)
         {
             if (depth == MAX_DEPTH)
                 return "[...]";
@@ -142,7 +142,7 @@ namespace Xunit.Sdk
             return string.Format("[{0}]", printedValues);
         }
 
-        private static string FormatTypeName(Type type)
+        static string FormatTypeName(Type type)
         {
             var typeInfo = type.GetTypeInfo();
             var arraySuffix = "";
@@ -179,7 +179,7 @@ namespace Xunit.Sdk
             return name + arraySuffix;
         }
 
-        private static string WrapAndGetFormattedValue(Func<object> getter, int depth)
+        static string WrapAndGetFormattedValue(Func<object> getter, int depth)
         {
             try
             {
@@ -191,7 +191,7 @@ namespace Xunit.Sdk
             }
         }
 
-        private static Exception UnwrapException(Exception ex)
+        static Exception UnwrapException(Exception ex)
         {
             while (true)
             {

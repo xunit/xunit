@@ -13,7 +13,7 @@ namespace Xunit.Serialization
     /// </summary>
     class XunitSerializationInfo : IXunitSerializationInfo
     {
-        private readonly IDictionary<string, XunitSerializationTriple> data = new Dictionary<string, XunitSerializationTriple>();
+        readonly IDictionary<string, XunitSerializationTriple> data = new Dictionary<string, XunitSerializationTriple>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitSerializationInfo"/> class.
@@ -374,13 +374,13 @@ namespace Xunit.Serialization
             return false;
         }
 
-        private static string FromBase64(string serializedValue)
+        static string FromBase64(string serializedValue)
         {
             var bytes = Convert.FromBase64String(serializedValue);
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         }
 
-        private static string ToBase64(string value)
+        static string ToBase64(string value)
         {
             var bytes = Encoding.UTF8.GetBytes(value);
             return Convert.ToBase64String(bytes);

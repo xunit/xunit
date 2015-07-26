@@ -8,7 +8,7 @@ namespace Xunit
     /// </summary>
     public abstract class TheoryData : IEnumerable<object[]>
     {
-        private readonly List<object[]> data = new List<object[]>();
+        readonly List<object[]> data = new List<object[]>();
 
         /// <summary>
         /// Adds a row to the theory.

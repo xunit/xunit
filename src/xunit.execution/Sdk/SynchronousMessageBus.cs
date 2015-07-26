@@ -7,7 +7,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class SynchronousMessageBus : IMessageBus
     {
-        private readonly IMessageSink messageSink;
+        readonly IMessageSink messageSink;
 
         /// <summary/>
         public SynchronousMessageBus(IMessageSink messageSink)

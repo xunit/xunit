@@ -222,7 +222,7 @@ namespace Xunit.Sdk
         /// <summary>Converts an array of bytes to its hexadecimal value as a string.</summary>
         /// <param name="bytes">The bytes.</param>
         /// <returns>A string containing the hexademical representation of the provided bytes.</returns>
-        private static string BytesToHexString(byte[] bytes)
+        static string BytesToHexString(byte[] bytes)
         {
             char[] chars = new char[bytes.Length * 2];
             int i = 0;
@@ -237,7 +237,7 @@ namespace Xunit.Sdk
         /// <summary>Gets a hexademical digit character from the 4-bit value.</summary>
         /// <param name="b">A value in the range [0, 15].</param>
         /// <returns>A character in the range ['0','9'] or ['a','f'].</returns>
-        private static char NibbleToHexChar(int b)
+        static char NibbleToHexChar(int b)
         {
             Debug.Assert(b < 16);
             return (char)(b < 10 ? b + '0' : (b - 10) + 'a');

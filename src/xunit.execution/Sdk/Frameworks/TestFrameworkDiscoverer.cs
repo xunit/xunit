@@ -107,7 +107,7 @@ namespace Xunit.Sdk
             });
         }
 
-        private static IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkDiscoveryOptions options)
+        static IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkDiscoveryOptions options)
         {
             if (options.SynchronousMessageReportingOrDefault())
                 return new SynchronousMessageBus(messageSink);
@@ -149,7 +149,7 @@ namespace Xunit.Sdk
         /// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
         protected abstract bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions);
 
-        private bool FindTestsForTypeAndWrapExceptions(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
+        bool FindTestsForTypeAndWrapExceptions(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             try
             {

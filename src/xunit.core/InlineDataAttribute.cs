@@ -13,7 +13,7 @@ namespace Xunit
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class InlineDataAttribute : DataAttribute
     {
-        private readonly object[] data;
+        readonly object[] data;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InlineDataAttribute"/> class.

@@ -146,7 +146,7 @@ namespace Xunit.Sdk
             return null;
         }
 
-        private static bool ParametersHaveSameTypes(ParameterInfo[] left, ParameterInfo[] right)
+        static bool ParametersHaveSameTypes(ParameterInfo[] left, ParameterInfo[] right)
         {
             if (left.Length != right.Length)
                 return false;

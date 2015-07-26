@@ -128,7 +128,7 @@ namespace Xunit.Runner.TdNet
             TestListener.TestFinished(testResult);
         }
 
-        private void WriteOutput(string name, string output)
+        void WriteOutput(string name, string output)
         {
             if (string.IsNullOrWhiteSpace(output))
                 return;

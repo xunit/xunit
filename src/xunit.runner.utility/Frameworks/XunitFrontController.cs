@@ -16,7 +16,7 @@ namespace Xunit
         readonly IMessageSink diagnosticMessageSink;
         IFrontController innerController;
         readonly bool shadowCopy;
-        private readonly string shadowCopyFolder;
+        readonly string shadowCopyFolder;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
         readonly bool useAppDomain;
@@ -68,7 +68,7 @@ namespace Xunit
 
         }
 
-        private IFrontController InnerController
+        IFrontController InnerController
         {
             get
             {

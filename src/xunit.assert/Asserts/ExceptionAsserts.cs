@@ -130,7 +130,7 @@ namespace Xunit
             return Throws(exceptionType, await RecordExceptionAsync(testCode));
         }
 
-        private static Exception Throws(Type exceptionType, Exception exception)
+        static Exception Throws(Type exceptionType, Exception exception)
         {
             Assert.GuardArgumentNotNull("exceptionType", exceptionType);
 
@@ -143,7 +143,7 @@ namespace Xunit
             return exception;
         }
 
-        private static Exception ThrowsAny(Type exceptionType, Exception exception)
+        static Exception ThrowsAny(Type exceptionType, Exception exception)
         {
             Assert.GuardArgumentNotNull("exceptionType", exceptionType);
 
