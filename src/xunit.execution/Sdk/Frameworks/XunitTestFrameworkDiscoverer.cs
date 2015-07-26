@@ -34,7 +34,7 @@ namespace Xunit.Sdk
             : base(assemblyInfo, sourceProvider, diagnosticMessageSink)
         {
             var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
-            var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+            var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
             string config = null;
 #if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNXCORE50
