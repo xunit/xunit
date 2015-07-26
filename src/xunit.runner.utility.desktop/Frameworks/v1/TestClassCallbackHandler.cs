@@ -141,11 +141,11 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public override bool OnXmlNode(XmlNode xml)
+        public override bool OnXmlNode(XmlNode node)
         {
             Predicate<XmlNode> handler;
-            if (handlers.TryGetValue(xml.Name, out handler))
-                TestClassResults.Continue = handler(xml) && TestClassResults.Continue;
+            if (handlers.TryGetValue(node.Name, out handler))
+                TestClassResults.Continue = handler(node) && TestClassResults.Continue;
 
             return TestClassResults.Continue;
         }

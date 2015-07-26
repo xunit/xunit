@@ -18,53 +18,53 @@ namespace Xunit.Runner.TdNet
         public ITestListener TestListener { get; private set; }
         public TestRunState TestRunState { get; set; }
 
-        protected override bool Visit(ITestFailed failed)
+        protected override bool Visit(ITestFailed testFailed)
         {
             TestRunState = TestRunState.Failure;
 
-            var testResult = failed.ToTdNetTestResult(TestState.Failed, totalTests);
+            var testResult = testFailed.ToTdNetTestResult(TestState.Failed, totalTests);
 
-            testResult.Message = ExceptionUtility.CombineMessages(failed);
-            testResult.StackTrace = ExceptionUtility.CombineStackTraces(failed);
+            testResult.Message = ExceptionUtility.CombineMessages(testFailed);
+            testResult.StackTrace = ExceptionUtility.CombineStackTraces(testFailed);
 
             TestListener.TestFinished(testResult);
 
-            WriteOutput(failed.Test.DisplayName, failed.Output);
+            WriteOutput(testFailed.Test.DisplayName, testFailed.Output);
 
             return true;
         }
 
-        protected override bool Visit(ITestPassed passed)
+        protected override bool Visit(ITestPassed testPassed)
         {
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
 
-            var testResult = passed.ToTdNetTestResult(TestState.Passed, totalTests);
+            var testResult = testPassed.ToTdNetTestResult(TestState.Passed, totalTests);
 
             TestListener.TestFinished(testResult);
 
-            WriteOutput(passed.Test.DisplayName, passed.Output);
+            WriteOutput(testPassed.Test.DisplayName, testPassed.Output);
 
             return true;
         }
 
-        protected override bool Visit(ITestSkipped skipped)
+        protected override bool Visit(ITestSkipped testSkipped)
         {
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
 
-            var testResult = skipped.ToTdNetTestResult(TestState.Ignored, totalTests);
+            var testResult = testSkipped.ToTdNetTestResult(TestState.Ignored, totalTests);
 
-            testResult.Message = skipped.Reason;
+            testResult.Message = testSkipped.Reason;
 
             TestListener.TestFinished(testResult);
 
             return true;
         }
 
-        protected override bool Visit(IErrorMessage errorMessage)
+        protected override bool Visit(IErrorMessage error)
         {
-            ReportError("Fatal Error", errorMessage);
+            ReportError("Fatal Error", error);
 
             return true;
         }
