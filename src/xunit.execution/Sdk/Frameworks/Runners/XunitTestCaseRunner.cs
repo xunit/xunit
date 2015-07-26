@@ -50,8 +50,16 @@ namespace Xunit.Sdk
 
             TestMethodArguments = Reflector.ConvertArguments(testMethodArguments, parameterTypes);
 
+            IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
+            var collectionDefinition = testCase.TestMethod.TestClass.TestCollection.CollectionDefinition as IReflectionTypeInfo;
+            if (collectionDefinition != null)
+                beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute));
+            else
+                beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();
+
             beforeAfterAttributes =
-                TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute))
+                beforeAfterTestCollectionAttributes
+                         .Concat(TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
                          .Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
                          .Cast<BeforeAfterTestAttribute>()
                          .ToList();
