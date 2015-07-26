@@ -19,7 +19,7 @@ namespace Xunit
             if (configFileName == null)
                 configFileName = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.runner.json");
 
-            if (configFileName.EndsWith(".json"))
+            if (configFileName.EndsWith(".json", StringComparison.Ordinal))
             {
                 try
                 {

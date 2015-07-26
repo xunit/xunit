@@ -45,7 +45,7 @@ namespace Xunit.ConsoleClient
                 };
 
                 var defaultDirectory = Directory.GetCurrentDirectory();
-                if (!defaultDirectory.EndsWith(new string(new[] { Path.DirectorySeparatorChar })))
+                if (!defaultDirectory.EndsWith(new string(new[] { Path.DirectorySeparatorChar }), StringComparison.Ordinal))
                     defaultDirectory += Path.DirectorySeparatorChar;
 
                 var commandLine = CommandLine.Parse(reporters, args);

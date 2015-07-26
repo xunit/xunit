@@ -150,13 +150,13 @@ namespace Xunit.Serialization
 
             if (type == typeof(DateTime?) || type == typeof(DateTime))
             {
-                var styles = serializedValue.EndsWith("Z") ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
+                var styles = serializedValue.EndsWith("Z", StringComparison.Ordinal) ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
                 return DateTime.Parse(serializedValue, CultureInfo.InvariantCulture, styles);
             }
 
             if (type == typeof(DateTimeOffset?) || type == typeof(DateTimeOffset))
             {
-                var styles = serializedValue.EndsWith("Z") ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
+                var styles = serializedValue.EndsWith("Z", StringComparison.Ordinal) ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
                 return DateTimeOffset.Parse(serializedValue, CultureInfo.InvariantCulture, styles);
             }
 

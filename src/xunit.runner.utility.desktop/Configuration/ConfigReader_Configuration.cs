@@ -19,7 +19,7 @@ namespace Xunit
             if (configFileName == null)
                 configFileName = assemblyFileName + ".config";
 
-            if (configFileName.EndsWith(".config"))
+            if (configFileName.EndsWith(".config", StringComparison.Ordinal))
             {
                 try
                 {
