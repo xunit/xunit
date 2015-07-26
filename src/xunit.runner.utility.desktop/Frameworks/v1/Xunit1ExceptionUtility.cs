@@ -22,7 +22,7 @@ namespace Xunit
             do
             {
                 var stackTrace = exception.StackTrace;
-                var rethrowIndex = stackTrace.IndexOf("$$RethrowMarker$$");
+                var rethrowIndex = stackTrace.IndexOf("$$RethrowMarker$$", StringComparison.Ordinal);
                 if (rethrowIndex > -1)
                     stackTrace = stackTrace.Substring(0, rethrowIndex);
 

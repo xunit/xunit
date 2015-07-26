@@ -138,7 +138,7 @@ namespace Xunit
         {
             while (true)
             {
-                var idx = input.IndexOf(Environment.NewLine);
+                var idx = input.IndexOf(Environment.NewLine, StringComparison.Ordinal);
 
                 if (idx < 0)
                 {
@@ -191,7 +191,7 @@ namespace Xunit
             else
 #endif
                 if (ex.InnerException != null)
-                    ConvertExceptionToFailureInformation(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+                ConvertExceptionToFailureInformation(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
         }
 
         class FailureInformation : IFailureInformation
