@@ -24,12 +24,12 @@ namespace Xunit.Sdk
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public TestCollectionRunner(ITestCollection testCollection,
-                                    IEnumerable<TTestCase> testCases,
-                                    IMessageBus messageBus,
-                                    ITestCaseOrderer testCaseOrderer,
-                                    ExceptionAggregator aggregator,
-                                    CancellationTokenSource cancellationTokenSource)
+        protected TestCollectionRunner(ITestCollection testCollection,
+                                       IEnumerable<TTestCase> testCases,
+                                       IMessageBus messageBus,
+                                       ITestCaseOrderer testCaseOrderer,
+                                       ExceptionAggregator aggregator,
+                                       CancellationTokenSource cancellationTokenSource)
         {
             TestCollection = testCollection;
             TestCases = testCases;

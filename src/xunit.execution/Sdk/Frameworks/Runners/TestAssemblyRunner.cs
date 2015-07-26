@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNXCORE50
+using System.Reflection;
+using System.Runtime.Versioning;
+#else
+using System.IO;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -28,11 +32,11 @@ namespace Xunit.Sdk
         /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
         /// <param name="executionMessageSink">The message sink to report run status to.</param>
         /// <param name="executionOptions">The user's requested execution options.</param>
-        public TestAssemblyRunner(ITestAssembly testAssembly,
-                                  IEnumerable<TTestCase> testCases,
-                                  IMessageSink diagnosticMessageSink,
-                                  IMessageSink executionMessageSink,
-                                  ITestFrameworkExecutionOptions executionOptions)
+        protected TestAssemblyRunner(ITestAssembly testAssembly,
+                                     IEnumerable<TTestCase> testCases,
+                                     IMessageSink diagnosticMessageSink,
+                                     IMessageSink executionMessageSink,
+                                     ITestFrameworkExecutionOptions executionOptions)
         {
             TestAssembly = testAssembly;
             TestCases = testCases;

@@ -27,15 +27,15 @@ namespace Xunit.Sdk
         /// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public TestRunner(ITest test,
-                          IMessageBus messageBus,
-                          Type testClass,
-                          object[] constructorArguments,
-                          MethodInfo testMethod,
-                          object[] testMethodArguments,
-                          string skipReason,
-                          ExceptionAggregator aggregator,
-                          CancellationTokenSource cancellationTokenSource)
+        protected TestRunner(ITest test,
+                             IMessageBus messageBus,
+                             Type testClass,
+                             object[] constructorArguments,
+                             MethodInfo testMethod,
+                             object[] testMethodArguments,
+                             string skipReason,
+                             ExceptionAggregator aggregator,
+                             CancellationTokenSource cancellationTokenSource)
         {
             Guard.ArgumentNotNull("test", test);
             Guard.ArgumentValid("test", "test.TestCase must implement " + typeof(TTestCase).FullName, test.TestCase is TTestCase);

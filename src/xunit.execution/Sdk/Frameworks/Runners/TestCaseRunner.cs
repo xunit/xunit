@@ -19,10 +19,10 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public TestCaseRunner(TTestCase testCase,
-                              IMessageBus messageBus,
-                              ExceptionAggregator aggregator,
-                              CancellationTokenSource cancellationTokenSource)
+        protected TestCaseRunner(TTestCase testCase,
+                                 IMessageBus messageBus,
+                                 ExceptionAggregator aggregator,
+                                 CancellationTokenSource cancellationTokenSource)
         {
             TestCase = testCase;
             MessageBus = messageBus;

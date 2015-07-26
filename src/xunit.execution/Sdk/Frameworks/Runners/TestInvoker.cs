@@ -28,14 +28,14 @@ namespace Xunit.Sdk
         /// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public TestInvoker(ITest test,
-                           IMessageBus messageBus,
-                           Type testClass,
-                           object[] constructorArguments,
-                           MethodInfo testMethod,
-                           object[] testMethodArguments,
-                           ExceptionAggregator aggregator,
-                           CancellationTokenSource cancellationTokenSource)
+        protected TestInvoker(ITest test,
+                              IMessageBus messageBus,
+                              Type testClass,
+                              object[] constructorArguments,
+                              MethodInfo testMethod,
+                              object[] testMethodArguments,
+                              ExceptionAggregator aggregator,
+                              CancellationTokenSource cancellationTokenSource)
         {
             Guard.ArgumentNotNull("test", test);
             Guard.ArgumentValid("test", "test.TestCase must implement " + typeof(TTestCase).FullName, test.TestCase is TTestCase);

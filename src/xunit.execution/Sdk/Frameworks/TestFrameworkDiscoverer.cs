@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -21,9 +20,9 @@ namespace Xunit.Sdk
         /// <param name="assemblyInfo">The test assembly.</param>
         /// <param name="sourceProvider">The source information provider.</param>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
-        public TestFrameworkDiscoverer(IAssemblyInfo assemblyInfo,
-                                       ISourceInformationProvider sourceProvider,
-                                       IMessageSink diagnosticMessageSink)
+        protected TestFrameworkDiscoverer(IAssemblyInfo assemblyInfo,
+                                          ISourceInformationProvider sourceProvider,
+                                          IMessageSink diagnosticMessageSink)
         {
             Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
             Guard.ArgumentNotNull("sourceProvider", sourceProvider);

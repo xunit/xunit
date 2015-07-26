@@ -16,7 +16,7 @@ namespace Xunit.Sdk
         /// Initializes a new instance of the <see cref="TestFramework"/> class.
         /// </summary>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
-        public TestFramework(IMessageSink diagnosticMessageSink)
+        protected TestFramework(IMessageSink diagnosticMessageSink)
         {
             Guard.ArgumentNotNull("diagnosticMessageSink", diagnosticMessageSink);
 
