@@ -60,9 +60,7 @@ namespace Xunit.Sdk
         /// Gets the list of <see cref="BeforeAfterTestAttribute"/>s that will be used for this test case.
         /// </summary>
         public IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
-        {
-            get { return beforeAfterAttributes; }
-        }
+            => beforeAfterAttributes;
 
         /// <summary>
         /// Gets or sets the arguments passed to the test class constructor
@@ -96,9 +94,6 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestAsync()
-        {
-            var test = new XunitTest(TestCase, DisplayName);
-            return new XunitTestRunner(test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, SkipReason, beforeAfterAttributes, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
-        }
+            => new XunitTestRunner(new XunitTest(TestCase, DisplayName), MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, SkipReason, beforeAfterAttributes, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
     }
 }

@@ -23,8 +23,8 @@ namespace Xunit.Sdk
     /// </summary>
     public abstract class TestMethodTestCase : LongLivedMarshalByRefObject, ITestCase, IDisposable
     {
-        private Dictionary<string, List<string>> traits;
-        private string skipReason;
+        Dictionary<string, List<string>> traits;
+        string skipReason;
         string displayName;
         bool initialized;
         IMethodInfo method;

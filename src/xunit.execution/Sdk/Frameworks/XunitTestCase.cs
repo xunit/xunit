@@ -43,6 +43,26 @@ namespace Xunit.Sdk
             this.diagnosticMessageSink = diagnosticMessageSink;
         }
 
+        /// <summary>
+        /// Gets the display name for the test case. Calls <see cref="TypeUtility.GetDisplayNameWithArguments"/>
+        /// with the given base display name (which is itself either derived from <see cref="FactAttribute.DisplayName"/>,
+        /// falling back to <see cref="TestMethodTestCase.BaseDisplayName"/>.
+        /// </summary>
+        /// <param name="factAttribute">The fact attribute the decorated the test case.</param>
+        /// <param name="displayName">The base display name from <see cref="TestMethodTestCase.BaseDisplayName"/>.</param>
+        /// <returns>The display name for the test case.</returns>
+        protected virtual string GetDisplayName(IAttributeInfo factAttribute, string displayName)
+            => TypeUtility.GetDisplayNameWithArguments(TestMethod.Method, displayName, TestMethodArguments, MethodGenericTypes);
+
+        /// <summary>
+        /// Gets the skip reason for the test case. By default, pulls the skip reason from the
+        /// <see cref="FactAttribute.Skip"/> property.
+        /// </summary>
+        /// <param name="factAttribute">The fact attribute the decorated the test case.</param>
+        /// <returns>The skip reason, if skipped; <c>null</c>, otherwise.</returns>
+        protected virtual string GetSkipReason(IAttributeInfo factAttribute)
+            => factAttribute.GetNamedArgument<string>("Skip");
+
         /// <inheritdoc/>
         protected override void Initialize()
         {
@@ -51,8 +71,8 @@ namespace Xunit.Sdk
             var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
             var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
 
-            DisplayName = TypeUtility.GetDisplayNameWithArguments(TestMethod.Method, baseDisplayName, TestMethodArguments, MethodGenericTypes);
-            SkipReason = factAttribute.GetNamedArgument<string>("Skip");
+            DisplayName = GetDisplayName(factAttribute, baseDisplayName);
+            SkipReason = GetSkipReason(factAttribute);
 
             foreach (var traitAttribute in TestMethod.Method.GetCustomAttributes(typeof(ITraitAttribute))
                                                             .Concat(TestMethod.TestClass.Class.GetCustomAttributes(typeof(ITraitAttribute))))
@@ -76,8 +96,6 @@ namespace Xunit.Sdk
                                                  object[] constructorArguments,
                                                  ExceptionAggregator aggregator,
                                                  CancellationTokenSource cancellationTokenSource)
-        {
-            return new XunitTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, TestMethodArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
-        }
+            => new XunitTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, TestMethodArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
     }
 }
