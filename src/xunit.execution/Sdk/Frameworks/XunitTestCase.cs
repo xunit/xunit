@@ -52,7 +52,7 @@ namespace Xunit.Sdk
         /// <param name="displayName">The base display name from <see cref="TestMethodTestCase.BaseDisplayName"/>.</param>
         /// <returns>The display name for the test case.</returns>
         protected virtual string GetDisplayName(IAttributeInfo factAttribute, string displayName)
-            => TypeUtility.GetDisplayNameWithArguments(TestMethod.Method, displayName, TestMethodArguments, MethodGenericTypes);
+            => TestMethod.Method.GetDisplayNameWithArguments(displayName, TestMethodArguments, MethodGenericTypes);
 
         /// <summary>
         /// Gets the skip reason for the test case. By default, pulls the skip reason from the

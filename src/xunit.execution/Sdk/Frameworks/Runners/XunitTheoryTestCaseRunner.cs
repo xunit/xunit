@@ -70,13 +70,13 @@ namespace Xunit.Sdk
 
                         if (methodToRun.IsGenericMethodDefinition)
                         {
-                            resolvedTypes = TypeUtility.ResolveGenericTypes(TestCase.TestMethod.Method, dataRow);
+                            resolvedTypes = TestCase.TestMethod.Method.ResolveGenericTypes(dataRow);
                             methodToRun = methodToRun.MakeGenericMethod(resolvedTypes.Select(t => ((IReflectionTypeInfo)t).Type).ToArray());
                         }
 
                         var parameterTypes = methodToRun.GetParameters().Select(p => p.ParameterType).ToArray();
                         var convertedDataRow = Reflector.ConvertArguments(dataRow, parameterTypes);
-                        var theoryDisplayName = TypeUtility.GetDisplayNameWithArguments(TestCase.TestMethod.Method, DisplayName, convertedDataRow, resolvedTypes);
+                        var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
                         var test = new XunitTest(TestCase, theoryDisplayName);
 
                         testRunners.Add(new XunitTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, SkipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));

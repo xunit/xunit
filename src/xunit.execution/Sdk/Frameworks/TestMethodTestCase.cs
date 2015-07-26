@@ -254,12 +254,12 @@ namespace Xunit.Sdk
 
             if (TestMethodArguments != null && method.IsGenericMethodDefinition)
             {
-                methodGenericTypes = TypeUtility.ResolveGenericTypes(Method, TestMethodArguments);
+                methodGenericTypes = Method.ResolveGenericTypes(TestMethodArguments);
                 Method = Method.MakeGenericMethod(MethodGenericTypes);
             }
 
             var baseDisplayName = BaseDisplayName;
-            displayName = TypeUtility.GetDisplayNameWithArguments(Method, baseDisplayName, TestMethodArguments, MethodGenericTypes);
+            displayName = Method.GetDisplayNameWithArguments(baseDisplayName, TestMethodArguments, MethodGenericTypes);
         }
 
         static void Write(Stream stream, string value)
