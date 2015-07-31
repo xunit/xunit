@@ -1,4 +1,5 @@
 {
   "sdk": { "version": "1.0.0-beta6" },
-  "sources": [ "src" ]
+  "sources": [ "src" ],
+  "projects": [ "wrap" ]
 }

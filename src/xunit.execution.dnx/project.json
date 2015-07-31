@@ -11,16 +11,11 @@
         },
         "dnxcore50": {
             "dependencies": {
-                "System.Collections": "4.0.10-beta-*",
                 "System.Collections.Concurrent": "4.0.0-beta-*",
-                "System.Diagnostics.Debug": "4.0.10-beta-*",
                 "System.Diagnostics.Tools": "4.0.0-beta-*",
                 "System.Globalization": "4.0.10-beta-*",
                 "System.Linq": "4.0.0-beta-*",
-                "System.Reflection": "4.0.10-beta-*",
                 "System.Reflection.Extensions": "4.0.0-beta-*",
-                "System.Runtime.Extensions": "4.0.10-beta-*",
-                "System.Security.Cryptography.Hashing": "4.0.0-beta-*",
                 "System.Security.Cryptography.Hashing.Algorithms": "4.0.0-beta-*",
                 "System.Threading": "4.0.10-beta-*",
                 "System.Threading.Thread": "4.0.0-beta-*",
@@ -58,7 +53,6 @@
         "../messages/**/*.cs"
     ],
     "dependencies": {
-        "xunit.abstractions": "[2.0.0]",
         "xunit.core": ""
     }
 }

@@ -53,9 +53,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runners", "runners", "{9D9F81DC-EE05-43B4-AF77-8EFE32024E82}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{A727699B-E50A-4F83-8627-8BE64237582C}"
-	ProjectSection(SolutionItems) = preProject
-		src\xunit.core\project.json = src\xunit.core\project.json
-	EndProjectSection
 	ProjectSection(FolderGlobals) = preProject
 		project_1json__JSONSchema = http://www.asp.net/media/4878834/project.json
 	EndProjectSection

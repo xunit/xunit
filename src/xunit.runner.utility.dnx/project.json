@@ -12,15 +12,12 @@
         },
         "dnxcore50": {
             "dependencies": {
-                "System.Collections": "4.0.10-beta-*",
                 "System.Console": "4.0.0-beta-*",
                 "System.Diagnostics.Tools": "4.0.0-beta-*",
                 "System.IO.FileSystem": "4.0.0-beta-*",
                 "System.Linq": "4.0.0-beta-*",
                 "System.Reflection": "4.0.10-beta-*",
-                "System.Runtime.Extensions": "4.0.10-beta-*",
-                "System.Text.RegularExpressions": "4.0.10-beta-*",
-                "System.Threading": "4.0.10-beta-*"
+                "System.Text.RegularExpressions": "4.0.10-beta-*"
             }
         }
     },
