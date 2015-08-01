@@ -17,10 +17,30 @@ namespace Xunit.Sdk
             where TTestCase : ITestCase
         {
             var result = testCases.ToList();
+#if DOTNETCORE
+            result = Randomize(result);
+#else
             result.Sort(Compare);
+#endif
             return result;
         }
 
+#if DOTNETCORE
+        List<TTestCase> Randomize<TTestCase>(List<TTestCase> testCases)
+        {
+            var result = new List<TTestCase>(testCases.Count);
+            var randomizer = new Random();
+
+            while (testCases.Count > 0)
+            {
+                var next = randomizer.Next(testCases.Count);
+                result.Add(testCases[next]);
+                testCases.RemoveAt(next);
+            }
+
+            return result;
+        }
+#else
         int Compare<TTestCase>(TTestCase x, TTestCase y)
             where TTestCase : ITestCase
         {
@@ -41,5 +61,7 @@ namespace Xunit.Sdk
                 return -1;
             return 1;
         }
+
+#endif
     }
 }
