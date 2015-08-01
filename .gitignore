@@ -5,6 +5,7 @@ Test*.html
 Test*.xml
 *.zip
 nuget.exe
+*.nuget.props
 *.nuget.targets
 
 ## --------------------------------------------
