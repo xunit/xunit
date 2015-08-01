@@ -27,15 +27,15 @@ namespace Xunit
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
         /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
-        /// <param name="verifyTestAssemblyExists">Determines whether or not the existence of the test assembly is verified.</param>
+        /// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
         public Xunit2Discoverer(bool useAppDomain,
                                 ISourceInformationProvider sourceInformationProvider,
                                 IAssemblyInfo assemblyInfo,
                                 string xunitExecutionAssemblyPath = null,
                                 string shadowCopyFolder = null,
                                 IMessageSink diagnosticMessageSink = null,
-                                bool verifyTestAssemblyExists = true)
-            : this(useAppDomain, sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink)
+                                bool verifyAssembliesOnDisk = true)
+            : this(useAppDomain, sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
         { }
 
         // Used by Xunit2 when initializing for both discovery and execution.
@@ -46,8 +46,8 @@ namespace Xunit
                                   bool shadowCopy,
                                   string shadowCopyFolder = null,
                                   IMessageSink diagnosticMessageSink = null,
-                                  bool verifyTestAssemblyExists = true)
-            : this(useAppDomain, sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName, verifyTestAssemblyExists), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink)
+                                  bool verifyAssembliesOnDisk = true)
+            : this(useAppDomain, sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName, verifyAssembliesOnDisk), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
         { }
 
         Xunit2Discoverer(bool useAppDomain,
@@ -58,10 +58,12 @@ namespace Xunit
                          string configFileName,
                          bool shadowCopy,
                          string shadowCopyFolder,
-                         IMessageSink diagnosticMessageSink)
+                         IMessageSink diagnosticMessageSink,
+                         bool verifyAssembliesOnDisk)
         {
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
-            Guard.FileExists("xunitExecutionAssemblyPath", xunitExecutionAssemblyPath);
+            if (verifyAssembliesOnDisk)
+                Guard.FileExists("xunitExecutionAssemblyPath", xunitExecutionAssemblyPath);
 
             DiagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
 
