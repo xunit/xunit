@@ -5,6 +5,7 @@ Test*.html
 Test*.xml
 *.zip
 nuget.exe
+*.nuget.targets
 
 ## --------------------------------------------
 ##  Adapted from https://raw.githubusercontent.com/github/gitignore/a4ec7f03ca5ae0bf09fad42c0fb7d1e8346bcf25/VisualStudio.gitignore
