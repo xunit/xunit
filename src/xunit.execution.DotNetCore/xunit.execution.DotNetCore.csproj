@@ -113,6 +113,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <NuSpecFile Include="$(SolutionDir)src\xunit.extensibility.execution.nuspec" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\xunit.core\xunit.core.csproj">
       <Project>{1b843c0f-8e08-4ba9-8c85-eeaf779a0774}</Project>
       <Name>xunit.core</Name>

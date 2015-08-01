@@ -54,6 +54,9 @@
     <Compile Include="AppVeyorClient.cs" />
   </ItemGroup>
   <ItemGroup>
+    <NuSpecFile Include="$(SolutionDir)src\xunit.runner.reporters.nuspec" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\xunit.runner.utility.DotNetCore\xunit.runner.utility.DotNetCore.csproj">
       <Project>{a1f09613-85ab-45c6-ad7d-55e552fd543e}</Project>
       <Name>xunit.runner.utility.DotNetCore</Name>
