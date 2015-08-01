@@ -41,5 +41,8 @@
     <file src="xunit.assert\bin\Release\xunit.assert.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
     <file src="xunit.assert\bin\Release\xunit.assert.pdb" target="lib\portable-net45+netcore45+wp8+wpa81\" />
     <file src="xunit.assert\bin\Release\xunit.assert.xml" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.assert\bin\Release\xunit.assert.dll" target="lib\dotnet\" />
+    <file src="xunit.assert\bin\Release\xunit.assert.pdb" target="lib\dotnet\" />
+    <file src="xunit.assert\bin\Release\xunit.assert.xml" target="lib\dotnet\" />
   </files>
 </package>
