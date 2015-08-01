@@ -67,7 +67,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITypeInfo Type
         {
-#if WINDOWS_PHONE_APP || DNXCORE50
+#if WINDOWS_PHONE_APP || DOTNETCORE
             // WinRT/"new reflection" does not have ReflectedType on MethodInfo
             get { throw new NotSupportedException(); }
 #else

@@ -85,7 +85,7 @@ namespace Xunit
 #if ANDROID
             // Android needs to just load the assembly
             return Assembly.Load(xunitExecutionAssemblyPath).GetName();
-#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
+#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
             // Make sure we only use the short form
             return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new System.Version(0, 0, 0, 0) }).GetName();
 #else

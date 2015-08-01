@@ -10,12 +10,11 @@ namespace Xunit.Sdk
     /// a string-based type name and assembly, as well as serialization. The supported platform target
     /// names include:
     ///   "desktop" (for desktop and PCL tests),
-    ///   "dnx" (for DNX tests),
+    ///   "DotNetCore" (for Windows Universal App tests and DNX Core tests),
     ///   "iOS-Universal" (for Xamarin test projects targeting iOS),
     ///   "MonoAndroid" (for Xamarin MonoAndroid tests),
     ///   "MonoTouch" (for Xamarin MonoTouch tests),
     ///   "universal" (for Windows Phone 8.1 and Windows 8.1 tests),
-    ///   "win8" (for Modern Windows 8 tests), and
     ///   "wp8" (for Windows Phone 8 Silverlight tests).
     /// Note that file names may be case sensitive (when running on platforms with case sensitive
     /// file systems like Linux), so ensure that your assembly file name casing is consistent, and

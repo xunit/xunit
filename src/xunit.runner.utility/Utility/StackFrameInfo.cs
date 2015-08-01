@@ -89,7 +89,7 @@ namespace Xunit
             var wordAt = "at";
             var wordsInLine = "in {0}:line {1}";
 
-#if !DNXCORE50 && !WINDOWS_PHONE_APP
+#if !DOTNETCORE && !WINDOWS_PHONE_APP
             var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
             if (getResourceStringMethod != null)
             {

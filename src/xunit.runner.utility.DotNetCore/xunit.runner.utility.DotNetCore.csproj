@@ -1,67 +1,56 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EFC3F529-3686-416B-9C67-36EC914C776A}</ProjectGuid>
+    <ProjectGuid>{A1F09613-85AB-45C6-AD7D-55E552FD543E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Xunit</RootNamespace>
-    <AssemblyName>xunit.runner.utility.desktop</AssemblyName>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\signing.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\xunit.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
+    <AssemblyName>xunit.runner.utility.DotNetCore</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET;NET35</DefineConstants>
-    <DocumentationFile>bin\Debug\xunit.runner.utility.desktop.xml</DocumentationFile>
+    <DefineConstants>TRACE;DEBUG;NET,NO_APPDOMAIN,NEW_REFLECTION,DOTNETCORE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Debug\xunit.runner.utility.DotNetCore.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET;NET35</DefineConstants>
-    <DocumentationFile>bin\Release\xunit.runner.utility.desktop.xml</DocumentationFile>
-    <NoWarn>1591</NoWarn>
+    <DefineConstants>TRACE;NET,NO_APPDOMAIN,NEW_REFLECTION,DOTNETCORE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Release\xunit.runner.utility.DotNetCore.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="xunit.abstractions">
-      <HintPath>..\..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
-    </Reference>
+    <None Include="project.json" />
+    <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\common\AppDomainManagerFactory.cs">
       <Link>Common\AppDomainManagerFactory.cs</Link>
     </Compile>
-    <Compile Include="..\common\AppDomainManager_AppDomain.cs">
-      <Link>Common\AppDomainManager_AppDomain.cs</Link>
-    </Compile>
     <Compile Include="..\common\AppDomainManager_NoAppDomain.cs">
       <Link>Common\AppDomainManager_NoAppDomain.cs</Link>
     </Compile>
-    <Compile Include="..\common\AssemblyExtensions.cs">
-      <Link>Common\AssemblyExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\common\AssemblyHelper.cs">
-      <Link>Common\AssemblyHelper.cs</Link>
-    </Compile>
-    <Compile Include="..\common\ConsoleRunnerLogger.cs">
-      <Link>Common\ConsoleRunnerLogger.cs</Link>
+    <Compile Include="..\common\AssemblyHelper_WPA81.cs">
+      <Link>Common\AssemblyHelper_WPA81.cs</Link>
     </Compile>
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
@@ -84,8 +73,8 @@
     <Compile Include="..\common\IAppDomainManager.cs">
       <Link>Common\IAppDomainManager.cs</Link>
     </Compile>
-    <Compile Include="..\common\LongLivedMarshalByRefObject_Runner.cs">
-      <Link>Common\LongLivedMarshalByRefObject_Runner.cs</Link>
+    <Compile Include="..\common\LongLivedMarshalByRefObject_Runner_NoAppDomain.cs">
+      <Link>Common\LongLivedMarshalByRefObject_Runner_NoAppDomain.cs</Link>
     </Compile>
     <Compile Include="..\common\NewReflectionExtensions.cs">
       <Link>Common\NewReflectionExtensions.cs</Link>
@@ -117,24 +106,6 @@
     <Compile Include="..\common\XunitSerializationInfo.cs">
       <Link>Common\XunitSerializationInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\ConfigReader_Configuration.cs" />
-    <Compile Include="Frameworks\v1\IXunit1Executor.cs" />
-    <Compile Include="Frameworks\v1\TestClassCallbackHandler.cs" />
-    <Compile Include="Frameworks\v1\XmlNodeCallbackHandler.cs" />
-    <Compile Include="Frameworks\v1\XmlNodeExtensions.cs" />
-    <Compile Include="Frameworks\v1\Xunit1.cs" />
-    <Compile Include="Frameworks\v1\Xunit1AssemblyInfo.cs" />
-    <Compile Include="Frameworks\v1\Xunit1ExceptionUtility.cs" />
-    <Compile Include="Frameworks\v1\Xunit1Executor.cs" />
-    <Compile Include="Frameworks\v1\Xunit1ReflectionWrapper.cs" />
-    <Compile Include="Frameworks\v1\Xunit1RunSummary.cs" />
-    <Compile Include="Frameworks\v1\Xunit1Test.cs" />
-    <Compile Include="Frameworks\v1\Xunit1TestCase.cs" />
-    <Compile Include="Frameworks\VisualStudioSourceInformationProvider.cs" />
-    <Compile Include="Utility\DiaNavigationData.cs" />
-    <Compile Include="Utility\DiaSession.cs" />
-    <Compile Include="Utility\DiaSessionWrapper.cs" />
-    <Compile Include="Utility\DiaSessionWrapperHelper.cs" />
     <Compile Include="..\xunit.runner.utility\**\*.cs">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
@@ -142,14 +113,8 @@
       <Link>Messages\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\..\packages\RefactoringEssentials.1.1.0\tools\analyzers\RefactoringEssentials.dll" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

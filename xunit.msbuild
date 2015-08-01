@@ -21,7 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="src\*.nuspec" />
-    <ProjectJsonFiles Include="src\*.dnx\project.json" />
+    <ProjectJsonFiles Include="src\*\project.json" />
   </ItemGroup>
   <ItemGroup Condition=" '$(PackageSources)' == '' ">
     <PackageSource Include="https://nuget.org/api/v2/" />
@@ -59,7 +59,6 @@
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install gitlink -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\gitlink\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\$(SolutionName)&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
-    <Exec Command="powershell -NoProfile -NonInteractive -ExecutionPolicy Unrestricted tools\dnu-package-restore.ps1" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
@@ -181,7 +180,7 @@
 
               Log.LogMessage("Downloading latest version of NuGet.exe...");
               WebClient webClient = new WebClient();
-              webClient.DownloadFile("https://www.nuget.org/nuget.exe", OutputFilename);
+              webClient.DownloadFile("http://dist.nuget.org/win-x86-commandline/v3.1.0-beta/nuget.exe", OutputFilename);
 
               return true;
           }

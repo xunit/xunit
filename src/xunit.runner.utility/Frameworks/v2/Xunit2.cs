@@ -2,7 +2,7 @@
 using System.Reflection;
 using Xunit.Abstractions;
 
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
 using System.IO;
 #endif
 
@@ -39,7 +39,7 @@ namespace Xunit
         {
 #if ANDROID
             var assemblyName = Assembly.Load(assemblyFileName).GetName();
-#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
+#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
             // Make sure we only use the short form for WPA81
             var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
             var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };

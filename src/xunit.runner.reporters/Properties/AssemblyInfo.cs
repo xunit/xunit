@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 
-#if DNXCORE50
-[assembly: AssemblyTitle("xUnit.net Runner Reporters (DNX Core)")]
+#if DOTNETCORE
+[assembly: AssemblyTitle("xUnit.net Runner Reporters (.NET Core)")]
 #else
 [assembly: AssemblyTitle("xUnit.net Runner Reporters (Desktop)")]
 #endif

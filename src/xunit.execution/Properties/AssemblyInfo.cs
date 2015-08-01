@@ -8,16 +8,12 @@ using Xunit.Sdk;
 [assembly: AssemblyTitle("xUnit.net Execution (MonoTouch)")]
 #elif __IOS__
 [assembly: AssemblyTitle("xUnit.net Execution (iOS Universal)")]
-#elif DNXCORE50
-[assembly: AssemblyTitle("xUnit.net Execution (DNX Core)")]
-#elif DNX451
-[assembly: AssemblyTitle("xUnit.net Execution (DNX)")]
 #elif WINDOWS_PHONE_APP
 [assembly: AssemblyTitle("xUnit.net Execution (Universal [WPA81, WIN81])")]
 #elif WINDOWS_PHONE
 [assembly: AssemblyTitle("xUnit.net Execution (Windows Phone 8 Silverlight)")]
-#elif NO_APPDOMAIN
-[assembly: AssemblyTitle("xUnit.net Execution (Windows 8)")]
+#elif DOTNETCORE
+[assembly: AssemblyTitle("xUnit.net Execution (.NET Core)")]
 #else
 [assembly: AssemblyTitle("xUnit.net Execution (Desktop)")]
 #endif

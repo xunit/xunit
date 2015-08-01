@@ -9,16 +9,13 @@ namespace Xunit
     /// <summary>
     /// Represents options passed to a test framework for discovery or execution.
     /// </summary>
-#if !DNXCORE50
     [DebuggerDisplay("{ToDebuggerDisplay(),nq}")]
-#endif
     public class TestFrameworkOptions : LongLivedMarshalByRefObject, ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
     {
         readonly Dictionary<string, object> properties = new Dictionary<string, object>();
 
         // Force users to use one of the factory methods
         TestFrameworkOptions() { }
-
 
         /// <summary>
         /// Creates an instance of <see cref="TestFrameworkOptions"/>

@@ -1,4 +1,4 @@
-﻿#if !DNXCORE50
+﻿#if !DOTNETCORE
 
 using System;
 using System.IO;

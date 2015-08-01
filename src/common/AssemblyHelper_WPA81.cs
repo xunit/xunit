@@ -1,6 +1,4 @@
-﻿#if !DNX451
-
-using System;
+﻿using System;
 
 namespace Xunit
 {
@@ -17,5 +15,3 @@ namespace Xunit
         public void Dispose() { }
     }
 }
-
-#endif

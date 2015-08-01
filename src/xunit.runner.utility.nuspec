@@ -7,7 +7,13 @@
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
       Includes the version-independent runner for xUnit.net to run both v1.9.2 and v2.0+ tests (xunit.runner.utility.dll).
-      Supported platforms: Desktop .NET 3.5+, DNX 4.5.1+, DNX Core 5+, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
+
+      Supported platforms:
+      - Desktop .NET 3.5+
+      - .NET Core (Universal Windows Apps 10+, DNX Core 5+)
+      - Windows Phone 8 (Silverlight)
+      - Universal (Windows Phone 8.1+, Windows 8.1+)
+      - Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -15,30 +21,13 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <group>
-        <dependency id="xunit.abstractions" version="[2.0.0]" />
-      </group>
-      <!--  This is currently broken with DNX Beta 5 because some of these packages end up requiring NuGet 3.0
-      <group targetFramework="dnxcore50">
-        <dependency id="System.Diagnostics.Tools" version="4.0.0-beta-23019" />
-        <dependency id="System.IO.FileSystem" version="4.0.0-beta-23019" />
-        <dependency id="System.Linq" version="4.0.0-beta-23019" />
-        <dependency id="System.Reflection" version="4.0.10-beta-23019" />
-        <dependency id="System.Runtime.Extensions" version="4.0.10-beta-23019" />
-        <dependency id="System.Threading" version="4.0.10-beta-23019" />
-        <dependency id="xunit.abstractions" version="[2.0.0]" />
-      </group>
-      -->
+      <dependency id="xunit.abstractions" version="[2.0.0]" />
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.runner.utility.dnx\bin\Release\dnx451\xunit.runner.utility.dnx.dll" target="lib\dnx451\" />
-    <file src="xunit.runner.utility.dnx\bin\Release\dnx451\xunit.runner.utility.dnx.pdb" target="lib\dnx451\" />
-    <file src="xunit.runner.utility.dnx\bin\Release\dnx451\xunit.runner.utility.dnx.xml" target="lib\dnx451\" />
-
-    <file src="xunit.runner.utility.dnx\bin\Release\dnxcore50\xunit.runner.utility.dnx.dll" target="lib\dnxcore50\" />
-    <file src="xunit.runner.utility.dnx\bin\Release\dnxcore50\xunit.runner.utility.dnx.pdb" target="lib\dnxcore50\" />
-    <file src="xunit.runner.utility.dnx\bin\Release\dnxcore50\xunit.runner.utility.dnx.xml" target="lib\dnxcore50\" />
+    <file src="xunit.runner.utility.DotNetCore\bin\Release\xunit.runner.utility.DotNetCore.dll" target="lib\dotnet\" />
+    <file src="xunit.runner.utility.DotNetCore\bin\Release\xunit.runner.utility.DotNetCore.pdb" target="lib\dotnet\" />
+    <file src="xunit.runner.utility.DotNetCore\bin\Release\xunit.runner.utility.DotNetCore.xml" target="lib\dotnet\" />
 
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.dll" target="lib\monoandroid\" />
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.pdb" target="lib\monoandroid\" />

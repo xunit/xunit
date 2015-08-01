@@ -7,7 +7,13 @@
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
       Includes xunit.execution.*.dll for extensibility purposes.
-      Supported platforms: Desktop .NET 4.5+, DNX 4.5.1+, DNX Core 5+, Windows Phone 8 (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), MonoTouch, MonoAndroid, Xamarin iOS Universal.
+
+      Supported platforms:
+      - Desktop .NET 4.5+
+      - .NET Core (Universal Windows Apps 10+, DNX Core 5+)
+      - Windows Phone 8 (Silverlight)
+      - Universal (Windows Phone 8.1+, Windows 8.1+)
+      - Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -15,34 +21,13 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <group>
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <!--<group targetFramework="dnxcore50">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="System.Collections.Concurrent" version="4.0.0-beta-23019" />
-        <dependency id="System.Diagnostics.Debug" version="4.0.10-beta-23019" />
-        <dependency id="System.Diagnostics.Tools" version="4.0.0-beta-23019" />
-        <dependency id="System.Globalization" version="4.0.10-beta-23019" />
-        <dependency id="System.Linq" version="4.0.0-beta-23019" />
-        <dependency id="System.Reflection" version="4.0.10-beta-23019" />
-        <dependency id="System.Reflection.Extensions" version="4.0.0-beta-23019" />
-        <dependency id="System.Runtime.Extensions" version="4.0.10-beta-23019" />
-        <dependency id="System.Security.Cryptography.Hashing.Algorithms" version="4.0.0-beta-23019" />
-        <dependency id="System.Threading" version="4.0.10-beta-23019" />
-        <dependency id="System.Threading.Thread" version="4.0.0-beta-23019" />
-        <dependency id="System.Threading.ThreadPool" version="4.0.10-beta-23019" />
-      </group>-->
+      <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.execution.dnx\bin\Release\dnx451\xunit.execution.dnx.dll" target="lib\dnx451\" />
-    <file src="xunit.execution.dnx\bin\Release\dnx451\xunit.execution.dnx.pdb" target="lib\dnx451\" />
-    <file src="xunit.execution.dnx\bin\Release\dnx451\xunit.execution.dnx.xml" target="lib\dnx451\" />
-
-    <file src="xunit.execution.dnx\bin\Release\dnxcore50\xunit.execution.dnx.dll" target="lib\dnxcore50\" />
-    <file src="xunit.execution.dnx\bin\Release\dnxcore50\xunit.execution.dnx.pdb" target="lib\dnxcore50\" />
-    <file src="xunit.execution.dnx\bin\Release\dnxcore50\xunit.execution.dnx.xml" target="lib\dnxcore50\" />
+    <file src="xunit.execution.DotNetCore\bin\Release\xunit.execution.DotNetCore.dll" target="lib\dotnet\" />
+    <file src="xunit.execution.DotNetCore\bin\Release\xunit.execution.DotNetCore.pdb" target="lib\dotnet\" />
+    <file src="xunit.execution.DotNetCore\bin\Release\xunit.execution.DotNetCore.xml" target="lib\dotnet\" />
 
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.dll" target="lib\monoandroid\" />
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.pdb" target="lib\monoandroid\" />

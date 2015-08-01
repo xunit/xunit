@@ -18,7 +18,7 @@ static class NewReflectionExtensions
 #endif
     }
 
-#if !DNX451 && !DNXCORE50
+#if !DOTNETCORE
     public static Attribute[] GetCustomAttributes(this Assembly assembly)
     {
 #if NEW_REFLECTION

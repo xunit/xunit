@@ -7,16 +7,12 @@ using System.Reflection;
 [assembly: AssemblyTitle("xUnit.net Runner Utility (MonoTouch)")]
 #elif __IOS__
 [assembly: AssemblyTitle("xUnit.net Runner Utility (iOS Universal)")]
-#elif DNX451
-[assembly: AssemblyTitle("xUnit.net Runner Utility (DNX)")]
-#elif DNXCORE50
-[assembly: AssemblyTitle("xUnit.net Runner Utility (DNX Core)")]
 #elif WINDOWS_PHONE_APP
 [assembly: AssemblyTitle("xUnit.net Runner Utility (Universal [WPA81, WIN81])")]
 #elif WINDOWS_PHONE
 [assembly: AssemblyTitle("xUnit.net Runner Utility (Windows Phone 8 Silverlight)")]
-#elif NO_APPDOMAIN
-[assembly: AssemblyTitle("xUnit.net Runner Utility (Windows 8)")]
+#elif DOTNETCORE
+[assembly: AssemblyTitle("xUnit.net Runner Utility (.NET Core)")]
 #else
 [assembly: AssemblyTitle("xUnit.net Runner Utility (Desktop)")]
 #endif

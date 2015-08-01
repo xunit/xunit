@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
 
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
 using System;
 using System.IO;
 #endif
@@ -30,7 +30,7 @@ namespace Xunit.Sdk
         /// <param name="assemblyFileName">The assembly to be wrapped.</param>
         public ReflectionAssemblyInfo(string assemblyFileName)
         {
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
             Assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName), Version = new Version(0, 0, 0, 0) });
 #elif ANDROID
             Assembly = Assembly.Load(assemblyFileName);
@@ -47,7 +47,7 @@ namespace Xunit.Sdk
         {
             get
             {
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
                 return Assembly.GetName().Name + ".dll";  // Make sure we only use the short form
 #else
                 return Assembly.GetLocalCodeBase();

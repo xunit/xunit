@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 14.0.22823.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DAED8494-AC8A-4C67-A8F1-616D95ECC302}"
 EndProject
@@ -95,22 +95,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{52
 		src\xunit.runner.utility.nuspec = src\xunit.runner.utility.nuspec
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.execution.dnx", "src\xunit.execution.dnx\xunit.execution.dnx.xproj", "{BAD239CF-765B-4C12-8AE2-D799D077ABDF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4FEC8604-E544-43C2-979C-F0815B5770E2} = {4FEC8604-E544-43C2-979C-F0815B5770E2}
-		{1B843C0F-8E08-4BA9-8C85-EEAF779A0774} = {1B843C0F-8E08-4BA9-8C85-EEAF779A0774}
-	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.runner.utility.dnx", "src\xunit.runner.utility.dnx\xunit.runner.utility.dnx.xproj", "{34CBD6A6-BDB6-4EC0-A86C-097ADF685AF2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4FEC8604-E544-43C2-979C-F0815B5770E2} = {4FEC8604-E544-43C2-979C-F0815B5770E2}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.reporters.desktop", "src\xunit.runner.reporters.desktop\xunit.runner.reporters.desktop.csproj", "{331EFFD9-35DC-4793-8D75-805B92A91935}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.runner.reporters.dnx", "src\xunit.runner.reporters.dnx\xunit.runner.reporters.dnx.xproj", "{D8987A47-C6EF-4EDA-91E4-B0619EF5D163}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.runner.reporters", "test\test.xunit.runner.reporters\test.xunit.runner.reporters.csproj", "{2894D5A7-927B-4C3B-90CC-BFB95D30468F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.DotNetCore", "src\xunit.execution.DotNetCore\xunit.execution.DotNetCore.csproj", "{0A9A4F91-6E1F-4F0A-B69A-165A12EF2016}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.DotNetCore", "src\xunit.runner.utility.DotNetCore\xunit.runner.utility.DotNetCore.csproj", "{A1F09613-85AB-45C6-AD7D-55E552FD543E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.reporters.DotNetCore", "src\xunit.runner.reporters.DotNetCore\xunit.runner.reporters.DotNetCore.csproj", "{BA654F54-CFBA-45B1-9463-3BB1F35CFABF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -194,26 +187,26 @@ Global
 		{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BAD239CF-765B-4C12-8AE2-D799D077ABDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BAD239CF-765B-4C12-8AE2-D799D077ABDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BAD239CF-765B-4C12-8AE2-D799D077ABDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BAD239CF-765B-4C12-8AE2-D799D077ABDF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{34CBD6A6-BDB6-4EC0-A86C-097ADF685AF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{34CBD6A6-BDB6-4EC0-A86C-097ADF685AF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{34CBD6A6-BDB6-4EC0-A86C-097ADF685AF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{34CBD6A6-BDB6-4EC0-A86C-097ADF685AF2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{331EFFD9-35DC-4793-8D75-805B92A91935}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{331EFFD9-35DC-4793-8D75-805B92A91935}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{331EFFD9-35DC-4793-8D75-805B92A91935}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{331EFFD9-35DC-4793-8D75-805B92A91935}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8987A47-C6EF-4EDA-91E4-B0619EF5D163}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8987A47-C6EF-4EDA-91E4-B0619EF5D163}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8987A47-C6EF-4EDA-91E4-B0619EF5D163}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8987A47-C6EF-4EDA-91E4-B0619EF5D163}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2894D5A7-927B-4C3B-90CC-BFB95D30468F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2894D5A7-927B-4C3B-90CC-BFB95D30468F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2894D5A7-927B-4C3B-90CC-BFB95D30468F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2894D5A7-927B-4C3B-90CC-BFB95D30468F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A9A4F91-6E1F-4F0A-B69A-165A12EF2016}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A9A4F91-6E1F-4F0A-B69A-165A12EF2016}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A9A4F91-6E1F-4F0A-B69A-165A12EF2016}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A9A4F91-6E1F-4F0A-B69A-165A12EF2016}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1F09613-85AB-45C6-AD7D-55E552FD543E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1F09613-85AB-45C6-AD7D-55E552FD543E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1F09613-85AB-45C6-AD7D-55E552FD543E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1F09613-85AB-45C6-AD7D-55E552FD543E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA654F54-CFBA-45B1-9463-3BB1F35CFABF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA654F54-CFBA-45B1-9463-3BB1F35CFABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA654F54-CFBA-45B1-9463-3BB1F35CFABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA654F54-CFBA-45B1-9463-3BB1F35CFABF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -249,10 +242,10 @@ Global
 		{AA80CCD7-6DD1-4122-9A85-B8F9FD9F113E} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
 		{F9692B98-F6E5-48DA-B9EF-28E86F6DAEFD} = {A36A630E-A604-47E6-894E-732946960182}
 		{52472A94-ACC4-4C12-B9AA-0B6B12E12A48} = {3AD1513F-07B7-4C14-AB10-83682616ACE5}
-		{BAD239CF-765B-4C12-8AE2-D799D077ABDF} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
-		{34CBD6A6-BDB6-4EC0-A86C-097ADF685AF2} = {A36A630E-A604-47E6-894E-732946960182}
 		{331EFFD9-35DC-4793-8D75-805B92A91935} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
-		{D8987A47-C6EF-4EDA-91E4-B0619EF5D163} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{2894D5A7-927B-4C3B-90CC-BFB95D30468F} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
+		{0A9A4F91-6E1F-4F0A-B69A-165A12EF2016} = {72690AF2-D51A-4FD2-BD59-17FADACC29A1}
+		{A1F09613-85AB-45C6-AD7D-55E552FD543E} = {A36A630E-A604-47E6-894E-732946960182}
+		{BA654F54-CFBA-45B1-9463-3BB1F35CFABF} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 	EndGlobalSection
 EndGlobal

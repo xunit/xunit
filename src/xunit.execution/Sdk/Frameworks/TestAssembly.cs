@@ -45,7 +45,7 @@ namespace Xunit.Sdk
             if (Version == null)
                 Version = new Version(0, 0, 0, 0);
 
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNXCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DOTNETCORE
             if (ConfigFileName == null)
                 ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
