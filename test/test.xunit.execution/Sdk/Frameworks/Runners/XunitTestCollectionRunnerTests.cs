@@ -79,7 +79,7 @@ public class XunitTestCollectionRunnerTests
 
             Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
             var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
-            Assert.StartsWith("Collection-level test case orderer 'XunitTestCollectionRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test collection 'TestCollectionDisplayName' threw 'System.DivideByZeroException' during construction:", diagnosticMessage.Message);
+            Assert.StartsWith("Collection-level test case orderer 'XunitTestCollectionRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test collection 'TestCollectionDisplayName' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
         }
 
         [TestCaseOrderer("XunitTestCollectionRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer", "test.xunit.execution")]

@@ -116,7 +116,7 @@ namespace Xunit.Sdk
                 {
                     var innerEx = ex.Unwrap();
                     var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}", args[0], innerEx.GetType().FullName, innerEx.StackTrace));
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}{3}{4}", args[0], innerEx.GetType().FullName, innerEx.Message, Environment.NewLine, innerEx.StackTrace));
                 }
             }
 
@@ -138,7 +138,7 @@ namespace Xunit.Sdk
                 {
                     var innerEx = ex.Unwrap();
                     var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}", args[0], innerEx.GetType().FullName, innerEx.StackTrace));
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}{3}{4}", args[0], innerEx.GetType().FullName, innerEx.Message, Environment.NewLine, innerEx.StackTrace));
                 }
             }
 

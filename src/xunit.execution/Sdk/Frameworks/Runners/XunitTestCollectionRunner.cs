@@ -104,7 +104,7 @@ namespace Xunit.Sdk
                     {
                         var innerEx = ex.Unwrap();
                         var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}", args[0], TestCollection.DisplayName, innerEx.GetType().FullName, innerEx.StackTrace));
+                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}{4}{5}", args[0], TestCollection.DisplayName, innerEx.GetType().FullName, innerEx.Message, Environment.NewLine, innerEx.StackTrace));
                     }
                 }
             }

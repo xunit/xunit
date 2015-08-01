@@ -197,7 +197,7 @@ namespace Xunit.Sdk
             catch (Exception ex)
             {
                 var innerEx = ex.Unwrap();
-                DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Test case orderer '{0}' threw '{1}' during ordering: {2}", TestCaseOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.StackTrace));
+                DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Test case orderer '{0}' threw '{1}' during ordering: {2}{3}{4}", TestCaseOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.Message, Environment.NewLine, innerEx.StackTrace));
                 orderedTestCases = TestCases.ToList();
             }
 

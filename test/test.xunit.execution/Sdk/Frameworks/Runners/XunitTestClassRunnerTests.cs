@@ -226,7 +226,7 @@ public class XunitTestClassRunnerTests
 
             Assert.IsType<MockTestCaseOrderer>(runner.TestCaseOrderer);
             var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
-            Assert.StartsWith("Class-level test case orderer 'XunitTestClassRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test class 'XunitTestClassRunnerTests+TestCaseOrderer+TestClassWithCtorThrowingTestCaseOrder' threw 'System.DivideByZeroException' during construction:", diagnosticMessage.Message);
+            Assert.StartsWith("Class-level test case orderer 'XunitTestClassRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test class 'XunitTestClassRunnerTests+TestCaseOrderer+TestClassWithCtorThrowingTestCaseOrder' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
         }
 
         [TestCaseOrderer("XunitTestClassRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer", "test.xunit.execution")]
