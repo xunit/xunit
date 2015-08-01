@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata minClientVersion="2.8.5">
     <id>xunit.extensibility.core</id>
@@ -25,15 +25,29 @@
       <reference file="xunit.core.dll" />
     </references>
     <dependencies>
-      <dependency id="xunit.abstractions" version="[2.0.0]" />
+      <group>
+        <dependency id="xunit.abstractions" version="[2.0.0]" />
+      </group>
+      <group targetFramework="dotnet">
+        <dependency id="System.Collections" version="4.0.0" />
+        <dependency id="System.Diagnostics.Debug" version="4.0.0" />
+        <dependency id="System.Globalization" version="4.0.0" />
+        <dependency id="System.Linq" version="4.0.0" />
+        <dependency id="System.Reflection" version="4.0.0" />
+        <dependency id="System.Reflection.Extensions" version="4.0.0" />
+        <dependency id="System.Runtime" version="4.0.0" />
+        <dependency id="System.Runtime.Extensions" version="4.0.0" />
+        <dependency id="System.Threading.Tasks" version="4.0.0" />
+        <dependency id="xunit.abstractions" version="2.0.0" />
+      </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.core\bin\Release\xunit.core.dll"                                     target="lib\portable-net45+netcore45+wp8+wpa81\" />
-    <file src="xunit.core\bin\Release\xunit.core.dll.tdnet"                               target="lib\portable-net45+netcore45+wp8+wpa81\" />
-    <file src="xunit.core\bin\Release\xunit.core.pdb"                                     target="lib\portable-net45+netcore45+wp8+wpa81\" />
-    <file src="xunit.core\bin\Release\xunit.core.xml"                                     target="lib\portable-net45+netcore45+wp8+wpa81\" />
-    <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll"                     target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.core\bin\Release\xunit.core.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.core\bin\Release\xunit.core.dll.tdnet" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.core\bin\Release\xunit.core.pdb" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
     <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
   </files>
 </package>

@@ -20,6 +20,8 @@
     <CodeAnalysisRuleSet>..\xunit.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -98,7 +100,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <CodeAnalysisDictionary Include="..\CodeAnalysisDictionary.xml" />
+    <NuSpecFile Include="$(SolutionDir)src\xunit.assert.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="xunit.abstractions">
@@ -112,7 +114,14 @@
     <Analyzer Include="..\..\packages\RefactoringEssentials.1.1.0\tools\analyzers\RefactoringEssentials.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="..\..\packages\NuSpec.ReferenceGenerator.1.0.1\build\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\NuSpec.ReferenceGenerator.targets" Condition="Exists('..\..\packages\NuSpec.ReferenceGenerator.1.0.1\build\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\NuSpec.ReferenceGenerator.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\NuSpec.ReferenceGenerator.1.0.1\build\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\NuSpec.ReferenceGenerator.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\NuSpec.ReferenceGenerator.1.0.1\build\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\NuSpec.ReferenceGenerator.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

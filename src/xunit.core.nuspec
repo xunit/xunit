@@ -29,6 +29,16 @@
       <group targetFramework="dotnet">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
         <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
+        <dependency id="System.Collections" version="4.0.0" />
+        <dependency id="System.Diagnostics.Debug" version="4.0.0" />
+        <dependency id="System.Globalization" version="4.0.0" />
+        <dependency id="System.Linq" version="4.0.0" />
+        <dependency id="System.Reflection" version="4.0.0" />
+        <dependency id="System.Reflection.Extensions" version="4.0.0" />
+        <dependency id="System.Runtime" version="4.0.0" />
+        <dependency id="System.Runtime.Extensions" version="4.0.0" />
+        <dependency id="System.Threading.Tasks" version="4.0.0" />
+        <dependency id="xunit.abstractions" version="2.0.0" />
       </group>
       <group targetFramework="Xamarin.iOS">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
@@ -51,31 +61,25 @@
     -->
     <!-- common -->
     <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll" target="build\_Desktop\" />
-
     <!-- monoandroid -->
-    <file src="xunit.core\build\xunit.core.props"                                       target="build\monoandroid\" />
+    <file src="xunit.core\build\xunit.core.props" target="build\monoandroid\" />
     <file src="xunit.execution.MonoAndroid\bin\Release\xunit.execution.MonoAndroid.dll" target="build\monoandroid\" />
-
     <!-- monotouch -->
-    <file src="xunit.core\build\xunit.core.props"                                          target="build\monotouch\" />
+    <file src="xunit.core\build\xunit.core.props" target="build\monotouch\" />
     <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.dll" target="build\monotouch\" />
-
     <!-- portable and dotnet -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+netcore45+wp8+wpa81\xunit.core.props" />
-
     <!-- universal -->
-    <file src="xunit.core\build\xunit.core.WithDesktop.props"                       target="build\portable-win81+wpa81\xunit.core.props" />
-    <file src="xunit.core\build\xunit.core.universal.targets"                       target="build\portable-win81+wpa81\xunit.core.targets" />
+    <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-win81+wpa81\xunit.core.props" />
+    <file src="xunit.core\build\xunit.core.universal.targets" target="build\portable-win81+wpa81\xunit.core.targets" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.dll" target="build\portable-win81+wpa81\" />
     <file src="xunit.execution.universal\bin\Release\xunit.execution.universal.pri" target="build\portable-win81+wpa81\" />
-
     <!-- wp8 -->
-    <file src="xunit.core\build\xunit.core.props"                       target="build\wp8\" />
-    <file src="xunit.core\build\xunit.core.wp8.targets"                 target="build\wp8\xunit.core.targets" />
+    <file src="xunit.core\build\xunit.core.props" target="build\wp8\" />
+    <file src="xunit.core\build\xunit.core.wp8.targets" target="build\wp8\xunit.core.targets" />
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.dll" target="build\wp8\" />
-
     <!-- Xamarin.iOS -->
-    <file src="xunit.core\build\xunit.core.props"                                                  target="build\Xamarin.iOS\" />
+    <file src="xunit.core\build\xunit.core.props" target="build\Xamarin.iOS\" />
     <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.dll" target="build\Xamarin.iOS\" />
   </files>
 </package>
