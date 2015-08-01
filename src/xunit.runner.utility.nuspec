@@ -40,12 +40,31 @@
         <dependency id="System.Threading" version="4.0.10" />
         <dependency id="xunit.abstractions" version="2.0.0" />
       </group>
+      <group targetFramework="dnx46">
+        <dependency id="System.Collections" version="4.0.10" />
+        <dependency id="System.Diagnostics.Debug" version="4.0.10" />
+        <dependency id="System.Globalization" version="4.0.10" />
+        <dependency id="System.IO" version="4.0.10" />
+        <dependency id="System.IO.FileSystem" version="4.0.0" />
+        <dependency id="System.Linq" version="4.0.0" />
+        <dependency id="System.Reflection" version="4.0.10" />
+        <dependency id="System.Reflection.Extensions" version="4.0.0" />
+        <dependency id="System.Runtime" version="4.0.20" />
+        <dependency id="System.Runtime.Extensions" version="4.0.10" />
+        <dependency id="System.Text.Encoding" version="4.0.10" />
+        <dependency id="System.Text.RegularExpressions" version="4.0.10" />
+        <dependency id="System.Threading" version="4.0.10" />
+        <dependency id="xunit.abstractions" version="2.0.0" />
+      </group>
     </dependencies>
   </metadata>
   <files>
     <file src="xunit.runner.utility.DotNetCore\bin\Release\xunit.runner.utility.DotNetCore.dll" target="lib\dotnet\" />
     <file src="xunit.runner.utility.DotNetCore\bin\Release\xunit.runner.utility.DotNetCore.pdb" target="lib\dotnet\" />
     <file src="xunit.runner.utility.DotNetCore\bin\Release\xunit.runner.utility.DotNetCore.xml" target="lib\dotnet\" />
+    <file src="xunit.runner.utility.DotNetCore\bin\Release\xunit.runner.utility.DotNetCore.dll" target="lib\dnx46\" />
+    <file src="xunit.runner.utility.DotNetCore\bin\Release\xunit.runner.utility.DotNetCore.pdb" target="lib\dnx46\" />
+    <file src="xunit.runner.utility.DotNetCore\bin\Release\xunit.runner.utility.DotNetCore.xml" target="lib\dnx46\" />
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.dll" target="lib\monoandroid\" />
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.pdb" target="lib\monoandroid\" />
     <file src="xunit.runner.utility.MonoAndroid\bin\Release\xunit.runner.utility.MonoAndroid.xml" target="lib\monoandroid\" />
