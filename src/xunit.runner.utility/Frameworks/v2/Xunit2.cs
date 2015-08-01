@@ -28,14 +28,16 @@ namespace Xunit
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
         /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
+        /// <param name="verifyTestAssemblyExists">Determines whether or not the existence of the test assembly is verified.</param>
         public Xunit2(bool useAppDomain,
                       ISourceInformationProvider sourceInformationProvider,
                       string assemblyFileName,
                       string configFileName = null,
                       bool shadowCopy = true,
                       string shadowCopyFolder = null,
-                      IMessageSink diagnosticMessageSink = null)
-            : base(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink)
+                      IMessageSink diagnosticMessageSink = null,
+                      bool verifyTestAssemblyExists = true)
+            : base(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyTestAssemblyExists)
         {
 #if ANDROID
             var assemblyName = Assembly.Load(assemblyFileName).GetName();
