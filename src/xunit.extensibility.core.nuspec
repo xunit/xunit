@@ -6,15 +6,15 @@
     <title>xUnit.net [Extensibility: Core]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
-      Includes xunit.core.dll for extensibility purposes.
+Includes xunit.core.dll for extensibility purposes.
 
-      Supported platforms:
-      - Desktop .NET 4.5+
-      - .NET Core (Universal Windows Apps 10+, DNX Core 5+)
-      - Windows Phone 8 (Silverlight)
-      - Universal (Windows Phone 8.1+, Windows 8.1+)
-      - Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
-      - Portable Libraries (supporting Profile259)
+Supported platforms:
+- Desktop .NET 4.5+
+- .NET Core (Universal Windows Apps 10+, DNX Core 5+)
+- Windows Phone 8 (Silverlight)
+- Universal (Windows Phone 8.1+, Windows 8.1+)
+- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
+- Portable Libraries (supporting Profile259)
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -26,7 +26,10 @@
     </references>
     <dependencies>
       <group>
-        <dependency id="xunit.abstractions" version="[2.0.0]" />
+        <dependency id="xunit.abstractions" version="2.0.0" />
+      </group>
+      <group targetFramework="net45">
+        <dependency id="xunit.abstractions" version="2.0.0" />
       </group>
       <group targetFramework="dotnet">
         <dependency id="System.Collections" version="4.0.0" />

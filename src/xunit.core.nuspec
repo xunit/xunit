@@ -6,15 +6,15 @@
     <title>xUnit.net [Core Unit Testing Framework]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
-      Includes the libraries for writing unit tests with xUnit.net.
+Includes the libraries for writing unit tests with xUnit.net.
 
-      Supported platforms:
-      - Desktop .NET 4.5+
-      - .NET Core (Universal Windows Apps 10+, DNX Core 5+)
-      - Windows Phone 8 (Silverlight)
-      - Universal (Windows Phone 8.1+, Windows 8.1+)
-      - Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
-      - Portable Libraries (supporting Profile259)
+Supported platforms:
+- Desktop .NET 4.5+
+- .NET Core (Universal Windows Apps 10+, DNX Core 5+)
+- Windows Phone 8 (Silverlight)
+- Universal (Windows Phone 8.1+, Windows 8.1+)
+- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
+- Portable Libraries (supporting Profile259)
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -23,6 +23,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
       <group>
+        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
+      </group>
+      <group targetFramework="net45">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
       <!-- Include execution when needed for references -->

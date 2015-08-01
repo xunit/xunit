@@ -6,14 +6,14 @@
     <title>xUnit.net [Runner Utility]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
-      Includes the version-independent runner for xUnit.net to run both v1.9.2 and v2.0+ tests (xunit.runner.utility.dll).
+Includes the version-independent runner for xUnit.net to run both v1.9.2 and v2.0+ tests (xunit.runner.utility.dll).
 
-      Supported platforms:
-      - Desktop .NET 3.5+
-      - .NET Core (Universal Windows Apps 10+, DNX Core 5+)
-      - Windows Phone 8 (Silverlight)
-      - Universal (Windows Phone 8.1+, Windows 8.1+)
-      - Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
+Supported platforms:
+- Desktop .NET 3.5+
+- .NET Core (Universal Windows Apps 10+, DNX Core 5+)
+- Windows Phone 8 (Silverlight)
+- Universal (Windows Phone 8.1+, Windows 8.1+)
+- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -22,6 +22,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
       <group>
+        <dependency id="xunit.abstractions" version="[2.0.0]" />
+      </group>
+      <group targetFramework="net45">
         <dependency id="xunit.abstractions" version="[2.0.0]" />
       </group>
       <group targetFramework="dotnet">

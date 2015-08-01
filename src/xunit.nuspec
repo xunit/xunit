@@ -6,8 +6,9 @@
     <title>xUnit.net</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
-      xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.
-      Installing this package installs xunit.core and xunit.assert.
+xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.
+
+Installing this package installs xunit.core and xunit.assert.
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>

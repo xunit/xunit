@@ -6,15 +6,15 @@
     <title>xUnit.net [Assertion Library]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
-      Includes the assertion library from xUnit.net (xunit.assert.dll).
+Includes the assertion library from xUnit.net (xunit.assert.dll).
 
-      Supported platforms:
-      - Desktop .NET 4.5+
-      - .NET Core (Universal Windows Apps 10+, DNX Core 5+)
-      - Windows Phone 8 (Silverlight)
-      - Universal (Windows Phone 8.1+, Windows 8.1+)
-      - Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
-      - Portable Libraries (supporting Profile259)
+Supported platforms:
+- Desktop .NET 4.5+
+- .NET Core (Universal Windows Apps 10+, DNX Core 5+)
+- Windows Phone 8 (Silverlight)
+- Universal (Windows Phone 8.1+, Windows 8.1+)
+- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
+- Portable Libraries (supporting Profile259)
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -22,6 +22,7 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
+      <group targetFramework="net45"></group>
       <group targetFramework="dotnet">
         <dependency id="System.Collections" version="4.0.0" />
         <dependency id="System.Diagnostics.Debug" version="4.0.0" />
