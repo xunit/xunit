@@ -113,9 +113,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <NuSpecFile Include="$(SolutionDir)src\xunit.extensibility.execution.nuspec" />
-    <NuSpecTfm Include="dotnet" />
-    <NuSpecTfm Include="dnx46" />
+    <NuSpecFile Include="$(SolutionDir)src\xunit.extensibility.execution.nuspec">
+      <InProject>false</InProject>
+    </NuSpecFile>
+    <NuSpecTfm Include="dotnet;dnx46">
+      <InProject>false</InProject>
+    </NuSpecTfm>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.core\xunit.core.csproj">

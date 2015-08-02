@@ -100,7 +100,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <NuSpecFile Include="$(SolutionDir)src\xunit.assert.nuspec" />
+    <NuSpecFile Include="$(SolutionDir)src\xunit.assert.nuspec">
+      <InProject>false</InProject>
+    </NuSpecFile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="xunit.abstractions">

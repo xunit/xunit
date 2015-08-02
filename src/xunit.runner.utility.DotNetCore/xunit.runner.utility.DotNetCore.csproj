@@ -114,9 +114,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <NuSpecFile Include="$(SolutionDir)src\xunit.runner.utility.nuspec" />
-    <NuSpecTfm Include="dotnet" />
-    <NuSpecTfm Include="dnx46" />
+    <NuSpecFile Include="$(SolutionDir)src\xunit.runner.utility.nuspec">
+      <InProject>false</InProject>
+    </NuSpecFile>
+    <NuSpecTfm Include="dotnet;dnx46">
+      <InProject>false</InProject>
+    </NuSpecTfm>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

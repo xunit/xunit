@@ -54,9 +54,12 @@
     <Compile Include="AppVeyorClient.cs" />
   </ItemGroup>
   <ItemGroup>
-    <NuSpecFile Include="$(SolutionDir)src\xunit.runner.reporters.nuspec" />
-    <NuSpecTfm Include="dotnet" />
-    <NuSpecTfm Include="dnx46" />
+    <NuSpecFile Include="$(SolutionDir)src\xunit.runner.reporters.nuspec">
+      <InProject>false</InProject>
+    </NuSpecFile>
+    <NuSpecTfm Include="dotnet;dnx46">
+      <InProject>false</InProject>
+    </NuSpecTfm>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.utility.DotNetCore\xunit.runner.utility.DotNetCore.csproj">
