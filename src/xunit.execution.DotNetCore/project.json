@@ -12,7 +12,7 @@
     },
     "frameworks": {
         "dotnet": {
-            "imports": "portable-net452+win81"
+            "imports": "portable-net451+win81"
         }
     }
 }
