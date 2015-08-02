@@ -191,7 +191,7 @@ namespace Xunit
             EnsureInitialized();
 
             var results = new Xunit1RunSummary();
-            var environment = string.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
+            var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
             var firstTestCase = testCases.FirstOrDefault();
             var testCollection = firstTestCase == null ? null : firstTestCase.TestMethod.TestClass.TestCollection;
 

@@ -5,23 +5,15 @@ namespace Xunit.Runner.Reporters
     public class VerboseReporter : IRunnerReporter
     {
         public string Description
-        {
-            get { return "show verbose progress messages"; }
-        }
+            => "show verbose progress messages";
 
         public bool IsEnvironmentallyEnabled
-        {
-            get { return false; }
-        }
+            => false;
 
         public string RunnerSwitch
-        {
-            get { return "verbose"; }
-        }
+            => "verbose";
 
         public IMessageSink CreateMessageHandler(IRunnerLogger logger)
-        {
-            return new VerboseReporterMessageHandler(logger);
-        }
+            => new VerboseReporterMessageHandler(logger);
     }
 }

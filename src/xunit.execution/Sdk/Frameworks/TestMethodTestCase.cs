@@ -67,7 +67,7 @@ namespace Xunit.Sdk
             get
             {
                 if (DefaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
-                    return string.Format("{0}.{1}", TestMethod.TestClass.Class.Name, TestMethod.Method.Name);
+                    return $"{TestMethod.TestClass.Class.Name}.{TestMethod.Method.Name}";
 
                 return TestMethod.Method.Name;
             }

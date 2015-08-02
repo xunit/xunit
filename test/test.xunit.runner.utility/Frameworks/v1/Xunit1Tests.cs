@@ -587,7 +587,7 @@ public class Xunit1Tests
                       {
                           var callback = callInfo.Arg<ICallbackEventHandler>();
                           callback.RaiseCallbackEvent("<start name='type1.failing' type='type1' method='failing'/>");
-                          callback.RaiseCallbackEvent(string.Format("<test name='type1.failing' type='type1' method='failing' result='Fail' time='0.234'><failure exception-type='{0}'><message>{1}</message><stack-trace><![CDATA[{2}]]></stack-trace></failure></test>", exception.GetType().FullName, GetMessage(exception), GetStackTrace(exception)));
+                          callback.RaiseCallbackEvent($"<test name='type1.failing' type='type1' method='failing' result='Fail' time='0.234'><failure exception-type='{exception.GetType().FullName}'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></test>");
                           callback.RaiseCallbackEvent("<class name='type1' time='1.234' total='1' failed='1' skipped='0'/>");
                       });
                 var sink = new SpyMessageSink<ITestAssemblyFinished>();
@@ -624,7 +624,7 @@ public class Xunit1Tests
                           try { throw exception; }
                           catch { }
                           var callback = callInfo.Arg<ICallbackEventHandler>();
-                          callback.RaiseCallbackEvent(string.Format("<class name='type1' time='0.000' total='0' passed='0' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{0}]]></stack-trace></failure></class>", exception.StackTrace));
+                          callback.RaiseCallbackEvent($"<class name='type1' time='0.000' total='0' passed='0' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
                       });
                 var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
@@ -659,7 +659,7 @@ public class Xunit1Tests
                           var callback = callInfo.Arg<ICallbackEventHandler>();
                           callback.RaiseCallbackEvent("<start name='failingtype.passingmethod' type='failingtype' method='passingmethod'/>");
                           callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
-                          callback.RaiseCallbackEvent(string.Format("<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='Xunit.Some.Exception'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{0}]]></stack-trace></failure></class>", exception.StackTrace));
+                          callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='Xunit.Some.Exception'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
                       });
                 var sink = new SpyMessageSink<ITestAssemblyFinished>();
 
@@ -691,7 +691,7 @@ public class Xunit1Tests
                           var callback = callInfo.Arg<ICallbackEventHandler>();
                           callback.RaiseCallbackEvent("<start name='failingtype.passingmethod' type='failingtype' method='passingmethod'/>");
                           callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
-                          callback.RaiseCallbackEvent(string.Format("<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>{0}</message><stack-trace><![CDATA[{1}]]></stack-trace></failure></class>", GetMessage(exception), GetStackTrace(exception)));
+                          callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></class>");
                       });
                 var sink = new SpyMessageSink<ITestAssemblyFinished>();
 

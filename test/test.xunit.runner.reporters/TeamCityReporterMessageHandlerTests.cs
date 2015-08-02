@@ -73,7 +73,7 @@ public class TeamCityReporterMessageHandlerTests
             handler.OnMessage(message);
 
             var msg = Assert.Single(handler.Messages);
-            Assert.Equal(string.Format("[Imp] => ##teamcity[message text='|[{0}|] ExceptionType: ExceptionType : This is my message \t|r|n' errorDetails='Line 1|r|nLine 2|r|nLine 3' status='ERROR']", messageType), msg);
+            Assert.Equal($"[Imp] => ##teamcity[message text='|[{messageType}|] ExceptionType: ExceptionType : This is my message \t|r|n' errorDetails='Line 1|r|nLine 2|r|nLine 3' status='ERROR']", msg);
         }
     }
 

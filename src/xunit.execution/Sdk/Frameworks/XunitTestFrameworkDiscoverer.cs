@@ -43,10 +43,7 @@ namespace Xunit.Sdk
             var testAssembly = new TestAssembly(assemblyInfo, config);
 
             TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(diagnosticMessageSink, collectionBehaviorAttribute, testAssembly);
-            TestFrameworkDisplayName = string.Format("{0} [{1}, {2}]",
-                                                     DisplayName,
-                                                     TestCollectionFactory.DisplayName,
-                                                     disableParallelization ? "non-parallel" : "parallel");
+            TestFrameworkDisplayName = $"{DisplayName} [{TestCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}]";
         }
 
         /// <summary>
@@ -73,7 +70,7 @@ namespace Xunit.Sdk
             var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
             if (factAttributes.Count > 1)
             {
-                var message = string.Format("Test method '{0}.{1}' has multiple [Fact]-derived attributes", testMethod.TestClass.Class.Name, testMethod.Method.Name);
+                var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
                 var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, testMethod, message);
                 return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
             }
@@ -134,7 +131,7 @@ namespace Xunit.Sdk
                 catch (Exception ex)
                 {
                     result = null;
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Discoverer type '{0}' could not be created or does not implement IXunitTestCaseDiscoverer: {1}", discovererType.FullName, ex));
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex}"));
                 }
 
                 discovererCache[discovererType] = result;

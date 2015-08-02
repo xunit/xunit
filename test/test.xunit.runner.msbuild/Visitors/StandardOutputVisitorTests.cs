@@ -67,7 +67,7 @@ public class StandardOutputVisitorTests
                 visitor.OnMessage(message);
 
                 Assert.Collection(logger.Messages,
-                    msg => Assert.Equal(string.Format("ERROR: [{0}] ExceptionType : This is my message \\t\\r\\n", messageType), msg),
+                    msg => Assert.Equal($"ERROR: [{messageType}] ExceptionType : This is my message \\t\\r\\n", msg),
                     msg => Assert.Equal("ERROR: Line 1\r\nLine 2\r\nLine 3", msg));
             }
         }
@@ -84,7 +84,7 @@ public class StandardOutputVisitorTests
                 visitor.OnMessage(message);
 
                 Assert.Collection(logger.Messages,
-                    msg => Assert.Equal(string.Format(@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 16] [{0}] ExceptionType : This is my message \t\r\n", messageType), msg),
+                    msg => Assert.Equal($@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 16] [{messageType}] ExceptionType : This is my message \t\r\n", msg),
                     msg => Assert.Equal(@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 16]    at FixtureAcceptanceTests.Constructors.TestClassMustHaveSinglePublicConstructor() in d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs:line 16", msg));
             }
         }
@@ -102,8 +102,8 @@ public class StandardOutputVisitorTests
                 visitor.OnMessage(message);
 
                 Assert.Collection(logger.Messages,
-                    msg => Assert.Equal(string.Format(@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 76] [{0}] ExceptionType : This is my message \t\r\n", messageType), msg),
-                    msg => Assert.Equal(string.Format(@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 76]    at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source){0}   at FixtureAcceptanceTests.ClassFixture.TestClassWithExtraArgumentToConstructorResultsInFailedTest() in d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs:line 76", Environment.NewLine), msg));
+                    msg => Assert.Equal($@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 76] [{messageType}] ExceptionType : This is my message \t\r\n", msg),
+                    msg => Assert.Equal($@"ERROR: [FILE d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs][LINE 76]    at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source){Environment.NewLine}   at FixtureAcceptanceTests.ClassFixture.TestClassWithExtraArgumentToConstructorResultsInFailedTest() in d:\Dev\xunit\xunit\test\test.xunit.execution\Acceptance\FixtureAcceptanceTests.cs:line 76", msg));
             }
         }
     }

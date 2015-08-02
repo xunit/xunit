@@ -57,7 +57,7 @@ namespace Xunit
             var type = MemberType ?? testMethod.DeclaringType;
             var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
             if (accessor == null)
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Could not find public static member (property, field, or method) named '{0}' on {1}", MemberName, type.FullName));
+                throw new ArgumentException($"Could not find public static member (property, field, or method) named '{MemberName}' on {type.FullName}");
 
             var obj = accessor();
             if (obj == null)
@@ -65,7 +65,7 @@ namespace Xunit
 
             var dataItems = obj as IEnumerable<object>;
             if (dataItems == null)
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Property {0} on {1} did not return IEnumerable<object>", MemberName, type.FullName));
+                throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable<object>");
 
             return dataItems.Select(item => ConvertDataItem(testMethod, item));
         }

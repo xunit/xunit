@@ -100,7 +100,7 @@ namespace Xunit
 
             wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");
 
-            return new Regex(string.Format("{0} .* {1}", wordAt, wordsInLine));
+            return new Regex($"{wordAt} .* {wordsInLine}");
         }
     }
 }

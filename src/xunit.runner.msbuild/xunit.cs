@@ -119,7 +119,7 @@ namespace Xunit.Runner.MSBuild
             }
 
             XElement assembliesElement = null;
-            var environment = string.Format("{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
+            var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
 
             if (NeedsXml)
                 assembliesElement = new XElement("assemblies");

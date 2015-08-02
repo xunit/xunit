@@ -28,7 +28,7 @@ namespace Xunit.ConsoleClient
             {
                 string xslFileName = Path.Combine(executablePath, configElement.XslFile);
                 if (!File.Exists(xslFileName))
-                    throw new ArgumentException(string.Format("cannot find transform XSL file '{0}' for transform '{1}'", xslFileName, configElement.CommandLine));
+                    throw new ArgumentException($"cannot find transform XSL file '{xslFileName}' for transform '{configElement.CommandLine}'");
 
                 availableTransforms.Add(configElement.CommandLine,
                                         new Transform

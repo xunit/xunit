@@ -129,10 +129,7 @@ namespace Xunit.Sdk
         /// Gets the message to be used when the constructor is missing arguments.
         /// </summary>
         protected virtual string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
-        {
-            var argText = string.Join(", ", unusedArguments.Select(arg => string.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
-            return string.Format("The following constructor parameters did not have matching arguments: {0}", argText);
-        }
+            => $"The following constructor parameters did not have matching arguments: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
 
         /// <summary>
         /// This method is called just after <see cref="ITestClassStarting"/> is sent, but before any test methods are run.
@@ -197,7 +194,7 @@ namespace Xunit.Sdk
             catch (Exception ex)
             {
                 var innerEx = ex.Unwrap();
-                DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Test case orderer '{0}' threw '{1}' during ordering: {2}{3}{4}", TestCaseOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.Message, Environment.NewLine, innerEx.StackTrace));
+                DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test case orderer '{TestCaseOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
                 orderedTestCases = TestCases.ToList();
             }
 

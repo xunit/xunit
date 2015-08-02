@@ -102,10 +102,10 @@ namespace Xunit
 
             lock (Logger.LockObject)
             {
-                Logger.LogError(frameInfo, "    [{0}] {1}", failureType, Escape(failureInfo.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)"));
+                Logger.LogError(frameInfo, $"    [{failureType}] {Escape(failureInfo.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)")}");
 
                 foreach (var messageLine in ExceptionUtility.CombineMessages(failureInfo).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-                    Logger.LogImportantMessage(frameInfo, "      {0}", messageLine);
+                    Logger.LogImportantMessage(frameInfo, $"      {messageLine}");
 
                 LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(failureInfo));
             }
@@ -122,7 +122,7 @@ namespace Xunit
             Logger.LogMessage(frameInfo, "      Stack Trace:");
 
             foreach (var stackFrame in stackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-                Logger.LogImportantMessage(frameInfo, "        {0}", StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory));
+                Logger.LogImportantMessage(frameInfo, $"        {StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory)}");
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Xunit
             Logger.LogMessage(frameInfo, "      Output:");
 
             foreach (var line in output.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-                Logger.LogImportantMessage(frameInfo, "        {0}", line);
+                Logger.LogImportantMessage(frameInfo, $"        {line}");
         }
 
         void RemoveExecutionOptions(string assemblyFilename)
@@ -168,12 +168,12 @@ namespace Xunit
                 var count =
                     discoveryFinished.TestCasesToRun == discoveryFinished.TestCasesDiscovered
                         ? discoveryFinished.TestCasesDiscovered.ToString()
-                        : string.Format("{0} of {1}", discoveryFinished.TestCasesToRun, discoveryFinished.TestCasesDiscovered);
+                        : $"{discoveryFinished.TestCasesToRun} of {discoveryFinished.TestCasesDiscovered}";
 
-                Logger.LogImportantMessage("  Discovered:  {0} (running {1} test case{2})", assemblyDisplayName, count, discoveryFinished.TestCasesToRun == 1 ? "" : "s");
+                Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName} (running {count} test case{(discoveryFinished.TestCasesToRun == 1 ? "" : "s")})");
             }
             else
-                Logger.LogImportantMessage("  Discovered:  {0}", assemblyDisplayName);
+                Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName}");
 
             return base.Visit(discoveryFinished);
         }
@@ -185,17 +185,12 @@ namespace Xunit
 
             if (discoveryStarting.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
 #if NO_APPDOMAIN
-                Logger.LogImportantMessage("  Discovering: {0} (method display = {1})",
-                                           assemblyDisplayName,
-                                           discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault());
+                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");
 #else
-                Logger.LogImportantMessage("  Discovering: {0} (app domain = {1}, method display = {2})",
-                                           assemblyDisplayName,
-                                           discoveryStarting.AppDomain ? "on" : "off",
-                                           discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault());
+                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (app domain = {(discoveryStarting.AppDomain ? "on" : "off")}, method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");
 #endif
             else
-                Logger.LogImportantMessage("  Discovering: {0}", assemblyDisplayName);
+                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName}");
 
             return base.Visit(discoveryStarting);
         }
@@ -203,7 +198,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestAssemblyExecutionFinished executionFinished)
         {
-            Logger.LogImportantMessage("  Finished:    {0}", GetAssemblyDisplayName(executionFinished.Assembly));
+            Logger.LogImportantMessage($"  Finished:    {GetAssemblyDisplayName(executionFinished.Assembly)}");
 
             RemoveExecutionOptions(executionFinished.Assembly.AssemblyFilename);
 
@@ -218,12 +213,9 @@ namespace Xunit
             var assemblyDisplayName = GetAssemblyDisplayName(executionStarting.Assembly);
 
             if (executionStarting.ExecutionOptions.GetDiagnosticMessagesOrDefault())
-                Logger.LogImportantMessage("  Starting:    {0} (parallel test collections = {1}, max threads = {2})",
-                                           assemblyDisplayName,
-                                           !executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off",
-                                           executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault());
+                Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault()})");
             else
-                Logger.LogImportantMessage("  Starting:    {0}", assemblyDisplayName);
+                Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName}");
 
             return base.Visit(executionStarting);
         }
@@ -231,7 +223,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+            LogError($"Test Assembly Cleanup Failure ({cleanupFailure.TestAssembly.Assembly.AssemblyPath})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
@@ -239,7 +231,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+            LogError($"Test Case Cleanup Failure ({cleanupFailure.TestCase.DisplayName})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
@@ -247,7 +239,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+            LogError($"Test Class Cleanup Failure ({cleanupFailure.TestClass.Class.Name})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
@@ -255,7 +247,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
+            LogError($"Test Cleanup Failure ({cleanupFailure.Test.DisplayName})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
@@ -263,7 +255,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+            LogError($"Test Collection Cleanup Failure ({cleanupFailure.TestCollection.DisplayName})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
@@ -283,10 +275,10 @@ namespace Xunit
 
             lock (Logger.LockObject)
             {
-                Logger.LogError(frameInfo, "    {0} [FAIL]", Escape(testFailed.Test.DisplayName));
+                Logger.LogError(frameInfo, $"    {Escape(testFailed.Test.DisplayName)} [FAIL]");
 
                 foreach (var messageLine in ExceptionUtility.CombineMessages(testFailed).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
-                    Logger.LogImportantMessage(frameInfo, "      {0}", messageLine);
+                    Logger.LogImportantMessage(frameInfo, $"      {messageLine}");
 
                 LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(testFailed));
                 LogOutput(frameInfo, testFailed.Output);
@@ -298,7 +290,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+            LogError($"Test Method Cleanup Failure ({cleanupFailure.TestMethod.Method.Name})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
@@ -311,7 +303,7 @@ namespace Xunit
             {
                 lock (Logger.LockObject)
                 {
-                    Logger.LogImportantMessage("    {0} [PASS]", Escape(testPassed.Test.DisplayName));
+                    Logger.LogImportantMessage($"    {Escape(testPassed.Test.DisplayName)} [PASS]");
                     LogOutput(StackFrameInfo.None, testPassed.Output);
                 }
             }
@@ -324,8 +316,8 @@ namespace Xunit
         {
             lock (Logger.LockObject)
             {
-                Logger.LogWarning("    {0} [SKIP]", Escape(testSkipped.Test.DisplayName));
-                Logger.LogImportantMessage("      {0}", Escape(testSkipped.Reason));
+                Logger.LogWarning($"    {Escape(testSkipped.Test.DisplayName)} [SKIP]");
+                Logger.LogImportantMessage($"      {Escape(testSkipped.Reason)}");
             }
 
             return base.Visit(testSkipped);
@@ -356,35 +348,16 @@ namespace Xunit
             foreach (var summary in executionSummary.Summaries)
             {
                 if (summary.Value.Total == 0)
-                    logger.LogImportantMessage("   {0}  Total: {1}", summary.Key.PadRight(longestAssemblyName), "0".PadLeft(longestTotal));
+                    logger.LogImportantMessage($"   {summary.Key.PadRight(longestAssemblyName)}  Total: {"0".PadLeft(longestTotal)}");
                 else
-                    logger.LogImportantMessage("   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Time: {5}",
-                                               summary.Key.PadRight(longestAssemblyName),
-                                               summary.Value.Total.ToString().PadLeft(longestTotal),
-                                               summary.Value.Errors.ToString().PadLeft(longestErrors),
-                                               summary.Value.Failed.ToString().PadLeft(longestFailed),
-                                               summary.Value.Skipped.ToString().PadLeft(longestSkipped),
-                                               summary.Value.Time.ToString("0.000s").PadLeft(longestTime));
+                    logger.LogImportantMessage($"   {summary.Key.PadRight(longestAssemblyName)}  Total: {summary.Value.Total.ToString().PadLeft(longestTotal)}, Errors: {summary.Value.Errors.ToString().PadLeft(longestErrors)}, Failed: {summary.Value.Failed.ToString().PadLeft(longestFailed)}, Skipped: {summary.Value.Skipped.ToString().PadLeft(longestSkipped)}, Time: {summary.Value.Time.ToString("0.000s").PadLeft(longestTime)}");
 
             }
 
             if (executionSummary.Summaries.Count > 1)
             {
-                logger.LogImportantMessage("   {0}         {1}          {2}          {3}           {4}        {5}",
-                                           " ".PadRight(longestAssemblyName),
-                                           "-".PadRight(longestTotal, '-'),
-                                           "-".PadRight(longestErrors, '-'),
-                                           "-".PadRight(longestFailed, '-'),
-                                           "-".PadRight(longestSkipped, '-'),
-                                           "-".PadRight(longestTime, '-'));
-                logger.LogImportantMessage("   {0} {1}          {2}          {3}           {4}        {5} ({6})",
-                                           "GRAND TOTAL:".PadLeft(longestAssemblyName + 8),
-                                           totalTestsRun,
-                                           totalErrors,
-                                           totalTestsFailed,
-                                           totalTestsSkipped,
-                                           totalTime,
-                                           executionSummary.ElapsedClockTime.TotalSeconds.ToString("0.000s"));
+                logger.LogImportantMessage($"   {" ".PadRight(longestAssemblyName)}         {"-".PadRight(longestTotal, '-')}          {"-".PadRight(longestErrors, '-')}          {"-".PadRight(longestFailed, '-')}           {"-".PadRight(longestSkipped, '-')}        {"-".PadRight(longestTime, '-')}");
+                logger.LogImportantMessage($"   {"GRAND TOTAL:".PadLeft(longestAssemblyName + 8)} {totalTestsRun}          {totalErrors}          {totalTestsFailed}           {totalTestsSkipped}        {totalTime} ({executionSummary.ElapsedClockTime.TotalSeconds.ToString("0.000s")})");
             }
         }
 

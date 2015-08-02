@@ -172,8 +172,8 @@ public class EqualityAssertsTests
         public void Failure()
         {
             var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111M, 0.11444M, 3));
-            Assert.Equal(string.Format("{0} (rounded from {1})", 0.111M, 0.11111M), ex.Expected);
-            Assert.Equal(string.Format("{0} (rounded from {1})", 0.114M, 0.11444M), ex.Actual);
+            Assert.Equal($"{0.111M} (rounded from {0.11111M})", ex.Expected);
+            Assert.Equal($"{0.114M} (rounded from {0.11444M})", ex.Actual);
         }
     }
 
@@ -189,8 +189,8 @@ public class EqualityAssertsTests
         public void Failure()
         {
             var ex = Assert.Throws<EqualException>(() => Assert.Equal(0.11111, 0.11444, 3));
-            Assert.Equal(string.Format("{0} (rounded from {1})", 0.111M, 0.11111), ex.Expected);
-            Assert.Equal(string.Format("{0} (rounded from {1})", 0.114M, 0.11444), ex.Actual);
+            Assert.Equal($"{0.111M} (rounded from {0.11111})", ex.Expected);
+            Assert.Equal($"{0.114M} (rounded from {0.11444})", ex.Actual);
         }
     }
 
@@ -283,8 +283,8 @@ public class EqualityAssertsTests
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111M, 0.11444M, 2));
 
             Assert.Equal("Assert.NotEqual() Failure" + Environment.NewLine +
-                         string.Format("Expected: Not {0} (rounded from {1})", 0.11M, 0.11111) + Environment.NewLine +
-                         string.Format("Actual:   {0} (rounded from {1})", 0.11M, 0.11444), ex.Message);
+                         $"Expected: Not {0.11M} (rounded from {0.11111})" + Environment.NewLine +
+                         $"Actual:   {0.11M} (rounded from {0.11444})", ex.Message);
         }
     }
 
@@ -302,8 +302,8 @@ public class EqualityAssertsTests
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotEqual(0.11111, 0.11444, 2));
 
             Assert.Equal("Assert.NotEqual() Failure" + Environment.NewLine +
-                         string.Format("Expected: Not {0} (rounded from {1})", 0.11M, 0.11111) + Environment.NewLine +
-                         string.Format("Actual:   {0} (rounded from {1})", 0.11M, 0.11444), ex.Message);
+                         $"Expected: Not {0.11M} (rounded from {0.11111})"+ Environment.NewLine +
+                         $"Actual:   {0.11M} (rounded from {0.11444})", ex.Message);
         }
     }
 

@@ -8,7 +8,7 @@ namespace Xunit.Runner.Reporters
 
         protected override bool Visit(ITestStarting testStarting)
         {
-            Logger.LogMessage("    {0}", Escape(testStarting.Test.DisplayName));
+            Logger.LogMessage($"    {Escape(testStarting.Test.DisplayName)}");
 
             return base.Visit(testStarting);
         }

@@ -19,7 +19,7 @@ namespace Xunit.Runner.TdNet
         protected override bool Visit(IDiagnosticMessage diagnosticMessage)
         {
             if (showDiagnostics)
-                listener.WriteLine(string.Format("{0}: {1}", assemblyDisplayName, diagnosticMessage.Message), Category.Warning);
+                listener.WriteLine($"{assemblyDisplayName}: {diagnosticMessage.Message}", Category.Warning);
 
             return base.Visit(diagnosticMessage);
         }

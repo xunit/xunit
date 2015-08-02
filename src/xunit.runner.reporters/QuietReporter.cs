@@ -5,23 +5,15 @@ namespace Xunit.Runner.Reporters
     public class QuietReporter : IRunnerReporter
     {
         public string Description
-        {
-            get { return "do not show progress messages"; }
-        }
+            => "do not show progress messages";
 
         public bool IsEnvironmentallyEnabled
-        {
-            get { return false; }
-        }
+            => false;
 
         public string RunnerSwitch
-        {
-            get { return "quiet"; }
-        }
+            => "quiet";
 
         public IMessageSink CreateMessageHandler(IRunnerLogger logger)
-        {
-            return new QuietReporterMessageHandler(logger);
-        }
+            => new QuietReporterMessageHandler(logger);
     }
 }

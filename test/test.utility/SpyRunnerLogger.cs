@@ -39,7 +39,7 @@ public class SpyRunnerLogger : IRunnerLogger
     void AddMessage(string category, StackFrameInfo stackFrame, string message)
     {
         var result = new StringBuilder();
-        result.AppendFormat("[{0}", category);
+        result.Append($"[{category}");
 
         if (!stackFrame.IsEmpty)
         {
@@ -47,10 +47,10 @@ public class SpyRunnerLogger : IRunnerLogger
             if (fileName.StartsWith(currentDirectory))
                 fileName = fileName.Substring(currentDirectory.Length + 1);
 
-            result.AppendFormat(" @ {0}:{1}", fileName, stackFrame.LineNumber);
+            result.Append($" @ {fileName}:{stackFrame.LineNumber}");
         }
 
-        result.AppendFormat("] => {0}", message);
+        result.Append($"] => {message}");
 
         Messages.Add(result.ToString());
     }

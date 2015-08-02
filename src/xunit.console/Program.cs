@@ -75,12 +75,12 @@ namespace Xunit.ConsoleClient
             }
             catch (ArgumentException ex)
             {
-                Console.WriteLine("error: {0}", ex.Message);
+                Console.WriteLine($"error: {ex.Message}");
                 return 1;
             }
             catch (BadImageFormatException ex)
             {
-                Console.WriteLine("{0}", ex.Message);
+                Console.WriteLine(ex.Message);
                 return 1;
             }
             finally
@@ -120,7 +120,7 @@ namespace Xunit.ConsoleClient
                     if (ctor == null)
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
+                        Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
                         Console.ResetColor();
                         continue;
                     }
@@ -146,7 +146,7 @@ namespace Xunit.ConsoleClient
 
         static void PrintHeader()
         {
-            Console.WriteLine("xUnit.net Console Runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
+            Console.WriteLine($"xUnit.net Console Runner ({IntPtr.Size * 8}-bit .NET {Environment.Version})");
         }
 
         static void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
@@ -155,7 +155,7 @@ namespace Xunit.ConsoleClient
 
             Console.WriteLine("Copyright (C) 2015 Outercurve Foundation.");
             Console.WriteLine();
-            Console.WriteLine("usage: {0} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]", executableName);
+            Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
             Console.WriteLine();
             Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
             Console.WriteLine();
@@ -195,16 +195,14 @@ namespace Xunit.ConsoleClient
                 Console.WriteLine("Reporters: (optional, choose only one)");
 
                 foreach (var reporter in switchableReporters.OrderBy(r => r.RunnerSwitch))
-                    Console.WriteLine("  -{0} : {1}", reporter.RunnerSwitch.ToLowerInvariant().PadRight(21), reporter.Description);
+                    Console.WriteLine($"  -{reporter.RunnerSwitch.ToLowerInvariant().PadRight(21)} : {reporter.Description}");
 
                 Console.WriteLine();
             }
 
             Console.WriteLine("Result formats: (optional, choose one or more)");
             TransformFactory.AvailableTransforms.ForEach(
-                transform => Console.WriteLine("  {0} : {1}",
-                                               string.Format("-{0} <filename>", transform.CommandLine).PadRight(22).Substring(0, 22),
-                                               transform.Description)
+                transform => Console.WriteLine($"  -{$"{transform.CommandLine} <filename>".PadRight(21).Substring(0, 21)} : {transform.Description}")
             );
         }
 
@@ -343,7 +341,7 @@ namespace Xunit.ConsoleClient
                 var e = ex;
                 while (e != null)
                 {
-                    Console.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
+                    Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
                     e = e.InnerException;
                 }
             }
@@ -359,7 +357,7 @@ namespace Xunit.ConsoleClient
             lock (consoleLock)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("File not found: {0}", fileName);
+                Console.WriteLine($"File not found: {fileName}");
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
 

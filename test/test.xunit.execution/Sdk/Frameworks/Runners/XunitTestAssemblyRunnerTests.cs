@@ -70,7 +70,7 @@ public class XunitTestAssemblyRunnerTests
 
             var result = runner.GetTestFrameworkEnvironment();
 
-            Assert.EndsWith(string.Format("[{0}, non-parallel]", expectedDisplayText), result);
+            Assert.EndsWith($"[{expectedDisplayText}, non-parallel]", result);
         }
 
         [Fact]

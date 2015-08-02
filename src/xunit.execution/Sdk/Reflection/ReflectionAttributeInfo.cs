@@ -118,7 +118,7 @@ namespace Xunit.Sdk
                 }
             }
 
-            Guard.ArgumentValid("propertyName", string.Format("Could not find property {0} on instance of {1}", propertyName, Attribute.GetType().FullName), propInfo != null);
+            Guard.ArgumentValid("propertyName", $"Could not find property {propertyName} on instance of {Attribute.GetType().FullName}", propInfo != null);
 
             return (TValue)propInfo.GetValue(Attribute, Reflector.EmptyArgs);
         }

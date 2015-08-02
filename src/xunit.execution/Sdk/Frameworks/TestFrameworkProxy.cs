@@ -56,7 +56,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                diagnosticMessageSink.OnMessage(new DiagnosticMessage("Exception thrown during test framework construction: {0}", ex.Unwrap()));
+                diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown during test framework construction: {ex.Unwrap()}"));
                 return new XunitTestFramework(diagnosticMessageSink);
             }
         }
@@ -88,7 +88,7 @@ namespace Xunit.Sdk
                             return discoverer.GetTestFrameworkType(testFrameworkAttr);
 
                         var ctorArgs = discovererAttr.GetConstructorArguments().ToArray();
-                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Unable to create custom test framework discoverer type '{0}, {1}'", ctorArgs[1], ctorArgs[0]));
+                        diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Unable to create custom test framework discoverer type '{ctorArgs[1]}, {ctorArgs[0]}'"));
                     }
                     else
                     {
@@ -98,7 +98,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                diagnosticMessageSink.OnMessage(new DiagnosticMessage("Exception thrown during test framework discoverer construction: {0}", ex.Unwrap()));
+                diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown during test framework discoverer construction: {ex.Unwrap()}"));
             }
 
             return typeof(XunitTestFramework);

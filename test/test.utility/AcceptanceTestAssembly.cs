@@ -70,9 +70,9 @@ public abstract class AcceptanceTestAssembly : IDisposable
             var errors = new List<string>();
 
             foreach (CompilerError error in results.Errors)
-                errors.Add(string.Format("{0}({1},{2}): error {3}: {4}", error.FileName, error.Line, error.Column, error.ErrorNumber, error.ErrorText));
+                errors.Add($"{error.FileName}({error.Line},{error.Column}): error {error.ErrorNumber}: {error.ErrorText}");
 
-            throw new InvalidOperationException(string.Format("Compilation Failed:{0}{1}", Environment.NewLine, string.Join(Environment.NewLine, errors.ToArray())));
+            throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
         }
     }
 

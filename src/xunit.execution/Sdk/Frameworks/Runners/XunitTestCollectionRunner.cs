@@ -98,13 +98,13 @@ namespace Xunit.Sdk
                             return testCaseOrderer;
 
                         var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for collection-level test case orderer on test collection '{2}'", args[0], args[1], TestCollection.DisplayName));
+                        diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for collection-level test case orderer on test collection '{TestCollection.DisplayName}'"));
                     }
                     catch (Exception ex)
                     {
                         var innerEx = ex.Unwrap();
                         var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        diagnosticMessageSink.OnMessage(new DiagnosticMessage("Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}{4}{5}", args[0], TestCollection.DisplayName, innerEx.GetType().FullName, innerEx.Message, Environment.NewLine, innerEx.StackTrace));
+                        diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Collection-level test case orderer '{args[0]}' for test collection '{TestCollection.DisplayName}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
                     }
                 }
             }

@@ -68,7 +68,7 @@ public class TeamCityVisitorTests
                 visitor.OnMessage(message);
 
                 var msg = Assert.Single(logger.Messages);
-                Assert.Equal(string.Format("MESSAGE[High]: ##teamcity[message text='|[{0}|] ExceptionType: ExceptionType : This is my message \t|r|n' errorDetails='Line 1|r|nLine 2|r|nLine 3' status='ERROR']", messageType), msg);
+                Assert.Equal($"MESSAGE[High]: ##teamcity[message text='|[{messageType}|] ExceptionType: ExceptionType : This is my message \t|r|n' errorDetails='Line 1|r|nLine 2|r|nLine 3' status='ERROR']", msg);
             }
         }
     }

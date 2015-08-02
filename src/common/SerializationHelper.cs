@@ -61,7 +61,7 @@ namespace Xunit.Sdk
                 throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(value));
 
             var serializationInfo = new XunitSerializationInfo(serializable);
-            return string.Format("{0}:{1}", GetTypeNameForSerialization(value.GetType()), serializationInfo.ToSerializedString());
+            return $"{GetTypeNameForSerialization(value.GetType())}:{serializationInfo.ToSerializedString()}";
         }
 
         /// <summary>Gets whether the specified <paramref name="value"/> is serializable with <see cref="Serialize"/>.</summary>
@@ -206,8 +206,8 @@ namespace Xunit.Sdk
             if (type.IsGenericType() && !type.IsGenericTypeDefinition())
             {
                 var typeDefinition = type.GetGenericTypeDefinition();
-                var innerTypes = type.GetGenericArguments().Select(t => string.Format("[{0}]", GetTypeNameForSerialization(t))).ToArray();
-                typeName = string.Format("{0}[{1}]", typeDefinition.FullName, string.Join(",", innerTypes));
+                var innerTypes = type.GetGenericArguments().Select(t => $"[{GetTypeNameForSerialization(t)}]").ToArray();
+                typeName = $"{typeDefinition.FullName}[{string.Join(",", innerTypes)}]";
 
                 while (arrayRanks.Count > 0)
                 {
@@ -225,7 +225,7 @@ namespace Xunit.Sdk
             if (type.GetAssembly().GetCustomAttributes().FirstOrDefault(a => a != null && a.GetType().FullName == "Xunit.Sdk.PlatformSpecificAssemblyAttribute") != null)
                 assemblyName = assemblyName.Substring(0, assemblyName.LastIndexOf('.')) + ExecutionHelper.SubstitutionToken;
 
-            return string.Format("{0}, {1}", typeName, assemblyName);
+            return $"{typeName}, {assemblyName}";
         }
 
         /// <summary>

@@ -17,7 +17,7 @@ namespace Xunit
             try
             {
 #if NETFX_CORE || WINDOWS_PHONE || DOTNETCORE
-                var type = Type.GetType(string.Format("{0}, {1}", typeName, assemblyName.FullName), true);
+                var type = Type.GetType($"{typeName}, {assemblyName.FullName}", true);
                 return (TObject)Activator.CreateInstance(type, args);
 #else
                 return (TObject)Activator.CreateInstance(Assembly.Load(assemblyName).GetType(typeName), args);

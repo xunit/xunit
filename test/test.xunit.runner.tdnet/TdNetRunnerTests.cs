@@ -165,7 +165,7 @@ public class TdNetRunnerTests
             Helper.Run(null, TestRunState.NoTests).ReturnsForAnyArgs(
                 callInfo =>
                 {
-                    Operations.Add(string.Format("Run(initialRunState: {0})", callInfo[1]));
+                    Operations.Add($"Run(initialRunState: {callInfo[1]})");
                     TestsRun.AddRange((IEnumerable<ITestCase>)callInfo[0]);
                     return TestRunState.NoTests;
                 });
@@ -173,7 +173,7 @@ public class TdNetRunnerTests
             Helper.RunClass(null, TestRunState.NoTests).ReturnsForAnyArgs(
                 callInfo =>
                 {
-                    Operations.Add(string.Format("RunClass(type: {0}, initialRunState: {1})", callInfo[0], callInfo[1]));
+                    Operations.Add($"RunClass(type: {callInfo[0]}, initialRunState: {callInfo[1]})");
                     return TestRunState.NoTests;
                 });
 
@@ -181,7 +181,7 @@ public class TdNetRunnerTests
                 callInfo =>
                 {
                     var method = (MethodInfo)callInfo[0];
-                    Operations.Add(string.Format("RunMethod(method: {0}.{1}, initialRunState: {2})", method.DeclaringType.FullName, method.Name, callInfo[1]));
+                    Operations.Add($"RunMethod(method: {method.DeclaringType.FullName}.{method.Name}, initialRunState: {callInfo[1]})");
                     return TestRunState.NoTests;
                 });
         }

@@ -5,28 +5,18 @@ namespace Xunit.Runner.Reporters
         public QuietReporterMessageHandler(IRunnerLogger logger) : base(logger) { }
 
         protected override bool Visit(ITestAssemblyDiscoveryStarting discoveryStarting)
-        {
-            return true;
-        }
+            => true;
 
         protected override bool Visit(ITestAssemblyDiscoveryFinished discoveryFinished)
-        {
-            return true;
-        }
+            => true;
 
         protected override bool Visit(ITestAssemblyExecutionStarting executionStarting)
-        {
-            return true;
-        }
+            => true;
 
         protected override bool Visit(ITestAssemblyExecutionFinished executionFinished)
-        {
-            return true;
-        }
+            => true;
 
         protected override bool Visit(ITestExecutionSummary executionSummary)
-        {
-            return true;
-        }
+            => true;
     }
 }

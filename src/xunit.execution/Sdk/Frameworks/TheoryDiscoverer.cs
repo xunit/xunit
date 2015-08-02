@@ -112,7 +112,7 @@ namespace Xunit.Sdk
                         results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
                                                                discoveryOptions.MethodDisplayOrDefault(),
                                                                testMethod,
-                                                               string.Format("No data found for {0}.{1}", testMethod.TestClass.Class.Name, testMethod.Method.Name)));
+                                                               $"No data found for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}"));
 
                     return results;
                 }

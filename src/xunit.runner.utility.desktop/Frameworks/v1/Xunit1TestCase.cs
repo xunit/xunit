@@ -57,7 +57,7 @@ namespace Xunit
         public ISourceInformation SourceInformation { get; set; }
 
         /// <inheritdoc/>
-        public ITestMethod TestMethod { get { return this; } }
+        public ITestMethod TestMethod => this;
 
         /// <inheritdoc/>
         public object[] TestMethodArguments { get; set; }
@@ -66,7 +66,7 @@ namespace Xunit
         public Dictionary<string, List<string>> Traits { get; set; }
 
         /// <inheritdoc/>
-        public string UniqueID { get { return reflectionWrapper.UniqueID; } }
+        public string UniqueID => reflectionWrapper.UniqueID;
 
         /// <inheritdoc/>
         public void Dispose() { }
@@ -88,7 +88,7 @@ namespace Xunit
             Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             var keys = data.GetValue<string[]>("Traits.Keys");
             foreach (var key in keys)
-                Traits.Add(key, data.GetValue<string[]>(string.Format("Traits[{0}]", key)).ToList());
+                Traits.Add(key, data.GetValue<string[]>($"Traits[{key}]").ToList());
         }
 
         /// <inheritdoc/>
@@ -103,37 +103,37 @@ namespace Xunit
             data.AddValue("SourceInformation", SourceInformation);
             data.AddValue("Traits.Keys", Traits.Keys.ToArray());
             foreach (var key in Traits.Keys)
-                data.AddValue(string.Format("Traits[{0}]", key), Traits[key].ToArray());
+                data.AddValue($"Traits[{key}]", Traits[key].ToArray());
         }
 
         /// <inheritdoc/>
-        IAssemblyInfo ITestAssembly.Assembly { get { return reflectionWrapper; } }
+        IAssemblyInfo ITestAssembly.Assembly => reflectionWrapper;
 
         /// <inheritdoc/>
         public string ConfigFileName { get; set; }
 
         /// <inheritdoc/>
-        ITypeInfo ITestCollection.CollectionDefinition { get { return null; } }
+        ITypeInfo ITestCollection.CollectionDefinition => null;
 
         /// <inheritdoc/>
-        string ITestCollection.DisplayName { get { return string.Format("xUnit.net v1 Tests for {0}", reflectionWrapper.AssemblyFileName); } }
+        string ITestCollection.DisplayName => $"xUnit.net v1 Tests for {reflectionWrapper.AssemblyFileName}";
 
         /// <inheritdoc/>
-        ITestAssembly ITestCollection.TestAssembly { get { return this; } }
+        ITestAssembly ITestCollection.TestAssembly => this;
 
         /// <inheritdoc/>
-        Guid ITestCollection.UniqueID { get { return Guid.Empty; } }
+        Guid ITestCollection.UniqueID => Guid.Empty;
 
         /// <inheritdoc/>
-        ITypeInfo ITestClass.Class { get { return reflectionWrapper; } }
+        ITypeInfo ITestClass.Class => reflectionWrapper;
 
         /// <inheritdoc/>
-        ITestCollection ITestClass.TestCollection { get { return this; } }
+        ITestCollection ITestClass.TestCollection => this;
 
         /// <inheritdoc/>
-        IMethodInfo ITestMethod.Method { get { return reflectionWrapper; } }
+        IMethodInfo ITestMethod.Method => reflectionWrapper;
 
         /// <inheritdoc/>
-        ITestClass ITestMethod.TestClass { get { return this; } }
+        ITestClass ITestMethod.TestClass => this;
     }
 }

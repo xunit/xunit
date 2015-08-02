@@ -66,7 +66,7 @@ namespace Xunit.ConsoleClient
         static void GuardNoOptionValue(KeyValuePair<string, string> option)
         {
             if (option.Value != null)
-                throw new ArgumentException(string.Format("error: unknown command line option: {0}", option.Value));
+                throw new ArgumentException($"error: unknown command line option: {option.Value}");
         }
 
         static bool IsConfigFile(string fileName)
@@ -91,9 +91,9 @@ namespace Xunit.ConsoleClient
 
                 var assemblyFile = arguments.Pop();
                 if (IsConfigFile(assemblyFile))
-                    throw new ArgumentException(string.Format("expecting assembly, got config file: {0}", assemblyFile));
+                    throw new ArgumentException($"expecting assembly, got config file: {assemblyFile}");
                 if (!fileExists(assemblyFile))
-                    throw new ArgumentException(string.Format("file not found: {0}", assemblyFile));
+                    throw new ArgumentException($"file not found: {assemblyFile}");
 
                 string configFile = null;
                 if (arguments.Count > 0)
@@ -103,7 +103,7 @@ namespace Xunit.ConsoleClient
                     {
                         configFile = arguments.Pop();
                         if (!fileExists(configFile))
-                            throw new ArgumentException(string.Format("config file not found: {0}", configFile));
+                            throw new ArgumentException($"config file not found: {configFile}");
                     }
                 }
 
@@ -121,7 +121,7 @@ namespace Xunit.ConsoleClient
                 var optionName = option.Key.ToLowerInvariant();
 
                 if (!optionName.StartsWith("-", StringComparison.Ordinal))
-                    throw new ArgumentException(string.Format("unknown command line option: {0}", option.Key));
+                    throw new ArgumentException($"unknown command line option: {option.Key}");
 
                 optionName = optionName.Substring(1);
 
@@ -278,7 +278,7 @@ namespace Xunit.ConsoleClient
                     else
                     {
                         if (option.Value == null)
-                            throw new ArgumentException(string.Format("missing filename for {0}", option.Key));
+                            throw new ArgumentException($"missing filename for {option.Key}");
 
                         project.Output.Add(optionName, option.Value);
                     }

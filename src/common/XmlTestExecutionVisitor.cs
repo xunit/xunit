@@ -274,7 +274,7 @@ namespace Xunit
             var escapedValue = new StringBuilder(value.Length);
             for (var idx = 0; idx < value.Length; ++idx)
                 if (value[idx] < 32)
-                    escapedValue.AppendFormat("\\x{0}", ((byte)value[idx]).ToString("x2"));
+                    escapedValue.Append($"\\x{((byte)value[idx]).ToString("x2")}");
                 else
                     escapedValue.Append(value[idx]);
 

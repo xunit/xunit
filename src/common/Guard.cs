@@ -37,7 +37,7 @@ static class Guard
 #if !ANDROID && !DOTNETCORE
         Guard.ArgumentNotNullOrEmpty(argName, fileName);
         Guard.ArgumentValid("assemblyFileName",
-                            string.Format("File not found: {0}", fileName),
+                            $"File not found: {fileName}",
                             File.Exists(fileName));
 #endif
     }

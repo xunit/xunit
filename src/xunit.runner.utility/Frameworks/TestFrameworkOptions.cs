@@ -85,9 +85,7 @@ namespace Xunit
         }
 
         string ToDebuggerDisplay()
-        {
-            return string.Format("{{ {0} }}", string.Join(", ", properties.Select(p => string.Format("{{ {0} = {1} }}", p.Key, ToDebuggerDisplay(p.Value))).ToArray()));
-        }
+            => $"{{ {string.Join(", ", properties.Select(p => string.Format("{{ {0} = {1} }}", p.Key, ToDebuggerDisplay(p.Value))).ToArray())} }}";
 
         string ToDebuggerDisplay(object value)
         {
@@ -96,7 +94,7 @@ namespace Xunit
 
             var stringValue = value as string;
             if (stringValue != null)
-                return string.Format("\"{0}\"", stringValue);
+                return $"\"{stringValue}\"";
 
             return value.ToString();
         }

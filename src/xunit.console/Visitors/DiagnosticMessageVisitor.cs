@@ -26,7 +26,7 @@ namespace Xunit.ConsoleClient
                     if (!noColor)
                         Console.ForegroundColor = ConsoleColor.Yellow;
 
-                    Console.WriteLine("   {0}: {1}", assemblyDisplayName, diagnosticMessage.Message);
+                    Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
 
                     if (!noColor)
                         Console.ResetColor();

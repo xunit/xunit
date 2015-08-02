@@ -157,7 +157,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Exception during discovery:{0}{1}", Environment.NewLine, ex));
+                DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception during discovery:{Environment.NewLine}{ex}"));
                 return true; // Keep going on to the next type
             }
         }

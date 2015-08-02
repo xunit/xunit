@@ -115,17 +115,15 @@ namespace Xunit
 #endif
 
 #if XAMARIN || WINDOWS_PHONE_APP || WINDOWS_PHONE
-            throw new ArgumentException(string.Format("Unknown test framework: Could not find {0}", ExecutionHelper.AssemblyFileName), assemblyFileName);
+            throw new ArgumentException($"Unknown test framework: Could not find {ExecutionHelper.AssemblyFileName}", assemblyFileName);
 #else
-            throw new ArgumentException(string.Format("Unknown test framework: Could not find xunit.dll or {0}.", ExecutionHelper.AssemblyFileName), assemblyFileName);
+            throw new ArgumentException($"Unknown test framework: Could not find xunit.dll or {ExecutionHelper.AssemblyFileName}.", assemblyFileName);
 #endif
         }
 
         /// <inheritdoc/>
         public ITestCase Deserialize(string value)
-        {
-            return InnerController.Deserialize(value);
-        }
+            => InnerController.Deserialize(value);
 
         /// <inheritdoc/>
         public void Dispose()
@@ -160,8 +158,6 @@ namespace Xunit
 
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
-        {
-            return InnerController.Serialize(testCase);
-        }
+            => InnerController.Serialize(testCase);
     }
 }

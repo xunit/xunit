@@ -33,7 +33,7 @@ namespace Xunit
 
             var array = item as object[];
             if (array == null)
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Property {0} on {1} yielded an item that is not an object[]", MemberName, MemberType ?? testMethod.DeclaringType));
+                throw new ArgumentException($"Property {MemberName} on {MemberType ?? testMethod.DeclaringType} yielded an item that is not an object[]");
 
             return array;
         }

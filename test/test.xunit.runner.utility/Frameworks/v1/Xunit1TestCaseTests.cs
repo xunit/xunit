@@ -72,7 +72,7 @@ public class Xunit1TestCaseTests
 
             var result = Create(typeUnderTest, "TestMethod").UniqueID;
 
-            Assert.Equal(string.Format("Xunit1TestCaseTests+UniqueID+ClassUnderTest.TestMethod ({0})", assemblyFileName), result);
+            Assert.Equal($"Xunit1TestCaseTests+UniqueID+ClassUnderTest.TestMethod ({assemblyFileName})", result);
         }
 
         class ClassUnderTest

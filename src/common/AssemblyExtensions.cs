@@ -8,12 +8,12 @@ static class AssemblyExtensions
 {
     public static string GetLocalCodeBase(this Assembly assembly)
     {
-        string codeBase = assembly.CodeBase;
+        var codeBase = assembly.CodeBase;
         if (codeBase == null)
             return null;
 
         if (!codeBase.StartsWith("file:///", StringComparison.Ordinal))
-            throw new ArgumentException(string.Format("Code base {0} in wrong format; must start with file:///", codeBase), nameof(assembly));
+            throw new ArgumentException($"Code base {codeBase} in wrong format; must start with file:///", nameof(assembly));
 
         codeBase = codeBase.Substring(8);
         if (Path.DirectorySeparatorChar == '/')

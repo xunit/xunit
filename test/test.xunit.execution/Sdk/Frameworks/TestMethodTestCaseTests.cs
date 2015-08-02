@@ -70,7 +70,7 @@ public class TestMethodTestCaseTests
 
             var testCase = new TestableTestMethodTestCase(testMethod, arguments);
 
-            Assert.Equal(string.Format("MockType.MockMethod(p1: 42, ???: {0})", 21.12), testCase.DisplayName);
+            Assert.Equal($"MockType.MockMethod(p1: 42, ???: {21.12})", testCase.DisplayName);
         }
 
         [Theory]

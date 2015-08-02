@@ -23,22 +23,22 @@ namespace Xunit
         /// <summary>
         /// Gets the set of trait filters for tests to exclude.
         /// </summary>
-        public Dictionary<string, List<string>> ExcludedTraits { get; private set; }
+        public Dictionary<string, List<string>> ExcludedTraits { get; }
 
         /// <summary>
         /// Gets the set of trait filters for tests to include.
         /// </summary>
-        public Dictionary<string, List<string>> IncludedTraits { get; private set; }
+        public Dictionary<string, List<string>> IncludedTraits { get; }
 
         /// <summary>
         /// Gets the set of method filters for test classes to include.
         /// </summary>
-        public HashSet<string> IncludedClasses { get; private set; }
+        public HashSet<string> IncludedClasses { get; }
 
         /// <summary>
         /// Gets the set of method filters for tests to include.
         /// </summary>
-        public HashSet<string> IncludedMethods { get; private set; }
+        public HashSet<string> IncludedMethods { get; }
 
         /// <summary>
         /// Filters the given method using the defined filter values.
@@ -66,7 +66,7 @@ namespace Xunit
             if (IncludedClasses.Count != 0 && IncludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
                 return true;
 
-            if (IncludedMethods.Count != 0 && IncludedMethods.Contains(string.Format("{0}.{1}", testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name)))
+            if (IncludedMethods.Count != 0 && IncludedMethods.Contains($"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}"))
                 return true;
 
             return false;

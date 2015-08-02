@@ -117,18 +117,10 @@ namespace Xunit
                     children.Add(subIndex);
 
             if (children.Count > 1)
-            {
                 for (var idx = 0; idx < children.Count; ++idx)
-                    result += string.Format("{0}----- Inner Stack Trace #{1} ({2}) -----{0}{3}",
-                                            Environment.NewLine,
-                                            idx + 1,
-                                            GetAt(failureInfo.ExceptionTypes, children[idx]),
-                                            GetStackTrace(failureInfo, children[idx]));
-            }
+                    result += $"{Environment.NewLine}----- Inner Stack Trace #{idx + 1} ({GetAt(failureInfo.ExceptionTypes, children[idx])}) -----{Environment.NewLine}{GetStackTrace(failureInfo, children[idx])}";
             else if (children.Count == 1)
-                result += string.Format("{0}----- Inner Stack Trace -----{0}{1}",
-                                        Environment.NewLine,
-                                        GetStackTrace(failureInfo, children[0]));
+                result += $"{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}{GetStackTrace(failureInfo, children[0])}";
 
             return result;
         }

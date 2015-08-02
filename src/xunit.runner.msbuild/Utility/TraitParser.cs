@@ -25,7 +25,7 @@ namespace Xunit.Runner.MSBuild
 
                     if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
                     {
-                        OnWarning(string.Format("Invalid trait '{0}'. The format should be 'name=value'. This trait will be ignored.", trait));
+                        OnWarning($"Invalid trait '{trait}'. The format should be 'name=value'. This trait will be ignored.");
                         continue;
                     }
 

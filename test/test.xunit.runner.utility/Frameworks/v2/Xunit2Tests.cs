@@ -143,7 +143,7 @@ public class Xunit2Tests
 
                 Assert.Contains("TestClass.TestMethod(x: ???)", testCaseNames);
                 Assert.Contains("TestClass.TestMethod(x: 42)", testCaseNames);
-                Assert.Contains(string.Format("TestClass.TestMethod(x: 42, ???: {0})", 21.12), testCaseNames);
+                Assert.Contains($"TestClass.TestMethod(x: 42, ???: {21.12})", testCaseNames);
             }
         }
     }

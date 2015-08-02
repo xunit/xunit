@@ -106,42 +106,42 @@ namespace Xunit.Runner.MSBuild
 
         protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
         {
-            WriteError(string.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+            WriteError($"Test Assembly Cleanup Failure ({cleanupFailure.TestAssembly.Assembly.AssemblyPath})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
         {
-            WriteError(string.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+            WriteError($"Test Case Cleanup Failure ({cleanupFailure.TestCase.DisplayName})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
         {
-            WriteError(string.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+            WriteError($"Test Class Cleanup Failure ({cleanupFailure.TestClass.Class.Name})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
         {
-            WriteError(string.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+            WriteError($"Test Collection Cleanup Failure ({cleanupFailure.TestCollection.DisplayName})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
-            WriteError(string.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
+            WriteError($"Test Cleanup Failure ({cleanupFailure.Test.DisplayName})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
         {
-            WriteError(string.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+            WriteError($"Test Method Cleanup Failure ({cleanupFailure.TestMethod.Method.Name})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
@@ -168,7 +168,7 @@ namespace Xunit.Runner.MSBuild
 
         void WriteError(string messageType, IFailureInformation failureInfo)
         {
-            var message = string.Format("[{0}] {1}: {2}", messageType, failureInfo.ExceptionTypes[0], ExceptionUtility.CombineMessages(failureInfo));
+            var message = $"[{messageType}] {failureInfo.ExceptionTypes[0]}: {ExceptionUtility.CombineMessages(failureInfo)}";
             var stack = ExceptionUtility.CombineStackTraces(failureInfo);
 
             Log.LogMessage(MessageImportance.High, "##teamcity[message text='{0}' errorDetails='{1}' status='ERROR']", TeamCityEscape(message), TeamCityEscape(stack));

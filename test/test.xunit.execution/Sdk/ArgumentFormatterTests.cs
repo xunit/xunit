@@ -88,7 +88,7 @@ public class ArgumentFormatterTests
         [CulturedFact]
         public static void EnumerableValue()
         {
-            var expected = string.Format("[1, {0}, \"Hello, world!\"]", 2.3M);
+            var expected = $"[1, {2.3M}, \"Hello, world!\"]";
 
             Assert.Equal(expected, ArgumentFormatter.Format(new object[] { 1, 2.3M, "Hello, world!" }));
         }
@@ -115,7 +115,7 @@ public class ArgumentFormatterTests
         [CulturedFact]
         public static void ReturnsValuesInAlphabeticalOrder()
         {
-            var expected = string.Format("MyComplexType {{ MyPublicField = 42, MyPublicProperty = {0} }}", 21.12M);
+            var expected = $"MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }}";
 
             Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexType()));
         }
@@ -141,7 +141,7 @@ public class ArgumentFormatterTests
         [CulturedFact]
         public static void ComplexTypeInsideComplexType()
         {
-            var expected = string.Format("MyComplexTypeWrapper {{ c = 'A', s = \"Hello, world!\", t = MyComplexType {{ MyPublicField = 42, MyPublicProperty = {0} }} }}", 21.12M);
+            var expected = $"MyComplexTypeWrapper {{ c = 'A', s = \"Hello, world!\", t = MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }} }}";
 
             Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexTypeWrapper()));
         }
@@ -173,7 +173,7 @@ public class ArgumentFormatterTests
         [CulturedFact]
         public static void LimitsOutputToFirstFewValues()
         {
-            var expected = string.Format(@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {0}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ... }}", 21.12);
+            var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, ... }}";
 
             Assert.Equal(expected, ArgumentFormatter.Format(new Big()));
         }

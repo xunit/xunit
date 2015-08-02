@@ -8,9 +8,7 @@ namespace Xunit
         /// Gets the file name of the execution DLL (with extension) used to run xUnit.net v2 tests.
         /// </summary>
         public static string AssemblyFileName
-        {
-            get { return string.Format("xunit.execution.{0}.dll", PlatformSpecificAssemblySuffix); }
-        }
+            => $"xunit.execution.{PlatformSpecificAssemblySuffix}.dll";
 
         /// <summary>
         /// Gets the file name suffix used to construct platform-specific DLL names.

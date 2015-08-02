@@ -29,64 +29,56 @@ namespace Xunit.Runner.Reporters
 
         protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Assembly Cleanup Failure ({0})", cleanupFailure.TestAssembly.Assembly.AssemblyPath), cleanupFailure);
+            LogError($"Test Assembly Cleanup Failure ({cleanupFailure.TestAssembly.Assembly.AssemblyPath})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Case Cleanup Failure ({0})", cleanupFailure.TestCase.DisplayName), cleanupFailure);
+            LogError($"Test Case Cleanup Failure ({cleanupFailure.TestCase.DisplayName})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Class Cleanup Failure ({0})", cleanupFailure.TestClass.Class.Name), cleanupFailure);
+            LogError($"Test Class Cleanup Failure ({cleanupFailure.TestClass.Class.Name})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Collection Cleanup Failure ({0})", cleanupFailure.TestCollection.DisplayName), cleanupFailure);
+            LogError($"Test Collection Cleanup Failure ({cleanupFailure.TestCollection.DisplayName})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestCollectionFinished testCollectionFinished)
         {
-            logger.LogImportantMessage("##teamcity[testSuiteFinished name='{0}' flowId='{1}']",
-                                       Escape(displayNameFormatter.DisplayName(testCollectionFinished.TestCollection)),
-                                       ToFlowId(testCollectionFinished.TestCollection.DisplayName));
+            logger.LogImportantMessage($"##teamcity[testSuiteFinished name='{Escape(displayNameFormatter.DisplayName(testCollectionFinished.TestCollection))}' flowId='{ToFlowId(testCollectionFinished.TestCollection.DisplayName)}']");
 
             return base.Visit(testCollectionFinished);
         }
 
         protected override bool Visit(ITestCollectionStarting testCollectionStarting)
         {
-            logger.LogImportantMessage("##teamcity[testSuiteStarted name='{0}' flowId='{1}']",
-                                       Escape(displayNameFormatter.DisplayName(testCollectionStarting.TestCollection)),
-                                       ToFlowId(testCollectionStarting.TestCollection.DisplayName));
+            logger.LogImportantMessage($"##teamcity[testSuiteStarted name='{Escape(displayNameFormatter.DisplayName(testCollectionStarting.TestCollection))}' flowId='{ToFlowId(testCollectionStarting.TestCollection.DisplayName)}']");
 
             return base.Visit(testCollectionStarting);
         }
 
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Cleanup Failure ({0})", cleanupFailure.Test.DisplayName), cleanupFailure);
+            LogError($"Test Cleanup Failure ({cleanupFailure.Test.DisplayName})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
 
         protected override bool Visit(ITestFailed testFailed)
         {
-            logger.LogImportantMessage("##teamcity[testFailed name='{0}' details='{1}|r|n{2}' flowId='{3}']",
-                                       Escape(displayNameFormatter.DisplayName(testFailed.Test)),
-                                       Escape(ExceptionUtility.CombineMessages(testFailed)),
-                                       Escape(ExceptionUtility.CombineStackTraces(testFailed)),
-                                       ToFlowId(testFailed.TestCollection.DisplayName));
+            logger.LogImportantMessage($"##teamcity[testFailed name='{Escape(displayNameFormatter.DisplayName(testFailed.Test))}' details='{Escape(ExceptionUtility.CombineMessages(testFailed))}|r|n{Escape(ExceptionUtility.CombineStackTraces(testFailed))}' flowId='{ToFlowId(testFailed.TestCollection.DisplayName)}']");
             LogFinish(testFailed);
 
             return base.Visit(testFailed);
@@ -94,7 +86,7 @@ namespace Xunit.Runner.Reporters
 
         protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
         {
-            LogError(string.Format("Test Method Cleanup Failure ({0})", cleanupFailure.TestMethod.Method.Name), cleanupFailure);
+            LogError($"Test Method Cleanup Failure ({cleanupFailure.TestMethod.Method.Name})", cleanupFailure);
 
             return base.Visit(cleanupFailure);
         }
@@ -108,10 +100,7 @@ namespace Xunit.Runner.Reporters
 
         protected override bool Visit(ITestSkipped testSkipped)
         {
-            logger.LogImportantMessage("##teamcity[testIgnored name='{0}' message='{1}' flowId='{2}']",
-                                       Escape(displayNameFormatter.DisplayName(testSkipped.Test)),
-                                       Escape(testSkipped.Reason),
-                                       ToFlowId(testSkipped.TestCollection.DisplayName));
+            logger.LogImportantMessage($"##teamcity[testIgnored name='{Escape(displayNameFormatter.DisplayName(testSkipped.Test))}' message='{Escape(testSkipped.Reason)}' flowId='{ToFlowId(testSkipped.TestCollection.DisplayName)}']");
             LogFinish(testSkipped);
 
             return base.Visit(testSkipped);
@@ -119,9 +108,7 @@ namespace Xunit.Runner.Reporters
 
         protected override bool Visit(ITestStarting testStarting)
         {
-            logger.LogImportantMessage("##teamcity[testStarted name='{0}' flowId='{1}']",
-                                       Escape(displayNameFormatter.DisplayName(testStarting.Test)),
-                                       ToFlowId(testStarting.TestCollection.DisplayName));
+            logger.LogImportantMessage($"##teamcity[testStarted name='{Escape(displayNameFormatter.DisplayName(testStarting.Test))}' flowId='{ToFlowId(testStarting.TestCollection.DisplayName)}']");
 
             return base.Visit(testStarting);
         }
@@ -130,10 +117,10 @@ namespace Xunit.Runner.Reporters
 
         void LogError(string messageType, IFailureInformation failureInfo)
         {
-            var message = string.Format("[{0}] {1}: {2}", messageType, failureInfo.ExceptionTypes[0], ExceptionUtility.CombineMessages(failureInfo));
+            var message = $"[{messageType}] {failureInfo.ExceptionTypes[0]}: {ExceptionUtility.CombineMessages(failureInfo)}";
             var stack = ExceptionUtility.CombineStackTraces(failureInfo);
 
-            logger.LogImportantMessage("##teamcity[message text='{0}' errorDetails='{1}' status='ERROR']", Escape(message), Escape(stack));
+            logger.LogImportantMessage($"##teamcity[message text='{Escape(message)}' errorDetails='{Escape(stack)}' status='ERROR']");
         }
 
         void LogFinish(ITestResultMessage testResult)
@@ -141,12 +128,9 @@ namespace Xunit.Runner.Reporters
             var formattedName = Escape(displayNameFormatter.DisplayName(testResult.Test));
 
             if (!string.IsNullOrWhiteSpace(testResult.Output))
-                logger.LogImportantMessage("##teamcity[testStdOut name='{0}' out='{1}']", formattedName, Escape(testResult.Output));
+                logger.LogImportantMessage($"##teamcity[testStdOut name='{formattedName}' out='{Escape(testResult.Output)}']");
 
-            logger.LogImportantMessage("##teamcity[testFinished name='{0}' duration='{1}' flowId='{2}']",
-                                       formattedName,
-                                       (int)(testResult.ExecutionTime * 1000M),
-                                       ToFlowId(testResult.TestCollection.DisplayName));
+            logger.LogImportantMessage($"##teamcity[testFinished name='{formattedName}' duration='{(int)(testResult.ExecutionTime * 1000M)}' flowId='{ToFlowId(testResult.TestCollection.DisplayName)}']");
         }
 
         static string Escape(string value)
@@ -166,8 +150,6 @@ namespace Xunit.Runner.Reporters
         }
 
         string ToFlowId(string testCollectionName)
-        {
-            return flowMappings.GetOrAdd(testCollectionName, flowIdMapper);
-        }
+            => flowMappings.GetOrAdd(testCollectionName, flowIdMapper);
     }
 }

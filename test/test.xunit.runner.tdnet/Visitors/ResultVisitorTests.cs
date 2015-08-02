@@ -157,7 +157,7 @@ public class ResultVisitorTests
 
                 Assert.Equal(TestRunState.Failure, visitor.TestRunState);
                 var testResult = listener.Captured(x => x.TestFinished(null)).Arg<TestResult>();
-                Assert.Equal(string.Format("*** {0} ***", messageType), testResult.Name);
+                Assert.Equal($"*** {messageType} ***", testResult.Name);
                 Assert.Equal(TestState.Failed, testResult.State);
                 Assert.Equal(1, testResult.TotalTests);
                 Assert.Equal("ExceptionType : This is my message \t\r\n", testResult.Message);

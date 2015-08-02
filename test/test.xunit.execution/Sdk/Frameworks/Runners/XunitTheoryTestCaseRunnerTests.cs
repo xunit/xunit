@@ -21,7 +21,7 @@ public class XunitTheoryTestCaseRunnerTests
         Assert.Equal(2, summary.Total);
         Assert.Equal(1, summary.Failed);
         var passed = messageBus.Messages.OfType<ITestPassed>().Single();
-        Assert.Equal(string.Format("Display Name(x: 42, y: {0}, z: \"Hello\")", 21.12), passed.Test.DisplayName);
+        Assert.Equal($"Display Name(x: 42, y: {21.12}, z: \"Hello\")", passed.Test.DisplayName);
         var failed = messageBus.Messages.OfType<ITestFailed>().Single();
         Assert.Equal("Display Name(x: 0, y: 0, z: \"World!\")", failed.Test.DisplayName);
     }

@@ -21,9 +21,7 @@ namespace Xunit.Runner.Reporters
         }
 
         public static bool IsRunningInAppVeyor
-        {
-            get { return ApiUri != null; }
-        }
+            => ApiUri != null;
 
         static byte[] Json(object data)
         {

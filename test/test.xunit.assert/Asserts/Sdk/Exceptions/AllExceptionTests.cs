@@ -9,7 +9,7 @@ public class AllExceptionTests
     {
         var errors = new[]
         {
-            new Tuple<int, Exception>(1, new Exception(string.Format("Multi-line{0}message", Environment.NewLine))),
+            new Tuple<int, Exception>(1, new Exception($"Multi-line{Environment.NewLine}message")),
             new Tuple<int, Exception>(3, new Exception("Error 2")),
             new Tuple<int, Exception>(5, new Exception("Error 3")),
         };
