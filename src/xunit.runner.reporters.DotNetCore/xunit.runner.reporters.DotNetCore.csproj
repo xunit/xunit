@@ -56,6 +56,7 @@
   <ItemGroup>
     <NuSpecFile Include="$(SolutionDir)src\xunit.runner.reporters.nuspec" />
     <NuSpecTfm Include="dotnet" />
+    <NuSpecTfm Include="dnx46" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.utility.DotNetCore\xunit.runner.utility.DotNetCore.csproj">

@@ -34,10 +34,24 @@ Supported platforms:
         <dependency id="System.Threading.Tasks" version="4.0.10" />
         <dependency id="xunit.abstractions" version="2.0.0" />
       </group>
+      <group targetFramework="dnx46">
+        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
+        <dependency id="System.Diagnostics.Debug" version="4.0.10" />
+        <dependency id="Newtonsoft.Json" version="6.0.6" />
+        <dependency id="System.Collections.Concurrent" version="4.0.10" />
+        <dependency id="System.Net.Http" version="4.0.0" />
+        <dependency id="System.Runtime" version="4.0.20" />
+        <dependency id="System.Runtime.Extensions" version="4.0.10" />
+        <dependency id="System.Text.Encoding" version="4.0.10" />
+        <dependency id="System.Threading" version="4.0.10" />
+        <dependency id="System.Threading.Tasks" version="4.0.10" />
+        <dependency id="xunit.abstractions" version="2.0.0" />
+      </group>
     </dependencies>
   </metadata>
   <files>
     <file src="xunit.runner.reporters.desktop\bin\Release\xunit.runner.reporters.desktop.dll" target="lib\net45\" />
+    <file src="xunit.runner.reporters.DotNetCore\bin\Release\xunit.runner.reporters.DotNetCore.dll" target="lib\dnx46\" />
     <file src="xunit.runner.reporters.DotNetCore\bin\Release\xunit.runner.reporters.DotNetCore.dll" target="lib\dotnet\" />
   </files>
 </package>
