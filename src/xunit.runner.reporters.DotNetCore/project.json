@@ -3,7 +3,7 @@
     "dependencies": {
         "Newtonsoft.Json": "6.0.6",
         "NuSpec.ReferenceGenerator": "1.0.1",
-        "System.Collections.Concurrent": "4.0.10",
+        "System.Collections.Concurrent": "4.0.0",
         "System.Net.Http": "4.0.0",
         "xunit.abstractions": "2.0.0"
     },
