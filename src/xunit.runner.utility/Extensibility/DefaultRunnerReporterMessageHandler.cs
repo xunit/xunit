@@ -23,7 +23,7 @@ namespace Xunit
         /// <param name="logger">The logger used to report messages</param>
         public DefaultRunnerReporterMessageHandler(IRunnerLogger logger)
         {
-#if !WINDOWS_PHONE_APP
+#if !WINDOWS_PHONE_APP && !DOTNETCORE
             defaultDirectory = Directory.GetCurrentDirectory();
 #endif
 

@@ -1,13 +1,10 @@
 ﻿{
-    "supports": {
-        "net46.app": { },
-        "uwp.10.0.app": { }
-    },
+    "version": "99.99.99-dev",
     "dependencies": {
-        "Microsoft.NETCore": "5.0.0",
-        "Microsoft.NETCore.Portable.Compatibility": "1.0.0",
         "Newtonsoft.Json": "6.0.6",
         "NuSpec.ReferenceGenerator": "1.0.1",
+        "System.Collections.Concurrent": "4.0.10",
+        "System.Net.Http": "4.0.0",
         "xunit.abstractions": "2.0.0"
     },
     "frameworks": {

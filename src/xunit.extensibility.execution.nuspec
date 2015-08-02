@@ -39,13 +39,13 @@ Supported platforms:
         <dependency id="System.Collections.Concurrent" version="4.0.10" />
         <dependency id="System.Diagnostics.Debug" version="4.0.10" />
         <dependency id="System.Globalization" version="4.0.10" />
-        <dependency id="System.IO" version="4.0.10" />
+        <dependency id="System.IO" version="4.0.0" />
         <dependency id="System.Linq" version="4.0.0" />
-        <dependency id="System.Reflection" version="4.0.10" />
+        <dependency id="System.Reflection" version="4.0.0" />
         <dependency id="System.Reflection.Extensions" version="4.0.0" />
         <dependency id="System.Runtime" version="4.0.20" />
         <dependency id="System.Runtime.Extensions" version="4.0.10" />
-        <dependency id="System.Text.Encoding" version="4.0.10" />
+        <dependency id="System.Text.Encoding" version="4.0.0" />
         <dependency id="System.Threading" version="4.0.10" />
         <dependency id="System.Threading.Tasks" version="4.0.10" />
         <dependency id="xunit.abstractions" version="2.0.0" />

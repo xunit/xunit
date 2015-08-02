@@ -8,6 +8,20 @@ namespace Xunit
     /// </summary>
     public static class ConfigReader_Json
     {
+        static ConfigReader_Json()
+        {
+            // HACK: This is necssary to back-port support for dnx451, because .NET Core relies
+            // upon the System.IO.FileSystem NuGet package, which is not compatible with net451.
+#if !DOTNETCORE
+            FileOpenRead = System.IO.File.OpenRead;
+#endif
+        }
+
+        /// <summary>
+        /// Represents the ability open a file for reading.
+        /// </summary>
+        public static Func<string, Stream> FileOpenRead { get; set; }
+
         /// <summary>
         /// Loads the test assembly configuration for the given test assembly.
         /// </summary>
@@ -25,7 +39,7 @@ namespace Xunit
                 {
                     var result = new TestAssemblyConfiguration();
 
-                    using (var stream = File.OpenRead(configFileName))
+                    using (var stream = FileOpenRead(configFileName))
                     using (var reader = new StreamReader(stream))
                     {
                         var config = JsonDeserializer.Deserialize(reader) as JsonObject;
