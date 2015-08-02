@@ -23,6 +23,9 @@ Supported platforms:
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
       <group targetFramework="net45"></group>
+      <group targetFramework="netcore45"></group>
+      <group targetFramework="wp8"></group>
+      <group targetFramework="wpa81"></group>
       <group targetFramework="dotnet">
         <dependency id="System.Collections" version="4.0.0" />
         <dependency id="System.Diagnostics.Debug" version="4.0.0" />

@@ -25,10 +25,16 @@ Supported platforms:
       <reference file="xunit.core.dll" />
     </references>
     <dependencies>
-      <group>
+      <group targetFramework="net45">
         <dependency id="xunit.abstractions" version="2.0.0" />
       </group>
-      <group targetFramework="net45">
+      <group targetFramework="netcore45">
+        <dependency id="xunit.abstractions" version="2.0.0" />
+      </group>
+      <group targetFramework="wp8">
+        <dependency id="xunit.abstractions" version="2.0.0" />
+      </group>
+      <group targetFramework="wpa81">
         <dependency id="xunit.abstractions" version="2.0.0" />
       </group>
       <group targetFramework="dotnet">
