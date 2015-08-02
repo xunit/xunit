@@ -16,7 +16,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the display name of the xUnit.net v2 test framework.
         /// </summary>
-        public static readonly string DisplayName = string.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).GetTypeInfo().Assembly.GetName().Version);
+        public static readonly string DisplayName = string.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", new object[] { typeof(XunitTestFrameworkDiscoverer).GetTypeInfo().Assembly.GetName().Version });
 
         readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
 

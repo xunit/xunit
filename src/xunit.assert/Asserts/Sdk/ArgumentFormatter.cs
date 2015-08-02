@@ -57,27 +57,27 @@ namespace Xunit.Sdk
 
             var valueAsType = value as Type;
             if (valueAsType != null)
-                return string.Format("typeof({0})", FormatTypeName(valueAsType));
+                return string.Format("typeof({0})", new object[] { FormatTypeName(valueAsType) });
 
             if (value is char)
             {
                 var charValue = (char)value;
                 if (char.IsLetterOrDigit(charValue) || char.IsPunctuation(charValue) || char.IsSymbol(charValue) || charValue == ' ')
-                    return string.Format("'{0}'", value);
+                    return string.Format("'{0}'", new object[] { value });
 
-                return string.Format("0x{0:x4}", (int)charValue);
+                return string.Format("0x{0:x4}", new object[] { (int)charValue });
             }
 
             if (value is DateTime || value is DateTimeOffset)
-                return string.Format("{0:o}", value);
+                return string.Format("{0:o}", new object[] { value });
 
             var stringParameter = value as string;
             if (stringParameter != null)
             {
                 if (stringParameter.Length > MAX_STRING_LENGTH)
-                    return string.Format("\"{0}\"...", stringParameter.Substring(0, MAX_STRING_LENGTH));
+                    return string.Format("\"{0}\"...", new object[] { stringParameter.Substring(0, MAX_STRING_LENGTH) });
 
-                return string.Format("\"{0}\"", stringParameter);
+                return string.Format("\"{0}\"", new object[] { stringParameter });
             }
 
             var enumerable = value as IEnumerable;
@@ -103,7 +103,7 @@ namespace Xunit.Sdk
         static string FormatComplexValue(object value, int depth, Type type)
         {
             if (depth == MAX_DEPTH)
-                return string.Format("{0} {{ ... }}", type.Name);
+                return string.Format("{0} {{ ... }}", new object[] { type.Name });
 
             var fields = type.GetRuntimeFields()
                              .Where(f => f.IsPublic && !f.IsStatic)
@@ -117,15 +117,15 @@ namespace Xunit.Sdk
                                    .ToList();
 
             if (parameters.Count == 0)
-                return string.Format("{0} {{ }}", type.Name);
+                return string.Format("{0} {{ }}", new object[] { type.Name });
 
             var formattedParameters = string.Join(", ", parameters.Take(MAX_OBJECT_PARAMETER_COUNT)
-                                                                  .Select(p => string.Format("{0} = {1}", p.name, p.value)));
+                                                                  .Select(p => string.Format("{0} = {1}", new object[] { p.name, p.value })));
 
             if (parameters.Count > MAX_OBJECT_PARAMETER_COUNT)
                 formattedParameters += ", ...";
 
-            return string.Format("{0} {{ {1} }}", type.Name, formattedParameters);
+            return string.Format("{0} {{ {1} }}", new object[] { type.Name, formattedParameters });
         }
 
         static string FormatEnumerable(IEnumerable<object> enumerableValues, int depth)
@@ -139,7 +139,7 @@ namespace Xunit.Sdk
             if (values.Count > MAX_ENUMERABLE_LENGTH)
                 printedValues += ", ...";
 
-            return string.Format("[{0}]", printedValues);
+            return string.Format("[{0}]", new object[] { printedValues });
         }
 
         static string FormatTypeName(Type type)
@@ -151,7 +151,7 @@ namespace Xunit.Sdk
             while (typeInfo.IsArray)
             {
                 var rank = typeInfo.GetArrayRank();
-                arraySuffix += string.Format("[{0}]", new String(',', rank - 1));
+                arraySuffix += string.Format("[{0}]", new object[] { new string(',', rank - 1) });
                 typeInfo = typeInfo.GetElementType().GetTypeInfo();
             }
 
@@ -167,13 +167,13 @@ namespace Xunit.Sdk
                 name = name.Substring(0, tickIdx);
 
             if (typeInfo.IsGenericTypeDefinition)
-                name = string.Format("{0}<{1}>", name, new string(',', typeInfo.GenericTypeParameters.Length - 1));
+                name = string.Format("{0}<{1}>", new object[] { name, new string(',', typeInfo.GenericTypeParameters.Length - 1) });
             else if (typeInfo.IsGenericType)
             {
                 if (typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
                     name = FormatTypeName(typeInfo.GenericTypeArguments[0]) + "?";
                 else
-                    name = string.Format("{0}<{1}>", name, string.Join(", ", typeInfo.GenericTypeArguments.Select(FormatTypeName)));
+                    name = string.Format("{0}<{1}>", new object[] { name, string.Join(", ", typeInfo.GenericTypeArguments.Select(FormatTypeName)) });
             }
 
             return name + arraySuffix;
@@ -187,7 +187,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                return string.Format("(throws {0})", UnwrapException(ex).GetType().Name);
+                return string.Format("(throws {0})", new object[] { UnwrapException(ex).GetType().Name });
             }
         }
 
