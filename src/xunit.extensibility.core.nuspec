@@ -67,8 +67,11 @@ Supported platforms:
     <file src="xunit.core\bin\Release\xunit.core.xml"                                     target="lib\portable-net45+netcore45+wp8+wpa81\" />
     <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll"                     target="lib\portable-net45+netcore45+wp8+wpa81\" />
     <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
-    <file src="xunit.core\bin\Release\xunit.core.dll" target="lib\dotnet\" />
-    <file src="xunit.core\bin\Release\xunit.core.pdb" target="lib\dotnet\" />
-    <file src="xunit.core\bin\Release\xunit.core.xml" target="lib\dotnet\" />
+    <file src="xunit.core\bin\Release\xunit.core.dll"                                     target="lib\dotnet\" />
+    <file src="xunit.core\bin\Release\xunit.core.dll.tdnet"                               target="lib\dotnet\" />
+    <file src="xunit.core\bin\Release\xunit.core.pdb"                                     target="lib\dotnet\" />
+    <file src="xunit.core\bin\Release\xunit.core.xml"                                     target="lib\dotnet\" />
+    <file src="xunit.runner.tdnet\bin\Release\xunit.runner.tdnet.dll"                     target="lib\dotnet\" />
+    <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.dll" target="lib\dotnet\" />
   </files>
 </package>
