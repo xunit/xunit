@@ -80,7 +80,7 @@ Supported platforms:
     <!-- monotouch -->
     <file src="xunit.core\build\xunit.core.props" target="build\monotouch\" />
     <file src="xunit.execution.MonoTouch\bin\iPhone\Release\xunit.execution.MonoTouch.dll" target="build\monotouch\" />
-    <!-- portable and dotnet -->
+    <!-- portable -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-net45+netcore45+wp8+wpa81\xunit.core.props" />
     <!-- universal -->
     <file src="xunit.core\build\xunit.core.WithDesktop.props" target="build\portable-win81+wpa81\xunit.core.props" />

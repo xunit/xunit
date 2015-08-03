@@ -18,7 +18,10 @@ namespace Xunit.Sdk
         bool initialized;
         int maxParallelThreads;
         SynchronizationContext originalSyncContext;
+
+#if !DOTNETCORE
         MaxConcurrencySyncContext syncContext;
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestAssemblyRunner"/> class.
@@ -36,6 +39,7 @@ namespace Xunit.Sdk
             : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
         { }
 
+#if !DOTNETCORE
         /// <inheritdoc/>
         public override void Dispose()
         {
@@ -43,6 +47,7 @@ namespace Xunit.Sdk
             if (disposable != null)
                 disposable.Dispose();
         }
+#endif
 
         /// <inheritdoc/>
         protected override string GetTestFrameworkDisplayName()
@@ -61,16 +66,18 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the synchronization context used when potentially running tests in parallel.
         /// If <paramref name="maxParallelThreads"/> is greater than 0, it creates
-        /// and uses an instance of <see cref="MaxConcurrencySyncContext"/>.
+        /// and uses an instance of <see cref="T:Xunit.Sdk.MaxConcurrencySyncContext"/>.
         /// </summary>
         /// <param name="maxParallelThreads">The maximum number of parallel threads.</param>
         protected virtual void SetupSyncContext(int maxParallelThreads)
         {
+#if !DOTNETCORE
             if (maxParallelThreads < 1)
                 maxParallelThreads = Environment.ProcessorCount;
 
             syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
             SetSynchronizationContext(syncContext);
+#endif
         }
 
         /// <summary>
