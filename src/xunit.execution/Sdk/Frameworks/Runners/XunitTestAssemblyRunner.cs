@@ -60,7 +60,7 @@ namespace Xunit.Sdk
 
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly);
 
-            return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}{(maxParallelThreads > 0 ? $" ({maxParallelThreads} threads)": "")}]";
+            return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}{(maxParallelThreads > 0 ? $" ({maxParallelThreads} threads)" : "")}]";
         }
 
         /// <summary>
@@ -172,13 +172,17 @@ namespace Xunit.Sdk
 
             SetupSyncContext(maxParallelThreads);
 
-            var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            Func<Func<Task<RunSummary>>, Task<RunSummary>> taskRunner;
+            if (SynchronizationContext.Current != null)
+            {
+                var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+                taskRunner = code => Task.Factory.StartNew(code, cancellationTokenSource.Token, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler, scheduler).Unwrap();
+            }
+            else
+                taskRunner = code => Task.Run(code, cancellationTokenSource.Token);
 
             var tasks = OrderTestCollections().Select(
-                collection => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource),
-                                                                                 cancellationTokenSource.Token,
-                                                                                 TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler,
-                                                                                 scheduler).Unwrap()
+                collection => taskRunner(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource))
             ).ToArray();
 
             var summaries = new List<RunSummary>();
