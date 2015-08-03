@@ -13,12 +13,12 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
   </metadata>
   <files>
-    <file src="xunit.console\*.xslt"                                                target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.abstractions.dll"             target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.reporters.desktop.dll" target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.utility.desktop.dll"   target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll"           target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"               target="build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="build\_"                                                             target="lib\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\_" />
+    <file src="xunit.console\*.xslt"                                                target="build\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\bin\Release\xunit.abstractions.dll"             target="build\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.reporters.desktop.dll" target="build\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.utility.desktop.dll"   target="build\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll"           target="build\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"               target="build\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="build\_"                                                             target="lib\portable-net45+netcore45+wp8+wpa81\_" />
   </files>
 </package>

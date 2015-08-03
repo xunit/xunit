@@ -6,8 +6,15 @@
     <title>xUnit.net [Abstractions]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <description>
-      Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).
-      Supported platforms: Desktop .NET 3.5+, DNX 4.5.1+, DNX Core 5+, Windows Phone 8+ (Silverlight), Universal (Windows Phone 8.1+, Windows 8.1+), Portable Libraries (supporting Profile259).
+Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).
+
+Supported platforms:
+- Desktop .NET 3.5+
+- .NET Core (Universal Windows Apps 10+, DNX Core 5+)
+- Windows Phone 8 (Silverlight)
+- Universal (Windows Phone 8.1+, Windows 8.1+)
+- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
+- Portable Libraries (supporting Profile259)
     </description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -19,7 +26,7 @@
     <file src="xunit.abstractions.net35\bin\Release\xunit.abstractions.dll" target="lib\net35\" />
     <file src="xunit.abstractions.net35\bin\Release\xunit.abstractions.xml" target="lib\net35\" />
 
-    <file src="xunit.abstractions.pcl\bin\Release\xunit.abstractions.dll" target="lib\portable-net45+dnxcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
-    <file src="xunit.abstractions.pcl\bin\Release\xunit.abstractions.xml" target="lib\portable-net45+dnxcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\" />
+    <file src="xunit.abstractions.pcl\bin\Release\xunit.abstractions.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.abstractions.pcl\bin\Release\xunit.abstractions.xml" target="lib\portable-net45+netcore45+wp8+wpa81\" />
   </files>
 </package>
