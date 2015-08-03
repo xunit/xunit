@@ -53,15 +53,15 @@ Supported platforms:
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
         <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
       </group>
-      <group targetFramework="Xamarin.iOS">
+      <group targetFramework="monoandroid">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
         <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
       </group>
-      <group targetFramework="MonoTouch">
+      <group targetFramework="monotouch">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
         <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
       </group>
-      <group targetFramework="MonoAndroid">
+      <group targetFramework="xamarinios">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
         <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
       </group>
@@ -91,8 +91,8 @@ Supported platforms:
     <file src="xunit.core\build\xunit.core.props" target="build\wp8\" />
     <file src="xunit.core\build\xunit.core.wp8.targets" target="build\wp8\xunit.core.targets" />
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.dll" target="build\wp8\" />
-    <!-- Xamarin.iOS -->
-    <file src="xunit.core\build\xunit.core.props" target="build\Xamarin.iOS\" />
-    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.dll" target="build\Xamarin.iOS\" />
+    <!-- xamarinios -->
+    <file src="xunit.core\build\xunit.core.props" target="build\xamarinios\" />
+    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.dll" target="build\xamarinios\" />
   </files>
 </package>

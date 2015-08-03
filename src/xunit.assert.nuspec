@@ -26,6 +26,9 @@ Supported platforms:
       <group targetFramework="netcore45"></group>
       <group targetFramework="wp8"></group>
       <group targetFramework="wpa81"></group>
+      <group targetFramework="monoandroid"></group>
+      <group targetFramework="monotouch"></group>
+      <group targetFramework="xamarinios"></group>
       <group targetFramework="dotnet">
         <dependency id="System.Collections" version="4.0.0" />
         <dependency id="System.Diagnostics.Debug" version="4.0.0" />

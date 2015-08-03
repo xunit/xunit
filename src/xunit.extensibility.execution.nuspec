@@ -33,6 +33,15 @@ Supported platforms:
       <group targetFramework="wpa81">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
+      <group targetFramework="monoandroid">
+        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
+      </group>
+      <group targetFramework="monotouch">
+        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
+      </group>
+      <group targetFramework="xamarinios">
+        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
+      </group>
       <group targetFramework="dotnet">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
         <dependency id="System.Collections" version="4.0.10" />
@@ -92,8 +101,8 @@ Supported platforms:
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.dll" target="lib\wp8\" />
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.pdb" target="lib\wp8\" />
     <file src="xunit.execution.wp8\bin\Release\xunit.execution.wp8.xml" target="lib\wp8\" />
-    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.dll" target="lib\Xamarin.iOS\" />
-    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.pdb" target="lib\Xamarin.iOS\" />
-    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.xml" target="lib\Xamarin.iOS\" />
+    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.dll" target="lib\xamarinios\" />
+    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.pdb" target="lib\xamarinios\" />
+    <file src="xunit.execution.iOS-Universal\bin\iPhone\Release\xunit.execution.iOS-Universal.xml" target="lib\xamarinios\" />
   </files>
 </package>
