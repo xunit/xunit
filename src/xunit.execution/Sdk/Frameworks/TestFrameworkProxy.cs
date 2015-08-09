@@ -113,7 +113,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// INTERNAL CLASS. DO NOT USE.
         /// </summary>
-        public class MessageSinkWrapper : IMessageSink
+        public class MessageSinkWrapper : LongLivedMarshalByRefObject, IMessageSink
         {
             /// <summary/>
             public readonly IMessageSink InnerSink;
