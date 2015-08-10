@@ -80,7 +80,17 @@ namespace Xunit.Sdk
                     $"Class fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
                 ));
             else
+            {
                 Aggregator.Run(() => ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
+            }
+        }
+
+        async Task CreateClassFixtureAsync(Type fixtureType)
+        {
+            CreateClassFixture(fixtureType);
+            foreach(var uninitializedFixture in ClassFixtureMappings.Values.OfType<IAsyncFixture>())
+                await Aggregator.RunAsync(uninitializedFixture.SetupAsync);
+            
         }
 
         /// <inheritdoc/>
@@ -88,7 +98,7 @@ namespace Xunit.Sdk
             => $"The following constructor parameters did not have matching fixture data: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
 
         /// <inheritdoc/>
-        protected override Task AfterTestClassStartingAsync()
+        protected override async Task AfterTestClassStartingAsync()
         {
             var ordererAttribute = Class.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (ordererAttribute != null)
@@ -117,25 +127,24 @@ namespace Xunit.Sdk
                 Aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
 
             foreach (var interfaceType in testClassTypeInfo.ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-                CreateClassFixture(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
+                await CreateClassFixtureAsync(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
 
             if (TestClass.TestCollection.CollectionDefinition != null)
             {
                 var declarationType = ((IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
                 foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-                    CreateClassFixture(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
+                    await CreateClassFixtureAsync(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
             }
-
-            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>
-        protected override Task BeforeTestClassFinishedAsync()
+        protected override async Task BeforeTestClassFinishedAsync()
         {
+            foreach (var fixture in ClassFixtureMappings.Values.OfType<IAsyncFixture>())
+                await Aggregator.RunAsync(fixture.TeardownAsync);
+
             foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
-
-            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>

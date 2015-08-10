@@ -66,6 +66,7 @@
     <Compile Include="CollectionBehaviorAttribute.cs" />
     <Compile Include="CollectionDefinitionAttribute.cs" />
     <Compile Include="FactAttribute.cs" />
+    <Compile Include="IAsyncFixture.cs" />
     <Compile Include="IClassFixture.cs" />
     <Compile Include="ICollectionFixture.cs" />
     <Compile Include="InlineDataAttribute.cs" />
