@@ -43,21 +43,20 @@ namespace Xunit.Sdk
         protected Dictionary<Type, object> CollectionFixtureMappings { get; set; } = new Dictionary<Type, object>();
 
         /// <inheritdoc/>
-        protected override Task AfterTestCollectionStartingAsync()
+        protected override async Task AfterTestCollectionStartingAsync()
         {
-            CreateCollectionFixtures();
+            await CreateCollectionFixturesAsync();
             TestCaseOrderer = GetTestCaseOrderer() ?? TestCaseOrderer;
-
-            return CommonTasks.Completed;
         }
 
         /// <inheritdoc/>
-        protected override Task BeforeTestCollectionFinishedAsync()
+        protected override async Task BeforeTestCollectionFinishedAsync()
         {
+            foreach (var fixture in CollectionFixtureMappings.Values.OfType<IAsyncFixture>())
+                await Aggregator.RunAsync(fixture.TeardownAsync);
+
             foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
-
-            return CommonTasks.Completed;
         }
 
         /// <summary>
@@ -69,13 +68,21 @@ namespace Xunit.Sdk
         protected virtual void CreateCollectionFixture(Type fixtureType)
             => Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
 
-        void CreateCollectionFixtures()
+        async Task CreateCollectionFixturesAsync()
         {
             if (TestCollection.CollectionDefinition != null)
             {
                 var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
                 foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
-                    CreateCollectionFixture(interfaceType.GenericTypeArguments.Single());
+                {
+                    var fixtureType = interfaceType.GenericTypeArguments.Single();
+                    CreateCollectionFixture(fixtureType);
+                    foreach (var asyncFixture in CollectionFixtureMappings.Values.OfType<IAsyncFixture>())
+                    {
+                        await Aggregator.RunAsync(asyncFixture.SetupAsync);
+                    }
+                }
+
             }
         }
 

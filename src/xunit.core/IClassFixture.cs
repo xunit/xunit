@@ -11,5 +11,9 @@
     /// arguments.
     /// </summary>
     /// <typeparam name="TFixture">The type of the fixture.</typeparam>
+    /// <remarks>
+    /// If asynchronous setup of <typeparamref name="TFixture"/> is required 
+    /// it should implement the <see cref="IAsyncFixture"/> interface.
+    /// </remarks>
     public interface IClassFixture<TFixture> where TFixture : class { }
 }

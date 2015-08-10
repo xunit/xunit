@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -148,6 +149,108 @@ public class FixtureAcceptanceTests
 
             [Fact]
             public void TheTest() { }
+        }
+    }
+
+    public class AsyncClassFixture : AcceptanceTestV2
+    {
+        [Fact]
+        public void FixtureDataShouldHaveBeenSetup()
+        {
+            var messages = Run<ITestPassed>(typeof(FixtureSpy));
+
+            Assert.Single(messages);
+        }
+        
+        class FixtureSpy : IClassFixture<ThrowIfNotCompleted>
+        {
+            public FixtureSpy(ThrowIfNotCompleted data)
+            {
+                Assert.True(data.SetupComplete);
+            }
+
+            [Fact]
+            public void TheTest() { }
+        }
+        
+        class ThrowIfNotCompleted : IAsyncFixture
+        {
+            public Task SetupAsync()
+            {
+                SetupComplete = true;
+                return Task.FromResult(0);
+            }
+
+            public Task TeardownAsync()
+            {
+                return Task.FromResult(0);
+            }
+
+            public bool SetupComplete = false;
+        }
+
+        [Fact]
+        public void ThrowingAsyncSetupShouldResultInFailedTest()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureSetup));
+
+            var msg = Assert.Single(messages);
+            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+        }
+
+        class ClassWithThrowingFixtureSetup : IClassFixture<ThrowingSetup>
+        {
+            public ClassWithThrowingFixtureSetup(ThrowingSetup ignored)
+            {
+                
+            }   
+            [Fact]
+            public void TheTest() { }
+        }
+
+        class ThrowingSetup :IAsyncFixture{
+            public Task SetupAsync()
+            {
+                throw new DivideByZeroException();
+            }
+
+            public Task TeardownAsync()
+            {
+                return Task.FromResult(0);
+            }
+        }
+
+        [Fact]
+        public void TestClassWithThrowingFixtureAsyncTeardownResultsInFailedTest()
+        {
+            var messages = Run<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureTeardownAsync));
+
+            var msg = Assert.Single(messages);
+            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+        }
+
+        class ClassWithThrowingFixtureTeardownAsync : IClassFixture<ThrowingTeardownAsync>
+        {
+            public ClassWithThrowingFixtureTeardownAsync(ThrowingTeardownAsync ignore)
+            {
+                
+            }
+
+            [Fact]
+            public void TheTest() { }
+        }
+
+        class ThrowingTeardownAsync : IAsyncFixture
+        {
+            public Task SetupAsync()
+            {
+                return Task.FromResult(0);
+            }
+
+            public Task TeardownAsync()
+            {
+                throw new DivideByZeroException();
+            }
         }
     }
 
@@ -351,6 +454,130 @@ public class FixtureAcceptanceTests
 
             [Fact]
             public void TheTest() { }
+        }
+    }
+
+    public class AsyncCollectionFixture : AcceptanceTestV2
+    {
+        //Throwing setup
+        [Fact]
+        public void TestClassWithThrowingCollectionFixtureSetupAsyncResultsInFailedTest()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureSetupAsync));
+
+            var msg = Assert.Single(messages);
+            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+        }
+
+        [CollectionDefinition("Collection with throwing async setup")]
+        public class CollectionWithThrowingSetupAsync : ICollectionFixture<ThrowingSetupAsync>
+        {
+        }
+
+        [Collection("Collection with throwing async setup")]
+        class ClassWithThrowingFixtureSetupAsync
+        {
+            [Fact]
+            public void TheTest() { }
+        }
+
+        //Throwing Teardown
+        [Fact]
+        public void TestClassWithThrowingCollectionFixtureTeardownAsyncResultsInFailedTest()
+        {
+            var messages = Run<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncTeardown));
+
+            var msg = Assert.Single(messages);
+            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+        }
+
+        [CollectionDefinition("Collection with throwing async teardown")]
+        public class CollectionWithThrowingAsyncTeardown : ICollectionFixture<ThrowingTeardownAsync>
+        {
+            public CollectionWithThrowingAsyncTeardown()
+            {
+
+            }
+        }
+
+        [Collection("Collection with throwing async teardown")]
+        class ClassWithThrowingFixtureAsyncTeardown
+        {
+            [Fact]
+            public void TheTest() { }
+        }
+
+        class ThrowingSetupAsync : IAsyncFixture
+        {
+            public Task SetupAsync()
+            {
+                throw new DivideByZeroException();
+            }
+
+            public Task TeardownAsync()
+            {
+                return Task.FromResult(0);
+            }
+        }
+
+        class ThrowingTeardownAsync : IAsyncFixture
+        {
+            public Task SetupAsync()
+            {
+                return Task.FromResult(0);
+            }
+
+            public Task TeardownAsync()
+            {
+                throw new DivideByZeroException();
+            }
+        }
+
+        [Fact]
+        public void CollectionFixtureAsyncSetupShouldOnlyRunOnce()
+        {
+            var results = Run<ITestPassed> (new[] {typeof (Fixture1), typeof (Fixture2)});
+            Assert.Equal(2, results.Count);
+        }
+
+        [CollectionDefinition("Async once")]
+        public class AsyncOnceCollection: ICollectionFixture<CountedAsyncFixture> { }
+
+        [Collection("Async once")]
+        class Fixture1
+        {
+            public Fixture1(CountedAsyncFixture fixture)
+            {
+                Assert.Equal(1, fixture.Count);
+            }
+            [Fact]
+            public void TheTest() { }
+        }
+
+        [Collection("Async once")]
+        class Fixture2
+        {
+            public Fixture2(CountedAsyncFixture fixture)
+            {
+                Assert.Equal(1, fixture.Count);
+            }
+            [Fact]
+            public void TheTest() { }
+        }
+
+        class CountedAsyncFixture : IAsyncFixture
+        {
+            public int Count = 0;
+            public Task SetupAsync()
+            {
+                Count += 1;
+                return Task.FromResult(0);
+            }
+
+            public Task TeardownAsync()
+            {
+                return Task.FromResult(0);
+            }
         }
     }
 
