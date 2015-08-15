@@ -266,6 +266,7 @@ namespace Xunit
             });
         }
 
+#if !NO_APPDOMAIN
         /// <summary>
         /// Creates an assembly runner that discovers and run tests in a separate app domain.
         /// </summary>
@@ -284,6 +285,7 @@ namespace Xunit
 
             return new AssemblyRunner(true, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
         }
+#endif
 
         /// <summary>
         /// Creates an assembly runner that discovers and runs tests without a separate app domain.
