@@ -106,6 +106,9 @@
     <Compile Include="..\common\XunitSerializationInfo.cs">
       <Link>Common\XunitSerializationInfo.cs</Link>
     </Compile>
+    <Compile Include="..\common\XunitWorkerThread_Task.cs">
+      <Link>Common\XunitWorkerThread_Task.cs</Link>
+    </Compile>
     <Compile Include="..\xunit.runner.utility\**\*.cs">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>

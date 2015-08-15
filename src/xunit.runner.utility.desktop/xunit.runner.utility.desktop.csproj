@@ -117,6 +117,9 @@
     <Compile Include="..\common\XunitSerializationInfo.cs">
       <Link>Common\XunitSerializationInfo.cs</Link>
     </Compile>
+    <Compile Include="..\common\XunitWorkerThread_Thread.cs">
+      <Link>Common\XunitWorkerThread_Thread.cs</Link>
+    </Compile>
     <Compile Include="Configuration\ConfigReader_Configuration.cs" />
     <Compile Include="Frameworks\v1\IXunit1Executor.cs" />
     <Compile Include="Frameworks\v1\TestClassCallbackHandler.cs" />
