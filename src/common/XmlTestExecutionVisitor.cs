@@ -11,7 +11,7 @@ namespace Xunit
     {
         readonly XElement assemblyElement;
         readonly XElement errorsElement;
-        readonly ConcurrentDictionary<ITestCollection, XElement> testCollectionElements = new ConcurrentDictionary<ITestCollection, XElement>();
+        readonly ConcurrentDictionary<Guid, XElement> testCollectionElements = new ConcurrentDictionary<Guid, XElement>();
 
         public XmlTestExecutionVisitor(XElement assemblyElement, Func<bool> cancelThunk)
         {
@@ -81,7 +81,7 @@ namespace Xunit
 
         XElement GetTestCollectionElement(ITestCollection testCollection)
         {
-            return testCollectionElements.GetOrAdd(testCollection, tc => new XElement("collection"));
+            return testCollectionElements.GetOrAdd(testCollection.UniqueID, tc => new XElement("collection"));
         }
 
         public override bool OnMessage(IMessageSinkMessage message)
