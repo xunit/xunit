@@ -32,7 +32,7 @@ public class XunitTestAssemblyRunnerTests
 
             var result = runner.GetTestFrameworkEnvironment();
 
-            Assert.EndsWith("[collection-per-class, parallel]", result);
+            Assert.EndsWith($"[collection-per-class, parallel ({Environment.ProcessorCount} threads)]", result);
         }
 
         [Fact]
@@ -57,6 +57,18 @@ public class XunitTestAssemblyRunnerTests
             var result = runner.GetTestFrameworkEnvironment();
 
             Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
+        }
+
+        [Fact]
+        public static void Attribute_Unlimited()
+        {
+            var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: -1);
+            var assembly = Mocks.TestAssembly(new[] { attribute });
+            var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
+
+            var result = runner.GetTestFrameworkEnvironment();
+
+            Assert.EndsWith("[collection-per-class, parallel (unlimited threads)]", result);
         }
 
         [Theory]
@@ -120,6 +132,18 @@ public class XunitTestAssemblyRunnerTests
             var result = runner.GetTestFrameworkEnvironment();
 
             Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
+        }
+
+        [Fact]
+        public static void TestOptions_Unlimited()
+        {
+            var options = TestFrameworkOptions.ForExecution();
+            options.SetMaxParallelThreads(-1);
+            var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
+
+            var result = runner.GetTestFrameworkEnvironment();
+
+            Assert.EndsWith("[collection-per-class, parallel (unlimited threads)]", result);
         }
 
         [Fact]

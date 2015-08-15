@@ -119,8 +119,7 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
-    /// Gets the maximum number of threads to use when running tests in parallel. If set to 0, does not
-    /// limit the number of threads.
+    /// Gets the maximum number of threads to use when running tests in parallel.
     /// </summary>
     public static int? MaxParallelThreads(this ITestFrameworkExecutionOptions executionOptions)
     {
@@ -128,13 +127,17 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
-    /// Gets the maximum number of threads to use when running tests in parallel. If set to 0, does not
-    /// limit the number of threads. If the value is not set, returns the default value
-    /// (<see cref="Environment.ProcessorCount"/>).
+    /// Gets the maximum number of threads to use when running tests in parallel. If set to 0 (or not set),
+    /// the value of <see cref="Environment.ProcessorCount"/> is used; if set to a value less
+    /// than 0, does not limit the number of threads.
     /// </summary>
     public static int MaxParallelThreadsOrDefault(this ITestFrameworkExecutionOptions executionOptions)
     {
-        return executionOptions.MaxParallelThreads() ?? Environment.ProcessorCount;
+        var result = executionOptions.MaxParallelThreads();
+        if (result == null || result == 0)
+            return Environment.ProcessorCount;
+
+        return result.GetValueOrDefault();
     }
 
     /// <summary>

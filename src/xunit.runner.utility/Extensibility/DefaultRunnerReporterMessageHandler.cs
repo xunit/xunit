@@ -213,7 +213,11 @@ namespace Xunit
             var assemblyDisplayName = GetAssemblyDisplayName(executionStarting.Assembly);
 
             if (executionStarting.ExecutionOptions.GetDiagnosticMessagesOrDefault())
-                Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault()})");
+            {
+                var threadCount = executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault();
+                var threadCountText = threadCount < 0 ? "unlimited" : threadCount.ToString();
+                Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName} (parallel test collections = {(!executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault() ? "on" : "off")}, max threads = {threadCountText})");
+            }
             else
                 Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName}");
 

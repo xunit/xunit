@@ -168,16 +168,16 @@ namespace Xunit.ConsoleClient
                     switch (option.Value)
                     {
                         case "default":
-                            MaxParallelThreads = null;
+                            MaxParallelThreads = 0;
                             break;
 
                         case "unlimited":
-                            MaxParallelThreads = 0;
+                            MaxParallelThreads = -1;
                             break;
 
                         default:
                             int threadValue;
-                            if (!int.TryParse(option.Value, out threadValue) || threadValue < 0)
+                            if (!int.TryParse(option.Value, out threadValue) || threadValue < 1)
                                 throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)");
 
                             MaxParallelThreads = threadValue;

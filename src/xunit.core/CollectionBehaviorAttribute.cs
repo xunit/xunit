@@ -32,7 +32,9 @@ namespace Xunit
         public bool DisableTestParallelization { get; set; }
 
         /// <summary>
-        /// Determines how many tests can run in parallel with each other.
+        /// Determines how many tests can run in parallel with each other. If set to 0, the system will
+        /// use <see cref="Environment.ProcessorCount"/>. If set to a negative number, then there will
+        /// be no limit to the number of threads.
         /// </summary>
         public int MaxParallelThreads { get; set; }
     }

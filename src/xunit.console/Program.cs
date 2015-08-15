@@ -292,8 +292,8 @@ namespace Xunit.ConsoleClient
                 // Setup discovery and execution options with command-line overrides
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
                 var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
-                if (maxThreadCount.HasValue && maxThreadCount.Value > -1)
-                    executionOptions.SetMaxParallelThreads(maxThreadCount.GetValueOrDefault());
+                if (maxThreadCount.HasValue)
+                    executionOptions.SetMaxParallelThreads(maxThreadCount);
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 

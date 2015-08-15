@@ -202,36 +202,25 @@ public class CommandLineTests
             Assert.Equal("missing argument for -maxthreads", ex.Message);
         }
 
-        [Fact]
-        public static void InvalidValue()
+        [Theory]
+        [InlineData("0")]
+        [InlineData("abc")]
+        public static void InvalidValues(string value)
         {
-            var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "abc"));
+            var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", value));
 
             Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)", ex.Message);
         }
 
-        [Fact]
-        public static void Default_SetsToNull()
+        [Theory]
+        [InlineData("default", 0)]
+        [InlineData("unlimited", -1)]
+        [InlineData("16", 16)]
+        public static void ValidValues(string value, int expected)
         {
-            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "default");
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", value);
 
-            Assert.Null(commandLine.MaxParallelThreads);
-        }
-
-        [Fact]
-        public static void Unlimited_SetsToZero()
-        {
-            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "unlimited");
-
-            Assert.Equal(0, commandLine.MaxParallelThreads);
-        }
-
-        [Fact]
-        public static void PositiveNumber_SetsMaxParallelThreads()
-        {
-            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "16");
-
-            Assert.Equal(16, commandLine.MaxParallelThreads);
+            Assert.Equal(expected, commandLine.MaxParallelThreads);
         }
     }
 

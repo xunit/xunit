@@ -60,7 +60,13 @@ namespace Xunit.Sdk
 
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly);
 
-            return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}{(maxParallelThreads > 0 ? $" ({maxParallelThreads} threads)" : "")}]";
+#if DOTNETCORE
+            var threadCountText = "unlimited";
+#else
+            var threadCountText = maxParallelThreads < 0 ? "unlimited" : maxParallelThreads.ToString();
+#endif
+
+            return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : $"parallel ({threadCountText} threads)")}]";
         }
 
         /// <summary>
@@ -72,11 +78,11 @@ namespace Xunit.Sdk
         protected virtual void SetupSyncContext(int maxParallelThreads)
         {
 #if !DOTNETCORE
-            if (maxParallelThreads < 1)
-                maxParallelThreads = Environment.ProcessorCount;
-
-            syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
-            SetSynchronizationContext(syncContext);
+            if (maxParallelThreads > 0)
+            {
+                syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
+                SetSynchronizationContext(syncContext);
+            }
 #endif
         }
 
@@ -97,9 +103,9 @@ namespace Xunit.Sdk
             }
 
             disableParallelization = ExecutionOptions.DisableParallelization() ?? disableParallelization;
-            var maxParallelThreadsOption = ExecutionOptions.MaxParallelThreads() ?? 0;
-            if (maxParallelThreadsOption > 0)
-                maxParallelThreads = maxParallelThreadsOption;
+            maxParallelThreads = ExecutionOptions.MaxParallelThreads() ?? maxParallelThreads;
+            if (maxParallelThreads == 0)
+                maxParallelThreads = Environment.ProcessorCount;
 
             var testCaseOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (testCaseOrdererAttribute != null)
