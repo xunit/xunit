@@ -47,7 +47,9 @@ namespace Xunit.Sdk
         /// <param name="value">The value to be formatted.</param>
         /// <returns>The formatted value.</returns>
         public static string Format(object value)
-            => Format(value, 1);
+        {
+            return Format(value, 1);
+        }
 
         static string Format(object value, int depth)
         {
@@ -92,8 +94,8 @@ namespace Xunit.Sdk
             if (task != null)
             {
                 var typeParameters = typeInfo.GenericTypeArguments;
-                var typeName = typeParameters.Length == 0 ? "Task" : $"Task<{string.Join(",", typeParameters.Select(FormatTypeName))}>";
-                return $"{typeName} {{ Status = {task.Status} }}";
+                var typeName = typeParameters.Length == 0 ? "Task" : string.Format("Task<{0}>", string.Join(",", typeParameters.Select(FormatTypeName)));
+                return string.Format("{0} {{ Status = {1} }}", typeName, task.Status);
             }
 
 #if NEW_REFLECTION
