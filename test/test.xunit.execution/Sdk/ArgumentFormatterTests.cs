@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
 
@@ -63,6 +64,24 @@ public class ArgumentFormatterTests
             var now = DateTimeOffset.UtcNow;
 
             Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
+        }
+
+        [Fact]
+        public static async void TaskValue()
+        {
+            var task = Task.Run(() => { });
+            await task;
+
+            Assert.Equal("Task { Status = RanToCompletion }", ArgumentFormatter.Format(task));
+        }
+
+        [Fact]
+        public static void TaskGenericValue()
+        {
+            var taskCompletionSource = new TaskCompletionSource<int>();
+            taskCompletionSource.SetException(new DivideByZeroException());
+
+            Assert.Equal("Task<int> { Status = Faulted }", ArgumentFormatter.Format(taskCompletionSource.Task));
         }
 
         [Theory]

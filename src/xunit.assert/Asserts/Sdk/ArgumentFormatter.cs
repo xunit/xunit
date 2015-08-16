@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Xunit.Sdk
 {
@@ -46,9 +47,7 @@ namespace Xunit.Sdk
         /// <param name="value">The value to be formatted.</param>
         /// <returns>The formatted value.</returns>
         public static string Format(object value)
-        {
-            return Format(value, 1);
-        }
+            => Format(value, 1);
 
         static string Format(object value, int depth)
         {
@@ -85,8 +84,17 @@ namespace Xunit.Sdk
                 return FormatEnumerable(enumerable.Cast<object>(), depth);
 
             var type = value.GetType();
-            if (type.GetTypeInfo().IsValueType)
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsValueType)
                 return Convert.ToString(value, CultureInfo.CurrentCulture);
+
+            var task = value as Task;
+            if (task != null)
+            {
+                var typeParameters = typeInfo.GenericTypeArguments;
+                var typeName = typeParameters.Length == 0 ? "Task" : $"Task<{string.Join(",", typeParameters.Select(FormatTypeName))}>";
+                return $"{typeName} {{ Status = {task.Status} }}";
+            }
 
 #if NEW_REFLECTION
             var toString = type.GetRuntimeMethod("ToString", EmptyTypes);
