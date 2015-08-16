@@ -96,6 +96,7 @@ public class ArgumentFormatterTests
         [InlineData(typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], System.DateTime[,][]>)")]
         [InlineData(typeof(bool?), "typeof(bool?)")]
         [InlineData(typeof(bool?[]), "typeof(bool?[])")]
+        [InlineData(typeof(Uri), "typeof(System.Uri)")]
         public static void TypeValue(Type type, string expected)
         {
             Assert.Equal(expected, ArgumentFormatter.Format(type));

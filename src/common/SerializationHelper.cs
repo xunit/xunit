@@ -67,7 +67,7 @@ namespace Xunit.Sdk
         /// <summary>Gets whether the specified <paramref name="value"/> is serializable with <see cref="Serialize"/>.</summary>
         /// <param name="value">The object to test for serializability.</param>
         /// <returns>true if the object can be serialized; otherwise, false.</returns>
-        internal static bool IsSerializable(object value)
+        public static bool IsSerializable(object value)
         {
             return XunitSerializationInfo.CanSerializeObject(value);
         }
@@ -190,6 +190,10 @@ namespace Xunit.Sdk
         /// </summary>
         public static string GetTypeNameForSerialization(Type type)
         {
+            if (!type.IsFromLocalAssembly())
+                throw new ArgumentException($"We cannot serialize type {type.FullName} because it lives in the GAC", nameof(type));
+
+            // Use the abstract Type instead of concretes like RuntimeType
             if (typeof(Type).IsAssignableFrom(type))
                 type = typeof(Type);
 

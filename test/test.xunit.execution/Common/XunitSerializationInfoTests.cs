@@ -195,7 +195,7 @@ public class XunitSerializationInfoTests
             var ex = Record.Exception(() => XunitSerializationInfo.Serialize(data));
 
             var argEx = Assert.IsType<ArgumentException>(ex);
-            Assert.Equal("value", argEx.ParamName);
+            Assert.Equal("type", argEx.ParamName);
             Assert.StartsWith("We cannot serialize type System.Xml.XmlDocument because it lives in the GAC", argEx.Message);
         }
     }

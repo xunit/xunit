@@ -12,20 +12,39 @@ namespace Xunit.Sdk
     /// </summary>
     public class DefaultTestCaseOrderer : ITestCaseOrderer
     {
+        IMessageSink diagnosticMessageSink;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultTestCaseOrderer"/> class.
+        /// </summary>
+        /// <param name="diagnosticMessageSink">Message sink to report diagnostic messages to</param>
+        public DefaultTestCaseOrderer(IMessageSink diagnosticMessageSink)
+        {
+            this.diagnosticMessageSink = diagnosticMessageSink;
+        }
+
         /// <inheritdoc/>
         public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
             where TTestCase : ITestCase
         {
             var result = testCases.ToList();
-#if DOTNETCORE
-            result = Randomize(result);
-#else
-            result.Sort(Compare);
+
+#if !DOTNETCORE
+            try
+            {
+                result.Sort(Compare);
+            }
+            catch (Exception ex)
+            {
+                diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order. {ex}"));
+#endif
+                result = Randomize(result);
+#if !DOTNETCORE
+            }
 #endif
             return result;
         }
 
-#if DOTNETCORE
         List<TTestCase> Randomize<TTestCase>(List<TTestCase> testCases)
         {
             var result = new List<TTestCase>(testCases.Count);
@@ -40,7 +59,7 @@ namespace Xunit.Sdk
 
             return result;
         }
-#else
+
         int Compare<TTestCase>(TTestCase x, TTestCase y)
             where TTestCase : ITestCase
         {
@@ -61,7 +80,5 @@ namespace Xunit.Sdk
                 return -1;
             return 1;
         }
-
-#endif
     }
 }

@@ -283,11 +283,7 @@ namespace Xunit.Serialization
 
             var typeData = value as Type;
             if (typeData != null)
-            {
-                if (!typeData.IsFromLocalAssembly())
-                    throw new ArgumentException($"We cannot serialize type {typeData.FullName} because it lives in the GAC", nameof(value));
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
-            }
 
             var valueType = value.GetType();
             if (valueType.IsEnum())
@@ -306,14 +302,13 @@ namespace Xunit.Serialization
                 return info.ToSerializedString();
             }
 
-            throw new ArgumentException("We don't know how to serialize type " + valueType.FullName, nameof(value));
+            throw new ArgumentException($"We don't know how to serialize type {valueType.FullName}", nameof(value));
         }
 
         static readonly Type[] supportedSerializationTypes = {
             typeof(IXunitSerializable),
             typeof(char),           typeof(char?),
             typeof(string),
-            typeof(Type),
             typeof(byte),           typeof(byte?),
             typeof(short),          typeof(short?),
             typeof(ushort),         typeof(ushort?),
@@ -343,33 +338,25 @@ namespace Xunit.Serialization
                 {
                     // Avoid enumerator allocation and bounds lookups that comes from enumerating a System.Array
                     foreach (object obj in vector)
-                    {
                         if (!CanSerializeObject(obj))
                             return false;
-                    }
                 }
                 else
                 {
                     foreach (object obj in ((Array)value))
-                    {
                         if (!CanSerializeObject(obj))
                             return false;
-                    }
                 }
                 return true;
             }
 
             foreach (Type supportedType in supportedSerializationTypes)
-            {
                 if (supportedType.IsAssignableFrom(valueType))
                     return true;
-            }
 
             Type typeToCheck = valueType;
             if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
-            {
                 return typeToCheck.IsFromLocalAssembly();
-            }
 
             return false;
         }

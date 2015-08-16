@@ -17,7 +17,7 @@ public class DefaultTestCaseOrdererTests
     [Fact]
     public static void OrderIsStable()
     {
-        var orderer = new DefaultTestCaseOrderer();
+        var orderer = new DefaultTestCaseOrderer(SpyMessageSink.Create());
 
         var result1 = orderer.OrderTestCases(TestCases);
         var result2 = orderer.OrderTestCases(TestCases);
@@ -30,7 +30,7 @@ public class DefaultTestCaseOrdererTests
     [Fact]
     public static void OrderIsUnpredictable()
     {
-        var orderer = new DefaultTestCaseOrderer();
+        var orderer = new DefaultTestCaseOrderer(SpyMessageSink.Create());
 
         var result = orderer.OrderTestCases(TestCases);
 

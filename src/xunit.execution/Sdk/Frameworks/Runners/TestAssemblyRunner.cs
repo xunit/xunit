@@ -43,6 +43,7 @@ namespace Xunit.Sdk
             DiagnosticMessageSink = diagnosticMessageSink;
             ExecutionMessageSink = executionMessageSink;
             ExecutionOptions = executionOptions;
+            TestCaseOrderer = new DefaultTestCaseOrderer(diagnosticMessageSink);
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets or sets the test case orderer that will be used to decide how to order the tests.
         /// </summary>
-        protected ITestCaseOrderer TestCaseOrderer { get; set; } = new DefaultTestCaseOrderer();
+        protected ITestCaseOrderer TestCaseOrderer { get; set; }
 
         /// <summary>
         /// Gets or sets the test collection orderer that will be used to decide how to order the test collections.
