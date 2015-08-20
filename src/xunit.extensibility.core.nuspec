@@ -46,9 +46,6 @@ Supported platforms:
       <group targetFramework="xamarinios">
         <dependency id="xunit.abstractions" version="2.0.0" />
       </group>
-      <group targetFramework="dnx451">
-        <dependency id="xunit.abstractions" version="2.0.0" />
-      </group>
       <group targetFramework="dotnet">
         <dependency id="System.Collections" version="4.0.0" />
         <dependency id="System.Diagnostics.Debug" version="4.0.0" />
@@ -62,10 +59,6 @@ Supported platforms:
         <dependency id="xunit.abstractions" version="2.0.0" />
       </group>
     </dependencies>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System.Reflection" />
-      <frameworkAssembly assemblyName="System.Threading.Tasks" />
-    </frameworkAssemblies>
   </metadata>
   <files>
     <file src="xunit.core\bin\Release\xunit.core.dll"                                     target="lib\portable-net45+netcore45+wp8+wpa81\" />
