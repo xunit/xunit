@@ -1,5 +1,9 @@
 /* Imported from https://raw.githubusercontent.com/onovotny/BouncyCastle-PCL, covered by MIT license */
 
+#pragma warning disable RECS0021
+#pragma warning disable RECS0129
+#pragma warning disable RECS0145
+
 using System;
 
 namespace Xunit.Sdk

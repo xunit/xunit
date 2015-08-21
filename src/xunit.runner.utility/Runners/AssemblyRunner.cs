@@ -5,50 +5,8 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Xunit
+namespace Xunit.Runners
 {
-    /// <summary>
-    /// An enumeration which describes the current state of the system
-    /// </summary>
-    public enum AssemblyRunnerStatus
-    {
-        /// <summary>The system is not discovering or executing tests</summary>
-        Idle = 1,
-
-        /// <summary>The system is discovering tests</summary>
-        Discovering = 2,
-
-        /// <summary>The system is executing tests</summary>
-        Executing = 3,
-    }
-
-    /// <summary>
-    /// An enumeration which indicates the type of error message (for <see cref="AssemblyRunner.OnErrorMessage"/>).
-    /// </summary>
-    public enum ErrorMessageType
-    {
-        /// <summary>An unhandled exception occurred that disrupted the execution engine</summary>
-        CatastrophicError = 1,
-
-        /// <summary>An unhandled exception happened while cleaning up from the test assembly</summary>
-        TestAssemblyCleanupFailure = 10,
-
-        /// <summary>An unhandled exception happened while cleaning up from the test collection</summary>
-        TestCollectionCleanupFailure = 20,
-
-        /// <summary>An unhandled exception happened while cleaning up from the test class</summary>
-        TestClassCleanupFailure = 30,
-
-        /// <summary>An unhandled exception happened while cleaning up from the test method</summary>
-        TestMethodCleanupFailure = 40,
-
-        /// <summary>An unhandled exception happened while cleaning up from the test case</summary>
-        TestCaseCleanupFailure = 50,
-
-        /// <summary>An unhandled exception happened while cleaning up from the test</summary>
-        TestCleanupFailure = 60,
-    }
-
     /// <summary>
     /// A class which makes it simpler for casual runner authors to find and run tests and get results.
     /// </summary>
@@ -77,54 +35,54 @@ namespace Xunit
         /// <summary>
         /// Set to get notification of diagnostic messages.
         /// </summary>
-        public DiagnosticMessageHandler OnDiagnosticMessage { get; set; }
+        public Action<DiagnosticMessageInfo> OnDiagnosticMessage { get; set; }
 
         /// <summary>
         /// Set to get notification of when test discovery is complete.
         /// </summary>
-        public DiscoveryCompleteHandler OnDiscoveryComplete { get; set; }
+        public Action<DiscoveryCompleteInfo> OnDiscoveryComplete { get; set; }
 
         /// <summary>
         /// Set to get notification of error messages (unhandled exceptions outside of tests).
         /// </summary>
-        public ErrorMessageHandler OnErrorMessage { get; set; }
+        public Action<ErrorMessageInfo> OnErrorMessage { get; set; }
 
         /// <summary>
         /// Set to get notification of when test execution is complete.
         /// </summary>
-        public ExecutionCompleteHandler OnExecutionComplete { get; set; }
+        public Action<ExecutionCompleteInfo> OnExecutionComplete { get; set; }
 
         /// <summary>
         /// Set to get notification of failed tests.
         /// </summary>
-        public TestFailedHandler OnTestFailed { get; set; }
+        public Action<TestFailedInfo> OnTestFailed { get; set; }
 
         /// <summary>
         /// Set to get notification of finished tests (regardless of outcome).
         /// </summary>
-        public TestFinishedHandler OnTestFinished { get; set; }
+        public Action<TestFinishedInfo> OnTestFinished { get; set; }
 
         /// <summary>
         /// Set to get real-time notification of test output (for xUnit.net v2 tests only).
-        /// Note that output is captured and reported back to all the test completion handlers
-        /// in addition to being sent to this handler.
+        /// Note that output is captured and reported back to all the test completion Info>s
+        /// in addition to being sent to this Info>.
         /// </summary>
-        public TestOutputHandler OnTestOutput { get; set; }
+        public Action<TestOutputInfo> OnTestOutput { get; set; }
 
         /// <summary>
         /// Set to get notification of passing tests.
         /// </summary>
-        public TestPassedHandler OnTestPassed { get; set; }
+        public Action<TestPassedInfo> OnTestPassed { get; set; }
 
         /// <summary>
         /// Set to get notification of skipped tests.
         /// </summary>
-        public TestSkippedHandler OnTestSkipped { get; set; }
+        public Action<TestSkippedInfo> OnTestSkipped { get; set; }
 
         /// <summary>
         /// Set to get notification of when tests start running.
         /// </summary>
-        public TestStartingHandler OnTestStarting { get; set; }
+        public Action<TestStartingInfo> OnTestStarting { get; set; }
 
         /// <summary>
         /// Gets the current status of the assembly runner
@@ -209,7 +167,7 @@ namespace Xunit
 
         /// <summary>
         /// Starts running tests from a single type (if provided) or the whole assembly (if not). This call returns
-        /// immediately, and status results are dispatched to the handlers on this class. Callers can check <see cref="Status"/>
+        /// immediately, and status results are dispatched to the Info>s on this class. Callers can check <see cref="Status"/>
         /// to find out the current status.
         /// </summary>
         /// <param name="typeName">The (optional) type name of the single test class to run</param>
@@ -256,7 +214,7 @@ namespace Xunit
                 {
                     // Synthesize the execution complete message, since we're not going to run at all
                     if (OnExecutionComplete != null)
-                        OnExecutionComplete(0, 0, 0, 0M);
+                        OnExecutionComplete(ExecutionCompleteInfo.Empty);
                     return;
                 }
 
@@ -320,7 +278,7 @@ namespace Xunit
             if (DispatchMessage<IDiscoveryCompleteMessage>(message, discoveryComplete =>
             {
                 if (OnDiscoveryComplete != null)
-                    OnDiscoveryComplete(testCasesDiscovered, testCasesToRun.Count);
+                    OnDiscoveryComplete(new DiscoveryCompleteInfo(testCasesDiscovered, testCasesToRun.Count));
                 discoveryCompleteEvent.Set();
             }))
                 return !cancelled;
@@ -328,48 +286,48 @@ namespace Xunit
             if (DispatchMessage<ITestAssemblyFinished>(message, assemblyFinished =>
             {
                 if (OnExecutionComplete != null)
-                    OnExecutionComplete(assemblyFinished.TestsRun, assemblyFinished.TestsFailed, assemblyFinished.TestsSkipped, assemblyFinished.ExecutionTime);
+                    OnExecutionComplete(new ExecutionCompleteInfo(assemblyFinished.TestsRun, assemblyFinished.TestsFailed, assemblyFinished.TestsSkipped, assemblyFinished.ExecutionTime));
                 executionCompleteEvent.Set();
             }))
                 return !cancelled;
 
             if (OnDiagnosticMessage != null)
-                if (DispatchMessage<IDiagnosticMessage>(message, m => OnDiagnosticMessage(m.Message)))
+                if (DispatchMessage<IDiagnosticMessage>(message, m => OnDiagnosticMessage(new DiagnosticMessageInfo(m.Message))))
                     return !cancelled;
             if (OnTestFailed != null)
-                if (DispatchMessage<ITestFailed>(message, m => OnTestFailed(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault())))
+                if (DispatchMessage<ITestFailed>(message, m => OnTestFailed(new TestFailedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
                     return !cancelled;
             if (OnTestFinished != null)
-                if (DispatchMessage<ITestFinished>(message, m => OnTestFinished(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output)))
+                if (DispatchMessage<ITestFinished>(message, m => OnTestFinished(new TestFinishedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
                     return !cancelled;
             if (OnTestOutput != null)
-                if (DispatchMessage<ITestOutput>(message, m => OnTestOutput(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Output)))
+                if (DispatchMessage<ITestOutput>(message, m => OnTestOutput(new TestOutputInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Output))))
                     return !cancelled;
             if (OnTestPassed != null)
-                if (DispatchMessage<ITestPassed>(message, m => OnTestPassed(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output)))
+                if (DispatchMessage<ITestPassed>(message, m => OnTestPassed(new TestPassedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
                     return !cancelled;
             if (OnTestSkipped != null)
-                if (DispatchMessage<ITestSkipped>(message, m => OnTestSkipped(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Reason)))
+                if (DispatchMessage<ITestSkipped>(message, m => OnTestSkipped(new TestSkippedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Reason))))
                     return !cancelled;
             if (OnTestStarting != null)
-                if (DispatchMessage<ITestStarting>(message, m => OnTestStarting(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName)))
+                if (DispatchMessage<ITestStarting>(message, m => OnTestStarting(new TestStartingInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName))))
                     return !cancelled;
 
             if (OnErrorMessage != null)
             {
-                if (DispatchMessage<IErrorMessage>(message, m => OnErrorMessage(ErrorMessageType.CatastrophicError, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault())))
+                if (DispatchMessage<IErrorMessage>(message, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.CatastrophicError, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
                     return !cancelled;
-                if (DispatchMessage<ITestAssemblyCleanupFailure>(message, m => OnErrorMessage(ErrorMessageType.TestAssemblyCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault())))
+                if (DispatchMessage<ITestAssemblyCleanupFailure>(message, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestAssemblyCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
                     return !cancelled;
-                if (DispatchMessage<ITestCaseCleanupFailure>(message, m => OnErrorMessage(ErrorMessageType.TestCaseCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault())))
+                if (DispatchMessage<ITestCaseCleanupFailure>(message, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCaseCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
                     return !cancelled;
-                if (DispatchMessage<ITestClassCleanupFailure>(message, m => OnErrorMessage(ErrorMessageType.TestClassCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault())))
+                if (DispatchMessage<ITestClassCleanupFailure>(message, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestClassCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
                     return !cancelled;
-                if (DispatchMessage<ITestCleanupFailure>(message, m => OnErrorMessage(ErrorMessageType.TestCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault())))
+                if (DispatchMessage<ITestCleanupFailure>(message, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
                     return !cancelled;
-                if (DispatchMessage<ITestCollectionCleanupFailure>(message, m => OnErrorMessage(ErrorMessageType.TestCollectionCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault())))
+                if (DispatchMessage<ITestCollectionCleanupFailure>(message, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCollectionCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
                     return !cancelled;
-                if (DispatchMessage<ITestMethodCleanupFailure>(message, m => OnErrorMessage(ErrorMessageType.TestMethodCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault())))
+                if (DispatchMessage<ITestMethodCleanupFailure>(message, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestMethodCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
                     return !cancelled;
             }
 
