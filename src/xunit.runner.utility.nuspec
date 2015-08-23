@@ -63,6 +63,9 @@ Supported platforms:
     </dependencies>
   </metadata>
   <files>
+    <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.dll" target="lib\dnx451\" />
+    <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.pdb" target="lib\dnx451\" />
+    <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.xml" target="lib\dnx451\" />
     <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.dll" target="lib\dotnet\" />
     <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.pdb" target="lib\dotnet\" />
     <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.xml" target="lib\dotnet\" />
