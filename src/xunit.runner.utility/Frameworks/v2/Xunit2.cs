@@ -2,7 +2,7 @@
 using System.Reflection;
 using Xunit.Abstractions;
 
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
+#if PLATFORM_DOTNET
 using System.IO;
 #endif
 
@@ -19,7 +19,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2"/> class.
         /// </summary>
-        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
+        /// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="sourceInformationProvider">The source code information provider.</param>
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
@@ -29,7 +29,7 @@ namespace Xunit
         /// will be automatically (randomly) generated</param>
         /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
         /// <param name="verifyTestAssemblyExists">Determines whether or not the existence of the test assembly is verified.</param>
-        public Xunit2(bool useAppDomain,
+        public Xunit2(AppDomainSupport appDomainSupport,
                       ISourceInformationProvider sourceInformationProvider,
                       string assemblyFileName,
                       string configFileName = null,
@@ -37,12 +37,9 @@ namespace Xunit
                       string shadowCopyFolder = null,
                       IMessageSink diagnosticMessageSink = null,
                       bool verifyTestAssemblyExists = true)
-            : base(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyTestAssemblyExists)
+            : base(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyTestAssemblyExists)
         {
-#if ANDROID
-            var assemblyName = Assembly.Load(assemblyFileName).GetName();
-#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
-            // Make sure we only use the short form for WPA81
+#if PLATFORM_DOTNET
             var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
             var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
 #else

@@ -28,14 +28,14 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XUNIT_CORE_DLL;NEW_REFLECTION</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XUNIT_FRAMEWORK;PLATFORM_DOTNET</DefineConstants>
     <DocumentationFile>bin\Debug\xunit.core.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;XUNIT_CORE_DLL;NEW_REFLECTION</DefineConstants>
+    <DefineConstants>TRACE;XUNIT_FRAMEWORK;PLATFORM_DOTNET</DefineConstants>
     <DocumentationFile>bin\Release\xunit.core.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
@@ -108,11 +108,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build\xunit.core.win8.targets" />
-    <None Include="build\xunit.core.WithDesktop.props" />
     <None Include="build\xunit.core.props" />
-    <None Include="build\xunit.core.universal.targets" />
-    <None Include="build\xunit.core.wp8.targets" />
     <None Include="packages.config" />
     <None Include="xunit.core.dll.tdnet">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

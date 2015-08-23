@@ -28,7 +28,7 @@ namespace Xunit.Sdk
             SourceInformationProvider = sourceInformationProvider;
             DiagnosticMessageSink = diagnosticMessageSink;
 
-#if !WIN8_STORE || WINDOWS_PHONE_APP || WINDOWS_PHONE
+#if PLATFORM_DOTNET
             var assembly = Assembly.Load(assemblyName);
 #else
             var assembly = Assembly.Load(assemblyName.Name);

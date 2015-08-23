@@ -16,7 +16,7 @@ namespace Xunit
         {
             try
             {
-#if NETFX_CORE || WINDOWS_PHONE || DOTNETCORE
+#if PLATFORM_DOTNET
                 var type = Type.GetType($"{typeName}, {assemblyName.FullName}", true);
                 return (TObject)Activator.CreateInstance(type, args);
 #else

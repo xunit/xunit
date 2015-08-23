@@ -1,33 +1,54 @@
 using System;
+using System.IO;
+using System.Linq;
+
+#if PLATFORM_DOTNET
+using System.Reflection;
+#endif
 
 namespace Xunit
 {
     static class ExecutionHelper
     {
-        /// <summary>
-        /// Gets the file name of the execution DLL (with extension) used to run xUnit.net v2 tests.
-        /// </summary>
-        public static string AssemblyFileName
-            => $"xunit.execution.{PlatformSpecificAssemblySuffix}.dll";
+        static readonly string executionAssemblyNamePrefix = "xunit.execution.";
+        static string platformSuffix = "__unknown__";
 
-        /// <summary>
-        /// Gets the file name suffix used to construct platform-specific DLL names.
-        /// </summary>
-#if ANDROID
-        public static readonly string PlatformSpecificAssemblySuffix = "MonoAndroid";
-#elif __IOS__ && !__UNIFIED__
-        public static readonly string PlatformSpecificAssemblySuffix = "MonoTouch";
-#elif __IOS__
-        public static readonly string PlatformSpecificAssemblySuffix = "iOS-Universal";
-#elif WINDOWS_PHONE_APP
-        public static readonly string PlatformSpecificAssemblySuffix = "universal";
-#elif WINDOWS_PHONE
-        public static readonly string PlatformSpecificAssemblySuffix = "wp8";
-#elif DOTNETCORE
-        public static readonly string PlatformSpecificAssemblySuffix = "DotNetCore";
+        public static string PlatformSuffix
+        {
+            get
+            {
+                lock (executionAssemblyNamePrefix)
+                {
+                    if (platformSuffix == "__unknown__")
+                    {
+                        platformSuffix = null;
+
+#if PLATFORM_DOTNET
+                        foreach (var suffix in new[] { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" })
+                            try
+                            {
+                                Assembly.Load(new AssemblyName { Name = executionAssemblyNamePrefix + suffix });
+                                platformSuffix = suffix;
+                                break;
+                            }
+                            catch { }
 #else
-        public static readonly string PlatformSpecificAssemblySuffix = "desktop";
+                        foreach (var name in AppDomain.CurrentDomain.GetAssemblies().Select(a => a?.GetName()?.Name))
+                            if (name != null && name.StartsWith(executionAssemblyNamePrefix, StringComparison.Ordinal))
+                            {
+                                platformSuffix = name.Substring(executionAssemblyNamePrefix.Length);
+                                break;
+                            }
 #endif
+                    }
+                }
+
+                if (platformSuffix == null)
+                    throw new InvalidOperationException($"Could not find any xunit.execution.* assembly loaded in the current context");
+
+                return platformSuffix;
+            }
+        }
 
         /// <summary>
         /// Gets the substitution token used as assembly name suffix to indicate that the assembly is

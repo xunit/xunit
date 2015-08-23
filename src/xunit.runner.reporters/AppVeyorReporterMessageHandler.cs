@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using Xunit.Abstractions;
 
@@ -10,9 +10,14 @@ namespace Xunit.Runner.Reporters
         const int MaxLength = 4096;
 
         string assemblyFileName;
-        readonly ConcurrentDictionary<string, int> testMethods = new ConcurrentDictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        string baseUri;
+        readonly Dictionary<string, int> testMethods = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-        public AppVeyorReporterMessageHandler(IRunnerLogger logger) : base(logger) { }
+        public AppVeyorReporterMessageHandler(IRunnerLogger logger, string baseUri)
+            : base(logger)
+        {
+            this.baseUri = baseUri.TrimEnd('/');
+        }
 
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
         {
@@ -24,8 +29,10 @@ namespace Xunit.Runner.Reporters
         protected override bool Visit(ITestStarting testStarting)
         {
             var testName = testStarting.Test.DisplayName;
-            if (testMethods.ContainsKey(testName))
-                testName = $"{testName} {testMethods[testName]}";
+
+            lock (testMethods)
+                if (testMethods.ContainsKey(testName))
+                    testName = $"{testName} {testMethods[testName]}";
 
             AppVeyorAddTest(testName, "xUnit", assemblyFileName, "Running", null, null, null, null, null);
 
@@ -61,25 +68,25 @@ namespace Xunit.Runner.Reporters
 
         string GetFinishedTestName(string methodName)
         {
-            var testName = methodName;
-            var number = 0;
-
-            if (testMethods.ContainsKey(methodName))
+            lock (testMethods)
             {
-                number = testMethods[methodName];
-                testName = $"{methodName} {number}";
-            }
+                var testName = methodName;
+                var number = 0;
 
-            testMethods[methodName] = number + 1;
-            return testName;
+                if (testMethods.ContainsKey(methodName))
+                {
+                    number = testMethods[methodName];
+                    testName = $"{methodName} {number}";
+                }
+
+                testMethods[methodName] = number + 1;
+                return testName;
+            }
         }
 
         void AppVeyorAddTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
                              string errorMessage, string errorStackTrace, string stdOut, string stdErr)
         {
-            if (!AppVeyorClient.IsRunningInAppVeyor)
-                return;
-
             var body = new AddUpdateTestRequest
             {
                 TestName = testName,
@@ -95,7 +102,7 @@ namespace Xunit.Runner.Reporters
 
             try
             {
-                AppVeyorClient.SendRequest("api/tests", "POST", body);
+                AppVeyorClient.SendRequest(Logger, $"{baseUri}/api/tests", "POST", body);
             }
             catch (Exception ex)
             {
@@ -106,9 +113,6 @@ namespace Xunit.Runner.Reporters
         void AppVeyorUpdateTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
                                 string errorMessage, string errorStackTrace, string stdOut, string stdErr)
         {
-            if (!AppVeyorClient.IsRunningInAppVeyor)
-                return;
-
             var body = new AddUpdateTestRequest
             {
                 TestName = testName,
@@ -124,7 +128,7 @@ namespace Xunit.Runner.Reporters
 
             try
             {
-                AppVeyorClient.SendRequest("api/tests", "PUT", body);
+                AppVeyorClient.SendRequest(Logger, $"{baseUri}/api/tests", "PUT", body);
             }
             catch (Exception ex)
             {

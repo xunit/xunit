@@ -30,13 +30,13 @@ namespace Xunit
                         var result = new TestAssemblyConfiguration();
                         var settings = config.AppSettings.Settings;
 
+                        result.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? result.AppDomain;
                         result.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? result.DiagnosticMessages;
                         result.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? result.MaxParallelThreads;
                         result.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? result.MethodDisplay;
                         result.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
                         result.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
                         result.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
-                        result.UseAppDomain = GetBoolean(settings, Configuration.UseAppDomain) ?? result.UseAppDomain;
 
                         return result;
                     }
@@ -95,13 +95,13 @@ namespace Xunit
 
         static class Configuration
         {
+            public const string AppDomain = "xunit.appDomain";
             public const string DiagnosticMessages = "xunit.diagnosticMessages";
             public const string MaxParallelThreads = "xunit.maxParallelThreads";
             public const string MethodDisplay = "xunit.methodDisplay";
             public const string ParallelizeAssembly = "xunit.parallelizeAssembly";
             public const string ParallelizeTestCollections = "xunit.parallelizeTestCollections";
             public const string PreEnumerateTheories = "xunit.preEnumerateTheories";
-            public const string UseAppDomain = "xunit.useAppDomain";
         }
     }
 }

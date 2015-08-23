@@ -1,8 +1,4 @@
-﻿// HACK: This needs to be temporarily removed from DOTNETCORE because it uses ExecutionContext,
-// which is a type that's not available for dnx451.
-#if !DOTNETCORE
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +16,7 @@ namespace Xunit.Sdk
         bool disposed = false;
         readonly ManualResetEvent terminate = new ManualResetEvent(false);
         readonly List<XunitWorkerThread> workerThreads;
-        readonly ConcurrentQueue<Tuple<SendOrPostCallback, object, ExecutionContext>> workQueue = new ConcurrentQueue<Tuple<SendOrPostCallback, object, ExecutionContext>>();
+        readonly ConcurrentQueue<Tuple<SendOrPostCallback, object, object>> workQueue = new ConcurrentQueue<Tuple<SendOrPostCallback, object, object>>();
         readonly AutoResetEvent workReady = new AutoResetEvent(false);
 
         /// <summary>
@@ -60,7 +56,7 @@ namespace Xunit.Sdk
                 Send(d, state);
             else
             {
-                var context = ExecutionContext.Capture();
+                var context = ExecutionContextHelper.Capture();
                 workQueue.Enqueue(Tuple.Create(d, state, context));
                 workReady.Set();
             }
@@ -80,12 +76,12 @@ namespace Xunit.Sdk
                 if (WaitHandle.WaitAny(new WaitHandle[] { workReady, terminate }) == 1)
                     return;
 
-                Tuple<SendOrPostCallback, object, ExecutionContext> work;
+                Tuple<SendOrPostCallback, object, object> work;
                 while (workQueue.TryDequeue(out work))
                     if (work.Item3 == null)    // Fix for #461, so we don't try to run on a null execution context
                         RunOnSyncContext(work.Item1, work.Item2);
                     else
-                        ExecutionContext.Run(work.Item3, _ => RunOnSyncContext(work.Item1, work.Item2), null);
+                        ExecutionContextHelper.Run(work.Item3, _ => RunOnSyncContext(work.Item1, work.Item2));
             }
         }
 
@@ -99,5 +95,3 @@ namespace Xunit.Sdk
         }
     }
 }
-
-#endif

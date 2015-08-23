@@ -163,7 +163,7 @@ public static class Mocks
     {
         var result = Substitute.For<IRunnerReporter, InterfaceProxy<IRunnerReporter>>();
         result.Description.Returns(description ?? "The runner reporter description");
-        result.IsEnvironmentallyEnabled.Returns(isEnvironmentallyEnabled);
+        result.IsEnvironmentallyEnabled.ReturnsForAnyArgs(isEnvironmentallyEnabled);
         result.RunnerSwitch.Returns(runnerSwitch);
         result.CreateMessageHandler(null).ReturnsForAnyArgs(messageSink ?? Substitute.For<IMessageSink, InterfaceProxy<IMessageSink>>());
         return result;

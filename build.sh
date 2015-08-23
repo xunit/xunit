@@ -19,7 +19,7 @@ if ! [ -x .nuget/nuget.exe ]; then
   echo "Downloading nuget.exe..."
   echo ""
 
-  curl https://www.nuget.org/nuget.exe -o .nuget/nuget.exe -L
+  curl http://dist.nuget.org/win-x86-commandline/v3.1.0-beta/nuget.exe -o .nuget/nuget.exe -L
   if [ $? -ne 0 ]; then
     echo >&2 ""
     echo >&2 "The download of nuget.exe has failed."
@@ -43,7 +43,7 @@ echo ""
 echo "Building..."
 echo ""
 
-xbuild xunit.xbuild.sln /property:Configuration=Release
+xbuild xunit.vs2015.sln /property:Configuration=Release
 if [ $? -ne 0 ]; then
   echo >&2 ""
   echo >&2 "The build has failed."

@@ -152,10 +152,12 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
+#if XUNIT_FRAMEWORK    // This behavior is only for v2, and only done on the remote app domain side
             if (assemblyName.EndsWith(ExecutionHelper.SubstitutionToken, StringComparison.OrdinalIgnoreCase))
-                assemblyName = assemblyName.Substring(0, assemblyName.Length - ExecutionHelper.SubstitutionToken.Length + 1) + ExecutionHelper.PlatformSpecificAssemblySuffix;
+                assemblyName = assemblyName.Substring(0, assemblyName.Length - ExecutionHelper.SubstitutionToken.Length + 1) + ExecutionHelper.PlatformSuffix;
+#endif
 
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
+#if PLATFORM_DOTNET
             Assembly assembly = null;
             try
             {
@@ -225,9 +227,11 @@ namespace Xunit.Sdk
             if (string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase))
                 return typeName;
 
+#if XUNIT_FRAMEWORK    // This behavior is only for v2, and only done on the remote app domain side
             // If this is a platform specific assembly, strip off the trailing . and name and replace it with the token
             if (type.GetAssembly().GetCustomAttributes().FirstOrDefault(a => a != null && a.GetType().FullName == "Xunit.Sdk.PlatformSpecificAssemblyAttribute") != null)
                 assemblyName = assemblyName.Substring(0, assemblyName.LastIndexOf('.')) + ExecutionHelper.SubstitutionToken;
+#endif
 
             return $"{typeName}, {assemblyName}";
         }

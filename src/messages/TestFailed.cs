@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit.Abstractions;
 
-#if XUNIT_CORE_DLL
+#if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
 #else
 namespace Xunit

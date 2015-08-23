@@ -11,26 +11,18 @@ namespace Xunit
     {
         /// <inheritdoc/>
         public virtual string Description
-        {
-            get { return null; }
-        }
+            => null;
 
         /// <inheritdoc/>
         public virtual bool IsEnvironmentallyEnabled
-        {
-            get { return false; }
-        }
+            => false;
 
         /// <inheritdoc/>
         public virtual string RunnerSwitch
-        {
-            get { return null; }
-        }
+            => null;
 
         /// <inheritdoc/>
         public virtual IMessageSink CreateMessageHandler(IRunnerLogger logger)
-        {
-            return new DefaultRunnerReporterMessageHandler(logger);
-        }
+            => new DefaultRunnerReporterMessageHandler(logger);
     }
 }

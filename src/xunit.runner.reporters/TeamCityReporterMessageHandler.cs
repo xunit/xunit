@@ -1,5 +1,6 @@
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
@@ -7,8 +8,9 @@ namespace Xunit.Runner.Reporters
     public class TeamCityReporterMessageHandler : TestMessageVisitor
     {
         readonly TeamCityDisplayNameFormatter displayNameFormatter;
-        readonly ConcurrentDictionary<string, string> flowMappings = new ConcurrentDictionary<string, string>();
         readonly Func<string, string> flowIdMapper;
+        readonly Dictionary<string, string> flowMappings = new Dictionary<string, string>();
+        readonly ReaderWriterLockSlim flowMappingsLock = new ReaderWriterLockSlim();
         readonly IRunnerLogger logger;
 
         public TeamCityReporterMessageHandler(IRunnerLogger logger,
@@ -150,6 +152,37 @@ namespace Xunit.Runner.Reporters
         }
 
         string ToFlowId(string testCollectionName)
-            => flowMappings.GetOrAdd(testCollectionName, flowIdMapper);
+        {
+            string result;
+
+            flowMappingsLock.EnterReadLock();
+
+            try
+            {
+                if (flowMappings.TryGetValue(testCollectionName, out result))
+                    return result;
+            }
+            finally
+            {
+                flowMappingsLock.ExitReadLock();
+            }
+
+            flowMappingsLock.EnterWriteLock();
+
+            try
+            {
+                if (!flowMappings.TryGetValue(testCollectionName, out result))
+                {
+                    result = flowIdMapper(testCollectionName);
+                    flowMappings[testCollectionName] = result;
+                }
+
+                return result;
+            }
+            finally
+            {
+                flowMappingsLock.ExitWriteLock();
+            }
+        }
     }
 }

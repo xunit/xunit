@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
-#if XUNIT_CORE_DLL
+#if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
 #else
 namespace Xunit
@@ -175,7 +175,7 @@ namespace Xunit
             stackTraces.Add(ex.StackTrace);
             indices.Add(parentIndex);
 
-#if XUNIT_CORE_DLL
+#if XUNIT_FRAMEWORK
             var aggEx = ex as AggregateException;
             if (aggEx != null)
                 foreach (var innerException in aggEx.InnerExceptions)

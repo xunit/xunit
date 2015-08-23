@@ -9,5 +9,9 @@ namespace Xunit
     /// </summary>
     public interface IFrontController : ITestFrameworkDiscoverer, ITestFrameworkExecutor
     {
+        /// <summary>
+        /// Gets a flag indicating whether this discovery/execution can use app domains.
+        /// </summary>
+        bool CanUseAppDomains { get; }
     }
 }

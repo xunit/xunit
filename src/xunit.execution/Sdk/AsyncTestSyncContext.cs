@@ -2,10 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-#if WINDOWS_PHONE_APP
-using Windows.System.Threading;
-#endif
-
 namespace Xunit.Sdk
 {
     /// <summary>

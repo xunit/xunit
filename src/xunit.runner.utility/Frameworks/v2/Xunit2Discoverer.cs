@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
 
@@ -19,7 +21,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class.
         /// </summary>
-        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
+        /// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="sourceInformationProvider">The source code information provider.</param>
         /// <param name="assemblyInfo">The assembly to use for discovery</param>
         /// <param name="xunitExecutionAssemblyPath">The path on disk of xunit.execution.dll; if <c>null</c>, then
@@ -28,18 +30,18 @@ namespace Xunit
         /// will be automatically (randomly) generated</param>
         /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
         /// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
-        public Xunit2Discoverer(bool useAppDomain,
+        public Xunit2Discoverer(AppDomainSupport appDomainSupport,
                                 ISourceInformationProvider sourceInformationProvider,
                                 IAssemblyInfo assemblyInfo,
                                 string xunitExecutionAssemblyPath = null,
                                 string shadowCopyFolder = null,
                                 IMessageSink diagnosticMessageSink = null,
                                 bool verifyAssembliesOnDisk = true)
-            : this(useAppDomain, sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
+            : this(appDomainSupport, sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
         { }
 
         // Used by Xunit2 when initializing for both discovery and execution.
-        internal Xunit2Discoverer(bool useAppDomain,
+        internal Xunit2Discoverer(AppDomainSupport appDomainSupport,
                                   ISourceInformationProvider sourceInformationProvider,
                                   string assemblyFileName,
                                   string configFileName,
@@ -47,10 +49,10 @@ namespace Xunit
                                   string shadowCopyFolder = null,
                                   IMessageSink diagnosticMessageSink = null,
                                   bool verifyAssembliesOnDisk = true)
-            : this(useAppDomain, sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(assemblyFileName, verifyAssembliesOnDisk), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
+            : this(appDomainSupport, sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(appDomainSupport, assemblyFileName, verifyAssembliesOnDisk), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
         { }
 
-        Xunit2Discoverer(bool useAppDomain,
+        Xunit2Discoverer(AppDomainSupport appDomainSupport,
                          ISourceInformationProvider sourceInformationProvider,
                          IAssemblyInfo assemblyInfo,
                          string assemblyFileName,
@@ -65,10 +67,16 @@ namespace Xunit
             if (verifyAssembliesOnDisk)
                 Guard.FileExists("xunitExecutionAssemblyPath", xunitExecutionAssemblyPath);
 
+#if PLATFORM_DOTNET
+            CanUseAppDomains = false;
+#else
+            CanUseAppDomains = !IsDotNet(xunitExecutionAssemblyPath);
+#endif
+
             DiagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
 
             var appDomainAssembly = assemblyFileName ?? xunitExecutionAssemblyPath;
-            appDomain = AppDomainManagerFactory.Create(useAppDomain, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder);
+            appDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder);
 
             var testFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
 
@@ -81,16 +89,18 @@ namespace Xunit
         }
 
         /// <summary>
+        /// Gets a value indicating whether the tests can use app domains (must be linked against desktop execution library).
+        /// </summary>
+        public bool CanUseAppDomains { get; private set; }
+
+        /// <summary>
         /// Gets the message sink used to report diagnostic messages.
         /// </summary>
         public IMessageSink DiagnosticMessageSink { get; private set; }
 
         static AssemblyName GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
         {
-#if ANDROID
-            // Android needs to just load the assembly
-            return Assembly.Load(xunitExecutionAssemblyPath).GetName();
-#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
+#if PLATFORM_DOTNET
             // Make sure we only use the short form
             return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new System.Version(0, 0, 0, 0) }).GetName();
 #else
@@ -149,21 +159,59 @@ namespace Xunit
             discoverer.Find(typeName, includeSourceInformation, messageSink, discoveryOptions);
         }
 
-        static string GetXunitExecutionAssemblyPath(string assemblyFileName, bool verifyTestAssemblyExists)
+        static string GetExecutionAssemblyFileName(AppDomainSupport appDomainSupport, string basePath)
+        {
+            var supportedPlatformSuffixes = GetSupportedPlatformSuffixes(appDomainSupport);
+
+            foreach (var suffix in supportedPlatformSuffixes)
+            {
+#if PLATFORM_DOTNET
+                try
+                {
+                    var assemblyName = $"xunit.execution.{suffix}";
+                    Assembly.Load(new AssemblyName { Name = assemblyName });
+                    return assemblyName + ".dll";
+                }
+                catch { }
+#else
+                var fileName = Path.Combine(basePath, $"xunit.execution.{suffix}.dll");
+                if (File.Exists(fileName))
+                    return fileName;
+#endif
+            }
+
+            throw new InvalidOperationException("Could not find any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => $"xunit.execution.{suffix}.dll").ToArray()));
+        }
+
+        static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport)
+        {
+#if PLATFORM_DOTNET
+            return new[] { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
+#else
+            return appDomainSupport == AppDomainSupport.Required ? new[] { "desktop" } : new[] { "desktop", "dotnet" };
+#endif
+        }
+
+        static string GetXunitExecutionAssemblyPath(AppDomainSupport appDomainSupport, string assemblyFileName, bool verifyTestAssemblyExists)
         {
             Guard.ArgumentNotNullOrEmpty("assemblyFileName", assemblyFileName);
             if (verifyTestAssemblyExists)
                 Guard.FileExists("assemblyFileName", assemblyFileName);
 
-            return Path.Combine(Path.GetDirectoryName(assemblyFileName), ExecutionHelper.AssemblyFileName);
+            return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyFileName));
         }
 
-        static string GetXunitExecutionAssemblyPath(IAssemblyInfo assemblyInfo)
+        static string GetXunitExecutionAssemblyPath(AppDomainSupport appDomainSupport, IAssemblyInfo assemblyInfo)
         {
             Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
             Guard.ArgumentNotNullOrEmpty("assemblyInfo.AssemblyPath", assemblyInfo.AssemblyPath);
 
-            return Path.Combine(Path.GetDirectoryName(assemblyInfo.AssemblyPath), ExecutionHelper.AssemblyFileName);
+            return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyInfo.AssemblyPath));
+        }
+
+        static bool IsDotNet(string executionAssemblyFileName)
+        {
+            return executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
         }
 
         /// <inheritdoc/>

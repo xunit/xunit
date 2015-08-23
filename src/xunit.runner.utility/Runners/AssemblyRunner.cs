@@ -22,13 +22,13 @@ namespace Xunit.Runners
         int testCasesDiscovered;
         readonly List<ITestCase> testCasesToRun = new List<ITestCase>();
 
-        AssemblyRunner(bool useAppDomain,
+        AssemblyRunner(AppDomainSupport appDomainSupport,
                        string assemblyFileName,
                        string configFileName = null,
                        bool shadowCopy = true,
                        string shadowCopyFolder = null)
         {
-            controller = new XunitFrontController(useAppDomain, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink: this);
+            controller = new XunitFrontController(appDomainSupport, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink: this);
             configuration = ConfigReader.Load(assemblyFileName, configFileName);
         }
 
@@ -224,7 +224,7 @@ namespace Xunit.Runners
             });
         }
 
-#if !NO_APPDOMAIN
+#if !PLATFORM_DOTNET
         /// <summary>
         /// Creates an assembly runner that discovers and run tests in a separate app domain.
         /// </summary>
@@ -241,7 +241,7 @@ namespace Xunit.Runners
         {
             Guard.ArgumentValid(nameof(shadowCopyFolder), "Cannot set shadowCopyFolder if shadowCopy is false", shadowCopy == true || shadowCopyFolder == null);
 
-            return new AssemblyRunner(true, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+            return new AssemblyRunner(AppDomainSupport.Required, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
         }
 #endif
 
@@ -251,7 +251,7 @@ namespace Xunit.Runners
         /// <param name="assemblyFileName">The test assembly.</param>
         public static AssemblyRunner WithoutAppDomain(string assemblyFileName)
         {
-            return new AssemblyRunner(false, assemblyFileName);
+            return new AssemblyRunner(AppDomainSupport.Denied, assemblyFileName);
         }
 
         bool DispatchMessage<TMessage>(IMessageSinkMessage message, Action<TMessage> handler)

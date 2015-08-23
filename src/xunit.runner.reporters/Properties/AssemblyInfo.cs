@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 
-#if DOTNETCORE
-[assembly: AssemblyTitle("xUnit.net Runner Reporters (.NET Core)")]
+#if PLATFORM_DOTNET
+[assembly: AssemblyTitle("xUnit.net Runner Reporters (dotnet)")]
 #else
-[assembly: AssemblyTitle("xUnit.net Runner Reporters (Desktop)")]
+[assembly: AssemblyTitle("xUnit.net Runner Reporters (desktop)")]
 #endif

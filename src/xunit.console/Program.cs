@@ -213,7 +213,7 @@ namespace Xunit.ConsoleClient
                               int? maxThreadCount,
                               bool diagnosticMessages,
                               bool noColor,
-                              bool? noAppDomain)
+                              bool noAppDomain)
         {
             XElement assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
@@ -269,7 +269,7 @@ namespace Xunit.ConsoleClient
                                         int? maxThreadCount,
                                         bool diagnosticMessages,
                                         bool noColor,
-                                        bool? noAppDomain,
+                                        bool noAppDomain,
                                         XunitFilters filters)
         {
             if (cancel)
@@ -286,8 +286,8 @@ namespace Xunit.ConsoleClient
                 assembly.Configuration.PreEnumerateTheories = false;
                 assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
 
-                if (noAppDomain.HasValue)
-                    assembly.Configuration.UseAppDomain = !noAppDomain.GetValueOrDefault();
+                if (noAppDomain)
+                    assembly.Configuration.AppDomain = AppDomainSupport.Denied;
 
                 // Setup discovery and execution options with command-line overrides
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
@@ -299,13 +299,13 @@ namespace Xunit.ConsoleClient
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
                 var diagnosticMessageVisitor = new DiagnosticMessageVisitor(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
-                var useAppDomain = assembly.Configuration.UseAppDomainOrDefault;
+                var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
 
-                using (var controller = new XunitFrontController(useAppDomain, assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
+                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     // Discover & filter the tests
-                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, useAppDomain, discoveryOptions));
+                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, discoveryOptions));
 
                     controller.Find(false, discoveryVisitor, discoveryOptions);
                     discoveryVisitor.Finished.WaitOne();

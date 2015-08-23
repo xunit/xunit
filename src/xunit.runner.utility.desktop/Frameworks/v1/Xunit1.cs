@@ -15,6 +15,7 @@ namespace Xunit
     /// </summary>
     public class Xunit1 : IFrontController
     {
+        readonly AppDomainSupport appDomainSupport;
         readonly string assemblyFileName;
         readonly string configFileName;
         IXunit1Executor executor;
@@ -22,12 +23,11 @@ namespace Xunit
         readonly string shadowCopyFolder;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
-        readonly bool useAppDomain;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit1"/> class.
         /// </summary>
-        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
+        /// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="sourceInformationProvider">Source code information provider.</param>
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
@@ -35,20 +35,24 @@ namespace Xunit
         /// tests to be discovered and run without locking assembly files on disk.</param>
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
-        public Xunit1(bool useAppDomain,
+        public Xunit1(AppDomainSupport appDomainSupport,
                       ISourceInformationProvider sourceInformationProvider,
                       string assemblyFileName,
                       string configFileName = null,
                       bool shadowCopy = true,
                       string shadowCopyFolder = null)
         {
-            this.useAppDomain = useAppDomain;
+            this.appDomainSupport = appDomainSupport;
             this.sourceInformationProvider = sourceInformationProvider;
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
             this.shadowCopy = shadowCopy;
             this.shadowCopyFolder = shadowCopyFolder;
         }
+
+        /// <inheritdoc/>
+        public bool CanUseAppDomains
+            => true;
 
         /// <inheritdoc/>
         public string TargetFramework
@@ -73,7 +77,7 @@ namespace Xunit
         /// </summary>
         /// <returns>The executor wrapper.</returns>
         protected virtual IXunit1Executor CreateExecutor()
-            => new Xunit1Executor(useAppDomain, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+            => new Xunit1Executor(appDomainSupport != AppDomainSupport.Denied, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
         /// <inheritdoc/>
         public ITestCase Deserialize(string value)

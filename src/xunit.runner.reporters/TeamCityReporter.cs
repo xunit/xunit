@@ -1,5 +1,4 @@
-﻿using System;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
 {
@@ -9,7 +8,7 @@ namespace Xunit.Runner.Reporters
             => "forces TeamCity mode (normally auto-detected)";
 
         public bool IsEnvironmentallyEnabled
-            => Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
+            => EnvironmentHelper.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
 
         public string RunnerSwitch
             => "teamcity";

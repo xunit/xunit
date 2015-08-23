@@ -5,53 +5,53 @@
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner Reporters]</title>
     <authors>James Newkirk,Brad Wilson</authors>
-    <description>
-Includes runner reporters for TeamCity, AppVeyor, Verbose and Quiet output for test runners.
+    <description>Includes runner reporters for TeamCity, AppVeyor, Verbose and Quiet output for test runners.
 
 Supported platforms:
 - Desktop .NET 4.5+
 - .NET Core (Universal Windows Apps 10+, DNX Core 5+)
-    </description>
+- Windows 8
+- Windows Phone 8 (Silverlight)
+- Universal (Windows Phone 8.1+, Windows 8.1+)
+- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
+- Portable Libraries (supporting Profile259)</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <group targetFramework="net45">
+      <group targetFramework="dnx451">
+        <dependency id="Newtonsoft.Json" version="7.0.1" />
         <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
       </group>
       <group targetFramework="dotnet">
         <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
-        <dependency id="System.Diagnostics.Debug" version="4.0.10" />
-        <dependency id="Newtonsoft.Json" version="6.0.6" />
         <dependency id="System.Collections.Concurrent" version="4.0.0" />
         <dependency id="System.Net.Http" version="4.0.0" />
-        <dependency id="System.Runtime" version="4.0.20" />
-        <dependency id="System.Runtime.Extensions" version="4.0.10" />
-        <dependency id="System.Text.Encoding" version="4.0.0" />
-        <dependency id="System.Threading" version="4.0.0" />
         <dependency id="System.Threading.Tasks" version="4.0.0" />
-        <dependency id="xunit.abstractions" version="2.0.0" />
-      </group>
-      <group targetFramework="dnx451">
-        <dependency id="Newtonsoft.Json" version="6.0.6" />
-        <dependency id="System.Collections.Concurrent" version="4.0.0" />
+        <dependency id="Newtonsoft.Json" version="7.0.1" />
+        <dependency id="System.Collections" version="4.0.0" />
         <dependency id="System.Diagnostics.Debug" version="4.0.0" />
-        <dependency id="System.Net.Http" version="4.0.0" />
+        <dependency id="System.IO" version="4.0.0" />
+        <dependency id="System.Net.Primitives" version="3.9.0" />
+        <dependency id="System.Net.Requests" version="3.9.0" />
+        <dependency id="System.Reflection" version="4.0.0" />
+        <dependency id="System.Reflection.Extensions" version="4.0.0" />
         <dependency id="System.Runtime" version="4.0.0" />
         <dependency id="System.Runtime.Extensions" version="4.0.0" />
         <dependency id="System.Text.Encoding" version="4.0.0" />
         <dependency id="System.Threading" version="4.0.0" />
-        <dependency id="System.Threading.Tasks" version="4.0.0" />
         <dependency id="xunit.abstractions" version="2.0.0" />
+      </group>
+      <group targetFramework="net45">
         <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
       </group>
     </dependencies>
   </metadata>
   <files>
+    <file src="xunit.runner.reporters.dotnet\bin\Release\xunit.runner.reporters.dotnet.dll" target="lib\dnx451\" />
+    <file src="xunit.runner.reporters.dotnet\bin\Release\xunit.runner.reporters.dotnet.dll" target="lib\dotnet\" />
     <file src="xunit.runner.reporters.desktop\bin\Release\xunit.runner.reporters.desktop.dll" target="lib\net45\" />
-    <file src="xunit.runner.reporters.DotNetCore\bin\Release\xunit.runner.reporters.DotNetCore.dll" target="lib\dnx451\" />
-    <file src="xunit.runner.reporters.DotNetCore\bin\Release\xunit.runner.reporters.DotNetCore.dll" target="lib\dotnet\" />
   </files>
 </package>

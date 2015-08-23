@@ -1,4 +1,4 @@
-#if !DOTNETCORE
+#if !PLATFORM_DOTNET
 
 using System;
 using System.IO;

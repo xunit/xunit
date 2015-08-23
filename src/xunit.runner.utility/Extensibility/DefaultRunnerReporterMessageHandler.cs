@@ -23,7 +23,7 @@ namespace Xunit
         /// <param name="logger">The logger used to report messages</param>
         public DefaultRunnerReporterMessageHandler(IRunnerLogger logger)
         {
-#if !WINDOWS_PHONE_APP && !DOTNETCORE
+#if !PLATFORM_DOTNET
             defaultDirectory = Directory.GetCurrentDirectory();
 #endif
 
@@ -184,7 +184,7 @@ namespace Xunit
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryStarting.Assembly);
 
             if (discoveryStarting.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
-#if NO_APPDOMAIN
+#if PLATFORM_DOTNET
                 Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");
 #else
                 Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (app domain = {(discoveryStarting.AppDomain ? "on" : "off")}, method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");

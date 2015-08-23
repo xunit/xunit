@@ -30,12 +30,12 @@ static class Guard
             throw new ArgumentException(message, argName);
     }
 
-#if !XUNIT_CORE_DLL
+#if !XUNIT_FRAMEWORK
     /// <summary/>
     public static void FileExists(string argName, string fileName)
     {
-#if !ANDROID && !DOTNETCORE
         Guard.ArgumentNotNullOrEmpty(argName, fileName);
+#if !PLATFORM_DOTNET
         Guard.ArgumentValid("assemblyFileName",
                             $"File not found: {fileName}",
                             File.Exists(fileName));

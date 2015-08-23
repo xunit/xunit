@@ -14,7 +14,7 @@ namespace Xunit
         public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null)
         {
             return ConfigReader_Json.Load(assemblyFileName, configFileName)
-#if NET35
+#if !PLATFORM_DOTNET
                 ?? ConfigReader_Configuration.Load(assemblyFileName, configFileName)
 #endif
                 ?? new TestAssemblyConfiguration();

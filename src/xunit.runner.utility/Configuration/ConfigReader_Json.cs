@@ -1,6 +1,10 @@
 using System;
 using System.IO;
 
+#if PLATFORM_DOTNET
+using System.Reflection;
+#endif
+
 namespace Xunit
 {
     /// <summary>
@@ -8,22 +12,6 @@ namespace Xunit
     /// </summary>
     public static class ConfigReader_Json
     {
-        // HACK: This is necssary to back-port support for dnx451, because .NET Core relies
-        // upon the System.IO.FileSystem NuGet package, which is not compatible with net451.
-#if !DOTNETCORE
-        static ConfigReader_Json()
-        {
-            FileOpenRead = System.IO.File.OpenRead;
-        }
-#endif
-
-        /// <summary>
-        /// Represents the ability open a file for reading. Any .NET Core runners must set
-        /// this value before tests will run correctly. This requirement will be removed
-        /// once support for dnx451 is removed in favor of dnx46.
-        /// </summary>
-        public static Func<string, Stream> FileOpenRead { get; set; }
-
         /// <summary>
         /// Loads the test assembly configuration for the given test assembly.
         /// </summary>
@@ -32,9 +20,6 @@ namespace Xunit
         /// <returns>The test assembly configuration.</returns>
         public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null)
         {
-            if (FileOpenRead == null)
-                throw new InvalidOperationException("Runner authors in .NET Core must set ConfigReader_Json.FileOpenRead.");
-
             if (configFileName == null)
                 configFileName = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.runner.json");
 
@@ -44,7 +29,7 @@ namespace Xunit
                 {
                     var result = new TestAssemblyConfiguration();
 
-                    using (var stream = FileOpenRead(configFileName))
+                    using (var stream = File_OpenRead(configFileName))
                     using (var reader = new StreamReader(stream))
                     {
                         var config = JsonDeserializer.Deserialize(reader) as JsonObject;
@@ -64,8 +49,6 @@ namespace Xunit
                                     result.ParallelizeTestCollections = booleanValue;
                                 if (string.Equals(propertyName, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
                                     result.PreEnumerateTheories = booleanValue;
-                                if (string.Equals(propertyName, Configuration.UseAppDomain, StringComparison.OrdinalIgnoreCase))
-                                    result.UseAppDomain = booleanValue;
                             }
                             else if (string.Equals(propertyName, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
                             {
@@ -90,6 +73,19 @@ namespace Xunit
                                     catch { }
                                 }
                             }
+                            else if (string.Equals(propertyName, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
+                            {
+                                var stringValue = propertyValue as JsonString;
+                                if (stringValue != null)
+                                {
+                                    try
+                                    {
+                                        var appDomain = Enum.Parse(typeof(AppDomainSupport), stringValue, true);
+                                        result.AppDomain = (AppDomainSupport)appDomain;
+                                    }
+                                    catch { }
+                                }
+                            }
                         }
                     }
 
@@ -101,15 +97,42 @@ namespace Xunit
             return null;
         }
 
+#if PLATFORM_DOTNET
+        static Lazy<MethodInfo> fileOpenReadMethod = new Lazy<MethodInfo>(GetFileOpenReadMethod);
+
+        static MethodInfo GetFileOpenReadMethod()
+        {
+            var fileType = Type.GetType("System.IO.File");
+            if (fileType == null)
+                throw new InvalidOperationException("Could not load type: System.IO.File");
+
+            var fileOpenReadMethod = fileType.GetRuntimeMethod("OpenRead", new[] { typeof(string) });
+            if (fileOpenReadMethod == null)
+                throw new InvalidOperationException("Could not find method: System.IO.File.OpenRead");
+
+            return fileOpenReadMethod;
+        }
+
+        static Stream File_OpenRead(string path)
+        {
+            return (Stream)fileOpenReadMethod.Value.Invoke(null, new object[] { path });
+        }
+#else
+        static Stream File_OpenRead(string path)
+        {
+            return File.OpenRead(path);
+        }
+#endif
+
         static class Configuration
         {
+            public const string AppDomain = "appDomain";
             public const string DiagnosticMessages = "diagnosticMessages";
             public const string MaxParallelThreads = "maxParallelThreads";
             public const string MethodDisplay = "methodDisplay";
             public const string ParallelizeAssembly = "parallelizeAssembly";
             public const string ParallelizeTestCollections = "parallelizeTestCollections";
             public const string PreEnumerateTheories = "preEnumerateTheories";
-            public const string UseAppDomain = "useAppDomain";
         }
     }
 }

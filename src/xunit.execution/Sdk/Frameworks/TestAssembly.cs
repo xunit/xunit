@@ -33,19 +33,16 @@ namespace Xunit.Sdk
             ConfigFileName = configFileName;
             Version = version;
 
-#if !ANDROID &&  !__IOS__ && ! __UNIFIED__
             if (Version == null)
             {
                 var reflectionAssembly = assembly as IReflectionAssemblyInfo;
-                if (reflectionAssembly != null)
-                    Version = reflectionAssembly.Assembly.GetName().Version;
+                Version = reflectionAssembly?.Assembly?.GetName()?.Version;
             }
-#endif
 
             if (Version == null)
                 Version = new Version(0, 0, 0, 0);
 
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DOTNETCORE
+#if !PLATFORM_DOTNET
             if (ConfigFileName == null)
                 ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif

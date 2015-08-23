@@ -29,19 +29,16 @@ namespace Xunit.Sdk
         {
             var result = testCases.ToList();
 
-#if !DOTNETCORE
             try
             {
                 result.Sort(Compare);
             }
             catch (Exception ex)
             {
-                diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order. {ex}"));
-#endif
+                diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order.{Environment.NewLine}{ex}"));
                 result = Randomize(result);
-#if !DOTNETCORE
             }
-#endif
+
             return result;
         }
 
@@ -65,20 +62,10 @@ namespace Xunit.Sdk
         {
             Guard.ArgumentNotNull(nameof(x), x);
             Guard.ArgumentNotNull(nameof(y), y);
+            Guard.ArgumentValid(nameof(x), $"Could not compare test case {x.DisplayName} because it has a null UniqueID", x.UniqueID != null);
+            Guard.ArgumentValid(nameof(y), $"Could not compare test case {y.DisplayName} because it has a null UniqueID", y.UniqueID != null);
 
-            if (x.UniqueID == null)
-                throw new ArgumentException($"Could not compare test case {x.DisplayName} because it has a null UniqueID");
-            if (y.UniqueID == null)
-                throw new ArgumentException($"Could not compare test case {y.DisplayName} because it has a null UniqueID");
-
-            var xHash = x.UniqueID.GetHashCode();
-            var yHash = y.UniqueID.GetHashCode();
-
-            if (xHash == yHash)
-                return 0;
-            if (xHash < yHash)
-                return -1;
-            return 1;
+            return string.CompareOrdinal(x.UniqueID, y.UniqueID);
         }
     }
 }

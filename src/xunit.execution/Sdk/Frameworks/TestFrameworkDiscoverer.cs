@@ -197,13 +197,13 @@ namespace Xunit.Sdk
 
         class PreserveWorkingFolder : IDisposable
         {
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DOTNETCORE
+#if !PLATFORM_DOTNET
             readonly string originalWorkingFolder;
 #endif
 
             public PreserveWorkingFolder(IAssemblyInfo assemblyInfo)
             {
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DOTNETCORE
+#if !PLATFORM_DOTNET
                 originalWorkingFolder = Directory.GetCurrentDirectory();
 
                 if (!string.IsNullOrEmpty(assemblyInfo.AssemblyPath))
@@ -213,7 +213,7 @@ namespace Xunit.Sdk
 
             public void Dispose()
             {
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DOTNETCORE
+#if !PLATFORM_DOTNET
                 Directory.SetCurrentDirectory(originalWorkingFolder);
 #endif
             }

@@ -28,7 +28,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NEW_REFLECTION</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;PLATFORM_DOTNET</DefineConstants>
     <DocumentationFile>bin\Debug\xunit.assert.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -36,7 +36,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NEW_REFLECTION</DefineConstants>
+    <DefineConstants>TRACE;PLATFORM_DOTNET</DefineConstants>
     <DocumentationFile>bin\Release\xunit.assert.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>

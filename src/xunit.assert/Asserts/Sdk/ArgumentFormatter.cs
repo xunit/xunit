@@ -98,7 +98,7 @@ namespace Xunit.Sdk
                 return string.Format("{0} {{ Status = {1} }}", typeName, task.Status);
             }
 
-#if NEW_REFLECTION
+#if PLATFORM_DOTNET
             var toString = type.GetRuntimeMethod("ToString", EmptyTypes);
 #else
             var toString = type.GetMethod("ToString", EmptyTypes);

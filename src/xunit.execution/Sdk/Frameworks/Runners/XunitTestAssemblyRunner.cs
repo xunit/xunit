@@ -18,10 +18,7 @@ namespace Xunit.Sdk
         bool initialized;
         int maxParallelThreads;
         SynchronizationContext originalSyncContext;
-
-#if !DOTNETCORE
         MaxConcurrencySyncContext syncContext;
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestAssemblyRunner"/> class.
@@ -39,7 +36,6 @@ namespace Xunit.Sdk
             : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
         { }
 
-#if !DOTNETCORE
         /// <inheritdoc/>
         public override void Dispose()
         {
@@ -47,7 +43,6 @@ namespace Xunit.Sdk
             if (disposable != null)
                 disposable.Dispose();
         }
-#endif
 
         /// <inheritdoc/>
         protected override string GetTestFrameworkDisplayName()
@@ -59,12 +54,7 @@ namespace Xunit.Sdk
             Initialize();
 
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly);
-
-#if DOTNETCORE
-            var threadCountText = "unlimited";
-#else
             var threadCountText = maxParallelThreads < 0 ? "unlimited" : maxParallelThreads.ToString();
-#endif
 
             return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : $"parallel ({threadCountText} threads)")}]";
         }
@@ -77,13 +67,11 @@ namespace Xunit.Sdk
         /// <param name="maxParallelThreads">The maximum number of parallel threads.</param>
         protected virtual void SetupSyncContext(int maxParallelThreads)
         {
-#if !DOTNETCORE
             if (maxParallelThreads > 0)
             {
                 syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
                 SetSynchronizationContext(syncContext);
             }
-#endif
         }
 
         /// <summary>

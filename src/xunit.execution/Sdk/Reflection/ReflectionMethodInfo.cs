@@ -67,8 +67,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITypeInfo Type
         {
-#if WINDOWS_PHONE_APP || DOTNETCORE
-            // WinRT/"new reflection" does not have ReflectedType on MethodInfo
+#if PLATFORM_DOTNET
             get { throw new NotSupportedException(); }
 #else
             get { return Reflector.Wrap(MethodInfo.ReflectedType); }

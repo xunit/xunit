@@ -11,27 +11,25 @@ static class NewReflectionExtensions
 
     public static Assembly GetAssembly(this Type type)
     {
-#if NEW_REFLECTION
+#if PLATFORM_DOTNET
         return type.GetTypeInfo().Assembly;
 #else
         return type.Assembly;
 #endif
     }
 
-#if !DOTNETCORE
     public static Attribute[] GetCustomAttributes(this Assembly assembly)
     {
-#if NEW_REFLECTION
+#if PLATFORM_DOTNET
         return assembly.GetCustomAttributes<Attribute>().ToArray();
 #else
         return assembly.GetCustomAttributes(false).Cast<Attribute>().ToArray();
 #endif
     }
-#endif
 
     public static bool IsEnum(this Type type)
     {
-#if NEW_REFLECTION
+#if PLATFORM_DOTNET
         return type.GetTypeInfo().IsEnum;
 #else
         return type.IsEnum;
@@ -44,7 +42,7 @@ static class NewReflectionExtensions
 
         try
         {
-#if NEW_REFLECTION
+#if PLATFORM_DOTNET
             Assembly.Load(new AssemblyName { Name = assemblyName });
 #else
             Assembly.Load(assemblyName);
@@ -59,7 +57,7 @@ static class NewReflectionExtensions
 
     public static bool IsGenericType(this Type type)
     {
-#if NEW_REFLECTION
+#if PLATFORM_DOTNET
         return type.GetTypeInfo().IsGenericType;
 #else
         return type.IsGenericType;
@@ -68,7 +66,7 @@ static class NewReflectionExtensions
 
     public static bool IsGenericTypeDefinition(this Type type)
     {
-#if NEW_REFLECTION
+#if PLATFORM_DOTNET
         return type.GetTypeInfo().IsGenericTypeDefinition;
 #else
         return type.IsGenericTypeDefinition;
@@ -82,7 +80,7 @@ static class NewReflectionExtensions
 
     public static bool IsValueType(this Type type)
     {
-#if NEW_REFLECTION
+#if PLATFORM_DOTNET
         return type.GetTypeInfo().IsValueType;
 #else
         return type.IsValueType;
@@ -100,7 +98,7 @@ static class NewReflectionExtensions
 
     // Existing methods
 
-#if NEW_REFLECTION
+#if PLATFORM_DOTNET
     public static Type[] GetGenericArguments(this Type type)
     {
         return type.GetTypeInfo().GenericTypeArguments;

@@ -11,6 +11,7 @@ namespace Xunit
     /// </summary>
     public class XunitFrontController : IFrontController
     {
+        readonly AppDomainSupport appDomainSupport;
         readonly string assemblyFileName;
         readonly string configFileName;
         readonly IMessageSink diagnosticMessageSink;
@@ -19,7 +20,6 @@ namespace Xunit
         readonly string shadowCopyFolder;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
-        readonly bool useAppDomain;
 
         /// <summary>
         /// This constructor is for unit testing purposes only.
@@ -29,7 +29,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitFrontController"/> class.
         /// </summary>
-        /// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
+        /// <param name="appDomainSupport">Determines whether tests should be run in a separate app domain.</param>
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
@@ -38,7 +38,7 @@ namespace Xunit
         /// will be automatically (randomly) generated</param>
         /// <param name="sourceInformationProvider">The source information provider. If <c>null</c>, uses the default (<see cref="T:Xunit.VisualStudioSourceInformationProvider"/>).</param>
         /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
-        public XunitFrontController(bool useAppDomain,
+        public XunitFrontController(AppDomainSupport appDomainSupport,
                                     string assemblyFileName,
                                     string configFileName = null,
                                     bool shadowCopy = true,
@@ -46,7 +46,7 @@ namespace Xunit
                                     ISourceInformationProvider sourceInformationProvider = null,
                                     IMessageSink diagnosticMessageSink = null)
         {
-            this.useAppDomain = useAppDomain;
+            this.appDomainSupport = appDomainSupport;
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
             this.shadowCopy = shadowCopy;
@@ -58,15 +58,19 @@ namespace Xunit
 
             if (this.sourceInformationProvider == null)
             {
-#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DOTNETCORE
-                this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
-#else
+#if PLATFORM_DOTNET
                 this.sourceInformationProvider = new NullSourceInformationProvider();
+#else
+                this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
 #endif
                 toDispose.Push(this.sourceInformationProvider);
             }
 
         }
+
+        /// <inheritdoc/>
+        public bool CanUseAppDomains
+            => InnerController.CanUseAppDomains;
 
         IFrontController InnerController
         {
@@ -99,25 +103,18 @@ namespace Xunit
         /// </summary>
         protected virtual IFrontController CreateInnerController()
         {
-            // TODO: Refactor this method -- too many ifdefs
-#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE
-            var xunitPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.dll");
-#endif
-            var xunitExecutionPath = Path.Combine(Path.GetDirectoryName(assemblyFileName), ExecutionHelper.AssemblyFileName);
-
-#if !ANDROID && !DOTNETCORE
-            if (File.Exists(xunitExecutionPath))
-#endif
-                return new Xunit2(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
-#if !XAMARIN && !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DOTNETCORE
-            if (File.Exists(xunitPath))
-                return new Xunit1(useAppDomain, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
-#endif
-
-#if XAMARIN || WINDOWS_PHONE_APP || WINDOWS_PHONE
-            throw new ArgumentException($"Unknown test framework: Could not find {ExecutionHelper.AssemblyFileName}", assemblyFileName);
+#if PLATFORM_DOTNET
+            return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 #else
-            throw new ArgumentException($"Unknown test framework: Could not find xunit.dll or {ExecutionHelper.AssemblyFileName}.", assemblyFileName);
+            var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
+            if (Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0)
+                return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
+
+            var xunitPath = Path.Combine(assemblyFolder, "xunit.dll");
+            if (File.Exists(xunitPath))
+                return new Xunit1(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+
+            throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {assemblyFolder}");
 #endif
         }
 

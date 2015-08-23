@@ -1,4 +1,3 @@
-using System;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
@@ -9,12 +8,17 @@ namespace Xunit.Runner.Reporters
             => "forces AppVeyor CI mode (normally auto-detected)";
 
         public bool IsEnvironmentallyEnabled
-            => Environment.GetEnvironmentVariable("APPVEYOR_API_URL") != null;
+            => EnvironmentHelper.GetEnvironmentVariable("APPVEYOR_API_URL") != null;
 
         public string RunnerSwitch
             => "appveyor";
 
         public IMessageSink CreateMessageHandler(IRunnerLogger logger)
-            => new AppVeyorReporterMessageHandler(logger);
+        {
+            var baseUri = EnvironmentHelper.GetEnvironmentVariable("APPVEYOR_API_URL");
+            return baseUri == null
+                ? new DefaultRunnerReporterMessageHandler(logger)
+                : new AppVeyorReporterMessageHandler(logger, baseUri);
+        }
     }
 }

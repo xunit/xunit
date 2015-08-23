@@ -4,7 +4,7 @@ namespace Xunit
     {
         internal static IAppDomainManager Create(bool useAppDomain, string assemblyFileName, string configFileName, bool shadowCopy, string shadowCopyFolder)
         {
-#if !NO_APPDOMAIN
+#if !PLATFORM_DOTNET
             if (useAppDomain)
                 return new AppDomainManager_AppDomain(assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 #endif

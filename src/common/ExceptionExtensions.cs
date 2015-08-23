@@ -16,15 +16,15 @@ static class ExceptionExtensions
     /// </remarks>
     public static void RethrowWithNoStackTraceLoss(this Exception ex)
     {
-#if XUNIT_CORE_DLL || WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
-        System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex).Throw();
-#else
+#if PLATFORM_NET35
         FieldInfo remoteStackTraceString =
             typeof(Exception).GetField("_remoteStackTraceString", BindingFlags.Instance | BindingFlags.NonPublic) ??
             typeof(Exception).GetField("remote_stack_trace", BindingFlags.Instance | BindingFlags.NonPublic);
 
         remoteStackTraceString.SetValue(ex, ex.StackTrace + RETHROW_MARKER);
         throw ex;
+#else
+        System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex).Throw();
 #endif
     }
 

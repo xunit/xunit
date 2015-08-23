@@ -2,7 +2,7 @@
 using System.Threading;
 using Xunit.Abstractions;
 
-#if XUNIT_CORE_DLL
+#if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
 #else
 namespace Xunit
@@ -53,7 +53,7 @@ namespace Xunit
         public virtual bool OnMessage(IMessageSinkMessage message)
         {
             return
-#if !XUNIT_CORE_DLL
+#if !XUNIT_FRAMEWORK
                 DoVisit<ITestAssemblyDiscoveryFinished>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<ITestAssemblyDiscoveryStarting>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<ITestAssemblyExecutionFinished>(message, (t, m) => t.Visit(m)) &&
@@ -96,7 +96,7 @@ namespace Xunit
                 DoVisit<ITestStarting>(message, (t, m) => t.Visit(m));
         }
 
-#if !XUNIT_CORE_DLL
+#if !XUNIT_FRAMEWORK
         /// <summary>
         /// Called when an instance of <see cref="ITestAssemblyDiscoveryFinished"/> is sent to the message sink.
         /// </summary>

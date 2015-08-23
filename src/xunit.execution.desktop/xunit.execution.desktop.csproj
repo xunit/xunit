@@ -22,14 +22,14 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XUNIT_CORE_DLL;NET45</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XUNIT_FRAMEWORK;PLATFORM_NET45</DefineConstants>
     <DocumentationFile>bin\Debug\xunit.execution.desktop.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;XUNIT_CORE_DLL;NET45</DefineConstants>
+    <DefineConstants>TRACE;XUNIT_FRAMEWORK;PLATFORM_NET45</DefineConstants>
     <DocumentationFile>bin\Release\xunit.execution.desktop.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
@@ -62,9 +62,6 @@
     </Compile>
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
-    </Compile>
-    <Compile Include="..\common\LongLivedMarshalByRefObject_Execution.cs">
-      <Link>Common\LongLivedMarshalByRefObject_Execution.cs</Link>
     </Compile>
     <Compile Include="..\common\NewReflectionExtensions.cs">
       <Link>Common\NewReflectionExtensions.cs</Link>
@@ -102,6 +99,8 @@
     <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs">
       <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
     </Compile>
+    <Compile Include="Sdk\Utility\ExecutionContextHelper.cs" />
+    <Compile Include="Sdk\LongLivedMarshalByRefObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\xunit.execution\**\*.cs">

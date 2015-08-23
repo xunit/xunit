@@ -11,7 +11,7 @@ public class AcceptanceTestV2Assembly : AcceptanceTestAssembly
         base.AddStandardReferences(parameters);
 
         parameters.ReferencedAssemblies.Add(Path.Combine(BasePath, "xunit.core.dll"));
-        parameters.ReferencedAssemblies.Add(Path.Combine(BasePath, ExecutionHelper.AssemblyFileName));
+        parameters.ReferencedAssemblies.Add(Path.Combine(BasePath, "xunit.execution.desktop.dll"));
     }
 
     public static AcceptanceTestV2Assembly Create(string code, params string[] references)

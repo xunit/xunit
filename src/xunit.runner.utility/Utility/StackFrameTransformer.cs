@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -33,10 +32,8 @@ namespace Xunit
             if (match == Match.Empty)
                 return stackFrame;
 
-#if !WINDOWS_PHONE_APP
             if (defaultDirectory != null)
-                defaultDirectory = defaultDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-#endif
+                defaultDirectory = defaultDirectory.TrimEnd('\\', '/');
 
             var file = match.Groups["file"].Value;
             if (defaultDirectory != null && file.StartsWith(defaultDirectory, StringComparison.OrdinalIgnoreCase))

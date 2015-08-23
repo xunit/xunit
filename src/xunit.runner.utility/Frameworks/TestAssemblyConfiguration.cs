@@ -9,6 +9,17 @@ namespace Xunit
     public class TestAssemblyConfiguration
     {
         /// <summary>
+        /// Gets or sets a flag indicating whether an app domain should be used to discover and run tests.
+        /// </summary>
+        public AppDomainSupport? AppDomain { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag indicating whether an app domain should be used to discover and run tests.
+        /// If the flag is not set, returns the default value (<see cref="AppDomainSupport.IfAvailable"/>).
+        /// </summary>
+        public AppDomainSupport AppDomainOrDefault { get { return AppDomain ?? AppDomainSupport.IfAvailable; } }
+
+        /// <summary>
         /// Gets or sets a flag indicating that the end user wants diagnostic messages
         /// from the test framework.
         /// </summary>
@@ -79,16 +90,5 @@ namespace Xunit
         /// test discovery. If the flag is not set, returns the default value (<c>true</c>).
         /// </summary>
         public bool PreEnumerateTheoriesOrDefault { get { return PreEnumerateTheories ?? true; } }
-
-        /// <summary>
-        /// Gets or sets a flag indicating whether an app domain should be used to discover and run tests.
-        /// </summary>
-        public bool? UseAppDomain { get; set; }
-
-        /// <summary>
-        /// Gets or sets a flag indicating whether an app domain should be used to discover and run tests.
-        /// If the flag is not set, returns the default value (<c>true</c>).
-        /// </summary>
-        public bool UseAppDomainOrDefault { get { return UseAppDomain ?? true; } }
     }
 }

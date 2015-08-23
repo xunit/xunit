@@ -18,7 +18,7 @@
         /// </remarks>
         public static void CleanUpRegisteredChannels()
         {
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DOTNETCORE
+#if !PLATFORM_DOTNET
             foreach (var channel in System.Runtime.Remoting.Channels.ChannelServices.RegisteredChannels)
                 System.Runtime.Remoting.Channels.ChannelServices.UnregisterChannel(channel);
 #endif

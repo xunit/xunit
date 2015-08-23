@@ -23,14 +23,14 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET;NET35</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;PLATFORM_NET35</DefineConstants>
     <DocumentationFile>bin\Debug\xunit.runner.utility.desktop.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET;NET35</DefineConstants>
+    <DefineConstants>TRACE;PLATFORM_NET35</DefineConstants>
     <DocumentationFile>bin\Release\xunit.runner.utility.desktop.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
@@ -75,17 +75,11 @@
     <Compile Include="..\common\ExceptionUtility.cs">
       <Link>Common\ExceptionUtility.cs</Link>
     </Compile>
-    <Compile Include="..\common\ExecutionHelper.cs">
-      <Link>Common\ExecutionHelper.cs</Link>
-    </Compile>
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
     </Compile>
     <Compile Include="..\common\IAppDomainManager.cs">
       <Link>Common\IAppDomainManager.cs</Link>
-    </Compile>
-    <Compile Include="..\common\LongLivedMarshalByRefObject_Runner.cs">
-      <Link>Common\LongLivedMarshalByRefObject_Runner.cs</Link>
     </Compile>
     <Compile Include="..\common\NewReflectionExtensions.cs">
       <Link>Common\NewReflectionExtensions.cs</Link>
@@ -134,6 +128,7 @@
     <Compile Include="Frameworks\v1\Xunit1Test.cs" />
     <Compile Include="Frameworks\v1\Xunit1TestCase.cs" />
     <Compile Include="Frameworks\VisualStudioSourceInformationProvider.cs" />
+    <Compile Include="Utility\LongLivedMarshalByRefObject.cs" />
     <Compile Include="Utility\DiaNavigationData.cs" />
     <Compile Include="Utility\DiaSession.cs" />
     <Compile Include="Utility\DiaSessionWrapper.cs" />

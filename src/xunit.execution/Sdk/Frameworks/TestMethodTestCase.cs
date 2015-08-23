@@ -1,21 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using Xunit.Abstractions;
-using System.Diagnostics;
-
-#if !DOTNETCORE
-#if !WINDOWS_PHONE_APP
-using System.Security.Cryptography;
-#else
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Security.Cryptography;
-using Windows.Security.Cryptography.Core;
-#endif
-#endif
 
 namespace Xunit.Sdk
 {
@@ -31,15 +21,7 @@ namespace Xunit.Sdk
         bool initialized;
         IMethodInfo method;
         ITypeInfo[] methodGenericTypes;
-        string uniqueID;
-
-#if WINDOWS_PHONE_APP
-        readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
-#elif DOTNETCORE
-        readonly static Sha1Digest Hasher = new Sha1Digest();
-#else
-        readonly static HashAlgorithm Hasher = new SHA1Managed();
-#endif
+        volatile string uniqueID;
 
         /// <summary>
         /// Used for de-serialization.
@@ -209,17 +191,13 @@ namespace Xunit.Sdk
 
                 stream.Position = 0;
 
-#if WINDOWS_PHONE_APP
-                var buffer = CryptographicBuffer.CreateFromByteArray(stream.ToArray());
-                var hash = Hasher.HashData(buffer).ToArray();
-#elif DOTNETCORE
                 var hash = new byte[20];
                 var data = stream.ToArray();
-                Hasher.BlockUpdate(data, 0, data.Length);
-                Hasher.DoFinal(hash, 0);
-#else
-                var hash = Hasher.ComputeHash(stream);
-#endif
+
+                var hasher = new Sha1Digest();
+                hasher.BlockUpdate(data, 0, data.Length);
+                hasher.DoFinal(hash, 0);
+
                 return BytesToHexString(hash);
             }
         }
