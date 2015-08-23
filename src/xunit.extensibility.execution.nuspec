@@ -13,7 +13,8 @@ Supported platforms:
 - Windows 8
 - Windows Phone 8 (Silverlight)
 - Universal (Windows Phone 8.1+, Windows 8.1+)
-- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)</description>
+- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
+- Portable Libraries (supporting Profile259)</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
