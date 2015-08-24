@@ -30,6 +30,12 @@ namespace Xunit.Sdk
                                       .ToList();
         }
 
+        /// <summary>
+        /// Gets a flag indicating whether maximum concurrency is supported.
+        /// </summary>
+        public static bool IsSupported
+            => ExecutionContextHelper.IsSupported;
+
         /// <inheritdoc/>
         public void Dispose()
         {

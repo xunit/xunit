@@ -1,12 +1,13 @@
 using System;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 
 namespace Xunit.Sdk
 {
     static class ExecutionContextHelper
     {
+        public static bool IsSupported
+            => true;
+
         public static object Capture()
         {
             return ExecutionContext.Capture();

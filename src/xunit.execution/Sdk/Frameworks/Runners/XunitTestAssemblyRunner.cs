@@ -67,7 +67,7 @@ namespace Xunit.Sdk
         /// <param name="maxParallelThreads">The maximum number of parallel threads.</param>
         protected virtual void SetupSyncContext(int maxParallelThreads)
         {
-            if (maxParallelThreads > 0)
+            if (MaxConcurrencySyncContext.IsSupported && maxParallelThreads > 0)
             {
                 syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
                 SetSynchronizationContext(syncContext);
