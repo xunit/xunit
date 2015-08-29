@@ -50,11 +50,17 @@
     <Compile Include="..\common\DictionaryExtensions.cs">
       <Link>Common\DictionaryExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\common\FailSkipVisitor.cs">
+      <Link>Common\FailSkipVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\common\Guard.cs">
       <Link>Common\Guard.cs</Link>
+    </Compile>
+    <Compile Include="..\common\IExecutionVisitor.cs">
+      <Link>Common\IExecutionVisitor.cs</Link>
     </Compile>
     <Compile Include="..\common\TestDiscoveryVisitor.cs">
       <Link>Common\TestDiscoveryVisitor.cs</Link>

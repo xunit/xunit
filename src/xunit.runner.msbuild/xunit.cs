@@ -44,6 +44,8 @@ namespace Xunit.Runner.MSBuild
         [Output]
         public int ExitCode { get; protected set; }
 
+        public bool FailSkips { get; protected set; }
+
         protected XunitFilters Filters
         {
             get
@@ -331,7 +333,9 @@ namespace Xunit.Runner.MSBuild
                         if (SerializeTestCases)
                             filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
 
-                        var resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        IExecutionVisitor resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        if (FailSkips)
+                            resultsVisitor = new FailSkipVisitor(resultsVisitor);
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
@@ -340,7 +344,7 @@ namespace Xunit.Runner.MSBuild
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsVisitor.ExecutionSummary));
 
-                        if (resultsVisitor.Failed != 0)
+                        if (resultsVisitor.ExecutionSummary.Failed != 0)
                             ExitCode = 1;
                     }
                 }

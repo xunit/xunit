@@ -272,6 +272,31 @@ public class CommandLineTests
         }
     }
 
+    public class FailSkipsOption
+    {
+        [Fact]
+        public static void FailSkipsOptionNotSetFailSkipsFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.FailSkips);
+        }
+
+        [Theory]
+        [InlineData("-failskips")]
+        [InlineData("-fAiLsKIpS")]
+        public static void FailSkipsOptionSetFailSkipsTrue(string option)
+        {
+            var arguments = new[] { "assemblyName.dll", option };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.FailSkips);
+        }
+    }
+
     public class WaitOption
     {
         [Fact]

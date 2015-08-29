@@ -57,6 +57,7 @@
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Common\FailSkipVisitorTests.cs" />
     <Compile Include="Utility\SpyConsoleLogger.cs" />
   </ItemGroup>
   <ItemGroup>

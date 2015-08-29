@@ -61,7 +61,8 @@ namespace Xunit.ConsoleClient
 
                 var failCount = RunProject(commandLine.Project, commandLine.Serialize, commandLine.ParallelizeAssemblies,
                                            commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
-                                           commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.NoAppDomain);
+                                           commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.NoAppDomain,
+                                           commandLine.FailSkips);
 
                 if (commandLine.Wait)
                 {
@@ -163,6 +164,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -nologo                : do not show the copyright message");
             Console.WriteLine("  -nocolor               : do not output results with colors");
             Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
+            Console.WriteLine("  -failskips             : convert skipped tests into failures");
             Console.WriteLine("  -parallel option       : set parallelization based on option");
             Console.WriteLine("                         :   none - turn off all parallelization");
             Console.WriteLine("                         :   collections - only parallelize collections");
@@ -213,7 +215,8 @@ namespace Xunit.ConsoleClient
                               int? maxThreadCount,
                               bool diagnosticMessages,
                               bool noColor,
-                              bool noAppDomain)
+                              bool noAppDomain,
+                              bool failSkips)
         {
             XElement assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
@@ -233,7 +236,7 @@ namespace Xunit.ConsoleClient
             {
                 if (parallelizeAssemblies.GetValueOrDefault())
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, project.Filters)));
+                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -242,7 +245,7 @@ namespace Xunit.ConsoleClient
                 {
                     foreach (var assembly in project.Assemblies)
                     {
-                        var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, project.Filters);
+                        var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -270,6 +273,7 @@ namespace Xunit.ConsoleClient
                                         bool diagnosticMessages,
                                         bool noColor,
                                         bool noAppDomain,
+                                        bool failSkips,
                                         XunitFilters filters)
         {
             if (cancel)
@@ -326,7 +330,10 @@ namespace Xunit.ConsoleClient
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-                        var resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        IExecutionVisitor resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        if (failSkips)
+                            resultsVisitor = new FailSkipVisitor(resultsVisitor);
+
                         controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
                         resultsVisitor.Finished.WaitOne();
 

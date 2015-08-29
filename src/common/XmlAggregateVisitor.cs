@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Xunit
 {
-    public class XmlAggregateVisitor : XmlTestExecutionVisitor
+    public class XmlAggregateVisitor : XmlTestExecutionVisitor, IExecutionVisitor
     {
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
         readonly IMessageSink innerMessageSink;

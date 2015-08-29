@@ -28,6 +28,8 @@ namespace Xunit.ConsoleClient
 
         public bool DiagnosticMessages { get; protected set; }
 
+        public bool FailSkips { get; protected set; }
+
         public int? MaxParallelThreads { get; set; }
 
         public bool NoAppDomain { get; protected set; }
@@ -129,6 +131,11 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     NoLogo = true;
+                }
+                else if (optionName == "failskips")
+                {
+                    GuardNoOptionValue(option);
+                    FailSkips = true;
                 }
                 else if (optionName == "nocolor")
                 {

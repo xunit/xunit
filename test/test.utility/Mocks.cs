@@ -246,11 +246,15 @@ public static class Mocks
         return result;
     }
 
-    public static ITestAssemblyFinished TestAssemblyFinished()
+    public static ITestAssemblyFinished TestAssemblyFinished(int testsRun = 2112, int testsFailed = 42, int testsSkipped = 6, decimal executionTime = 123.4567M)
     {
         var testAssembly = TestAssembly("testAssembly.dll");
         var result = Substitute.For<ITestAssemblyFinished, InterfaceProxy<ITestAssemblyFinished>>();
         result.TestAssembly.Returns(testAssembly);
+        result.TestsRun.Returns(testsRun);
+        result.TestsFailed.Returns(testsFailed);
+        result.TestsSkipped.Returns(testsSkipped);
+        result.ExecutionTime.Returns(executionTime);
         return result;
     }
 
@@ -334,14 +338,14 @@ public static class Mocks
         return new TestCollection(TestAssembly(assembly), definition, displayName);
     }
 
-    public static ITestCollectionFinished TestCollectionFinished()
+    public static ITestCollectionFinished TestCollectionFinished(string displayName = "Display Name", int testsRun = 2112, int testsFailed = 42, int testsSkipped = 6, decimal executionTime = 123.4567M)
     {
         var result = Substitute.For<ITestCollectionFinished, InterfaceProxy<ITestCollectionFinished>>();
-        result.TestsRun.Returns(2112);
-        result.TestsFailed.Returns(42);
-        result.TestsSkipped.Returns(6);
-        result.ExecutionTime.Returns(123.4567M);
-        result.TestCollection.DisplayName.Returns("Display Name");
+        result.TestsRun.Returns(testsRun);
+        result.TestsFailed.Returns(testsFailed);
+        result.TestsSkipped.Returns(testsSkipped);
+        result.ExecutionTime.Returns(executionTime);
+        result.TestCollection.DisplayName.Returns(displayName);
         return result;
     }
 
