@@ -69,10 +69,7 @@
     <Compile Include="Utility\MSBuildLogger.cs" />
     <Compile Include="Utility\TraitParser.cs" />
     <Compile Include="Visitors\DiagnosticMessageVisitor.cs" />
-    <Compile Include="Visitors\MSBuildVisitor.cs" />
-    <Compile Include="Visitors\StandardOutputVisitor.cs" />
     <Compile Include="Utility\TeamCityDisplayNameFormatter.cs" />
-    <Compile Include="Visitors\TeamCityVisitor.cs" />
     <Compile Include="xunit.cs" />
   </ItemGroup>
   <ItemGroup>
