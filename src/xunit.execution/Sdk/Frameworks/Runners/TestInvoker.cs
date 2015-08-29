@@ -159,17 +159,29 @@ namespace Xunit.Sdk
                 {
                     var testClassInstance = CreateTestClass();
 
-                    if (!CancellationTokenSource.IsCancellationRequested)
+                    try
                     {
-                        await BeforeTestMethodInvokedAsync();
+                        var asyncLifetime = testClassInstance as IAsyncLifetime;
+                        if (asyncLifetime != null)
+                            await asyncLifetime.InitializeAsync();
 
-                        if (!CancellationTokenSource.IsCancellationRequested && !Aggregator.HasExceptions)
-                            await InvokeTestMethodAsync(testClassInstance);
+                        if (!CancellationTokenSource.IsCancellationRequested)
+                        {
+                            await BeforeTestMethodInvokedAsync();
 
-                        await AfterTestMethodInvokedAsync();
+                            if (!CancellationTokenSource.IsCancellationRequested && !Aggregator.HasExceptions)
+                                await InvokeTestMethodAsync(testClassInstance);
+
+                            await AfterTestMethodInvokedAsync();
+                        }
+
+                        if (asyncLifetime != null)
+                            await Aggregator.RunAsync(asyncLifetime.DisposeAsync);
                     }
-
-                    Aggregator.Run(() => Test.DisposeTestClass(testClassInstance, MessageBus, Timer, CancellationTokenSource));
+                    finally
+                    {
+                        Aggregator.Run(() => Test.DisposeTestClass(testClassInstance, MessageBus, Timer, CancellationTokenSource));
+                    }
                 }
 
                 return Timer.Total;

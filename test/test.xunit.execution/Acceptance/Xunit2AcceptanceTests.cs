@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -470,6 +471,142 @@ public class Xunit2AcceptanceTests
                 output.WriteLine("This is test output");
             }
 
+        }
+    }
+
+    public class AsyncLifetime : AcceptanceTestV2
+    {
+        [Fact]
+        public void AsyncLifetimeAcceptanceTest()
+        {
+            var messages = Run<ITestPassed>(typeof(ClassWithAsyncLifetime));
+
+            var message = Assert.Single(messages);
+            AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
+        }
+
+        class ClassWithAsyncLifetime : IAsyncLifetime, IDisposable
+        {
+            protected readonly ITestOutputHelper output;
+
+            public ClassWithAsyncLifetime(ITestOutputHelper output)
+            {
+                this.output = output;
+
+                output.WriteLine("Constructor");
+            }
+
+            public virtual Task InitializeAsync()
+            {
+                output.WriteLine("InitializeAsync");
+                return Task.FromResult(0);
+            }
+
+            public virtual void Dispose()
+            {
+                output.WriteLine("Dispose");
+            }
+
+            public virtual Task DisposeAsync()
+            {
+                output.WriteLine("DisposeAsync");
+                return Task.FromResult(0);
+            }
+
+            [Fact]
+            public virtual void TheTest()
+            {
+                output.WriteLine("Run Test");
+            }
+        }
+
+        [Fact]
+        public void ThrowingConstructor()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingCtor));
+
+            var message = Assert.Single(messages);
+            AssertOperations(message, "Constructor");
+        }
+
+        class ClassWithAsyncLifetime_ThrowingCtor : ClassWithAsyncLifetime
+        {
+            public ClassWithAsyncLifetime_ThrowingCtor(ITestOutputHelper output)
+                : base(output)
+            {
+                throw new DivideByZeroException();
+            }
+        }
+
+        [Fact]
+        public void ThrowingInitializeAsync()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingInitializeAsync));
+
+            var message = Assert.Single(messages);
+            AssertOperations(message, "Constructor", "InitializeAsync", "Dispose");
+        }
+
+        class ClassWithAsyncLifetime_ThrowingInitializeAsync : ClassWithAsyncLifetime
+        {
+            public ClassWithAsyncLifetime_ThrowingInitializeAsync(ITestOutputHelper output) : base(output) { }
+
+            public override async Task InitializeAsync()
+            {
+                await base.InitializeAsync();
+
+                throw new DivideByZeroException();
+            }
+        }
+
+        [Fact]
+        public void ThrowingDisposeAsync()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingDisposeAsync));
+
+            var message = Assert.Single(messages);
+            AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
+        }
+
+        class ClassWithAsyncLifetime_ThrowingDisposeAsync : ClassWithAsyncLifetime
+        {
+            public ClassWithAsyncLifetime_ThrowingDisposeAsync(ITestOutputHelper output) : base(output) { }
+
+            public override async Task DisposeAsync()
+            {
+                await base.DisposeAsync();
+
+                throw new DivideByZeroException();
+            }
+        }
+
+        [Fact]
+        public void FailingTest()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassWithAsyncLifetime_FailingTest));
+
+            var message = Assert.Single(messages);
+            AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
+        }
+
+        class ClassWithAsyncLifetime_FailingTest : ClassWithAsyncLifetime
+        {
+            public ClassWithAsyncLifetime_FailingTest(ITestOutputHelper output) : base(output) { }
+
+            public override void TheTest()
+            {
+                base.TheTest();
+
+                throw new DivideByZeroException();
+            }
+        }
+
+        void AssertOperations(ITestResultMessage result, params string[] operations)
+        {
+            Assert.Collection(
+                result.Output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries),
+                operations.Select<string, Action<string>>(expected => actual => Assert.Equal(expected, actual)).ToArray()
+            );
         }
     }
 
