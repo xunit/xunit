@@ -8,8 +8,9 @@ namespace Xunit.Sdk
     {
         static readonly object[] EmptyObjectArray = new object[0];
 
+        static MethodInfo actionInvokeMethod;
         static Func<object> captureContext;
-        static Func<object, object> createDelegate;
+        static Type contextCallbackType;
         static volatile bool initialized;
         static Action<object, object> runOnContext;
 
@@ -30,6 +31,11 @@ namespace Xunit.Sdk
             return captureContext();
         }
 
+        static Delegate CreateDelegate(Action<object> action)
+        {
+            return actionInvokeMethod.CreateDelegate(contextCallbackType, action);
+        }
+
         static void EnsureInitialized()
         {
             lock (EmptyObjectArray)
@@ -39,14 +45,9 @@ namespace Xunit.Sdk
 
                 try
                 {
-                    var contextCallbackType = Type.GetType("System.Threading.ContextCallback");
+                    actionInvokeMethod = typeof(Action<object>).GetRuntimeMethod("Invoke", new[] { typeof(object) });
+                    contextCallbackType = Type.GetType("System.Threading.ContextCallback");
                     var executionContextType = Type.GetType("System.Threading.ExecutionContext");
-
-                    // Create a function which can make the ContextCallback delegate out of Action<object>
-                    var createDelegateMethod = typeof(Delegate).GetRuntimeMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(string) });
-                    var actionArg = Expression.Parameter(typeof(object));
-                    var createDelegateExpression = Expression.Call(createDelegateMethod, Expression.Constant(contextCallbackType), actionArg, Expression.Constant("Invoke"));
-                    createDelegate = Expression.Lambda<Func<object, object>>(createDelegateExpression, actionArg).Compile();
 
                     // Create a function which captures the execution context
                     var captureMethod = executionContextType.GetRuntimeMethod("Capture", new Type[0]);
@@ -62,7 +63,7 @@ namespace Xunit.Sdk
 
                     // Verify that everything is callable without throwing
                     Action<object> action = _ => { };
-                    var del = createDelegate(action);
+                    var del = CreateDelegate(action);
                     var context = captureContext();
                     runOnContext(context, del);
                 }
@@ -79,8 +80,7 @@ namespace Xunit.Sdk
         {
             EnsureInitialized();
 
-            var callback = createDelegate(action);
-            runOnContext(context, callback);
+            runOnContext(context, CreateDelegate(action));
         }
     }
 }
