@@ -525,10 +525,48 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithNonStaticMethodData
         {
-            public IEnumerable<object[]> DataSource() { return null; }
+            public IEnumerable<object[]> DataSource() => null;
 
             [Theory]
             [MemberData("DataSource")]
+            public void TestViaMethodData(int x, double y, string z) { }
+        }
+
+        [Fact]
+        public void NonMatchingMethodInputDataThrows()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithMismatchedMethodData));
+
+            var failed = Assert.Single(testMessages.Cast<ITestFailed>());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData.TestViaMethodData", failed.Test.DisplayName);
+            Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+            Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData with parameter types: System.Double", failed.Messages.Single());
+        }
+
+        class ClassWithMismatchedMethodData
+        {
+            public static IEnumerable<object[]> DataSource(int x) => null;
+
+            [Theory]
+            [MemberData("DataSource", 21.12)]
+            public void TestViaMethodData(int x, double y, string z) { }
+        }
+
+        [Fact]
+        public void CanDowncastMethodData()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithDowncastedMethodData));
+
+            Assert.True(testMessages.All(m => m is ITestPassed));
+        }
+
+        class ClassWithDowncastedMethodData
+        {
+            public static IEnumerable<object[]> DataSource(object x, string y) { yield return new object[] { 42, 21.12, "Hello world" }; }
+
+            [Theory]
+            [MemberData("DataSource", 42, "Hello world")]
+            [MemberData("DataSource", 21.12, null)]
             public void TestViaMethodData(int x, double y, string z) { }
         }
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Sdk;
@@ -57,7 +56,10 @@ namespace Xunit
             var type = MemberType ?? testMethod.DeclaringType;
             var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
             if (accessor == null)
-                throw new ArgumentException($"Could not find public static member (property, field, or method) named '{MemberName}' on {type.FullName}");
+            {
+                var parameterText = Parameters?.Length > 0 ? $" with parameter types: {string.Join(", ", Parameters.Select(p => p?.GetType().FullName ?? "(null)"))}" : "";
+                throw new ArgumentException($"Could not find public static member (property, field, or method) named '{MemberName}' on {type.FullName}{parameterText}");
+            }
 
             var obj = accessor();
             if (obj == null)
@@ -97,10 +99,11 @@ namespace Xunit
         Func<object> GetMethodAccessor(Type type)
         {
             MethodInfo methodInfo = null;
-            var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(ToParameterType).ToArray();
+            var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(p => p?.GetType()).ToArray();
             for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
             {
-                methodInfo = reflectionType.GetRuntimeMethod(MemberName, parameterTypes);
+                methodInfo = reflectionType.GetRuntimeMethods()
+                                           .FirstOrDefault(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), parameterTypes));
                 if (methodInfo != null)
                     break;
             }
@@ -127,9 +130,16 @@ namespace Xunit
             return () => propInfo.GetValue(null, null);
         }
 
-        Type ToParameterType(object value)
+        static bool ParameterTypesCompatible(ParameterInfo[] parameters, Type[] parameterTypes)
         {
-            return value == null ? typeof(object) : value.GetType();
+            if (parameters?.Length != parameterTypes.Length)
+                return false;
+
+            for (int idx = 0; idx < parameters.Length; ++idx)
+                if (parameterTypes[idx] != null && !parameters[idx].ParameterType.GetTypeInfo().IsAssignableFrom(parameterTypes[idx].GetTypeInfo()))
+                    return false;
+
+            return true;
         }
     }
 }
