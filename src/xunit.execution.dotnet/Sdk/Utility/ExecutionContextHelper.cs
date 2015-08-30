@@ -19,7 +19,7 @@ namespace Xunit.Sdk
             {
                 EnsureInitialized();
 
-                return captureContext != null && createDelegate != null && runOnContext != null;
+                return captureContext != null;
             }
         }
 
@@ -59,8 +59,17 @@ namespace Xunit.Sdk
                     var callbackArg = Expression.Parameter(typeof(object));
                     var runExpression = Expression.Call(runMethod, Expression.Convert(contextArg, executionContextType), Expression.Convert(callbackArg, contextCallbackType), Expression.Constant(null, typeof(object)));
                     runOnContext = Expression.Lambda<Action<object, object>>(runExpression, contextArg, callbackArg).Compile();
+
+                    // Verify that everything is callable without throwing
+                    Action<object> action = _ => { };
+                    var del = createDelegate(action);
+                    var context = captureContext();
+                    runOnContext(context, del);
                 }
-                catch { }
+                catch
+                {
+                    captureContext = null;
+                }
 
                 initialized = true;
             }
