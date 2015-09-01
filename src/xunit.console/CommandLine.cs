@@ -269,6 +269,13 @@ namespace Xunit.ConsoleClient
 
                     project.Filters.IncludedMethods.Add(option.Value);
                 }
+                else if (optionName == "namespace")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -namespace");
+
+                    project.Filters.IncludedNameSpaces.Add(option.Value);
+                }
                 else
                 {
                     // Might be a reporter...
