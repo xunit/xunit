@@ -189,6 +189,9 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -class \"name\"          : run all methods in a given test class (should be fully");
             Console.WriteLine("                         : specified; i.e., 'MyNamespace.MyClass')");
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
+            Console.WriteLine("  -namespace \"name\"      : run all methods in a given namespace (i.e.,");
+            Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
+            Console.WriteLine("                         : if specified more than once, acts as an OR operation");
             Console.WriteLine();
 
             var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();

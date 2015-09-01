@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -18,6 +19,7 @@ namespace Xunit
             IncludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             IncludedClasses = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             IncludedMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            IncludedNameSpaces = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -41,6 +43,11 @@ namespace Xunit
         public HashSet<string> IncludedMethods { get; }
 
         /// <summary>
+        /// Gets the set of assembly filters for tests to include.
+        /// </summary>
+        public HashSet<string> IncludedNameSpaces { get; }
+
+        /// <summary>
         /// Filters the given method using the defined filter values.
         /// </summary>
         /// <param name="testCase">The test case to filter.</param>
@@ -53,8 +60,22 @@ namespace Xunit
                 return false;
             if (!FilterExcludedTraits(testCase))
                 return false;
+            if (!FilterIncludedNameSpaces(testCase))
+                return false;
 
             return true;
+        }
+
+        bool FilterIncludedNameSpaces(ITestCase testCase)
+        {
+            // No assemblies in the filter == everything is okay
+            if (IncludedNameSpaces.Count == 0)
+                return true;
+
+            if (IncludedNameSpaces.Count != 0 && IncludedNameSpaces.Any(a => testCase.TestMethod.TestClass.Class.Name.StartsWith($"{a}.", StringComparison.Ordinal)))
+                return true;
+
+            return false;
         }
 
         bool FilterIncludedMethodsAndClasses(ITestCase testCase)
