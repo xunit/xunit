@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace Xunit
 {
     /// <summary>
@@ -18,6 +20,16 @@ namespace Xunit
                 ?? ConfigReader_Configuration.Load(assemblyFileName, configFileName)
 #endif
                 ?? new TestAssemblyConfiguration();
+        }
+
+        /// <summary>
+        /// Loads the test assembly configuration for the given test assembly from a JSON stream. Caller is responsible for opening the stream.
+        /// </summary>
+        /// <param name="configStream">Stream containing config for an assembly</param>
+        /// <returns>The test assembly configuration.</returns>
+        public static TestAssemblyConfiguration Load(Stream configStream)
+        {
+            return ConfigReader_Json.Load(configStream);
         }
     }
 }
