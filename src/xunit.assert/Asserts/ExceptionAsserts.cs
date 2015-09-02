@@ -83,7 +83,7 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Verifies that the exact exception is thrown (and not a derived exception type).
+        /// Verifies that the exact exception or a derived exception type is thrown.
         /// </summary>
         /// <typeparam name="T">The type of the exception expected to be thrown</typeparam>
         /// <param name="testCode">A delegate to the task to be tested</param>
