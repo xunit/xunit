@@ -13,6 +13,81 @@ namespace Xunit
     public static class ConfigReader_Json
     {
         /// <summary>
+        /// Loads the test assembly configuration for the given test assembly from a JSON stream. Caller is responsible for opening the stream.
+        /// </summary>
+        /// <param name="configStream">Stream containing config for an assembly</param>
+        /// <returns>The test assembly configuration.</returns>
+        public static TestAssemblyConfiguration Load(Stream configStream)
+        {
+            var result = new TestAssemblyConfiguration();
+
+            try
+            {
+                using (var reader = new StreamReader(configStream))
+                {
+                    var config = JsonDeserializer.Deserialize(reader) as JsonObject;
+
+                    foreach (var propertyName in config.Keys)
+                    {
+                        var propertyValue = config.Value(propertyName);
+                        var booleanValue = propertyValue as JsonBoolean;
+
+                        if (booleanValue != null)
+                        {
+                            if (string.Equals(propertyName, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
+                                result.DiagnosticMessages = booleanValue;
+                            if (string.Equals(propertyName, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
+                                result.ParallelizeAssembly = booleanValue;
+                            if (string.Equals(propertyName, Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
+                                result.ParallelizeTestCollections = booleanValue;
+                            if (string.Equals(propertyName, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
+                                result.PreEnumerateTheories = booleanValue;
+                        }
+                        else if (string.Equals(propertyName, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var numberValue = propertyValue as JsonNumber;
+                            if (numberValue != null)
+                            {
+                                int maxParallelThreads;
+                                if (int.TryParse(numberValue.Raw, out maxParallelThreads) && maxParallelThreads > 0)
+                                    result.MaxParallelThreads = maxParallelThreads;
+                            }
+                        }
+                        else if (string.Equals(propertyName, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var stringValue = propertyValue as JsonString;
+                            if (stringValue != null)
+                            {
+                                try
+                                {
+                                    var methodDisplay = Enum.Parse(typeof(TestMethodDisplay), stringValue, true);
+                                    result.MethodDisplay = (TestMethodDisplay)methodDisplay;
+                                }
+                                catch { }
+                            }
+                        }
+                        else if (string.Equals(propertyName, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var stringValue = propertyValue as JsonString;
+                            if (stringValue != null)
+                            {
+                                try
+                                {
+                                    var appDomain = Enum.Parse(typeof(AppDomainSupport), stringValue, true);
+                                    result.AppDomain = (AppDomainSupport)appDomain;
+                                }
+                                catch { }
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return result;
+        }
+
+        /// <summary>
         /// Loads the test assembly configuration for the given test assembly.
         /// </summary>
         /// <param name="assemblyFileName">The test assembly.</param>
@@ -27,69 +102,8 @@ namespace Xunit
             {
                 try
                 {
-                    var result = new TestAssemblyConfiguration();
-
                     using (var stream = File_OpenRead(configFileName))
-                    using (var reader = new StreamReader(stream))
-                    {
-                        var config = JsonDeserializer.Deserialize(reader) as JsonObject;
-
-                        foreach (var propertyName in config.Keys)
-                        {
-                            var propertyValue = config.Value(propertyName);
-                            var booleanValue = propertyValue as JsonBoolean;
-
-                            if (booleanValue != null)
-                            {
-                                if (string.Equals(propertyName, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
-                                    result.DiagnosticMessages = booleanValue;
-                                if (string.Equals(propertyName, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
-                                    result.ParallelizeAssembly = booleanValue;
-                                if (string.Equals(propertyName, Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
-                                    result.ParallelizeTestCollections = booleanValue;
-                                if (string.Equals(propertyName, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
-                                    result.PreEnumerateTheories = booleanValue;
-                            }
-                            else if (string.Equals(propertyName, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
-                            {
-                                var numberValue = propertyValue as JsonNumber;
-                                if (numberValue != null)
-                                {
-                                    int maxParallelThreads;
-                                    if (int.TryParse(numberValue.Raw, out maxParallelThreads) && maxParallelThreads > 0)
-                                        result.MaxParallelThreads = maxParallelThreads;
-                                }
-                            }
-                            else if (string.Equals(propertyName, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
-                            {
-                                var stringValue = propertyValue as JsonString;
-                                if (stringValue != null)
-                                {
-                                    try
-                                    {
-                                        var methodDisplay = Enum.Parse(typeof(TestMethodDisplay), stringValue, true);
-                                        result.MethodDisplay = (TestMethodDisplay)methodDisplay;
-                                    }
-                                    catch { }
-                                }
-                            }
-                            else if (string.Equals(propertyName, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
-                            {
-                                var stringValue = propertyValue as JsonString;
-                                if (stringValue != null)
-                                {
-                                    try
-                                    {
-                                        var appDomain = Enum.Parse(typeof(AppDomainSupport), stringValue, true);
-                                        result.AppDomain = (AppDomainSupport)appDomain;
-                                    }
-                                    catch { }
-                                }
-                            }
-                        }
-                    }
-
-                    return result;
+                        return Load(stream);
                 }
                 catch { }
             }
