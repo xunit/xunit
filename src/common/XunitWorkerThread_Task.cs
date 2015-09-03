@@ -24,9 +24,16 @@ namespace Xunit.Sdk
             taskFactory.StartNew(_ =>
                                  {
                                      var state = (State)_;
-                                     state.BackgroundTask();
-                                     if (state.Finished != null)
-                                         state.Finished.Set();
+
+                                     try
+                                     {
+                                         state.BackgroundTask();
+                                     }
+                                     finally
+                                     {
+                                         if (state.Finished != null)
+                                             state.Finished.Set();
+                                     }
                                  },
                                  new State { BackgroundTask = backgroundTask, Finished = finished },
                                  CancellationToken.None,
