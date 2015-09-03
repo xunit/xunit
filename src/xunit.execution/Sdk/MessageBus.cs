@@ -53,6 +53,7 @@ namespace Xunit.Sdk
 
             reporterWorkEvent.Set();
             reporterThread.Join();
+            reporterThread.Dispose();
             reporterWorkEvent.Dispose();
         }
 

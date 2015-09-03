@@ -46,7 +46,10 @@ namespace Xunit.Sdk
             terminate.Set();
 
             foreach (var workerThread in workerThreads)
+            {
                 workerThread.Join();
+                workerThread.Dispose();
+            }
 
             terminate.Dispose();
             workReady.Dispose();

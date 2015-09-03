@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Xunit.Sdk
 {
-    class XunitWorkerThread
+    class XunitWorkerThread : IDisposable
     {
         readonly ManualResetEvent finished = new ManualResetEvent(false);
         static readonly TaskFactory taskFactory = new TaskFactory();
@@ -12,6 +12,11 @@ namespace Xunit.Sdk
         public XunitWorkerThread(Action threadProc)
         {
             QueueUserWorkItem(threadProc, finished);
+        }
+
+        public void Dispose()
+        {
+            finished.Dispose();
         }
 
         public void Join()

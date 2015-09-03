@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Xunit.Sdk
 {
-    class XunitWorkerThread
+    class XunitWorkerThread : IDisposable
     {
         readonly Thread thread;
 
@@ -12,6 +12,8 @@ namespace Xunit.Sdk
             thread = new Thread(s => ((Action)s)()) { IsBackground = true };
             thread.Start(threadProc);
         }
+
+        public void Dispose() { }
 
         public void Join()
         {
