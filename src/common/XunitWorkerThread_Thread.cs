@@ -19,9 +19,29 @@ namespace Xunit.Sdk
                 thread.Join();
         }
 
-        public static void QueueUserWorkItem(Action backgroundTask)
+        public static void QueueUserWorkItem(Action backgroundTask, EventWaitHandle finished = null)
         {
-            ThreadPool.QueueUserWorkItem(s => ((Action)s)(), backgroundTask);
+            ThreadPool.QueueUserWorkItem(_ =>
+                                         {
+                                             var state = (State)_;
+                                         
+                                             try
+                                             {
+                                                 state.BackgroundTask();
+                                             }
+                                             finally
+                                             {
+                                                 if (state.Finished != null)
+                                                     state.Finished.Set();
+                                             }
+                                         },
+                                         new State { BackgroundTask = backgroundTask, Finished = finished });
+        }
+
+        class State
+        {
+            public Action BackgroundTask;
+            public EventWaitHandle Finished;
         }
     }
 }

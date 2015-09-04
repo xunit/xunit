@@ -13,7 +13,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -41,8 +41,8 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\common\Concurrent\*.cs">
-      <Link>Common\Concurrent\%(Filename)%(Extension)</Link>
+    <Compile Include="..\common\XunitWorkerThread_Task.cs">
+      <Link>Common\XunitWorkerThread_Task.cs</Link>
     </Compile>
     <Compile Include="..\xunit.runner.reporters\**\*.cs">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>

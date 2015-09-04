@@ -27,21 +27,18 @@ Supported platforms:
       </group>
       <group targetFramework="dotnet">
         <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
-        <dependency id="System.Collections.Concurrent" version="4.0.0" />
-        <dependency id="System.Net.Http" version="4.0.0" />
-        <dependency id="System.Threading.Tasks" version="4.0.0" />
         <dependency id="Newtonsoft.Json" version="7.0.1" />
         <dependency id="System.Collections" version="4.0.0" />
         <dependency id="System.Diagnostics.Debug" version="4.0.0" />
-        <dependency id="System.IO" version="4.0.0" />
-        <dependency id="System.Net.Primitives" version="3.9.0" />
-        <dependency id="System.Net.Requests" version="3.9.0" />
+        <dependency id="System.Net.Http" version="4.0.0" />
+        <dependency id="System.Net.Primitives" version="4.0.0" />
         <dependency id="System.Reflection" version="4.0.0" />
         <dependency id="System.Reflection.Extensions" version="4.0.0" />
         <dependency id="System.Runtime" version="4.0.0" />
         <dependency id="System.Runtime.Extensions" version="4.0.0" />
         <dependency id="System.Text.Encoding" version="4.0.0" />
         <dependency id="System.Threading" version="4.0.0" />
+        <dependency id="System.Threading.Tasks" version="4.0.0" />
         <dependency id="xunit.abstractions" version="2.0.0" />
       </group>
       <group targetFramework="net45">

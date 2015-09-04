@@ -19,7 +19,7 @@ namespace Xunit.Sdk
             finished.WaitOne();
         }
 
-        public static void QueueUserWorkItem(Action backgroundTask, ManualResetEvent finished = null)
+        public static void QueueUserWorkItem(Action backgroundTask, EventWaitHandle finished = null)
         {
             taskFactory.StartNew(_ =>
                                  {
@@ -44,7 +44,7 @@ namespace Xunit.Sdk
         class State
         {
             public Action BackgroundTask;
-            public ManualResetEvent Finished;
+            public EventWaitHandle Finished;
         }
     }
 }

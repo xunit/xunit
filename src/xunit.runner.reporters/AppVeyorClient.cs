@@ -1,6 +1,9 @@
-﻿using System.Net;
+﻿using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
+using Xunit.Sdk;
 
 #if PLATFORM_DOTNET
 using Newtonsoft.Json;
@@ -12,32 +15,34 @@ namespace Xunit.Runner.Reporters
 {
     public static class AppVeyorClient
     {
+        static readonly HttpClient client = new HttpClient();
+        static readonly MediaTypeWithQualityHeaderValue jsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
+
         public static void SendRequest(IRunnerLogger logger, string url, string method, object body)
         {
             using (var finished = new ManualResetEvent(false))
             {
-                var request = WebRequest.CreateHttp(url);
-                request.Method = method;
-                request.ContentType = "application/json";
-                request.Accept = "application/json";
-                request.BeginGetRequestStream(requestResult =>
+                XunitWorkerThread.QueueUserWorkItem(async () =>
                 {
-                    var bodyString = ToJson(body);
-                    var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
-
-                    using (var postStream = request.EndGetRequestStream(requestResult))
+                    try
                     {
-                        postStream.Write(bodyBytes, 0, bodyBytes.Length);
-                        postStream.Flush();
-                    }
+                        var bodyString = ToJson(body);
+                        var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
 
-                    request.BeginGetResponse(responseResult =>
-                    {
-                        var response = (HttpWebResponse)request.EndGetResponse(responseResult);
-                        if ((int)response.StatusCode >= 300)
+                        var request = new HttpRequestMessage(HttpMethod.Post, url);
+                        request.Content = new ByteArrayContent(bodyBytes);
+                        request.Content.Headers.ContentType = jsonMediaType;
+                        request.Headers.Accept.Add(jsonMediaType);
+
+                        var response = await client.SendAsync(request);
+                        if (!response.IsSuccessStatusCode)
                             logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
-                    }, null);
-                }, null);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning($"When sending '{method} {url}', exception was thrown: {ex}");
+                    }
+                }, finished);
 
                 finished.WaitOne();
             }
