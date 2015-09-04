@@ -71,7 +71,7 @@ namespace Xunit
             if (IncludedNameSpaces.Count == 0)
                 return true;
 
-            if (IncludedNameSpaces.Count != 0 && IncludedNameSpaces.Any(a => testCase.TestMethod.TestClass.Class.Name.Contains(a)))
+            if (IncludedNameSpaces.Count != 0 && IncludedNameSpaces.Any(a => testCase.TestMethod.TestClass.Class.Name.StartsWith($"{a}.", StringComparison.Ordinal)))
                 return true;
 
             return false;
