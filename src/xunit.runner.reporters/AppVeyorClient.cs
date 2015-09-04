@@ -34,13 +34,16 @@ namespace Xunit.Runner.Reporters
                         request.Content.Headers.ContentType = jsonMediaType;
                         request.Headers.Accept.Add(jsonMediaType);
 
-                        var response = await client.SendAsync(request);
-                        if (!response.IsSuccessStatusCode)
-                            logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                        {
+                            var response = await client.SendAsync(request, tcs.Token);
+                            if (!response.IsSuccessStatusCode)
+                                logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        }
                     }
                     catch (Exception ex)
                     {
-                        logger.LogWarning($"When sending '{method} {url}', exception was thrown: {ex}");
+                        logger.LogError($"When sending '{method} {url}', exception was thrown: {ex}");
                     }
                 }, finished);
 
