@@ -6,9 +6,7 @@ namespace Xunit
     {
         public static string GetEnvironmentVariable(string variable)
         {
-            var value = Environment.GetEnvironmentVariable(variable);
-            Console.WriteLine($"{variable} = {value}");
-            return value;
+            return Environment.GetEnvironmentVariable(variable);
         }
     }
 }
