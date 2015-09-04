@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
@@ -34,7 +35,7 @@ namespace Xunit.Runner.Reporters
                 if (testMethods.ContainsKey(testName))
                     testName = $"{testName} {testMethods[testName]}";
 
-            AppVeyorAddTest(testName, "xUnit", assemblyFileName, "Running", null, null, null, null, null);
+            AppVeyorAddTest(testName, "xUnit", assemblyFileName, "Running", null, null, null, null);
 
             return base.Visit(testStarting);
         }
@@ -42,7 +43,7 @@ namespace Xunit.Runner.Reporters
         protected override bool Visit(ITestPassed testPassed)
         {
             AppVeyorUpdateTest(GetFinishedTestName(testPassed.Test.DisplayName), "xUnit", assemblyFileName, "Passed",
-                               Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output, null);
+                               Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
 
             return base.Visit(testPassed);
         }
@@ -50,7 +51,7 @@ namespace Xunit.Runner.Reporters
         protected override bool Visit(ITestSkipped testSkipped)
         {
             AppVeyorUpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName), "xUnit", assemblyFileName, "Skipped",
-                               Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null, null);
+                               Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
 
             return base.Visit(testSkipped);
         }
@@ -59,7 +60,7 @@ namespace Xunit.Runner.Reporters
         {
             AppVeyorUpdateTest(GetFinishedTestName(testFailed.Test.DisplayName), "xUnit", assemblyFileName, "Failed",
                                Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
-                               ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output, null);
+                               ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
 
             return base.Visit(testFailed);
         }
@@ -85,7 +86,7 @@ namespace Xunit.Runner.Reporters
         }
 
         void AppVeyorAddTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
-                             string errorMessage, string errorStackTrace, string stdOut, string stdErr)
+                             string errorMessage, string errorStackTrace, string stdOut)
         {
             var body = new AddUpdateTestRequest
             {
@@ -97,21 +98,13 @@ namespace Xunit.Runner.Reporters
                 ErrorMessage = errorMessage,
                 ErrorStackTrace = errorStackTrace,
                 StdOut = TrimStdOut(stdOut),
-                StdErr = TrimStdOut(stdErr)
             };
 
-            try
-            {
-                AppVeyorClient.SendRequest(Logger, $"{baseUri}/api/tests", "POST", body);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error communicating AppVeyor Build Worker API: " + ex.Message);
-            }
+            AppVeyorClient.SendRequest(Logger, $"{baseUri}/api/tests", HttpMethod.Post, body);
         }
 
         void AppVeyorUpdateTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
-                                string errorMessage, string errorStackTrace, string stdOut, string stdErr)
+                                string errorMessage, string errorStackTrace, string stdOut)
         {
             var body = new AddUpdateTestRequest
             {
@@ -123,17 +116,9 @@ namespace Xunit.Runner.Reporters
                 ErrorMessage = errorMessage,
                 ErrorStackTrace = errorStackTrace,
                 StdOut = TrimStdOut(stdOut),
-                StdErr = TrimStdOut(stdErr)
             };
 
-            try
-            {
-                AppVeyorClient.SendRequest(Logger, $"{baseUri}/api/tests", "PUT", body);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error communicating AppVeyor Build Worker API: " + ex.Message);
-            }
+            AppVeyorClient.SendRequest(Logger, $"{baseUri}/api/tests", HttpMethod.Put, body);
         }
 
         static string TrimStdOut(string str)

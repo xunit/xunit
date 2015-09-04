@@ -17,37 +17,53 @@ namespace Xunit.Runner.Reporters
     {
         static readonly HttpClient client = new HttpClient();
         static readonly MediaTypeWithQualityHeaderValue jsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
+        static volatile bool previousErrors;
 
-        public static void SendRequest(IRunnerLogger logger, string url, string method, object body)
+        public static void SendRequest(IRunnerLogger logger, string url, HttpMethod method, object body)
         {
-            using (var finished = new ManualResetEvent(false))
+            if (previousErrors)
+                return;
+
+            lock (jsonMediaType)
             {
-                XunitWorkerThread.QueueUserWorkItem(async () =>
+                using (var finished = new ManualResetEvent(false))
                 {
-                    try
+                    XunitWorkerThread.QueueUserWorkItem(async () =>
                     {
                         var bodyString = ToJson(body);
-                        var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
 
-                        var request = new HttpRequestMessage(HttpMethod.Post, url);
-                        request.Content = new ByteArrayContent(bodyBytes);
-                        request.Content.Headers.ContentType = jsonMediaType;
-                        request.Headers.Accept.Add(jsonMediaType);
-
-                        using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                        try
                         {
-                            var response = await client.SendAsync(request, tcs.Token);
-                            if (!response.IsSuccessStatusCode)
-                                logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError($"When sending '{method} {url}', exception was thrown: {ex}");
-                    }
-                }, finished);
+                            var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
 
-                finished.WaitOne();
+                            var request = new HttpRequestMessage(method, url);
+                            request.Content = new ByteArrayContent(bodyBytes);
+                            request.Content.Headers.ContentType = jsonMediaType;
+                            request.Headers.Accept.Add(jsonMediaType);
+
+                            using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                            {
+                                var response = await client.SendAsync(request, tcs.Token);
+                                if (!response.IsSuccessStatusCode)
+                                {
+                                    logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                                    previousErrors = true;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError($"When sending '{method} {url}' with body '{bodyString}', exception was thrown: {ex.Message}");
+                            previousErrors = true;
+                        }
+                        finally
+                        {
+                            finished.Set();
+                        }
+                    });
+
+                    finished.WaitOne();
+                }
             }
         }
 
