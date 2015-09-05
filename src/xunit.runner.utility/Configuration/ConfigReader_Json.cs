@@ -97,18 +97,24 @@ namespace Xunit
         /// <returns>The test assembly configuration.</returns>
         public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null)
         {
-            if (configFileName == null)
-                configFileName = Path.Combine(Path.GetDirectoryName(assemblyFileName), "xunit.runner.json");
+            if (configFileName != null)
+                return configFileName.EndsWith(".json", StringComparison.Ordinal) ? LoadFile(configFileName) : null;
 
-            if (configFileName.EndsWith(".json", StringComparison.Ordinal))
+            var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
+            var directoryName = Path.GetDirectoryName(assemblyFileName);
+
+            return LoadFile(Path.Combine(directoryName, $"{assemblyName}.xunit.runner.json"))
+                ?? LoadFile(Path.Combine(directoryName, "xunit.runner.json"));
+        }
+
+        static TestAssemblyConfiguration LoadFile(string configFileName)
+        {
+            try
             {
-                try
-                {
-                    using (var stream = File_OpenRead(configFileName))
-                        return Load(stream);
-                }
-                catch { }
+                using (var stream = File_OpenRead(configFileName))
+                    return Load(stream);
             }
+            catch { }
 
             return null;
         }
