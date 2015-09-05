@@ -69,7 +69,7 @@ Supported platforms:
     <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.dll" target="lib\dotnet\" />
     <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.pdb" target="lib\dotnet\" />
     <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.xml" target="lib\dotnet\" />
-    <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.rd.xml" target="lib\dotnet\properties\" />
+    <file src="xunit.runner.utility.dotnet\bin\Release\xunit.runner.utility.dotnet.rd.xml" target="lib\dotnet\xunit.runner.utility.dotnet\Properties\" />
     <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.dll" target="lib\net35\" />
     <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.pdb" target="lib\net35\" />
     <file src="xunit.runner.utility.desktop\bin\Release\xunit.runner.utility.desktop.xml" target="lib\net35\" />

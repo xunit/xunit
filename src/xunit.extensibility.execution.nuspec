@@ -68,7 +68,7 @@ Supported platforms:
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\dotnet\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\dotnet\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\dotnet\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.rd.xml" target="lib\dotnet\properties\" />
+    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.rd.xml" target="lib\dotnet\xunit.execution.dotnet\Properties\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\dnx451\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\dnx451\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\dnx451\" />
