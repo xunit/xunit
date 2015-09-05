@@ -166,10 +166,10 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
             Console.WriteLine("  -failskips             : convert skipped tests into failures");
             Console.WriteLine("  -parallel option       : set parallelization based on option");
-            Console.WriteLine("                         :   none - turn off all parallelization");
+            Console.WriteLine("                         :   none        - turn off all parallelization");
             Console.WriteLine("                         :   collections - only parallelize collections");
-            Console.WriteLine("                         :   assemblies - only parallelize assemblies");
-            Console.WriteLine("                         :   all - parallelize assemblies & collections");
+            Console.WriteLine("                         :   assemblies  - only parallelize assemblies");
+            Console.WriteLine("                         :   all         - parallelize assemblies & collections");
             Console.WriteLine("  -maxthreads count      : maximum thread count for collection parallelization");
             Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
             Console.WriteLine("                         :   unlimited - run with unbounded thread count");
