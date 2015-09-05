@@ -37,6 +37,7 @@ namespace Xunit
                         result.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
                         result.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
                         result.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
+                        result.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? result.ShadowCopy;
 
                         return result;
                     }
@@ -102,6 +103,7 @@ namespace Xunit
             public const string ParallelizeAssembly = "xunit.parallelizeAssembly";
             public const string ParallelizeTestCollections = "xunit.parallelizeTestCollections";
             public const string PreEnumerateTheories = "xunit.preEnumerateTheories";
+            public const string ShadowCopy = "xunit.shadowCopy";
         }
     }
 }

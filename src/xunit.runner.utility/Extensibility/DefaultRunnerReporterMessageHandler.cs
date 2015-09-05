@@ -184,11 +184,13 @@ namespace Xunit
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryStarting.Assembly);
 
             if (discoveryStarting.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
+            {
 #if PLATFORM_DOTNET
                 Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");
 #else
-                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (app domain = {(discoveryStarting.AppDomain ? "on" : "off")}, method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");
+                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (app domain = {(discoveryStarting.AppDomain ? $"on [{(discoveryStarting.ShadowCopy ? "shadow copy" : "no shadow copy")}]" : "off")}, method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");
 #endif
+            }
             else
                 Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName}");
 

@@ -90,5 +90,16 @@ namespace Xunit
         /// test discovery. If the flag is not set, returns the default value (<c>true</c>).
         /// </summary>
         public bool PreEnumerateTheoriesOrDefault { get { return PreEnumerateTheories ?? true; } }
+
+        /// <summary>
+        /// Gets or sets a flag indicating whether shadow copies should be used.
+        /// </summary>
+        public bool? ShadowCopy { get; set; }
+
+        /// <summary>
+        /// Gets a flag indicating whether shadow copies should be used. If the flag is not set,
+        /// returns the default value (<c>true</c>).
+        /// </summary>
+        public bool ShadowCopyOrDefault { get { return ShadowCopy ?? true; } }
     }
 }

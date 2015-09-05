@@ -12,14 +12,17 @@ namespace Xunit
         /// </summary>
         /// <param name="assembly">Information about the assembly that is being discovered</param>
         /// <param name="appDomain">Indicates whether the tests will be discovered and run in a separate app domain</param>
+        /// <param name="shadowCopy">Indicates whether shadow copying is being used</param>
         /// <param name="discoveryOptions">The discovery options</param>
         public TestAssemblyDiscoveryStarting(XunitProjectAssembly assembly,
                                              bool appDomain,
+                                             bool shadowCopy,
                                              ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             Assembly = assembly;
             AppDomain = appDomain;
             DiscoveryOptions = discoveryOptions;
+            ShadowCopy = shadowCopy;
         }
 
         /// <inheritdoc/>
@@ -30,5 +33,8 @@ namespace Xunit
 
         /// <inheritdoc/>
         public ITestFrameworkDiscoveryOptions DiscoveryOptions { get; private set; }
+
+        /// <inheritdoc/>
+        public bool ShadowCopy { get; private set; }
     }
 }

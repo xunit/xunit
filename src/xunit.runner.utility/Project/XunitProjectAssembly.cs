@@ -1,4 +1,6 @@
-﻿namespace Xunit
+﻿using System;
+
+namespace Xunit
 {
     /// <summary>
     /// Represents an assembly in an <see cref="XunitProject"/>.
@@ -6,14 +8,6 @@
     public class XunitProjectAssembly
     {
         TestAssemblyConfiguration configuration;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XunitProjectAssembly"/> class.
-        /// </summary>
-        public XunitProjectAssembly()
-        {
-            ShadowCopy = true;
-        }
 
         /// <summary>
         /// Gets or sets the assembly filename.
@@ -43,6 +37,11 @@
         /// Gets or sets a value indicating whether to shadow copy the assembly
         /// when running the tests.
         /// </summary>
-        public bool ShadowCopy { get; set; }
+        [Obsolete("Please use Configuration.ShadowCopyOrDefault (get) or Configuration.ShadowCopy (set) instead")]
+        public bool ShadowCopy
+        {
+            get { return Configuration.ShadowCopyOrDefault; }
+            set { Configuration.ShadowCopy = value; }
+        }
     }
 }

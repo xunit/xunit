@@ -26,11 +26,7 @@ namespace Xunit.Runner.MSBuild
         bool? parallelizeAssemblies;
         bool? parallelizeTestCollections;
         IMessageSink reporterMessageHandler;
-
-        public xunit()
-        {
-            ShadowCopy = true;
-        }
+        bool? shadowCopy;
 
         public bool AppDomains { set { appDomains = value; } }
 
@@ -86,7 +82,7 @@ namespace Xunit.Runner.MSBuild
         // To be used by the xUnit.net team for diagnostic purposes only
         public bool SerializeTestCases { get; set; }
 
-        public bool ShadowCopy { get; set; }
+        public bool ShadowCopy { set { shadowCopy = value; } }
 
         // Obsolote; remove post 2.1 RTM
         public bool TeamCity { get; set; }
@@ -187,7 +183,11 @@ namespace Xunit.Runner.MSBuild
                     if (configFileName != null && configFileName.Length == 0)
                         configFileName = null;
 
-                    project.Add(new XunitProjectAssembly { AssemblyFilename = assemblyFileName, ConfigFilename = configFileName, ShadowCopy = ShadowCopy });
+                    var projectAssembly = new XunitProjectAssembly { AssemblyFilename = assemblyFileName, ConfigFilename = configFileName };
+                    if (shadowCopy.HasValue)
+                        projectAssembly.Configuration.ShadowCopy = shadowCopy;
+
+                    project.Add(projectAssembly);
                 }
 
                 if (WorkingFolder != null)
@@ -309,12 +309,13 @@ namespace Xunit.Runner.MSBuild
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
                 var diagnosticMessageVisitor = new DiagnosticMessageVisitor(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
+                var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 
-                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, assembly.ShadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
+                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
                 using (var discoveryVisitor = new TestDiscoveryVisitor())
                 {
                     // Discover & filter the tests
-                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, discoveryOptions));
+                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
 
                     controller.Find(false, discoveryVisitor, discoveryOptions);
                     discoveryVisitor.Finished.WaitOne();

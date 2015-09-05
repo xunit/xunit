@@ -61,13 +61,13 @@ public class CommandLineTests
             Assert.Collection(result.Project,
                 a =>
                 {
-                    Assert.Equal(Path.GetFullPath("assemblyName.dll"), a.AssemblyFilename);
+                    Assert.Equal("/full/path/assemblyName.dll", a.AssemblyFilename);
                     Assert.Null(a.ConfigFilename);
                     Assert.True(a.ShadowCopy);
                 },
                 a =>
                 {
-                    Assert.Equal(Path.GetFullPath("assemblyName2.dll"), a.AssemblyFilename);
+                    Assert.Equal("/full/path/assemblyName2.dll", a.AssemblyFilename);
                     Assert.Null(a.ConfigFilename);
                     Assert.True(a.ShadowCopy);
                 }
@@ -86,14 +86,14 @@ public class CommandLineTests
             Assert.Collection(result.Project,
                 a =>
                 {
-                    Assert.Equal(Path.GetFullPath("assemblyName.dll"), a.AssemblyFilename);
+                    Assert.Equal("/full/path/assemblyName.dll", a.AssemblyFilename);
                     Assert.Null(a.ConfigFilename);
                     Assert.True(a.ShadowCopy);
                 },
                 a =>
                 {
-                    Assert.Equal(Path.GetFullPath("assemblyName2.dll"), a.AssemblyFilename);
-                    Assert.Equal(Path.GetFullPath(configFile), a.ConfigFilename);
+                    Assert.Equal("/full/path/assemblyName2.dll", a.AssemblyFilename);
+                    Assert.Equal($"/full/path/{configFile}", a.ConfigFilename);
                     Assert.True(a.ShadowCopy);
                 }
             );
@@ -768,6 +768,11 @@ public class CommandLineTests
         private TestableCommandLine(IReadOnlyList<IRunnerReporter> reporters, params string[] arguments)
             : base(reporters, arguments, filename => !filename.StartsWith("badConfig.") && filename != "fileName")
         { }
+
+        protected override string GetFullPath(string fileName)
+        {
+            return $"/full/path/{fileName}";
+        }
 
         public static TestableCommandLine Parse(params string[] arguments)
         {

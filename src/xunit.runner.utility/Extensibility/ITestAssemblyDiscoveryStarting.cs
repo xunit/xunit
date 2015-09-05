@@ -23,5 +23,11 @@ namespace Xunit
         /// Gets the options that will be used during discovery.
         /// </summary>
         ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
+
+        /// <summary>
+        /// Gets a flag which indicates whether shadow copies are being used. If app domains are
+        /// not enabled, then this value is ignored.
+        /// </summary>
+        bool ShadowCopy { get; }
     }
 }

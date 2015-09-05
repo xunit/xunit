@@ -50,16 +50,20 @@ namespace Xunit.ConsoleClient
 
         public bool Wait { get; protected set; }
 
-        static XunitProject GetProjectFile(List<Tuple<string, string>> assemblies)
+        protected virtual string GetFullPath(string fileName)
+        {
+            return Path.GetFullPath(fileName);
+        }
+
+        XunitProject GetProjectFile(List<Tuple<string, string>> assemblies)
         {
             var result = new XunitProject();
 
             foreach (var assembly in assemblies)
                 result.Add(new XunitProjectAssembly
                 {
-                    AssemblyFilename = Path.GetFullPath(assembly.Item1),
-                    ConfigFilename = assembly.Item2 != null ? Path.GetFullPath(assembly.Item2) : null,
-                    ShadowCopy = true
+                    AssemblyFilename = GetFullPath(assembly.Item1),
+                    ConfigFilename = assembly.Item2 != null ? GetFullPath(assembly.Item2) : null,
                 });
 
             return result;
@@ -227,7 +231,7 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     foreach (var assembly in project.Assemblies)
-                        assembly.ShadowCopy = false;
+                        assembly.Configuration.ShadowCopy = false;
                 }
                 else if (optionName == "trait")
                 {
