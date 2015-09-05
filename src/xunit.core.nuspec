@@ -79,7 +79,7 @@ Supported platforms:
     <file src="build\_._" target="build\monoandroid\" />
     <file src="build\_._" target="build\monotouch\" />
     <file src="build\_._" target="build\net45\" />
-    <file src="build\_._" target="build\portable-net45+win8+wp8+wpa81\" />
+    <file src="xunit.core\build\xunit.core.props" target="build\portable-net45+win8+wp8+wpa81\" />
     <file src="build\_._" target="build\win8\" />
     <file src="xunit.core\build\xunit.core.props" target="build\win81\" />
     <file src="build\_._" target="build\wp8\" />
