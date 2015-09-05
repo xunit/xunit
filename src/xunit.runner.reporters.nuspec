@@ -49,6 +49,7 @@ Supported platforms:
   <files>
     <file src="xunit.runner.reporters.dotnet\bin\Release\xunit.runner.reporters.dotnet.dll" target="lib\dnx451\" />
     <file src="xunit.runner.reporters.dotnet\bin\Release\xunit.runner.reporters.dotnet.dll" target="lib\dotnet\" />
+    <file src="xunit.runner.reporters.dotnet\bin\Release\xunit.runner.reporters.dotnet.rd.xml" target="lib\dotnet\" />
     <file src="xunit.runner.reporters.desktop\bin\Release\xunit.runner.reporters.desktop.dll" target="lib\net45\" />
   </files>
 </package>

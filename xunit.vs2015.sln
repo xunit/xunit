@@ -33,11 +33,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit.assert", "test\t
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{3AD1513F-07B7-4C14-AB10-83682616ACE5}"
 	ProjectSection(SolutionItems) = preProject
-		.gitattributes = .gitattributes
-		.gitignore = .gitignore
 		build.ps1 = build.ps1
-		src\xunit.empty.ruleset = src\xunit.empty.ruleset
-		src\xunit.ruleset = src\xunit.ruleset
+		build.sh = build.sh
+		license.txt = license.txt
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.core", "src\xunit.core\xunit.core.csproj", "{1B843C0F-8E08-4BA9-8C85-EEAF779A0774}"
@@ -65,8 +64,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.execution.desktop", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.utility.desktop", "src\xunit.runner.utility.desktop\xunit.runner.utility.desktop.csproj", "{EFC3F529-3686-416B-9C67-36EC914C776A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{52472A94-ACC4-4C12-B9AA-0B6B12E12A48}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{52472A94-ACC4-4C12-B9AA-0B6B12E12A48}"
 	ProjectSection(SolutionItems) = preProject
+		NuGet.Config = NuGet.Config
 		src\xunit.assert.nuspec = src\xunit.assert.nuspec
 		src\xunit.assert.source.nuspec = src\xunit.assert.source.nuspec
 		src\xunit.core.nuspec = src\xunit.core.nuspec
@@ -88,6 +88,18 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.reporters.dotnet", "src\xunit.runner.reporters.dotnet\xunit.runner.reporters.dotnet.csproj", "{BA654F54-CFBA-45B1-9463-3BB1F35CFABF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.runner.reporters.desktop", "src\xunit.runner.reporters.desktop\xunit.runner.reporters.desktop.csproj", "{331EFFD9-35DC-4793-8D75-805B92A91935}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analysis", "Analysis", "{CC649D40-0AEB-47C5-86A0-53F19B464BEC}"
+	ProjectSection(SolutionItems) = preProject
+		src\xunit.empty.ruleset = src\xunit.empty.ruleset
+		src\xunit.ruleset = src\xunit.ruleset
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{E9DF1DC4-BE5A-4F7B-A8DF-EC5C6A323A21}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -207,5 +219,7 @@ Global
 		{A1F09613-85AB-45C6-AD7D-55E552FD543E} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{BA654F54-CFBA-45B1-9463-3BB1F35CFABF} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 		{331EFFD9-35DC-4793-8D75-805B92A91935} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
+		{CC649D40-0AEB-47C5-86A0-53F19B464BEC} = {3AD1513F-07B7-4C14-AB10-83682616ACE5}
+		{E9DF1DC4-BE5A-4F7B-A8DF-EC5C6A323A21} = {3AD1513F-07B7-4C14-AB10-83682616ACE5}
 	EndGlobalSection
 EndGlobal

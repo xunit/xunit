@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Library Name="xunit.execution.dotnet">
+    <Assembly Name="xunit.execution.dotnet" Activate="Required All" Browse="Required All" Serialize="Required All" Dynamic="Required All" />
+    <Type Name="System.Threading.ExecutionContext" Dynamic="Required All" Activate="Required All" />
+    <Type Name="System.Threading.ContextCallback" Dynamic="Required All" Activate="Required All" />
+  </Library>
+</Directives>
