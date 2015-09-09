@@ -77,9 +77,9 @@ Supported platforms:
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\monotouch\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\monotouch\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\monotouch\" />
-    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll" target="lib\net35\" />
-    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.pdb" target="lib\net35\" />
-    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.xml" target="lib\net35\" />
+    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll" target="lib\net45\" />
+    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.pdb" target="lib\net45\" />
+    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.xml" target="lib\net45\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\portable-net45+win8+wp8+wpa81\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\portable-net45+win8+wp8+wpa81\" />
     <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\portable-net45+win8+wp8+wpa81\" />
