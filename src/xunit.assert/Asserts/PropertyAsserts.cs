@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Reflection;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -19,17 +20,42 @@ namespace Xunit
             Assert.GuardArgumentNotNull("object", @object);
             Assert.GuardArgumentNotNull("testCode", testCode);
 
+            Object oldPropertyValue = null;
+            try
+            {
+                oldPropertyValue = @object.GetType().GetRuntimeProperty(propertyName).GetValue(@object);
+
+            }
+            catch (Exception)
+            {
+                throw new InaccessiblePropertyException(propertyName);
+            }
+
+            Object newPropertyValue = null;
             bool propertyChangeHappened = false;
 
-            PropertyChangedEventHandler handler = (sender, args) => propertyChangeHappened |= propertyName.Equals(args.PropertyName, StringComparison.OrdinalIgnoreCase);
+            PropertyChangedEventHandler handler = (sender, args) =>
+            {
+                if (propertyName.Equals(args.PropertyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    propertyChangeHappened = true;
+                    newPropertyValue = @object.GetType().GetRuntimeProperty(propertyName).GetValue(@object);
+                }
+            };
 
             @object.PropertyChanged += handler;
 
             try
             {
+
                 testCode();
                 if (!propertyChangeHappened)
                     throw new PropertyChangedException(propertyName);
+                if (Object.Equals(oldPropertyValue, newPropertyValue))
+                {
+                    throw new PropertyChangedPrematurelyException(propertyName);
+                }
+
             }
             finally
             {
