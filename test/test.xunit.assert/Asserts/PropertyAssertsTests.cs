@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
@@ -19,7 +20,7 @@ public class PropertyAssertsTests
     [Fact]
     public void ExceptionThrownWhenPropertyNotChanged()
     {
-        NotifiedClass obj = new NotifiedClass();
+        ObservableClass obj = new ObservableClass();
 
         Exception ex = Record.Exception(
             () => Assert.PropertyChanged(obj, "Property1", () => { })
@@ -32,7 +33,7 @@ public class PropertyAssertsTests
     [Fact]
     public void ExceptionThrownWhenWrongPropertyChanged()
     {
-        NotifiedClass obj = new NotifiedClass();
+        ObservableClass obj = new ObservableClass();
 
         Exception ex = Record.Exception(
             () => Assert.PropertyChanged(obj, "Property1", () => obj.Property2 = 42)
@@ -45,7 +46,7 @@ public class PropertyAssertsTests
     [Fact]
     public void NoExceptionThrownWhenPropertyChanged()
     {
-        NotifiedClass obj = new NotifiedClass();
+        ObservableClass obj = new ObservableClass();
 
         Exception ex = Record.Exception(
             () => Assert.PropertyChanged(obj, "Property1", () => obj.Property1 = "NewValue")
@@ -57,7 +58,7 @@ public class PropertyAssertsTests
     [Fact]
     public void NoExceptionThrownWhenMultiplePropertyChangesIncludesCorrectProperty()
     {
-        NotifiedClass obj = new NotifiedClass();
+        ObservableClass obj = new ObservableClass();
 
         Exception ex = Record.Exception(
             () =>
@@ -74,18 +75,89 @@ public class PropertyAssertsTests
         Assert.Null(ex);
     }
 
-    class NotifiedClass : INotifyPropertyChanged
+    [Theory]
+    [InlineData(42, 12)]
+    [InlineData(12, 0)]
+    public void ExceptionThrownWhenPropertyChangedPrematurely(int oldValue, int expectedValue)
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        var obj = new ObservableClass();
+        obj.PropertyWithPrematureNotification = oldValue;
 
+        var ex = Record.Exception(
+            () =>
+            {
+                Assert.PropertyChanged(obj, nameof(obj.PropertyWithPrematureNotification), () =>
+                {
+                    obj.PropertyWithPrematureNotification = expectedValue;
+                });
+            }
+        );
+
+        Assert.IsType<PropertyChangedPrematurelyException>(ex);
+        Assert.Equal("Assert.PropertyChanged failure: Property PropertyWithPrematureNotification was not set to a new value before PropertyChanged was raised", ex.Message);
+    }
+
+    [Fact]
+    public void ExceptionThrownWhenPropertyIsInaccessible()
+    {
+        var obj = new ObservableClass();
+
+        var ex = Record.Exception(
+            () =>
+            {
+                Assert.PropertyChanged(obj, "PropertyWithNoGetter", () =>
+                {
+                    obj.PropertyWithNoGetter = "New Value";
+                });
+            }
+        );
+        Assert.IsType<InaccessiblePropertyException>(ex);
+        Assert.Equal("Assert.PropertyChanged failure: Property PropertyWithNoGetter does not have a public getter", ex.Message);
+    }
+
+    class ObservableClass : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged = delegate {};
+
+        private string _property1;
         public string Property1
         {
-            set { PropertyChanged(this, new PropertyChangedEventArgs("Property1")); }
+            set
+            {
+                _property1 = value;
+                PropertyChanged(this, new PropertyChangedEventArgs("Property1"));
+            }
+            get { return _property1; }
         }
 
+        private int _property2;
         public int Property2
         {
-            set { PropertyChanged(this, new PropertyChangedEventArgs("Property2")); }
+            set
+            {
+                _property2 = value;
+                PropertyChanged(this, new PropertyChangedEventArgs("Property2"));
+            }
+            get { return _property2; }
+        }
+
+        private int _propertyWithPrematureNotification;
+        public int PropertyWithPrematureNotification
+        {
+            set
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs("PropertyWithPrematureNotification"));
+                _propertyWithPrematureNotification = value;
+            }
+            get
+            {
+                return _propertyWithPrematureNotification;
+            }
+        }
+
+        public Object PropertyWithNoGetter
+        {
+            set { PropertyChanged(this, new PropertyChangedEventArgs("PropertyWithNoGetter"));}
         }
     }
 }
