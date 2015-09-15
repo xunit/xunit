@@ -90,7 +90,17 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public override void Send(SendOrPostCallback d, object state)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (innerContext != null)
+                    innerContext.Send(d, state);
+                else
+                    d(state);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
         }
 
         /// <summary>
