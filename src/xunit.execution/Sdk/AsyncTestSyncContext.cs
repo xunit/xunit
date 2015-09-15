@@ -55,7 +55,11 @@ namespace Xunit.Sdk
                     {
                         try
                         {
-                            Send(d, state);
+                            d(state);
+                        }
+                        catch (Exception ex)
+                        {
+                            exception = ex;
                         }
                         finally
                         {
@@ -68,13 +72,17 @@ namespace Xunit.Sdk
                     {
                         try
                         {
-                            Send(d, _);
+                            d(state);
+                        }
+                        catch (Exception ex)
+                        {
+                            exception = ex;
                         }
                         finally
                         {
                             OperationCompleted();
                         }
-                    }, state);
+                    }, null);
             }
             catch { }
         }
@@ -82,17 +90,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public override void Send(SendOrPostCallback d, object state)
         {
-            try
-            {
-                if (innerContext != null)
-                    innerContext.Send(d, state);
-                else
-                    d(state);
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
