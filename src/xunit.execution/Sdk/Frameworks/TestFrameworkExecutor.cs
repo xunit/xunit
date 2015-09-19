@@ -28,11 +28,8 @@ namespace Xunit.Sdk
             SourceInformationProvider = sourceInformationProvider;
             DiagnosticMessageSink = diagnosticMessageSink;
 
-#if PLATFORM_DOTNET
             var assembly = Assembly.Load(assemblyName);
-#else
-            var assembly = Assembly.Load(assemblyName.Name);
-#endif
+
             AssemblyInfo = Reflector.Wrap(assembly);
         }
 
