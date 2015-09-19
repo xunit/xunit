@@ -86,6 +86,7 @@
     <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2TheoryAcceptanceTests.cs" />
     <Compile Include="Common\SerializationHelperTests.cs" />
+    <Compile Include="Common\TraitHelperTests.cs" />
     <Compile Include="Common\XmlTestExecutionVisitorTests.cs" />
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
