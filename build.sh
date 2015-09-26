@@ -33,7 +33,7 @@ echo ""
 echo "Restoring NuGet packages..."
 echo ""
 
-mono .nuget/nuget.exe restore xunit.xbuild.sln
+mono .nuget/nuget.exe restore xunit.vs2015.sln
 if [ $? -ne 0 ]; then
   echo >&2 "NuGet package restore has failed."
   exit 1
