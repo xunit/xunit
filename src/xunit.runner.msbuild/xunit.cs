@@ -40,6 +40,12 @@ namespace Xunit.Runner.MSBuild
         [Output]
         public int ExitCode { get; protected set; }
 
+        /// <summary>
+        /// Sets whether test failures will be ignored and allow the build to proceed.
+        /// When set to <c>false</c>, test failures will cause the build to fail.
+        /// </summary>
+        public bool IgnoreFailures { get; protected set; }
+
         public bool FailSkips { get; protected set; }
 
         protected XunitFilters Filters
@@ -238,7 +244,8 @@ namespace Xunit.Runner.MSBuild
                     Transform("NUnitXml.xslt", assembliesElement, NUnit);
             }
 
-            return ExitCode == 0;
+            // ExitCode is set to 1 for test failures and -1 for Exceptions.
+            return ExitCode == 0 || (ExitCode == 1 && IgnoreFailures);
         }
 
         List<IRunnerReporter> GetAvailableRunnerReporters()
