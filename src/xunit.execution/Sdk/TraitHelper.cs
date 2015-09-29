@@ -12,14 +12,14 @@ namespace Xunit.Sdk
         /// <summary>
         /// Get the traits from a method.
         /// </summary>
-        /// <param name="method">The method to get the traits for.</param>
+        /// <param name="member">The member (method, field, etc.) to get the traits for.</param>
         /// <returns>A list of traits that are defined on the method.</returns>
-        public static IReadOnlyList<KeyValuePair<string, string>> GetTraits(MethodInfo method)
+        public static IReadOnlyList<KeyValuePair<string, string>> GetTraits(MemberInfo member)
         {
             var messageSink = new NullMessageSink();
             var result = new List<KeyValuePair<string, string>>();
 
-            foreach (var traitAttributeData in method.CustomAttributes)
+            foreach (var traitAttributeData in member.CustomAttributes)
             {
                 var traitAttributeType = traitAttributeData.AttributeType;
                 if (!typeof(ITraitAttribute).GetTypeInfo().IsAssignableFrom(traitAttributeType.GetTypeInfo()))
