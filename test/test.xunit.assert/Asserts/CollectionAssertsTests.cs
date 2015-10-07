@@ -113,6 +113,33 @@ public class CollectionAssertsTests
                          "        Expected: 2113" + Environment.NewLine +
                          "        Actual:   2112", ex.Message);
         }
+
+        [Fact]
+        public static void MismatchedElementWithElementList()
+        {
+            var list = new List<int> {42, 2112};
+            var ex = Record.Exception(() => 
+                Assert.Collection(list, 
+                    item => Assert.Equal(42, item),
+                    item => Assert.Equal(2113, item)
+                )
+            );
+            var collEx = Assert.IsType<CollectionException>(ex);
+            Assert.Equal(collEx.ActualElements, list);
+        }
+
+        [Fact]
+        public static void MismatchedElementCountWithElementList()
+        {
+            var list = new List<int> { 42, 2112 };
+            var ex = Record.Exception(() =>
+                Assert.Collection(list,
+                    item => Assert.Equal(42, item)
+                )
+            );
+            var collEx = Assert.IsType<CollectionException>(ex);
+            Assert.Equal(collEx.ActualElements, list);
+        }
     }
 
     public class Contains

@@ -55,7 +55,7 @@ namespace Xunit
             int actualCount = elements.Length;
 
             if (expectedCount != actualCount)
-                throw new CollectionException(expectedCount, actualCount);
+                throw new CollectionException(expectedCount, actualCount, -1, null, collection);
 
             for (int idx = 0; idx < actualCount; idx++)
             {
@@ -65,7 +65,7 @@ namespace Xunit
                 }
                 catch (Exception ex)
                 {
-                    throw new CollectionException(expectedCount, actualCount, idx, ex);
+                    throw new CollectionException(expectedCount, actualCount, idx, ex, collection);
                 }
             }
         }

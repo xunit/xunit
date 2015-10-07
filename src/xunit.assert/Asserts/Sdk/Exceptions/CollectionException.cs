@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Globalization;
 using System.Linq;
 
@@ -12,6 +13,8 @@ namespace Xunit.Sdk
         readonly string innerException;
         readonly string innerStackTrace;
 
+        readonly IEnumerable actualElements;
+
         /// <summary>
         /// Creates a new instance of the <see cref="CollectionException"/> class.
         /// </summary>
@@ -19,7 +22,8 @@ namespace Xunit.Sdk
         /// <param name="actualCount">The actual number of items in the collection.</param>
         /// <param name="indexFailurePoint">The index of the position where the first comparison failure occurred.</param>
         /// <param name="innerException">The exception that was thrown during the comparison failure.</param>
-        public CollectionException(int expectedCount, int actualCount, int indexFailurePoint = -1, Exception innerException = null)
+        /// <param name="actualElements">The elements of the collection</param>
+        public CollectionException(int expectedCount, int actualCount, int indexFailurePoint = -1, Exception innerException = null, IEnumerable actualElements = null)
             : base("Assert.Collection() Failure")
         {
             ExpectedCount = expectedCount;
@@ -27,12 +31,22 @@ namespace Xunit.Sdk
             IndexFailurePoint = indexFailurePoint;
             this.innerException = FormatInnerException(innerException);
             innerStackTrace = innerException == null ? null : innerException.StackTrace;
+
+            this.actualElements = actualElements;
         }
 
         /// <summary>
         /// The actual number of items in the collection.
         /// </summary>
         public int ActualCount { get; set; }
+
+        /// <summary>
+        /// The list of actual Elements, optional and null by default
+        /// </summary>
+        public IEnumerable ActualElements
+        {
+            get { return this.actualElements; }
+        }
 
         /// <summary>
         /// The expected number of items in the collection.
