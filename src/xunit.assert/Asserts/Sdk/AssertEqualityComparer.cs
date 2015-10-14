@@ -40,10 +40,10 @@ namespace Xunit.Sdk
             // Null?
             if (!typeInfo.IsValueType || (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition().GetTypeInfo().IsAssignableFrom(NullableTypeInfo)))
             {
-                if (Object.Equals(x, default(T)))
-                    return Object.Equals(y, default(T));
+                if (object.Equals(x, default(T)))
+                    return object.Equals(y, default(T));
 
-                if (Object.Equals(y, default(T)))
+                if (object.Equals(y, default(T)))
                     return false;
             }
 
@@ -76,8 +76,8 @@ namespace Xunit.Sdk
             if (enumerablesEqual.HasValue)
                 return enumerablesEqual.GetValueOrDefault();
 
-            // Last case, rely on Object.Equals
-            return Object.Equals(x, y);
+            // Last case, rely on object.Equals
+            return object.Equals(x, y);
         }
 
         bool? CheckIfEnumerablesAreEqual(T x, T y)

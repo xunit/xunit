@@ -286,15 +286,15 @@ public class TestRunnerTests
             if (aggregatorSeedException != null)
                 aggregator.Add(aggregatorSeedException);
             if (testCase == null)
-                testCase = Mocks.TestCase<Object>("ToString");
+                testCase = Mocks.TestCase<object>("ToString");
             var test = Mocks.Test(testCase, displayName);
 
             return new TestableTestRunner(
                 test,
                 messageBus,
-                typeof(Object),
+                typeof(object),
                 new object[0],
-                typeof(Object).GetMethod("ToString"),
+                typeof(object).GetMethod("ToString"),
                 new object[0],
                 skipReason,
                 aggregator,

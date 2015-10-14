@@ -40,7 +40,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             var visitor = new ResultVisitor(listener, 42) { TestRunState = initialState };
 
-            visitor.OnMessage(Mocks.TestFailed(typeof(Object), "GetHashCode"));
+            visitor.OnMessage(Mocks.TestFailed(typeof(object), "GetHashCode"));
 
             Assert.Equal(TestRunState.Failure, visitor.TestRunState);
         }
@@ -135,7 +135,7 @@ public class ResultVisitorTests
                 yield return new object[] { methodCleanupFailure, "Test Method Cleanup Failure (MyMethod)" };
 
                 var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
-                var testCase = Mocks.TestCase(typeof(Object), "ToString", displayName: "MyTestCase");
+                var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
                 testCaseCleanupFailure.TestCase.Returns(testCase);
                 yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
 

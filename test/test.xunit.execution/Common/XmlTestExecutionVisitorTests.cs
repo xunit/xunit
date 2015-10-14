@@ -361,7 +361,7 @@ public class XmlTestExecutionVisitorTests
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-            var test = Mocks.Test(testCase, new String(Enumerable.Range(0, 32).Select(x => (char)x).ToArray()));
+            var test = Mocks.Test(testCase, new string(Enumerable.Range(0, 32).Select(x => (char)x).ToArray()));
             var testSkipped = Substitute.For<ITestSkipped>();
             testSkipped.TestCase.Returns(testCase);
             testSkipped.Test.Returns(test);
@@ -425,7 +425,7 @@ public class XmlTestExecutionVisitorTests
                 yield return new object[] { methodCleanupFailure, "test-method-cleanup", "MyMethod" };
 
                 var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
-                var testCase = Mocks.TestCase(typeof(Object), "ToString", displayName: "MyTestCase");
+                var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
                 testCaseCleanupFailure.TestCase.Returns(testCase);
                 yield return new object[] { testCaseCleanupFailure, "test-case-cleanup", "MyTestCase" };
 

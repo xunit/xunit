@@ -22,7 +22,7 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         [SecurityCritical]
-        public override sealed Object InitializeLifetimeService()
+        public override sealed object InitializeLifetimeService()
         {
             return null;
         }

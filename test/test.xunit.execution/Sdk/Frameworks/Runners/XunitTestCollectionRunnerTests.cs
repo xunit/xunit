@@ -20,7 +20,7 @@ public class XunitTestCollectionRunnerTests
 
         Assert.Collection(runner.CollectionFixtureMappings.OrderBy(mapping => mapping.Key.Name),
             mapping => Assert.IsType<FixtureUnderTest>(mapping.Value),
-            mapping => Assert.IsType<Object>(mapping.Value)
+            mapping => Assert.IsType<object>(mapping.Value)
         );
     }
 

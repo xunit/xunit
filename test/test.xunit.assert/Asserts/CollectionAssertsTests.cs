@@ -18,7 +18,7 @@ public class CollectionAssertsTests
         [Fact]
         public static void NullActionThrows()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(new Object[0], null));
+            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(new object[0], null));
         }
 
         [Fact]

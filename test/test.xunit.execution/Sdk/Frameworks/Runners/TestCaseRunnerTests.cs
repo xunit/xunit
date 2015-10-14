@@ -190,7 +190,7 @@ public class TestCaseRunnerTests
                 aggregator.Add(aggregatorSeedException);
 
             return new TestableTestCaseRunner(
-                testCase ?? Mocks.TestCase<Object>("ToString"),
+                testCase ?? Mocks.TestCase<object>("ToString"),
                 messageBus,
                 aggregator,
                 new CancellationTokenSource(),
