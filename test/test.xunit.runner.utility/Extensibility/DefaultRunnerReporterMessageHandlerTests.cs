@@ -56,7 +56,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 
                 // ITestCaseCleanupFailure
                 var testCaseCleanupFailure = MakeFailureInformationSubstitute<ITestCaseCleanupFailure>();
-                var testCase = Mocks.TestCase(typeof(Object), "ToString", displayName: "MyTestCase");
+                var testCase = Mocks.TestCase(typeof(object), "ToString", displayName: "MyTestCase");
                 testCaseCleanupFailure.TestCase.Returns(testCase);
                 yield return new object[] { testCaseCleanupFailure, "Test Case Cleanup Failure (MyTestCase)" };
 

@@ -271,7 +271,7 @@ namespace Xunit
         /// exactly one element.</exception>
         public static void Single(IEnumerable collection, object expected)
         {
-            Single(collection.Cast<object>(), item => Object.Equals(item, expected));
+            Single(collection.Cast<object>(), item => object.Equals(item, expected));
         }
 
         /// <summary>
