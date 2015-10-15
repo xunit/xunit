@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -55,5 +56,26 @@ namespace Xunit
         /// a generalized reference to the platform-specific assembly.
         /// </summary>
         public static readonly string SubstitutionToken = ".{Platform}";
+
+        /// <summary>
+        /// Executes given <paramref name="action"/> with given <paramref name="culture"/>
+        /// </summary>
+        /// <param name="culture">Culture of thread to execute the <paramref name="action"/></param>
+        /// <param name="action">Action to execute with <paramref name="culture"/></param>
+        public static void ExecuteWithCulture(CultureInfo culture, Action action)
+        {
+            var currentCulture = CultureInfo.DefaultThreadCurrentCulture;
+
+            try
+            {
+                CultureInfo.DefaultThreadCurrentCulture = culture;
+
+                action();
+            }
+            finally
+            {
+                CultureInfo.DefaultThreadCurrentCulture = currentCulture;
+            }
+        }
     }
 }
