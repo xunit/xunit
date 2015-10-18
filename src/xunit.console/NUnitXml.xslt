@@ -7,7 +7,7 @@
   </xsl:template>
 
   <xsl:template match="assemblies">
-    <test-results name="Test results">
+    <test-results name="Test results" errors="0" inconclusive="0" ignored="0" invalid="0" not-run="0">
       <xsl:attribute name="date">
         <xsl:value-of select="assembly[1]/@run-date"/>
       </xsl:attribute>
@@ -20,13 +20,26 @@
       <xsl:attribute name="failures">
         <xsl:value-of select="sum(assembly/@failed)"/>
       </xsl:attribute>
-      <xsl:attribute name="not-run">
+      <xsl:attribute name="skipped">
         <xsl:value-of select="sum(assembly/@skipped)"/>
       </xsl:attribute>
-      <test-suite name="xUnit.net Tests">
+      <environment os-version="unknown" platform="unknown" cwd="unknown" machine-name="unknown" user="unknown" user-domain="unknown">
+        <xsl:attribute name="nunit-version">
+          <xsl:value-of select="assembly[1]/@test-framework"/>
+        </xsl:attribute>
+        <xsl:attribute name="clr-version">
+          <xsl:value-of select="assembly[1]/@environment"/>
+        </xsl:attribute>
+      </environment>
+      <culture-info current-culture="unknown" current-uiculture="unknown" />
+      <test-suite type="Assemblies" name="xUnit.net Tests" executed="True">
         <xsl:attribute name="success">
           <xsl:if test="sum(assembly/@failed) > 0">False</xsl:if>
           <xsl:if test="sum(assembly/@failed) = 0">True</xsl:if>
+        </xsl:attribute>
+        <xsl:attribute name="result">
+          <xsl:if test="sum(assembly/@failed) > 0">Failure</xsl:if>
+          <xsl:if test="sum(assembly/@failed) = 0">Success</xsl:if>
         </xsl:attribute>
         <xsl:attribute name="time">
           <xsl:value-of select="sum(assembly/@time)"/>
@@ -39,9 +52,13 @@
   </xsl:template>
 
   <xsl:template match="assembly">
-    <test-suite>
+    <test-suite type="Assembly" executed="True">
       <xsl:attribute name="name">
         <xsl:value-of select="@name"/>
+      </xsl:attribute>
+      <xsl:attribute name="result">
+        <xsl:if test="@failed > 0">Failure</xsl:if>
+        <xsl:if test="@failed = 0">Success</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="success">
         <xsl:if test="@failed > 0">False</xsl:if>
@@ -57,9 +74,13 @@
   </xsl:template>
 
   <xsl:template match="collection">
-    <test-suite>
+    <test-suite type="TestCollection" executed="True">
       <xsl:attribute name="name">
         <xsl:value-of select="@name"/>
+      </xsl:attribute>
+      <xsl:attribute name="result">
+        <xsl:if test="@failed > 0">Failure</xsl:if>
+        <xsl:if test="@failed = 0">Success</xsl:if>
       </xsl:attribute>
       <xsl:attribute name="success">
         <xsl:if test="@failed > 0">False</xsl:if>
@@ -90,6 +111,11 @@
       <xsl:attribute name="executed">
         <xsl:if test="@result='Skip'">False</xsl:if>
         <xsl:if test="@result!='Skip'">True</xsl:if>
+      </xsl:attribute>
+      <xsl:attribute name="result">
+        <xsl:if test="@result='Fail'">Failure</xsl:if>
+        <xsl:if test="@result='Pass'">Success</xsl:if>
+        <xsl:if test="@result='Skip'">Skipped</xsl:if>
       </xsl:attribute>
       <xsl:if test="@result!='Skip'">
         <xsl:attribute name="success">
