@@ -127,7 +127,7 @@ public class XunitTestFrameworkDiscovererTests
         public static void GuardClauses()
         {
             var framework = TestableXunitTestFrameworkDiscoverer.Create();
-            var typeName = typeof(Object).FullName;
+            var typeName = typeof(object).FullName;
             var sink = Substitute.For<IMessageSink>();
             var options = TestFrameworkOptions.ForDiscovery();
 

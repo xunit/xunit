@@ -104,7 +104,7 @@ namespace Xunit.Sdk
             var toString = type.GetMethod("ToString", EmptyTypes);
 #endif
 
-            if (toString != null && toString.DeclaringType != typeof(Object))
+            if (toString != null && toString.DeclaringType != typeof(object))
                 return (string)toString.Invoke(value, EmptyObjects);
 
             return FormatComplexValue(value, depth, type);
