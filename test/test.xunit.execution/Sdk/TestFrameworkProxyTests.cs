@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
+using System.Threading;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
@@ -44,6 +46,8 @@ public class TestFrameworkProxyTests
     [Fact]
     public void Attribute_ThrowingDiscovererCtor()
     {
+        Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+
         var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithThrowingDiscovererCtor));
         var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
@@ -72,6 +76,8 @@ public class TestFrameworkProxyTests
     [Fact]
     public void Attribute_ThrowingDiscovererMethod()
     {
+        Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+
         var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithThrowingDiscovererMethod));
         var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 
@@ -95,6 +101,8 @@ public class TestFrameworkProxyTests
     [Fact]
     public void Attribute_ThrowingTestFrameworkCtor()
     {
+        Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
         var attribute = Mocks.TestFrameworkAttribute(typeof(AttributeWithThrowingTestFrameworkCtor));
         var assembly = Mocks.AssemblyInfo(attributes: new[] { attribute });
 

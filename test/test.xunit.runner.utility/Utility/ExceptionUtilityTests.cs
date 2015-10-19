@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -115,6 +117,8 @@ public class ExceptionUtilityTests
         [Fact]
         public void AggregateException()
         {
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+
             var failureInfo = new FailureInformation {
                 { new AggregateException(), -1 },
                 { new DivideByZeroException("inner #1"), 0 },
@@ -156,6 +160,8 @@ public class ExceptionUtilityTests
         [Fact]
         public void XunitException()
         {
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
             Action testCode = () => { throw new XunitException(); };
             var ex = Record.Exception(testCode);
             var failureInfo = new FailureInformation { ex };
@@ -170,6 +176,8 @@ public class ExceptionUtilityTests
         [Fact]
         public void NonXunitException()
         {
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+
             Action testCode = () => { throw new Exception(); };
             var ex = Record.Exception(testCode);
             var failureInfo = new FailureInformation { ex };
@@ -184,6 +192,8 @@ public class ExceptionUtilityTests
         [Fact]
         public void NonXunitExceptionWithInnerExceptions()
         {
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+
             Action innerTestCode = () => { throw new DivideByZeroException(); };
             var inner = Record.Exception(innerTestCode);
             Action outerTestCode = () => { throw new Exception("message", inner); };
@@ -202,6 +212,8 @@ public class ExceptionUtilityTests
         [Fact]
         public void AggregateException()
         {
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+
             Action inner1TestCode = () => { throw new DivideByZeroException(); };
             var inner1 = Record.Exception(inner1TestCode);
             Action inner2TestCode = () => { throw new NotImplementedException("inner #2"); };

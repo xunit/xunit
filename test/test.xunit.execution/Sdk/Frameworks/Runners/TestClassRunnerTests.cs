@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -235,6 +236,8 @@ public class TestClassRunnerTests
         [Fact]
         public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
         {
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
             var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
             var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
             var other1 = Mocks.TestCase<ClassUnderTest>("Other");
