@@ -76,9 +76,15 @@ public class CollectionAssertsTests
             var collEx = Assert.IsType<CollectionException>(ex);
             Assert.Equal(1, collEx.ExpectedCount);
             Assert.Equal(0, collEx.ActualCount);
-            Assert.Equal("Assert.Collection() Failure" + Environment.NewLine +
-                         "Expected item count: 1" + Environment.NewLine +
-                         "Actual item count:   0", collEx.Message);
+
+            var msg = collEx.Message;
+
+            Assert.True(collEx.Message.StartsWith(string.Format("Assert.Collection() Failure{0}" +
+                                       "Expected item count: 1{0}" +
+                                       "Actual item count: 0{0}" +
+                                       "Actual items: ",
+                                       Environment.NewLine)));
+
             Assert.Null(collEx.InnerException);
         }
 
@@ -107,11 +113,13 @@ public class CollectionAssertsTests
 
             var collEx = Assert.IsType<CollectionException>(ex);
             Assert.Equal(1, collEx.IndexFailurePoint);
-            Assert.Equal("Assert.Collection() Failure" + Environment.NewLine +
-                         "Error during comparison of item at index 1" + Environment.NewLine +
-                         "Inner exception: Assert.Equal() Failure" + Environment.NewLine +
-                         "        Expected: 2113" + Environment.NewLine +
-                         "        Actual:   2112", ex.Message);
+            Assert.True(ex.Message.StartsWith(string.Format("Assert.Collection() Failure{0}" +
+                                       "Error during comparison of item at index 1{0}" +
+                                       "Inner exception: Assert.Equal() Failure{0}" +
+                                       "        Expected: 2113{0}" +
+                                       "        Actual:   2112{0}" +
+                                       "Actual items: ", 
+                                       Environment.NewLine)));
         }
 
         [Fact]

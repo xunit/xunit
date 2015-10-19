@@ -74,7 +74,7 @@ namespace Xunit.Sdk
                                          ArgumentFormatter.Format(this.ActualElements));
 
                 return string.Format(CultureInfo.CurrentCulture,
-                                     "{0}{3}Expected item count: {1}{3}Actual item count:   {2}{3}Actual items: {4}",
+                                     "{0}{3}Expected item count: {1}{3}Actual item count: {2}{3}Actual items: {4}",
                                      base.Message,
                                      ExpectedCount,
                                      ActualCount,
