@@ -250,7 +250,7 @@ public class XunitTestAssemblyRunnerTests
         [Fact]
         public static void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
         {
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyCtorThrowingTestCaseOrderer>();
             var assembly = Mocks.TestAssembly(new[] { ordererAttribute });

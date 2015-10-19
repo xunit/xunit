@@ -117,7 +117,7 @@ public class ExceptionUtilityTests
         [Fact]
         public void AggregateException()
         {
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             var failureInfo = new FailureInformation {
                 { new AggregateException(), -1 },
@@ -176,7 +176,7 @@ public class ExceptionUtilityTests
         [Fact]
         public void NonXunitException()
         {
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Action testCode = () => { throw new Exception(); };
             var ex = Record.Exception(testCode);
@@ -192,7 +192,7 @@ public class ExceptionUtilityTests
         [Fact]
         public void NonXunitExceptionWithInnerExceptions()
         {
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Action innerTestCode = () => { throw new DivideByZeroException(); };
             var inner = Record.Exception(innerTestCode);
@@ -212,7 +212,7 @@ public class ExceptionUtilityTests
         [Fact]
         public void AggregateException()
         {
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Action inner1TestCode = () => { throw new DivideByZeroException(); };
             var inner1 = Record.Exception(inner1TestCode);
