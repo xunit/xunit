@@ -190,6 +190,8 @@ public class Xunit2AcceptanceTests
         [Fact]
         public void CompositeTestFailureResultsFromFailingTestsPlusThrowingDisposeInTestClass()
         {
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+
             var messages = Run<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
 
             var msg = Assert.Single(messages);

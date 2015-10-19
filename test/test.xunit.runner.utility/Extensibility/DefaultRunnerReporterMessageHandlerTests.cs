@@ -180,6 +180,8 @@ public class DefaultRunnerReporterMessageHandlerTests
         [Fact]
         public void MultipleAssemblies()
         {
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+
             var clockTime = TimeSpan.FromSeconds(12.3456);
             var @short = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, Time = 1.2345M };
             var nothing = new ExecutionSummary { Total = 0 };

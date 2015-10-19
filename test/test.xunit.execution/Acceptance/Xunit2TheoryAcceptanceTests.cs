@@ -229,7 +229,7 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void IncompatibleDataThrows()
         {
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithIncompatibleData));
 
@@ -729,6 +729,8 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void TestDataWithInternalConstructor_ReturnsSingleFailingTheory()
         {
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+
             var testMessages = Run<IMessageSinkMessage>(typeof(ClassWithCustomDataWithInternalDataCtor));
 
             var types = testMessages.Select(t => t.GetType()).ToList();
