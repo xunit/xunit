@@ -66,18 +66,20 @@ namespace Xunit.Sdk
             {
                 if (IndexFailurePoint >= 0)
                     return string.Format(CultureInfo.CurrentCulture,
-                                         "{0}{3}Error during comparison of item at index {1}{3}Inner exception: {2}",
+                                         "{0}{3}Error during comparison of item at index {1}{3}Inner exception: {2}{3}Actual items: {4}",
                                          base.Message,
                                          IndexFailurePoint,
                                          innerException,
-                                         Environment.NewLine);
+                                         Environment.NewLine,
+                                         ArgumentFormatter.Format(this.ActualElements));
 
                 return string.Format(CultureInfo.CurrentCulture,
-                                     "{0}{3}Expected item count: {1}{3}Actual item count:   {2}",
+                                     "{0}{3}Expected item count: {1}{3}Actual item count:   {2}{3}Actual items: {4}",
                                      base.Message,
                                      ExpectedCount,
                                      ActualCount,
-                                     Environment.NewLine);
+                                     Environment.NewLine,
+                                     ArgumentFormatter.Format(this.ActualElements));
             }
         }
 
