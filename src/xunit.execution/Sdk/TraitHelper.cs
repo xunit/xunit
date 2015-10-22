@@ -30,12 +30,27 @@ namespace Xunit.Sdk
                     continue;
 
                 var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(messageSink, Reflector.Wrap(discovererAttributeData));
-                if (discoverer == null)
+                if (discoverer != null)
+                {
+                    var traits = discoverer.GetTraits(Reflector.Wrap(traitAttributeData));
+                    if (traits != null)
+                        result.AddRange(traits);
                     continue;
+                }
 
-                var traits = discoverer.GetTraits(Reflector.Wrap(traitAttributeData));
-                if (traits != null)
-                    result.AddRange(traits);
+                var methodedDiscoverer = ExtensibilityPointFactory.GetMethodedTraitDiscoverer(messageSink, Reflector.Wrap(discovererAttributeData));
+                if (methodedDiscoverer != null)
+                {
+                    var methodInfo = member as MethodInfo;
+                    if(methodInfo == null)
+                    { continue; }
+
+                    var traits = methodedDiscoverer.GetTraits(Reflector.Wrap(traitAttributeData), Reflector.Wrap(methodInfo));
+                    if (traits != null)
+                        result.AddRange(traits);
+                    continue;
+                }
+
             }
 
             return result;

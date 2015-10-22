@@ -41,7 +41,8 @@ public class TraitHelperTests
 
         Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
             value => Assert.Equal("Baz = 2112", value),
-            value => Assert.Equal("Foo = Biff", value)
+            value => Assert.Equal("Foo = Biff", value),
+            value => Assert.Equal("MethodName = CustomTrait", value)
         );
     }
 
@@ -69,6 +70,7 @@ public class TraitHelperTests
         public void Trait() { }
 
         [CustomTrait]
+        [CustomMethodedTrait]
         public void CustomTrait() { }
 
         [Trait("foo", "bar")]
@@ -80,12 +82,23 @@ public class TraitHelperTests
     [TraitDiscoverer("TraitHelperTests+CustomTraitDiscoverer", "test.xunit.execution")]
     class CustomTraitAttribute : Attribute, ITraitAttribute { }
 
+    [TraitDiscoverer("TraitHelperTests+CustomMethodedTraitDiscoverer", "test.xunit.execution")]
+    class CustomMethodedTraitAttribute : Attribute, ITraitAttribute { }
+
     class CustomTraitDiscoverer : ITraitDiscoverer
     {
         public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
         {
             yield return new KeyValuePair<string, string>("Foo", "Biff");
             yield return new KeyValuePair<string, string>("Baz", "2112");
+        }
+    }
+
+    class CustomMethodedTraitDiscoverer : IMethodedTraitDiscoverer
+    {
+        public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute, IMethodInfo method)
+        {
+            yield return new KeyValuePair<string, string>("MethodName", method.Name);
         }
     }
 }

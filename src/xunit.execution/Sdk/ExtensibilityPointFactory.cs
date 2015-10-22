@@ -71,6 +71,26 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Gets an instance of the given type, casting it to <typeparamref name="TInterface"/>, using the provided
+        /// constructor arguments. There is a single instance of a given type that is cached and reused,
+        /// so classes retrieved from this factory must be stateless and thread-safe.
+        /// </summary>
+        /// <typeparam name="TInterface">The interface type.</typeparam>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="type">The implementation type.</param>
+        /// <param name="ctorArgs">The constructor arguments. Since diagnostic message sinks are optional,
+        /// the code first looks for a type that takes the given arguments plus the message sink, and only
+        /// falls back to the message sink-less constructor if none was found.</param>
+        /// <returns>The instance of the type. If <paramref name="type"/> is not assignable to <typeparamref name="TInterface"/> default value of <typeparamref name="TInterface"/> will be returned.</returns>
+        public static TInterface GetOrDefault<TInterface>(IMessageSink diagnosticMessageSink, Type type, object[] ctorArgs = null)
+        {
+            if (!typeof (TInterface).IsAssignableFrom(type))
+                return default(TInterface);
+
+            return (TInterface)instances.GetOrAdd(type, () => CreateInstance(diagnosticMessageSink, type, ctorArgs));
+        }
+
+        /// <summary>
         /// Gets a data discoverer.
         /// </summary>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
@@ -180,7 +200,17 @@ namespace Xunit.Sdk
         /// <param name="traitDiscovererType">The trait discoverer type</param>
         public static ITraitDiscoverer GetTraitDiscoverer(IMessageSink diagnosticMessageSink, Type traitDiscovererType)
         {
-            return Get<ITraitDiscoverer>(diagnosticMessageSink, traitDiscovererType);
+            return GetOrDefault<ITraitDiscoverer>(diagnosticMessageSink, traitDiscovererType);
+        }
+
+        /// <summary>
+        /// Gets a methoded trait discoverer.
+        /// </summary>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="methodedTraitDiscovererType">The methoded trait discoverer type</param>
+        public static IMethodedTraitDiscoverer GetMethodedTraitDiscoverer(IMessageSink diagnosticMessageSink, Type methodedTraitDiscovererType)
+        {
+            return GetOrDefault<IMethodedTraitDiscoverer>(diagnosticMessageSink, methodedTraitDiscovererType);
         }
 
         /// <summary>
@@ -197,6 +227,22 @@ namespace Xunit.Sdk
                 return null;
 
             return GetTraitDiscoverer(diagnosticMessageSink, discovererType);
+        }
+
+        /// <summary>
+        /// Gets a methoded trait discoverer, as specified in a reflected <see cref="TraitDiscovererAttribute"/>.
+        /// </summary>
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        /// <param name="methodedTraitDiscovererAttribute">The methoded trait discoverer attribute.</param>
+        /// <returns>The methoded trait discoverer, if the type is loadable; <c>null</c>, otherwise.</returns>
+        public static IMethodedTraitDiscoverer GetMethodedTraitDiscoverer(IMessageSink diagnosticMessageSink, IAttributeInfo methodedTraitDiscovererAttribute)
+        {
+            var args = methodedTraitDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+            var discovererType = SerializationHelper.GetType(args[1], args[0]);
+            if (discovererType == null)
+                return null;
+
+            return GetMethodedTraitDiscoverer(diagnosticMessageSink, discovererType);
         }
 
         /// <summary>
