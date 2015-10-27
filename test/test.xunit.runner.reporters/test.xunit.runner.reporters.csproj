@@ -37,6 +37,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
@@ -52,6 +53,7 @@
     <Compile Include="..\GlobalTestAssemblyInfo.cs">
       <Link>Properties\GlobalTestAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="JsonReporterMessageHandlerTests.cs" />
     <Compile Include="TeamCityReporterMessageHandlerTests.cs" />
   </ItemGroup>
   <ItemGroup>
