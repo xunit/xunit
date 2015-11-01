@@ -159,7 +159,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 
     public class OnMessage_ITestExecutionSummary
     {
-        [Fact]
+        [CulturedFact("en-US")]
         public void SingleAssembly()
         {
             var clockTime = TimeSpan.FromSeconds(12.3456);
@@ -175,7 +175,7 @@ public class DefaultRunnerReporterMessageHandlerTests
             );
         }
 
-        [Fact]
+        [CulturedFact("en-US")]
         public void MultipleAssemblies()
         {
             var clockTime = TimeSpan.FromSeconds(12.3456);
