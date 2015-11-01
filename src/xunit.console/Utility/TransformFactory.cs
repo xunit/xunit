@@ -60,7 +60,7 @@ namespace Xunit.ConsoleClient
             var xmlTransform = new XslCompiledTransform();
 
             using (var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true }))
-            using (var xsltStream = File.Open(xslPath, FileMode.Open, FileAccess.Read))
+            using (var xsltStream = File.Open(xslPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var xsltReader = XmlReader.Create(xsltStream))
             using (var xmlReader = xml.CreateReader())
             {
