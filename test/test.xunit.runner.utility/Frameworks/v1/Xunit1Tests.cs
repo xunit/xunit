@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Web.UI;
 using NSubstitute;
 using Xunit;
@@ -521,7 +523,9 @@ public class Xunit1Tests
         [Fact]
         public void ExceptionThrownDuringRunTests_ResultsInErrorMessage()
         {
-            using (var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config"))
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
+            using(var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config"))
             {
                 var testCases = new[] {
                     new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing")

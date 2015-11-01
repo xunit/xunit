@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,6 +72,8 @@ public class XunitTestCollectionRunnerTests
         [Fact]
         public static async void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
         {
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
             var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCtorThrowingTestCaseOrderer)), "TestCollectionDisplayName");
             var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposesFixtures", collection);
             var runner = TestableXunitTestCollectionRunner.Create(testCase);

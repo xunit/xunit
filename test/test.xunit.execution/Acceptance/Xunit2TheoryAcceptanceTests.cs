@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -227,6 +229,8 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void IncompatibleDataThrows()
         {
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithIncompatibleData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
@@ -725,6 +729,8 @@ public class Xunit2TheoryAcceptanceTests
         [Fact]
         public void TestDataWithInternalConstructor_ReturnsSingleFailingTheory()
         {
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+
             var testMessages = Run<IMessageSinkMessage>(typeof(ClassWithCustomDataWithInternalDataCtor));
 
             var types = testMessages.Select(t => t.GetType()).ToList();

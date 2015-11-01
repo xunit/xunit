@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -249,6 +250,8 @@ public class XunitTestAssemblyRunnerTests
         [Fact]
         public static void SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
         {
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
             var ordererAttribute = Mocks.TestCaseOrdererAttribute<MyCtorThrowingTestCaseOrderer>();
             var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
@@ -313,6 +316,8 @@ public class XunitTestAssemblyRunnerTests
         [Fact]
         public static void SettingTestCollectionOrdererWithThrowingConstructorLogsDiagnosticMessage()
         {
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
             var ordererAttribute = Mocks.TestCollectionOrdererAttribute<MyCtorThrowingTestCollectionOrderer>();
             var assembly = Mocks.TestAssembly(new[] { ordererAttribute });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);

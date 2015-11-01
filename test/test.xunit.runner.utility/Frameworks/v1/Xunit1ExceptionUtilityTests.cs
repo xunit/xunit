@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Threading;
 using Xunit;
 
 public class Xunit1ExceptionUtilityTests
@@ -6,6 +8,8 @@ public class Xunit1ExceptionUtilityTests
     [Fact]
     public static void CanParseEmbeddedExceptions()
     {
+        Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
         try
         {
             try { throw new DivideByZeroException(); }

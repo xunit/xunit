@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using NSubstitute;
@@ -29,6 +30,8 @@ public class XunitTheoryTestCaseRunnerTests
     [Fact]
     public static async void DiscovererWhichThrowsReturnsASingleFailedTest()
     {
+        Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
         var messageBus = new SpyMessageBus();
         var runner = TestableXunitTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithThrowingData", messageBus, "Display Name");
 
