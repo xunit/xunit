@@ -93,6 +93,7 @@
     </Compile>
     <Compile Include="Common\XunitSerializationInfoTests.cs" />
     <Compile Include="Extensions\ReflectionAbstractionExtensionsTests.cs" />
+    <Compile Include="ArgumentFormatterTests.cs" />
     <Compile Include="Sdk\ArgumentFormatterTests.cs" />
     <Compile Include="Sdk\DefaultTestCaseOrdererTests.cs" />
     <Compile Include="Sdk\ExtensibilityPointFactoryTests.cs" />

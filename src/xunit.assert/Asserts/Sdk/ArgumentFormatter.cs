@@ -172,6 +172,11 @@ namespace Xunit.Sdk
 
             // Strip off generic suffix
             var name = typeInfo.FullName;
+
+            // catch special case of generic parameters not being bound to a specific type:
+            if (name == null)
+                return typeInfo.Name;
+
             var tickIdx = name.IndexOf('`');
             if (tickIdx > 0)
                 name = name.Substring(0, tickIdx);
