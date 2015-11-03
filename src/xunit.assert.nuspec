@@ -22,6 +22,8 @@ Supported platforms:
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
       <group targetFramework="dotnet">
+        <dependency id="System.Linq.Expressions" version="4.0.0" />
+        <dependency id="System.Linq.Queryable" version="4.0.0" />
         <dependency id="System.Collections" version="4.0.0" />
         <dependency id="System.Diagnostics.Debug" version="4.0.0" />
         <dependency id="System.Globalization" version="4.0.0" />
