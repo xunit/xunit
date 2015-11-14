@@ -119,6 +119,7 @@
     <Compile Include="Sdk\Frameworks\XunitTestFrameworkDiscovererTests.cs" />
     <Compile Include="Sdk\MessageBusTests.cs" />
     <Compile Include="Sdk\Frameworks\TheoryDiscovererTests.cs" />
+    <Compile Include="Sdk\Reflection\ReflectionAttributeInfoTests.cs" />
     <Compile Include="Sdk\Reflection\ReflectorTests.cs" />
     <Compile Include="Sdk\SpyMessageSink.cs" />
     <Compile Include="Sdk\SynchronousMessageBusTests.cs" />
