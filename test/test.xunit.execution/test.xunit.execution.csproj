@@ -85,6 +85,7 @@
     <Compile Include="Acceptance\FixtureAcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2AcceptanceTests.cs" />
     <Compile Include="Acceptance\Xunit2TheoryAcceptanceTests.cs" />
+    <Compile Include="Common\AssemblyExtensionsTests.cs" />
     <Compile Include="Common\SerializationHelperTests.cs" />
     <Compile Include="Common\TraitHelperTests.cs" />
     <Compile Include="Common\XmlTestExecutionVisitorTests.cs" />
