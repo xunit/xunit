@@ -30,7 +30,7 @@ namespace Xunit.ConsoleClient
                 {
                     PrintHeader();
                     PrintUsage(reporters);
-                    return 1;
+                    return 2;
                 }
 
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -72,17 +72,17 @@ namespace Xunit.ConsoleClient
                     Console.WriteLine();
                 }
 
-                return failCount;
+                return failCount > 0 ? 1 : 0;
             }
             catch (ArgumentException ex)
             {
                 Console.WriteLine($"error: {ex.Message}");
-                return 1;
+                return 3;
             }
             catch (BadImageFormatException ex)
             {
                 Console.WriteLine(ex.Message);
-                return 1;
+                return 4;
             }
             finally
             {
