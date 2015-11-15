@@ -14,6 +14,13 @@ namespace Xunit
     /// </summary>
     public class Xunit2Discoverer : ITestFrameworkDiscoverer
     {
+#if PLATFORM_DOTNET
+        static readonly string[] SupportedPlatforms = { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
+#else
+        static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
+        static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
+#endif
+
         readonly IAppDomainManager appDomain;
         readonly ITestFrameworkDiscoverer discoverer;
         readonly ITestFramework framework;
@@ -186,9 +193,9 @@ namespace Xunit
         static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport)
         {
 #if PLATFORM_DOTNET
-            return new[] { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
+            return SupportedPlatforms;
 #else
-            return appDomainSupport == AppDomainSupport.Required ? new[] { "desktop" } : new[] { "desktop", "dotnet" };
+            return appDomainSupport == AppDomainSupport.Required ? SupportedPlatforms_ForcedAppDomains : SupportedPlatforms;
 #endif
         }
 
