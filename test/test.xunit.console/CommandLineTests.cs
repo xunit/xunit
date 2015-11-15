@@ -7,6 +7,18 @@ using Xunit.ConsoleClient;
 
 public class CommandLineTests
 {
+    public class UnknownSwitch
+    {
+        [Fact]
+        public static void UnknownSwitchThrows()
+        {
+            var exception = Record.Exception(() => TestableCommandLine.Parse(new[] { "assemblyName.dll", "-unknown" }));
+
+            Assert.IsType<ArgumentException>(exception);
+            Assert.Equal("unknown option: -unknown", exception.Message);
+        }
+    }
+
     public class Filename
     {
         [Fact]

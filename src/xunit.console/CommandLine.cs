@@ -295,6 +295,9 @@ namespace Xunit.ConsoleClient
                     // ...or an result output file
                     else
                     {
+                        if (!TransformFactory.AvailableTransforms.Any(t => t.CommandLine.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
+                            throw new ArgumentException($"unknown option: {option.Key}");
+
                         if (option.Value == null)
                             throw new ArgumentException($"missing filename for {option.Key}");
 
