@@ -125,7 +125,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\..\packages\RefactoringEssentials.1.2.0\analyzers\dotnet\RefactoringEssentials.dll" />
+    <Analyzer Include="..\..\packages\RefactoringEssentials.2.1.0\analyzers\dotnet\RefactoringEssentials.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
