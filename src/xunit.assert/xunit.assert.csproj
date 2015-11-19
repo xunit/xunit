@@ -46,6 +46,7 @@
     <Compile Include="Asserts\CollectionAsserts.cs" />
     <Compile Include="Asserts\Comparers.cs" />
     <Compile Include="Asserts\EqualityAsserts.cs" />
+    <Compile Include="Asserts\EventAsserts.cs" />
     <Compile Include="Asserts\ExceptionAsserts.cs" />
     <Compile Include="Asserts\Guards.cs" />
     <Compile Include="Asserts\Record.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Asserts\Sdk\Exceptions\ProperSubsetException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\ProperSupersetException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\PropertyChangedException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\RaisesException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\SameException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\SingleException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\StartsWithException.cs" />
