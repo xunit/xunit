@@ -53,6 +53,7 @@
     <Compile Include="Asserts\BooleanAssertsTests.cs" />
     <Compile Include="Asserts\CollectionAssertsTests.cs" />
     <Compile Include="Asserts\EqualityAssertsTests.cs" />
+    <Compile Include="Asserts\EventAssertsTests.cs" />
     <Compile Include="Asserts\ExceptionAssertsTests.cs" />
     <Compile Include="Asserts\IdentityAssertsTests.cs" />
     <Compile Include="Asserts\NullAssertsTests.cs" />
