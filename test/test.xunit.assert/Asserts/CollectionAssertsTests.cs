@@ -463,6 +463,49 @@ public class CollectionAssertsTests
         }
     }
 
+    public class EqualSet
+    {
+        [Fact]
+        public static void InOrderSet()
+        {
+            var expected = new HashSet<int> { 1, 2, 3};
+            var actual = new HashSet<int>  { 1, 2, 3 };
+
+            Assert.Equal(expected, actual);
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+        }
+
+        [Fact]
+        public static void OutOfOrderSet()
+        {
+            var expected = new HashSet<int> { 1, 2, 3 };
+            var actual = new HashSet<int> { 2, 3, 1 };
+
+            Assert.Equal(expected, actual);
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+        }
+
+        [Fact]
+        public static void ExpectedLarger()
+        {
+            var expected = new HashSet<int> { 1, 2, 3 };
+            var actual = new HashSet<int> { 1, 2};
+
+            Assert.NotEqual(expected, actual);
+            Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+        }
+
+        [Fact]
+        public static void ActualLarger()
+        {
+            var expected = new HashSet<int> { 1, 2};
+            var actual = new HashSet<int> { 1, 2, 3 };
+
+            Assert.NotEqual(expected, actual);
+            Assert.Throws<EqualException>(() => Assert.Equal(expected, actual));
+        }
+    }
+
     public class Equal_WithComparer
     {
         [Fact]

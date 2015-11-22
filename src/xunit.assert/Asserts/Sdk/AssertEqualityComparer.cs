@@ -71,6 +71,11 @@ namespace Xunit.Sdk
             if (dictionariesEqual.HasValue)
                 return dictionariesEqual.GetValueOrDefault();
 
+            // Sets?
+            var setsEqual = CheckIfSetsAreEqual(x, y, typeInfo);
+            if (setsEqual.HasValue)
+                return setsEqual.GetValueOrDefault();
+
             // Enumerable?
             var enumerablesEqual = CheckIfEnumerablesAreEqual(x, y);
             if (enumerablesEqual.HasValue)
@@ -147,6 +152,38 @@ namespace Xunit.Sdk
             }
 
             return dictionaryYKeys.Count == 0;
+        }
+
+        bool? CheckIfSetsAreEqual(T x, T y, TypeInfo typeInfo)
+        {
+            if (!IsSet(typeInfo))
+                return null;
+
+            var enumX = x as IEnumerable;
+            var enumY = y as IEnumerable;
+            if (enumX == null || enumY == null)
+                return null;
+
+            var elementType = typeof(T).GenericTypeArguments[0];
+            MethodInfo method = GetType().GetTypeInfo().GetDeclaredMethod("CompareTypedSets");
+            method = method.MakeGenericMethod(new Type[] { elementType });
+            return (bool)method.Invoke(this, new object[] { enumX, enumY });
+        }
+
+        bool CompareTypedSets<R>(IEnumerable enumX, IEnumerable enumY)
+        {
+            var setX = new HashSet<R>(enumX.Cast<R>());
+            var setY = new HashSet<R>(enumY.Cast<R>());
+            return setX.SetEquals(setY);
+        }
+
+        bool IsSet(TypeInfo typeInfo)
+        {
+            return typeInfo.ImplementedInterfaces
+                .Select(i => i.GetTypeInfo())
+                .Where(ti => ti.IsGenericType)
+                .Select(ti => ti.GetGenericTypeDefinition())
+                .Contains(typeof(ISet<>).GetGenericTypeDefinition());
         }
 
         /// <inheritdoc/>
