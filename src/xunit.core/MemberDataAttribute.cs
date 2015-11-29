@@ -11,6 +11,7 @@ namespace Xunit
     /// 2. A static field
     /// 3. A static method (with parameters)
     /// The member must return something compatible with IEnumerable&lt;object[]&gt; with the test data.
+    /// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
     /// </summary>
     [CLSCompliant(false)]
     [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]
