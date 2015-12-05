@@ -78,8 +78,8 @@ namespace Xunit.Sdk
                         var convertedDataRow = Reflector.ConvertArguments(dataRow, parameterTypes);
                         var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
                         var test = new XunitTest(TestCase, theoryDisplayName);
-
-                        testRunners.Add(new XunitTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, SkipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
+                        var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip");
+                        testRunners.Add(new XunitTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
                     }
                 }
             }

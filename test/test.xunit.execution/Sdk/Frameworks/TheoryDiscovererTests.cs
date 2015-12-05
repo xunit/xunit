@@ -97,6 +97,28 @@ public class TheoryDiscovererTests : AcceptanceTestV2
     }
 
     [Fact]
+    public void DiscoverOptions_PreEnumerateTheoriesSetToTrueWithSkipOnData_YieldsSkippedTestCasePerDataRow()
+    {
+        discoveryOptions.SetPreEnumerateTheories(true);
+        var discoverer = TestableTheoryDiscoverer.Create();
+        var testMethod = Mocks.TestMethod(typeof(MultipleDataClassSkipped), "TheoryMethod");
+        var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
+
+        var testCases = discoverer.Discover(discoveryOptions, testMethod, factAttribute).ToList();
+
+        Assert.Equal(2, testCases.Count);
+        Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClassSkipped.TheoryMethod(x: 42)" && testCase.SkipReason == "Skip this attribute");
+        Assert.Single(testCases, testCase => testCase.DisplayName == "TheoryDiscovererTests+MultipleDataClassSkipped.TheoryMethod(x: 2112)" && testCase.SkipReason == "Skip this attribute");
+
+    }
+
+    class MultipleDataClassSkipped
+    {
+        [Theory, MultipleDataAttribute(Skip = "Skip this attribute")]
+        public void TheoryMethod(int x) { }
+    }
+
+    [Fact]
     public void ThrowingData()
     {
         var discoverer = TestableTheoryDiscoverer.Create();

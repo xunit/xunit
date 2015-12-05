@@ -58,6 +58,21 @@ namespace Xunit.Sdk
             => new XunitTheoryTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
 
         /// <summary>
+        /// Creates a test case for a single row of data. By default, returns an instance of <see cref="XunitSkippedDataRowTestCase"/>
+        /// with the data row inside of it.
+        /// </summary>
+        /// <remarks>If this method is overridden, the implementation will have to override <see cref="TestMethodTestCase.SkipReason"/> otherwise
+        /// the default behavior will look at the <see cref="TheoryAttribute"/> and the test case will not be skipped.</remarks>
+        /// <param name="discoveryOptions">The discovery options to be used.</param>
+        /// <param name="testMethod">The test method the test cases belong to.</param>
+        /// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
+        /// <param name="dataRow">The row of data for this test case.</param>
+        /// <param name="skipReason">The reason this test case is to be skipped</param>
+        /// <returns>The test case</returns>
+        protected virtual IXunitTestCase CreateTestCaseForSkippedDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow, string skipReason)
+            => new XunitSkippedDataRowTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, skipReason, dataRow);
+
+        /// <summary>
         /// Discover test cases from a test method.
         /// </summary>
         /// <remarks>
@@ -65,7 +80,7 @@ namespace Xunit.Sdk
         /// - If the theory attribute is marked with Skip, returns the single test case from <see cref="CreateTestCaseForSkip"/>;
         /// - If pre-enumeration is off, or any of the test data is non serializable, returns the single test case from <see cref="CreateTestCaseForTheory"/>;
         /// - If there is no theory data, returns a single test case of <see cref="ExecutionErrorTestCase"/> with the error in it;
-        /// - Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCaseForDataRow"/>.
+        /// - Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCaseForDataRow"/> or <see cref="CreateTestCaseForSkippedDataRow"/> if the data attribute has a skip reason.
         /// </remarks>
         /// <param name="discoveryOptions">The discovery options to be used.</param>
         /// <param name="testMethod">The test method the test cases belong to.</param>
@@ -90,6 +105,7 @@ namespace Xunit.Sdk
                     {
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                         var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererAttribute);
+
                         if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
                             return new[] { CreateTestCaseForTheory(discoveryOptions, testMethod, theoryAttribute) };
 
@@ -103,7 +119,10 @@ namespace Xunit.Sdk
                             if (!SerializationHelper.IsSerializable(dataRow))
                                 return new[] { CreateTestCaseForTheory(discoveryOptions, testMethod, theoryAttribute) };
 
-                            var testCase = CreateTestCaseForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow);
+                            skipReason = dataAttribute.GetNamedArgument<string>("Skip");
+                            var testCase = skipReason != null ? 
+                                CreateTestCaseForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, skipReason)
+                                : CreateTestCaseForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow);
                             results.Add(testCase);
                         }
                     }

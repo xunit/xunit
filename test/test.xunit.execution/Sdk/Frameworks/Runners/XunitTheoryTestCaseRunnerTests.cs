@@ -59,6 +59,27 @@ public class XunitTheoryTestCaseRunnerTests
         Assert.True(ClassUnderTest.DataWasDisposed);
     }
 
+    [Fact]
+    public static async void OnlySkipsDataRowsWithSkipReason()
+    {
+        var messageBus = new SpyMessageBus();
+        var runner = TestableXunitTheoryTestCaseRunner.Create<ClassUnderTest>("TestWithSomeDataSkipped", messageBus, "Display Name");
+
+        var summary = await runner.RunAsync();
+
+        Assert.NotEqual(0m, summary.Time);
+        Assert.Equal(4, summary.Total);
+        Assert.Equal(2, summary.Skipped);
+        Assert.Equal(1, summary.Failed);
+        var passed = messageBus.Messages.OfType<ITestPassed>().Single();
+        Assert.Equal($"Display Name(x: 1, y: {2.1}, z: \"not skipped\")", passed.Test.DisplayName);
+        var failed = messageBus.Messages.OfType<ITestFailed>().Single();
+        Assert.Equal("Display Name(x: 0, y: 0, z: \"also not skipped\")", failed.Test.DisplayName);
+
+        Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == $"Display Name(x: 42, y: {21.12}, z: \"Hello\")");
+        Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == "Display Name(x: 0, y: 0, z: \"World!\")");
+    }
+
     class ClassUnderTest
     {
         public static bool DataWasDisposed;
@@ -95,6 +116,15 @@ public class XunitTheoryTestCaseRunnerTests
         public void TestWithDisposableData(IDisposable x)
         {
             Assert.True(false);
+        }
+
+        [Theory]
+        [InlineData(1, 2.1, "not skipped")]
+        [MemberData("SomeData", Skip = "Skipped")]
+        [InlineData(0, 0.0, "also not skipped")]
+        public void TestWithSomeDataSkipped(int x, double y, string z)
+        {
+            Assert.NotEqual(x, 0);
         }
 
         public static IEnumerable<object[]> ThrowingData
