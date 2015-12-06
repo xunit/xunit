@@ -130,6 +130,9 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         var testCase = Assert.Single(testCases);
         var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
         Assert.Equal("TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData", theoryTestCase.DisplayName);
+        var message = Assert.Single(discoverer.DiagnosticMessages);
+        var diagnostic = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
+        Assert.StartsWith($"Exception thrown during theory discovery on 'TheoryDiscovererTests+ThrowingDataClass.TheoryWithMisbehavingData'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
     }
 
     public class ThrowingDataAttribute : DataAttribute
@@ -173,6 +176,9 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         var testCase = Assert.Single(testCases);
         var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
         Assert.Equal("TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod", theoryTestCase.DisplayName);
+        var message = Assert.Single(discoverer.DiagnosticMessages);
+        var diagnostic = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
+        Assert.Equal("Non-serializable data ('System.Object[]') found for 'TheoryDiscovererTests+NonSerializableDataClass.TheoryMethod'; falling back to single test case.", diagnostic.Message);
     }
 
     public class NonSerializableDataAttribute : DataAttribute
@@ -298,11 +304,18 @@ public class TheoryDiscovererTests : AcceptanceTestV2
 
     class TestableTheoryDiscoverer : TheoryDiscoverer
     {
-        public TestableTheoryDiscoverer(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink) { }
+        public List<IMessageSinkMessage> DiagnosticMessages;
+
+        public TestableTheoryDiscoverer(List<IMessageSinkMessage> diagnosticMessages)
+            : base(SpyMessageSink.Create(messages: diagnosticMessages))
+        {
+            DiagnosticMessages = diagnosticMessages;
+        }
 
         public static TestableTheoryDiscoverer Create()
         {
-            return new TestableTheoryDiscoverer(SpyMessageSink.Create());
+            var messages = new List<IMessageSinkMessage>();
+            return new TestableTheoryDiscoverer(new List<IMessageSinkMessage>());
         }
     }
 }

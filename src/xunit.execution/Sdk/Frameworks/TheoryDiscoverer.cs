@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -105,6 +106,7 @@ namespace Xunit.Sdk
                     {
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                         var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererAttribute);
+                        skipReason = dataAttribute.GetNamedArgument<string>("Skip");
 
                         if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
                             return new[] { CreateTestCaseForTheory(discoveryOptions, testMethod, theoryAttribute) };
@@ -117,12 +119,16 @@ namespace Xunit.Sdk
                             // identify a test and serialization is the best way to do that. If it's not serializable,
                             // this will throw and we will fall back to a single theory test case that gets its data at runtime.
                             if (!SerializationHelper.IsSerializable(dataRow))
+                            {
+                                diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Non-serializable data ('{dataRow.GetType().FullName}') found for '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case."));
                                 return new[] { CreateTestCaseForTheory(discoveryOptions, testMethod, theoryAttribute) };
+                            }
 
-                            skipReason = dataAttribute.GetNamedArgument<string>("Skip");
-                            var testCase = skipReason != null ? 
-                                CreateTestCaseForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, skipReason)
-                                : CreateTestCaseForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow);
+                            var testCase =
+                                skipReason != null
+                                    ? CreateTestCaseForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, skipReason)
+                                    : CreateTestCaseForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow);
+
                             results.Add(testCase);
                         }
                     }
@@ -135,7 +141,10 @@ namespace Xunit.Sdk
 
                     return results;
                 }
-                catch { }  // If something goes wrong, fall through to return just the XunitTestCase
+                catch (Exception ex)    // If something goes wrong, fall through to return just the XunitTestCase
+                {
+                    diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown during theory discovery on '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}'; falling back to single test case.{Environment.NewLine}{ex}"));
+                }
             }
 
             return new[] { CreateTestCaseForTheory(discoveryOptions, testMethod, theoryAttribute) };
