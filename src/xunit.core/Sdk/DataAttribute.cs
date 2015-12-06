@@ -8,6 +8,7 @@ namespace Xunit.Sdk
     /// Abstract attribute which represents a data source for a data theory.
     /// Data source providers derive from this attribute and implement GetData
     /// to return the data for the theory.
+    /// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
     /// </summary>
     [DataDiscoverer("Xunit.Sdk.DataDiscoverer", "xunit.core")]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]

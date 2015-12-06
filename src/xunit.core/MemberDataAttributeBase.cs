@@ -9,6 +9,7 @@ namespace Xunit
     /// <summary>
     /// Provides a base class for attributes that will provide member data. The member data must return
     /// something compatible with <see cref="IEnumerable&lt;Object&gt;"/>.
+    /// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
     /// </summary>
     [CLSCompliant(false)]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
