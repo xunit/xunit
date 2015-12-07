@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -74,8 +75,7 @@ namespace Xunit.Sdk
             DisplayName = GetDisplayName(factAttribute, baseDisplayName);
             SkipReason = GetSkipReason(factAttribute);
 
-            foreach (var traitAttribute in TestMethod.Method.GetCustomAttributes(typeof(ITraitAttribute))
-                                                            .Concat(TestMethod.TestClass.Class.GetCustomAttributes(typeof(ITraitAttribute))))
+            foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
             {
                 var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
                 if (discovererAttribute != null)
@@ -84,10 +84,21 @@ namespace Xunit.Sdk
                     if (discoverer != null)
                         foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
                             Traits.Add(keyValuePair.Key, keyValuePair.Value);
+                    var methodedDiscoverer = ExtensibilityPointFactory.GetMethodedTraitDiscoverer(diagnosticMessageSink, discovererAttribute);
+                    if (methodedDiscoverer != null)
+                        foreach (var keyValuePair in methodedDiscoverer.GetTraits(traitAttribute, TestMethod.Method))
+                            Traits.Add(keyValuePair.Key, keyValuePair.Value);
                 }
                 else
                     diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]"));
             }
+        }
+
+        static IEnumerable<IAttributeInfo> GetTraitAttributesData(ITestMethod testMethod)
+        {
+            return testMethod.TestClass.Class.Assembly.GetCustomAttributes(typeof(ITraitAttribute))
+                .Concat(testMethod.Method.GetCustomAttributes(typeof(ITraitAttribute)))
+                .Concat(testMethod.TestClass.Class.GetCustomAttributes(typeof(ITraitAttribute)));
         }
 
         /// <inheritdoc/>
