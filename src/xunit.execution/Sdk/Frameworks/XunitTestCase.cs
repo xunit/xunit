@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -74,8 +75,7 @@ namespace Xunit.Sdk
             DisplayName = GetDisplayName(factAttribute, baseDisplayName);
             SkipReason = GetSkipReason(factAttribute);
 
-            foreach (var traitAttribute in TestMethod.Method.GetCustomAttributes(typeof(ITraitAttribute))
-                                                            .Concat(TestMethod.TestClass.Class.GetCustomAttributes(typeof(ITraitAttribute))))
+            foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
             {
                 var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
                 if (discovererAttribute != null)
@@ -88,6 +88,13 @@ namespace Xunit.Sdk
                 else
                     diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]"));
             }
+        }
+
+        static IEnumerable<IAttributeInfo> GetTraitAttributesData(ITestMethod testMethod)
+        {
+            return testMethod.TestClass.Class.Assembly.GetCustomAttributes(typeof(ITraitAttribute))
+                .Concat(testMethod.Method.GetCustomAttributes(typeof(ITraitAttribute)))
+                .Concat(testMethod.TestClass.Class.GetCustomAttributes(typeof(ITraitAttribute)));
         }
 
         /// <inheritdoc/>

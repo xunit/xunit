@@ -46,6 +46,11 @@ public class TestCaseSerializerTests
             Assert.Collection(result.Traits.Keys,
                 key =>
                 {
+                    Assert.Equal("Assembly", key);
+                    Assert.Equal("Trait", Assert.Single(result.Traits[key]));
+                }, 
+                key =>
+                {
                     Assert.Equal("name", key);
                     Assert.Equal("value", Assert.Single(result.Traits[key]));
                 });
@@ -107,6 +112,11 @@ public class TestCaseSerializerTests
             Assert.Equal(testCase.SkipReason, result.SkipReason);
             Assert.Null(result.TestMethodArguments);
             Assert.Collection(result.Traits.Keys,
+                key =>
+                {
+                    Assert.Equal("Assembly", key);
+                    Assert.Equal("Trait", Assert.Single(result.Traits[key]));
+                },
                 key =>
                 {
                     Assert.Equal("name", key);

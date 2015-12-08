@@ -60,6 +60,7 @@
     <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs">
       <Link>Sdk\AssertEqualityComparerAdapter.cs</Link>
     </Compile>
+    <Compile Include="AssemblyTraitAttribute.cs" />
     <Compile Include="ClassDataAttribute.cs" />
     <Compile Include="CollectionAttribute.cs" />
     <Compile Include="CollectionBehavior.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="MemberDataAttributeBase.cs" />
     <Compile Include="Extensions\PropertyDataAttribute.cs" />
     <Compile Include="Record.cs" />
+    <Compile Include="Sdk\AssemblyTraitDiscoverer.cs" />
     <Compile Include="Sdk\BeforeAfterTestAttribute.cs" />
     <Compile Include="Sdk\DataAttribute.cs" />
     <Compile Include="Sdk\MemberDataDiscoverer.cs" />
