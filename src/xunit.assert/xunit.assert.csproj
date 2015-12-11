@@ -87,6 +87,7 @@
     <Compile Include="Asserts\Sdk\Exceptions\SubsetException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\SupersetException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\ThrowsException.cs" />
+    <Compile Include="Asserts\Sdk\Exceptions\ImplyException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\TrueException.cs" />
     <Compile Include="Asserts\Sdk\Exceptions\XunitException.cs" />
     <Compile Include="Asserts\IdentityAsserts.cs" />

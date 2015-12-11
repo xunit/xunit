@@ -85,4 +85,26 @@ public class BooleanAssertsTests
                          "Actual:   False", ex.Message);
         }
     }
+
+    public class Imply
+    {
+        [Fact]
+        public static void AssertImply()
+        {
+            Assert.Imply(true, true);
+            Assert.Imply(false, true);
+            Assert.Imply(false, false);
+        }
+
+        [Fact]
+        public static void ThrowsExceptionWhenTrueImpliesFalse()
+        {
+            var ex = Record.Exception(() => Assert.Imply(true, false));
+
+            Assert.IsType<ImplyException>(ex);
+            Assert.Equal("Assert.Imply() Failure" + Environment.NewLine +
+                         "Expected: Implies" + Environment.NewLine +
+                         "Actual:   Does not imply", ex.Message);
+        }
+    }
 }
