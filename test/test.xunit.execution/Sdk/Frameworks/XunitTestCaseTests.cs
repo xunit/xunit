@@ -69,6 +69,11 @@ public class XunitTestCaseTests
                 passingTest => Assert.Collection(passingTest.TestCase.Traits.OrderBy(x => x.Key),
                     namedTrait =>
                     {
+                        Assert.Equal("Assembly", namedTrait.Key);
+                        Assert.Collection(namedTrait.Value, value => Assert.Equal("Trait", value));
+                    },
+                    namedTrait =>
+                    {
                         Assert.Equal("Author", namedTrait.Key);
                         Assert.Collection(namedTrait.Value, value => Assert.Equal("Some Schmoe", value));
                     },
