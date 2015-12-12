@@ -8,6 +8,7 @@ namespace Xunit
     /// <summary>
     /// Provides a data source for a data theory, with the data coming from a class
     /// which must implement IEnumerable&lt;object[]&gt;.
+    /// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class ClassDataAttribute : DataAttribute
