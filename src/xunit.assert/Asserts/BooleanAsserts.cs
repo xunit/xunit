@@ -89,5 +89,29 @@ namespace Xunit
             if (!condition.HasValue || !condition.GetValueOrDefault())
                 throw new TrueException(userMessage, condition);
         }
+
+         /// <summary>
+        /// Verifies that an expression is true.
+        /// </summary>
+        /// <param name="ifCondition">The necessary condition to be inspected</param>
+        /// <param name="thenCondition">The sufficient condition to be inspected</param>
+        /// <exception cref="ImplyException">Thrown when the condition is false</exception>
+        public static void Imply(bool ifCondition, bool thenCondition)
+        {
+            Imply(ifCondition, thenCondition, null);
+        }
+
+        /// <summary>
+        /// Verifies that an expression is true.
+        /// </summary>
+        /// <param name="ifCondition">The necessary condition to be inspected</param>
+        /// <param name="thenCondition">The sufficient condition to be inspected</param>
+        /// <param name="userMessage">The message to be shown when the implication is not valid</param>
+        /// <exception cref="ImplyException">Thrown when the condition is false</exception>
+        public static void Imply(bool ifCondition, bool thenCondition, string userMessage)
+        {
+            if (ifCondition && !thenCondition)
+                throw new ImplyException(userMessage);
+        }
     }
 }
