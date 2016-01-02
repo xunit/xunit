@@ -61,7 +61,7 @@ namespace Xunit.ConsoleClient
 
                 var failCount = RunProject(commandLine.Project, commandLine.Serialize, commandLine.ParallelizeAssemblies,
                                            commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
-                                           commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.NoAppDomain,
+                                           commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.AppDomain,
                                            commandLine.FailSkips);
 
                 if (commandLine.Wait)
@@ -164,6 +164,10 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -nologo                : do not show the copyright message");
             Console.WriteLine("  -nocolor               : do not output results with colors");
             Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
+            Console.WriteLine("  -appdomain             : set app domain based on option");
+            Console.WriteLine("                         :   ifavailable - only use app domains if they are available");
+            Console.WriteLine("                         :   required    - use app domains to run tests");
+            Console.WriteLine("                         :   denied      - do not use app domains to run tests");
             Console.WriteLine("  -failskips             : convert skipped tests into failures");
             Console.WriteLine("  -parallel option       : set parallelization based on option");
             Console.WriteLine("                         :   none        - turn off all parallelization");
@@ -218,7 +222,7 @@ namespace Xunit.ConsoleClient
                               int? maxThreadCount,
                               bool diagnosticMessages,
                               bool noColor,
-                              bool noAppDomain,
+                              AppDomainSupport? appDomain,
                               bool failSkips)
         {
             XElement assembliesElement = null;
@@ -239,7 +243,7 @@ namespace Xunit.ConsoleClient
             {
                 if (parallelizeAssemblies.GetValueOrDefault())
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters)));
+                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomain, failSkips, project.Filters)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -248,7 +252,7 @@ namespace Xunit.ConsoleClient
                 {
                     foreach (var assembly in project.Assemblies)
                     {
-                        var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters);
+                        var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomain, failSkips, project.Filters);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -275,7 +279,7 @@ namespace Xunit.ConsoleClient
                                         int? maxThreadCount,
                                         bool diagnosticMessages,
                                         bool noColor,
-                                        bool noAppDomain,
+                                        AppDomainSupport? appDomain,
                                         bool failSkips,
                                         XunitFilters filters)
         {
@@ -293,8 +297,8 @@ namespace Xunit.ConsoleClient
                 assembly.Configuration.PreEnumerateTheories = false;
                 assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
 
-                if (noAppDomain)
-                    assembly.Configuration.AppDomain = AppDomainSupport.Denied;
+                if (appDomain.HasValue)
+                    assembly.Configuration.AppDomain = appDomain.Value;
 
                 // Setup discovery and execution options with command-line overrides
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);

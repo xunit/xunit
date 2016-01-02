@@ -32,7 +32,27 @@ namespace Xunit.ConsoleClient
 
         public int? MaxParallelThreads { get; set; }
 
-        public bool NoAppDomain { get; protected set; }
+        [Obsolete("Use AppDomain instead.")]
+        public bool NoAppDomain
+        {
+            get
+            {
+                return AppDomain.HasValue && AppDomain.Value == AppDomainSupport.Denied;
+            }
+            protected set
+            {
+                if (value)
+                {
+                    AppDomain = AppDomainSupport.Denied;
+                }
+                else
+                {
+                    AppDomain = null;
+                }
+            }
+        }
+
+        public AppDomainSupport? AppDomain { get; protected set; }
 
         public bool NoColor { get; protected set; }
 
@@ -149,7 +169,36 @@ namespace Xunit.ConsoleClient
                 else if (optionName == "noappdomain")
                 {
                     GuardNoOptionValue(option);
+#pragma warning disable 0618
                     NoAppDomain = true;
+#pragma warning restore 0618
+                }
+                else if (optionName == "appdomain")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -appdomain");
+
+                    AppDomainOption appDomainOption;
+                    if (!Enum.TryParse<AppDomainOption>(option.Value, out appDomainOption))
+                        throw new ArgumentException("incorrect argument value for -appdomain");
+
+                    switch (appDomainOption)
+                    {
+                        case AppDomainOption.ifavailable:
+                            AppDomain = AppDomainSupport.IfAvailable;
+                            break;
+
+                        case AppDomainOption.required:
+                            AppDomain = AppDomainSupport.Required;
+                            break;
+
+                        case AppDomainOption.denied:
+                            AppDomain = AppDomainSupport.Denied;
+                            break;
+                            
+                        default:
+                            throw new ArgumentException("incorrect argument value for -appdomain");
+                    }
                 }
                 else if (optionName == "debug")
                 {

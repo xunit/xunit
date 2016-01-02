@@ -236,6 +236,68 @@ public class CommandLineTests
         }
     }
 
+    public class NoAppDomainOption
+    {
+        [Fact]
+        public static void NoAppDomainNotSetNoAppDomainIsFalseAndAppDomainIsNull()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll");
+
+            Assert.False(commandLine.NoAppDomain);
+            Assert.Null(commandLine.AppDomain);
+        }
+
+        [Fact]
+        public static void NoAppDomainSetNoAppDomainIsTrueAndAppDomainIsDenied()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-noappdomain");
+
+            Assert.True(commandLine.NoAppDomain);
+            Assert.Equal(AppDomainSupport.Denied, commandLine.AppDomain);
+        }
+    }
+
+    public class AppDomainOption
+    {
+        [Fact]
+        public static void NotSetDefaultValueIsNull()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll");
+
+            Assert.Null(commandLine.AppDomain);
+        }
+
+        [Fact]
+        public static void MissingValue()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-appdomain"));
+
+            Assert.Equal("missing argument for -appdomain", ex.Message);
+        }
+
+        [Theory]
+        [InlineData("foo")]
+        [InlineData("bar")]
+        public static void InvalidValues(string value)
+        {
+            var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-appdomain", value));
+
+            Assert.Equal("incorrect argument value for -appdomain", ex.Message);
+        }
+
+        [Theory]
+        [InlineData("ifavailable", AppDomainSupport.IfAvailable)]
+        [InlineData("required", AppDomainSupport.Required)]
+        [InlineData("denied", AppDomainSupport.Denied)]
+        public static void ValidValues(string value, AppDomainSupport expected)
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName", "-appdomain", value);
+
+            Assert.True(commandLine.AppDomain.HasValue);
+            Assert.Equal(expected, commandLine.AppDomain.Value);
+        }
+    }
+
     public class NoLogoOption
     {
         [Fact]
