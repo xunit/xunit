@@ -1,5 +1,6 @@
 # Before you file a bug...
 
+* Is this a question? Ask it on our [Slack server](https://xunit.slack.com) instead. (Not a member? It's easy [to sign up](https://xunit-slackin.herokuapp.com/).)
 * Did you [read the documentation](https://xunit.github.io/)?
 * Did you search the issues list to see if someone already reported it?
 * Did you create a simple repro for the problem?
