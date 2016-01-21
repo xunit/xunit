@@ -41,7 +41,7 @@ namespace Xunit.Runner.Reporters
                             request.Content.Headers.ContentType = jsonMediaType;
                             request.Headers.Accept.Add(jsonMediaType);
 
-                            using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                            using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                             {
                                 var response = await client.SendAsync(request, tcs.Token);
                                 if (!response.IsSuccessStatusCode)
