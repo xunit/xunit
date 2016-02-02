@@ -111,59 +111,80 @@ public class PropertyAssertsTests
             Assert.Equal("testCode", ex2.ParamName);
         }
 
-        [Fact]
-        public async void ExceptionThrownWhenPropertyNotChanged()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("New Value")]
+        public async void ExceptionThrownWhenPropertyNotChanged(string expectedValue)
         {
             var obj = new NotifiedClass();
 
             var ex = await Record.ExceptionAsync(
-                () => Assert.PropertyChangedAsync(obj, "Property1", async () => { })
+                () => Assert.PropertyChangedAsync(obj, "Property1", async () => { }, expectedValue)
             );
 
             Assert.IsType<PropertyChangedException>(ex);
             Assert.Equal("Assert.PropertyChanged failure: Property Property1 was not set", ex.Message);
         }
 
-        [Fact]
-        public async void ExceptionThrownWhenWrongPropertyChangedAsync()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("New Value")]
+        public async void ExceptionThrownWhenWrongPropertyChangedAsync(string expectedValue)
         {
             var obj = new NotifiedClass();
 
             var ex = await Record.ExceptionAsync(
-                () => Assert.PropertyChangedAsync(obj, "Property1", async () => obj.Property2 = 42)
+                () => Assert.PropertyChangedAsync(obj, "Property1", async () => obj.Property2 = 42, expectedValue)
             );
 
             Assert.IsType<PropertyChangedException>(ex);
             Assert.Equal("Assert.PropertyChanged failure: Property Property1 was not set", ex.Message);
         }
 
-        [Fact]
-        public async void NoExceptionThrownWhenPropertyChangedAsync()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("New Value")]
+        public async void NoExceptionThrownWhenPropertyChangedAsync(string expectedValue)
         {
             var obj = new NotifiedClass();
 
             var ex = await Record.ExceptionAsync(
-                () => Assert.PropertyChangedAsync(obj, "Property1", async () => obj.Property1 = "NewValue")
+                () => Assert.PropertyChangedAsync(obj, "Property1", async () => obj.Property1 = "New Value", expectedValue)
             );
 
             Assert.Null(ex);
         }
 
-        [Fact]
-        public async void NoExceptionThrownWhenMultiplePropertyChangesIncludesCorrectProperty()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("New Value")]
+        public async void NoExceptionThrownWhenMultiplePropertyChangesIncludesCorrectProperty(string expectedValue)
         {
             var obj = new NotifiedClass();
 
             var ex = await Record.ExceptionAsync(
                 () => Assert.PropertyChangedAsync(obj, "Property1", async () =>
-                      {
-                          obj.Property2 = 12;
-                          obj.Property1 = "New Value";
-                          obj.Property2 = 42;
-                      })
+                {
+                    obj.Property2 = 12;
+                    obj.Property1 = "New Value";
+                    obj.Property2 = 42;
+                }, expectedValue)
             );
 
             Assert.Null(ex);
+        }
+
+        [Fact]
+        public async void ExceptionThrownWhenPropertyChangedToUnexpectedValue()
+        {
+            var obj = new NotifiedClass();
+
+            var ex = await Record.ExceptionAsync(
+                () =>
+                    Assert.PropertyChangedAsync(obj, "Property1", async () => obj.Property1 = "Unexpected Value", "Expected Value"));
+
+            Assert.IsType<PropertyChangedException>(ex);
+            Assert.Equal("Assert.PropertyChanged failure: Property Property1 was not set to expected value Expected Value", ex.Message);
         }
     }
 
