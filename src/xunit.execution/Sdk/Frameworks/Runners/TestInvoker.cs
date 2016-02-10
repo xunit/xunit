@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Security;
 using System.Threading;
@@ -209,7 +210,8 @@ namespace Xunit.Sdk
                     () => Timer.AggregateAsync(
                         async () =>
                         {
-                            var parameterCount = TestMethod.GetParameters().Length;
+                            ParameterInfo[] parameters = TestMethod.GetParameters();
+                            var parameterCount = parameters.Length;
                             var valueCount = TestMethodArguments == null ? 0 : TestMethodArguments.Length;
                             if (parameterCount != valueCount)
                             {
@@ -221,6 +223,12 @@ namespace Xunit.Sdk
                             }
                             else
                             {
+                                for (int i = 0; i < parameterCount; i++)
+                                {
+                                    if (TestMethodArguments[i] != null && parameters[i].ParameterType != TestMethodArguments[i].GetType())
+                                        TestMethodArguments[i] = Cast(TestMethodArguments[i], parameters[i].ParameterType);
+                                }
+
                                 var result = CallTestMethod(testClassInstance);
                                 var task = result as Task;
                                 if (task != null)
@@ -247,5 +255,8 @@ namespace Xunit.Sdk
         [SecuritySafeCritical]
         static void SetSynchronizationContext(SynchronizationContext context)
             => SynchronizationContext.SetSynchronizationContext(context);
+
+        static object Cast(object value, Type targetType)
+            => Expression.Lambda<Func<object>>(Expression.Convert(Expression.Constant(value), targetType)).Compile()();
     }
 }
