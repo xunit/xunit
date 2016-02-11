@@ -254,6 +254,20 @@ namespace Xunit.Sdk
             => SynchronizationContext.SetSynchronizationContext(context);
 
         static object Cast(object value, Type targetType)
-            => value == null || value.GetType() == targetType ? value : Expression.Lambda<Func<object>>(Expression.Convert(Expression.Constant(value), targetType)).Compile()();
+        {
+            if (value == null || value.GetType() == targetType)
+                return value;
+            else try
+                {
+                    if (targetType.GetTypeInfo().IsValueType)
+                        return Expression.Lambda<Func<object>>(Expression.Convert(Expression.Convert(Expression.Constant(value), targetType), typeof(object))).Compile()();
+                    else
+                        return Expression.Lambda<Func<object>>(Expression.Convert(Expression.Constant(value), targetType)).Compile()();
+                }
+                catch
+                {
+                    return value;
+                }
+        }
     }
 }
