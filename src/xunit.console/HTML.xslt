@@ -47,6 +47,9 @@
         <h3 class="divided">
           <b>Assemblies Run</b>
         </h3>
+        <div>
+          <xsl:value-of select="//assemblies/@timestamp"/>
+        </div>
         <xsl:apply-templates select="//assembly"/>
         <h3 class="divided">
           <b>Summary</b>
