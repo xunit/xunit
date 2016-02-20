@@ -26,3 +26,5 @@
 *.xunit text
 
 *.sln text eol=crlf merge=union 
+
+.gitmodules text eol=lf
