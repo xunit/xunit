@@ -275,6 +275,13 @@ namespace Xunit
             for (var idx = 0; idx < value.Length; ++idx)
                 if (value[idx] < 32)
                     escapedValue.Append($"\\x{((byte)value[idx]).ToString("x2")}");
+                else if (char.IsSurrogatePair(value, idx))
+                {
+                    escapedValue.Append(value[idx++]); // Append valid surrogate chars like normal
+                    escapedValue.Append(value[idx]);
+                }
+                else if (char.IsSurrogate(value, idx)) // Translate invalid ones to \x----
+                    escapedValue.Append($"\\x{((int)value[idx]).ToString("x4")}");
                 else
                     escapedValue.Append(value[idx]);
 
