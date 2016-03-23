@@ -262,7 +262,16 @@ namespace Xunit
             if (value == null)
                 return string.Empty;
 
-            return value.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\0", "\\0");
+            return value.Replace("\\", "\\\\")
+                    .Replace("\r", "\\r")
+                    .Replace("\n", "\\n")
+                    .Replace("\t", "\\t")
+                    .Replace("\0", "\\0")
+                    .Replace("\a", "\\a")
+                    .Replace("\b", "\\b")
+                    .Replace("\v", "\\v")
+                    .Replace("\"", "\\\"")
+                    .Replace("\f", "\\f");
         }
 
         protected static string XmlEscape(string value)
@@ -273,10 +282,21 @@ namespace Xunit
             value = Escape(value);
             var escapedValue = new StringBuilder(value.Length);
             for (var idx = 0; idx < value.Length; ++idx)
-                if (value[idx] < 32)
-                    escapedValue.Append($"\\x{((byte)value[idx]).ToString("x2")}");
+            {
+                char ch = value[idx];
+                if (ch < 32)
+                    escapedValue.Append($@"\x{(+ch).ToString("x2")}");
+                else if (char.IsSurrogatePair(value, idx)) // Takes care of the case when idx + 1 == value.Length
+                {
+                    escapedValue.Append(ch); // Append valid surrogate chars like normal
+                    escapedValue.Append(value[++idx]);
+                }
+                // Check for invalid chars and append them like \x----
+                else if (char.IsSurrogate(ch) || ch == '\uFFFE' || ch == '\uFFFF')
+                    escapedValue.Append($@"\x{(+ch).ToString("x4")}");
                 else
-                    escapedValue.Append(value[idx]);
+                    escapedValue.Append(ch);
+            }
 
             return escapedValue.ToString();
         }
