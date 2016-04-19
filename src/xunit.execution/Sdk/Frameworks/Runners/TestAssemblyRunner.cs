@@ -138,7 +138,7 @@ namespace Xunit.Sdk
             if (ExecutionOptions.SynchronousMessageReportingOrDefault())
                 return new SynchronousMessageBus(ExecutionMessageSink);
 
-            return new MessageBus(ExecutionMessageSink);
+            return new MessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault());
         }
 
         /// <summary>

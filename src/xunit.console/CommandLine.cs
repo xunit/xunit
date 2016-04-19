@@ -30,6 +30,8 @@ namespace Xunit.ConsoleClient
 
         public bool FailSkips { get; protected set; }
 
+        public bool StopOnFail { get; protected set; }
+
         public int? MaxParallelThreads { get; set; }
 
         public bool NoAppDomain { get; protected set; }
@@ -140,6 +142,11 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     FailSkips = true;
+                }
+                else if (optionName == "stoponfail")
+                {
+                    GuardNoOptionValue(option);
+                    StopOnFail = true;
                 }
                 else if (optionName == "nocolor")
                 {
