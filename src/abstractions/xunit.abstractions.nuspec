@@ -1,32 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package>
-  <metadata minClientVersion="2.8.3">
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata minClientVersion="3.4">
     <id>xunit.abstractions</id>
-    <version>99.99.99-dev</version>
+    <version>2.0.1</version>
     <title>xUnit.net [Abstractions]</title>
     <authors>James Newkirk,Brad Wilson</authors>
-    <description>
-Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).
+    <owners>James Newkirk,Brad Wilson</owners>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
+    <projectUrl>https://github.com/xunit/xunit</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).
 
 Supported platforms:
 - Desktop .NET 3.5+
-- .NET Core (Universal Windows Apps 10+, DNX Core 5+)
+- .NET Core 1.0+
+- Universal Windows Apps 10+
+- Windows 8
 - Windows Phone 8 (Silverlight)
 - Universal (Windows Phone 8.1+, Windows 8.1+)
 - Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
-- Portable Libraries (supporting Profile259)
-    </description>
+- Portable Libraries (supporting Profile259)</description>
     <language>en-US</language>
-    <projectUrl>https://github.com/xunit/xunit</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
-    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+<dependencies>
+  <group targetFramework="net35" />
+  <group targetFramework="portable-net45+netcore45+wp8+wpa81" />
+  <group targetFramework="netstandard1.0">
+    <dependency id="System.Collections" version="4.0.11-rc2-24027" />
+    <dependency id="System.Diagnostics.Tools" version="4.0.1-rc2-24027" />
+    <dependency id="System.Reflection" version="4.1.0-rc2-24027" />
+    <dependency id="System.Runtime" version="" />
+  </group>
+</dependencies>
   </metadata>
   <files>
-    <file src="xunit.abstractions.net35\bin\Release\xunit.abstractions.dll" target="lib\net35\" />
-    <file src="xunit.abstractions.net35\bin\Release\xunit.abstractions.xml" target="lib\net35\" />
-
-    <file src="xunit.abstractions.pcl\bin\Release\xunit.abstractions.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
-    <file src="xunit.abstractions.pcl\bin\Release\xunit.abstractions.xml" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.abstractions\bin\Release\net35\xunit.abstractions.dll" target="lib\net35\" />
+    <file src="xunit.abstractions\bin\Release\net35\xunit.abstractions.xml" target="lib\net35\" />
+    <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.dll" target="lib\netstandard1.0\" />
+    <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.xml" target="lib\netstandard1.0\" />
+    <file src="xunit.abstractions\bin\Release\portable45-net45+win8+wp8+wpa81\xunit.abstractions.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.abstractions\bin\Release\portable45-net45+win8+wp8+wpa81\xunit.abstractions.xml" target="lib\portable-net45+netcore45+wp8+wpa81\" />
   </files>
 </package>
