@@ -355,13 +355,35 @@ public class XmlTestExecutionVisitorTests
             var name2Element = Assert.Single(traitsElements, e => e.Attribute("name").Value == "name2");
             Assert.Equal("value2", name2Element.Attribute("value").Value);
         }
+        
+        public static IEnumerable<object[]> IllegalXmlTestData()
+        {
+            yield return new object[]
+            {
+                new string(Enumerable.Range(0, 32).Select(x => (char)x).ToArray()),
+                @"\0\x01\x02\x03\x04\x05\x06\a\b\t\n\v\f\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
+            };
+            // Invalid surrogate characters should be added as \x----, where ---- is the hex value of the char
+            yield return new object[]
+            {
+                "\xd800 Hello.World \xdc00",
+                @"\xd800 Hello.World \xdc00"
+            };
+            // ...but valid ones should be outputted like normal
+            yield return new object[]
+            {
+                "\xd800\xdfff This.Is.Valid \xda00\xdd00",
+                "\xd800\xdfff This.Is.Valid \xda00\xdd00" // note: no @
+            };
+        }
 
-        [Fact]
-        public void IllegalXmlDoesNotPreventXmlFromBeingSaved()
+        [Theory]
+        [MemberData(nameof(IllegalXmlTestData))]
+        public void IllegalXmlDoesNotPreventXmlFromBeingSaved(string inputName, string outputName)
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var testCase = Mocks.TestCase<ClassUnderTest>("TestMethod");
-            var test = Mocks.Test(testCase, new string(Enumerable.Range(0, 32).Select(x => (char)x).ToArray()));
+            var test = Mocks.Test(testCase, inputName);
             var testSkipped = Substitute.For<ITestSkipped>();
             testSkipped.TestCase.Returns(testCase);
             testSkipped.Test.Returns(test);
@@ -378,7 +400,7 @@ public class XmlTestExecutionVisitorTests
                 assemblyElement.Save(writer, SaveOptions.DisableFormatting);
 
                 var outputXml = writer.ToString();
-                Assert.Equal(@"<?xml version=""1.0"" encoding=""utf-16""?><assembly total=""0"" passed=""0"" failed=""0"" skipped=""0"" time=""0.000"" errors=""0""><errors /><collection><test name=""\0\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"" type=""XmlTestExecutionVisitorTests+Xml+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"" source-file=""""><reason><![CDATA[Bad\0\r\nString]]></reason></test></collection></assembly>", outputXml);
+                Assert.Equal($@"<?xml version=""1.0"" encoding=""utf-16""?><assembly total=""0"" passed=""0"" failed=""0"" skipped=""0"" time=""0.000"" errors=""0""><errors /><collection><test name=""{outputName}"" type=""XmlTestExecutionVisitorTests+Xml+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"" source-file=""""><reason><![CDATA[Bad\0\r\nString]]></reason></test></collection></assembly>", outputXml);
             }
         }
 
