@@ -88,9 +88,11 @@ namespace Xunit.Sdk
         async Task CreateClassFixtureAsync(Type fixtureType)
         {
             CreateClassFixture(fixtureType);
-            foreach(var uninitializedFixture in ClassFixtureMappings.Values.OfType<IAsyncLifetime>())
-                await Aggregator.RunAsync(uninitializedFixture.InitializeAsync);
-            
+
+            await Task.WhenAll(
+                ClassFixtureMappings.Values
+                .OfType<IAsyncLifetime>()
+                .Select(uninitializedFixture => Aggregator.RunAsync(uninitializedFixture.InitializeAsync)));
         }
 
         /// <inheritdoc/>
@@ -140,8 +142,10 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override async Task BeforeTestClassFinishedAsync()
         {
-            foreach (var fixture in ClassFixtureMappings.Values.OfType<IAsyncLifetime>())
-                await Aggregator.RunAsync(fixture.DisposeAsync);
+            await Task.WhenAll(
+                     ClassFixtureMappings.Values
+                     .OfType<IAsyncLifetime>()
+                     .Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync)));
 
             foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
