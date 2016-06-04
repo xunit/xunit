@@ -93,12 +93,13 @@ namespace Xunit.Sdk
         async Task CreateClassFixtureAsync(Type fixtureType)
         {
             CreateClassFixture(fixtureType);
-            foreach (var uninitializedFixture in ClassFixtureMappings.Values.OfType<IAsyncLifetime>().ToList())
-                if (!InitializedAsyncFixtures.Contains(uninitializedFixture))
-                {
-                    InitializedAsyncFixtures.Add(uninitializedFixture);
-                    await Aggregator.RunAsync(uninitializedFixture.InitializeAsync);
-                }
+            var uninitializedFixtures = ClassFixtureMappings.Values
+                                        .OfType<IAsyncLifetime>()
+                                        .Where(fixture => !InitializedAsyncFixtures.Contains(fixture))
+                                        .ToList();
+
+            InitializedAsyncFixtures.UnionWith(uninitializedFixtures);
+            await Task.WhenAll(uninitializedFixtures.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync)));
         }
 
         /// <inheritdoc/>
