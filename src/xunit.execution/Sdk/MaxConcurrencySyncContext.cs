@@ -87,10 +87,14 @@ namespace Xunit.Sdk
 
                 Tuple<SendOrPostCallback, object, object> work;
                 while (workQueue.TryDequeue(out work))
+                {
+                    // Set workReady() to wake up other threads, since there might still be work on the queue (fixes #877)
+                    workReady.Set();
                     if (work.Item3 == null)    // Fix for #461, so we don't try to run on a null execution context
                         RunOnSyncContext(work.Item1, work.Item2);
                     else
                         ExecutionContextHelper.Run(work.Item3, _ => RunOnSyncContext(work.Item1, work.Item2));
+                }
             }
         }
 
