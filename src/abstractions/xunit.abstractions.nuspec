@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata minClientVersion="3.4">
+  <metadata minClientVersion="2.8.6">
     <id>xunit.abstractions</id>
-    <version>2.0.1</version>
+    <version>2.0.1-rc2</version>
     <title>xUnit.net [Abstractions]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <owners>James Newkirk,Brad Wilson</owners>
@@ -13,14 +13,9 @@
     <description>Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).
 
 Supported platforms:
-- Desktop .NET 3.5+
-- .NET Core 1.0+
-- Universal Windows Apps 10+
-- Windows 8
-- Windows Phone 8 (Silverlight)
-- Universal (Windows Phone 8.1+, Windows 8.1+)
-- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
-- Portable Libraries (supporting Profile259)</description>
+* Desktop .NET 3.5+
+* .NET Standard 1.0+ (including Windows, Xamarin, and .NET Core)
+* Portable Libraries (supporting Profile 259)</description>
     <language>en-US</language>
     <dependencies>
       <group targetFramework="net35" />
@@ -38,7 +33,7 @@ Supported platforms:
     <file src="xunit.abstractions\bin\Release\net35\xunit.abstractions.xml" target="lib\net35\" />
     <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.dll" target="lib\netstandard1.0\" />
     <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.xml" target="lib\netstandard1.0\" />
-    <file src="xunit.abstractions\bin\Release\portable45-net45+win8+wp8+wpa81\xunit.abstractions.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
-    <file src="xunit.abstractions\bin\Release\portable45-net45+win8+wp8+wpa81\xunit.abstractions.xml" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
+    <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.xml" target="lib\portable-net45+netcore45+wp8+wpa81\" />
   </files>
 </package>

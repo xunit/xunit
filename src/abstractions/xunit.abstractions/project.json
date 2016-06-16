@@ -1,16 +1,8 @@
 {
-    "version": "1.0.0-*",
+    "version": "99.99.99-dev",
     "frameworks": {
-        ".NETFramework,Version=3.5": { },
-        ".NETPortable,Version=v4.5,Profile=Profile259": {
-            "frameworkAssemblies": {
-                "System.Collections": "",
-                "System.Diagnostics.Tools": "",
-                "System.Reflection": "",
-                "System.Runtime": ""
-            }
-        },
-        ".NETStandard,Version=v1.0": {
+        "net35": { },
+        "netstandard1.0": {
             "dependencies": {
                 "System.Collections": "4.0.11-rc2-24027",
                 "System.Diagnostics.Tools": "4.0.1-rc2-24027",
