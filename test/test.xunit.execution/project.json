@@ -1,0 +1,29 @@
+﻿{
+    "version": "99.99.99-dev",
+    "buildOptions": {
+        "compile": [
+            "../../src/common/AssemblyExtensions.cs",
+            "../../src/common/ExecutionHelper.cs",
+            "../../src/common/Guard.cs",
+            "../../src/common/NewReflectionExtensions.cs",
+            "../../src/common/SerializationHelper.cs",
+            "../../src/common/TestDiscoveryVisitor.cs",
+            "../../src/common/TestOptionsNames.cs",
+            "../../src/common/XunitSerializationInfo.cs",
+            "../../src/xunit.assert/Asserts/Sdk/ArgumentFormatter.cs",
+            "../GlobalTestAssemblyInfo.cs"
+        ],
+        "define": [ "XUNIT_FRAMEWORK" ],
+        "warningsAsErrors": true
+    },
+    "frameworks": {
+        "net45": {
+            "frameworkAssemblies": {
+                "System.Xml.Linq": ""
+            }
+        }
+    },
+    "dependencies": {
+        "test.utility": "99.99.99-dev"
+    }
+}
