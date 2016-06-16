@@ -1,4 +1,6 @@
-﻿//
+﻿#if !NET45
+
+//
 // CollectionDebuggerView.cs
 //
 // Authors:
@@ -76,3 +78,4 @@ namespace System.Collections.Generic
     }
 }
 
+#endif

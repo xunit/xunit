@@ -1,4 +1,6 @@
-﻿// SplitOrderedList.cs
+﻿#if !NET45
+
+// SplitOrderedList.cs
 //
 // Copyright (c) 2010 Jérémie "Garuma" Laval
 //
@@ -502,4 +504,4 @@ namespace System.Collections.Concurrent
 #endif
 }
 
-
+#endif

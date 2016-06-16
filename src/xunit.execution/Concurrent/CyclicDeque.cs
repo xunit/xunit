@@ -1,4 +1,6 @@
-﻿// 
+﻿#if !NET45
+
+// 
 // CyclicDeque.cs
 //  
 // Author:
@@ -215,3 +217,4 @@ namespace System.Threading.Tasks
 	}
 }
 
+#endif

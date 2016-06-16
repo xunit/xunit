@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !PLATFORM_DOTNET
+
+using System;
 
 namespace Xunit
 {
@@ -78,3 +80,5 @@ namespace Xunit
         }
     }
 }
+
+#endif

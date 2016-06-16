@@ -1,4 +1,6 @@
-﻿// 
+﻿#if !NET45
+
+// 
 // PopResult.cs
 //  
 // Author:
@@ -43,3 +45,4 @@ namespace System.Threading.Tasks
 	}
 }
 
+#endif

@@ -1,3 +1,5 @@
+#if !PLATFORM_DOTNET
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -54,7 +56,9 @@ namespace Xunit
         {
             try
             {
+#pragma warning disable CS0618
                 var unwrappedObject = AppDomain.CreateInstanceAndUnwrap(assemblyName.FullName, typeName, false, 0, null, args, null, null, null);
+#pragma warning restore CS0618
                 return (TObject)unwrappedObject;
             }
             catch (TargetInvocationException ex)
@@ -92,3 +96,5 @@ namespace Xunit
         }
     }
 }
+
+#endif

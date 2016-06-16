@@ -1,4 +1,6 @@
-﻿// ConcurrentQueue.cs
+﻿#if !NET45
+
+// ConcurrentQueue.cs
 //
 // Copyright (c) 2008 Jérémie "Garuma" Laval
 //
@@ -227,3 +229,5 @@ class ConcurrentQueue<T> : IProducerConsumerCollection<T>, IEnumerable<T>, IColl
 		}
 	}
 }
+
+#endif

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !NET35
+
+using System;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text;
@@ -7,12 +9,21 @@ using Xunit.Abstractions;
 
 namespace Xunit
 {
+    /// <summary>
+    /// An implementation of <see cref="IMessageSink"/> which records all operations into
+    /// xUnit.net v2 XML format.
+    /// </summary>
     public class XmlTestExecutionVisitor : TestMessageVisitor<ITestAssemblyFinished>
     {
         readonly XElement assemblyElement;
         readonly XElement errorsElement;
         readonly ConcurrentDictionary<Guid, XElement> testCollectionElements = new ConcurrentDictionary<Guid, XElement>();
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="XmlTestExecutionVisitor"/>.
+        /// </summary>
+        /// <param name="assemblyElement">The root XML assembly element to collect the result XML.</param>
+        /// <param name="cancelThunk">The callback used to determine when to cancel execution.</param>
         public XmlTestExecutionVisitor(XElement assemblyElement, Func<bool> cancelThunk)
         {
             CancelThunk = cancelThunk ?? (() => false);
@@ -26,12 +37,35 @@ namespace Xunit
             }
         }
 
-        public readonly Func<bool> CancelThunk;
-        public int Errors;
-        public int Failed;
-        public int Skipped;
-        public decimal Time;
-        public int Total;
+        /// <summary>
+        /// Gets the callback used to determine when to cancel execution.
+        /// </summary>
+        public Func<bool> CancelThunk { get; }
+
+        /// <summary>
+        /// Gets or sets the number of errors that have occurred (outside of actual test execution).
+        /// </summary>
+        public int Errors { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of tests which failed.
+        /// </summary>
+        public int Failed { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of tests which were skipped.
+        /// </summary>
+        public int Skipped { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time spent executing tests, in seconds.
+        /// </summary>
+        public decimal Time { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total number of tests, regardless of result.
+        /// </summary>
+        public int Total { get; set; }
 
         XElement CreateTestResultElement(ITestResultMessage testResult, string resultText)
         {
@@ -84,6 +118,7 @@ namespace Xunit
             return testCollectionElements.GetOrAdd(testCollection.UniqueID, tc => new XElement("collection"));
         }
 
+        /// <inheritdoc/>
         public override bool OnMessage(IMessageSinkMessage message)
         {
             var result = base.OnMessage(message);
@@ -93,6 +128,7 @@ namespace Xunit
             return result;
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestAssemblyFinished assemblyFinished)
         {
             Total += assemblyFinished.TestsRun;
@@ -118,6 +154,7 @@ namespace Xunit
             return base.Visit(assemblyFinished);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestAssemblyStarting assemblyStarting)
         {
             if (assemblyElement != null)
@@ -137,6 +174,7 @@ namespace Xunit
             return base.Visit(assemblyStarting);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestCollectionFinished testCollectionFinished)
         {
             if (assemblyElement != null)
@@ -155,6 +193,7 @@ namespace Xunit
             return base.Visit(testCollectionFinished);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestFailed testFailed)
         {
             if (assemblyElement != null)
@@ -166,6 +205,7 @@ namespace Xunit
             return base.Visit(testFailed);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestPassed testPassed)
         {
             if (assemblyElement != null)
@@ -174,6 +214,7 @@ namespace Xunit
             return base.Visit(testPassed);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestSkipped testSkipped)
         {
             if (assemblyElement != null)
@@ -185,6 +226,7 @@ namespace Xunit
             return base.Visit(testSkipped);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(IErrorMessage error)
         {
             AddError("fatal", null, error);
@@ -192,6 +234,7 @@ namespace Xunit
             return base.Visit(error);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
         {
             AddError("assembly-cleanup", cleanupFailure.TestAssembly.Assembly.AssemblyPath, cleanupFailure);
@@ -199,6 +242,7 @@ namespace Xunit
             return base.Visit(cleanupFailure);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
         {
             AddError("test-case-cleanup", cleanupFailure.TestCase.DisplayName, cleanupFailure);
@@ -206,6 +250,7 @@ namespace Xunit
             return base.Visit(cleanupFailure);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
         {
             AddError("test-class-cleanup", cleanupFailure.TestClass.Class.Name, cleanupFailure);
@@ -213,6 +258,7 @@ namespace Xunit
             return base.Visit(cleanupFailure);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
         {
             AddError("test-collection-cleanup", cleanupFailure.TestCollection.DisplayName, cleanupFailure);
@@ -220,6 +266,7 @@ namespace Xunit
             return base.Visit(cleanupFailure);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestCleanupFailure cleanupFailure)
         {
             AddError("test-cleanup", cleanupFailure.Test.DisplayName, cleanupFailure);
@@ -227,6 +274,7 @@ namespace Xunit
             return base.Visit(cleanupFailure);
         }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
         {
             AddError("test-method-cleanup", cleanupFailure.TestMethod.Method.Name, cleanupFailure);
@@ -257,23 +305,28 @@ namespace Xunit
             );
         }
 
-        protected static string Escape(string value)
+        static string Escape(string value)
         {
             if (value == null)
                 return string.Empty;
 
             return value.Replace("\\", "\\\\")
-                    .Replace("\r", "\\r")
-                    .Replace("\n", "\\n")
-                    .Replace("\t", "\\t")
-                    .Replace("\0", "\\0")
-                    .Replace("\a", "\\a")
-                    .Replace("\b", "\\b")
-                    .Replace("\v", "\\v")
-                    .Replace("\"", "\\\"")
-                    .Replace("\f", "\\f");
+                        .Replace("\r", "\\r")
+                        .Replace("\n", "\\n")
+                        .Replace("\t", "\\t")
+                        .Replace("\0", "\\0")
+                        .Replace("\a", "\\a")
+                        .Replace("\b", "\\b")
+                        .Replace("\v", "\\v")
+                        .Replace("\"", "\\\"")
+                        .Replace("\f", "\\f");
         }
 
+        /// <summary>
+        /// Escapes a string for placing into the XML.
+        /// </summary>
+        /// <param name="value">The value to be escaped.</param>
+        /// <returns>The escaped value.</returns>
         protected static string XmlEscape(string value)
         {
             if (value == null)
@@ -302,3 +355,5 @@ namespace Xunit
         }
     }
 }
+
+#endif

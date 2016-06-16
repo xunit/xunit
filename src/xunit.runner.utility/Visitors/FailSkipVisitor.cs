@@ -2,18 +2,31 @@
 
 namespace Xunit
 {
+    /// <summary>
+    /// An implementation of <see cref="IExecutionVisitor"/> which converts all skipped
+    /// tests into failures, wrapping an existing <see cref="IExecutionVisitor"/>
+    /// implementation.
+    /// </summary>
     public class FailSkipVisitor : TestMessageVisitor<ITestAssemblyFinished>, IExecutionVisitor
     {
         readonly IExecutionVisitor Visitor;
         int SkipCount;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="FailSkipVisitor"/>.
+        /// </summary>
+        /// <param name="visitor">The visitor to pass messages onto.</param>
         public FailSkipVisitor(IExecutionVisitor visitor)
         {
+            Guard.ArgumentNotNull(nameof(visitor), visitor);
+
             Visitor = visitor;
         }
 
+        /// <inheritdoc/>
         public ExecutionSummary ExecutionSummary => Visitor.ExecutionSummary;
 
+        /// <inheritdoc/>
         public override bool OnMessage(IMessageSinkMessage message)
         {
             var testSkipped = message as ITestSkipped;

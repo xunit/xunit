@@ -1,17 +1,23 @@
-﻿// IConcurrentCollection.cs
-//
-// Copyright (c) 2008 Jérémie "Garuma" Laval
-//
+﻿#if !NET45
+
+// 
+// IConcurrentDeque.cs
+//  
+// Author:
+//       Jérémie "Garuma" Laval <jeremie.laval@gmail.com>
+// 
+// Copyright (c) 2011 Jérémie "Garuma" Laval
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,20 +25,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//
 
 
 using System.Collections.Generic;
 
-namespace System.Collections.Concurrent
+#if INSIDE_MONO_PARALLEL
+namespace Mono.Threading.Tasks
+#else
+namespace System.Threading.Tasks
+#endif
 {
-    interface IProducerConsumerCollection<T> : IEnumerable<T>, ICollection, IEnumerable
+#if INSIDE_MONO_PARALLEL
+	public
+#endif
+    interface IConcurrentDeque<T>
 	{
-		bool TryAdd (T item);
-		bool TryTake (out T item);
-		T[] ToArray ();
-		void CopyTo (T[] array, int index);
+		void PushBottom (T obj);
+		PopResult PopBottom (out T obj);
+		PopResult PopTop (out T obj);
+		IEnumerable<T> GetEnumerable ();
 	}
 }
 
+#endif

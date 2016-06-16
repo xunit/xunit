@@ -1,4 +1,26 @@
-﻿using System;
+﻿#if PLATFORM_DOTNET
+
+using System;
+
+namespace Xunit
+{
+    /// <summary/>
+    public class AssemblyHelper : IDisposable
+    {
+        /// <summary/>
+        public static IDisposable SubscribeResolve()
+        {
+            return new AssemblyHelper();
+        }
+
+        /// <inheritdoc/>
+        public void Dispose() { }
+    }
+}
+
+#else
+
+using System;
 using System.IO;
 using System.Reflection;
 
@@ -60,3 +82,5 @@ namespace Xunit
         }
     }
 }
+
+#endif
