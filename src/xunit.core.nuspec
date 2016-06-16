@@ -1,91 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
-  <metadata minClientVersion="2.8.5">
+  <metadata minClientVersion="2.8.6">
     <id>xunit.core</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Core Unit Testing Framework]</title>
     <authors>James Newkirk,Brad Wilson</authors>
+    <summary>Includes the libraries for writing unit tests with xUnit.net.</summary>
     <description>Includes the libraries for writing unit tests with xUnit.net.
 
 Supported platforms:
-- Desktop .NET 4.5+
-- .NET Core (Universal Windows Apps 10+, DNX Core 5+)
-- Windows 8
-- Windows Phone 8 (Silverlight)
-- Universal (Windows Phone 8.1+, Windows 8.1+)
-- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
-- Portable Libraries (supporting Profile259)</description>
+* .NET Standard 1.0+ (including Windows, Xamarin, and .NET Core)
+* Portable Libraries (supporting Profile 259)</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <group targetFramework="dnx451">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="dotnet">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-        <dependency id="System.Linq.Expressions" version="4.0.0" />
-        <dependency id="System.Linq.Queryable" version="4.0.0" />
-        <dependency id="System.Collections" version="4.0.0" />
-        <dependency id="System.Diagnostics.Debug" version="4.0.0" />
-        <dependency id="System.Globalization" version="4.0.0" />
-        <dependency id="System.Linq" version="4.0.0" />
-        <dependency id="System.Reflection" version="4.0.0" />
-        <dependency id="System.Reflection.Extensions" version="4.0.0" />
-        <dependency id="System.Runtime" version="4.0.0" />
-        <dependency id="System.Runtime.Extensions" version="4.0.0" />
-        <dependency id="System.Threading.Tasks" version="4.0.0" />
-        <dependency id="xunit.abstractions" version="2.0.0" />
-      </group>
-      <group targetFramework="monoandroid">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="monotouch">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="net45">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="portable-net45+win8+wp8+wpa81">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="win8">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="wp8">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="wpa81">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="xamarinios">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
-      </group>
+      <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
+      <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll" target="build\_desktop\" />
-    <file src="build\_._" target="build\dnx451\" />
-    <file src="build\_._" target="build\monoandroid\" />
-    <file src="build\_._" target="build\monotouch\" />
-    <file src="build\_._" target="build\net45\" />
+    <file src="xunit.execution\bin\Release\net45\xunit.execution.desktop.dll" target="build\_desktop\" />
+    <file src="build\_._" target="build\netstandard1.0\" />
+    <file src="build\_._" target="build\portable-net45+win8+wp8+wpa81\" />
     <file src="xunit.core\build\xunit.core.props" target="build\uap10.0\" />
-    <file src="build\_._" target="build\win8\" />
     <file src="xunit.core\build\xunit.core.props" target="build\win81\" />
-    <file src="build\_._" target="build\wp8\" />
     <file src="xunit.core\build\xunit.core.props" target="build\wpa81\" />
-    <file src="build\_._" target="build\xamarinios\" />
   </files>
 </package>
