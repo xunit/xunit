@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata minClientVersion="2.8.6">
+  <metadata minClientVersion="2.12">
     <id>xunit.abstractions</id>
     <version>2.0.1-rc2</version>
     <title>xUnit.net [Abstractions]</title>
@@ -10,12 +10,8 @@
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).
-
-Supported platforms:
-* Desktop .NET 3.5+
-* .NET Standard 1.0+ (including Windows, Xamarin, and .NET Core)
-* Portable Libraries (supporting Profile 259)</description>
+    <summary>Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).</summary>
+    <description>Common abstractions used to exchange information between xUnit.net and version-independent runners (xunit.abstractions.dll).</description>
     <language>en-US</language>
     <dependencies>
       <group targetFramework="net35" />
@@ -33,7 +29,5 @@ Supported platforms:
     <file src="xunit.abstractions\bin\Release\net35\xunit.abstractions.xml" target="lib\net35\" />
     <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.dll" target="lib\netstandard1.0\" />
     <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.xml" target="lib\netstandard1.0\" />
-    <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.dll" target="lib\portable-net45+netcore45+wp8+wpa81\" />
-    <file src="xunit.abstractions\bin\Release\netstandard1.0\xunit.abstractions.xml" target="lib\portable-net45+netcore45+wp8+wpa81\" />
   </files>
 </package>

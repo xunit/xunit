@@ -1,17 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
-  <metadata minClientVersion="2.8.6">
+  <metadata minClientVersion="2.12">
     <id>xunit.runner.reporters</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner Reporters]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>Includes runner reporters: TeamCity, AppVeyor, Verbose and Quiet.</summary>
-    <description>Includes runner reporters for TeamCity, AppVeyor, Verbose and Quiet output for test runners.
-
-Supported platforms:
-* Desktop .NET 4.5+
-* .NET Standard 1.1+ (including Windows, Xamarin, and .NET Core)
-* Portable Libraries (supporting Profile 111)</description>
+    <description>Includes runner reporters for TeamCity, AppVeyor, Verbose and Quiet output for test runners.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
@@ -32,7 +27,7 @@ Supported platforms:
         <dependency id="System.Text.Encoding" version="4.0.11-rc2-24027" />
         <dependency id="System.Threading" version="4.0.11-rc2-24027" />
         <dependency id="System.Threading.Tasks" version="4.0.11-rc2-24027" />
-        <dependency id="xunit.abstractions" version="2.0.1-rc1" />
+        <dependency id="xunit.abstractions" version="2.0.1-rc2" />
       </group>
       <group targetFramework="portable-net45+win8+wpa81">
         <dependency id="Newtonsoft.Json" version="9.0.1-beta1" />
@@ -46,6 +41,5 @@ Supported platforms:
   <files>
     <file src="xunit.runner.reporters\bin\Release\net45\xunit.runner.reporters.desktop.dll" target="lib\net45\" />
     <file src="xunit.runner.reporters\bin\Release\netstandard1.1\xunit.runner.reporters.dotnet.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.runner.reporters\bin\Release\netstandard1.1\xunit.runner.reporters.dotnet.dll" target="lib\portable-net45+win8+wpa81\" />
   </files>
 </package>

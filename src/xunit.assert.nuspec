@@ -1,16 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
-  <metadata minClientVersion="2.8.6">
+  <metadata minClientVersion="2.12">
     <id>xunit.assert</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Assertion Library]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>Includes the assertion library from xUnit.net (xunit.assert.dll).</summary>
-    <description>Includes the assertion library from xUnit.net (xunit.assert.dll).
-
-Supported platforms:
-* .NET Standard 1.0+ (including Windows, Xamarin, and .NET Core)
-* Portable Libraries (supporting Profile 259)</description>
+    <description>Includes the assertion library from xUnit.net (xunit.assert.dll).</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
@@ -31,21 +27,12 @@ Supported platforms:
         <dependency id="System.Text.RegularExpressions" version="4.1.0" />
         <dependency id="System.Threading.Tasks" version="4.0.11-rc2-24027" />
       </group>
-      <group targetFramework="monoandroid"></group>
-      <group targetFramework="monotouch"></group>
-      <group targetFramework="net45"></group>
-      <group targetFramework="win8"></group>
-      <group targetFramework="wp8"></group>
-      <group targetFramework="wpa81"></group>
-      <group targetFramework="xamarinios"></group>
+      <group targetFramework="portable-net45+win8+wp8+wpa81" />
     </dependencies>
   </metadata>
   <files>
     <file src="xunit.assert\bin\Release\netstandard1.0\xunit.assert.dll" target="lib\netstandard1.0\" />
     <file src="xunit.assert\bin\Release\netstandard1.0\xunit.assert.pdb" target="lib\netstandard1.0\" />
     <file src="xunit.assert\bin\Release\netstandard1.0\xunit.assert.xml" target="lib\netstandard1.0\" />
-    <file src="xunit.assert\bin\Release\netstandard1.0\xunit.assert.dll" target="lib\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.assert\bin\Release\netstandard1.0\xunit.assert.pdb" target="lib\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.assert\bin\Release\netstandard1.0\xunit.assert.xml" target="lib\portable-net45+win8+wp8+wpa81\" />
   </files>
 </package>

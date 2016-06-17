@@ -1,17 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
-  <metadata minClientVersion="2.8.6">
+  <metadata minClientVersion="2.12">
     <id>xunit.extensibility.core</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Extensibility: Core]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>Includes xunit.core.dll for extensibility purposes.</summary>
-    <description>Includes xunit.core.dll for extensibility purposes.
-
-Supported platforms:
-* Desktop .NET 4.5+
-* .NET Standard 1.0+ (including Windows, Xamarin, and .NET Core)
-* Portable Libraries (supporting Profile 259)</description>
+    <description>Includes xunit.core.dll for extensibility purposes.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
@@ -31,28 +26,10 @@ Supported platforms:
         <dependency id="System.Runtime" version="4.1.0-rc2-24027" />
         <dependency id="System.Runtime.Extensions" version="4.1.0-rc2-24027" />
         <dependency id="System.Threading.Tasks" version="4.0.11-rc2-24027" />
-        <dependency id="xunit.abstractions" version="2.0.1-rc1" />
+        <dependency id="xunit.abstractions" version="2.0.1-rc2" />
       </group>
-      <group targetFramework="monoandroid">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="monotouch">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="net45">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="win8">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="wp8">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="wpa81">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="xamarinios">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
+      <group targetFramework="portable-net45+win8+wp8+wpa81">
+        <dependency id="xunit.abstractions" version="2.0.1-rc2" />
       </group>
     </dependencies>
   </metadata>
@@ -66,8 +43,5 @@ Supported platforms:
     <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll" target="lib\netstandard1.0\" />
     <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.pdb" target="lib\netstandard1.0\" />
     <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.xml" target="lib\netstandard1.0\" />
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll" target="lib\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.pdb" target="lib\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.xml" target="lib\portable-net45+win8+wp8+wpa81\" />
   </files>
 </package>

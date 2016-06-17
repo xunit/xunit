@@ -1,18 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
-  <metadata minClientVersion="2.8.6">
+  <metadata minClientVersion="2.12">
     <id>xunit.runner.utility</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner Utility]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>Includes the version-independent runner for xUnit.net (xunit.runner.utility.*.dll).</summary>
-    <description>Includes the version-independent runner for xUnit.net to run both v1.9.2 and v2.0+ tests (xunit.runner.utility.*.dll).
-
-Supported platforms:
-* Desktop .NET 3.5
-* Desktop .NET 4.5+
-* .NET Standard 1.1+ (including Windows, Xamarin, and .NET Core)
-* Portable Libraries (supporting Profile 111)</description>
+    <description>Includes the version-independent runner for xUnit.net to run both v1.9.2 and v2.0+ tests (xunit.runner.utility.*.dll).</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
@@ -35,31 +29,13 @@ Supported platforms:
         <dependency id="System.Threading" version="4.0.11-rc2-24027" />
         <dependency id="System.Threading.Tasks" version="4.0.11-rc2-24027" />
         <dependency id="System.Xml.XDocument" version="4.0.11-rc2-24027" />
-        <dependency id="xunit.abstractions" version="2.0.1-rc1" />
+        <dependency id="xunit.abstractions" version="2.0.1-rc2" />
       </group>
-      <group targetFramework="monoandroid">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="monotouch">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
+      <group targetFramework="portable-net45+win8+wpa81">
+        <dependency id="xunit.abstractions" version="2.0.1-rc2" />
       </group>
       <group targetFramework="net35">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="net45">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="win8">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="wp8">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="wpa81">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
-      </group>
-      <group targetFramework="xamarinios">
-        <dependency id="xunit.abstractions" version="[2.0.1-rc1]" />
+        <dependency id="xunit.abstractions" version="2.0.1-rc2" />
       </group>
     </dependencies>
   </metadata>
@@ -73,8 +49,5 @@ Supported platforms:
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.dll" target="lib\netstandard1.1\" />
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.pdb" target="lib\netstandard1.1\" />
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.xml" target="lib\netstandard1.1\" />
-    <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.dll" target="lib\portable-net45+win8+wpa81\" />
-    <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.pdb" target="lib\portable-net45+win8+wpa81\" />
-    <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.xml" target="lib\portable-net45+win8+wpa81\" />
   </files>
 </package>
