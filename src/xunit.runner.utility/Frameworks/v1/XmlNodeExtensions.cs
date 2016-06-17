@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !PLATFORM_DOTNET
+
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using Xunit;
@@ -31,3 +33,5 @@ static class XmlNodeExtensions
         return new Xunit1TestCase(assemblyFileName, configFileName, type, method, displayName, traits, skipReason);
     }
 }
+
+#endif

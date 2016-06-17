@@ -1,0 +1,66 @@
+﻿{
+    "version": "99.99.99-dev",
+    "buildOptions": {
+        "compile": [
+            "../common/AssemblyExtensions.cs",
+            "../common/DictionaryExtensions.cs",
+            "../common/ExceptionExtensions.cs",
+            "../common/ExceptionUtility.cs",
+            "../common/GlobalAssemblyInfo.cs",
+            "../common/Guard.cs",
+            "../common/LongLivedMarshalByRefObject.cs",
+            "../common/NewReflectionExtensions.cs",
+            "../common/NullMessageSink.cs",
+            "../common/SerializationHelper.cs",
+            "../common/SourceInformation.cs",
+            "../common/TestDiscoveryVisitor.cs",
+            "../common/TestMessageVisitor.cs",
+            "../common/TestMethodDisplay.cs",
+            "../common/TestOptionsNames.cs",
+            "../common/XunitSerializationInfo.cs",
+            "../common/XunitWorkerThread.cs",
+            "../messages/**/*.cs"
+        ],
+        "keyFile": "../signing.snk",
+        "warningsAsErrors": true,
+        "xmlDoc": true
+    },
+    "frameworks": {
+        "net35": {
+            "buildOptions": {
+                "outputName": "xunit.runner.utility.desktop"
+            },
+            "frameworkAssemblies": {
+                "System.Configuration": "",
+                "System.Xml": "",
+                "System.Web": ""
+            }
+        },
+        "net45": {
+            "buildOptions": {
+                "outputName": "xunit.runner.utility.desktop"
+            },
+            "frameworkAssemblies": {
+                "System.Configuration": "",
+                "System.Xml": "",
+                "System.Xml.Linq": "",
+                "System.Web": ""
+            }
+        },
+        "netstandard1.1": {
+            "buildOptions": {
+                "define": [ "PLATFORM_DOTNET" ],
+                "embed": [
+                    "Resources/xunit.runner.utility.dotnet.rd.xml"
+                ],
+                "outputName": "xunit.runner.utility.dotnet"
+            },
+            "dependencies": {
+                "NETStandard.Library": "1.5.0-rc2-24027"
+            }
+        }
+    },
+    "dependencies": {
+        "xunit.abstractions": "2.0.1-rc1"
+    }
+}

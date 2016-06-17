@@ -1,3 +1,5 @@
+#if !PLATFORM_DOTNET
+
 using System;
 using System.Configuration;
 
@@ -107,3 +109,5 @@ namespace Xunit
         }
     }
 }
+
+#endif

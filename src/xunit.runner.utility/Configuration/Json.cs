@@ -192,7 +192,7 @@ namespace Xunit
 
         string ReadNumber(int firstRead)
         {
-#if PLATFORM_NET35
+#if NET35
             _buffer = new StringBuilder();
 #else
             _buffer.Clear();
@@ -252,7 +252,7 @@ namespace Xunit
 
         string ReadString()
         {
-#if PLATFORM_NET35
+#if NET35
             _buffer = new StringBuilder();
 #else
             _buffer.Clear();
@@ -306,7 +306,7 @@ namespace Xunit
                         var unicodeLine = _line;
                         var unicodeColumn = _column;
 
-#if PLATFORM_NET35
+#if NET35
                         _codePointBuffer = new StringBuilder(4);
 #else
                         _codePointBuffer.Clear();

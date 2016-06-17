@@ -1,3 +1,5 @@
+#if !PLATFORM_DOTNET
+
 using System;
 using System.Threading;
 using System.Web.UI;
@@ -72,3 +74,5 @@ namespace Xunit
         }
     }
 }
+
+#endif

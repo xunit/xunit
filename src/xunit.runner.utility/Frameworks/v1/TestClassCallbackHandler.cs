@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !PLATFORM_DOTNET
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -196,3 +198,5 @@ namespace Xunit
         }
     }
 }
+
+#endif

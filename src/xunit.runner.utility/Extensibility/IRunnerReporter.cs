@@ -27,7 +27,7 @@ namespace Xunit
         /// to explicitly enable the runner. If the return value is <c>null</c>,
         /// then the reported can only be environmentally enabled (implicitly).
         /// This value is used either as a command line switch (with the console or
-        /// DNX runner) or as a runner configuration value (with the MSBuild runner).
+        /// .NET CLI runner) or as a runner configuration value (with the MSBuild runner).
         /// </summary>
         string RunnerSwitch { get; }
 

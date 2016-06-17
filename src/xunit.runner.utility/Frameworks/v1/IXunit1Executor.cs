@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !PLATFORM_DOTNET
+
+using System;
 using System.Collections.Generic;
 using System.Web.UI;
 
@@ -29,3 +31,5 @@ namespace Xunit
         void RunTests(string type, List<string> methods, ICallbackEventHandler handler);
     }
 }
+
+#endif
