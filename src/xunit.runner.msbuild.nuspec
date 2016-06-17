@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata minClientVersion="2.8.1">
+  <metadata minClientVersion="2.8.6">
     <id>xunit.runner.msbuild</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner: MSBuild]</title>
     <authors>James Newkirk,Brad Wilson</authors>
+    <summary>MSBuild runner for the xUnit.net framework.</summary>
     <description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -14,12 +15,12 @@
     <developmentDependency>true</developmentDependency>
   </metadata>
   <files>
-    <file src="xunit.console\*.xslt"                                                target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.abstractions.dll"             target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.reporters.desktop.dll" target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.utility.desktop.dll"   target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll"           target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"               target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="build\_"                                                             target="lib\portable-net45+win8+wp8+wpa81\_" />
+    <file src="xunit.console\*.xslt" target="build\portable-net45+win8+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\bin\Release\net45\xunit.abstractions.dll" target="build\portable-net45+win8+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\bin\Release\net45\xunit.runner.reporters.desktop.dll" target="build\portable-net45+win8+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\bin\Release\net45\xunit.runner.utility.desktop.dll" target="build\portable-net45+win8+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\bin\Release\net45\xunit.runner.msbuild.dll" target="build\portable-net45+win8+wp8+wpa81\" />
+    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props" target="build\portable-net45+win8+wp8+wpa81\" />
+    <file src="build\_" target="lib\portable-net45+win8+wp8+wpa81\_" />
   </files>
 </package>

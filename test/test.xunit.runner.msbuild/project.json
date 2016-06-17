@@ -1,0 +1,23 @@
+﻿{
+    "version": "99.99.99-dev",
+    "buildOptions": {
+        "compile": [
+            "../GlobalTestAssemblyInfo.cs"
+        ],
+        "warningsAsErrors": true
+    },
+    "frameworks": {
+        "net45": {
+            "frameworkAssemblies": {
+                "Microsoft.Build.Framework": "",
+                "Microsoft.Build.Utilities.v4.0": "",
+                "System.Xml": "",
+                "System.Xml.Linq": ""
+            }
+        }
+    },
+    "dependencies": {
+        "test.utility": "99.99.99-dev",
+        "xunit.runner.msbuild": "99.99.99-dev"
+    }
+}
