@@ -1,0 +1,38 @@
+﻿{
+    "version": "99.99.99-dev",
+    "buildOptions": {
+        "compile": [
+            "../common/GlobalAssemblyInfo.cs",
+            "../common/XunitWorkerThread.cs"
+        ],
+        "warningsAsErrors": true
+    },
+    "frameworks": {
+        "net45": {
+            "buildOptions": {
+                "outputName": "xunit.runner.reporters.desktop"
+            },
+            "frameworkAssemblies": {
+                "System.Net.Http": "",
+                "System.Net.Http.WebRequest": "",
+                "System.Web.Extensions": ""
+            }
+        },
+        "netstandard1.1": {
+            "buildOptions": {
+                "define": [ "PLATFORM_DOTNET" ],
+                "embed": [
+                    "Resources/xunit.runner.reporters.dotnet.rd.xml"
+                ],
+                "outputName": "xunit.runner.reporters.dotnet"
+            },
+            "dependencies": {
+                "NETStandard.Library": "1.5.0-rc2-24027",
+                "Newtonsoft.Json": "9.0.1-beta1"
+            }
+        }
+    },
+    "dependencies": {
+        "xunit.runner.utility": "99.99.99-dev"
+    }
+}

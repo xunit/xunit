@@ -5,6 +5,7 @@ namespace Xunit
 {
     static class EnvironmentHelper
     {
+#if PLATFORM_DOTNET
         static readonly Lazy<MethodInfo> getEnvironmentVariableMethod = new Lazy<MethodInfo>(GetEnvironmentVariableMethod);
 
         public static string GetEnvironmentVariable(string variable)
@@ -20,5 +21,11 @@ namespace Xunit
 
             return result;
         }
+#else
+        public static string GetEnvironmentVariable(string variable)
+        {
+            return Environment.GetEnvironmentVariable(variable);
+        }
+#endif
     }
 }
