@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !PLATFORM_DOTNET
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -52,3 +54,5 @@ public class AcceptanceTestV2 : IDisposable
         return Run(types).OfType<TMessageType>().ToList();
     }
 }
+
+#endif

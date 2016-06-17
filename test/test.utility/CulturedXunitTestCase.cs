@@ -1,3 +1,5 @@
+#if !PLATFORM_DOTNET
+
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -73,3 +75,5 @@ namespace TestUtility
         }
     }
 }
+
+#endif

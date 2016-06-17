@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !PLATFORM_DOTNET
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -203,8 +205,8 @@ public static class Mocks
 
     public static ITestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(bool diagnosticMessages = false, int toRun = 42, int discovered = 2112)
     {
-        var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
-        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages };
+        var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
+        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, ShadowCopy = true };
         var result = Substitute.For<ITestAssemblyDiscoveryFinished, InterfaceProxy<ITestAssemblyDiscoveryFinished>>();
         result.Assembly.Returns(assembly);
         result.DiscoveryOptions.Returns(TestFrameworkOptions.ForDiscovery(config));
@@ -215,8 +217,8 @@ public static class Mocks
 
     public static ITestAssemblyDiscoveryStarting TestAssemblyDiscoveryStarting(bool diagnosticMessages = false, bool appDomain = false)
     {
-        var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
-        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true };
+        var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
+        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = true };
         var result = Substitute.For<ITestAssemblyDiscoveryStarting, InterfaceProxy<ITestAssemblyDiscoveryStarting>>();
         result.AppDomain.Returns(appDomain);
         result.Assembly.Returns(assembly);
@@ -226,8 +228,8 @@ public static class Mocks
 
     public static ITestAssemblyExecutionFinished TestAssemblyExecutionFinished(bool diagnosticMessages = false, int total = 2112, int failed = 42, int skipped = 8, int errors = 6, decimal time = 123.456M)
     {
-        var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
-        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages };
+        var assembly = new XunitProjectAssembly { AssemblyFilename = "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
+        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, ShadowCopy = true };
         var summary = new ExecutionSummary { Total = total, Failed = failed, Skipped = skipped, Errors = errors, Time = time };
         var result = Substitute.For<ITestAssemblyExecutionFinished, InterfaceProxy<ITestAssemblyExecutionFinished>>();
         result.Assembly.Returns(assembly);
@@ -238,8 +240,8 @@ public static class Mocks
 
     public static ITestAssemblyExecutionStarting TestAssemblyExecutionStarting(bool diagnosticMessages = false, string assemblyFilename = null)
     {
-        var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFilename ?? "testAssembly.dll", ConfigFilename = "testAssembly.dll.config", ShadowCopy = true };
-        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true };
+        var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFilename ?? "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
+        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = 42, ParallelizeTestCollections = true, ShadowCopy = true };
         var result = Substitute.For<ITestAssemblyExecutionStarting, InterfaceProxy<ITestAssemblyExecutionStarting>>();
         result.Assembly.Returns(assembly);
         result.ExecutionOptions.Returns(TestFrameworkOptions.ForExecution(config));
@@ -615,3 +617,5 @@ public static class Mocks
         return assembly.GetType(parts[0]);
     }
 }
+
+#endif

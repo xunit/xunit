@@ -1,3 +1,5 @@
+#if !PLATFORM_DOTNET
+
 using System.CodeDom.Compiler;
 using System.IO;
 
@@ -20,3 +22,5 @@ public class AcceptanceTestV1Assembly : AcceptanceTestAssembly
         return assembly;
     }
 }
+
+#endif

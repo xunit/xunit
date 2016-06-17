@@ -1,3 +1,5 @@
+#if !PLATFORM_DOTNET
+
 using System.CodeDom.Compiler;
 using System.IO;
 using Xunit;
@@ -21,3 +23,5 @@ public class AcceptanceTestV2Assembly : AcceptanceTestAssembly
         return assembly;
     }
 }
+
+#endif

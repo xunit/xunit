@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !PLATFORM_DOTNET
+
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -102,3 +104,5 @@ public static class NSubstituteExtensions
         }
     }
 }
+
+#endif

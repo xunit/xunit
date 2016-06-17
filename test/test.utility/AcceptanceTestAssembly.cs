@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !PLATFORM_DOTNET
+
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
@@ -85,3 +87,5 @@ public abstract class AcceptanceTestAssembly : IDisposable
             File.Delete(PdbName);
     }
 }
+
+#endif

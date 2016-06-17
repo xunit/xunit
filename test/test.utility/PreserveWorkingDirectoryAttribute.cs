@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿#if !PLATFORM_DOTNET
+
+using System.IO;
 using System.Reflection;
 using Xunit.Sdk;
 
@@ -16,3 +18,5 @@ public class PreserveWorkingDirectoryAttribute : BeforeAfterTestAttribute
         Directory.SetCurrentDirectory(workingDirectory);
     }
 }
+
+#endif
