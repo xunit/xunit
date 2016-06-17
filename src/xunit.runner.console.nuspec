@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata minClientVersion="2.8.1">
+  <metadata minClientVersion="2.8.6">
     <id>xunit.runner.console</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner: Console]</title>
     <authors>James Newkirk,Brad Wilson</authors>
+    <summary>Console runner for the xUnit.net framework.</summary>
     <description>Console runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
@@ -14,13 +15,13 @@
     <developmentDependency>true</developmentDependency>
   </metadata>
   <files>
-    <file src="xunit.console\*.xslt"                                         target="tools\" />
-    <file src="xunit.console\bin\Release\xunit.abstractions.dll"             target="tools\" />
-    <file src="xunit.console\bin\Release\xunit.runner.reporters.desktop.dll" target="tools\" />
-    <file src="xunit.console\bin\Release\xunit.runner.utility.desktop.dll"   target="tools\" />
-    <file src="xunit.console\bin\Release\xunit.console.exe"                  target="tools\" />
-    <file src="xunit.console\bin\Release\xunit.console.exe.config"           target="tools\" />
-    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe"          target="tools\" />
-    <file src="xunit.console\bin\Release.x86\xunit.console.x86.exe.config"   target="tools\" />
+    <file src="xunit.console\*.xslt" target="tools\" />
+    <file src="xunit.console\bin\Release\net45\win7-x64\xunit.abstractions.dll" target="tools\" />
+    <file src="xunit.console\bin\Release\net45\win7-x64\xunit.runner.reporters.desktop.dll" target="tools\" />
+    <file src="xunit.console\bin\Release\net45\win7-x64\xunit.runner.utility.desktop.dll" target="tools\" />
+    <file src="xunit.console\bin\Release\net45\win7-x64\xunit.console.exe" target="tools\" />
+    <file src="xunit.console\bin\Release\net45\win7-x64\xunit.console.exe.config" target="tools\" />
+    <file src="xunit.console\bin\Release_x86\net45\win7-x64\xunit.console.x86.exe" target="tools\" />
+    <file src="xunit.console\bin\Release_x86\net45\win7-x64\xunit.console.x86.exe.config" target="tools\" />
   </files>
 </package>
