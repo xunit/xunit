@@ -38,7 +38,7 @@ x86/
 Index.dat
 Storage.dat
 
-# DNX
+# .NET CLI
 project.lock.json
 artifacts/
 

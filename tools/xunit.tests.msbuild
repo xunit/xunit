@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
 
   <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
@@ -9,16 +9,22 @@
   </PropertyGroup>
 
   <UsingTask
-      AssemblyFile="..\src\xunit.runner.msbuild\bin\$(Configuration)\xunit.runner.msbuild.dll"
+      AssemblyFile="..\src\xunit.runner.msbuild\bin\$(Configuration)\net45\xunit.runner.msbuild.dll"
       TaskName="Xunit.Runner.MSBuild.xunit"/>
 
   <ItemGroup>
     <TestAssemblies
-        Include="..\test\test.xunit*\bin\$(Configuration)\test.xunit*.dll"
-        Exclude="..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll" />
+        Include="..\test\test.xunit*\bin\$(Configuration)\net45\test.xunit*.dll"/>
   </ItemGroup>
 
-  <Target Name="Test">
+  <Target Name="CopyDependencies">
+    <Copy
+        SourceFiles="..\packages\xunit.1.9.2\lib\net20\xunit.dll;..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll"
+        DestinationFolder="..\test\test.xunit.runner.utility\bin\$(Configuration)\net45\"
+        SkipUnchangedFiles="true"/>
+  </Target>
+
+  <Target Name="Test" DependsOnTargets="CopyDependencies">
     <xunit
         Assemblies="..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll"
         SerializeTestCases="true"
@@ -36,9 +42,9 @@
     />
   </Target>
 
-  <Target Name="Console">
-    <exec Command="..\src\xunit.console\bin\$(Configuration)\xunit.console.exe ..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll" />
-    <exec Command="..\src\xunit.console\bin\$(Configuration)\xunit.console.exe @(TestAssemblies->'%(identity)', ' ') -parallel all" />
+  <Target Name="Console" DependsOnTargets="CopyDependencies">
+    <exec Command="..\src\xunit.console\bin\$(Configuration)\net45\xunit.console.exe ..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll" />
+    <exec Command="..\src\xunit.console\bin\$(Configuration)\net45\xunit.console.exe @(TestAssemblies->'%(identity)', ' ') -parallel all" />
   </Target>
 
 </Project>

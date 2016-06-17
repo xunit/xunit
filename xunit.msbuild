@@ -16,7 +16,6 @@
     <SolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">$(MSBuildProjectDirectory)</SolutionDir>
     <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(SolutionDir)\.nuget\nuget.exe</NuGetExePath>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">normal</RequestedVerbosity>
-    <KvmPath Condition="'$(KvmPath)' == ''">$(SolutionDir)\tools\kvm.cmd</KvmPath>
     <MyGetUrl Condition="'$(MyGetUrl)' == ''">https://www.myget.org/F/xunit/api/v2/package</MyGetUrl>
   </PropertyGroup>
   <ItemGroup>
@@ -44,7 +43,10 @@
   <Target Name="Clean">
     <ItemGroup>
       <CleanFileList Include="*.html;*.xml;*.nupkg;.nuget\NuGet.exe"/>
-      <CleanFolderList Include="xunit.console\bin\$(Configuration).x86"/>
+      <CleanFolderList
+        Include="packages\gitlink;
+                 packages\NuSpec.ReferenceGenerator;
+                 packages\xunit.buildtasks"/>
     </ItemGroup>
     <MSBuild
         Projects="$(SolutionName)"
@@ -57,8 +59,50 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; install NuSpec.ReferenceGenerator -Pre -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\NuSpec.ReferenceGenerator\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install gitlink -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\gitlink\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\$(SolutionName)&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
+  </Target>
+
+  <Target Name="UpdateNuspecDependencies" DependsOnTargets="PackageRestore">
+    <ItemGroup>
+      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.assert.nuspec">
+        <AssemblyName>xunit.assert.dll</AssemblyName>
+        <ProjectPath>$(SolutionDir)\src\xunit.assert</ProjectPath>
+        <ProjectName>xunit.assert.xproj</ProjectName>
+        <Moniker>.NETStandard,Version=v1.0</Moniker>
+        <TargetFramework>netstandard1.0</TargetFramework>
+      </ReferenceUpdates>
+      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.extensibility.core.nuspec">
+        <AssemblyName>xunit.core.dll</AssemblyName>
+        <ProjectPath>$(SolutionDir)\src\xunit.core</ProjectPath>
+        <ProjectName>xunit.core.xproj</ProjectName>
+        <Moniker>.NETStandard,Version=v1.0</Moniker>
+        <TargetFramework>netstandard1.0</TargetFramework>
+      </ReferenceUpdates>
+      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.extensibility.execution.nuspec">
+        <AssemblyName>xunit.execution.dotnet.dll</AssemblyName>
+        <ProjectPath>$(SolutionDir)\src\xunit.execution</ProjectPath>
+        <ProjectName>xunit.execution.xproj</ProjectName>
+        <Moniker>.NETStandard,Version=v1.0</Moniker>
+        <TargetFramework>netstandard1.0</TargetFramework>
+      </ReferenceUpdates>
+      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.runner.reporters.nuspec">
+        <AssemblyName>xunit.runner.reporters.dotnet.dll</AssemblyName>
+        <ProjectPath>$(SolutionDir)\src\xunit.runner.reporters</ProjectPath>
+        <ProjectName>xunit.runner.reporters.xproj</ProjectName>
+        <Moniker>.NETStandard,Version=v1.1</Moniker>
+        <TargetFramework>netstandard1.1</TargetFramework>
+      </ReferenceUpdates>
+      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.runner.utility.nuspec">
+        <AssemblyName>xunit.runner.utility.dotnet.dll</AssemblyName>
+        <ProjectPath>$(SolutionDir)\src\xunit.runner.utility</ProjectPath>
+        <ProjectName>xunit.runner.utility.xproj</ProjectName>
+        <Moniker>.NETStandard,Version=v1.1</Moniker>
+        <TargetFramework>netstandard1.1</TargetFramework>
+      </ReferenceUpdates>
+    </ItemGroup>
+    <Exec Command="&quot;$(SolutionDir)\packages\NuSpec.ReferenceGenerator\tools\RefGen.exe&quot; generate-single -n &quot;@(ReferenceUpdates)&quot; -p &quot;%(ProjectPath)\%(ProjectName)&quot; -f &quot;%(ProjectPath)\bin\$(Configuration)\%(TargetFramework)\%(AssemblyName)&quot; -m %(Moniker) -t %(TargetFramework)" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
@@ -68,27 +112,11 @@
         Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
 
     <!-- Build xunit.console.x86 -->
-    <Copy
-        SourceFiles="src\xunit.console\xunit.console.csproj"
-        DestinationFiles="src\xunit.console\xunit.console.x86.csproj"/>
-    <RegexReplace
-        Pattern="&lt;AssemblyName>xunit\.console&lt;/AssemblyName>"
-        Replacement="&lt;AssemblyName>xunit.console.x86&lt;/AssemblyName>"
-        Files="src\xunit.console\xunit.console.x86.csproj"/>
-    <RegexReplace
-        Pattern="&lt;OutputPath>bin\\(\w+)\\&lt;/OutputPath>"
-        Replacement="&lt;OutputPath>bin\$1.x86\&lt;/OutputPath>"
-        Files="src\xunit.console\xunit.console.x86.csproj"/>
-    <MSBuild
-        Projects="src\xunit.console\xunit.console.x86.csproj"
-        Targets="Build"
-        Properties="PlatformTarget=x86;Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
+    <Exec Command="dotnet build --configuration $(Configuration)_x86 src\xunit.console"/>
     <RegexReplace
         Pattern="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console&quot;"
         Replacement="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console.x86&quot;"
-        Files="src\xunit.console\bin\$(Configuration).x86\xunit.console.x86.exe.config" />
-    <Delete
-        Files="src\xunit.console\xunit.console.x86.csproj" />
+        Files="src\xunit.console\bin\$(Configuration)_x86\net45\win7-x64\xunit.console.x86.exe.config" />
   </Target>
 
   <Target Name="_Test32" DependsOnTargets="Build">
@@ -125,8 +153,8 @@
         Command='packages\gitlink\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f $(SolutionName) -u https://github.com/xunit/xunit -s $(CommitHash)' IgnoreExitCode='true' />
   </Target>
 
-  <Target Name='Packages'>
-    <Exec Command='"$(NuGetExePath)" pack %(NuspecFiles.Identity) -NoPackageAnalysis -NonInteractive -Verbosity quiet' />
+  <Target Name='Packages' DependsOnTargets='UpdateNuspecDependencies'>
+    <Exec Command='"$(NuGetExePath)" pack %(NuspecFiles.Identity) -NonInteractive -Verbosity quiet' />
   </Target>
 
   <Target Name='ZipArtifacts'>
@@ -180,7 +208,7 @@
 
               Log.LogMessage("Downloading latest version of NuGet.exe...");
               WebClient webClient = new WebClient();
-              webClient.DownloadFile("https://dist.nuget.org/win-x86-commandline/v3.2.0/nuget.exe", OutputFilename);
+              webClient.DownloadFile("https://dist.nuget.org/win-x86-commandline/latest/nuget.exe", OutputFilename);
 
               return true;
           }
