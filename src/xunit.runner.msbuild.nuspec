@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata minClientVersion="2.8.6">
+  <metadata minClientVersion="2.12">
     <id>xunit.runner.msbuild</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner: MSBuild]</title>
@@ -21,6 +21,6 @@
     <file src="xunit.runner.msbuild\bin\Release\net45\xunit.runner.utility.desktop.dll" target="build\portable-net45+win8+wp8+wpa81\" />
     <file src="xunit.runner.msbuild\bin\Release\net45\xunit.runner.msbuild.dll" target="build\portable-net45+win8+wp8+wpa81\" />
     <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props" target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="build\_" target="lib\portable-net45+win8+wp8+wpa81\_" />
+    <file src="build\_._" target="lib\portable-net45+win8+wp8+wpa81\_._" />
   </files>
 </package>
