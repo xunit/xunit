@@ -22,10 +22,6 @@
     <NuspecFiles Include="src\*.nuspec" />
     <ProjectJsonFiles Include="src\*\project.json" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(PackageSources)' == '' ">
-    <PackageSource Include="https://nuget.org/api/v2/" />
-    <PackageSource Include="http://www.myget.org/F/b4ff5f68eccf4f6bbfed74f055f88d8f/" />
-  </ItemGroup>
 
   <!-- Build server targets -->
 
@@ -56,10 +52,10 @@
 
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; install NuSpec.ReferenceGenerator -Pre -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\NuSpec.ReferenceGenerator\')" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; install NuSpec.ReferenceGenerator -Pre -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\NuSpec.ReferenceGenerator\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install gitlink -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\gitlink\')" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\$(SolutionName)&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\test\test.xunit1\packages.config&quot; -SolutionDirectory &quot;$(SolutionDir)&quot; -NonInteractive -Verbosity quiet" />
     <Exec Command="dotnet restore -v Warning" />
   </Target>
 
