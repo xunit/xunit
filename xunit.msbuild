@@ -44,14 +44,12 @@
     <ItemGroup>
       <CleanFileList Include="*.html;*.xml;*.nupkg;.nuget\NuGet.exe"/>
       <CleanFolderList
-        Include="packages\gitlink;
+        Include="**\bin;
+                 **\obj;
+                 packages\gitlink;
                  packages\NuSpec.ReferenceGenerator;
                  packages\xunit.buildtasks"/>
     </ItemGroup>
-    <MSBuild
-        Projects="$(SolutionName)"
-        Targets="Clean"
-        Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
     <Delete Files="@(CleanFileList)"/>
     <RemoveDir Directories="@(CleanFolderList)" ContinueOnError="true"/>
   </Target>
@@ -108,11 +106,9 @@
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
     <MSBuild
-        Projects="$(SolutionName)"
-        Targets="Build"
+        Projects="test\test.xunit1\test.xunit1.csproj"
         Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
-
-    <!-- Build xunit.console.x86 -->
+    <Exec Command="dotnet build --configuration $(Configuration) src\*\project.json test\*\project.json"/>
     <Exec Command="dotnet build --configuration $(Configuration)_x86 src\xunit.console"/>
     <RegexReplace
         Pattern="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console&quot;"

@@ -61,6 +61,6 @@
         }
     },
     "dependencies": {
-        "xunit.abstractions": "2.0.1-rc1"
+        "xunit.abstractions": "2.0.1-rc2"
     }
 }
