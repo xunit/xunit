@@ -17,15 +17,7 @@
     </references>
     <dependencies>
       <group targetFramework="netstandard1.0">
-        <dependency id="System.Collections" version="4.0.11-rc2-24027" />
-        <dependency id="System.Diagnostics.Debug" version="4.0.11-rc2-24027" />
-        <dependency id="System.Globalization" version="4.0.11-rc2-24027" />
-        <dependency id="System.Linq" version="4.1.0-rc2-24027" />
-        <dependency id="System.Reflection" version="4.1.0-rc2-24027" />
-        <dependency id="System.Reflection.Extensions" version="4.0.1-rc2-24027" />
-        <dependency id="System.Runtime" version="4.1.0-rc2-24027" />
-        <dependency id="System.Runtime.Extensions" version="4.1.0-rc2-24027" />
-        <dependency id="System.Threading.Tasks" version="4.0.11-rc2-24027" />
+        <dependency id="NETStandard.Library" version="1.5.0-rc2-24027" />
         <dependency id="xunit.abstractions" version="2.0.1-rc2" />
       </group>
       <group targetFramework="portable-net45+win8+wp8+wpa81">
@@ -34,12 +26,13 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll" target="lib\net45\" />
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll.tdnet" target="lib\net45\" />
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.pdb" target="lib\net45\" />
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.xml" target="lib\net45\" />
-    <file src="xunit.runner.tdnet\bin\Release\net45\xunit.runner.tdnet.dll" target="lib\net45\" />
+    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll"                  target="lib\net45\" />
+    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll.tdnet"            target="lib\net45\" />
+    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.pdb"                  target="lib\net45\" />
+    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.xml"                  target="lib\net45\" />
+    <file src="xunit.runner.tdnet\bin\Release\net45\xunit.runner.tdnet.dll"           target="lib\net45\" />
     <file src="xunit.runner.tdnet\bin\Release\net45\xunit.runner.utility.desktop.dll" target="lib\net45\" />
+
     <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll" target="lib\netstandard1.0\" />
     <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.pdb" target="lib\netstandard1.0\" />
     <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.xml" target="lib\netstandard1.0\" />

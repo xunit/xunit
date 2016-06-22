@@ -43,7 +43,6 @@
         Include="**\bin;
                  **\obj;
                  packages\gitlink;
-                 packages\NuSpec.ReferenceGenerator;
                  packages\xunit.buildtasks"/>
     </ItemGroup>
     <Delete Files="@(CleanFileList)"/>
@@ -53,50 +52,8 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; install NuSpec.ReferenceGenerator -Pre -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\NuSpec.ReferenceGenerator\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install gitlink -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\gitlink\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\test\test.xunit1\packages.config&quot; -SolutionDirectory &quot;$(SolutionDir)&quot; -NonInteractive -Verbosity quiet" />
-  </Target>
-
-  <Target Name="UpdateNuspecDependencies" DependsOnTargets="PackageRestore">
-    <ItemGroup>
-      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.assert.nuspec">
-        <AssemblyName>xunit.assert.dll</AssemblyName>
-        <ProjectPath>$(SolutionDir)\src\xunit.assert</ProjectPath>
-        <ProjectName>xunit.assert.xproj</ProjectName>
-        <Moniker>.NETStandard,Version=v1.0</Moniker>
-        <TargetFramework>netstandard1.0</TargetFramework>
-      </ReferenceUpdates>
-      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.extensibility.core.nuspec">
-        <AssemblyName>xunit.core.dll</AssemblyName>
-        <ProjectPath>$(SolutionDir)\src\xunit.core</ProjectPath>
-        <ProjectName>xunit.core.xproj</ProjectName>
-        <Moniker>.NETStandard,Version=v1.0</Moniker>
-        <TargetFramework>netstandard1.0</TargetFramework>
-      </ReferenceUpdates>
-      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.extensibility.execution.nuspec">
-        <AssemblyName>xunit.execution.dotnet.dll</AssemblyName>
-        <ProjectPath>$(SolutionDir)\src\xunit.execution</ProjectPath>
-        <ProjectName>xunit.execution.xproj</ProjectName>
-        <Moniker>.NETStandard,Version=v1.0</Moniker>
-        <TargetFramework>netstandard1.0</TargetFramework>
-      </ReferenceUpdates>
-      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.runner.reporters.nuspec">
-        <AssemblyName>xunit.runner.reporters.dotnet.dll</AssemblyName>
-        <ProjectPath>$(SolutionDir)\src\xunit.runner.reporters</ProjectPath>
-        <ProjectName>xunit.runner.reporters.xproj</ProjectName>
-        <Moniker>.NETStandard,Version=v1.1</Moniker>
-        <TargetFramework>netstandard1.1</TargetFramework>
-      </ReferenceUpdates>
-      <ReferenceUpdates Include="$(SolutionDir)\src\xunit.runner.utility.nuspec">
-        <AssemblyName>xunit.runner.utility.dotnet.dll</AssemblyName>
-        <ProjectPath>$(SolutionDir)\src\xunit.runner.utility</ProjectPath>
-        <ProjectName>xunit.runner.utility.xproj</ProjectName>
-        <Moniker>.NETStandard,Version=v1.1</Moniker>
-        <TargetFramework>netstandard1.1</TargetFramework>
-      </ReferenceUpdates>
-    </ItemGroup>
-    <Exec Command="&quot;$(SolutionDir)\packages\NuSpec.ReferenceGenerator\tools\RefGen.exe&quot; generate-single -n &quot;@(ReferenceUpdates)&quot; -p &quot;%(ProjectPath)\%(ProjectName)&quot; -f &quot;%(ProjectPath)\bin\$(Configuration)\%(TargetFramework)\%(AssemblyName)&quot; -m %(Moniker) -t %(TargetFramework)" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
@@ -147,7 +104,7 @@
         Command='packages\gitlink\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f $(SolutionName) -u https://github.com/xunit/xunit -s $(CommitHash)' IgnoreExitCode='true' />
   </Target>
 
-  <Target Name='Packages' DependsOnTargets='UpdateNuspecDependencies'>
+  <Target Name='Packages'>
     <Exec Command='"$(NuGetExePath)" pack %(NuspecFiles.Identity) -NonInteractive -Verbosity quiet' />
   </Target>
 
