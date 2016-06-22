@@ -62,6 +62,7 @@
     <Exec Command="&quot;$(NuGetExePath)&quot; install NuSpec.ReferenceGenerator -Pre -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\NuSpec.ReferenceGenerator\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install gitlink -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\gitlink\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\$(SolutionName)&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
+    <Exec Command="dotnet restore -v Warning" />
   </Target>
 
   <Target Name="UpdateNuspecDependencies" DependsOnTargets="PackageRestore">
