@@ -20,7 +20,7 @@
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles Include="src\*.nuspec" />
-    <ProjectJsonFiles Include="src\*\project.json" />
+    <ProjectJsonFiles Include="src\*\project.json;test\*\project.json" />
   </ItemGroup>
 
   <!-- Build server targets -->
