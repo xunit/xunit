@@ -133,7 +133,7 @@
     <ItemGroup>
       <NupkgFiles Include="*.nupkg" Exclude="*.symbols*.nupkg" />
     </ItemGroup>
-    <Exec Command='"$(NuGetExePath)" push %(NupkgFiles.Identity) -NonInteractive' />
+    <Exec Command='"$(NuGetExePath)" push %(NupkgFiles.Identity) -Source https://www.nuget.org/api/v2/package -NonInteractive' />
   </Target>
 
   <Target Name="_DownloadNuGet">
