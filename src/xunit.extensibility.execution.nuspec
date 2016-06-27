@@ -14,7 +14,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
       <group targetFramework="netstandard1.0">
-        <dependency id="NETStandard.Library" version="1.5.0-rc2-24027" />
+        <dependency id="NETStandard.Library" version="1.6.0" />
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
       <group targetFramework="portable-net45+win8+wp8+wpa81">

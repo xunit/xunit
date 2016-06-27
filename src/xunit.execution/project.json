@@ -41,8 +41,7 @@
                 "outputName": "xunit.execution.dotnet"
             },
             "dependencies": {
-                "NETStandard.Library": "1.5.0-rc2-24027",
-                "System.Linq.Expressions": "4.0.11-rc2-24027"
+                "NETStandard.Library": "1.6.0"
             }
         }
     },
