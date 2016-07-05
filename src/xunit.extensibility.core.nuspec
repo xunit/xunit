@@ -33,8 +33,11 @@
     <file src="xunit.runner.tdnet\bin\Release\net45\xunit.runner.tdnet.dll"           target="lib\net45\" />
     <file src="xunit.runner.tdnet\bin\Release\net45\xunit.runner.utility.desktop.dll" target="lib\net45\" />
 
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll" target="lib\netstandard1.0\" />
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.pdb" target="lib\netstandard1.0\" />
-    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.xml" target="lib\netstandard1.0\" />
+    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll"                  target="lib\netstandard1.0\" />
+    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.dll.tdnet"            target="lib\netstandard1.0\" />
+    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.pdb"                  target="lib\netstandard1.0\" />
+    <file src="xunit.core\bin\Release\netstandard1.0\xunit.core.xml"                  target="lib\netstandard1.0\" />
+    <file src="xunit.runner.tdnet\bin\Release\net45\xunit.runner.tdnet.dll"           target="lib\netstandard1.0\" />
+    <file src="xunit.runner.tdnet\bin\Release\net45\xunit.runner.utility.desktop.dll" target="lib\netstandard1.0\" />
   </files>
 </package>
