@@ -1,4 +1,4 @@
-For project documentation, please visit the [xUnit.net project home](http://xunit.github.io/).
+For project documentation, please visit the [xUnit.net project home](https://xunit.github.io/).
 
 Latest builds:
 
