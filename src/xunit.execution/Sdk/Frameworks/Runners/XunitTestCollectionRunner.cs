@@ -52,11 +52,12 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         protected override async Task BeforeTestCollectionFinishedAsync()
         {
-            foreach (var fixture in CollectionFixtureMappings.Values.OfType<IAsyncLifetime>())
-                await Aggregator.RunAsync(fixture.DisposeAsync);
+            var disposeAsyncTasks = CollectionFixtureMappings.Values.OfType<IAsyncLifetime>().Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync)).ToList();
 
             foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
+
+            await Task.WhenAll(disposeAsyncTasks);
         }
 
         /// <summary>
@@ -77,12 +78,10 @@ namespace Xunit.Sdk
                 {
                     var fixtureType = interfaceType.GenericTypeArguments.Single();
                     CreateCollectionFixture(fixtureType);
-                    foreach (var asyncFixture in CollectionFixtureMappings.Values.OfType<IAsyncLifetime>())
-                    {
-                        await Aggregator.RunAsync(asyncFixture.InitializeAsync);
-                    }
                 }
 
+                var initializeAsyncTasks = CollectionFixtureMappings.Values.OfType<IAsyncLifetime>().Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync)).ToList();
+                await Task.WhenAll(initializeAsyncTasks);
             }
         }
 
