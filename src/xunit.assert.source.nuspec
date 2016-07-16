@@ -12,9 +12,12 @@
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <contentFiles>
+      <files include="contentFiles/cs/netstandard1.0/Asserts/**/*.cs" buildAction="Compile" />
+    </contentFiles>
   </metadata>
   <files>
     <file src="xunit.assert\Asserts\**\*.cs" target="Content\Asserts" />
-    <file src="xunit.assert\Asserts\**\*.cs" target="shared" />
+    <file src="xunit.assert\Asserts\**\*.cs" target="contentFiles\cs\netstandard1.0\Asserts" />
   </files>
 </package>
