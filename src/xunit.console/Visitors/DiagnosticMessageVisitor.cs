@@ -18,21 +18,35 @@ namespace Xunit.ConsoleClient
             this.noColor = noColor;
         }
 
-        protected override bool Visit(IDiagnosticMessage diagnosticMessage)
+        /// <inheritdoc/>
+        public override bool OnMessage(IMessageSinkMessage message)
         {
             if (showDiagnostics)
-                lock (consoleLock)
+            {
+                var diagnosticMessage = message as IDiagnosticMessage;
+                if (diagnosticMessage != null)
                 {
-                    if (!noColor)
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-
-                    Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
-
-                    if (!noColor)
-                        Console.ResetColor();
+                    return Visit(diagnosticMessage);
                 }
+            }
 
-            return base.Visit(diagnosticMessage);
+            return true;
+        }
+
+        protected override bool Visit(IDiagnosticMessage diagnosticMessage)
+        {
+            lock (consoleLock)
+            {
+                if (!noColor)
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+
+                Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
+
+                if (!noColor)
+                    Console.ResetColor();
+            }
+
+            return true;
         }
     }
 }
