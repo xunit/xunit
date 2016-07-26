@@ -13,7 +13,7 @@ namespace Xunit
         static readonly Type typeDiaSession;
         static readonly Type typeDiaNavigationData;
 
-        readonly string assemblyFileName;
+        public readonly string AssemblyFileName;
         bool sessionHasErrors;
         IDisposable wrappedSession;
 
@@ -32,7 +32,7 @@ namespace Xunit
 
         public DiaSession(string assemblyFileName)
         {
-            this.assemblyFileName = assemblyFileName;
+            this.AssemblyFileName = assemblyFileName;
             sessionHasErrors |= (typeDiaSession == null || Environment.GetEnvironmentVariable("XUNIT_SKIP_DIA") != null);
         }
 
@@ -42,13 +42,13 @@ namespace Xunit
                 wrappedSession.Dispose();
         }
 
-        public DiaNavigationData GetNavigationData(string typeName, string methodName)
+        public DiaNavigationData GetNavigationData(string typeName, string methodName, string owningAssemblyFilename)
         {
             if (!sessionHasErrors)
                 try
                 {
                     if (wrappedSession == null)
-                        wrappedSession = (IDisposable)Activator.CreateInstance(typeDiaSession, assemblyFileName);
+                        wrappedSession = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename);
 
                     var data = methodGetNavigationData.Invoke(wrappedSession, new[] { typeName, methodName });
                     if (data == null)
