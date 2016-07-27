@@ -61,6 +61,6 @@
         }
     },
     "dependencies": {
-        "xunit.abstractions": "2.0.1-rc2"
+        "xunit.abstractions": "99.99.99-dev"
     }
 }
