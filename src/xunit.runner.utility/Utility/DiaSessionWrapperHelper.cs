@@ -148,7 +148,7 @@ namespace Xunit
             return Expression.Lambda<Func<MethodInfo, Type>>(conditional, methodParam).Compile();
         }
 
-        public void Normalize(ref string typeName, ref string methodName)
+        public void Normalize(ref string typeName, ref string methodName, ref string assemblyPath)
         {
             try
             {
@@ -163,6 +163,7 @@ namespace Xunit
                     {
                         // DiaSession only ever wants you to ask for the declaring type
                         typeName = method.DeclaringType.FullName;
+                        assemblyPath = method.DeclaringType.Assembly.Location;
 
                         // See if this is an async method by looking for [AsyncStateMachine] on the method,
                         // which means we need to pass the state machine's "MoveNext" method.

@@ -1,6 +1,7 @@
 ﻿#if !PLATFORM_DOTNET
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Xunit
@@ -13,9 +14,9 @@ namespace Xunit
         static readonly Type typeDiaSession;
         static readonly Type typeDiaNavigationData;
 
-        readonly string assemblyFileName;
+        public readonly string AssemblyFileName;
         bool sessionHasErrors;
-        IDisposable wrappedSession;
+        readonly Dictionary<string,IDisposable> wrappedSessions;
 
         static DiaSession()
         {
@@ -32,25 +33,26 @@ namespace Xunit
 
         public DiaSession(string assemblyFileName)
         {
-            this.assemblyFileName = assemblyFileName;
+            this.AssemblyFileName = assemblyFileName;
             sessionHasErrors |= (typeDiaSession == null || Environment.GetEnvironmentVariable("XUNIT_SKIP_DIA") != null);
+            wrappedSessions = new Dictionary<string, IDisposable>();
         }
 
         public void Dispose()
         {
-            if (wrappedSession != null)
+            foreach (var wrappedSession in wrappedSessions.Values)
                 wrappedSession.Dispose();
         }
 
-        public DiaNavigationData GetNavigationData(string typeName, string methodName)
+        public DiaNavigationData GetNavigationData(string typeName, string methodName, string owningAssemblyFilename)
         {
             if (!sessionHasErrors)
                 try
                 {
-                    if (wrappedSession == null)
-                        wrappedSession = (IDisposable)Activator.CreateInstance(typeDiaSession, assemblyFileName);
+                    if (!wrappedSessions.ContainsKey(owningAssemblyFilename))
+                        wrappedSessions[owningAssemblyFilename] = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename);
 
-                    var data = methodGetNavigationData.Invoke(wrappedSession, new[] { typeName, methodName });
+                    var data = methodGetNavigationData.Invoke(wrappedSessions[owningAssemblyFilename], new[] { typeName, methodName });
                     if (data == null)
                         return null;
 

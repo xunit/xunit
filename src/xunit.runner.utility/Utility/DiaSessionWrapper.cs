@@ -24,8 +24,9 @@ namespace Xunit
 
         public DiaNavigationData GetNavigationData(string typeName, string methodName)
         {
-            helper.Normalize(ref typeName, ref methodName);
-            return session.GetNavigationData(typeName, methodName);
+            var owningAssemblyFilename = session.AssemblyFileName;
+            helper.Normalize(ref typeName, ref methodName, ref owningAssemblyFilename);
+            return session.GetNavigationData(typeName, methodName, owningAssemblyFilename);
         }
 
         public void Dispose()
