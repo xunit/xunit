@@ -1,6 +1,7 @@
 ﻿#if !PLATFORM_DOTNET
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Xunit
@@ -15,7 +16,7 @@ namespace Xunit
 
         public readonly string AssemblyFileName;
         bool sessionHasErrors;
-        IDisposable wrappedSession;
+        readonly Dictionary<string,IDisposable> wrappedSessions;
 
         static DiaSession()
         {
@@ -34,11 +35,12 @@ namespace Xunit
         {
             this.AssemblyFileName = assemblyFileName;
             sessionHasErrors |= (typeDiaSession == null || Environment.GetEnvironmentVariable("XUNIT_SKIP_DIA") != null);
+            wrappedSessions = new Dictionary<string, IDisposable>();
         }
 
         public void Dispose()
         {
-            if (wrappedSession != null)
+            foreach (var wrappedSession in wrappedSessions.Values)
                 wrappedSession.Dispose();
         }
 
@@ -47,10 +49,10 @@ namespace Xunit
             if (!sessionHasErrors)
                 try
                 {
-                    if (wrappedSession == null)
-                        wrappedSession = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename);
+                    if (!wrappedSessions.ContainsKey(owningAssemblyFilename))
+                        wrappedSessions[owningAssemblyFilename] = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename);
 
-                    var data = methodGetNavigationData.Invoke(wrappedSession, new[] { typeName, methodName });
+                    var data = methodGetNavigationData.Invoke(wrappedSessions[owningAssemblyFilename], new[] { typeName, methodName });
                     if (data == null)
                         return null;
 
