@@ -14,8 +14,6 @@
             "../common/NullMessageSink.cs",
             "../common/SerializationHelper.cs",
             "../common/SourceInformation.cs",
-            "../common/TestDiscoveryVisitor.cs",
-            "../common/TestMessageVisitor.cs",
             "../common/TestOptionsNames.cs",
             "../common/XunitSerializationInfo.cs",
             "../common/XunitWorkerThread.cs",

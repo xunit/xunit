@@ -7,7 +7,6 @@
             "../../src/common/Guard.cs",
             "../../src/common/NewReflectionExtensions.cs",
             "../../src/common/SerializationHelper.cs",
-            "../../src/common/TestDiscoveryVisitor.cs",
             "../../src/common/TestOptionsNames.cs",
             "../../src/common/XunitSerializationInfo.cs",
             "../../src/xunit.assert/Asserts/Sdk/ArgumentFormatter.cs",

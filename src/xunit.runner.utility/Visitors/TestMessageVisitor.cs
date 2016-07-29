@@ -2,11 +2,7 @@
 using System.Threading;
 using Xunit.Abstractions;
 
-#if XUNIT_FRAMEWORK
-namespace Xunit.Sdk
-#else
 namespace Xunit
-#endif
 {
     /// <summary>
     /// An implementation of <see cref="IMessageSink"/> that provides several Visit methods that
@@ -53,13 +49,11 @@ namespace Xunit
         public virtual bool OnMessage(IMessageSinkMessage message)
         {
             return
-#if !XUNIT_FRAMEWORK
                 DoVisit<ITestAssemblyDiscoveryFinished>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<ITestAssemblyDiscoveryStarting>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<ITestAssemblyExecutionFinished>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<ITestAssemblyExecutionStarting>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<ITestExecutionSummary>(message, (t, m) => t.Visit(m)) &&
-#endif
                 DoVisit<IAfterTestFinished>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<IAfterTestStarting>(message, (t, m) => t.Visit(m)) &&
                 DoVisit<IBeforeTestFinished>(message, (t, m) => t.Visit(m)) &&
@@ -96,7 +90,6 @@ namespace Xunit
                 DoVisit<ITestStarting>(message, (t, m) => t.Visit(m));
         }
 
-#if !XUNIT_FRAMEWORK
         /// <summary>
         /// Called when an instance of <see cref="ITestAssemblyDiscoveryFinished"/> is sent to the message sink.
         /// </summary>
@@ -146,7 +139,6 @@ namespace Xunit
         {
             return true;
         }
-#endif
 
         /// <summary>
         /// Called when an instance of <see cref="IAfterTestFinished"/> is sent to the message sink.

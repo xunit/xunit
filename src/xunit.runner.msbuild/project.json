@@ -5,8 +5,7 @@
             "../common/AssemblyExtensions.cs",
             "../common/DictionaryExtensions.cs",
             "../common/GlobalAssemblyInfo.cs",
-            "../common/Guard.cs",
-            "../common/TestDiscoveryVisitor.cs"
+            "../common/Guard.cs"
         ],
         "embed": [
             "../xunit.console/NUnitXml.xslt",

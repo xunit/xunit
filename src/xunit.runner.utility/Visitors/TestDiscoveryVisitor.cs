@@ -1,21 +1,21 @@
 ﻿using System.Collections.Generic;
 using Xunit.Abstractions;
 
-#if XUNIT_FRAMEWORK
-namespace Xunit.Sdk
-#else
 namespace Xunit
-#endif
 {
-    class TestDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
+    /// <summary/>
+    public class TestDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
     {
+        /// <summary/>
         public TestDiscoveryVisitor()
         {
             TestCases = new List<ITestCase>();
         }
 
+        /// <summary/>
         public List<ITestCase> TestCases { get; private set; }
 
+        /// <inheritdoc/>
         protected override bool Visit(ITestCaseDiscoveryMessage testCaseDiscovered)
         {
             TestCases.Add(testCaseDiscovered.TestCase);

@@ -6,7 +6,6 @@
             "../common/DictionaryExtensions.cs",
             "../common/GlobalAssemblyInfo.cs",
             "../common/Guard.cs",
-            "../common/TestDiscoveryVisitor.cs",
             "../common/XmlTestExecutionVisitor.cs"
         ],
         "copyToOutput": [

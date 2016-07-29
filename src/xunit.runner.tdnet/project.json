@@ -3,8 +3,7 @@
     "buildOptions": {
         "compile": [
             "../common/AssemblyExtensions.cs",
-            "../common/GlobalAssemblyInfo.cs",
-            "../common/TestDiscoveryVisitor.cs"
+            "../common/GlobalAssemblyInfo.cs"
         ],
         "warningsAsErrors": true
     },
