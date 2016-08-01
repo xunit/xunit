@@ -102,6 +102,23 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
+    /// Gets a flag to stop testing on test failure.
+    /// </summary>
+    public static bool? StopOnTestFail(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.StopOnFail);
+    }
+
+    /// <summary>
+    /// Gets a flag to stop testing on test failure. If the flag is not present, returns the
+    /// default value (<c>false</c>).
+    /// </summary>
+    public static bool StopOnTestFailOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.StopOnTestFail() ?? false;
+    }
+
+    /// <summary>
     /// Gets a flag to disable parallelization.
     /// </summary>
     public static bool? DisableParallelization(this ITestFrameworkExecutionOptions executionOptions)

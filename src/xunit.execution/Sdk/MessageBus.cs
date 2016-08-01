@@ -17,11 +17,13 @@ namespace Xunit.Sdk
         readonly XunitWorkerThread reporterThread;
         readonly AutoResetEvent reporterWorkEvent = new AutoResetEvent(false);
         volatile bool shutdownRequested;
+        volatile bool stopOnFail;
 
         /// <summary/>
-        public MessageBus(IMessageSink messageSink)
+        public MessageBus(IMessageSink messageSink, bool stopOnFail = false)
         {
             this.messageSink = messageSink;
+            this.stopOnFail = stopOnFail;
 
             reporterThread = new XunitWorkerThread(ReporterWorker);
         }
@@ -62,6 +64,13 @@ namespace Xunit.Sdk
         {
             if (shutdownRequested)
                 throw new ObjectDisposedException("MessageBus");
+
+            if (stopOnFail && message is ITestFailed)
+            {
+                reporterQueue.Enqueue(message);
+                reporterWorkEvent.Set();
+                return false;
+            }
 
             reporterQueue.Enqueue(message);
             reporterWorkEvent.Set();

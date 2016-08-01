@@ -11,6 +11,7 @@ static class TestOptionsNames
     internal static class Execution
     {
         public static readonly string DiagnosticMessages = "xunit.execution.DiagnosticMessages";
+        public static readonly string StopOnFail = "xunit.execution.StopOnFail";
         public static readonly string DisableParallelization = "xunit.execution.DisableParallelization";
         public static readonly string MaxParallelThreads = "xunit.execution.MaxParallelThreads";
         public static readonly string SynchronousMessageReporting = "xunit.execution.SynchronousMessageReporting";

@@ -27,6 +27,7 @@ namespace Xunit.Runner.MSBuild
         bool? parallelizeTestCollections;
         IMessageSink reporterMessageHandler;
         bool? shadowCopy;
+        bool? stopOnFail;
 
         public bool AppDomains { set { appDomains = value; } }
 
@@ -89,6 +90,8 @@ namespace Xunit.Runner.MSBuild
         public bool SerializeTestCases { get; set; }
 
         public bool ShadowCopy { set { shadowCopy = value; } }
+
+        public bool StopOnFail { set { stopOnFail = value; } }
 
         // Obsolote; remove post 2.1 RTM
         public bool TeamCity { get; set; }
@@ -312,6 +315,8 @@ namespace Xunit.Runner.MSBuild
                     executionOptions.SetMaxParallelThreads(maxThreadCount);
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections);
+                if (stopOnFail.HasValue)
+                    executionOptions.SetStopOnTestFail(stopOnFail);
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
                 var diagnosticMessageVisitor = new DiagnosticMessageVisitor(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
@@ -353,7 +358,14 @@ namespace Xunit.Runner.MSBuild
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsVisitor.ExecutionSummary));
 
                         if (resultsVisitor.ExecutionSummary.Failed != 0)
+                        {
                             ExitCode = 1;
+                            if (stopOnFail == true)
+                            {
+                                Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
+                                Cancel();
+                            }
+                        }
                     }
                 }
             }
