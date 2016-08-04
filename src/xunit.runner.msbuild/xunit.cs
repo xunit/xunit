@@ -25,7 +25,7 @@ namespace Xunit.Runner.MSBuild
         int? maxThreadCount;
         bool? parallelizeAssemblies;
         bool? parallelizeTestCollections;
-        IMessageSink reporterMessageHandler;
+        IMessageSinkWithTypes reporterMessageHandler;
         bool? shadowCopy;
 
         public bool AppDomains { set { appDomains = value; } }
@@ -341,7 +341,7 @@ namespace Xunit.Runner.MSBuild
                         if (SerializeTestCases)
                             filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
 
-                        IExecutionVisitor resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        IExecutionVisitor resultsVisitor = new XmlAggregateVisitor2(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
                         if (FailSkips)
                             resultsVisitor = new FailSkipVisitor(resultsVisitor);
 

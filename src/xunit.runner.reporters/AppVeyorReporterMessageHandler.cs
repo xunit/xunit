@@ -18,17 +18,19 @@ namespace Xunit.Runner.Reporters
             : base(logger)
         {
             this.baseUri = baseUri.TrimEnd('/');
+            TestAssemblyStartingEvent += HandleTestAssemblyStarting;
+            TestStartingEvent += HandleTestStarting;
         }
 
-        protected override bool Visit(ITestAssemblyStarting assemblyStarting)
+        protected virtual void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
         {
+            var assemblyStarting = args.Message;
             assemblyFileName = Path.GetFileName(assemblyStarting.TestAssembly.Assembly.AssemblyPath);
-
-            return base.Visit(assemblyStarting);
         }
 
-        protected override bool Visit(ITestStarting testStarting)
+        protected virtual void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
+            var testStarting = args.Message;
             var testName = testStarting.Test.DisplayName;
 
             lock (testMethods)
@@ -36,33 +38,35 @@ namespace Xunit.Runner.Reporters
                     testName = $"{testName} {testMethods[testName]}";
 
             AppVeyorAddTest(testName, "xUnit", assemblyFileName, "Running", null, null, null, null);
-
-            return base.Visit(testStarting);
         }
 
-        protected override bool Visit(ITestPassed testPassed)
+        protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
+            var testPassed = args.Message;
             AppVeyorUpdateTest(GetFinishedTestName(testPassed.Test.DisplayName), "xUnit", assemblyFileName, "Passed",
                                Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
 
-            return base.Visit(testPassed);
+            base.HandleTestPassed(args);
         }
 
-        protected override bool Visit(ITestSkipped testSkipped)
+        protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
+            var testSkipped = args.Message;
             AppVeyorUpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName), "xUnit", assemblyFileName, "Skipped",
                                Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
 
-            return base.Visit(testSkipped);
+            base.HandleTestSkipped(args);
         }
 
-        protected override bool Visit(ITestFailed testFailed)
+
+        protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
+            var testFailed = args.Message;
             AppVeyorUpdateTest(GetFinishedTestName(testFailed.Test.DisplayName), "xUnit", assemblyFileName, "Failed",
                                Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
                                ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
 
-            return base.Visit(testFailed);
+            base.HandleTestFailed(args);
         }
 
         // AppVeyor API helpers

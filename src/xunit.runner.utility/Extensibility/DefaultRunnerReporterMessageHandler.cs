@@ -11,7 +11,7 @@ namespace Xunit
     /// Default implementation of <see cref="IMessageSink"/> used to report
     /// messages for test runners.
     /// </summary>
-    public class DefaultRunnerReporterMessageHandler : TestMessageVisitor
+    public class DefaultRunnerReporterMessageHandler : TestMessageVisitor2
     {
         readonly string defaultDirectory = null;
         readonly ITestFrameworkExecutionOptions defaultExecutionOptions = TestFrameworkOptions.ForExecution();
@@ -28,6 +28,22 @@ namespace Xunit
 #endif
 
             Logger = logger;
+
+            ErrorMessageEvent += HandleErrorMessage;
+            TestAssemblyDiscoveryFinishedEvent += HandleTestAssemblyDiscoveryFinished;
+            TestAssemblyDiscoveryStartingEvent += HandleTestAssemblyDiscoveryStarting;
+            TestAssemblyExecutionFinishedEvent += HandleTestAssemblyExecutionFinished;
+            TestAssemblyExecutionStartingEvent += HandleTestAssemblyExecutionStarting;
+            TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
+            TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
+            TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
+            TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
+            TestCleanupFailureEvent += HandleTestCleanupFailure;
+            TestExecutionSummaryEvent += HandleTestExecutionSummary;
+            TestFailedEvent += HandleTestFailed;
+            TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+            TestPassedEvent += HandleTestPassed;
+            TestSkippedEvent += HandleTestSkipped;
         }
 
         /// <summary>
@@ -150,17 +166,23 @@ namespace Xunit
                 executionOptionsByAssembly.Remove(assemblyFilename);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(IErrorMessage error)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.ErrorMessageEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
         {
+            var error = args.Message;
             LogError("FATAL ERROR", error);
-
-            return base.Visit(error);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestAssemblyDiscoveryFinished discoveryFinished)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestAssemblyDiscoveryFinishedEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestAssemblyDiscoveryFinished(MessageHandlerArgs<ITestAssemblyDiscoveryFinished> args)
         {
+            var discoveryFinished = args.Message;
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryFinished.Assembly);
 
             if (discoveryFinished.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
@@ -174,13 +196,15 @@ namespace Xunit
             }
             else
                 Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName}");
-
-            return base.Visit(discoveryFinished);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestAssemblyDiscoveryStarting discoveryStarting)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestAssemblyDiscoveryStartingEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestAssemblyDiscoveryStarting(MessageHandlerArgs<ITestAssemblyDiscoveryStarting> args)
         {
+            var discoveryStarting = args.Message;
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryStarting.Assembly);
 
             if (discoveryStarting.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
@@ -193,23 +217,27 @@ namespace Xunit
             }
             else
                 Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName}");
-
-            return base.Visit(discoveryStarting);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestAssemblyExecutionFinished executionFinished)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestAssemblyExecutionFinishedEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestAssemblyExecutionFinished(MessageHandlerArgs<ITestAssemblyExecutionFinished> args)
         {
+            var executionFinished = args.Message;
             Logger.LogImportantMessage($"  Finished:    {GetAssemblyDisplayName(executionFinished.Assembly)}");
 
             RemoveExecutionOptions(executionFinished.Assembly.AssemblyFilename);
-
-            return base.Visit(executionFinished);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestAssemblyExecutionStarting executionStarting)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestAssemblyExecutionStartingEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestAssemblyExecutionStarting(MessageHandlerArgs<ITestAssemblyExecutionStarting> args)
         {
+            var executionStarting = args.Message;
             AddExecutionOptions(executionStarting.Assembly.AssemblyFilename, executionStarting.ExecutionOptions);
 
             var assemblyDisplayName = GetAssemblyDisplayName(executionStarting.Assembly);
@@ -222,61 +250,75 @@ namespace Xunit
             }
             else
                 Logger.LogImportantMessage($"  Starting:    {assemblyDisplayName}");
-
-            return base.Visit(executionStarting);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestAssemblyCleanupFailureEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Assembly Cleanup Failure ({cleanupFailure.TestAssembly.Assembly.AssemblyPath})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestCaseCleanupFailureEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Case Cleanup Failure ({cleanupFailure.TestCase.DisplayName})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestClassCleanupFailureEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Class Cleanup Failure ({cleanupFailure.TestClass.Class.Name})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestCleanupFailureEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Cleanup Failure ({cleanupFailure.Test.DisplayName})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestCollectionCleanupFailureEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Collection Cleanup Failure ({cleanupFailure.TestCollection.DisplayName})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestExecutionSummary executionSummary)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestExecutionSummaryEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestExecutionSummary(MessageHandlerArgs<ITestExecutionSummary> args)
         {
+            var executionSummary = args.Message;
             WriteDefaultSummary(Logger, executionSummary);
-
-            return base.Visit(executionSummary);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestFailed testFailed)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestFailedEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
+            var testFailed = args.Message;
             var frameInfo = StackFrameInfo.FromFailure(testFailed);
 
             lock (Logger.LockObject)
@@ -289,21 +331,25 @@ namespace Xunit
                 LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(testFailed));
                 LogOutput(frameInfo, testFailed.Output);
             }
-
-            return base.Visit(testFailed);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestMethodCleanupFailureEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Method Cleanup Failure ({cleanupFailure.TestMethod.Method.Name})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestPassed testPassed)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestPassedEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
+            var testPassed = args.Message;
             if (!string.IsNullOrEmpty(testPassed.Output) &&
                 GetExecutionOptions(testPassed.TestAssembly.Assembly.AssemblyPath).GetDiagnosticMessagesOrDefault())
             {
@@ -313,20 +359,20 @@ namespace Xunit
                     LogOutput(StackFrameInfo.None, testPassed.Output);
                 }
             }
-
-            return base.Visit(testPassed);
         }
 
-        /// <inheritdoc/>
-        protected override bool Visit(ITestSkipped testSkipped)
+        /// <summary>
+        /// Called when <see cref="TestMessageVisitor2.TestSkippedEvent"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
             lock (Logger.LockObject)
             {
+                var testSkipped = args.Message;
                 Logger.LogWarning($"    {Escape(testSkipped.Test.DisplayName)} [SKIP]");
                 Logger.LogImportantMessage($"      {Escape(testSkipped.Reason)}");
             }
-
-            return base.Visit(testSkipped);
         }
 
         /// <summary>

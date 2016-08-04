@@ -15,7 +15,7 @@ public class ResultVisitorTests
         var visitor = new ResultVisitor(listener, 42);
         var message = Substitute.For<ITestAssemblyFinished>();
 
-        visitor.OnMessage(message);
+        visitor.OnMessageWithTypes(message, null);
 
         Assert.True(visitor.Finished.WaitOne(0));
     }
@@ -40,7 +40,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             var visitor = new ResultVisitor(listener, 42) { TestRunState = initialState };
 
-            visitor.OnMessage(Mocks.TestFailed(typeof(object), "GetHashCode"));
+            visitor.OnMessageWithTypes(Mocks.TestFailed(typeof(object), "GetHashCode"), null);
 
             Assert.Equal(TestRunState.Failure, visitor.TestRunState);
         }
@@ -51,7 +51,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             var visitor = new ResultVisitor(listener, 42) { TestRunState = TestRunState.NoTests };
 
-            visitor.OnMessage(Substitute.For<ITestPassed>());
+            visitor.OnMessageWithTypes(Substitute.For<ITestPassed>(), null);
 
             Assert.Equal(TestRunState.Success, visitor.TestRunState);
         }
@@ -65,7 +65,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             var visitor = new ResultVisitor(listener, 42) { TestRunState = initialState };
 
-            visitor.OnMessage(Substitute.For<ITestPassed>());
+            visitor.OnMessageWithTypes(Substitute.For<ITestPassed>(),null);
 
             Assert.Equal(initialState, visitor.TestRunState);
         }
@@ -76,7 +76,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             var visitor = new ResultVisitor(listener, 42) { TestRunState = TestRunState.NoTests };
 
-            visitor.OnMessage(Substitute.For<ITestSkipped>());
+            visitor.OnMessageWithTypes(Substitute.For<ITestSkipped>(), null);
 
             Assert.Equal(TestRunState.Success, visitor.TestRunState);
         }
@@ -90,7 +90,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             var visitor = new ResultVisitor(listener, 42) { TestRunState = initialState };
 
-            visitor.OnMessage(Substitute.For<ITestSkipped>());
+            visitor.OnMessageWithTypes(Substitute.For<ITestSkipped>(), null);
 
             Assert.Equal(initialState, visitor.TestRunState);
         }
@@ -153,7 +153,7 @@ public class ResultVisitorTests
             var listener = Substitute.For<ITestListener>();
             using (var visitor = new ResultVisitor(listener, 42) { TestRunState = TestRunState.NoTests })
             {
-                visitor.OnMessage(message);
+                visitor.OnMessageWithTypes(message, null);
 
                 Assert.Equal(TestRunState.Failure, visitor.TestRunState);
                 var testResult = listener.Captured(x => x.TestFinished(null)).Arg<TestResult>();
@@ -178,7 +178,7 @@ public class ResultVisitorTests
             var visitor = new ResultVisitor(listener, 42);
             var message = Mocks.TestPassed(typeof(string), "Contains", "Display Name", executionTime: 123.45M);
 
-            visitor.OnMessage(message);
+            visitor.OnMessageWithTypes(message, null);
 
             Assert.NotNull(testResult);
             Assert.Same(typeof(string), testResult.FixtureType);
@@ -210,7 +210,7 @@ public class ResultVisitorTests
             var visitor = new ResultVisitor(listener, 42);
             var message = Mocks.TestFailed(typeof(string), "Contains", "Display Name", executionTime: 123.45M, ex: ex);
 
-            visitor.OnMessage(message);
+            visitor.OnMessageWithTypes(message, null);
 
             Assert.NotNull(testResult);
             Assert.Same(typeof(string), testResult.FixtureType);
@@ -233,7 +233,7 @@ public class ResultVisitorTests
             var visitor = new ResultVisitor(listener, 42);
             var message = Mocks.TestSkipped(typeof(string), "Contains", "Display Name", executionTime: 123.45M, skipReason: "I forgot how to run");
 
-            visitor.OnMessage(message);
+            visitor.OnMessageWithTypes(message, null);
 
             Assert.NotNull(testResult);
             Assert.Same(typeof(string), testResult.FixtureType);

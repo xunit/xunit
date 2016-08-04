@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
 {
-    public class JsonReporterMessageHandler : TestMessageVisitor
+    public class JsonReporterMessageHandler : TestMessageVisitor2
     {
         readonly Func<string, string> flowIdMapper;
         readonly Dictionary<string, string> flowMappings = new Dictionary<string, string>();
@@ -20,97 +20,97 @@ namespace Xunit.Runner.Reporters
         {
             this.logger = logger;
             this.flowIdMapper = flowIdMapper;
+            ErrorMessageEvent += HandleErrorMessage;
+            TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
+            TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
+            TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
+            TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
+            TestCollectionFinishedEvent += HandleTestCollectionFinished;
+            TestCollectionStartingEvent += HandleTestCollectionStarting;
+            TestCleanupFailureEvent += HandleTestCleanupFailure;
+            TestFailedEvent += HandleTestFailed;
+            TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+            TestPassedEvent += HandleTestPassed;
+            TestSkippedEvent += HandleTestSkipped;
+            TestStartingEvent += HandleTestStarting;
         }
 
-        protected override bool Visit(IErrorMessage error)
+        protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
         {
+            var error = args.Message;
             logger.LogImportantMessage(error.ToJson());
-
-            return base.Visit(error);
         }
 
-        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             logger.LogImportantMessage(cleanupFailure.ToJson());
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             logger.LogImportantMessage(cleanupFailure.ToJson());
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             logger.LogImportantMessage(cleanupFailure.ToJson());
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             logger.LogImportantMessage(cleanupFailure.ToJson());
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestCollectionFinished testCollectionFinished)
+        protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
         {
+            var testCollectionFinished = args.Message;
             logger.LogImportantMessage(testCollectionFinished.ToJson(ToFlowId(testCollectionFinished.TestCollection.DisplayName)));
-
-            return base.Visit(testCollectionFinished);
         }
 
-        protected override bool Visit(ITestCollectionStarting testCollectionStarting)
+        protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<ITestCollectionStarting> args)
         {
+            var testCollectionStarting = args.Message;
             logger.LogImportantMessage(testCollectionStarting.ToJson(ToFlowId(testCollectionStarting.TestCollection.DisplayName)));
-
-            return base.Visit(testCollectionStarting);
         }
 
-        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             logger.LogImportantMessage(cleanupFailure.ToJson());
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestFailed testFailed)
+        protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
+            var testFailed = args.Message;
             logger.LogImportantMessage(testFailed.ToJson(ToFlowId(testFailed.TestCollection.DisplayName)));
-
-            return base.Visit(testFailed);
         }
 
-        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             logger.LogImportantMessage(cleanupFailure.ToJson());
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestPassed testPassed)
+        protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
+            var testPassed = args.Message;
             logger.LogImportantMessage(testPassed.ToJson(ToFlowId(testPassed.TestCollection.DisplayName)));
-
-            return base.Visit(testPassed);
         }
 
-        protected override bool Visit(ITestSkipped testSkipped)
+        protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
+            var testSkipped = args.Message;
             logger.LogImportantMessage(testSkipped.ToJson(ToFlowId(testSkipped.TestCollection.DisplayName)));
-
-            return base.Visit(testSkipped);
         }
 
-        protected override bool Visit(ITestStarting testStarting)
+        protected virtual void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
+            var testStarting = args.Message;
             logger.LogImportantMessage(testStarting.ToJson(ToFlowId(testStarting.TestCollection.DisplayName)));
-
-            return base.Visit(testStarting);
         }
 
         string ToFlowId(string testCollectionName)

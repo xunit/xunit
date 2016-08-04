@@ -19,6 +19,7 @@ namespace Xunit
 #else
         static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
         static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
+        readonly AssemblyHelper assemblyHelper;
 #endif
 
         readonly IAppDomainManager appDomain;
@@ -85,6 +86,11 @@ namespace Xunit
             var appDomainAssembly = assemblyFileName ?? xunitExecutionAssemblyPath;
             appDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder);
 
+#if !PLATFORM_DOTNET
+            var runnerUtilityAssemblyLocation = Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase());
+            assemblyHelper = appDomain.CreateObjectFrom<AssemblyHelper>(typeof(AssemblyHelper).Assembly.Location, typeof(AssemblyHelper).FullName, runnerUtilityAssemblyLocation);
+#endif
+
             var testFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
@@ -92,6 +98,7 @@ namespace Xunit
                 assemblyInfo = appDomain.CreateObject<IAssemblyInfo>(testFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
 
             framework = appDomain.CreateObject<ITestFramework>(testFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider, DiagnosticMessageSink);
+
             discoverer = Framework.GetDiscoverer(assemblyInfo);
         }
 
@@ -104,6 +111,25 @@ namespace Xunit
         /// Gets the message sink used to report diagnostic messages.
         /// </summary>
         public IMessageSink DiagnosticMessageSink { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sink"></param>
+        /// <returns></returns>
+        protected IMessageSink WrapExecutionMessageSink(IMessageSink sink)
+        {
+            try
+            {
+                var sinkWithTypes = sink as IMessageSinkWithTypes ?? new MessageSinkWithTypesAdapter(sink);
+                var asssemblyName = typeof(MessageSinkWithTypesWrapper).GetAssembly().GetName();
+                return appDomain.CreateObject<IMessageSink>(asssemblyName, typeof(MessageSinkWithTypesWrapper).FullName, sinkWithTypes);
+            }
+            catch
+            {
+                return sink;
+            }
+        }
 
         static AssemblyName GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
         {
@@ -140,6 +166,9 @@ namespace Xunit
         {
             discoverer.SafeDispose();
             Framework.SafeDispose();
+#if !PLATFORM_DOTNET
+            assemblyHelper.SafeDispose();
+#endif
             appDomain.SafeDispose();
         }
 
@@ -151,7 +180,7 @@ namespace Xunit
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            discoverer.Find(includeSourceInformation, messageSink, discoveryOptions);
+            discoverer.Find(includeSourceInformation, WrapExecutionMessageSink(messageSink), discoveryOptions);
         }
 
         /// <summary>
@@ -163,7 +192,7 @@ namespace Xunit
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            discoverer.Find(typeName, includeSourceInformation, messageSink, discoveryOptions);
+            discoverer.Find(typeName, includeSourceInformation, WrapExecutionMessageSink(messageSink), discoveryOptions);
         }
 
         static string GetExecutionAssemblyFileName(AppDomainSupport appDomainSupport, string basePath)

@@ -3,25 +3,23 @@ using Xunit.Abstractions;
 
 namespace Xunit.Runner.MSBuild
 {
-    public class DiagnosticMessageVisitor : TestMessageVisitor
+    public class DiagnosticMessageVisitor : TestMessageVisitor2
     {
         readonly string assemblyDisplayName;
         readonly TaskLoggingHelper log;
-        readonly bool showDiagnostics;
 
         public DiagnosticMessageVisitor(TaskLoggingHelper log, string assemblyDisplayName, bool showDiagnostics)
         {
             this.log = log;
             this.assemblyDisplayName = assemblyDisplayName;
-            this.showDiagnostics = showDiagnostics;
+            if (showDiagnostics)
+                this.DiagnosticMessageEvent += HandleDiagnosticMessage;
         }
 
-        protected override bool Visit(IDiagnosticMessage diagnosticMessage)
+        private void HandleDiagnosticMessage(MessageHandlerArgs<IDiagnosticMessage> args)
         {
-            if (showDiagnostics)
-                log.LogWarning("{0}: {1}", assemblyDisplayName, diagnosticMessage.Message);
-
-            return base.Visit(diagnosticMessage);
+            var diagnosticMessage = args.Message;
+            log.LogWarning("{0}: {1}", assemblyDisplayName, diagnosticMessage.Message);
         }
     }
 }

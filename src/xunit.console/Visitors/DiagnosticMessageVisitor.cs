@@ -3,36 +3,34 @@ using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
-    public class DiagnosticMessageVisitor : TestMessageVisitor
+    public class DiagnosticMessageVisitor : TestMessageVisitor2
     {
         readonly string assemblyDisplayName;
         readonly object consoleLock;
         readonly bool noColor;
-        readonly bool showDiagnostics;
 
         public DiagnosticMessageVisitor(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor)
         {
             this.consoleLock = consoleLock;
             this.assemblyDisplayName = assemblyDisplayName;
-            this.showDiagnostics = showDiagnostics;
             this.noColor = noColor;
+            if (showDiagnostics)
+                DiagnosticMessageEvent += HandleDiagnosticMessage;
         }
 
-        protected override bool Visit(IDiagnosticMessage diagnosticMessage)
+        private void HandleDiagnosticMessage(MessageHandlerArgs<IDiagnosticMessage> args)
         {
-            if (showDiagnostics)
-                lock (consoleLock)
-                {
-                    if (!noColor)
-                        Console.ForegroundColor = ConsoleColor.Yellow;
+            var diagnosticMessage = args.Message;
+            lock (consoleLock)
+            {
+                if (!noColor)
+                    Console.ForegroundColor = ConsoleColor.Yellow;
 
-                    Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
+                Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
 
-                    if (!noColor)
-                        Console.ResetColor();
-                }
-
-            return base.Visit(diagnosticMessage);
+                if (!noColor)
+                    Console.ResetColor();
+            }
         }
     }
 }

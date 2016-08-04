@@ -22,7 +22,7 @@ namespace Xunit
             => null;
 
         /// <inheritdoc/>
-        public virtual IMessageSink CreateMessageHandler(IRunnerLogger logger)
+        public virtual IMessageSinkWithTypes CreateMessageHandler(IRunnerLogger logger)
             => new DefaultRunnerReporterMessageHandler(logger);
     }
 }

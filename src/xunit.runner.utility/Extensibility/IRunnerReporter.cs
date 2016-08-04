@@ -37,6 +37,6 @@ namespace Xunit
         /// </summary>
         /// <param name="logger">The logger used to send result messages to</param>
         /// <returns>The message handler that handles the messages</returns>
-        IMessageSink CreateMessageHandler(IRunnerLogger logger);
+        IMessageSinkWithTypes CreateMessageHandler(IRunnerLogger logger);
     }
 }

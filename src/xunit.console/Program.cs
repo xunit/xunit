@@ -17,7 +17,7 @@ namespace Xunit.ConsoleClient
         static readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
         static bool failed;
         static IRunnerLogger logger;
-        static IMessageSink reporterMessageHandler;
+        static IMessageSinkWithTypes reporterMessageHandler;
 
         [STAThread]
         public static int Main(string[] args)
@@ -334,7 +334,7 @@ namespace Xunit.ConsoleClient
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-                        IExecutionVisitor resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        IExecutionVisitor resultsVisitor = new XmlAggregateVisitor2(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
                         if (failSkips)
                             resultsVisitor = new FailSkipVisitor(resultsVisitor);
 
