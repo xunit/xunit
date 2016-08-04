@@ -22,8 +22,12 @@ namespace Xunit.Sdk
         {
             get
             {
-                GuardInitialized();
-                return buffer.ToString();
+                lock (lockObject)
+                {
+                    GuardInitialized();
+
+                    return buffer.ToString();
+                }
             }
         }
 
