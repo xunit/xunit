@@ -41,7 +41,7 @@ namespace Xunit.Runner.TdNet
             return Discover(sink => xunit.Find(type.FullName, false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
         }
 
-        IReadOnlyList<ITestCase> Discover(Action<IMessageSink> discoveryAction)
+        IReadOnlyList<ITestCase> Discover(Action<IMessageSinkWithTypes> discoveryAction)
         {
             try
             {

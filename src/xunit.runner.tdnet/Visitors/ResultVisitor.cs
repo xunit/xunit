@@ -1,10 +1,11 @@
 using System;
+using System.Threading;
 using TestDriven.Framework;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.TdNet
 {
-    public class ResultVisitor : TestMessageVisitor<ITestAssemblyFinished>
+    public class ResultVisitor : TestMessageVisitor2, IDisposable
     {
         readonly int totalTests;
 
@@ -13,13 +14,27 @@ namespace Xunit.Runner.TdNet
             this.totalTests = totalTests;
             TestListener = listener;
             TestRunState = TestRunState.NoTests;
+
+            TestFailedEvent += HandleTestFailed;
+            TestPassedEvent += HandleTestPassed;
+            TestSkippedEvent += HandleTestSkipped;
+            ErrorMessageEvent += HandleErrorMessage;
+            TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
+            TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
+            TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
+            TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
+            TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+            TestCleanupFailureEvent += HandleTestCleanupFailure;
+            TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
         }
 
+        public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
         public ITestListener TestListener { get; private set; }
         public TestRunState TestRunState { get; set; }
 
-        protected override bool Visit(ITestFailed testFailed)
+        protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
+            var testFailed = args.Message;
             TestRunState = TestRunState.Failure;
 
             var testResult = testFailed.ToTdNetTestResult(TestState.Failed, totalTests);
@@ -30,12 +45,11 @@ namespace Xunit.Runner.TdNet
             TestListener.TestFinished(testResult);
 
             WriteOutput(testFailed.Test.DisplayName, testFailed.Output);
-
-            return true;
         }
 
-        protected override bool Visit(ITestPassed testPassed)
+        protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
+            var testPassed = args.Message;
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
 
@@ -44,12 +58,11 @@ namespace Xunit.Runner.TdNet
             TestListener.TestFinished(testResult);
 
             WriteOutput(testPassed.Test.DisplayName, testPassed.Output);
-
-            return true;
         }
 
-        protected override bool Visit(ITestSkipped testSkipped)
+        protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
+            var testSkipped = args.Message;
             if (TestRunState == TestRunState.NoTests)
                 TestRunState = TestRunState.Success;
 
@@ -58,57 +71,53 @@ namespace Xunit.Runner.TdNet
             testResult.Message = testSkipped.Reason;
 
             TestListener.TestFinished(testResult);
-
-            return true;
         }
 
-        protected override bool Visit(IErrorMessage error)
+        protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
         {
+            var error = args.Message;
             ReportError("Fatal Error", error);
-
-            return true;
         }
 
-        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             ReportError($"Test Assembly Cleanup Failure ({cleanupFailure.TestAssembly.Assembly.AssemblyPath})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             ReportError($"Test Case Cleanup Failure ({cleanupFailure.TestCase.DisplayName})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             ReportError($"Test Class Cleanup Failure ({cleanupFailure.TestClass.Class.Name})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             ReportError($"Test Collection Cleanup Failure ({cleanupFailure.TestCollection.DisplayName})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             ReportError($"Test Cleanup Failure ({cleanupFailure.Test.DisplayName})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             ReportError($"Test Method Cleanup Failure ({cleanupFailure.TestMethod.Method.Name})", cleanupFailure);
+        }
 
-            return base.Visit(cleanupFailure);
+        protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+        {
+            Finished.Set();
         }
 
         void ReportError(string messageType, IFailureInformation failureInfo)
@@ -136,6 +145,11 @@ namespace Xunit.Runner.TdNet
             TestListener.WriteLine($"Output from {name}:", Category.Output);
             foreach (var line in output.Trim().Split(new[] { Environment.NewLine }, StringSplitOptions.None))
                 TestListener.WriteLine($"  {line}", Category.Output);
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)Finished).Dispose();
         }
     }
 }

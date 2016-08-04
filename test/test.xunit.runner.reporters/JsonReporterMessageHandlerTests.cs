@@ -134,7 +134,7 @@ namespace Xunit.Runner.Reporters
             string output = null;
             logger.LogImportantMessage(Arg.Do<string>(str => output = str));
 
-            jsonReporterMessageHandler.OnMessage(message);
+            jsonReporterMessageHandler.OnMessageWithTypes(message, null);
 
             Assert.Equal(expectedJson, output);
         }

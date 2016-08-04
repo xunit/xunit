@@ -13,7 +13,7 @@ namespace Xunit.Runner.Reporters
         public string RunnerSwitch
             => "verbose";
 
-        public IMessageSink CreateMessageHandler(IRunnerLogger logger)
+        public IMessageSinkWithTypes CreateMessageHandler(IRunnerLogger logger)
             => new VerboseReporterMessageHandler(logger);
     }
 }

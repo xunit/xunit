@@ -161,13 +161,13 @@ public static class Mocks
     public static IRunnerReporter RunnerReporter(string runnerSwitch = null,
                                                  string description = null,
                                                  bool isEnvironmentallyEnabled = false,
-                                                 IMessageSink messageSink = null)
+                                                 IMessageSinkWithTypes messageSink = null)
     {
         var result = Substitute.For<IRunnerReporter, InterfaceProxy<IRunnerReporter>>();
         result.Description.Returns(description ?? "The runner reporter description");
         result.IsEnvironmentallyEnabled.ReturnsForAnyArgs(isEnvironmentallyEnabled);
         result.RunnerSwitch.Returns(runnerSwitch);
-        result.CreateMessageHandler(null).ReturnsForAnyArgs(messageSink ?? Substitute.For<IMessageSink, InterfaceProxy<IMessageSink>>());
+        result.CreateMessageHandler(null).ReturnsForAnyArgs(messageSink ?? Substitute.For<IMessageSinkWithTypes, InterfaceProxy<IMessageSinkWithTypes>>());
         return result;
     }
 

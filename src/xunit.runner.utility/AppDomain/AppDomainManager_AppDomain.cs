@@ -52,6 +52,22 @@ namespace Xunit
             return AppDomain.CreateDomain(Path.GetFileNameWithoutExtension(assemblyFilename), System.AppDomain.CurrentDomain.Evidence, setup, new PermissionSet(PermissionState.Unrestricted));
         }
 
+        public TObject CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object[] args)
+        {
+            try
+            {
+#pragma warning disable CS0618
+                var unwrappedObject = AppDomain.CreateInstanceFromAndUnwrap(assemblyLocation, typeName, false, 0, null, args, null, null, null);
+#pragma warning restore CS0618
+                return (TObject)unwrappedObject;
+            }
+            catch (TargetInvocationException ex)
+            {
+                ex.InnerException.RethrowWithNoStackTraceLoss();
+                return default(TObject);
+            }
+        }
+
         public TObject CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object[] args)
         {
             try

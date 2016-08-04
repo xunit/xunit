@@ -27,6 +27,15 @@ static class NewReflectionExtensions
 #endif
     }
 
+    public static Type[] GetInterfaces(this Type type)
+    {
+#if PLATFORM_DOTNET
+        return type.GetTypeInfo().ImplementedInterfaces.ToArray();
+#else
+        return type.GetInterfaces().ToArray();
+#endif
+    }
+
     public static bool IsEnum(this Type type)
     {
 #if PLATFORM_DOTNET

@@ -13,7 +13,7 @@ namespace Xunit.Runner.Reporters
         public string RunnerSwitch
             => "teamcity";
 
-        public IMessageSink CreateMessageHandler(IRunnerLogger logger)
+        public IMessageSinkWithTypes CreateMessageHandler(IRunnerLogger logger)
             => new TeamCityReporterMessageHandler(logger);
     }
 }

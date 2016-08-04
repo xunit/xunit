@@ -13,7 +13,7 @@ namespace Xunit.Runner.Reporters
         public string RunnerSwitch
             => "appveyor";
 
-        public IMessageSink CreateMessageHandler(IRunnerLogger logger)
+        public IMessageSinkWithTypes CreateMessageHandler(IRunnerLogger logger)
         {
             var baseUri = EnvironmentHelper.GetEnvironmentVariable("APPVEYOR_API_URL");
             return baseUri == null

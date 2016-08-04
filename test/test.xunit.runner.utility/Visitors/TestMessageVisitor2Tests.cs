@@ -5,11 +5,24 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
-public class TestMessageVisitorTests
+public class TestMessageVisitor2Tests
 {
-    static readonly MethodInfo forMethodGeneric = typeof(Substitute).GetMethods().Single(m => m.Name == "For" && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1);
+    static readonly MethodInfo forMethodGeneric = typeof(Substitute).GetMethods().Single(m => m.Name == nameof(Substitute.For) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1);
 
     [Theory]
+    [InlineData(typeof(ITestCollectionCleanupFailure))]
+    [InlineData(typeof(ITestOutput))]
+    [InlineData(typeof(ITestMethodCleanupFailure))]
+    [InlineData(typeof(ITestExecutionSummary))]
+    [InlineData(typeof(ITestCleanupFailure))]
+    [InlineData(typeof(ITestClassCleanupFailure))]
+    [InlineData(typeof(ITestCaseCleanupFailure))]
+    [InlineData(typeof(ITestAssemblyExecutionStarting))]
+    [InlineData(typeof(ITestAssemblyExecutionFinished))]
+    [InlineData(typeof(ITestAssemblyDiscoveryStarting))]
+    [InlineData(typeof(ITestAssemblyDiscoveryFinished))]
+    [InlineData(typeof(ITestAssemblyCleanupFailure))]
+    [InlineData(typeof(IDiagnosticMessage))]
     [InlineData(typeof(IAfterTestFinished))]
     [InlineData(typeof(IAfterTestStarting))]
     [InlineData(typeof(IBeforeTestFinished))]
@@ -40,34 +53,12 @@ public class TestMessageVisitorTests
     {
         var forMethod = forMethodGeneric.MakeGenericMethod(type);
         var substitute = (IMessageSinkMessage)forMethod.Invoke(null, new object[] { new object[0] });
-        var visitor = new SpyTestMessageVisitor();
+        var visitor = new SpyTestMessageVisitor2();
 
-        visitor.OnMessage(substitute);
+        visitor.OnMessageWithTypes(substitute, null);
 
         Assert.Collection(visitor.Calls,
             msg => Assert.Equal(type.Name, msg)
         );
-    }
-
-    [Fact]
-    public void FinishedEventNotSignaledByDefault()
-    {
-        var visitor = new TestMessageVisitor<IMessageSinkMessage>();
-
-        Assert.False(visitor.Finished.WaitOne(0));
-    }
-
-    [Fact]
-    public void SignalsEventWhenMessageOfSpecifiedTypeIsSeen()
-    {
-        var visitor = new TestMessageVisitor<IDiscoveryCompleteMessage>();
-        var message1 = Substitute.For<IMessageSinkMessage>();
-        var message2 = Substitute.For<IDiscoveryCompleteMessage>();
-
-        visitor.OnMessage(message1);
-        Assert.False(visitor.Finished.WaitOne(0));
-
-        visitor.OnMessage(message2);
-        Assert.True(visitor.Finished.WaitOne(0));
     }
 }

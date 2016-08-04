@@ -13,7 +13,7 @@ namespace Xunit.Runner.Reporters
         public string RunnerSwitch
             => "quiet";
 
-        public IMessageSink CreateMessageHandler(IRunnerLogger logger)
+        public IMessageSinkWithTypes CreateMessageHandler(IRunnerLogger logger)
             => new QuietReporterMessageHandler(logger);
     }
 }
