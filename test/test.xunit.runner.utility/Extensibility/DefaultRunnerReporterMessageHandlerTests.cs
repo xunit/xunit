@@ -1,7 +1,8 @@
-﻿using System;
+﻿#pragma warning disable CS0618
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Threading;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
@@ -281,8 +282,8 @@ public class DefaultRunnerReporterMessageHandlerTests
         }
     }
 
-    // Helpers
 
+    // Helpers
     class TestableDefaultRunnerReporterMessageHandler : DefaultRunnerReporterMessageHandler
     {
         public List<string> Messages;

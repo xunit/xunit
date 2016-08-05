@@ -17,7 +17,7 @@ namespace Xunit.Runner.Reporters
         {
             var baseUri = EnvironmentHelper.GetEnvironmentVariable("APPVEYOR_API_URL");
             return baseUri == null
-                ? new DefaultRunnerReporterMessageHandler(logger)
+                ? new DefaultRunnerReporterWithTypesMessageHandler(logger)
                 : new AppVeyorReporterMessageHandler(logger, baseUri);
         }
     }

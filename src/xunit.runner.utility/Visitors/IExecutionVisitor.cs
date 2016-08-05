@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -8,6 +9,7 @@ namespace Xunit
     /// during test execution. Provides access to the final execution summary, as well as
     /// an event which is triggered when execution is finished.
     /// </summary>
+    [Obsolete("This interface has poor performance; please use IExecutionSink instead.")]
     public interface IExecutionVisitor : IMessageSink
     {
         /// <summary>

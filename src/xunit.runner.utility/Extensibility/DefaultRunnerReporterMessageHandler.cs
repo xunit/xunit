@@ -11,6 +11,7 @@ namespace Xunit
     /// Default implementation of <see cref="IMessageSink"/> used to report
     /// messages for test runners.
     /// </summary>
+    [Obsolete("This class has poor performance; please use DefaultRunnerReporterWithTypesMessageHandler instead.")]
     public class DefaultRunnerReporterMessageHandler : TestMessageVisitor
     {
         readonly string defaultDirectory = null;

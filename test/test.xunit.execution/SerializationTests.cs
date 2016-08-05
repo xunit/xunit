@@ -34,13 +34,13 @@ public class SerializationTests
         var sourceProvider = new NullSourceInformationProvider();
         var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
         var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider, SpyMessageSink.Create());
-        var visitor = new TestDiscoveryVisitor();
+        var sink = new TestDiscoverySink();
 
-        discoverer.Find(typeof(ClassWithFacts).FullName, false, visitor, TestFrameworkOptions.ForDiscovery());
-        visitor.Finished.WaitOne();
+        discoverer.Find(typeof(ClassWithFacts).FullName, false, sink, TestFrameworkOptions.ForDiscovery());
+        sink.Finished.WaitOne();
 
-        var first = visitor.TestCases[0];
-        var second = visitor.TestCases[1];
+        var first = sink.TestCases[0];
+        var second = sink.TestCases[1];
         Assert.NotEqual(first.UniqueID, second.UniqueID);
 
         Assert.True(TestCollectionComparer.Instance.Equals(first.TestMethod.TestClass.TestCollection, second.TestMethod.TestClass.TestCollection));
@@ -67,13 +67,13 @@ public class SerializationTests
         var sourceProvider = new NullSourceInformationProvider();
         var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
         var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider, SpyMessageSink.Create());
-        var visitor = new TestDiscoveryVisitor();
+        var sink = new TestDiscoverySink();
 
-        discoverer.Find(typeof(ClassWithTheory).FullName, false, visitor, TestFrameworkOptions.ForDiscovery());
-        visitor.Finished.WaitOne();
+        discoverer.Find(typeof(ClassWithTheory).FullName, false, sink, TestFrameworkOptions.ForDiscovery());
+        sink.Finished.WaitOne();
 
-        var first = visitor.TestCases[0];
-        var second = visitor.TestCases[1];
+        var first = sink.TestCases[0];
+        var second = sink.TestCases[1];
         Assert.NotEqual(first.UniqueID, second.UniqueID);
 
         Assert.True(TestCollectionComparer.Instance.Equals(first.TestMethod.TestClass.TestCollection, second.TestMethod.TestClass.TestCollection));
@@ -99,12 +99,12 @@ public class SerializationTests
         var sourceProvider = new NullSourceInformationProvider();
         var assemblyInfo = Reflector.Wrap(Assembly.GetExecutingAssembly());
         var discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceProvider, SpyMessageSink.Create());
-        var visitor = new TestDiscoveryVisitor();
+        var sink = new TestDiscoverySink();
 
-        discoverer.Find(typeof(ClassWithNonSerializableTheoryData).FullName, false, visitor, TestFrameworkOptions.ForDiscovery());
-        visitor.Finished.WaitOne();
+        discoverer.Find(typeof(ClassWithNonSerializableTheoryData).FullName, false, sink, TestFrameworkOptions.ForDiscovery());
+        sink.Finished.WaitOne();
 
-        var testCase = Assert.Single(visitor.TestCases);
+        var testCase = Assert.Single(sink.TestCases);
         Assert.IsType<XunitTheoryTestCase>(testCase);
 
         var deserialized = SerializationHelper.Deserialize<ITestCase>(SerializationHelper.Serialize(testCase));

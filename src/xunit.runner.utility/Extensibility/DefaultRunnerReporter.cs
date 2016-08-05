@@ -1,3 +1,4 @@
+using System;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -7,6 +8,7 @@ namespace Xunit
     /// by runners when there is no other overridden reporter. It returns
     /// an instance of <see cref="DefaultRunnerReporterMessageHandler"/>.
     /// </summary>
+    [Obsolete("This class has poor performance; please use DefaultRunnerReporterWithTypes instead.")]
     public class DefaultRunnerReporter : IRunnerReporter
     {
         /// <inheritdoc/>

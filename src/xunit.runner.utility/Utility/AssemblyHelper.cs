@@ -31,20 +31,24 @@ namespace Xunit
     /// need to use <see cref="SubscribeResolve()" /> to help automatically resolve missing assemblies
     /// when running tests.
     /// </summary>
-    public class AssemblyHelper : IDisposable
+    public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
     {
-        readonly string folder;
+        readonly string directory;
 
-        AssemblyHelper(string folder)
+        /// <summary>
+        /// Constructs an instance using the given <paramref name="directory"/> for resolution.
+        /// </summary>
+        /// <param name="directory">The directory to use for resolving assemblies.</param>
+        public AssemblyHelper(string directory)
         {
-            this.folder = folder;
+            this.directory = directory;
 
             AppDomain.CurrentDomain.AssemblyResolve += Resolve;
         }
 
         Assembly LoadAssembly(AssemblyName assemblyName)
         {
-            var path = Path.Combine(folder, assemblyName.Name);
+            var path = Path.Combine(directory, assemblyName.Name);
             return LoadAssembly(path + ".dll") ?? LoadAssembly(path + ".exe");
         }
 

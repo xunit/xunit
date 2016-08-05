@@ -18,10 +18,10 @@ namespace Xunit
             {
 #if PLATFORM_DOTNET
                 var type = Type.GetType($"{typeName}, {assemblyName.FullName}", true);
-                return (TObject)Activator.CreateInstance(type, args);
 #else
-                return (TObject)Activator.CreateInstance(Assembly.Load(assemblyName).GetType(typeName), args);
+                var type = Assembly.Load(assemblyName).GetType(typeName);
 #endif
+                return (TObject)Activator.CreateInstance(type, args);
             }
             catch (TargetInvocationException ex)
             {
@@ -30,6 +30,21 @@ namespace Xunit
             }
         }
 
+#if !PLATFORM_DOTNET
+        public TObject CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object[] args)
+        {
+            try
+            {
+                var type = Assembly.LoadFrom(assemblyLocation).GetType(typeName);
+                return (TObject)Activator.CreateInstance(type, args);
+            }
+            catch (TargetInvocationException ex)
+            {
+                ex.InnerException.RethrowWithNoStackTraceLoss();
+                return default(TObject);
+            }
+        }
+#endif
         public void Dispose() { }
     }
 }

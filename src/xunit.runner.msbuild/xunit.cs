@@ -10,7 +10,6 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using Microsoft.Build.Framework;
-using Xunit.Abstractions;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.Runner.MSBuild
@@ -25,7 +24,7 @@ namespace Xunit.Runner.MSBuild
         int? maxThreadCount;
         bool? parallelizeAssemblies;
         bool? parallelizeTestCollections;
-        IMessageSink reporterMessageHandler;
+        IMessageSinkWithTypes reporterMessageHandler;
         bool? shadowCopy;
 
         public bool AppDomains { set { appDomains = value; } }
@@ -173,10 +172,10 @@ namespace Xunit.Runner.MSBuild
                 }
 
                 if (reporter == null)
-                    reporter = new DefaultRunnerReporter();
+                    reporter = new DefaultRunnerReporterWithTypes();
 
                 logger = new MSBuildLogger(Log);
-                reporterMessageHandler = reporter.CreateMessageHandler(logger);
+                reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
                 if (!NoLogo)
                     Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild Runner ({0})", environment);
@@ -273,8 +272,11 @@ namespace Xunit.Runner.MSBuild
 
                 foreach (var type in types)
                 {
-                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+#pragma warning disable CS0618
+                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
                         continue;
+#pragma warning restore CS0618
+
                     var ctor = type.GetConstructor(new Type[0]);
                     if (ctor == null)
                     {
@@ -314,21 +316,21 @@ namespace Xunit.Runner.MSBuild
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections);
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
-                var diagnosticMessageVisitor = new DiagnosticMessageVisitor(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
+                var diagnosticMessageSink = new DiagnosticMessageSink(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 
-                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
-                using (var discoveryVisitor = new TestDiscoveryVisitor())
+                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
+                using (var discoverySink = new TestDiscoverySink())
                 {
                     // Discover & filter the tests
                     reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
 
-                    controller.Find(false, discoveryVisitor, discoveryOptions);
-                    discoveryVisitor.Finished.WaitOne();
+                    controller.Find(false, discoverySink, discoveryOptions);
+                    discoverySink.Finished.WaitOne();
 
-                    var testCasesDiscovered = discoveryVisitor.TestCases.Count;
-                    var filteredTestCases = discoveryVisitor.TestCases.Where(Filters.Filter).ToList();
+                    var testCasesDiscovered = discoverySink.TestCases.Count;
+                    var filteredTestCases = discoverySink.TestCases.Where(Filters.Filter).ToList();
                     var testCasesToRun = filteredTestCases.Count;
 
                     reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
@@ -341,18 +343,18 @@ namespace Xunit.Runner.MSBuild
                         if (SerializeTestCases)
                             filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
 
-                        IExecutionVisitor resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        IExecutionSink resultsSink = new XmlAggregateSink(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
                         if (FailSkips)
-                            resultsVisitor = new FailSkipVisitor(resultsVisitor);
+                            resultsSink = new FailSkipSink(resultsSink);
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-                        controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
-                        resultsVisitor.Finished.WaitOne();
+                        controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+                        resultsSink.Finished.WaitOne();
 
-                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsVisitor.ExecutionSummary));
+                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
 
-                        if (resultsVisitor.ExecutionSummary.Failed != 0)
+                        if (resultsSink.ExecutionSummary.Failed != 0)
                             ExitCode = 1;
                     }
                 }

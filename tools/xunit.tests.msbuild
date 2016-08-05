@@ -43,8 +43,8 @@
   </Target>
 
   <Target Name="Console" DependsOnTargets="CopyDependencies">
-    <exec Command="..\src\xunit.console\bin\$(Configuration)\net45\xunit.console.exe ..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll" />
-    <exec Command="..\src\xunit.console\bin\$(Configuration)\net45\xunit.console.exe @(TestAssemblies->'%(identity)', ' ') -parallel all" />
+    <exec Command="..\src\xunit.console\bin\$(Configuration)\net45\win7-x64\xunit.console.exe ..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll" />
+    <exec Command="..\src\xunit.console\bin\$(Configuration)\net45\win7-x64\xunit.console.exe @(TestAssemblies->'%(identity)', ' ') -parallel all" />
   </Target>
 
 </Project>

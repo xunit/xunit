@@ -21,7 +21,7 @@ namespace Xunit.ConsoleClient
                 arguments.Push(args[i]);
 
             Project = Parse(fileExists);
-            Reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? Reporter ?? new DefaultRunnerReporter();
+            Reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? Reporter ?? new DefaultRunnerReporterWithTypes();
         }
 
         public bool Debug { get; protected set; }

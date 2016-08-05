@@ -173,7 +173,7 @@ namespace Xunit
         /// <param name="messageSink">The message sink to report results back to.</param>
         public void Run(IMessageSink messageSink)
         {
-            var discoverySink = new TestDiscoveryVisitor();
+            var discoverySink = new TestDiscoverySink();
             toDispose.Push(discoverySink);
 
             Find(false, discoverySink);

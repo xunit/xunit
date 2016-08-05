@@ -1,11 +1,16 @@
-﻿using System;
+﻿#pragma warning disable CS0618
+
+using System;
 using System.Linq;
+using System.Reflection;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
 public class TestMessageVisitorTests
 {
+    static readonly MethodInfo forMethodGeneric = typeof(Substitute).GetMethods().Single(m => m.Name == "For" && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1);
+
     [Theory]
     [InlineData(typeof(IAfterTestFinished))]
     [InlineData(typeof(IAfterTestStarting))]
@@ -35,7 +40,6 @@ public class TestMessageVisitorTests
     [InlineData(typeof(ITestStarting))]
     public void ProcessesVisitorTypes(Type type)
     {
-        var forMethodGeneric = typeof(Substitute).GetMethods().Single(m => m.Name == "For" && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1);
         var forMethod = forMethodGeneric.MakeGenericMethod(type);
         var substitute = (IMessageSinkMessage)forMethod.Invoke(null, new object[] { new object[0] });
         var visitor = new SpyTestMessageVisitor();

@@ -81,7 +81,7 @@ public class Xunit1Tests
                 xunit1.Executor
                       .WhenForAnyArgs(x => x.EnumerateTests(null))
                       .Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
-                var sink = new TestDiscoveryVisitor();
+                var sink = new TestDiscoverySink();
 
                 xunit1.Find(false, sink);
                 sink.Finished.WaitOne();
@@ -147,7 +147,7 @@ public class Xunit1Tests
                 xunit1.Executor
                       .WhenForAnyArgs(x => x.EnumerateTests(null))
                       .Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
-                var sink = new TestDiscoveryVisitor();
+                var sink = new TestDiscoverySink();
 
                 xunit1.Find("Type2", false, sink);
                 sink.Finished.WaitOne();
@@ -178,7 +178,7 @@ public class Xunit1Tests
                 xunit1.SourceInformationProvider
                       .GetSourceInformation(null)
                       .ReturnsForAnyArgs(callInfo => new SourceInformation { FileName = "File for " + callInfo.Arg<ITestCase>().DisplayName });
-                var sink = new TestDiscoveryVisitor();
+                var sink = new TestDiscoverySink();
 
                 xunit1.Find(true, sink);
                 sink.Finished.WaitOne();

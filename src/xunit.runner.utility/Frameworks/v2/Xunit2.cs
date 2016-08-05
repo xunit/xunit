@@ -70,7 +70,7 @@ namespace Xunit
         /// <param name="executionOptions">The options to be used during test execution.</param>
         public void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
         {
-            executor.RunAll(messageSink, discoveryOptions, executionOptions);
+            executor.RunAll(CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions, executionOptions);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Xunit
         /// <param name="executionOptions">The options to be used during test execution.</param>
         public void RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
         {
-            executor.RunTests(testCases, messageSink, executionOptions);
+            executor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), executionOptions);
         }
     }
 }

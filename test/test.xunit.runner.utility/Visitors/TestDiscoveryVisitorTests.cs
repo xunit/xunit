@@ -8,15 +8,15 @@ public class TestDiscoveryVisitorTests
     [Fact]
     public void CollectsTestCases()
     {
-        var visitor = new TestDiscoveryVisitor();
+        var visitor = new TestDiscoverySink();
         var testCase1 = Substitute.For<ITestCase>();
         var testCase2 = Substitute.For<ITestCase>();
         var testCase3 = Substitute.For<ITestCase>();
 
-        visitor.OnMessage(new DiscoveryMessage(testCase1));
-        visitor.OnMessage(new DiscoveryMessage(testCase2));
-        visitor.OnMessage(new DiscoveryMessage(testCase3));
-        visitor.OnMessage(Substitute.For<IMessageSinkMessage>()); // Ignored
+        visitor.OnMessageWithTypes(new DiscoveryMessage(testCase1),null);
+        visitor.OnMessageWithTypes(new DiscoveryMessage(testCase2),null);
+        visitor.OnMessageWithTypes(new DiscoveryMessage(testCase3), null);
+        visitor.OnMessageWithTypes(Substitute.For<IMessageSinkMessage>(), null); // Ignored
 
         Assert.Collection(visitor.TestCases,
             msg => Assert.Same(testCase1, msg),

@@ -104,6 +104,11 @@ static class NewReflectionExtensions
         return type.GetTypeInfo().GenericTypeArguments;
     }
 
+    public static Type[] GetInterfaces(this Type type)
+    {
+        return type.GetTypeInfo().ImplementedInterfaces.ToArray();
+    }
+
     public static bool IsAssignableFrom(this Type type, Type otherType)
     {
         return type.GetTypeInfo().IsAssignableFrom(otherType.GetTypeInfo());

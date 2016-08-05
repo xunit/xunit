@@ -8,6 +8,7 @@ namespace Xunit
     /// An implementation of <see cref="IMessageSink"/> that provides several Visit methods that
     /// can provide access to specific message types without the burden of casting.
     /// </summary>
+    [Obsolete("This class has poor performance; please use TestMessageSink instead.")]
     public class TestMessageVisitor : LongLivedMarshalByRefObject, IMessageSink
     {
         /// <summary>
@@ -487,6 +488,7 @@ namespace Xunit
     /// when it sees a completion message, and sets the <see cref="Finished" /> event appropriately.
     /// </summary>
     /// <typeparam name="TCompleteMessage">The type of the completion message.</typeparam>
+    [Obsolete("This class has poor performance; please use TestMessageSink instead.")]
     public class TestMessageVisitor<TCompleteMessage> : TestMessageVisitor, IDisposable
         where TCompleteMessage : IMessageSinkMessage
     {

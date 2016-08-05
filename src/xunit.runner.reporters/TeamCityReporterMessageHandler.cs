@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
 {
-    public class TeamCityReporterMessageHandler : TestMessageVisitor
+    public class TeamCityReporterMessageHandler : TestMessageSink
     {
         readonly TeamCityDisplayNameFormatter displayNameFormatter;
         readonly Func<string, string> flowIdMapper;
@@ -20,99 +20,100 @@ namespace Xunit.Runner.Reporters
             this.logger = logger;
             this.flowIdMapper = flowIdMapper ?? (_ => Guid.NewGuid().ToString("N"));
             this.displayNameFormatter = displayNameFormatter ?? new TeamCityDisplayNameFormatter();
+
+            ErrorMessageEvent += HandleErrorMessage;
+            TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
+            TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
+            TestClassCleanupFailureEvent += HandleTestCaseCleanupFailure;
+            TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
+            TestCollectionFinishedEvent += HandleTestCollectionFinished;
+            TestCollectionStartingEvent += HandleTestCollectionStarting;
+            TestCleanupFailureEvent += HandleTestCleanupFailure;
+            TestFailedEvent += HandleTestFailed;
+            TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+            TestPassedEvent += HandleTestPassed;
+            TestSkippedEvent += HandleTestSkipped;
+            TestStartingEvent += HandleTestStarting;
         }
 
-        protected override bool Visit(IErrorMessage error)
+        protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
         {
+            var error = args.Message;
             LogError("FATAL ERROR", error);
-
-            return base.Visit(error);
         }
 
-        protected override bool Visit(ITestAssemblyCleanupFailure cleanupFailure)
+        protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Assembly Cleanup Failure ({cleanupFailure.TestAssembly.Assembly.AssemblyPath})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestCaseCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Case Cleanup Failure ({cleanupFailure.TestCase.DisplayName})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestClassCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Class Cleanup Failure ({cleanupFailure.TestClass.Class.Name})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestCollectionCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Collection Cleanup Failure ({cleanupFailure.TestCollection.DisplayName})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestCollectionFinished testCollectionFinished)
+        protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
         {
+            var testCollectionFinished = args.Message;
             logger.LogImportantMessage($"##teamcity[testSuiteFinished name='{Escape(displayNameFormatter.DisplayName(testCollectionFinished.TestCollection))}' flowId='{ToFlowId(testCollectionFinished.TestCollection.DisplayName)}']");
-
-            return base.Visit(testCollectionFinished);
         }
 
-        protected override bool Visit(ITestCollectionStarting testCollectionStarting)
+        protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<ITestCollectionStarting> args)
         {
+            var testCollectionStarting = args.Message;
             logger.LogImportantMessage($"##teamcity[testSuiteStarted name='{Escape(displayNameFormatter.DisplayName(testCollectionStarting.TestCollection))}' flowId='{ToFlowId(testCollectionStarting.TestCollection.DisplayName)}']");
-
-            return base.Visit(testCollectionStarting);
         }
 
-        protected override bool Visit(ITestCleanupFailure cleanupFailure)
+        protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Cleanup Failure ({cleanupFailure.Test.DisplayName})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestFailed testFailed)
+        protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
+            var testFailed = args.Message;
             logger.LogImportantMessage($"##teamcity[testFailed name='{Escape(displayNameFormatter.DisplayName(testFailed.Test))}' details='{Escape(ExceptionUtility.CombineMessages(testFailed))}|r|n{Escape(ExceptionUtility.CombineStackTraces(testFailed))}' flowId='{ToFlowId(testFailed.TestCollection.DisplayName)}']");
             LogFinish(testFailed);
-
-            return base.Visit(testFailed);
         }
 
-        protected override bool Visit(ITestMethodCleanupFailure cleanupFailure)
+        protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
         {
+            var cleanupFailure = args.Message;
             LogError($"Test Method Cleanup Failure ({cleanupFailure.TestMethod.Method.Name})", cleanupFailure);
-
-            return base.Visit(cleanupFailure);
         }
 
-        protected override bool Visit(ITestPassed testPassed)
+        protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
+            var testPassed = args.Message;
             LogFinish(testPassed);
-
-            return base.Visit(testPassed);
         }
 
-        protected override bool Visit(ITestSkipped testSkipped)
+        protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
+            var testSkipped = args.Message;
             logger.LogImportantMessage($"##teamcity[testIgnored name='{Escape(displayNameFormatter.DisplayName(testSkipped.Test))}' message='{Escape(testSkipped.Reason)}' flowId='{ToFlowId(testSkipped.TestCollection.DisplayName)}']");
             LogFinish(testSkipped);
-
-            return base.Visit(testSkipped);
         }
 
-        protected override bool Visit(ITestStarting testStarting)
+        protected virtual void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
+            var testStarting = args.Message;
             logger.LogImportantMessage($"##teamcity[testStarted name='{Escape(displayNameFormatter.DisplayName(testStarting.Test))}' flowId='{ToFlowId(testStarting.TestCollection.DisplayName)}']");
-
-            return base.Visit(testStarting);
         }
 
         // Helpers

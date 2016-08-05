@@ -8,7 +8,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
-public class XmlTestExecutionVisitorTests
+public class XmlTestExecutionSinkTests
 {
     public class OnMessage
     {
@@ -22,9 +22,9 @@ public class XmlTestExecutionVisitorTests
         [Fact]
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
-            var visitor = new XmlTestExecutionVisitor(null, () => true);
+            var sink = new TestableXmlTestExecutionSink(null, () => true);
 
-            var result = visitor.OnMessage(testMessage);
+            var result = sink.OnMessage(testMessage);
 
             Assert.False(result);
         }
@@ -32,9 +32,9 @@ public class XmlTestExecutionVisitorTests
         [Fact]
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
-            var visitor = new XmlTestExecutionVisitor(null, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, () => false);
 
-            var result = visitor.OnMessage(testMessage);
+            var result = sink.OnMessage(testMessage);
 
             Assert.True(result);
         }
@@ -51,14 +51,14 @@ public class XmlTestExecutionVisitorTests
             assemblyFinished.TestsSkipped.Returns(6);
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
-            var visitor = new XmlTestExecutionVisitor(null, () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
+            var sink = new TestableXmlTestExecutionSink(null, () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
 
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(assemblyFinished);
 
-            Assert.Equal(2122, visitor.Total);
-            Assert.Equal(52, visitor.Failed);
-            Assert.Equal(16, visitor.Skipped);
-            Assert.Equal(133.4567M, visitor.Time);
+            Assert.Equal(2122, sink.Total);
+            Assert.Equal(52, sink.Failed);
+            Assert.Equal(16, sink.Skipped);
+            Assert.Equal(133.4567M, sink.Time);
         }
     }
 
@@ -75,9 +75,9 @@ public class XmlTestExecutionVisitorTests
             assemblyStarting.TestFrameworkDisplayName.Returns("xUnit.net v14.42");
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(assemblyStarting);
+            sink.OnMessage(assemblyStarting);
 
             Assert.Equal("assembly", assemblyElement.Attribute("name").Value);
             Assert.Equal("256-bit MentalFloss", assemblyElement.Attribute("environment").Value);
@@ -94,9 +94,9 @@ public class XmlTestExecutionVisitorTests
             assemblyStarting.TestAssembly.ConfigFileName.Returns((string)null);
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(assemblyStarting);
+            sink.OnMessage(assemblyStarting);
 
             Assert.Null(assemblyElement.Attribute("config-file"));
         }
@@ -111,14 +111,14 @@ public class XmlTestExecutionVisitorTests
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
             var errorMessage = Substitute.For<IErrorMessage>();
             errorMessage.ExceptionTypes.Returns(new[] { "ExceptionType" });
             errorMessage.Messages.Returns(new[] { "Message" });
             errorMessage.StackTraces.Returns(new[] { "Stack" });
 
-            visitor.OnMessage(errorMessage);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(errorMessage);
+            sink.OnMessage(assemblyFinished);
 
             Assert.Equal("2112", assemblyElement.Attribute("total").Value);
             Assert.Equal("2064", assemblyElement.Attribute("passed").Value);
@@ -142,10 +142,10 @@ public class XmlTestExecutionVisitorTests
             testCollectionFinished.ExecutionTime.Returns(123.4567M);
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(testCollectionFinished);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(testCollectionFinished);
+            sink.OnMessage(assemblyFinished);
 
             var collectionElement = Assert.Single(assemblyElement.Elements("collection"));
             Assert.Equal("Collection Name", collectionElement.Attribute("name").Value);
@@ -170,14 +170,14 @@ public class XmlTestExecutionVisitorTests
             testPassed.Output.Returns("test output");
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(testPassed);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(testPassed);
+            sink.OnMessage(assemblyFinished);
 
             var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
             Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-            Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
+            Assert.Equal("XmlTestExecutionSinkTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Pass", testElement.Attribute("result").Value);
             Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
@@ -203,14 +203,14 @@ public class XmlTestExecutionVisitorTests
             testPassed.Output.Returns(string.Empty);
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(testPassed);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(testPassed);
+            sink.OnMessage(assemblyFinished);
 
             var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
             Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-            Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
+            Assert.Equal("XmlTestExecutionSinkTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Pass", testElement.Attribute("result").Value);
             Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
@@ -238,14 +238,14 @@ public class XmlTestExecutionVisitorTests
             testFailed.StackTraces.Returns(new[] { "Exception Stack Trace" });
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(testFailed);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(testFailed);
+            sink.OnMessage(assemblyFinished);
 
             var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
             Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-            Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
+            Assert.Equal("XmlTestExecutionSinkTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Fail", testElement.Attribute("result").Value);
             Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
@@ -270,10 +270,10 @@ public class XmlTestExecutionVisitorTests
             testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(testFailed);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(testFailed);
+            sink.OnMessage(assemblyFinished);
 
             var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
             var failureElement = Assert.Single(testElement.Elements("failure"));
@@ -293,14 +293,14 @@ public class XmlTestExecutionVisitorTests
             testSkipped.Reason.Returns("Skip Reason");
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(testSkipped);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(testSkipped);
+            sink.OnMessage(assemblyFinished);
 
             var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
             Assert.Equal("Test Display Name", testElement.Attribute("name").Value);
-            Assert.Equal("XmlTestExecutionVisitorTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
+            Assert.Equal("XmlTestExecutionSinkTests+Xml+ClassUnderTest", testElement.Attribute("type").Value);
             Assert.Equal("TestMethod", testElement.Attribute("method").Value);
             Assert.Equal("Skip", testElement.Attribute("result").Value);
             Assert.Equal(0.0M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time").Value);
@@ -319,10 +319,10 @@ public class XmlTestExecutionVisitorTests
             testPassed.TestCase.Returns(testCase);
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(testPassed);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(testPassed);
+            sink.OnMessage(assemblyFinished);
 
             var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
             Assert.Equal("source file", testElement.Attribute("source-file").Value);
@@ -344,10 +344,10 @@ public class XmlTestExecutionVisitorTests
             testPassed.TestCase.Returns(passingTestCase);
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(testPassed);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(testPassed);
+            sink.OnMessage(assemblyFinished);
 
             var traitsElements = assemblyElement.Elements("collection").Single().Elements("test").Single().Elements("traits").Single().Elements("trait");
             var name1Element = Assert.Single(traitsElements, e => e.Attribute("name").Value == "name1");
@@ -355,7 +355,7 @@ public class XmlTestExecutionVisitorTests
             var name2Element = Assert.Single(traitsElements, e => e.Attribute("name").Value == "name2");
             Assert.Equal("value2", name2Element.Attribute("value").Value);
         }
-        
+
         public static IEnumerable<object[]> IllegalXmlTestData()
         {
             yield return new object[]
@@ -390,17 +390,17 @@ public class XmlTestExecutionVisitorTests
             testSkipped.Reason.Returns("Bad\0\r\nString");
 
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(testSkipped);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(testSkipped);
+            sink.OnMessage(assemblyFinished);
 
             using (var writer = new StringWriter())
             {
                 assemblyElement.Save(writer, SaveOptions.DisableFormatting);
 
                 var outputXml = writer.ToString();
-                Assert.Equal($@"<?xml version=""1.0"" encoding=""utf-16""?><assembly total=""0"" passed=""0"" failed=""0"" skipped=""0"" time=""0.000"" errors=""0""><errors /><collection><test name=""{outputName}"" type=""XmlTestExecutionVisitorTests+Xml+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"" source-file=""""><reason><![CDATA[Bad\0\r\nString]]></reason></test></collection></assembly>", outputXml);
+                Assert.Equal($@"<?xml version=""1.0"" encoding=""utf-16""?><assembly total=""0"" passed=""0"" failed=""0"" skipped=""0"" time=""0.000"" errors=""0""><errors /><collection><test name=""{outputName}"" type=""XmlTestExecutionSinkTests+Xml+ClassUnderTest"" method=""TestMethod"" time=""0"" result=""Skip"" source-file=""""><reason><![CDATA[Bad\0\r\nString]]></reason></test></collection></assembly>", outputXml);
             }
         }
 
@@ -464,10 +464,10 @@ public class XmlTestExecutionVisitorTests
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var assemblyElement = new XElement("assembly");
-            var visitor = new XmlTestExecutionVisitor(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
 
-            visitor.OnMessage(errorMessage);
-            visitor.OnMessage(assemblyFinished);
+            sink.OnMessage(errorMessage);
+            sink.OnMessage(assemblyFinished);
 
             var errorElement = Assert.Single(assemblyElement.Element("errors").Elements());
             Assert.Equal(messageType, errorElement.Attribute("type").Value);
@@ -481,6 +481,17 @@ public class XmlTestExecutionVisitorTests
             Assert.Equal("ExceptionType", failureElement.Attribute("exception-type").Value);
             Assert.Equal("ExceptionType : This is my message \\t\\r\\n", failureElement.Elements("message").Single().Value);
             Assert.Equal("Line 1\r\nLine 2\r\nLine 3", failureElement.Elements("stack-trace").Single().Value);
+        }
+    }
+
+    class TestableXmlTestExecutionSink : XmlTestExecutionSink
+    {
+        public TestableXmlTestExecutionSink(XElement assemblyElement, Func<bool> cancelThunk)
+            : base(assemblyElement, cancelThunk) { }
+
+        public bool OnMessage(IMessageSinkMessage message)
+        {
+            return ((IMessageSink)this).OnMessage(message);
         }
     }
 }

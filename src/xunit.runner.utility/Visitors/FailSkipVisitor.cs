@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -7,6 +8,7 @@ namespace Xunit
     /// tests into failures, wrapping an existing <see cref="IExecutionVisitor"/>
     /// implementation.
     /// </summary>
+    [Obsolete("This class has poor performance; please use FailSkipSink instead.")]
     public class FailSkipVisitor : TestMessageVisitor<ITestAssemblyFinished>, IExecutionVisitor
     {
         readonly IExecutionVisitor Visitor;
