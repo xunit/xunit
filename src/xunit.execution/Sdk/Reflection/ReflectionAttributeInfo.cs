@@ -70,7 +70,7 @@ namespace Xunit.Sdk
 
         internal static IEnumerable<IAttributeInfo> GetCustomAttributes(Type type, string assemblyQualifiedAttributeTypeName)
         {
-            Type attributeType = SerializationHelper.GetType(assemblyQualifiedAttributeTypeName);
+            Type attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
             return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
         }
