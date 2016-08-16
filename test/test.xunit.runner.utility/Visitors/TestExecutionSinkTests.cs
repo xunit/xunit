@@ -11,18 +11,16 @@ using Xunit.Abstractions;
 public class TestExecutionSinkTests
 {
     [Fact]
-    public async Task TestLongRunningTest()
+    public async Task TestLongRunningTestBasicBehavior()
     {
-        var sink = new TestableTestExecutionSink(null, () => false, 2);
+        var sink = new TestableTestExecutionSink(null, () => false, 1);
         
         var testCase1 = Substitute.For<ITestCase>();
-
-        var testCase2 = Substitute.For<ITestCase>();
 
         sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
         sink.OnMessage(new TestCaseStarting(testCase1));
 
-        await Task.Delay(6000);
+        await Task.Delay(3000);
 
 
         sink.OnMessage(new TestCaseFinished(testCase1, 8009, 1, 0, 0));
@@ -30,9 +28,12 @@ public class TestExecutionSinkTests
         sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
 
 
-        Assert.NotNull(sink.LongRunningTestNotificationMessage);
-        Assert.NotEmpty(sink.LongRunningTestNotificationMessage.TestCases);
-        Assert.Same(testCase1, sink.LongRunningTestNotificationMessage.TestCases.Keys.First());
+        Assert.NotEmpty(sink.LongRunningTestNotificationMessages);
+        Assert.NotEmpty(sink.LongRunningTestNotificationMessages.First().TestCases);
+        Assert.Same(testCase1, sink.LongRunningTestNotificationMessages.First().TestCases.Keys.First());
+
+        Assert.NotEmpty(sink.DiagnosticMessages);
+        Assert.Contains($"[Long Test] '{testCase1.DisplayName}'", sink.DiagnosticMessages.First().Message);
     }
 
     class TestableTestExecutionSink : TestExecutionSink
@@ -41,11 +42,20 @@ public class TestExecutionSinkTests
             : base(completionMessages, cancelThunk, longRunningSeconds)
         {
             LongRunningTestEvent += OnLongRunningTestEvent;
+            DiagnosticMessageEvent += OnDiagnosticMessageEvent;
         }
+
+        void OnDiagnosticMessageEvent(MessageHandlerArgs<IDiagnosticMessage> args)
+        {
+            DiagnosticMessages.Add(args.Message);
+        }
+
+        public readonly ConcurrentBag<ILongRunningTestNotificationMessage> LongRunningTestNotificationMessages = new ConcurrentBag<ILongRunningTestNotificationMessage>();
+        public readonly ConcurrentBag<IDiagnosticMessage> DiagnosticMessages = new ConcurrentBag<IDiagnosticMessage>();
 
         void OnLongRunningTestEvent(MessageHandlerArgs<ILongRunningTestNotificationMessage> args)
         {
-            LongRunningTestNotificationMessage = args.Message;
+            LongRunningTestNotificationMessages.Add(args.Message);
         }
 
 
@@ -53,7 +63,5 @@ public class TestExecutionSinkTests
         {
             return ((IMessageSink)this).OnMessage(message);
         }
-
-        public ILongRunningTestNotificationMessage LongRunningTestNotificationMessage { get; private set; }
     }
 }

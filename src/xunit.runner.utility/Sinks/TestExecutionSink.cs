@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -20,13 +21,13 @@ namespace Xunit
     public class TestExecutionSink : TestMessageSink, IExecutionSink
     {
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
-        int errors;
-        readonly bool trackLongRunning;
+        readonly ConcurrentDictionary<ITestCase, DateTime> longRunningTests;
         readonly TimeSpan longRunningTime;
         readonly Stopwatch stopwatch;
-        readonly ConcurrentDictionary<ITestCase, DateTime> longRunningTests;
-        Task timerTask;
+        readonly bool trackLongRunning;
         CancellationTokenSource cancellationTokenSource;
+        int errors;
+        Task timerTask;
 
         /// <summary>
         ///     Initializes a new instance of <see cref="TestExecutionSink" />
@@ -54,47 +55,6 @@ namespace Xunit
 
             TestCaseStartingEvent += OnTestStartingEvent;
             TestCaseFinishedEvent += OnTestFinishedEvent;
-        }
-
-        void OnTestAssemblyStartingEvent(MessageHandlerArgs<ITestAssemblyStarting> args)
-        {
-            if (trackLongRunning)
-            {
-                cancellationTokenSource = new CancellationTokenSource();
-                timerTask = TimerLoop();
-            }
-        }
-
-        async Task TimerLoop()
-        {
-            while(!cancellationTokenSource.IsCancellationRequested)
-            {
-                await Task.Delay((int)longRunningTime.TotalMilliseconds, cancellationTokenSource.Token).ConfigureAwait(false);
-                if (!cancellationTokenSource.IsCancellationRequested)
-                {
-                    SendLongRunningMessage();
-                }
-            }
-
-        }
-
-        void OnTestFinishedEvent(MessageHandlerArgs<ITestCaseFinished> args)
-        {
-            if (trackLongRunning)
-            {
-                // On each test that finishes, we reset the idle timer
-                stopwatch.Restart();
-                DateTime date;
-                longRunningTests.TryRemove(args.Message.TestCase, out date);
-            }
-        }
-
-        void OnTestStartingEvent(MessageHandlerArgs<ITestCaseStarting> args)
-        {
-            if (trackLongRunning)
-            {
-                longRunningTests.TryAdd(args.Message.TestCase, DateTime.UtcNow);
-            }
         }
 
         /// <summary>
@@ -165,6 +125,36 @@ namespace Xunit
             if (trackLongRunning)
             {
                 cancellationTokenSource.Cancel();
+                stopwatch.Stop();
+            }
+        }
+
+        void OnTestAssemblyStartingEvent(MessageHandlerArgs<ITestAssemblyStarting> args)
+        {
+            if (trackLongRunning)
+            {
+                cancellationTokenSource = new CancellationTokenSource();
+                timerTask = TimerLoop();
+                stopwatch.Start();
+            }
+        }
+
+        void OnTestFinishedEvent(MessageHandlerArgs<ITestCaseFinished> args)
+        {
+            if (trackLongRunning)
+            {
+                // On each test that finishes, we reset the idle timer
+                stopwatch.Restart();
+                DateTime date;
+                longRunningTests.TryRemove(args.Message.TestCase, out date);
+            }
+        }
+
+        void OnTestStartingEvent(MessageHandlerArgs<ITestCaseStarting> args)
+        {
+            if (trackLongRunning)
+            {
+                longRunningTests.TryAdd(args.Message.TestCase, DateTime.UtcNow);
             }
         }
 
@@ -172,10 +162,39 @@ namespace Xunit
         void SendLongRunningMessage()
         {
             var now = DateTime.UtcNow;
-            var d = longRunningTests.ToDictionary(k => k.Key, v => now - v.Value);
+            var d = longRunningTests.Where(kvp => (now - kvp.Value) > longRunningTime)
+                                    .ToDictionary(k => k.Key, v => now - v.Value);
+
             if (d.Count > 0)
             {
                 OnMessageWithTypes(new LongRunningTestNotification(longRunningTime, d), null);
+
+                var sb = new StringBuilder();
+                
+                foreach (var pair in d)
+                {
+                    sb.AppendLine($"[Long Test] '{pair.Key.DisplayName}', Elapsed: {pair.Value:hh\\:mm\\:ss}");
+                }
+
+                var msg = new DiagnosticMessage(sb.ToString());
+                OnMessageWithTypes(msg, null);
+            }
+        }
+
+        async Task TimerLoop()
+        {
+            while (!cancellationTokenSource.IsCancellationRequested)
+            {
+                await Task.Delay((int)longRunningTime.TotalMilliseconds, cancellationTokenSource.Token)
+                          .ConfigureAwait(false);
+                if (!cancellationTokenSource.IsCancellationRequested)
+                {
+                    // don't do anything if we're not idle
+                    if (stopwatch.Elapsed < longRunningTime)
+                        continue;
+
+                    SendLongRunningMessage();
+                }
             }
         }
     }
