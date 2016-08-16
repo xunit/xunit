@@ -207,6 +207,11 @@ namespace Xunit
         public event MessageHandler<ITestStarting> TestStartingEvent;
 
         /// <summary>
+        /// Occurs when a <see cref="ILongRunningTestNotificationMessage"/> message is received.
+        /// </summary>
+        public event MessageHandler<ILongRunningTestNotificationMessage> LongRunningTestEvent;
+
+        /// <summary>
         /// Attempts to optimally cast a message to the given message type, using the optional hash of
         /// interface types to improve casting performance.
         /// </summary>
@@ -302,7 +307,8 @@ namespace Xunit
                 && HandleMessage(message, types, TestMethodStartingEvent)
                 && HandleMessage(message, types, TestPassedEvent)
                 && HandleMessage(message, types, TestSkippedEvent)
-                && HandleMessage(message, types, TestStartingEvent);
+                && HandleMessage(message, types, TestStartingEvent)
+                && HandleMessage(message, types, LongRunningTestEvent);
         }
     }
 }

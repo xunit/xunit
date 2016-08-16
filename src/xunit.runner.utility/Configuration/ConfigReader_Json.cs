@@ -55,6 +55,16 @@ namespace Xunit
                                     result.MaxParallelThreads = maxParallelThreads;
                             }
                         }
+                        else if (string.Equals(propertyName, Configuration.LongRunningTestSeconds, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var numberValue = propertyValue as JsonNumber;
+                            if (numberValue != null)
+                            {
+                                int seconds;
+                                if (int.TryParse(numberValue.Raw, out seconds) && seconds > 0)
+                                    result.LongRunningTestSeconds = seconds;
+                            }
+                        }
                         else if (string.Equals(propertyName, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
                         {
                             var stringValue = propertyValue as JsonString;
@@ -156,6 +166,7 @@ namespace Xunit
             public const string ParallelizeTestCollections = "parallelizeTestCollections";
             public const string PreEnumerateTheories = "preEnumerateTheories";
             public const string ShadowCopy = "shadowCopy";
+            public const string LongRunningTestSeconds = "longRunningTestSeconds";
         }
     }
 }

@@ -25,11 +25,13 @@ namespace Xunit
         /// <param name="completionMessages">The dictionary which collects execution summaries for all assemblies.</param>
         /// <param name="assemblyElement">The root XML assembly element to collect the result XML.</param>
         /// <param name="cancelThunk">The callback used to determine when to cancel execution.</param>
+        /// <param name="longRunningSeconds">Timeout value for a test to be considered "long running"</param>
         public XmlAggregateSink(IMessageSinkWithTypes innerMessageSink,
                                 ConcurrentDictionary<string, ExecutionSummary> completionMessages,
                                 XElement assemblyElement,
-                                Func<bool> cancelThunk)
-            : base(assemblyElement, completionMessages, cancelThunk)
+                                Func<bool> cancelThunk,
+                                int longRunningSeconds)
+            : base(assemblyElement, completionMessages, cancelThunk, longRunningSeconds)
         {
             Guard.ArgumentNotNull(nameof(innerMessageSink), innerMessageSink);
 

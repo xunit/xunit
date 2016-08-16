@@ -319,6 +319,7 @@ namespace Xunit.Runner.MSBuild
                 var diagnosticMessageSink = new DiagnosticMessageSink(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
+                var longRunningSeconds = assembly.Configuration.LongRunnintTestSecondsOrDefault;
 
                 using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 using (var discoverySink = new TestDiscoverySink())
@@ -343,7 +344,7 @@ namespace Xunit.Runner.MSBuild
                         if (SerializeTestCases)
                             filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
 
-                        IExecutionSink resultsSink = new XmlAggregateSink(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        IExecutionSink resultsSink = new XmlAggregateSink(reporterMessageHandler, completionMessages, assemblyElement, () => cancel, longRunningSeconds);
                         if (FailSkips)
                             resultsSink = new FailSkipSink(resultsSink);
 

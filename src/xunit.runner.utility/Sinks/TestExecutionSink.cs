@@ -29,7 +29,7 @@ namespace Xunit
         public TestExecutionSink(ConcurrentDictionary<string, ExecutionSummary> completionMessages, Func<bool> cancelThunk)
         {
             this.completionMessages = completionMessages;
-            CancelThunk = cancelThunk ?? (() => false); 
+            CancelThunk = cancelThunk ?? (() => false);
 
             ExecutionSummary = new ExecutionSummary();
 
@@ -48,24 +48,35 @@ namespace Xunit
         /// <summary>
         ///     Initializes a new instance of <see cref="TestExecutionSink" />
         /// </summary>
-        /// <param name="secondsUntilIdle"></param>
+        /// <param name="longRunningSeconds">Timeout value for a test to be considered "long running"</param>
         /// <param name="completionMessages">The dictionary which collects execution summaries for all assemblies.</param>
         /// <param name="cancelThunk">The callback used to determine when to cancel execution.</param>
-        public TestExecutionSink(int secondsUntilIdle, ConcurrentDictionary<string, ExecutionSummary> completionMessages, Func<bool> cancelThunk)
+        public TestExecutionSink(ConcurrentDictionary<string, ExecutionSummary> completionMessages, Func<bool> cancelThunk, int longRunningSeconds)
             : this(completionMessages, cancelThunk)
         {
         }
+
+        /// <summary>
+        ///     Gets the callback used to determine when to cancel execution.
+        /// </summary>
+        public Func<bool> CancelThunk { get; }
 
         /// <inheritdoc />
         public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
 
         /// <inheritdoc />
         public ExecutionSummary ExecutionSummary { get; private set; }
-       
-        /// <summary>
-        /// Gets the callback used to determine when to cancel execution.
-        /// </summary>
-        public Func<bool> CancelThunk { get; }
+
+
+        /// <inheritdoc />
+        public override bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
+        {
+            var result = base.OnMessageWithTypes(message, messageTypes);
+            if (result)
+                result = !CancelThunk();
+
+            return result;
+        }
 
         void OnError()
         {

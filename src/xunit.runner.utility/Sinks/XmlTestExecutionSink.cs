@@ -25,11 +25,10 @@ namespace Xunit
         /// <param name="assemblyElement">The root XML assembly element to collect the result XML.</param>
         /// <param name="cancelThunk">The callback used to determine when to cancel execution.</param>
         /// <param name="completionMessages">The dictionary which collects execution summaries for all assemblies.</param>
-        public XmlTestExecutionSink(XElement assemblyElement, ConcurrentDictionary<string, ExecutionSummary> completionMessages, Func<bool> cancelThunk)
-            : base(completionMessages, cancelThunk)
+        /// <param name="longRunningSeconds">Timeout value for a test to be considered "long running"</param>
+        public XmlTestExecutionSink(XElement assemblyElement, ConcurrentDictionary<string, ExecutionSummary> completionMessages, Func<bool> cancelThunk, int longRunningSeconds)
+            : base(completionMessages, cancelThunk, longRunningSeconds)
         {
-      
-
             this.assemblyElement = assemblyElement;
 
             if (this.assemblyElement != null)
@@ -131,15 +130,6 @@ namespace Xunit
             return testCollectionElements.GetOrAdd(testCollection.UniqueID, tc => new XElement("collection"));
         }
 
-        /// <inheritdoc/>
-        public override bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
-        {
-            var result = base.OnMessageWithTypes(message, messageTypes);
-            if (result)
-                result = !CancelThunk();
-
-            return result;
-        }
 
         /// <summary>
         /// Called when <see cref="TestMessageSink.TestAssemblyFinishedEvent"/> is raised.

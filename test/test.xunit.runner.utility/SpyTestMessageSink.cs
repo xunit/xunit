@@ -46,5 +46,6 @@ public class SpyTestMessageSink : TestMessageSink
         TestPassedEvent += args => Calls.Add("ITestPassed");
         TestSkippedEvent += args => Calls.Add("ITestSkipped");
         TestStartingEvent += args => Calls.Add("ITestStarting");
+        LongRunningTestEvent += args => Calls.Add("ILongRunningTestNotification");
     }
 }

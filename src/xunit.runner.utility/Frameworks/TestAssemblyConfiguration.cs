@@ -33,6 +33,19 @@ namespace Xunit
         public bool DiagnosticMessagesOrDefault { get { return DiagnosticMessages ?? false; } }
 
         /// <summary>
+        /// Gets the number of seconds that a test can run before being considered "long running"
+        /// </summary>
+        public int? LongRunningTestSeconds { get; set; }
+
+        /// <summary>
+        /// Gets the number of seconds that a test can run before being considered "long running". -1 is the default for disabled
+        /// </summary>
+        public int LongRunnintTestSecondsOrDefault
+        {
+            get { return LongRunningTestSeconds ?? -1; }
+        }
+
+        /// <summary>
         /// Gets or sets the maximum number of thread to use when parallelizing this assembly.
         /// </summary>
         public int? MaxParallelThreads { get; set; }
