@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -22,7 +23,7 @@ public class XmlTestExecutionSinkTests
         [Fact]
         public void ReturnsFalseWhenCancellationThunkIsTrue()
         {
-            var sink = new TestableXmlTestExecutionSink(null, () => true);
+            var sink = new TestableXmlTestExecutionSink(null, null, () => true);
 
             var result = sink.OnMessage(testMessage);
 
@@ -32,7 +33,7 @@ public class XmlTestExecutionSinkTests
         [Fact]
         public void ReturnsTrueWhenCancellationThunkIsFalse()
         {
-            var sink = new TestableXmlTestExecutionSink(null, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, null, () => false);
 
             var result = sink.OnMessage(testMessage);
 
@@ -51,7 +52,7 @@ public class XmlTestExecutionSinkTests
             assemblyFinished.TestsSkipped.Returns(6);
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
-            var sink = new TestableXmlTestExecutionSink(null, () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
+            var sink = new TestableXmlTestExecutionSink(null, null, () => false) { Total = 10, Failed = 10, Skipped = 10, Time = 10M };
 
             sink.OnMessage(assemblyFinished);
 
@@ -75,7 +76,7 @@ public class XmlTestExecutionSinkTests
             assemblyStarting.TestFrameworkDisplayName.Returns("xUnit.net v14.42");
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(assemblyStarting);
 
@@ -94,7 +95,7 @@ public class XmlTestExecutionSinkTests
             assemblyStarting.TestAssembly.ConfigFileName.Returns((string)null);
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(assemblyStarting);
 
@@ -111,7 +112,7 @@ public class XmlTestExecutionSinkTests
             assemblyFinished.ExecutionTime.Returns(123.4567M);
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
             var errorMessage = Substitute.For<IErrorMessage>();
             errorMessage.ExceptionTypes.Returns(new[] { "ExceptionType" });
             errorMessage.Messages.Returns(new[] { "Message" });
@@ -142,7 +143,7 @@ public class XmlTestExecutionSinkTests
             testCollectionFinished.ExecutionTime.Returns(123.4567M);
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(testCollectionFinished);
             sink.OnMessage(assemblyFinished);
@@ -170,7 +171,7 @@ public class XmlTestExecutionSinkTests
             testPassed.Output.Returns("test output");
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(testPassed);
             sink.OnMessage(assemblyFinished);
@@ -203,7 +204,7 @@ public class XmlTestExecutionSinkTests
             testPassed.Output.Returns(string.Empty);
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(testPassed);
             sink.OnMessage(assemblyFinished);
@@ -238,7 +239,7 @@ public class XmlTestExecutionSinkTests
             testFailed.StackTraces.Returns(new[] { "Exception Stack Trace" });
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(testFailed);
             sink.OnMessage(assemblyFinished);
@@ -270,7 +271,7 @@ public class XmlTestExecutionSinkTests
             testFailed.ExceptionParentIndices.Returns(new[] { -1 });
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(testFailed);
             sink.OnMessage(assemblyFinished);
@@ -293,7 +294,7 @@ public class XmlTestExecutionSinkTests
             testSkipped.Reason.Returns("Skip Reason");
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(testSkipped);
             sink.OnMessage(assemblyFinished);
@@ -319,7 +320,7 @@ public class XmlTestExecutionSinkTests
             testPassed.TestCase.Returns(testCase);
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(testPassed);
             sink.OnMessage(assemblyFinished);
@@ -344,7 +345,7 @@ public class XmlTestExecutionSinkTests
             testPassed.TestCase.Returns(passingTestCase);
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(testPassed);
             sink.OnMessage(assemblyFinished);
@@ -390,7 +391,7 @@ public class XmlTestExecutionSinkTests
             testSkipped.Reason.Returns("Bad\0\r\nString");
 
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(testSkipped);
             sink.OnMessage(assemblyFinished);
@@ -464,7 +465,7 @@ public class XmlTestExecutionSinkTests
         {
             var assemblyFinished = Substitute.For<ITestAssemblyFinished>();
             var assemblyElement = new XElement("assembly");
-            var sink = new TestableXmlTestExecutionSink(assemblyElement, () => false);
+            var sink = new TestableXmlTestExecutionSink(null, assemblyElement, () => false);
 
             sink.OnMessage(errorMessage);
             sink.OnMessage(assemblyFinished);
@@ -486,8 +487,8 @@ public class XmlTestExecutionSinkTests
 
     class TestableXmlTestExecutionSink : XmlTestExecutionSink
     {
-        public TestableXmlTestExecutionSink(XElement assemblyElement, Func<bool> cancelThunk)
-            : base(assemblyElement, cancelThunk) { }
+        public TestableXmlTestExecutionSink(ConcurrentDictionary<string, ExecutionSummary> completionMessages, XElement assemblyElement, Func<bool> cancelThunk)
+            : base(assemblyElement, completionMessages, cancelThunk) { }
 
         public bool OnMessage(IMessageSinkMessage message)
         {

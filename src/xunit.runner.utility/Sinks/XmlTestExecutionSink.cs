@@ -13,7 +13,7 @@ namespace Xunit
     /// An implementation of <see cref="IMessageSinkWithTypes"/> which records all operations into
     /// xUnit.net v2 XML format.
     /// </summary>
-    public class XmlTestExecutionSink : TestMessageSink
+    public class XmlTestExecutionSink : TestExecutionSink
     {
         readonly XElement assemblyElement;
         readonly XElement errorsElement;
@@ -24,9 +24,11 @@ namespace Xunit
         /// </summary>
         /// <param name="assemblyElement">The root XML assembly element to collect the result XML.</param>
         /// <param name="cancelThunk">The callback used to determine when to cancel execution.</param>
-        public XmlTestExecutionSink(XElement assemblyElement, Func<bool> cancelThunk)
+        /// <param name="completionMessages">The dictionary which collects execution summaries for all assemblies.</param>
+        public XmlTestExecutionSink(XElement assemblyElement, ConcurrentDictionary<string, ExecutionSummary> completionMessages, Func<bool> cancelThunk)
+            : base(completionMessages, cancelThunk)
         {
-            CancelThunk = cancelThunk ?? (() => false);
+      
 
             this.assemblyElement = assemblyElement;
 
@@ -51,10 +53,7 @@ namespace Xunit
             TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
         }
 
-        /// <summary>
-        /// Gets the callback used to determine when to cancel execution.
-        /// </summary>
-        public Func<bool> CancelThunk { get; }
+   
 
         /// <summary>
         /// Gets or sets the number of errors that have occurred (outside of actual test execution).
