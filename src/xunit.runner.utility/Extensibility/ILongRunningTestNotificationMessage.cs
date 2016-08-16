@@ -18,6 +18,6 @@ namespace Xunit
         /// <summary>
         /// Gets the test cases that have exceeded the configured run time
         /// </summary>
-        List<ITestCase> TestCases { get; }
+        IDictionary<ITestCase, TimeSpan> TestCases { get; }
     }
 }

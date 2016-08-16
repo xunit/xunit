@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -14,8 +15,8 @@ namespace Xunit
         ///     Initializes a new instance of the <see cref="LongRunningTestNotification" /> class.
         /// </summary>
         /// <param name="configuredLongRunningTime">Configured notification time</param>
-        /// <param name="testCases">Test Cases</param>
-        public LongRunningTestNotification(TimeSpan configuredLongRunningTime, List<ITestCase> testCases)
+        /// <param name="testCases">Tests</param>
+        public LongRunningTestNotification(TimeSpan configuredLongRunningTime, IDictionary<ITestCase, TimeSpan> testCases)
         {
             if (testCases == null) throw new ArgumentNullException(nameof(testCases));
             ConfiguredLongRunningTime = configuredLongRunningTime;
@@ -26,6 +27,6 @@ namespace Xunit
         public TimeSpan ConfiguredLongRunningTime { get; }
 
         /// <inheritdoc/>
-        public List<ITestCase> TestCases { get; }
+        public IDictionary<ITestCase, TimeSpan> TestCases { get; }
     }
 }

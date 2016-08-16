@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -20,6 +21,12 @@ namespace Xunit
     {
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
         int errors;
+        readonly bool trackLongRunning;
+        readonly TimeSpan longRunningTime;
+        readonly Stopwatch stopwatch;
+        readonly ConcurrentDictionary<ITestCase, DateTime> longRunningTests;
+        Task timerTask;
+        CancellationTokenSource cancellationTokenSource;
 
         /// <summary>
         ///     Initializes a new instance of <see cref="TestExecutionSink" />
@@ -34,6 +41,7 @@ namespace Xunit
             ExecutionSummary = new ExecutionSummary();
 
             TestAssemblyFinishedEvent += OnTestAssemblyFinishedEvent;
+            TestAssemblyStartingEvent += OnTestAssemblyStartingEvent;
 
             // Hook up error listeners
             TestAssemblyCleanupFailureEvent += delegate { OnError(); };
@@ -43,6 +51,50 @@ namespace Xunit
             TestCollectionCleanupFailureEvent += delegate { OnError(); };
             TestMethodCleanupFailureEvent += delegate { OnError(); };
             ErrorMessageEvent += delegate { OnError(); };
+
+            TestCaseStartingEvent += OnTestStartingEvent;
+            TestCaseFinishedEvent += OnTestFinishedEvent;
+        }
+
+        void OnTestAssemblyStartingEvent(MessageHandlerArgs<ITestAssemblyStarting> args)
+        {
+            if (trackLongRunning)
+            {
+                cancellationTokenSource = new CancellationTokenSource();
+                timerTask = TimerLoop();
+            }
+        }
+
+        async Task TimerLoop()
+        {
+            while(!cancellationTokenSource.IsCancellationRequested)
+            {
+                await Task.Delay((int)longRunningTime.TotalMilliseconds, cancellationTokenSource.Token).ConfigureAwait(false);
+                if (!cancellationTokenSource.IsCancellationRequested)
+                {
+                    SendLongRunningMessage();
+                }
+            }
+
+        }
+
+        void OnTestFinishedEvent(MessageHandlerArgs<ITestCaseFinished> args)
+        {
+            if (trackLongRunning)
+            {
+                // On each test that finishes, we reset the idle timer
+                stopwatch.Restart();
+                DateTime date;
+                longRunningTests.TryRemove(args.Message.TestCase, out date);
+            }
+        }
+
+        void OnTestStartingEvent(MessageHandlerArgs<ITestCaseStarting> args)
+        {
+            if (trackLongRunning)
+            {
+                longRunningTests.TryAdd(args.Message.TestCase, DateTime.UtcNow);
+            }
         }
 
         /// <summary>
@@ -54,6 +106,14 @@ namespace Xunit
         public TestExecutionSink(ConcurrentDictionary<string, ExecutionSummary> completionMessages, Func<bool> cancelThunk, int longRunningSeconds)
             : this(completionMessages, cancelThunk)
         {
+            if (longRunningSeconds > 0)
+            {
+                longRunningTime = TimeSpan.FromSeconds(longRunningSeconds);
+                trackLongRunning = true;
+                longRunningTests = new ConcurrentDictionary<ITestCase, DateTime>();
+
+                stopwatch = new Stopwatch();
+            }
         }
 
         /// <summary>
@@ -101,6 +161,22 @@ namespace Xunit
                 completionMessages.TryAdd(assemblyDisplayName, ExecutionSummary);
             }
             Finished.Set();
+
+            if (trackLongRunning)
+            {
+                cancellationTokenSource.Cancel();
+            }
+        }
+
+
+        void SendLongRunningMessage()
+        {
+            var now = DateTime.UtcNow;
+            var d = longRunningTests.ToDictionary(k => k.Key, v => now - v.Value);
+            if (d.Count > 0)
+            {
+                OnMessageWithTypes(new LongRunningTestNotification(longRunningTime, d), null);
+            }
         }
     }
 }
