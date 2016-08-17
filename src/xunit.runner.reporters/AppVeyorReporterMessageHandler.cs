@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
@@ -11,8 +11,9 @@ namespace Xunit.Runner.Reporters
         const int MaxLength = 4096;
 
         string assemblyFileName;
-        string baseUri;
+        readonly string baseUri;
         readonly Dictionary<string, int> testMethods = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        AppVeyorClient client;
 
         public AppVeyorReporterMessageHandler(IRunnerLogger logger, string baseUri)
             : base(logger)
@@ -20,11 +21,18 @@ namespace Xunit.Runner.Reporters
             this.baseUri = baseUri.TrimEnd('/');
             TestAssemblyStartingEvent += HandleTestAssemblyStarting;
             TestStartingEvent += HandleTestStarting;
+            TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
+        }
+
+        void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+        {
+            client.WaitOne(CancellationToken.None);
         }
 
         void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
         {
             assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
+            client = new AppVeyorClient(Logger, baseUri);
         }
 
         void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
@@ -57,7 +65,6 @@ namespace Xunit.Runner.Reporters
 
             base.HandleTestSkipped(args);
         }
-
 
         protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
@@ -105,7 +112,7 @@ namespace Xunit.Runner.Reporters
                 StdOut = TrimStdOut(stdOut),
             };
 
-            AppVeyorClient.SendRequest(Logger, $"{baseUri}/api/tests", HttpMethod.Post, body);
+            client.AddTest(body);
         }
 
         void AppVeyorUpdateTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
@@ -123,13 +130,11 @@ namespace Xunit.Runner.Reporters
                 StdOut = TrimStdOut(stdOut),
             };
 
-            AppVeyorClient.SendRequest(Logger, $"{baseUri}/api/tests", HttpMethod.Put, body);
+            client.UpdateTest(body);
         }
 
         static string TrimStdOut(string str)
-        {
-            return str != null && str.Length > MaxLength ? str.Substring(0, MaxLength) : str;
-        }
+            => str != null && str.Length > MaxLength ? str.Substring(0, MaxLength) : str;
 
         public class AddUpdateTestRequest
         {
