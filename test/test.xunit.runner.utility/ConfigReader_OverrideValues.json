@@ -4,5 +4,6 @@
     "methodDisplay": "method",
     "parallelizeAssembly": true,
     "parallelizetestcollections": false,
-    "preEnumerateTheories": false
+    "preEnumerateTheories": false,
+    "longRunningTestSeconds":  5 
 }

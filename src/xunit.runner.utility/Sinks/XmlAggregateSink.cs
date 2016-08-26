@@ -14,9 +14,8 @@ namespace Xunit
     /// execution summary for an assembly, as well as performing the XML aggregation
     /// duties of <see cref="XmlTestExecutionSink"/>.
     /// </summary>
-    public class XmlAggregateSink : XmlTestExecutionSink, IExecutionSink
+    public class XmlAggregateSink :  XmlTestExecutionSink
     {
-        readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
         readonly IMessageSinkWithTypes innerMessageSink;
 
         /// <summary>
@@ -26,48 +25,17 @@ namespace Xunit
         /// <param name="completionMessages">The dictionary which collects execution summaries for all assemblies.</param>
         /// <param name="assemblyElement">The root XML assembly element to collect the result XML.</param>
         /// <param name="cancelThunk">The callback used to determine when to cancel execution.</param>
+        /// <param name="longRunningSeconds">Timeout value for a test to be considered "long running"</param>
         public XmlAggregateSink(IMessageSinkWithTypes innerMessageSink,
                                 ConcurrentDictionary<string, ExecutionSummary> completionMessages,
                                 XElement assemblyElement,
-                                Func<bool> cancelThunk)
-            : base(assemblyElement, cancelThunk)
+                                Func<bool> cancelThunk,
+                                int longRunningSeconds)
+            : base(assemblyElement, completionMessages, cancelThunk, longRunningSeconds)
         {
             Guard.ArgumentNotNull(nameof(innerMessageSink), innerMessageSink);
 
             this.innerMessageSink = innerMessageSink;
-            this.completionMessages = completionMessages;
-
-            ExecutionSummary = new ExecutionSummary();
-        }
-
-        /// <inheritdoc/>
-        public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
-
-        /// <inheritdoc/>
-        public ExecutionSummary ExecutionSummary { get; private set; }
-
-        /// <inheritdoc/>
-        protected override void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
-        {
-            base.HandleTestAssemblyFinished(args);
-
-            if (completionMessages != null)
-            {
-                var assemblyFinished = args.Message;
-                ExecutionSummary = new ExecutionSummary
-                {
-                    Total = assemblyFinished.TestsRun,
-                    Failed = assemblyFinished.TestsFailed,
-                    Skipped = assemblyFinished.TestsSkipped,
-                    Time = assemblyFinished.ExecutionTime,
-                    Errors = Errors
-                };
-
-                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFinished.TestAssembly.Assembly.AssemblyPath);
-                completionMessages.TryAdd(assemblyDisplayName, ExecutionSummary);
-            }
-
-            Finished.Set();
         }
 
         /// <inheritdoc/>

@@ -13,7 +13,7 @@ namespace Xunit
     /// An implementation of <see cref="IMessageSinkWithTypes"/> which records all operations into
     /// xUnit.net v2 XML format.
     /// </summary>
-    public class XmlTestExecutionSink : TestMessageSink
+    public class XmlTestExecutionSink : TestExecutionSink
     {
         readonly XElement assemblyElement;
         readonly XElement errorsElement;
@@ -24,10 +24,11 @@ namespace Xunit
         /// </summary>
         /// <param name="assemblyElement">The root XML assembly element to collect the result XML.</param>
         /// <param name="cancelThunk">The callback used to determine when to cancel execution.</param>
-        public XmlTestExecutionSink(XElement assemblyElement, Func<bool> cancelThunk)
+        /// <param name="completionMessages">The dictionary which collects execution summaries for all assemblies.</param>
+        /// <param name="longRunningSeconds">Timeout value for a test to be considered "long running"</param>
+        public XmlTestExecutionSink(XElement assemblyElement, ConcurrentDictionary<string, ExecutionSummary> completionMessages, Func<bool> cancelThunk, int longRunningSeconds)
+            : base(completionMessages, cancelThunk, longRunningSeconds)
         {
-            CancelThunk = cancelThunk ?? (() => false);
-
             this.assemblyElement = assemblyElement;
 
             if (this.assemblyElement != null)
@@ -51,10 +52,7 @@ namespace Xunit
             TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
         }
 
-        /// <summary>
-        /// Gets the callback used to determine when to cancel execution.
-        /// </summary>
-        public Func<bool> CancelThunk { get; }
+   
 
         /// <summary>
         /// Gets or sets the number of errors that have occurred (outside of actual test execution).
@@ -132,15 +130,6 @@ namespace Xunit
             return testCollectionElements.GetOrAdd(testCollection.UniqueID, tc => new XElement("collection"));
         }
 
-        /// <inheritdoc/>
-        public override bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
-        {
-            var result = base.OnMessageWithTypes(message, messageTypes);
-            if (result)
-                result = !CancelThunk();
-
-            return result;
-        }
 
         /// <summary>
         /// Called when <see cref="TestMessageSink.TestAssemblyFinishedEvent"/> is raised.
