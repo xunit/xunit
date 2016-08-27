@@ -34,21 +34,22 @@ namespace Xunit
             {
                 errorsElement = new XElement("errors");
                 this.assemblyElement.Add(errorsElement);
+
+                TestAssemblyStartingEvent += HandleTestAssemblyStarting;
+                TestCollectionFinishedEvent += HandleTestCollectionFinished;
+                TestFailedEvent += HandleTestFailed;
+                TestPassedEvent += HandleTestPassed;
+                TestSkippedEvent += HandleTestSkipped;
+                ErrorMessageEvent += HandleErrorMessage;
+                TestAssemblyCleanupFailureEvent += HandleTestAssemblyCollection;
+                TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
+                TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
+                TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
+                TestCleanupFailureEvent += HandleTestCleanupFailure;
+                TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
             }
 
             TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
-            TestAssemblyStartingEvent += HandleTestAssemblyStarting;
-            TestCollectionFinishedEvent += HandleTestCollectionFinished;
-            TestFailedEvent += HandleTestFailed;
-            TestPassedEvent += HandleTestPassed;
-            TestSkippedEvent += HandleTestSkipped;
-            ErrorMessageEvent += HandleErrorMessage;
-            TestAssemblyCleanupFailureEvent += HandleTestAssemblyCollection;
-            TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
-            TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
-            TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
-            TestCleanupFailureEvent += HandleTestCleanupFailure;
-            TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
         }
 
         /// <summary>
@@ -94,9 +95,7 @@ namespace Xunit
                 );
 
             if (!string.IsNullOrWhiteSpace(testResult.Output))
-            {
                 testResultElement.Add(new XElement("output", new XCData(testResult.Output)));
-            }
 
             if (testResult.TestCase.SourceInformation != null)
             {
@@ -128,9 +127,7 @@ namespace Xunit
         }
 
         XElement GetTestCollectionElement(ITestCollection testCollection)
-        {
-            return testCollectionElements.GetOrAdd(testCollection.UniqueID, tc => new XElement("collection"));
-        }
+            => testCollectionElements.GetOrAdd(testCollection.UniqueID, tc => new XElement("collection"));
 
         /// <inheritdoc/>
         public override bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
@@ -171,134 +168,71 @@ namespace Xunit
             }
         }
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestAssemblyStartingEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
+        void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
         {
-            if (assemblyElement != null)
-            {
-                var assemblyStarting = args.Message;
-                assemblyElement.Add(
-                    new XAttribute("name", assemblyStarting.TestAssembly.Assembly.AssemblyPath),
-                    new XAttribute("environment", assemblyStarting.TestEnvironment),
-                    new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName),
-                    new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
-                    new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss", CultureInfo.InvariantCulture))
-                );
+            var assemblyStarting = args.Message;
+            assemblyElement.Add(
+                new XAttribute("name", assemblyStarting.TestAssembly.Assembly.AssemblyPath),
+                new XAttribute("environment", assemblyStarting.TestEnvironment),
+                new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName),
+                new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss", CultureInfo.InvariantCulture))
+            );
 
-                if (assemblyStarting.TestAssembly.ConfigFileName != null)
-                    assemblyElement.Add(new XAttribute("config-file", assemblyStarting.TestAssembly.ConfigFileName));
-            }
+            if (assemblyStarting.TestAssembly.ConfigFileName != null)
+                assemblyElement.Add(new XAttribute("config-file", assemblyStarting.TestAssembly.ConfigFileName));
         }
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestCollectionFinishedEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
+        void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
         {
-            if (assemblyElement != null)
-            {
-                var testCollectionFinished = args.Message;
-                var collectionElement = GetTestCollectionElement(testCollectionFinished.TestCollection);
-                collectionElement.Add(
-                    new XAttribute("total", testCollectionFinished.TestsRun),
-                    new XAttribute("passed", testCollectionFinished.TestsRun - testCollectionFinished.TestsFailed - testCollectionFinished.TestsSkipped),
-                    new XAttribute("failed", testCollectionFinished.TestsFailed),
-                    new XAttribute("skipped", testCollectionFinished.TestsSkipped),
-                    new XAttribute("name", XmlEscape(testCollectionFinished.TestCollection.DisplayName)),
-                    new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture))
-                );
-            }
+            var testCollectionFinished = args.Message;
+            var collectionElement = GetTestCollectionElement(testCollectionFinished.TestCollection);
+            collectionElement.Add(
+                new XAttribute("total", testCollectionFinished.TestsRun),
+                new XAttribute("passed", testCollectionFinished.TestsRun - testCollectionFinished.TestsFailed - testCollectionFinished.TestsSkipped),
+                new XAttribute("failed", testCollectionFinished.TestsFailed),
+                new XAttribute("skipped", testCollectionFinished.TestsSkipped),
+                new XAttribute("name", XmlEscape(testCollectionFinished.TestCollection.DisplayName)),
+                new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture))
+            );
         }
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestFailedEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
+        void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
-            if (assemblyElement != null)
-            {
-                var testFailed = args.Message;
-                var testElement = CreateTestResultElement(testFailed, "Fail");
-                testElement.Add(CreateFailureElement(testFailed));
-            }
+            var testFailed = args.Message;
+            var testElement = CreateTestResultElement(testFailed, "Fail");
+            testElement.Add(CreateFailureElement(testFailed));
         }
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestPassedEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
+        void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
+            => CreateTestResultElement(args.Message, "Pass");
+
+        void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
-            if (assemblyElement != null)
-                CreateTestResultElement(args.Message, "Pass");
+            var testSkipped = args.Message;
+            var testElement = CreateTestResultElement(testSkipped, "Skip");
+            testElement.Add(new XElement("reason", new XCData(XmlEscape(testSkipped.Reason))));
         }
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestSkippedEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
-        {
-            if (assemblyElement != null)
-            {
-                var testSkipped = args.Message;
-                var testElement = CreateTestResultElement(testSkipped, "Skip");
-                testElement.Add(new XElement("reason", new XCData(XmlEscape(testSkipped.Reason))));
-            }
-        }
-
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.ErrorMessageEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
+        void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
             => AddError("fatal", null, args.Message);
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestAssemblyCleanupFailureEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestAssemblyCollection(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
+        void HandleTestAssemblyCollection(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
             => AddError("assembly-cleanup", args.Message.TestAssembly.Assembly.AssemblyPath, args.Message);
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestCaseCleanupFailureEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
+        void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
             => AddError("test-case-cleanup", args.Message.TestCase.DisplayName, args.Message);
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestClassCleanupFailureEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
+        void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
             => AddError("test-class-cleanup", args.Message.TestClass.Class.Name, args.Message);
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestCollectionCleanupFailureEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
+        void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
             => AddError("test-collection-cleanup", args.Message.TestCollection.DisplayName, args.Message);
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestCleanupFailureEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
+        void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
             => AddError("test-cleanup", args.Message.Test.DisplayName, args.Message);
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestMethodCleanupFailureEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
+        void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
             => AddError("test-method-cleanup", args.Message.TestMethod.Method.Name, args.Message);
 
         void AddError(string type, string name, IFailureInformation failureInfo)
@@ -316,13 +250,11 @@ namespace Xunit
         }
 
         static XElement CreateFailureElement(IFailureInformation failureInfo)
-        {
-            return new XElement("failure",
-                new XAttribute("exception-type", failureInfo.ExceptionTypes[0]),
-                new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(failureInfo)))),
-                new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? string.Empty))
-            );
-        }
+            => new XElement("failure",
+                   new XAttribute("exception-type", failureInfo.ExceptionTypes[0]),
+                   new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(failureInfo)))),
+                   new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? string.Empty))
+               );
 
         static string Escape(string value)
         {
