@@ -3,6 +3,7 @@
     "buildOptions": {
         "compile": [
             "../common/AssemblyExtensions.cs",
+            "../common/CommonTasks.cs",
             "../common/DictionaryExtensions.cs",
             "../common/ExceptionExtensions.cs",
             "../common/ExceptionUtility.cs",

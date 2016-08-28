@@ -12,7 +12,7 @@ namespace Xunit
         /// Reports the presence of a message on the message bus with an optional list of message types.
         /// This method should never throw exceptions.
         /// </summary>
-        /// <param name="message">The message from teh message bus</param>
+        /// <param name="message">The message from the message bus.</param>
         /// <param name="messageTypes">The list of message types, or <c>null</c>.</param>
         /// <returns>Return <c>true</c> to continue running tests, or <c>false</c> to stop.</returns>
         bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes);

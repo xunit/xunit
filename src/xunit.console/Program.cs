@@ -309,6 +309,7 @@ namespace Xunit.ConsoleClient
                 var diagnosticMessageSink = new DiagnosticMessageSink(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
+                var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
                 using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 using (var discoverySink = new TestDiscoverySink())
@@ -335,7 +336,7 @@ namespace Xunit.ConsoleClient
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-                        IExecutionSink resultsSink = new XmlAggregateSink(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        IExecutionSink resultsSink = new XmlAggregateSink(reporterMessageHandler, assemblyElement, diagnosticMessageSink, completionMessages, () => cancel, longRunningSeconds);
                         if (failSkips)
                             resultsSink = new FailSkipSink(resultsSink);
 

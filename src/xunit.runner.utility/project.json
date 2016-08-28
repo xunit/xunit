@@ -3,6 +3,7 @@
     "buildOptions": {
         "compile": [
             "../common/AssemblyExtensions.cs",
+            "../common/CommonTasks.cs",
             "../common/DictionaryExtensions.cs",
             "../common/ExceptionExtensions.cs",
             "../common/ExceptionUtility.cs",
@@ -24,16 +25,6 @@
         "xmlDoc": true
     },
     "frameworks": {
-        "net35": {
-            "buildOptions": {
-                "outputName": "xunit.runner.utility.desktop"
-            },
-            "frameworkAssemblies": {
-                "System.Configuration": "",
-                "System.Xml": "",
-                "System.Web": ""
-            }
-        },
         "net45": {
             "buildOptions": {
                 "outputName": "xunit.runner.utility.desktop"
@@ -42,6 +33,16 @@
                 "System.Configuration": "",
                 "System.Xml": "",
                 "System.Xml.Linq": "",
+                "System.Web": ""
+            }
+        },
+        "net35": {
+            "buildOptions": {
+                "outputName": "xunit.runner.utility.desktop"
+            },
+            "frameworkAssemblies": {
+                "System.Configuration": "",
+                "System.Xml": "",
                 "System.Web": ""
             }
         },

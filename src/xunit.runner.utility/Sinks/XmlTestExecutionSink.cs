@@ -13,27 +13,35 @@ namespace Xunit
     /// An implementation of <see cref="IMessageSinkWithTypes"/> which records all operations into
     /// xUnit.net v2 XML format.
     /// </summary>
-    public class XmlTestExecutionSink : TestMessageSink
+    public class XmlTestExecutionSink : TestExecutionSink
     {
         readonly XElement assemblyElement;
         readonly XElement errorsElement;
-        readonly ConcurrentDictionary<Guid, XElement> testCollectionElements = new ConcurrentDictionary<Guid, XElement>();
+        readonly ConcurrentDictionary<Guid, XElement> testCollectionElements;
 
         /// <summary>
         /// Initializes a new instance of <see cref="XmlTestExecutionSink"/>.
         /// </summary>
         /// <param name="assemblyElement">The root XML assembly element to collect the result XML.</param>
+        /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
         /// <param name="cancelThunk">The callback used to determine when to cancel execution.</param>
-        public XmlTestExecutionSink(XElement assemblyElement, Func<bool> cancelThunk)
+        /// <param name="completionMessages">The dictionary which collects execution summaries for all assemblies.</param>
+        /// <param name="longRunningSeconds">Timeout value for a test to be considered "long running"</param>
+        public XmlTestExecutionSink(XElement assemblyElement,
+                                    IMessageSinkWithTypes diagnosticMessageSink,
+                                    ConcurrentDictionary<string, ExecutionSummary> completionMessages,
+                                    Func<bool> cancelThunk,
+                                    int longRunningSeconds)
+            : base(diagnosticMessageSink, completionMessages, cancelThunk, longRunningSeconds)
         {
-            CancelThunk = cancelThunk ?? (() => false);
-
             this.assemblyElement = assemblyElement;
 
             if (this.assemblyElement != null)
             {
+                testCollectionElements = new ConcurrentDictionary<Guid, XElement>();
+
                 errorsElement = new XElement("errors");
-                this.assemblyElement.Add(errorsElement);
+                assemblyElement.Add(errorsElement);
 
                 TestAssemblyStartingEvent += HandleTestAssemblyStarting;
                 TestCollectionFinishedEvent += HandleTestCollectionFinished;
@@ -48,39 +56,7 @@ namespace Xunit
                 TestCleanupFailureEvent += HandleTestCleanupFailure;
                 TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
             }
-
-            TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
         }
-
-        /// <summary>
-        /// Gets the callback used to determine when to cancel execution.
-        /// </summary>
-        public Func<bool> CancelThunk { get; }
-
-        /// <summary>
-        /// Gets or sets the number of errors that have occurred (outside of actual test execution).
-        /// </summary>
-        public int Errors { get; set; }
-
-        /// <summary>
-        /// Gets or sets the number of tests which failed.
-        /// </summary>
-        public int Failed { get; set; }
-
-        /// <summary>
-        /// Gets or sets the number of tests which were skipped.
-        /// </summary>
-        public int Skipped { get; set; }
-
-        /// <summary>
-        /// Gets or sets the time spent executing tests, in seconds.
-        /// </summary>
-        public decimal Time { get; set; }
-
-        /// <summary>
-        /// Gets or sets the total number of tests, regardless of result.
-        /// </summary>
-        public int Total { get; set; }
 
         XElement CreateTestResultElement(ITestResultMessage testResult, string resultText)
         {
@@ -130,42 +106,24 @@ namespace Xunit
             => testCollectionElements.GetOrAdd(testCollection.UniqueID, tc => new XElement("collection"));
 
         /// <inheritdoc/>
-        public override bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
+        protected override void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
         {
-            var result = base.OnMessageWithTypes(message, messageTypes);
-            if (result)
-                result = !CancelThunk();
-
-            return result;
-        }
-
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestAssemblyFinishedEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
-        {
-            var assemblyFinished = args.Message;
-
-            Total += assemblyFinished.TestsRun;
-            Failed += assemblyFinished.TestsFailed;
-            Skipped += assemblyFinished.TestsSkipped;
-            Time += assemblyFinished.ExecutionTime;
-
             if (assemblyElement != null)
             {
                 assemblyElement.Add(
-                    new XAttribute("total", Total),
-                    new XAttribute("passed", Total - Failed - Skipped),
-                    new XAttribute("failed", Failed),
-                    new XAttribute("skipped", Skipped),
-                    new XAttribute("time", Time.ToString("0.000", CultureInfo.InvariantCulture)),
-                    new XAttribute("errors", Errors)
+                    new XAttribute("total", ExecutionSummary.Total),
+                    new XAttribute("passed", ExecutionSummary.Total - ExecutionSummary.Failed - ExecutionSummary.Skipped),
+                    new XAttribute("failed", ExecutionSummary.Failed),
+                    new XAttribute("skipped", ExecutionSummary.Skipped),
+                    new XAttribute("time", ExecutionSummary.Time.ToString("0.000", CultureInfo.InvariantCulture)),
+                    new XAttribute("errors", ExecutionSummary.Errors)
                 );
 
                 foreach (var element in testCollectionElements.Values)
                     assemblyElement.Add(element);
             }
+
+            base.HandleTestAssemblyFinished(args);
         }
 
         void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
@@ -237,8 +195,6 @@ namespace Xunit
 
         void AddError(string type, string name, IFailureInformation failureInfo)
         {
-            Errors++;
-
             if (errorsElement == null)
                 return;
 
