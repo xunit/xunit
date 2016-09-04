@@ -91,12 +91,6 @@ namespace Xunit.Runner.MSBuild
 
         public bool ShadowCopy { set { shadowCopy = value; } }
 
-        // Obsolote; remove post 2.1 RTM
-        public bool TeamCity { get; set; }
-
-        // Obsolote; remove post 2.1 RTM
-        public bool Verbose { get; set; }
-
         public string WorkingFolder { get; set; }
 
         public ITaskItem Xml { get; set; }
@@ -111,17 +105,6 @@ namespace Xunit.Runner.MSBuild
         public override bool Execute()
         {
             RemotingUtility.CleanUpRegisteredChannels();
-
-            if (TeamCity)
-            {
-                Log.LogError("The 'TeamCity' property is deprecated. Please set the 'Reporter' property to 'teamcity' instead.");
-                return false;
-            }
-            if (Verbose)
-            {
-                Log.LogError("The 'Verbose' property is deprecated. Please set the 'Reporter' property to 'verbose' instead.");
-                return false;
-            }
 
             XElement assembliesElement = null;
             var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
