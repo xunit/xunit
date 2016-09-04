@@ -740,6 +740,16 @@ public class CommandLineTests
         }
 
         [Fact]
+        public void WithEnvironmentalOverride_WithEnvironmentalOverridesDisabled_UsesDefaultReporter()
+        {
+            var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+
+            var commandLine = TestableCommandLine.Parse(new[] { implicitReporter }, "assemblyName.dll", "-noautoreporters");
+
+            Assert.IsType<DefaultRunnerReporterWithTypes>(commandLine.Reporter);
+        }
+
+        [Fact]
         public void NoExplicitReporter_SelectsFirstEnvironmentallyEnabledReporter()
         {
             var explicitReporter = Mocks.RunnerReporter("switch");

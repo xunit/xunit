@@ -8,6 +8,7 @@ namespace Xunit.ConsoleClient
     public class CommandLine
     {
         readonly Stack<string> arguments = new Stack<string>();
+        IRunnerReporter reporter;
         readonly IReadOnlyList<IRunnerReporter> reporters;
 
         protected CommandLine(IReadOnlyList<IRunnerReporter> reporters, string[] args, Predicate<string> fileExists = null)
@@ -21,7 +22,6 @@ namespace Xunit.ConsoleClient
                 arguments.Push(args[i]);
 
             Project = Parse(fileExists);
-            Reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? Reporter ?? new DefaultRunnerReporterWithTypes();
         }
 
         public bool Debug { get; protected set; }
@@ -34,6 +34,8 @@ namespace Xunit.ConsoleClient
 
         public bool NoAppDomain { get; protected set; }
 
+        public bool NoAutoReporters { get; protected set; }
+
         public bool NoColor { get; protected set; }
 
         public bool NoLogo { get; protected set; }
@@ -44,7 +46,17 @@ namespace Xunit.ConsoleClient
 
         public bool? ParallelizeTestCollections { get; set; }
 
-        public IRunnerReporter Reporter { get; protected set; }
+        public IRunnerReporter Reporter
+        {
+            get
+            {
+                var result = reporter;
+                if (!NoAutoReporters)
+                    result = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? result;
+
+                return result ?? new DefaultRunnerReporterWithTypes();
+            }
+        }
 
         public bool Serialize { get; protected set; }
 
@@ -151,6 +163,11 @@ namespace Xunit.ConsoleClient
                     GuardNoOptionValue(option);
                     NoAppDomain = true;
                 }
+                else if (optionName == "noautoreporters")
+                {
+                    GuardNoOptionValue(option);
+                    NoAutoReporters = true;
+                }
                 else if (optionName == "debug")
                 {
                     GuardNoOptionValue(option);
@@ -201,7 +218,7 @@ namespace Xunit.ConsoleClient
                         throw new ArgumentException("missing argument for -parallel");
 
                     ParallelismOption parallelismOption;
-                    if (!Enum.TryParse<ParallelismOption>(option.Value, out parallelismOption))
+                    if (!Enum.TryParse(option.Value, out parallelismOption))
                         throw new ArgumentException("incorrect argument value for -parallel");
 
                     switch (parallelismOption)
@@ -283,14 +300,14 @@ namespace Xunit.ConsoleClient
                 else
                 {
                     // Might be a reporter...
-                    var reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, optionName, StringComparison.OrdinalIgnoreCase));
-                    if (reporter != null)
+                    var maybeReporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, optionName, StringComparison.OrdinalIgnoreCase));
+                    if (maybeReporter != null)
                     {
                         GuardNoOptionValue(option);
-                        if (Reporter != null)
+                        if (reporter != null)
                             throw new ArgumentException("only one reporter is allowed");
 
-                        Reporter = reporter;
+                        reporter = maybeReporter;
                     }
                     // ...or an result output file
                     else

@@ -193,6 +193,8 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -namespace \"name\"      : run all methods in a given namespace (i.e.,");
             Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
+            Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
+            Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
             Console.WriteLine();
 
             var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();
