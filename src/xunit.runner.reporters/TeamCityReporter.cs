@@ -8,7 +8,7 @@ namespace Xunit.Runner.Reporters
             => "forces TeamCity mode (normally auto-detected)";
 
         public bool IsEnvironmentallyEnabled
-            => EnvironmentHelper.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null;
+            => !string.IsNullOrWhiteSpace(EnvironmentHelper.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME"));
 
         public string RunnerSwitch
             => "teamcity";

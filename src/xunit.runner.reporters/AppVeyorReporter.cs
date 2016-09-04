@@ -8,7 +8,7 @@ namespace Xunit.Runner.Reporters
             => "forces AppVeyor CI mode (normally auto-detected)";
 
         public bool IsEnvironmentallyEnabled
-            => EnvironmentHelper.GetEnvironmentVariable("APPVEYOR_API_URL") != null;
+            => !string.IsNullOrWhiteSpace(EnvironmentHelper.GetEnvironmentVariable("APPVEYOR_API_URL"));
 
         public string RunnerSwitch
             => "appveyor";
