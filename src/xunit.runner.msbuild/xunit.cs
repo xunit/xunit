@@ -138,28 +138,9 @@ namespace Xunit.Runner.MSBuild
 
             using (AssemblyHelper.SubscribeResolve())
             {
-                var reporters = GetAvailableRunnerReporters();
-                IRunnerReporter reporter = null;
-                if (!NoAutoReporters)
-                    reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
-
-                if (reporter == null && !string.IsNullOrWhiteSpace(Reporter))
-                {
-                    reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
-                    if (reporter == null)
-                    {
-                        var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).Select(r => r.RunnerSwitch.ToLowerInvariant()).OrderBy(x => x).ToList();
-                        if (switchableReporters.Count == 0)
-                            Log.LogError("Reporter value '{0}' is invalid. There are no available reporters.", Reporter);
-                        else
-                            Log.LogError("Reporter value '{0}' is invalid. Available reporters: {1}", Reporter, string.Join(", ", switchableReporters));
-
-                        return false;
-                    }
-                }
-
+                var reporter = GetReporter();
                 if (reporter == null)
-                    reporter = new DefaultRunnerReporterWithTypes();
+                    return false;
 
                 logger = new MSBuildLogger(Log);
                 reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
@@ -232,50 +213,6 @@ namespace Xunit.Runner.MSBuild
 
             // ExitCode is set to 1 for test failures and -1 for Exceptions.
             return ExitCode == 0 || (ExitCode == 1 && IgnoreFailures);
-        }
-
-        List<IRunnerReporter> GetAvailableRunnerReporters()
-        {
-            var result = new List<IRunnerReporter>();
-            var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
-
-            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
-            {
-                Type[] types;
-
-                try
-                {
-                    var assembly = Assembly.LoadFile(dllFile);
-                    types = assembly.GetTypes();
-                }
-                catch (ReflectionTypeLoadException ex)
-                {
-                    types = ex.Types;
-                }
-                catch
-                {
-                    continue;
-                }
-
-                foreach (var type in types)
-                {
-#pragma warning disable CS0618
-                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-                        continue;
-#pragma warning restore CS0618
-
-                    var ctor = type.GetConstructor(new Type[0]);
-                    if (ctor == null)
-                    {
-                        Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
-                        continue;
-                    }
-
-                    result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
-                }
-            }
-
-            return result;
         }
 
         protected virtual XElement ExecuteAssembly(XunitProjectAssembly assembly)
@@ -365,6 +302,75 @@ namespace Xunit.Runner.MSBuild
             }
 
             return assemblyElement;
+        }
+
+        protected virtual List<IRunnerReporter> GetAvailableRunnerReporters()
+        {
+            var result = new List<IRunnerReporter>();
+            var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+
+            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
+            {
+                Type[] types;
+
+                try
+                {
+                    var assembly = Assembly.LoadFile(dllFile);
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types;
+                }
+                catch
+                {
+                    continue;
+                }
+
+                foreach (var type in types)
+                {
+#pragma warning disable CS0618
+                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+                        continue;
+#pragma warning restore CS0618
+
+                    var ctor = type.GetConstructor(new Type[0]);
+                    if (ctor == null)
+                    {
+                        Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
+                        continue;
+                    }
+
+                    result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+                }
+            }
+
+            return result;
+        }
+
+        protected IRunnerReporter GetReporter()
+        {
+            var reporters = GetAvailableRunnerReporters();
+            IRunnerReporter reporter = null;
+            if (!NoAutoReporters)
+                reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
+
+            if (reporter == null && !string.IsNullOrWhiteSpace(Reporter))
+            {
+                reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
+                if (reporter == null)
+                {
+                    var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).Select(r => r.RunnerSwitch.ToLowerInvariant()).OrderBy(x => x).ToList();
+                    if (switchableReporters.Count == 0)
+                        Log.LogError("Reporter value '{0}' is invalid. There are no available reporters.", Reporter);
+                    else
+                        Log.LogError("Reporter value '{0}' is invalid. Available reporters: {1}", Reporter, string.Join(", ", switchableReporters));
+
+                    return null;
+                }
+            }
+
+            return reporter ?? new DefaultRunnerReporterWithTypes();
         }
 
         static void Transform(string resourceName, XNode xml, ITaskItem outputFile)
