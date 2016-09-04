@@ -18,14 +18,10 @@ namespace Xunit
 
         /// <inheritdoc/>
         public bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
-        {
-            return inner.OnMessage(message);
-        }
+            => inner.OnMessage(message);
 
         bool IMessageSink.OnMessage(IMessageSinkMessage message)
-        {
-            return OnMessageWithTypes(message, null);
-        }
+            => OnMessageWithTypes(message, null);
 
         /// <summary>
         /// Determines whether the given sink is already an implementation of <see cref="IMessageSinkWithTypes"/>,
