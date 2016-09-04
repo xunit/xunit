@@ -260,6 +260,8 @@ paket-files/
 
 # JetBrains Rider
 .idea/
+.idea.*
+*.DotSettings
 *.sln.iml
 
 # CodeRush
