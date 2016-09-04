@@ -74,6 +74,8 @@ namespace Xunit.Runner.MSBuild
             get { return Xml != null || XmlV1 != null || Html != null || NUnit != null; }
         }
 
+        public bool NoAutoReporters { get; set; }
+
         public bool NoLogo { get; set; }
 
         public ITaskItem NUnit { get; set; }
@@ -154,7 +156,9 @@ namespace Xunit.Runner.MSBuild
             using (AssemblyHelper.SubscribeResolve())
             {
                 var reporters = GetAvailableRunnerReporters();
-                var reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
+                IRunnerReporter reporter = null;
+                if (!NoAutoReporters)
+                    reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
 
                 if (reporter == null && !string.IsNullOrWhiteSpace(Reporter))
                 {
