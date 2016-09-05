@@ -21,19 +21,20 @@ namespace Xunit.Runner.Reporters
             this.flowIdMapper = flowIdMapper ?? (_ => Guid.NewGuid().ToString("N"));
             this.displayNameFormatter = displayNameFormatter ?? new TeamCityDisplayNameFormatter();
 
-            ErrorMessageEvent += HandleErrorMessage;
-            TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
-            TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
-            TestClassCleanupFailureEvent += HandleTestCaseCleanupFailure;
-            TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
-            TestCollectionFinishedEvent += HandleTestCollectionFinished;
-            TestCollectionStartingEvent += HandleTestCollectionStarting;
-            TestCleanupFailureEvent += HandleTestCleanupFailure;
-            TestFailedEvent += HandleTestFailed;
-            TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
-            TestPassedEvent += HandleTestPassed;
-            TestSkippedEvent += HandleTestSkipped;
-            TestStartingEvent += HandleTestStarting;
+            Diagnostics.ErrorMessageEvent += HandleErrorMessage;
+
+            Execution.TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
+            Execution.TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
+            Execution.TestClassCleanupFailureEvent += HandleTestCaseCleanupFailure;
+            Execution.TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
+            Execution.TestCollectionFinishedEvent += HandleTestCollectionFinished;
+            Execution.TestCollectionStartingEvent += HandleTestCollectionStarting;
+            Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
+            Execution.TestFailedEvent += HandleTestFailed;
+            Execution.TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+            Execution.TestPassedEvent += HandleTestPassed;
+            Execution.TestSkippedEvent += HandleTestSkipped;
+            Execution.TestStartingEvent += HandleTestStarting;
         }
 
         protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)

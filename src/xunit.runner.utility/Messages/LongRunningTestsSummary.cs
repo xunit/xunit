@@ -5,16 +5,16 @@ using Xunit.Abstractions;
 namespace Xunit
 {
     /// <summary>
-    /// Default implementation of <see cref="ILongRunningTestsMessage"/>.
+    /// Represents information about long running tests from <see cref="DelegatingLongRunningTestDetectionSink"/>.
     /// </summary>
-    public class LongRunningTestsMessage : ILongRunningTestsMessage
+    public class LongRunningTestsSummary
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="LongRunningTestsMessage"/> class.
+        /// Initializes a new instance of the <see cref="LongRunningTestsSummary"/> class.
         /// </summary>
         /// <param name="configuredLongRunningTime">Configured notification time</param>
         /// <param name="testCases">Tests</param>
-        public LongRunningTestsMessage(TimeSpan configuredLongRunningTime, IDictionary<ITestCase, TimeSpan> testCases)
+        public LongRunningTestsSummary(TimeSpan configuredLongRunningTime, IDictionary<ITestCase, TimeSpan> testCases)
         {
             Guard.ArgumentNotNull(nameof(testCases), testCases);
 

@@ -18,20 +18,20 @@ namespace Xunit.Runner.Reporters
         {
             this.flowIdMapper = flowIdMapper;
 
-            ErrorMessageEvent += args => logger.LogImportantMessage(args.Message.ToJson());
-            TestAssemblyCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
-            TestClassCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
-            TestCaseCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
-            TestCollectionCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
-            TestCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
-            TestMethodCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
+            Diagnostics.ErrorMessageEvent += args => logger.LogImportantMessage(args.Message.ToJson());
+            Execution.TestAssemblyCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
+            Execution.TestClassCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
+            Execution.TestCaseCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
+            Execution.TestCollectionCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
+            Execution.TestCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
+            Execution.TestMethodCleanupFailureEvent += args => logger.LogImportantMessage(args.Message.ToJson());
 
-            TestCollectionFinishedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
-            TestCollectionStartingEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
-            TestFailedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
-            TestPassedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
-            TestSkippedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
-            TestStartingEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
+            Execution.TestCollectionFinishedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
+            Execution.TestCollectionStartingEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
+            Execution.TestFailedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
+            Execution.TestPassedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
+            Execution.TestSkippedEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
+            Execution.TestStartingEvent += args => logger.LogImportantMessage(args.Message.ToJson(ToFlowId(args.Message.TestCollection.DisplayName)));
         }
 
         string ToFlowId(string testCollectionName)

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -10,7 +12,11 @@ namespace Xunit
     /// Default implementation of <see cref="IDiagnosticMessage"/>.
     /// </summary>
     public class DiagnosticMessage : LongLivedMarshalByRefObject, IDiagnosticMessage
+#if !XUNIT_FRAMEWORK
+        , IMessageSinkMessageWithTypes
+#endif
     {
+        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(DiagnosticMessage).GetInterfaces().Select(x => x.FullName));
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticMessage"/> class.
         /// </summary>
@@ -34,6 +40,9 @@ namespace Xunit
         {
             Message = string.Format(format, args);
         }
+
+        /// <inheritdoc/>
+        public HashSet<string> InterfaceTypes => interfaceTypes;
 
         /// <inheritdoc/>
         public string Message { get; set; }

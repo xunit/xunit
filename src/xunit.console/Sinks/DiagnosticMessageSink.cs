@@ -16,7 +16,7 @@ namespace Xunit.ConsoleClient
             this.noColor = noColor;
 
             if (showDiagnostics)
-                DiagnosticMessageEvent += HandleDiagnosticMessage;
+                Diagnostics.DiagnosticMessageEvent += HandleDiagnosticMessage;
         }
 
         void HandleDiagnosticMessage(MessageHandlerArgs<IDiagnosticMessage> args)

@@ -9,13 +9,15 @@ namespace Xunit
     /// An implementation of <see cref="IMessageSinkWithTypes"/> designed for test discovery for a
     /// single test assembly. The <see cref="Finished"/> event is triggered when discovery is complete.
     /// </summary>
-    public class TestDiscoverySink : TestMessageSink, IDisposable
+    public class TestDiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
     {
+        readonly DiscoveryEventSink discoverySink = new DiscoveryEventSink();
+
         /// <summary/>
         public TestDiscoverySink()
         {
-            TestCaseDiscoveryMessageEvent += HandleTestCaseDiscoveryMessage;
-            DiscoveryCompleteMessageEvent += HandleDiscoveryCompleteMessage;
+            discoverySink.TestCaseDiscoveryMessageEvent += args => TestCases.Add(args.Message.TestCase);
+            discoverySink.DiscoveryCompleteMessageEvent += args => Finished.Set();
         }
 
         /// <summary>
@@ -28,22 +30,15 @@ namespace Xunit
         /// </summary>
         public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
 
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.TestCaseDiscoveryMessageEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleTestCaseDiscoveryMessage(MessageHandlerArgs<ITestCaseDiscoveryMessage> args)
-            => TestCases.Add(args.Message.TestCase);
-
-        /// <summary>
-        /// Called when <see cref="TestMessageSink.DiscoveryCompleteMessageEvent"/> is raised.
-        /// </summary>
-        /// <param name="args">An object that contains the event data.</param>
-        protected virtual void HandleDiscoveryCompleteMessage(MessageHandlerArgs<IDiscoveryCompleteMessage> args)
-            => Finished.Set();
-
         /// <inheritdoc/>
         public void Dispose()
             => ((IDisposable)Finished).Dispose();
+
+        bool IMessageSink.OnMessage(IMessageSinkMessage message)
+            => discoverySink.OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
+
+        /// <inheritdoc/>
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
+            => discoverySink.OnMessageWithTypes(message, messageTypes);
     }
 }

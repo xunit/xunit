@@ -18,6 +18,9 @@ namespace Xunit
             this.inner = inner;
         }
 
+        /// <inheritdoc/>
+        public void Dispose() { }    // Assume the thing we're wrapping gets disposed elsewhere
+
         /// <summary>
         /// Returns the implemented interface types, if known.
         /// </summary>

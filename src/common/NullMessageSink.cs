@@ -17,6 +17,9 @@ namespace Xunit
 #endif
     {
         /// <inheritdoc/>
+        public void Dispose() { }
+
+        /// <inheritdoc/>
         public bool OnMessage(IMessageSinkMessage message)
             => true;
 

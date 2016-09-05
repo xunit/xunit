@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using TestDriven.Framework;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.TdNet
 {
-    public class ResultSink : TestMessageSink, IDisposable
+    public class ResultSink : TestMessageSink
     {
         readonly int totalTests;
 
@@ -15,19 +16,19 @@ namespace Xunit.Runner.TdNet
             TestListener = listener;
             TestRunState = TestRunState.NoTests;
 
-            TestFailedEvent += HandleTestFailed;
-            TestPassedEvent += HandleTestPassed;
-            TestSkippedEvent += HandleTestSkipped;
+            Execution.TestFailedEvent += HandleTestFailed;
+            Execution.TestPassedEvent += HandleTestPassed;
+            Execution.TestSkippedEvent += HandleTestSkipped;
 
-            ErrorMessageEvent += args => ReportError("Fatal Error", args.Message);
-            TestAssemblyCleanupFailureEvent += args => ReportError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
-            TestCaseCleanupFailureEvent += args => ReportError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
-            TestClassCleanupFailureEvent += args => ReportError($"Test Class Cleanup Failure ({args.Message.TestClass.Class.Name})", args.Message);
-            TestCollectionCleanupFailureEvent += args => ReportError($"Test Collection Cleanup Failure ({args.Message.TestCollection.DisplayName})", args.Message);
-            TestMethodCleanupFailureEvent += args => ReportError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
-            TestCleanupFailureEvent += args => ReportError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
+            Diagnostics.ErrorMessageEvent += args => ReportError("Fatal Error", args.Message);
+            Execution.TestAssemblyCleanupFailureEvent += args => ReportError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
+            Execution.TestCaseCleanupFailureEvent += args => ReportError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
+            Execution.TestClassCleanupFailureEvent += args => ReportError($"Test Class Cleanup Failure ({args.Message.TestClass.Class.Name})", args.Message);
+            Execution.TestCollectionCleanupFailureEvent += args => ReportError($"Test Collection Cleanup Failure ({args.Message.TestCollection.DisplayName})", args.Message);
+            Execution.TestMethodCleanupFailureEvent += args => ReportError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
+            Execution.TestCleanupFailureEvent += args => ReportError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
 
-            TestAssemblyFinishedEvent += args => Finished.Set();
+            Execution.TestAssemblyFinishedEvent += args => Finished.Set();
         }
 
         public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
@@ -100,7 +101,10 @@ namespace Xunit.Runner.TdNet
                 TestListener.WriteLine($"  {line}", Category.Output);
         }
 
-        public void Dispose()
-            => Finished.Dispose();
+        public override void Dispose()
+        {
+            base.Dispose();
+            Finished.Dispose();
+        }
     }
 }

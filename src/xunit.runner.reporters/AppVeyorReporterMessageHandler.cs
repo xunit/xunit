@@ -19,9 +19,10 @@ namespace Xunit.Runner.Reporters
             : base(logger)
         {
             this.baseUri = baseUri.TrimEnd('/');
-            TestAssemblyStartingEvent += HandleTestAssemblyStarting;
-            TestStartingEvent += HandleTestStarting;
-            TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
+
+            Execution.TestAssemblyStartingEvent += HandleTestAssemblyStarting;
+            Execution.TestStartingEvent += HandleTestStarting;
+            Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
         }
 
         void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)

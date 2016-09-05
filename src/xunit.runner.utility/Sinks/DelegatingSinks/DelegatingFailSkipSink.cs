@@ -1,57 +1,55 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit
 {
     /// <summary>
-    /// An implementation of <see cref="IExecutionSink"/> which converts all skipped
-    /// tests into failures, wrapping an existing <see cref="IExecutionSink"/>
-    /// implementation.
+    /// A delegating implementation of <see cref="IExecutionSink"/> which converts all
+    /// skipped tests into failures before passing them on to the inner sink.
     /// </summary>
-    public class FailSkipSink : TestMessageSink, IExecutionSink
+    public class DelegatingFailSkipSink : LongLivedMarshalByRefObject, IExecutionSink
     {
-        static HashSet<string> TestAssemblyFinishedTypes = new HashSet<string>(typeof(TestAssemblyFinished).GetInterfaces().Select(i => i.FullName));
-        static HashSet<string> TestCollectionFinishedTypes = new HashSet<string>(typeof(TestCollectionFinished).GetInterfaces().Select(i => i.FullName));
-        static HashSet<string> TestFailedTypes = new HashSet<string>(typeof(TestFailed).GetInterfaces().Select(i => i.FullName));
-
-        readonly IExecutionSink Sink;
-        int SkipCount;
+        readonly IExecutionSink innerSink;
+        int skipCount;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FailSkipSink"/> class.
+        /// Initializes a new instance of the <see cref="DelegatingFailSkipSink"/> class.
         /// </summary>
-        /// <param name="visitor">The visitor to pass messages onto.</param>
-        public FailSkipSink(IExecutionSink visitor)
+        /// <param name="innerSink">The sink to delegate messages to.</param>
+        public DelegatingFailSkipSink(IExecutionSink innerSink)
         {
-            Guard.ArgumentNotNull(nameof(visitor), visitor);
+            Guard.ArgumentNotNull(nameof(innerSink), innerSink);
 
-            Sink = visitor;
+            this.innerSink = innerSink;
         }
 
         /// <inheritdoc/>
-        public ExecutionSummary ExecutionSummary => Sink.ExecutionSummary;
+        public ExecutionSummary ExecutionSummary => innerSink.ExecutionSummary;
 
         /// <inheritdoc/>
-        public ManualResetEvent Finished => Sink.Finished;
+        public ManualResetEvent Finished => innerSink.Finished;
 
         /// <inheritdoc/>
-        public override bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
+        public void Dispose()
+            => innerSink.Dispose();
+
+        /// <inheritdoc/>
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
         {
-            var testSkipped = Cast<ITestSkipped>(message, messageTypes);
+            var testSkipped = message.Cast<ITestSkipped>(messageTypes);
             if (testSkipped != null)
             {
-                SkipCount++;
+                skipCount++;
                 var testFailed = new TestFailed(testSkipped.Test, 0M, "",
                                                 new[] { "FAIL_SKIP" },
                                                 new[] { testSkipped.Reason },
                                                 new[] { "" },
                                                 new[] { -1 });
-                return Sink.OnMessageWithTypes(testFailed, TestFailedTypes);
+                return innerSink.OnMessage(testFailed);
             }
 
-            var testCollectionFinished = Cast<ITestCollectionFinished>(message, messageTypes);
+            var testCollectionFinished = message.Cast<ITestCollectionFinished>(messageTypes);
             if (testCollectionFinished != null)
             {
                 testCollectionFinished = new TestCollectionFinished(testCollectionFinished.TestCases,
@@ -60,10 +58,10 @@ namespace Xunit
                                                                     testCollectionFinished.TestsRun,
                                                                     testCollectionFinished.TestsFailed + testCollectionFinished.TestsSkipped,
                                                                     0);
-                return Sink.OnMessageWithTypes(testCollectionFinished, TestCollectionFinishedTypes);
+                return innerSink.OnMessage(testCollectionFinished);
             }
 
-            var assemblyFinished = Cast<ITestAssemblyFinished>(message, messageTypes);
+            var assemblyFinished = message.Cast<ITestAssemblyFinished>(messageTypes);
             if (assemblyFinished != null)
             {
                 assemblyFinished = new TestAssemblyFinished(assemblyFinished.TestCases,
@@ -72,10 +70,10 @@ namespace Xunit
                                                             assemblyFinished.TestsRun,
                                                             assemblyFinished.TestsFailed + assemblyFinished.TestsSkipped,
                                                             0);
-                return Sink.OnMessageWithTypes(assemblyFinished, TestAssemblyFinishedTypes);
+                return innerSink.OnMessage(assemblyFinished);
             }
 
-            return Sink.OnMessageWithTypes(message, messageTypes);
+            return innerSink.OnMessageWithTypes(message, messageTypes);
         }
     }
 }

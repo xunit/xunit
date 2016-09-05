@@ -29,21 +29,23 @@ namespace Xunit
 
             Logger = logger;
 
-            ErrorMessageEvent += HandleErrorMessage;
-            TestAssemblyDiscoveryFinishedEvent += HandleTestAssemblyDiscoveryFinished;
-            TestAssemblyDiscoveryStartingEvent += HandleTestAssemblyDiscoveryStarting;
-            TestAssemblyExecutionFinishedEvent += HandleTestAssemblyExecutionFinished;
-            TestAssemblyExecutionStartingEvent += HandleTestAssemblyExecutionStarting;
-            TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
-            TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
-            TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
-            TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
-            TestCleanupFailureEvent += HandleTestCleanupFailure;
-            TestExecutionSummaryEvent += HandleTestExecutionSummary;
-            TestFailedEvent += HandleTestFailed;
-            TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
-            TestPassedEvent += HandleTestPassed;
-            TestSkippedEvent += HandleTestSkipped;
+            Diagnostics.ErrorMessageEvent += HandleErrorMessage;
+
+            Execution.TestAssemblyCleanupFailureEvent += HandleTestAssemblyCleanupFailure;
+            Execution.TestClassCleanupFailureEvent += HandleTestClassCleanupFailure;
+            Execution.TestCaseCleanupFailureEvent += HandleTestCaseCleanupFailure;
+            Execution.TestCollectionCleanupFailureEvent += HandleTestCollectionCleanupFailure;
+            Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
+            Execution.TestFailedEvent += HandleTestFailed;
+            Execution.TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+            Execution.TestPassedEvent += HandleTestPassed;
+            Execution.TestSkippedEvent += HandleTestSkipped;
+
+            Runner.TestAssemblyDiscoveryFinishedEvent += HandleTestAssemblyDiscoveryFinished;
+            Runner.TestAssemblyDiscoveryStartingEvent += HandleTestAssemblyDiscoveryStarting;
+            Runner.TestAssemblyExecutionFinishedEvent += HandleTestAssemblyExecutionFinished;
+            Runner.TestAssemblyExecutionStartingEvent += HandleTestAssemblyExecutionStarting;
+            Runner.TestExecutionSummaryEvent += HandleTestExecutionSummary;
         }
 
         /// <summary>
@@ -163,14 +165,14 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.ErrorMessageEvent"/> is raised.
+        /// Called when <see cref="IErrorMessage"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
             => LogError("FATAL ERROR", args.Message);
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestAssemblyDiscoveryFinishedEvent"/> is raised.
+        /// Called when <see cref="ITestAssemblyDiscoveryFinished"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyDiscoveryFinished(MessageHandlerArgs<ITestAssemblyDiscoveryFinished> args)
@@ -192,7 +194,7 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestAssemblyDiscoveryStartingEvent"/> is raised.
+        /// Called when <see cref="ITestAssemblyDiscoveryStarting"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyDiscoveryStarting(MessageHandlerArgs<ITestAssemblyDiscoveryStarting> args)
@@ -213,7 +215,7 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestAssemblyExecutionFinishedEvent"/> is raised.
+        /// Called when <see cref="ITestAssemblyExecutionFinished"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyExecutionFinished(MessageHandlerArgs<ITestAssemblyExecutionFinished> args)
@@ -225,7 +227,7 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestAssemblyExecutionStartingEvent"/> is raised.
+        /// Called when <see cref="ITestAssemblyExecutionStarting"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyExecutionStarting(MessageHandlerArgs<ITestAssemblyExecutionStarting> args)
@@ -246,49 +248,49 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestAssemblyCleanupFailureEvent"/> is raised.
+        /// Called when <see cref="ITestAssemblyCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
             => LogError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestCaseCleanupFailureEvent"/> is raised.
+        /// Called when <see cref="ITestCaseCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
             => LogError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestClassCleanupFailureEvent"/> is raised.
+        /// Called when <see cref="ITestClassCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
             => LogError($"Test Class Cleanup Failure ({args.Message.TestClass.Class.Name})", args.Message);
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestCleanupFailureEvent"/> is raised.
+        /// Called when <see cref="ITestCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
             => LogError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestCollectionCleanupFailureEvent"/> is raised.
+        /// Called when <see cref="ITestCollectionCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
             => LogError($"Test Collection Cleanup Failure ({args.Message.TestCollection.DisplayName})", args.Message);
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestExecutionSummaryEvent"/> is raised.
+        /// Called when <see cref="ITestExecutionSummary"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestExecutionSummary(MessageHandlerArgs<ITestExecutionSummary> args)
             => WriteDefaultSummary(Logger, args.Message);
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestFailedEvent"/> is raised.
+        /// Called when <see cref="ITestFailed"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
@@ -309,14 +311,14 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestMethodCleanupFailureEvent"/> is raised.
+        /// Called when <see cref="ITestMethodCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
             => LogError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestPassedEvent"/> is raised.
+        /// Called when <see cref="ITestPassed"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
@@ -334,7 +336,7 @@ namespace Xunit
         }
 
         /// <summary>
-        /// Called when <see cref="TestMessageSink.TestSkippedEvent"/> is raised.
+        /// Called when <see cref="ITestSkipped"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)

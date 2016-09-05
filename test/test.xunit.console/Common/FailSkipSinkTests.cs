@@ -6,12 +6,12 @@ using Xunit.Abstractions;
 public class FailSkipSinkTests
 {
     IExecutionSink innerSink;
-    FailSkipSink sink;
+    DelegatingFailSkipSink sink;
 
     public FailSkipSinkTests()
     {
         innerSink = Substitute.For<IExecutionSink>();
-        sink = new FailSkipSink(innerSink);
+        sink = new DelegatingFailSkipSink(innerSink);
     }
 
     [Fact]

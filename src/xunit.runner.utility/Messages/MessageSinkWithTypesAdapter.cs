@@ -18,6 +18,9 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        public void Dispose() { }    // Assume the thing we're wrapping gets disposed elsewhere
+
+        /// <inheritdoc/>
         public bool OnMessage(IMessageSinkMessage message)
             => inner.OnMessage(message);
 

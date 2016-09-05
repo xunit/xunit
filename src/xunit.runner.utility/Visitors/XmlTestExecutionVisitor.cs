@@ -13,7 +13,7 @@ namespace Xunit
     /// An implementation of <see cref="IMessageSink"/> which records all operations into
     /// xUnit.net v2 XML format.
     /// </summary>
-    [Obsolete("This class has poor performance; please use XmlTestExecutionSink instead.")]
+    [Obsolete("This class has poor performance; please use DelegatingXmlCreationSink instead.")]
     public class XmlTestExecutionVisitor : TestMessageVisitor<ITestAssemblyFinished>
     {
         readonly XElement assemblyElement;

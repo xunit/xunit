@@ -13,7 +13,7 @@ namespace Xunit
     /// execution summary for an assembly, as well as performing the XML aggregation
     /// duties of <see cref="XmlTestExecutionVisitor"/>.
     /// </summary>
-    [Obsolete("This class has poor performance; please use XmlAggregateSink instead.")]
+    [Obsolete("This class has poor performance; please use DelegatingExecutionSummarySink and/or DelegatingXmlCreationSink instead.")]
     public class XmlAggregateVisitor : XmlTestExecutionVisitor, IExecutionVisitor
     {
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages;
