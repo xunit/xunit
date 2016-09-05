@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -7,14 +8,20 @@ namespace Xunit
 #endif
 {
     /// <summary>
-    /// An implementation of <see cref="IMessageSink"/> that ignores all messages.
+    /// An implementation of <see cref="IMessageSink"/> and <see cref="T:Xunit.IMessageSinkWithTypes"/> that
+    /// ignores all messages.
     /// </summary>
     public class NullMessageSink : LongLivedMarshalByRefObject, IMessageSink
+#if !XUNIT_FRAMEWORK
+        , IMessageSinkWithTypes
+#endif
     {
         /// <inheritdoc/>
         public bool OnMessage(IMessageSinkMessage message)
-        {
-            return true;
-        }
+            => true;
+
+        /// <inheritdoc/>
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
+            => true;
     }
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Xunit.Abstractions;
 
@@ -39,7 +40,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public override bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
+        public override bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
         {
             var result = base.OnMessageWithTypes(message, messageTypes);
 

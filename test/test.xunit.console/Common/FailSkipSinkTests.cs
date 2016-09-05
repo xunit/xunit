@@ -18,9 +18,8 @@ public class FailSkipSinkTests
     public void OnITestSkipped_TransformsToITestFailed()
     {
         var inputMessage = Mocks.TestSkipped("The skipped test", "The skip reason");
-        var types = new[] { typeof(ITestSkipped).FullName };
 
-        sink.OnMessageWithTypes(inputMessage, types);
+        sink.OnMessage(inputMessage);
 
         var outputMessage = innerSink.Captured(x => x.OnMessageWithTypes(null, null)).Arg<ITestFailed>();
         Assert.Equal(inputMessage.Test, outputMessage.Test);
@@ -35,9 +34,8 @@ public class FailSkipSinkTests
     public void OnITestCollectionFinished_CountsSkipsAsFails()
     {
         var inputMessage = Mocks.TestCollectionFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3);
-        var types = new[] { typeof(ITestCollectionFinished).FullName };
 
-        sink.OnMessageWithTypes(inputMessage, types);
+        sink.OnMessage(inputMessage);
 
         var outputMessage = innerSink.Captured(x => x.OnMessageWithTypes(null, null)).Arg<ITestCollectionFinished>();
         Assert.Equal(24, outputMessage.TestsRun);
@@ -49,9 +47,8 @@ public class FailSkipSinkTests
     public void OnITestAssemblyFinished_CountsSkipsAsFails()
     {
         var inputMessage = Mocks.TestAssemblyFinished(testsRun: 24, testsFailed: 8, testsSkipped: 3);
-        var types = new[] { typeof(ITestAssemblyFinished).FullName };
 
-        sink.OnMessageWithTypes(inputMessage, types);
+        sink.OnMessage(inputMessage);
 
         var outputMessage = innerSink.Captured(x => x.OnMessageWithTypes(null, null)).Arg<ITestAssemblyFinished>();
         Assert.Equal(24, outputMessage.TestsRun);

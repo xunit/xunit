@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -9,7 +8,7 @@ namespace Xunit
     /// An implementation of <see cref="IMessageSinkWithTypes"/> that provides events that can be used to register
     /// handlers for specific message types without the burden of casting.
     /// </summary>
-    public class TestMessageSink : LongLivedMarshalByRefObject, IMessageSinkWithTypes
+    public class TestMessageSink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
     {
         /// <summary>
         /// Occurs when a <see cref="ITestAssemblyDiscoveryFinished"/> message is received.
@@ -235,74 +234,50 @@ namespace Xunit
         }
 
         bool IMessageSink.OnMessage(IMessageSinkMessage message)
-        {
-            string[] types = null;
-
-#if PLATFORM_DOTNET
-            types = GetMessageTypes(message);
-#else
-            if (!System.Runtime.Remoting.RemotingServices.IsTransparentProxy(message))
-                types = GetMessageTypes(message);
-#endif
-
-            return OnMessageWithTypes(message, types);
-        }
-
-        static string[] GetMessageTypes(IMessageSinkMessage message)
-            => message.GetType().GetInterfaces().Select(i => i.FullName).ToArray();
-
-        /// <summary>
-        /// Gets the message types as a HashSet&lt;string&gt; to be used for faster lookups.
-        /// </summary>
-        /// <param name="messageTypes">The message type array.</param>
-        /// <returns>The message types as a hash set..</returns>
-        protected static HashSet<string> GetMessageTypesAsHashSet(string[] messageTypes)
-            => messageTypes == null ? null : new HashSet<string>(messageTypes, StringComparer.OrdinalIgnoreCase);
+            => OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
 
         /// <inheritdoc/>
-        public virtual bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
+        public virtual bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
         {
-            var types = GetMessageTypesAsHashSet(messageTypes);
-
-            return HandleMessage(message, types, TestAssemblyDiscoveryFinishedEvent)
-                && HandleMessage(message, types, TestAssemblyDiscoveryStartingEvent)
-                && HandleMessage(message, types, TestAssemblyExecutionFinishedEvent)
-                && HandleMessage(message, types, TestAssemblyExecutionStartingEvent)
-                && HandleMessage(message, types, TestExecutionSummaryEvent)
-                && HandleMessage(message, types, AfterTestFinishedEvent)
-                && HandleMessage(message, types, AfterTestStartingEvent)
-                && HandleMessage(message, types, BeforeTestFinishedEvent)
-                && HandleMessage(message, types, BeforeTestStartingEvent)
-                && HandleMessage(message, types, DiagnosticMessageEvent)
-                && HandleMessage(message, types, DiscoveryCompleteMessageEvent)
-                && HandleMessage(message, types, ErrorMessageEvent)
-                && HandleMessage(message, types, TestAssemblyCleanupFailureEvent)
-                && HandleMessage(message, types, TestAssemblyFinishedEvent)
-                && HandleMessage(message, types, TestAssemblyStartingEvent)
-                && HandleMessage(message, types, TestCaseCleanupFailureEvent)
-                && HandleMessage(message, types, TestCaseDiscoveryMessageEvent)
-                && HandleMessage(message, types, TestCaseFinishedEvent)
-                && HandleMessage(message, types, TestOutputEvent)
-                && HandleMessage(message, types, TestCaseStartingEvent)
-                && HandleMessage(message, types, TestClassCleanupFailureEvent)
-                && HandleMessage(message, types, TestClassConstructionFinishedEvent)
-                && HandleMessage(message, types, TestClassConstructionStartingEvent)
-                && HandleMessage(message, types, TestClassDisposeFinishedEvent)
-                && HandleMessage(message, types, TestClassDisposeStartingEvent)
-                && HandleMessage(message, types, TestClassFinishedEvent)
-                && HandleMessage(message, types, TestClassStartingEvent)
-                && HandleMessage(message, types, TestCleanupFailureEvent)
-                && HandleMessage(message, types, TestCollectionCleanupFailureEvent)
-                && HandleMessage(message, types, TestCollectionFinishedEvent)
-                && HandleMessage(message, types, TestCollectionStartingEvent)
-                && HandleMessage(message, types, TestFailedEvent)
-                && HandleMessage(message, types, TestFinishedEvent)
-                && HandleMessage(message, types, TestMethodCleanupFailureEvent)
-                && HandleMessage(message, types, TestMethodFinishedEvent)
-                && HandleMessage(message, types, TestMethodStartingEvent)
-                && HandleMessage(message, types, TestPassedEvent)
-                && HandleMessage(message, types, TestSkippedEvent)
-                && HandleMessage(message, types, TestStartingEvent);
+            return HandleMessage(message, messageTypes, TestAssemblyDiscoveryFinishedEvent)
+                && HandleMessage(message, messageTypes, TestAssemblyDiscoveryStartingEvent)
+                && HandleMessage(message, messageTypes, TestAssemblyExecutionFinishedEvent)
+                && HandleMessage(message, messageTypes, TestAssemblyExecutionStartingEvent)
+                && HandleMessage(message, messageTypes, TestExecutionSummaryEvent)
+                && HandleMessage(message, messageTypes, AfterTestFinishedEvent)
+                && HandleMessage(message, messageTypes, AfterTestStartingEvent)
+                && HandleMessage(message, messageTypes, BeforeTestFinishedEvent)
+                && HandleMessage(message, messageTypes, BeforeTestStartingEvent)
+                && HandleMessage(message, messageTypes, DiagnosticMessageEvent)
+                && HandleMessage(message, messageTypes, DiscoveryCompleteMessageEvent)
+                && HandleMessage(message, messageTypes, ErrorMessageEvent)
+                && HandleMessage(message, messageTypes, TestAssemblyCleanupFailureEvent)
+                && HandleMessage(message, messageTypes, TestAssemblyFinishedEvent)
+                && HandleMessage(message, messageTypes, TestAssemblyStartingEvent)
+                && HandleMessage(message, messageTypes, TestCaseCleanupFailureEvent)
+                && HandleMessage(message, messageTypes, TestCaseDiscoveryMessageEvent)
+                && HandleMessage(message, messageTypes, TestCaseFinishedEvent)
+                && HandleMessage(message, messageTypes, TestOutputEvent)
+                && HandleMessage(message, messageTypes, TestCaseStartingEvent)
+                && HandleMessage(message, messageTypes, TestClassCleanupFailureEvent)
+                && HandleMessage(message, messageTypes, TestClassConstructionFinishedEvent)
+                && HandleMessage(message, messageTypes, TestClassConstructionStartingEvent)
+                && HandleMessage(message, messageTypes, TestClassDisposeFinishedEvent)
+                && HandleMessage(message, messageTypes, TestClassDisposeStartingEvent)
+                && HandleMessage(message, messageTypes, TestClassFinishedEvent)
+                && HandleMessage(message, messageTypes, TestClassStartingEvent)
+                && HandleMessage(message, messageTypes, TestCleanupFailureEvent)
+                && HandleMessage(message, messageTypes, TestCollectionCleanupFailureEvent)
+                && HandleMessage(message, messageTypes, TestCollectionFinishedEvent)
+                && HandleMessage(message, messageTypes, TestCollectionStartingEvent)
+                && HandleMessage(message, messageTypes, TestFailedEvent)
+                && HandleMessage(message, messageTypes, TestFinishedEvent)
+                && HandleMessage(message, messageTypes, TestMethodCleanupFailureEvent)
+                && HandleMessage(message, messageTypes, TestMethodFinishedEvent)
+                && HandleMessage(message, messageTypes, TestMethodStartingEvent)
+                && HandleMessage(message, messageTypes, TestPassedEvent)
+                && HandleMessage(message, messageTypes, TestSkippedEvent)
+                && HandleMessage(message, messageTypes, TestStartingEvent);
         }
     }
 }

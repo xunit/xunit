@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Xunit
     /// </summary>
     public class TestExecutionSink : TestMessageSink, IExecutionSink
     {
-        static readonly string[] DiagnosticMessageTypes = { typeof(IDiagnosticMessage).FullName };
+        static readonly HashSet<string> DiagnosticMessageTypes = new HashSet<string> { typeof(IDiagnosticMessage).FullName };
 
         CancellationTokenSource cancellationTokenSource;
         readonly Func<bool> cancelThunk;
@@ -150,7 +151,7 @@ namespace Xunit
             => executingTestCases.TryAdd(args.Message.TestCase, UtcNow);
 
         /// <inheritdoc/>
-        public override bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
+        public override bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
             => base.OnMessageWithTypes(message, messageTypes) && !cancelThunk();
 
         void SendLongRunningMessage()

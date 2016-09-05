@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System.Collections.Generic;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -7,7 +8,7 @@ namespace Xunit
     /// of <see cref="IMessageSinkWithTypes"/> (albeit one without the typical performance
     /// benefits associated with the latter interface).
     /// </summary>
-    public class MessageSinkWithTypesAdapter : LongLivedMarshalByRefObject, IMessageSinkWithTypes
+    public class MessageSinkWithTypesAdapter : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
     {
         readonly IMessageSink inner;
 
@@ -17,11 +18,12 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, string[] messageTypes)
+        public bool OnMessage(IMessageSinkMessage message)
             => inner.OnMessage(message);
 
-        bool IMessageSink.OnMessage(IMessageSinkMessage message)
-            => OnMessageWithTypes(message, null);
+        /// <inheritdoc/>
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
+            => OnMessage(message);
 
         /// <summary>
         /// Determines whether the given sink is already an implementation of <see cref="IMessageSinkWithTypes"/>,

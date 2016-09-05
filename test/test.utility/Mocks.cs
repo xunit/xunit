@@ -167,7 +167,8 @@ public static class Mocks
         result.Description.Returns(description ?? "The runner reporter description");
         result.IsEnvironmentallyEnabled.ReturnsForAnyArgs(isEnvironmentallyEnabled);
         result.RunnerSwitch.Returns(runnerSwitch);
-        result.CreateMessageHandler(null).ReturnsForAnyArgs(messageSink ?? Substitute.For<IMessageSinkWithTypes, InterfaceProxy<IMessageSinkWithTypes>>());
+        var dualSink = MessageSinkAdapter.Wrap(messageSink ?? Substitute.For<IMessageSinkWithTypes, InterfaceProxy<IMessageSinkWithTypes>>());
+        result.CreateMessageHandler(null).ReturnsForAnyArgs(dualSink);
         return result;
     }
 

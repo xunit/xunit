@@ -1,32 +1,57 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Xunit.Abstractions;
 
 namespace Xunit
 {
     class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageSink
     {
-#if !NET35
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, string[]> messageInterfaces = new System.Collections.Concurrent.ConcurrentDictionary<Type, string[]>();
-#endif
-        readonly IMessageSinkWithTypes sinkWithTypes;
+        readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
+        readonly Dictionary<Type, HashSet<string>> interfaceCache = new Dictionary<Type, HashSet<string>>();
+        readonly IMessageSinkWithTypes runnerSink;
 
-        public OptimizedRemoteMessageSink(IMessageSinkWithTypes sinkWithTypes)
+        public OptimizedRemoteMessageSink(IMessageSinkWithTypes runnerSink)
         {
-            this.sinkWithTypes = sinkWithTypes;
+            this.runnerSink = runnerSink;
         }
 
-        static string[] GetMessageTypes(IMessageSinkMessage message)
-#if NET35
-            => GetInterfaceNames(message.GetType());
-#else
-            => messageInterfaces.GetOrAdd(message.GetType(), t => GetInterfaceNames(t));
-#endif
+        HashSet<string> GetMessageTypes(IMessageSinkMessage message)
+        {
+            var messageType = message.GetType();
+            HashSet<string> result;
 
-        static string[] GetInterfaceNames(Type type)
-            => type.GetInterfaces().Select(t => t.FullName).ToArray();
+            cacheLock.TryEnterReadLock(-1);
+
+            try
+            {
+                interfaceCache.TryGetValue(messageType, out result);
+            }
+            finally
+            {
+                cacheLock.ExitReadLock();
+            }
+
+            if (result == null)
+            {
+                cacheLock.TryEnterWriteLock(-1);
+
+                try
+                {
+                    result = new HashSet<string>(messageType.GetInterfaces().Select(x => x.FullName));
+                    interfaceCache[messageType] = result;
+                }
+                finally
+                {
+                    cacheLock.ExitWriteLock();
+                }
+            }
+
+            return result;
+        }
 
         public bool OnMessage(IMessageSinkMessage message)
-            => sinkWithTypes.OnMessageWithTypes(message, GetMessageTypes(message));
+            => runnerSink.OnMessageWithTypes(message, GetMessageTypes(message));
     }
 }
