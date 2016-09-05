@@ -29,19 +29,19 @@ namespace Xunit.Sdk
         public static void QueueUserWorkItem(Action backgroundTask, EventWaitHandle finished = null)
         {
             taskFactory.StartNew(_ =>
-            {
-                var state = (State)_;
+                                 {
+                                     var state = (State)_;
 
-                try
-                {
-                    state.BackgroundTask();
-                }
-                finally
-                {
-                    if (state.Finished != null)
-                        state.Finished.Set();
-                }
-            },
+                                     try
+                                     {
+                                         state.BackgroundTask();
+                                     }
+                                     finally
+                                     {
+                                         if (state.Finished != null)
+                                             state.Finished.Set();
+                                     }
+                                 },
                                  new State { BackgroundTask = backgroundTask, Finished = finished },
                                  CancellationToken.None,
                                  TaskCreationOptions.LongRunning,
@@ -86,7 +86,7 @@ namespace Xunit.Sdk
             ThreadPool.QueueUserWorkItem(_ =>
                                          {
                                              var state = (State)_;
-                                         
+
                                              try
                                              {
                                                  state.BackgroundTask();
