@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -5,8 +7,10 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyExecutionFinished"/>.
     /// </summary>
-    public class TestAssemblyExecutionFinished : ITestAssemblyExecutionFinished
+    public class TestAssemblyExecutionFinished : ITestAssemblyExecutionFinished, IMessageSinkMessageWithTypes
     {
+        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestAssemblyExecutionFinished).GetInterfaces().Select(x => x.FullName));
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyExecutionFinished"/> class.
         /// </summary>
@@ -30,5 +34,8 @@ namespace Xunit
 
         /// <inheritdoc/>
         public ExecutionSummary ExecutionSummary { get; private set; }
+
+        /// <inheritdoc/>
+        public HashSet<string> InterfaceTypes => interfaceTypes;
     }
 }

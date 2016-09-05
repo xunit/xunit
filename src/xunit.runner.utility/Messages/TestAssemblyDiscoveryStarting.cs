@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -5,8 +7,10 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyDiscoveryStarting"/>.
     /// </summary>
-    public class TestAssemblyDiscoveryStarting : ITestAssemblyDiscoveryStarting
+    public class TestAssemblyDiscoveryStarting : ITestAssemblyDiscoveryStarting, IMessageSinkMessageWithTypes
     {
+        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestAssemblyDiscoveryStarting).GetInterfaces().Select(x => x.FullName));
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyDiscoveryStarting"/> class.
         /// </summary>
@@ -33,6 +37,9 @@ namespace Xunit
 
         /// <inheritdoc/>
         public ITestFrameworkDiscoveryOptions DiscoveryOptions { get; private set; }
+
+        /// <inheritdoc/>
+        public HashSet<string> InterfaceTypes => interfaceTypes;
 
         /// <inheritdoc/>
         public bool ShadowCopy { get; private set; }
