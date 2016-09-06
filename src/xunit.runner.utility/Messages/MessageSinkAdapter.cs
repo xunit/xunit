@@ -55,6 +55,6 @@ namespace Xunit
         /// </summary>
         /// <param name="sink">The sink to test, and potentially adapt.</param>
         public static IMessageSink Wrap(IMessageSinkWithTypes sink)
-            => sink as IMessageSink ?? new MessageSinkAdapter(sink);
+            => sink == null ? null : (sink as IMessageSink ?? new MessageSinkAdapter(sink));
     }
 }
