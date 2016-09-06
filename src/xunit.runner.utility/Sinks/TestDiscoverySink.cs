@@ -11,11 +11,17 @@ namespace Xunit
     /// </summary>
     public class TestDiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
     {
+        readonly Func<bool> cancelThunk;
         readonly DiscoveryEventSink discoverySink = new DiscoveryEventSink();
 
-        /// <summary/>
-        public TestDiscoverySink()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestDiscoverySink"/> class.
+        /// </summary>
+        /// <param name="cancelThunk">An optional thunk which can be used to control cancellation.</param>
+        public TestDiscoverySink(Func<bool> cancelThunk = null)
         {
+            this.cancelThunk = cancelThunk ?? (() => false);
+
             discoverySink.TestCaseDiscoveryMessageEvent += args => TestCases.Add(args.Message.TestCase);
             discoverySink.DiscoveryCompleteMessageEvent += args => Finished.Set();
         }
@@ -35,10 +41,11 @@ namespace Xunit
             => ((IDisposable)Finished).Dispose();
 
         bool IMessageSink.OnMessage(IMessageSinkMessage message)
-            => discoverySink.OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
+            => OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
 
         /// <inheritdoc/>
         public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
-            => discoverySink.OnMessageWithTypes(message, messageTypes);
+            => discoverySink.OnMessageWithTypes(message, messageTypes)
+            && !cancelThunk();
     }
 }

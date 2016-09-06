@@ -246,7 +246,7 @@ namespace Xunit.Runner.MSBuild
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
                 using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
-                using (var discoverySink = new TestDiscoverySink())
+                using (var discoverySink = new TestDiscoverySink(() => cancel))
                 {
                     // Discover & filter the tests
                     reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
