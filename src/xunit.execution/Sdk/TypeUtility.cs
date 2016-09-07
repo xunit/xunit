@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Xunit.Abstractions;
@@ -89,40 +90,111 @@ namespace Xunit.Sdk
             return $"<{string.Join(", ", typeNames)}>";
         }
 
+        private static bool ResolveGenericParameter(this ITypeInfo genericType, ITypeInfo methodParameterType, Type passedParameterType, ref Type resultType)
+        {
+            // We can never infer the type parameter from a null type
+            if (passedParameterType == null)
+            {
+                resultType = typeof(object);
+                return true;
+            }
+
+            // Is a parameter a generic array, e.g. T[] or List<T>[]
+            bool isGenericArray = false;
+            ITypeInfo strippedMethodParameterType = StripElementType(methodParameterType, ref isGenericArray);
+
+            if (isGenericArray)
+            {
+                passedParameterType = GetArrayElementTypeOrThis(passedParameterType);
+            }
+            
+            // Is the parameter generic type (e.g. List<T>, Dictionary<T, U>, List<T>[], List<string>)
+            if (strippedMethodParameterType.IsGenericType)
+            {
+                // We recursively drill down both the method parameter and the passed parameter
+                // to get and resolve inner generic arguments
+                // E.g. (List<T>, List<string>) -> (T, string)
+                // E.g. (List<List<T>, List<List<string>>) -> (List<T>, List<string>) -> (T, string)
+                ITypeInfo[] methodParameterGenericArguments = strippedMethodParameterType.GetGenericArguments().CastOrToArray();
+                Type[] passedParameterGenericArguments = passedParameterType.GetGenericArguments();
+                
+                // We can't pass a List<T> to a Dictionary<T, U>
+                if (methodParameterGenericArguments.Length != passedParameterGenericArguments.Length)
+                {
+                    return false;
+                }
+                
+                for (int i = 0; i < methodParameterGenericArguments.Length; i++)
+                {
+                    // Drill down through the generic arguments of the parameter provided,
+                    // and find one matching the genericType
+                    // This allows us to resolve complex generics of with any number of parameters
+                    // and at any level deep
+                    // e.g. Dictionary<T, U>, Dictionary<string, U>, Dictionary<T, int> etc.
+                    // e.g. Dictionary<Dictionary<T, U>, List<Dictionary<V, W>>
+
+                    ITypeInfo methodGenericArgument = methodParameterGenericArguments[i];
+                    Type passedTypeArgument = passedParameterGenericArguments[i];
+
+                    if (ResolveGenericParameter(genericType, methodGenericArgument, passedTypeArgument, ref resultType))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // Now finally check if we found a matching type (e.g. T -> T, List<T> -> List<T> etc.)
+            if (strippedMethodParameterType.IsGenericParameter && strippedMethodParameterType.Name == genericType.Name)
+            {
+                if (resultType == null)
+                    resultType = passedParameterType;
+                else if (resultType.Name != passedParameterType.FullName)
+                    return false;
+            }
+            return resultType != null;
+        }
+
+        private static Type GetArrayElementTypeOrThis(Type type)
+        {
+            return type.IsArray ? type.GetElementType() : type;
+        }
+
+        private static ITypeInfo StripElementType(ITypeInfo type, ref bool isArray)
+        {
+            ReflectionTypeInfo parameterReflectionType = type as ReflectionTypeInfo;
+            if (parameterReflectionType != null && parameterReflectionType.Type.HasElementType)
+            {
+                // We have a  T[] or T&
+                isArray = parameterReflectionType.Type.IsArray;
+                return Reflector.Wrap(parameterReflectionType.Type.GetElementType());
+            }
+            return type;
+        }
+
         /// <summary>
         /// Resolves a generic type for a test method. The test parameters (and associated parameter infos) are
         /// used to determine the best matching generic type for the test method that can be satisfied by all
         /// the generic parameters and their values.
         /// </summary>
         /// <param name="genericType">The generic type to be resolved</param>
-        /// <param name="parameters">The parameter values being passed to the test method</param>
-        /// <param name="parameterInfos">The parameter infos for the test method</param>
+        /// <param name="passedParameters">The parameter values being passed to the test method</param>
+        /// <param name="methodParameters">The parameter infos for the test method</param>
         /// <returns>The best matching generic type</returns>
-        public static ITypeInfo ResolveGenericType(this ITypeInfo genericType, object[] parameters, IParameterInfo[] parameterInfos)
+        public static ITypeInfo ResolveGenericType(this ITypeInfo genericType, object[] passedParameters, IParameterInfo[] methodParameters)
         {
-            var sawNullValue = false;
-            ITypeInfo matchedType = null;
-
-            for (var idx = 0; idx < parameterInfos.Length; ++idx)
+            for (var idx = 0; idx < methodParameters.Length; ++idx)
             {
-                var parameterType = parameterInfos[idx].ParameterType;
-                if (parameterType.IsGenericParameter && parameterType.Name == genericType.Name)
-                {
-                    var parameterValue = parameters[idx];
+                ITypeInfo methodParameterType = methodParameters[idx].ParameterType;
+                Type passedParameterType = passedParameters[idx]?.GetType();
 
-                    if (parameterValue == null)
-                        sawNullValue = true;
-                    else if (matchedType == null)
-                        matchedType = Reflector.Wrap(parameterValue.GetType());
-                    else if (matchedType.Name != parameterValue.GetType().FullName)
-                        return ObjectTypeInfo;
+                Type matchedType = null;
+                if (ResolveGenericParameter(genericType, methodParameterType, passedParameterType, ref matchedType))
+                {
+                    return Reflector.Wrap(matchedType);
                 }
             }
 
-            if (matchedType == null)
-                return ObjectTypeInfo;
-
-            return sawNullValue && matchedType.IsValueType ? ObjectTypeInfo : matchedType;
+            return ObjectTypeInfo;
         }
 
         /// <summary>
