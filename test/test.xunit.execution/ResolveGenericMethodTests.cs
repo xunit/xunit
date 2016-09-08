@@ -226,8 +226,60 @@ public class ResolveGenericMethodTests
         };
     }
 
+    public static IEnumerable<object[]> ResolveGenericType_MismatchedGenericTypeArguments_TestData()
+    {
+        // SubClass: GenericBaseClass<int> -> GenericBaseClass<T>
+        yield return new object[]
+        {
+            nameof(OneGenericParameter_GenericBaseClass),
+            new object[] { new ImplementsGeneric1BaseClass() },
+            new Type[] { typeof(int) }
+        };
+
+        // SubClass: BaseClass<int, string> -> BaseClass<T, U>
+        yield return new object[]
+        {
+            nameof(TwoGenericParameters_GenericBaseClass),
+            new object[] { new ImplementsGeneric2BaseClass() },
+            new Type[] { typeof(int), typeof(uint) }
+        };
+
+        // SubClass<T>: BaseClass<T, string> -> BaseClass<T, U>
+        yield return new object[]
+        {
+            nameof(TwoGenericParameters_GenericBaseClass),
+            new object[] { new GenericImplements2BaseClass<int>() },
+            new Type[] { typeof(int), typeof(string) }
+        };
+
+        // Class: Interface<int> -> Interface<T>
+        yield return new object[]
+        {
+            nameof(OneGenericParameter_GenericInterface),
+            new object[] { new ImplementsGeneric1Interface() },
+            new Type[] { typeof(int) }
+        };
+
+        // Class: Interface<int, string> -> Interface<T, U>
+        yield return new object[]
+        {
+            nameof(TwoGenericParameters_GenericInterface),
+            new object[] { new ImplementsGeneric2Interface() },
+            new Type[] { typeof(int), typeof(uint) }
+        };
+
+        // Class<T>: Interface<T, string> -> Interface<T, U>
+        yield return new object[]
+        {
+            nameof(TwoGenericParameters_GenericInterface),
+            new object[] { new GenericImplements2Interface<int>() },
+            new Type[] { typeof(int), typeof(string) }
+        };
+    }
+
     [Theory]
     [MemberData(nameof(ResolveGenericType_TestData))]
+    [MemberData(nameof(ResolveGenericType_MismatchedGenericTypeArguments_TestData))]
     public static void ResolveGenericType(string methodName, object[] parameters, Type[] expected)
     {
         IMethodInfo method = Reflector.Wrap(typeof(ResolveGenericMethodTests).GetMethod(methodName));
@@ -272,7 +324,25 @@ public class ResolveGenericMethodTests
 
     public static void CrazyGenericMethod<T, U, V, W, X>(GenericClass3<GenericClass<T>, GenericClass2<GenericClass3<U, V, int>, string>, X> gen) { }
 
+    public static void OneGenericParameter_GenericBaseClass<T>(GenericClass<T> x) { }
+    public static void TwoGenericParameters_GenericBaseClass<T, U>(GenericClass2<T, U> x) { }
+
+    public static void OneGenericParameter_GenericInterface<T>(Generic1Interface<T> x) { }
+    public static void TwoGenericParameters_GenericInterface<T, U>(Generic2Interface<T, U> x) { }
+
     public class GenericClass<T> { }
     public class GenericClass2<T, U> { }
     public class GenericClass3<T, U, V> { }
+
+    public interface Generic1Interface<T> { }
+    public interface Generic2Interface<T, U> { }
+
+    public class ImplementsGeneric1BaseClass : GenericClass<int> { }
+    public class ImplementsGeneric2BaseClass : GenericClass2<int, uint> { }
+
+    public class ImplementsGeneric1Interface : Generic1Interface<int> { }
+    public class ImplementsGeneric2Interface : Generic2Interface<int, uint> { }
+
+    public class GenericImplements2BaseClass<T> : GenericClass2<T, string> { }
+    public class GenericImplements2Interface<T> : Generic2Interface<T, string> { }
 }

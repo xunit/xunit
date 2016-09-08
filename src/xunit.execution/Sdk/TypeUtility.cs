@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -90,6 +91,14 @@ namespace Xunit.Sdk
             return $"<{string.Join(", ", typeNames)}>";
         }
 
+        /// <summary>
+        /// Resolves an individual generic type given an intended generic parameter type and the type of an object passed to that type.
+        /// </summary>
+        /// <param name="genericType">The generic type, e.g. T, to resolve.</param>
+        /// <param name="methodParameterType">The non-generic or open generic type, e.g. T, to try to match with the type of the objecct passed to that type.</param>
+        /// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
+        /// <param name="resultType">The resolved type, e.g. the parameters (T, T, string, typeof(object)) -> (T, T, string, typeof(string)).</param>
+        /// <returns>True if resolving was successful, else false.</returns>
         private static bool ResolveGenericParameter(this ITypeInfo genericType, ITypeInfo methodParameterType, Type passedParameterType, ref Type resultType)
         {
             // We can never infer the type parameter from a null type
@@ -117,11 +126,15 @@ namespace Xunit.Sdk
                 // E.g. (List<List<T>, List<List<string>>) -> (List<T>, List<string>) -> (T, string)
                 ITypeInfo[] methodParameterGenericArguments = strippedMethodParameterType.GetGenericArguments().CastOrToArray();
                 Type[] passedParameterGenericArguments = passedParameterType.GetGenericArguments();
-                
-                // We can't pass a List<T> to a Dictionary<T, U>
+
+                // We can't pass List<T> to Dictionary<T, U>
+                // But we can pass Class : Interface<T> to Interface<T>
                 if (methodParameterGenericArguments.Length != passedParameterGenericArguments.Length)
                 {
-                    return false;
+                    if (genericType.ResolveMismatchedGenericArguments(passedParameterType, methodParameterGenericArguments, ref resultType))
+                    {
+                        return true;
+                    }
                 }
                 
                 for (int i = 0; i < methodParameterGenericArguments.Length; i++)
@@ -132,11 +145,10 @@ namespace Xunit.Sdk
                     // and at any level deep
                     // e.g. Dictionary<T, U>, Dictionary<string, U>, Dictionary<T, int> etc.
                     // e.g. Dictionary<Dictionary<T, U>, List<Dictionary<V, W>>
-
                     ITypeInfo methodGenericArgument = methodParameterGenericArguments[i];
                     Type passedTypeArgument = passedParameterGenericArguments[i];
 
-                    if (ResolveGenericParameter(genericType, methodGenericArgument, passedTypeArgument, ref resultType))
+                    if (genericType.ResolveGenericParameter(methodGenericArgument, passedTypeArgument, ref resultType))
                     {
                         return true;
                     }
@@ -154,14 +166,25 @@ namespace Xunit.Sdk
             return resultType != null;
         }
 
+        /// <summary>
+        /// Gets the ElementType of a type, only if it is an array.
+        /// </summary>
+        /// <param name="type">The type to get the ElementType of.</param>
+        /// <returns>If type is an array, the ElementType of the type, else the original type.</returns>
         private static Type GetArrayElementTypeOrThis(Type type)
         {
             return type.IsArray ? type.GetElementType() : type;
         }
 
+        /// <summary>
+        /// Gets the underlying ElementType of a type, if the ITypeInfo supports reflection.
+        /// </summary>
+        /// <param name="type">The type to get the ElementType of.</param>
+        /// <param name="isArray">A flag indicating whether the type is an array.</param>
+        /// <returns>If type has an element type, underlying ElementType of a type, else the original type.</returns>
         private static ITypeInfo StripElementType(ITypeInfo type, ref bool isArray)
         {
-            ReflectionTypeInfo parameterReflectionType = type as ReflectionTypeInfo;
+            IReflectionTypeInfo parameterReflectionType = type as IReflectionTypeInfo;
             if (parameterReflectionType != null && parameterReflectionType.Type.HasElementType)
             {
                 // We have a  T[] or T&
@@ -169,6 +192,57 @@ namespace Xunit.Sdk
                 return Reflector.Wrap(parameterReflectionType.Type.GetElementType());
             }
             return type;
+        }
+
+        /// <summary>
+        /// Resolves an individual generic type given an intended generic parameter type and the type of an object passed to that type. 
+        /// </summary>
+        /// <param name="genericType">The generic type, e.g. T, to resolve.</param>
+        /// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
+        /// <param name="methodGenericTypeArguments">The generic arguments of the open generic type to match with the passed parameter.</param>
+        /// <param name="resultType">The resolved type.</param>
+        /// <returns>True if resolving was successful, else false.</returns>
+        private static bool ResolveMismatchedGenericArguments(this ITypeInfo genericType, Type passedParameterType, ITypeInfo[] methodGenericTypeArguments, ref Type resultType)
+        {
+            // Do we have Class : BaseClass<T>, Class: BaseClass<T, U> etc.
+            Type baseType = passedParameterType.GetTypeInfo().BaseType;
+            if (baseType != null && baseType.IsGenericType())
+            {
+                Type[] baseGenericTypeArguments = baseType.GetGenericArguments();
+
+                for (int i = 0; i < baseGenericTypeArguments.Length; i++)
+                {
+                    ITypeInfo methodGenericTypeArgument = methodGenericTypeArguments[i];
+                    Type baseGenericTypeArgument = baseGenericTypeArguments[i];
+                    if (genericType.ResolveGenericParameter(methodGenericTypeArgument, baseGenericTypeArgument, ref resultType))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // Do we have Class : Interface<T>, Class : Interface<T, U> etc.
+            Type[] interfaces = passedParameterType.GetInterfaces();
+            foreach (Type interfaceType in interfaces)
+            {
+                if (!interfaceType.IsGenericType())
+                {
+                    continue;
+                }
+
+                Type[] interfaceGenericArguments = interfaceType.GetGenericArguments();
+                for (int i = 0; i < interfaceGenericArguments.Length; i++)
+                {
+                    ITypeInfo methodGenericTypeArgument = methodGenericTypeArguments[i];
+                    Type baseGenericTypeArgument = interfaceGenericArguments[i];
+                    if (genericType.ResolveGenericParameter(methodGenericTypeArgument, baseGenericTypeArgument, ref resultType))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
