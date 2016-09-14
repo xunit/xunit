@@ -1,73 +1,63 @@
 #!/usr/bin/env bash
 
 if ! [ -x "$(command -v mono)" ]; then
-  echo >&2 "Could not find 'mono' on the path."
-  exit 1
+	echo >&2 "Could not find 'mono' on the path. Please install Mono."
+	exit 1
 fi
 
-if ! [ -x "$(command -v curl)" ]; then
-  echo >&2 "Could not find 'curl' on the path."
-  exit 1
-fi
-
-if ! [ -d .nuget ]; then
-  mkdir .nuget
-fi
-
-if ! [ -x .nuget/nuget.exe ]; then
-  echo ""
-  echo "Downloading nuget.exe..."
-  echo ""
-
-  curl https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -o .nuget/nuget.exe -L
-  if [ $? -ne 0 ]; then
-    echo >&2 ""
-    echo >&2 "The download of nuget.exe has failed."
-    exit 1
-  fi
-
-  chmod 755 .nuget/nuget.exe
+if ! [ -x "$(command -v dotnet)" ]; then
+	echo >&2 "Could not find 'dotnet' on the path. Please install .NET CLI."
+	exit 1
 fi
 
 echo ""
-echo "Restoring NuGet packages..."
+echo "Restoring packages..."
 echo ""
 
-mono .nuget/nuget.exe restore xunit.vs2015.sln
+dotnet restore
+
 if [ $? -ne 0 ]; then
-  echo >&2 "NuGet package restore has failed."
-  exit 1
+	echo >&2 "Package restore has failed."
+	exit 1
 fi
 
 echo ""
 echo "Building..."
 echo ""
 
-xbuild xunit.vs2015.sln /property:Configuration=Release
+dotnet build -c Release \
+	src/xunit.assert \
+	src/xunit.core \
+	src/xunit.execution \
+	src/xunit.runner.utility \
+	src/xunit.runner.reporters \
+	src/xunit.console \
+	test/test.xunit.assert \
+	test/test.xunit.execution \
+	test/test.xunit.runner.utility \
+	test/test.xunit.runner.reporters \
+	test/test.xunit.console
+
 if [ $? -ne 0 ]; then
-  echo >&2 ""
-  echo >&2 "The build has failed."
-  exit 1
+	echo >&2 ""
+	echo >&2 "The build has failed."
+	exit 1
 fi
 
-echo ""
-echo "Running xUnit v1 tests..."
-echo ""
+#echo ""
+#echo "Running unit tests..."
+#echo ""
 
-mono src/xunit.console/bin/Release/xunit.console.exe test/test.xunit1/bin/Release/test.xunit1.dll
-if [ $? -ne 0 ]; then
-  echo >&2 ""
-  echo >&2 "The xUnit v1 tests have failed."
-  exit 1
-fi
+#mono src/xunit.console/bin/Release/net45/*/xunit.console.exe \
+#	test/test.xunit.assert/bin/Release/net45/test.xunit.assert.dll \
+#	test/test.xunit.execution/bin/Release/net45/test.xunit.execution.dll \
+#	test/test.xunit.runner.utility/bin/Release/net45/test.xunit.runner.utility.dll \
+#	test/test.xunit.runner.reporters/bin/Release/net45/test.xunit.runner.reporters.dll \
+#	test/test.xunit.console/bin/Release/net45/test.xunit.console.dll \
+#	-parallel all
 
-echo ""
-echo "Running xUnit v2 tests..."
-echo ""
-
-mono src/xunit.console/bin/Release/xunit.console.exe test/test.xunit.assert/bin/Release/test.xunit.assert.dll test/test.xunit.console/bin/Release/test.xunit.console.dll test/test.xunit.execution/bin/Release/test.xunit.execution.dll test/test.xunit.runner.tdnet/bin/Release/test.xunit.runner.tdnet.dll test/test.xunit.runner.utility/bin/Release/test.xunit.runner.utility.dll -parallel all
-if [ $? -ne 0 ]; then
-  echo >&2 ""
-  echo >&2 "The xUnit v2 tests have failed."
-  exit 1
-fi
+#if [ $? -ne 0 ]; then
+#	echo >&2 ""
+#	echo >&2 "Unit tests have failed."
+#	exit 1
+#fi
