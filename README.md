@@ -1,5 +1,8 @@
 For project documentation, please visit the [xUnit.net project home](https://xunit.github.io/).
 
+* _Need some help building the source? [https://xunit.github.io/docs/building-xunit.html](https://xunit.github.io/docs/building-xunit.html)_<br />
+* _Want to contribute to the project? [https://github.com/xunit/xunit/blob/master/CONTRIBUTING.md](https://github.com/xunit/xunit/blob/master/CONTRIBUTING.md)_
+
 Latest builds:
 
 Channel  | Core Framework | .NET CLI Runner | Visual Studio Runner
