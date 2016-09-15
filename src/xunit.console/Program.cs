@@ -155,7 +155,7 @@ namespace Xunit.ConsoleClient
         {
             var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
 
-            Console.WriteLine("Copyright (C) 2015 Outercurve Foundation.");
+            Console.WriteLine("Copyright (C) 2016 .NET Foundation.");
             Console.WriteLine();
             Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
             Console.WriteLine();

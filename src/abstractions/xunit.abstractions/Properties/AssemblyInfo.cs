@@ -13,9 +13,9 @@ using System.Reflection;
 [assembly: AssemblyTitle("xUnit.net Abstractions (PCL259)")]
 #endif
 
-[assembly: AssemblyCompany("Outercurve Foundation")]
+[assembly: AssemblyCompany(".NET Foundation")]
 [assembly: AssemblyProduct("xUnit.net Testing Framework")]
-[assembly: AssemblyCopyright("Copyright (C) Outercurve Foundation")]
+[assembly: AssemblyCopyright("Copyright (C) .NET Foundation")]
 [assembly: CLSCompliant(true)]
 [assembly: AssemblyVersion("2.0.1.0")]
 
