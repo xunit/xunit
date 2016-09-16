@@ -2,11 +2,11 @@
 
 [<img align="right" src="https://www.dotnetfoundation.org/Media/dotnet_logo.png" width="100" />](https://www.dotnetfoundation.org/)
 
-xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit v2, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. xUnit.net works with ReSharper, CodeRush, TestDriven.NET and Xamarin. It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and operates under their [code of conduct](http://www.dotnetfoundation.org/code-of-conduct). It is licensed under [Apache 2](https://opensource.org/licenses/Apache-2.0) (an OSI approved license).
+xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit v2, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. xUnit.net works with ReSharper, CodeRush, TestDriven.NET and Xamarin. It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and operates under their [code of conduct](https://www.dotnetfoundation.org/code-of-conduct). It is licensed under [Apache 2](https://opensource.org/licenses/Apache-2.0) (an OSI approved license).
 
 For project documentation, please visit the [xUnit.net project home](https://xunit.github.io/).
 
-* _New to xUnit.net? Get started with [desktop](http://xunit.github.io/docs/getting-started-desktop.html), [.NET Core](http://xunit.github.io/docs/getting-started-dotnet-core.html), and [devices](http://xunit.github.io/docs/getting-started-devices.html)._
+* _New to xUnit.net? Get started with [desktop](https://xunit.github.io/docs/getting-started-desktop.html), [.NET Core](https://xunit.github.io/docs/getting-started-dotnet-core.html), and [devices](https://xunit.github.io/docs/getting-started-devices.html)._
 * _Need some help building the source? [https://xunit.github.io/docs/building-xunit.html](https://xunit.github.io/docs/building-xunit.html)_
 * _Want to contribute to the project? [https://github.com/xunit/xunit/blob/master/CONTRIBUTING.md](https://github.com/xunit/xunit/blob/master/CONTRIBUTING.md)_
 
