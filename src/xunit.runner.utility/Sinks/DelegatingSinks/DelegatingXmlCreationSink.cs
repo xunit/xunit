@@ -87,37 +87,48 @@ namespace Xunit
 
         XElement CreateTestResultElement(ITestResultMessage testResult, string resultText)
         {
-            var collectionElement = GetTestCollectionElement(testResult.TestCase.TestMethod.TestClass.TestCollection);
+            ITest test = testResult.Test;
+            ITestCase testCase = testResult.TestCase;
+            ITestMethod testMethod = testCase.TestMethod;
+            ITestClass testClass = testMethod.TestClass;
+
+            var collectionElement = GetTestCollectionElement(testClass.TestCollection);
             var testResultElement =
                 new XElement("test",
-                    new XAttribute("name", XmlEscape(testResult.Test.DisplayName)),
-                    new XAttribute("type", testResult.TestCase.TestMethod.TestClass.Class.Name),
-                    new XAttribute("method", testResult.TestCase.TestMethod.Method.Name),
+                    new XAttribute("name", XmlEscape(test.DisplayName)),
+                    new XAttribute("type", testClass.Class.Name),
+                    new XAttribute("method", testMethod.Method.Name),
                     new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture)),
                     new XAttribute("result", resultText)
                 );
 
-            if (!string.IsNullOrWhiteSpace(testResult.Output))
-                testResultElement.Add(new XElement("output", new XCData(testResult.Output)));
+            var testOutput = testResult.Output;
+            if (!string.IsNullOrWhiteSpace(testOutput))
+                testResultElement.Add(new XElement("output", new XCData(testOutput)));
 
-            if (testResult.TestCase.SourceInformation != null)
+            ISourceInformation sourceInformation = testCase.SourceInformation;
+            if (sourceInformation != null)
             {
-                if (testResult.TestCase.SourceInformation.FileName != null)
-                    testResultElement.Add(new XAttribute("source-file", testResult.TestCase.SourceInformation.FileName));
-                if (testResult.TestCase.SourceInformation.LineNumber != null)
-                    testResultElement.Add(new XAttribute("source-line", testResult.TestCase.SourceInformation.LineNumber.GetValueOrDefault()));
+                var fileName = sourceInformation.FileName;
+                if (fileName != null)
+                    testResultElement.Add(new XAttribute("source-file", fileName));
+
+                var lineNumber = sourceInformation.LineNumber;
+                if (lineNumber != null)
+                    testResultElement.Add(new XAttribute("source-line", lineNumber.GetValueOrDefault()));
             }
 
-            if (testResult.TestCase.Traits != null && testResult.TestCase.Traits.Count > 0)
+            var traits = testCase.Traits;
+            if (traits != null && traits.Count > 0)
             {
                 var traitsElement = new XElement("traits");
 
-                foreach (var key in testResult.TestCase.Traits.Keys)
-                    foreach (var value in testResult.TestCase.Traits[key])
+                foreach (var keyValuePair in traits)
+                    foreach (var val in keyValuePair.Value)
                         traitsElement.Add(
                             new XElement("trait",
-                                new XAttribute("name", XmlEscape(key)),
-                                new XAttribute("value", XmlEscape(value))
+                                new XAttribute("name", XmlEscape(keyValuePair.Key)),
+                                new XAttribute("value", XmlEscape(val))
                             )
                         );
 
