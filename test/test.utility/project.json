@@ -14,6 +14,7 @@
     "frameworks": {
         "net45": {
             "dependencies": {
+                "FSharp.Compiler.Service": "6.0.2",
                 "NSubstitute": "1.10.0",
                 "xunit.runner.tdnet": "99.99.99-dev"
             }

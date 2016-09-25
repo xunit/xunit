@@ -147,6 +147,93 @@ public class TestClass
         }
     }
 
+    public class FSharp
+    {
+        [Fact]
+        public void FactAcceptanceTest()
+        {
+            string code = @"
+module FSharpTests
+
+open Xunit
+
+[<Fact>]
+[<Trait(""Name!"", ""Value!"")>]
+let Trait() =
+    Assert.True(true)
+
+[<Fact(Skip = ""Skipping"")>]
+let Skipped() =
+    Assert.True(false)
+
+[<Fact(DisplayName=""Custom Test Name"")>]
+let CustomName() =
+    Assert.True(true)
+";
+
+            using (var assembly = FSharpAcceptanceTestV2Assembly.Create(code))
+            using (var controller = new TestableXunit2(assembly.FileName, null, true))
+            {
+                var sink = new TestDiscoverySink();
+
+                controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
+                sink.Finished.WaitOne();
+
+                Assert.Collection(sink.TestCases.OrderBy(tc => tc.DisplayName),
+                    testCase => Assert.Equal("Custom Test Name", testCase.DisplayName),
+                    testCase =>
+                    {
+                        Assert.Equal("FSharpTests.Skipped", testCase.DisplayName);
+                        Assert.Equal("Skipping", testCase.SkipReason);
+                    },
+                    testCase =>
+                    {
+                        Assert.Equal("FSharpTests.Trait", testCase.DisplayName);
+                        Assert.Collection(testCase.Traits,
+                            kvp =>
+                            {
+                                Assert.Equal("Name!", kvp.Key);
+                                Assert.Equal("Value!", kvp.Value.Single());
+                            }
+                        );
+                    }
+                );
+            }
+        }
+
+        [Fact]
+        public void TheoryWithInlineData()
+        {
+            string code = @"
+module FSharpTests
+
+open Xunit
+
+[<Theory>]
+[<InlineData>]
+[<InlineData(42)>]
+[<InlineData(42, 21.12)>]
+let TestMethod (x:int) =
+    Assert.True(true)
+";
+
+            using (var assembly = FSharpAcceptanceTestV2Assembly.Create(code))
+            using (var controller = new TestableXunit2(assembly.FileName, null, true))
+            {
+                var sink = new TestDiscoverySink();
+
+                controller.Find(includeSourceInformation: false, messageSink: sink, discoveryOptions: TestFrameworkOptions.ForDiscovery());
+                sink.Finished.WaitOne();
+
+                Assert.Collection(sink.TestCases.OrderBy(tc => tc.DisplayName),
+                    testCase => Assert.Equal("FSharpTests.TestMethod(x: ???)", testCase.DisplayName),
+                    testCase => Assert.Equal("FSharpTests.TestMethod(x: 42)", testCase.DisplayName),
+                    testCase => Assert.Equal("FSharpTests.TestMethod(x: 42, ???: 21.12)", testCase.DisplayName)
+                );
+            }
+        }
+    }
+
     class TestableXunit2 : Xunit2
     {
         public TestableXunit2(string assemblyFileName, string configFileName = null, bool shadowCopy = true, AppDomainSupport appDomainSupport = AppDomainSupport.Required)
