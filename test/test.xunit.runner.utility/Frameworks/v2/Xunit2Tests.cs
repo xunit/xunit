@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,7 +9,7 @@ public class Xunit2Tests
         [Fact]
         public void NoTestMethods()
         {
-            using (var assm = AcceptanceTestV2Assembly.Create(code: ""))
+            using (var assm = CSharpAcceptanceTestV2Assembly.Create(code: ""))
             using (var controller = new TestableXunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -27,16 +26,15 @@ public class Xunit2Tests
         public void SingleTestMethod()
         {
             string code = @"
-                using Xunit;
-        
-                public class Foo
-                {
-                    [Fact]
-                    public void Bar() { }
-                }
-            ";
+using Xunit;
 
-            using (var assm = AcceptanceTestV2Assembly.Create(code))
+public class Foo
+{
+    [Fact]
+    public void Bar() { }
+}";
+
+            using (var assm = CSharpAcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -49,44 +47,46 @@ public class Xunit2Tests
                 Assert.Equal("Foo.Bar", testCase.DisplayName);
             }
         }
+    }
 
+    public class CSharp
+    {
         [Fact]
         public void FactAcceptanceTest()
         {
             string code = @"
-                using System;
-                using Xunit;
-                
-                namespace Namespace1
-                {
-                    public class Class1
-                    {
-                        [Fact]
-                        [Trait(""Name!"", ""Value!"")]
-                        public void Trait() { }
-                
-                        [Fact(Skip=""Skipping"")]
-                        public void Skipped() { }
-                
-                        [Fact(DisplayName=""Custom Test Name"")]
-                        public void CustomName() { }
-                    }
-                }
-                
-                namespace Namespace2
-                {
-                    public class OuterClass
-                    {
-                        public class Class2
-                        {
-                            [Fact]
-                            public void TestMethod() { }
-                        }
-                    }
-                }
-            ";
+using System;
+using Xunit;
 
-            using (var assembly = AcceptanceTestV2Assembly.Create(code))
+namespace Namespace1
+{
+    public class Class1
+    {
+        [Fact]
+        [Trait(""Name!"", ""Value!"")]
+        public void Trait() { }
+
+        [Fact(Skip=""Skipping"")]
+        public void Skipped() { }
+
+        [Fact(DisplayName=""Custom Test Name"")]
+        public void CustomName() { }
+    }
+}
+
+namespace Namespace2
+{
+    public class OuterClass
+    {
+        public class Class2
+        {
+            [Fact]
+            public void TestMethod() { }
+        }
+    }
+}";
+
+            using (var assembly = CSharpAcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -116,20 +116,19 @@ public class Xunit2Tests
         public void TheoryWithInlineData()
         {
             string code = @"
-                using System;
-                using Xunit;
-                
-                public class TestClass
-                {
-                    [Theory]
-                    [InlineData]
-                    [InlineData(42)]
-                    [InlineData(42, 21.12)]
-                    public void TestMethod(int x) { }
-                }
-            ";
+using System;
+using Xunit;
 
-            using (var assembly = AcceptanceTestV2Assembly.Create(code))
+public class TestClass
+{
+    [Theory]
+    [InlineData]
+    [InlineData(42)]
+    [InlineData(42, 21.12)]
+    public void TestMethod(int x) { }
+}";
+
+            using (var assembly = CSharpAcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();

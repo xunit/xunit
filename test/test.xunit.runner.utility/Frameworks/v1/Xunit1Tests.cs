@@ -818,7 +818,7 @@ public class AmbiguouslyNamedTestMethods
     }
 }";
 
-            using (var assembly = AcceptanceTestV1Assembly.Create(code))
+            using (var assembly = CSharpAcceptanceTestV1Assembly.Create(code))
             using (var xunit1 = new Xunit1(AppDomainSupport.Required, new NullSourceInformationProvider(), assembly.FileName))
             {
                 var spy = new SpyMessageSink<ITestAssemblyFinished>();
