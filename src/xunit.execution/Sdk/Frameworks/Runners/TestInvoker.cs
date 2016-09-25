@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Security;
 using System.Threading;
@@ -17,6 +18,8 @@ namespace Xunit.Sdk
     public abstract class TestInvoker<TTestCase>
         where TTestCase : ITestCase
     {
+        static MethodInfo startAsTaskOpenGenericMethod;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestInvoker{TTestCase}"/> class.
         /// </summary>
@@ -147,6 +150,36 @@ namespace Xunit.Sdk
             => TestMethod.Invoke(testClassInstance, TestMethodArguments);
 
         /// <summary>
+        /// Given an object, will determine if it is an instance of <see cref="Task"/> (in which case, it is
+        /// directly returned), or an instance of <see cref="T:Microsoft.FSharp.Control.FSharpAsync`1"/>
+        /// (in which case it is converted), or neither (in which case <c>null</c> is returned).
+        /// </summary>
+        /// <param name="obj">The object to convert</param>
+        public static Task GetTaskFromResult(object obj)
+        {
+            if (obj == null)
+                return null;
+
+            var task = obj as Task;
+            if (task != null)
+                return task;
+
+            var type = obj.GetType();
+            if (type.IsGenericType() && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
+            {
+                if (startAsTaskOpenGenericMethod == null)
+                    startAsTaskOpenGenericMethod = type.GetAssembly().GetType("Microsoft.FSharp.Control.FSharpAsync")
+                                                                     .GetRuntimeMethods()
+                                                                     .FirstOrDefault(m => m.Name == "StartAsTask");
+
+                return startAsTaskOpenGenericMethod.MakeGenericMethod(type.GetGenericArguments()[0])
+                                                   .Invoke(null, new[] { obj, null, null }) as Task;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Creates the test class (if necessary), and invokes the test method.
         /// </summary>
         /// <returns>Returns the time (in seconds) spent creating the test class, running
@@ -222,7 +255,7 @@ namespace Xunit.Sdk
                             else
                             {
                                 var result = CallTestMethod(testClassInstance);
-                                var task = result as Task;
+                                var task = GetTaskFromResult(result);
                                 if (task != null)
                                     await task;
                                 else

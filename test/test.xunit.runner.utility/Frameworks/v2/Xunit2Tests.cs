@@ -232,6 +232,36 @@ let TestMethod (x:int) =
                 );
             }
         }
+
+        [Fact]
+        public void SupportsAsyncReturningMethods()
+        {
+            string code = @"
+module FSharpTests
+
+open Xunit
+
+[<Fact>]
+let AsyncFailing() =
+    async {
+        do! Async.Sleep(10)
+        Assert.True(false)
+    }
+";
+
+            using (var assembly = FSharpAcceptanceTestV2Assembly.Create(code))
+            using (var controller = new TestableXunit2(assembly.FileName, null, true))
+            {
+                var sink = new SpyMessageSink<ITestAssemblyFinished>();
+
+                controller.RunAll(sink, discoveryOptions: TestFrameworkOptions.ForDiscovery(), executionOptions: TestFrameworkOptions.ForExecution());
+                sink.Finished.WaitOne();
+
+                var failures = sink.Messages.OfType<ITestFailed>();
+                var failure = Assert.Single(failures);
+                Assert.Equal("FSharpTests.AsyncFailing", failure.TestCase.DisplayName);
+            }
+        }
     }
 
     class TestableXunit2 : Xunit2
