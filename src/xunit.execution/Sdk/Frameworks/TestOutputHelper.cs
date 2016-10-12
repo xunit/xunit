@@ -32,7 +32,7 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
-        /// Initialize the test output helper with information about a test case.
+        /// Initialize the test output helper with information about a test.
         /// </summary>
         public void Initialize(IMessageBus messageBus, ITest test)
         {
@@ -48,10 +48,10 @@ namespace Xunit.Sdk
         void GuardInitialized()
         {
             if (buffer == null)
-                throw new InvalidOperationException("There is no currently active test case.");
+                throw new InvalidOperationException("There is no currently active test.");
         }
 
-        void QueueTestCaseOutput(string output)
+        void QueueTestOutput(string output)
         {
             lock (lockObject)
             {
@@ -78,7 +78,7 @@ namespace Xunit.Sdk
         {
             Guard.ArgumentNotNull("message", message);
 
-            QueueTestCaseOutput(message + Environment.NewLine);
+            QueueTestOutput(message + Environment.NewLine);
         }
 
         /// <inheritdoc/>
@@ -87,7 +87,7 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("format", format);
             Guard.ArgumentNotNull("args", args);
 
-            QueueTestCaseOutput(string.Format(format, args) + Environment.NewLine);
+            QueueTestOutput(string.Format(format, args) + Environment.NewLine);
         }
     }
 }
