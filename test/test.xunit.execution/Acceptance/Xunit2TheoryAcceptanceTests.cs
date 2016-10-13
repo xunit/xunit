@@ -599,6 +599,59 @@ public class Xunit2TheoryAcceptanceTests
         }
 
         [Fact]
+        public void CanUseMethodDataInSubTypeFromTestInBaseType()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(SubClassWithTestData));
+
+            var passed = Assert.Single(testMessages.Cast<ITestPassed>());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+SubClassWithTestData.Test(x: 42)", passed.Test.DisplayName);
+        }
+
+        public abstract class BaseClassWithTestWithoutData
+        {
+            [Theory]
+            [MemberData("TestData")]
+            public void Test(int x)
+            {
+                Assert.Equal(42, x);
+            }
+        }
+
+        public class SubClassWithTestData : BaseClassWithTestWithoutData
+        {
+            public static IEnumerable<object[]> TestData()
+            {
+                yield return new object[] { 42 };
+            }
+        }
+
+        [Fact]
+        public void SubTypeInheritsTestsFromBaseType()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(SubClassWithNoTests));
+
+            var passed = Assert.Single(testMessages.Cast<ITestPassed>());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+SubClassWithNoTests.Test(x: 42)", passed.Test.DisplayName);
+        }
+
+        public abstract class BaseClassWithTestAndData
+        {
+            public static IEnumerable<object[]> TestData()
+            {
+                yield return new object[] { 42 };
+            }
+
+            [Theory]
+            [MemberData("TestData")]
+            public void Test(int x)
+            {
+                Assert.Equal(42, x);
+            }
+        }
+
+        public class SubClassWithNoTests : BaseClassWithTestAndData { }
+
+        [Fact]
         public void CanPassParametersToDataMethod()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithParameterizedMethodData));
