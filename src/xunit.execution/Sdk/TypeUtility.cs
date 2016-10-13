@@ -141,7 +141,7 @@ namespace Xunit.Sdk
                 {
                     // Drill down through the generic arguments of the parameter provided,
                     // and find one matching the genericType
-                    // This allows us to resolve complex generics of with any number of parameters
+                    // This allows us to resolve complex generics with any number of parameters
                     // and at any level deep
                     // e.g. Dictionary<T, U>, Dictionary<string, U>, Dictionary<T, int> etc.
                     // e.g. Dictionary<Dictionary<T, U>, List<Dictionary<V, W>>
@@ -251,15 +251,15 @@ namespace Xunit.Sdk
         /// the generic parameters and their values.
         /// </summary>
         /// <param name="genericType">The generic type to be resolved</param>
-        /// <param name="passedParameters">The parameter values being passed to the test method</param>
-        /// <param name="methodParameters">The parameter infos for the test method</param>
+        /// <param name="parameters">The parameter values being passed to the test method</param>
+        /// <param name="parameterInfos">The parameter infos for the test method</param>
         /// <returns>The best matching generic type</returns>
-        public static ITypeInfo ResolveGenericType(this ITypeInfo genericType, object[] passedParameters, IParameterInfo[] methodParameters)
+        public static ITypeInfo ResolveGenericType(this ITypeInfo genericType, object[] parameters, IParameterInfo[] parameterInfos)
         {
-            for (var idx = 0; idx < methodParameters.Length; ++idx)
+            for (var idx = 0; idx < parameterInfos.Length; ++idx)
             {
-                ITypeInfo methodParameterType = methodParameters[idx].ParameterType;
-                Type passedParameterType = passedParameters[idx]?.GetType();
+                ITypeInfo methodParameterType = parameterInfos[idx].ParameterType;
+                Type passedParameterType = parameters[idx]?.GetType();
 
                 Type matchedType = null;
                 if (ResolveGenericParameter(genericType, methodParameterType, passedParameterType, ref matchedType))
