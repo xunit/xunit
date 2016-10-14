@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -36,6 +37,41 @@ namespace Xunit.Sdk
             return $"{baseTypeName}<{string.Join(", ", simpleNames)}>";
         }
 
+        internal static object[] ResolveMethodArguments(IMethodInfo method, object[] arguments)
+        {
+            // IParameterInfo does not expose the IsOptional property, so this functionality is reflection-only.
+            MethodInfo testMethod = (method as IReflectionMethodInfo)?.MethodInfo;
+            ParameterInfo[] parameters = testMethod.GetParameters();
+            if (!parameters.Any(parameter => parameter.IsOptional))
+            {
+                // We don't need to resolve methods that have no optional parameters.
+                return arguments;
+            }
+            return ResolveOptionalMethodArguments(parameters, arguments);
+        }
+
+        private static object[] ResolveOptionalMethodArguments(ParameterInfo[] parameters, object[] arguments)
+        {
+            // We can't call a method if we have provided more parameters than the total number of parameters in the method,
+            // or if we provided fewer parameters than the number of non-optional parameters in the method.
+            int nonOptionalParameterCount = parameters.Count(p => !p.IsOptional);
+            if (arguments.Length < nonOptionalParameterCount || arguments.Length > parameters.Length)
+            {
+                return arguments;
+            }
+
+            object[] newArguments = new object[parameters.Length];
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                newArguments[i] = arguments[i];
+            }
+            for (int i = arguments.Length; i < parameters.Length; i++)
+            {
+                newArguments[i] = parameters[i].DefaultValue;
+            }
+            return newArguments;
+        }
+
         /// <summary>
         /// Formulates the extended portion of the display name for a test method. For tests with no arguments, this will
         /// return just the base name; for tests with arguments, attempts to format the arguments and appends the argument
@@ -59,9 +95,20 @@ namespace Xunit.Sdk
 
             for (idx = 0; idx < arguments.Length; idx++)
                 displayValues[idx] = ParameterToDisplayValue(GetParameterName(parameterInfos, idx), arguments[idx]);
-
-            for (; idx < parameterInfos.Length; idx++)  // Fill-in any missing parameters with "???"
-                displayValues[idx] = GetParameterName(parameterInfos, idx) + ": ???";
+            
+            IReflectionParameterInfo[] reflectionParameters = parameterInfos as IReflectionParameterInfo[];
+            for (; idx < parameterInfos.Length; idx++)
+            {
+                string parameterName = GetParameterName(parameterInfos, idx);
+                if (reflectionParameters == null || !reflectionParameters[idx].ParameterInfo.IsOptional)
+                {
+                    displayValues[idx] = parameterName + ": ???";
+                }
+                else
+                {
+                    displayValues[idx] = ParameterToDisplayValue(parameterName, reflectionParameters[idx].ParameterInfo.DefaultValue);
+                }
+            }
 
             return $"{baseDisplayName}({string.Join(", ", displayValues)})";
         }
