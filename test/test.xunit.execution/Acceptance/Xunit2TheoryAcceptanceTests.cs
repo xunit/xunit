@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -13,6 +12,103 @@ public class Xunit2TheoryAcceptanceTests
 {
     public class TheoryTests : AcceptanceTestV2
     {
+        [Fact]
+        public void OptionalParameters_Valid()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithOptionalParameters));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_NonePassed(s: null)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_OneNonNullPassed(s: ""abc"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_OneNullPassed(s: null)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneParameter_NonePassed(s: ""abc"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneParameter_OnePassed(s: ""def"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_TwoParameters_OnePassed(s: ""abc"", i: 5)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_TwoParameters_TwoPassed(s: ""abc"", i: 6)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.TwoOptional_TwoParameters_FirstOnePassed(s: ""def"", i: 5)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.TwoOptional_TwoParameters_NonePassed(s: ""abc"", i: 5)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.TwoOptional_TwoParameters_TwoPassedInOrder(s: ""def"", i: 6)", result.Test.DisplayName)
+            );
+        }
+
+        public class ClassWithOptionalParameters
+        {
+            [Theory]
+            [InlineData]
+            public void OneOptional_OneParameter_NonePassed(string s = "abc")
+            {
+                Assert.Equal("abc", s);
+            }
+
+            [Theory]
+            [InlineData("def")]
+            public void OneOptional_OneParameter_OnePassed(string s = "abc")
+            {
+                Assert.Equal("def", s);
+            }
+
+            [Theory]
+            [InlineData]
+            public void OneOptional_OneNullParameter_NonePassed(string s = null)
+            {
+                Assert.Null(s);
+            }
+
+            [Theory]
+            [InlineData("abc")]
+            public void OneOptional_OneNullParameter_OneNonNullPassed(string s = null)
+            {
+                Assert.Equal("abc", s);
+            }
+
+            [Theory]
+            [InlineData(null)]
+            public void OneOptional_OneNullParameter_OneNullPassed(string s = null)
+            {
+                Assert.Null(s);
+            }
+
+            [Theory]
+            [InlineData("abc")]
+            public void OneOptional_TwoParameters_OnePassed(string s, int i = 5)
+            {
+                Assert.Equal("abc", s);
+                Assert.Equal(5, i);
+            }
+
+            [Theory]
+            [InlineData("abc", 6)]
+            public void OneOptional_TwoParameters_TwoPassed(string s, int i = 5)
+            {
+                Assert.Equal("abc", s);
+                Assert.Equal(6, i);
+            }
+
+            [Theory]
+            [InlineData]
+            public void TwoOptional_TwoParameters_NonePassed(string s = "abc", int i = 5)
+            {
+                Assert.Equal("abc", s);
+                Assert.Equal(5, i);
+            }
+
+            [Theory]
+            [InlineData("def")]
+            public void TwoOptional_TwoParameters_FirstOnePassed(string s = "abc", int i = 5)
+            {
+                Assert.Equal("def", s);
+                Assert.Equal(5, i);
+            }
+
+            [Theory]
+            [InlineData("def", 6)]
+            public void TwoOptional_TwoParameters_TwoPassedInOrder(string s = "abc", int i = 5)
+            {
+                Assert.Equal("def", s);
+                Assert.Equal(6, i);
+            }
+        }
+
         [Fact]
         public void Skipped()
         {

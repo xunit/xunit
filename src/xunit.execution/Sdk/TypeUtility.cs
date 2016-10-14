@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -39,6 +37,34 @@ namespace Xunit.Sdk
         }
 
         /// <summary>
+        /// Resolves argument values for the test method, including support for optional method
+        /// arguments.
+        /// </summary>
+        /// <param name="testMethod">The test method to resolve.</param>
+        /// <param name="arguments">The user-supplied method arguments.</param>
+        /// <returns>The argument values</returns>
+        public static object[] ResolveMethodArguments(MethodInfo testMethod, object[] arguments)
+        {
+            var parameters = testMethod.GetParameters();
+            if (!parameters.Any(parameter => parameter.IsOptional))
+                return arguments;
+
+            // We can't call a method if we have provided more parameters than the total number of parameters in the method,
+            // or if we provided fewer parameters than the number of non-optional parameters in the method.
+            var nonOptionalParameterCount = parameters.Count(p => !p.IsOptional);
+            if (arguments.Length < nonOptionalParameterCount || arguments.Length > parameters.Length)
+                return arguments;
+
+            var newArguments = new object[parameters.Length];
+            for (int i = 0; i < arguments.Length; i++)
+                newArguments[i] = arguments[i];
+            for (int i = arguments.Length; i < parameters.Length; i++)
+                newArguments[i] = parameters[i].DefaultValue;
+
+            return newArguments;
+        }
+
+        /// <summary>
         /// Formulates the extended portion of the display name for a test method. For tests with no arguments, this will
         /// return just the base name; for tests with arguments, attempts to format the arguments and appends the argument
         /// list to the test name.
@@ -62,8 +88,15 @@ namespace Xunit.Sdk
             for (idx = 0; idx < arguments.Length; idx++)
                 displayValues[idx] = ParameterToDisplayValue(GetParameterName(parameterInfos, idx), arguments[idx]);
 
-            for (; idx < parameterInfos.Length; idx++)  // Fill-in any missing parameters with "???"
-                displayValues[idx] = GetParameterName(parameterInfos, idx) + ": ???";
+            for (; idx < parameterInfos.Length; idx++)
+            {
+                var reflectionParameterInfo = parameterInfos[idx] as IReflectionParameterInfo;
+                var parameterName = GetParameterName(parameterInfos, idx);
+                if (reflectionParameterInfo?.ParameterInfo.IsOptional ?? false)
+                    displayValues[idx] = ParameterToDisplayValue(parameterName, reflectionParameterInfo.ParameterInfo.DefaultValue);
+                else
+                    displayValues[idx] = parameterName + ": ???";
+            }
 
             return $"{baseDisplayName}({string.Join(", ", displayValues)})";
         }

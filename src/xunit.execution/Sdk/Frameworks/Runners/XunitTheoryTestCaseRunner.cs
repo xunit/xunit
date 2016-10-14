@@ -67,15 +67,17 @@ namespace Xunit.Sdk
 
                         ITypeInfo[] resolvedTypes = null;
                         var methodToRun = TestMethod;
+                        var convertedDataRow = TypeUtility.ResolveMethodArguments(methodToRun, dataRow);
 
                         if (methodToRun.IsGenericMethodDefinition)
                         {
-                            resolvedTypes = TestCase.TestMethod.Method.ResolveGenericTypes(dataRow);
+                            resolvedTypes = TestCase.TestMethod.Method.ResolveGenericTypes(convertedDataRow);
                             methodToRun = methodToRun.MakeGenericMethod(resolvedTypes.Select(t => ((IReflectionTypeInfo)t).Type).ToArray());
                         }
 
                         var parameterTypes = methodToRun.GetParameters().Select(p => p.ParameterType).ToArray();
-                        var convertedDataRow = Reflector.ConvertArguments(dataRow, parameterTypes);
+                        convertedDataRow = Reflector.ConvertArguments(convertedDataRow, parameterTypes);
+
                         var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
                         var test = new XunitTest(TestCase, theoryDisplayName);
                         var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip");
