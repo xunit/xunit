@@ -20,7 +20,19 @@ public class xunitTests
 
             xunit.Execute();
 
-            Assert.Equal(tempFolder, Directory.GetCurrentDirectory());
+            string actual = Directory.GetCurrentDirectory();
+            string expected = tempFolder;
+
+            if (actual[actual.Length - 1] != Path.DirectorySeparatorChar)
+            {
+                actual += Path.DirectorySeparatorChar;
+            }
+            if (expected[expected.Length - 1] != Path.DirectorySeparatorChar)
+            {
+                expected += Path.DirectorySeparatorChar;
+            }
+
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
