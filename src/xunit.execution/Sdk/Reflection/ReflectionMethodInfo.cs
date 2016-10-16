@@ -173,12 +173,23 @@ namespace Xunit.Sdk
             return MethodInfo.ToString();
         }
 
+        private IEnumerable<IParameterInfo> _cachedParameters = null;
+
         /// <inheritdoc/>
         public IEnumerable<IParameterInfo> GetParameters()
         {
-            return MethodInfo.GetParameters()
-                             .Select(p => Reflector.Wrap(p))
-                             .ToArray();
+            if (_cachedParameters == null)
+            {
+                ParameterInfo[] parameters = MethodInfo.GetParameters();
+
+                IParameterInfo[] iParameters = new IParameterInfo[parameters.Length];
+                for (int i = 0; i < iParameters.Length; i++)
+                {
+                    iParameters[i] = Reflector.Wrap(parameters[i]);
+                }
+                _cachedParameters = iParameters;
+            }
+            return _cachedParameters;
         }
 
         class GenericTypeComparer : IEqualityComparer
