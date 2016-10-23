@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,7 @@ namespace Xunit.Sdk
     public class ReflectionAttributeInfo : LongLivedMarshalByRefObject, IReflectionAttributeInfo
     {
         static readonly AttributeUsageAttribute DefaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
+        static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new ConcurrentDictionary<Type, AttributeUsageAttribute>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflectionAttributeInfo"/> class.
@@ -52,8 +54,9 @@ namespace Xunit.Sdk
 
         internal static AttributeUsageAttribute GetAttributeUsage(Type attributeType)
         {
-            return (AttributeUsageAttribute)attributeType.GetTypeInfo().GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
-                ?? DefaultAttributeUsageAttribute;
+            return attributeUsageCache.GetOrAdd(attributeType,
+                at => (AttributeUsageAttribute)at.GetTypeInfo().GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
+                      ?? DefaultAttributeUsageAttribute);
         }
 
         /// <inheritdoc/>
@@ -70,7 +73,7 @@ namespace Xunit.Sdk
 
         internal static IEnumerable<IAttributeInfo> GetCustomAttributes(Type type, string assemblyQualifiedAttributeTypeName)
         {
-            Type attributeType = SerializationHelper.GetType(assemblyQualifiedAttributeTypeName);
+            Type attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
 
             return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
         }

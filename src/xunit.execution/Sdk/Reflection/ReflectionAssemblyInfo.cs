@@ -59,7 +59,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
-            var attributeType = SerializationHelper.GetType(assemblyQualifiedAttributeTypeName);
+            var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
             Guard.ArgumentValid("assemblyQualifiedAttributeTypeName", "Could not locate type name", attributeType != null);
 
             return Assembly.CustomAttributes
