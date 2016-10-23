@@ -60,6 +60,34 @@ public class TraitHelperTests
         );
     }
 
+    [Fact]
+    public void MethodWithInheritedCustomTraitAttribute_ReturnsTraitValues()
+    {
+        var method = typeof(ClassUnderTest).GetMethod("InheritedTrait");
+
+        var traits = TraitHelper.GetTraits(method);
+
+        Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
+            value => Assert.Equal("Baz = 2112", value),
+            value => Assert.Equal("Foo = Biff", value)
+        );
+    }
+
+    [Fact]
+    public void CombinesInheritedMultipleTraitSources()
+    {
+        var method = typeof(ClassUnderTest).GetMethod("InheritedMultipleTraits");
+
+        var traits = TraitHelper.GetTraits(method);
+
+        Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
+            value => Assert.Equal("Baz = 2112", value),
+            value => Assert.Equal("foo = bar", value),
+            value => Assert.Equal("Foo = Biff", value),
+            value => Assert.Equal("Hello = World", value)
+        );
+    }
+
     class ClassUnderTest
     {
         [Obsolete]    // Irrelevant attribute
@@ -75,7 +103,17 @@ public class TraitHelperTests
         [Trait("Hello", "World")]
         [CustomTrait]
         public void MultipleTraits() { }
+
+        [InheritedCustomTrait]
+        public void InheritedTrait() { }
+
+        [Trait("foo", "bar")]
+        [Trait("Hello", "World")]
+        [InheritedCustomTrait]
+        public void InheritedMultipleTraits() { }
     }
+
+    class InheritedCustomTrait : CustomTraitAttribute { }
 
     [TraitDiscoverer("TraitHelperTests+CustomTraitDiscoverer", "test.xunit.execution")]
     class CustomTraitAttribute : Attribute, ITraitAttribute { }

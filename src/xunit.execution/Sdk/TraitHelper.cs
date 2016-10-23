@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -25,7 +26,7 @@ namespace Xunit.Sdk
                 if (!typeof(ITraitAttribute).GetTypeInfo().IsAssignableFrom(traitAttributeType.GetTypeInfo()))
                     continue;
 
-                var discovererAttributeData = traitAttributeType.GetTypeInfo().CustomAttributes.FirstOrDefault(cad => cad.AttributeType == typeof(TraitDiscovererAttribute));
+                var discovererAttributeData = FindDiscovererAttributeType(traitAttributeType.GetTypeInfo());
                 if (discovererAttributeData == null)
                     continue;
 
@@ -37,6 +38,22 @@ namespace Xunit.Sdk
                 if (traits != null)
                     result.AddRange(traits);
             }
+
+            return result;
+        }
+
+        static CustomAttributeData FindDiscovererAttributeType(TypeInfo traitAttribute)
+        {
+            var traitDiscovererType = typeof(TraitDiscovererAttribute);
+            Func<CustomAttributeData, bool> isTraitDiscovererAttribute = t => t.AttributeType == typeof(TraitDiscovererAttribute);
+
+            var typeChecking = traitAttribute;
+            CustomAttributeData result;
+            do
+            {
+                result = typeChecking.CustomAttributes.FirstOrDefault(isTraitDiscovererAttribute);
+                typeChecking = traitAttribute.BaseType.GetTypeInfo();
+            } while (result == null && typeChecking != null);
 
             return result;
         }
