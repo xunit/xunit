@@ -137,10 +137,18 @@ namespace Xunit.Serialization
                 return ulong.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(float?) || type == typeof(float))
-                return float.Parse(serializedValue, CultureInfo.InvariantCulture);
+            {
+                var arrSer = (ArraySerializer)DeserializeSerializable(typeof(ArraySerializer), serializedValue);
+                byte[] bytes = (byte[])arrSer.ArrayData;
+                return BitConverter.ToSingle(bytes, 0);
+            }
 
             if (type == typeof(double?) || type == typeof(double))
-                return double.Parse(serializedValue, CultureInfo.InvariantCulture);
+            {
+                var arrSer = (ArraySerializer)DeserializeSerializable(typeof(ArraySerializer), serializedValue);
+                byte[] bytes = (byte[])arrSer.ArrayData;
+                return BitConverter.ToDouble(bytes, 0);
+            }
 
             if (type == typeof(decimal?) || type == typeof(decimal))
                 return decimal.Parse(serializedValue, CultureInfo.InvariantCulture);
@@ -259,11 +267,21 @@ namespace Xunit.Serialization
 
             var floatData = value as float?;
             if (floatData != null)
-                return floatData.GetValueOrDefault().ToString("R", CultureInfo.InvariantCulture);
+            {
+                var info = new XunitSerializationInfo();
+                var arraySer = new ArraySerializer(BitConverter.GetBytes(floatData.GetValueOrDefault()));
+                arraySer.Serialize(info);
+                return info.ToSerializedString();
+            }
 
             var doubleData = value as double?;
             if (doubleData != null)
-                return doubleData.GetValueOrDefault().ToString("R", CultureInfo.InvariantCulture);
+            {
+                var info = new XunitSerializationInfo();
+                var arraySer = new ArraySerializer(BitConverter.GetBytes(doubleData.GetValueOrDefault()));
+                arraySer.Serialize(info);
+                return info.ToSerializedString();
+            }
 
             var decimalData = value as decimal?;
             if (decimalData != null)
