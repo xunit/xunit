@@ -414,22 +414,73 @@ namespace Xunit.Serialization
 
             public void Serialize(IXunitSerializationInfo info)
             {
-                info.AddValue("Length", array.Length);
                 info.AddValue("ElementType", SerializationHelper.GetTypeNameForSerialization(elementType));
+                info.AddValue("Rank", array.Rank);
+                info.AddValue("TotalLength", array.Length);
 
-                for (var i = 0; i < array.Length; i++)
-                    info.AddValue("Item" + i, array.GetValue(i));
+                for (int dimension = 0; dimension < array.Rank; dimension++)
+                {
+                    info.AddValue("Length" + dimension, array.GetLength(dimension));
+                }
+                for (int dimension = 0; dimension < array.Rank; dimension++)
+                {
+                    info.AddValue("LowerBound" + dimension, array.GetLowerBound(dimension));
+                }
+
+                int i = 0;
+                foreach (object obj in array)
+                {
+                    info.AddValue("Item" + i, obj);
+                    i++;
+                }
             }
 
             public void Deserialize(IXunitSerializationInfo info)
             {
-                var len = info.GetValue<int>("Length");
                 var arrType = SerializationHelper.GetType(info.GetValue<string>("ElementType"));
+                var rank = info.GetValue<int>("Rank");
+                var totalLength = info.GetValue<int>("TotalLength");
 
-                array = Array.CreateInstance(arrType, len);
+                int[] lengths = new int[rank];
+                int[] lowerBounds = new int[rank];
+                for (int i = 0; i < lengths.Length; i++)
+                {
+                    lengths[i] = info.GetValue<int>("Length" + i);
+                    lowerBounds[i] = info.GetValue<int>("LowerBound" + i);
+                }
 
-                for (var i = 0; i < array.Length; i++)
-                    array.SetValue(info.GetValue("Item" + i, arrType), i);
+                array = Array.CreateInstance(arrType, lengths, lowerBounds);
+                    
+                int[] indices = new int[rank];
+                for (int i = 0; i < indices.Length; i++)
+                {
+                    indices[i] = lowerBounds[i];
+                }
+                for (int i = 0; i < totalLength; i++)
+                {
+                    bool complete = false;
+                    for (int dim = rank - 1; dim >= 0; dim--)
+                    {
+                        if (indices[dim] >= lowerBounds[dim] + lengths[dim])
+                        {
+                            if (dim == 0)
+                            {
+                                complete = true;
+                                break;
+                            }
+                            for (int j = dim; j < rank; j++)
+                                indices[j] = lowerBounds[dim];
+                            indices[dim - 1]++;
+                        }
+                    }
+                    if (complete)
+                    {
+                        break;
+                    }
+                    object item = info.GetValue("Item" + i, arrType);
+                    array.SetValue(item, indices);
+                    indices[rank - 1]++;
+                }
             }
         }
     }

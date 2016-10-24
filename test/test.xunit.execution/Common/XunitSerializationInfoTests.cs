@@ -68,6 +68,15 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(Type), null };
             yield return new object[] { typeof(MyEnum[]), new MyEnum[] { MyEnum.SomeValue, MyEnum.OtherValue } };
             yield return new object[] { typeof(object[]), new object[] { char.MaxValue, byte.MaxValue, short.MinValue, ushort.MaxValue, int.MinValue, uint.MaxValue, long.MinValue, ulong.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, MyEnum.SomeValue, DateTime.Now, DateTimeOffset.UtcNow, typeof(decimal) } };
+            yield return new object[] { typeof(int[,]), new int[,] { { 1, 2 }, { 3, 4 } } };
+            yield return new object[] { typeof(int[,]), new int[,] { { 1, 2, 3 }, { 4, 5, 6 } } };
+            yield return new object[] { typeof(int[,,]), new int[,,] { { { 1, 2 }, { 3, 4 } }, { { 4, 5 }, { 6, 7 } } } };
+
+            Array nonZeroLowerBoundSingleDimensionArray = Array.CreateInstance(typeof(int), new int[] { 1 }, new int[] { 2 });
+            yield return new object[] { nonZeroLowerBoundSingleDimensionArray.GetType(), nonZeroLowerBoundSingleDimensionArray };
+
+            Array nonZeroLowerBoundMultiDimensionArray = Array.CreateInstance(typeof(int), new int[] { 1, 2 }, new int[] { 3, 4 });
+            yield return new object[] { nonZeroLowerBoundMultiDimensionArray.GetType(), nonZeroLowerBoundMultiDimensionArray };
         }
     }
 
