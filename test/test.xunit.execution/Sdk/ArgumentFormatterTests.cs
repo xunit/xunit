@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 public class ArgumentFormatterTests
@@ -49,6 +50,10 @@ public class ArgumentFormatterTests
         public static IEnumerable<object[]> StringValue_TestData()
         {
             yield return new object[] { "\uD800", @"""\xd800""" };
+            yield return new object[] { "\uDC00", @"""\xdc00""" };
+            yield return new object[] { "\uDC00\uD800", @"""\xdc00\xd800""" };
+            yield return new object[] { "\uFFFD", "\"\uFFFD\"" };
+            yield return new object[] { "\uFFFE", @"""\xfffe""" };
         }
 
         [Theory]
@@ -59,6 +64,7 @@ public class ArgumentFormatterTests
         [InlineData("\uFFFF", @"""\xffff""")] // and U+FFFF, which are non-characters
         [InlineData("\u001F", @"""\x1f""")] // non-escaped C0 controls should be 2 digits
         // Other escape sequences
+        [InlineData("\0", @"""\0""")] // null
         [InlineData("\r", @"""\r""")] // carriage return
         [InlineData("\n", @"""\n""")] // line feed
         [InlineData("\a", @"""\a""")] // alert
@@ -72,6 +78,14 @@ public class ArgumentFormatterTests
         public static void StringValue(string value, string expected)
         {
             Assert.Equal(expected, ArgumentFormatter.Format(value));
+        }
+
+        public static IEnumerable<object[]> CharValue_TestData()
+        {
+            yield return new object[] { '\uD800', "0xd800" };
+            yield return new object[] { '\uDC00', "0xdc00" };
+            yield return new object[] { '\uFFFD', "'\uFFFD'" };
+            yield return new object[] { '\uFFFE', "0xfffe" };
         }
 
         [Theory]
@@ -97,6 +111,7 @@ public class ArgumentFormatterTests
         // Unprintable
         [InlineData(char.MinValue, @"'\0'")]
         [InlineData(char.MaxValue, "0xffff")]
+        [MemberData(nameof(CharValue_TestData))]
         public static void CharacterValue(char value, string expected)
         {
             Assert.Equal(expected, ArgumentFormatter.Format(value));
