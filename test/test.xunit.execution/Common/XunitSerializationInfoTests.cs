@@ -42,6 +42,11 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(float?), float.MinValue };
             yield return new object[] { typeof(float?), null };
             yield return new object[] { typeof(double), double.MaxValue };
+            yield return new object[] { typeof(double), double.PositiveInfinity };
+            yield return new object[] { typeof(double), double.NegativeInfinity };
+            yield return new object[] { typeof(double), 0.0 };
+            yield return new object[] { typeof(double), -0.0 };
+            yield return new object[] { typeof(double), double.NaN };
             yield return new object[] { typeof(double?), double.MinValue };
             yield return new object[] { typeof(double?), null };
             yield return new object[] { typeof(decimal), decimal.MaxValue };
@@ -75,6 +80,30 @@ public class XunitSerializationInfoTests
         public static void CanRoundTripIntrinsics(Type dataType, object data)
         {
             Assert.Equal(data, XunitSerializationInfo.Deserialize(dataType, XunitSerializationInfo.Serialize(data)));
+        }
+
+        [Theory]
+        [InlineData(0.0, false)]
+        [InlineData(-0.0, true)]
+        public void SerializesNegativeZeroFloatCorrectly(double value, bool isNegativeZero)
+        {
+            double expected = isNegativeZero ? -0.0 : 0.0;
+            long expectedBits = BitConverter.DoubleToInt64Bits(expected);
+            long actualBits = BitConverter.DoubleToInt64Bits(value);
+
+            Assert.Equal(expectedBits, actualBits);
+        }
+
+        [Theory]
+        [InlineData(0.0f, false)]
+        [InlineData(-0.0f, true)]
+        public void SerializesNegativeZeroDoubleCorrectly(float value, bool isNegativeZero)
+        {
+            float expected = isNegativeZero ? -0.0f : 0.0f;
+            byte[] expectedBytes = BitConverter.GetBytes(expected);
+            byte[] actualBytes = BitConverter.GetBytes(value);
+
+            Assert.Equal(expectedBytes, actualBytes);
         }
 
         [Fact]
