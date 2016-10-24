@@ -235,10 +235,18 @@ namespace Xunit.Sdk
             Traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             Method = TestMethod.Method;
 
-            if (TestMethodArguments != null && method.IsGenericMethodDefinition)
+            if (TestMethodArguments != null)
             {
-                methodGenericTypes = Method.ResolveGenericTypes(TestMethodArguments);
-                Method = Method.MakeGenericMethod(MethodGenericTypes);
+                IReflectionMethodInfo reflectionMethod = Method as IReflectionMethodInfo;
+                if (reflectionMethod != null)
+                {
+                    TestMethodArguments = reflectionMethod.MethodInfo.ResolveMethodArguments(TestMethodArguments);
+                }
+                if (method.IsGenericMethodDefinition)
+                {
+                    methodGenericTypes = Method.ResolveGenericTypes(TestMethodArguments);
+                    Method = Method.MakeGenericMethod(MethodGenericTypes);
+                }
             }
 
             var baseDisplayName = BaseDisplayName;

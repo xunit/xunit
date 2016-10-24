@@ -43,22 +43,70 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method to resolve.</param>
         /// <param name="arguments">The user-supplied method arguments.</param>
         /// <returns>The argument values</returns>
-        public static object[] ResolveMethodArguments(MethodInfo testMethod, object[] arguments)
+        public static object[] ResolveMethodArguments(this MethodInfo testMethod, object[] arguments)
         {
             var parameters = testMethod.GetParameters();
-            if (!parameters.Any(parameter => parameter.IsOptional))
+            bool hasOptionalParameters = parameters.Any(parameter => parameter.IsOptional);
+            bool hasParamsParameter = false;
+            if (parameters.Length > 0)
+            {
+                // Params can only be added at the end of the parameter list
+                hasParamsParameter = parameters[parameters.Length - 1].GetCustomAttribute(typeof(ParamArrayAttribute)) != null;
+            }
+
+            if (!hasOptionalParameters && !hasParamsParameter)
                 return arguments;
 
-            // We can't call a method if we have provided more parameters than the total number of parameters in the method,
-            // or if we provided fewer parameters than the number of non-optional parameters in the method.
-            var nonOptionalParameterCount = parameters.Count(p => !p.IsOptional);
-            if (arguments.Length < nonOptionalParameterCount || arguments.Length > parameters.Length)
+            int nonOptionalParameterCount = parameters.Count(p => !p.IsOptional);
+            if (hasParamsParameter)
+                nonOptionalParameterCount--;
+
+            // We can't call a method if we provided fewer parameters than the number of non-optional parameters in the method.
+            if (arguments.Length < nonOptionalParameterCount)
                 return arguments;
 
-            var newArguments = new object[parameters.Length];
-            for (int i = 0; i < arguments.Length; i++)
+            // We can't call a non-params method if we have provided more parameters than the total number of parameters in the method.
+            if (!hasParamsParameter && arguments.Length > parameters.Length)
+                return arguments;
+
+            object[] newArguments = new object[parameters.Length];
+            int resolvedArgumentsCount = 0;
+            if (hasParamsParameter)
+            {
+                ParameterInfo paramsParameter = parameters[parameters.Length - 1];
+                Type paramsElementType = paramsParameter.ParameterType.GetElementType();
+
+                if (arguments.Length < parameters.Length)
+                {
+                    // Didn't include the params parameter
+                    Array emptyParamsArray = Array.CreateInstance(paramsElementType, 0);
+                    newArguments[newArguments.Length - 1] = emptyParamsArray;
+                }
+                else if (arguments.Length == parameters.Length &&
+                    (arguments[arguments.Length - 1] == null ||
+                    (arguments[arguments.Length - 1].GetType().IsArray &&
+                    arguments[arguments.Length - 1].GetType().GetElementType() == paramsElementType)))
+                {
+                    // Passing null or the same type array as the params parameter
+                    newArguments[newArguments.Length - 1] = arguments[arguments.Length - 1];
+                    resolvedArgumentsCount = 1;
+                }
+                else
+                {
+                    // Parameters need adjusting into an array
+                    int paramsArrayLength = arguments.Length - parameters.Length + 1;
+                    Array paramsArray = Array.CreateInstance(paramsElementType, paramsArrayLength);
+                    Array.Copy(arguments, parameters.Length - 1, paramsArray, 0, paramsArray.Length);
+                    newArguments[newArguments.Length - 1] = paramsArray;
+                    resolvedArgumentsCount = paramsArrayLength;
+                }
+            }
+
+            for (int i = 0; i < arguments.Length - resolvedArgumentsCount; i++)
                 newArguments[i] = arguments[i];
-            for (int i = arguments.Length; i < parameters.Length; i++)
+
+            int unresolvedParametersCount = hasParamsParameter ? parameters.Length - 1 : parameters.Length;
+            for (int i = arguments.Length; i < unresolvedParametersCount; i++)
                 newArguments[i] = parameters[i].DefaultValue;
 
             return newArguments;
