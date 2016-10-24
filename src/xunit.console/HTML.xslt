@@ -52,7 +52,7 @@
           <b>Summary</b>
         </h3>
         <div>
-          Tests run: <a href="#all"><b><xsl:value-of select="sum(//assembly/@total)"/></b></a> &#160;
+          Tests run: <a href="#all"><b><xsl:value-of select="sum(//assembly/@total)"/></b></a> &#x2014;
           <xsl:if test="sum(//assembly/@errors) > 0">
             Errors: <a href="#errors"><b><xsl:value-of select="sum(//assembly/@errors)"/></b></a>,
           </xsl:if>
@@ -62,7 +62,8 @@
           <xsl:if test="sum(//assembly/@skipped) > 0">
             Skipped: <a href="#skipped"><b><xsl:value-of select="sum(//assembly/@skipped)"/></b></a>,
           </xsl:if>
-          Run time: <b><xsl:value-of select="format-number(sum(//assembly/@time), '0.000')"/>s</b>
+          Run time: <b><xsl:value-of select="format-number(sum(//assembly/@time), '0.000')"/>s</b>,
+          Finished: <b><xsl:value-of select="//assemblies/@timestamp"/></b>
         </div>
         <xsl:if test="//assembly/errors/error">
           <br />
