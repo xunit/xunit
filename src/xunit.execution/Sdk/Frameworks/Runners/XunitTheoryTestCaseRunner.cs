@@ -61,7 +61,13 @@ namespace Xunit.Sdk
                     var discovererType = SerializationHelper.GetType(args[1], args[0]);
                     var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererType);
 
-                    foreach (var dataRow in discoverer.GetData(dataAttribute, TestCase.TestMethod.Method))
+                    IEnumerable<object[]> data = discoverer.GetData(dataAttribute, TestCase.TestMethod.Method);
+                    if (data == null)
+                    {
+                        Aggregator.Add(new InvalidOperationException($"Test data returned null for {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
+                        continue;
+                    }
+                    foreach (var dataRow in data)
                     {
                         toDispose.AddRange(dataRow.OfType<IDisposable>());
 
