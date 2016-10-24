@@ -28,6 +28,33 @@ public class TheoryDiscovererTests : AcceptanceTestV2
     }
 
     [Fact]
+    public void NullMemberData_ThrowsInvalidOperationException()
+    {
+        var results = Run<ITestFailed>(typeof(NullDataClass));
+
+        var failure = Assert.Single(results);
+        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
+        Assert.Equal("Test data returned null for TheoryDiscovererTests+NullDataClass.NullMemberData. Make sure it is statically initialized before this test method is called.", failure.Messages.Single());
+    }
+
+    public class NullDataClass
+    {
+        public static IEnumerable<object[]> InitializedInConstructor;
+
+        public NullDataClass()
+        {
+            InitializedInConstructor = new List<object[]>
+            {
+                new object[] { "1", "2"}
+            };
+        }
+
+        [Theory]
+        [MemberData(nameof(InitializedInConstructor))]
+        public void NullMemberData(string str1, string str2) { }
+    }
+
+    [Fact]
     public void EmptyTheoryData()
     {
         var failures = Run<ITestFailed>(typeof(EmptyTheoryDataClass));

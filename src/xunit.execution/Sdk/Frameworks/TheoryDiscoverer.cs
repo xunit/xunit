@@ -111,9 +111,16 @@ namespace Xunit.Sdk
                         if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
                             return new[] { CreateTestCaseForTheory(discoveryOptions, testMethod, theoryAttribute) };
 
-                        // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it
-                        // down below so that we get the composite test case.
-                        foreach (var dataRow in discoverer.GetData(dataAttribute, testMethod.Method))
+                        IEnumerable<object[]> data = discoverer.GetData(dataAttribute, testMethod.Method);
+                        if (data == null)
+                        {
+                            results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
+                                          discoveryOptions.MethodDisplayOrDefault(),
+                                          testMethod,
+                                          $"Test data returned null for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
+                            continue;
+                        }
+                        foreach (var dataRow in data)
                         {
                             // Determine whether we can serialize the test case, since we need a way to uniquely
                             // identify a test and serialization is the best way to do that. If it's not serializable,
