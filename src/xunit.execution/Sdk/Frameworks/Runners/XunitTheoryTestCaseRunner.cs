@@ -73,7 +73,7 @@ namespace Xunit.Sdk
 
                         ITypeInfo[] resolvedTypes = null;
                         var methodToRun = TestMethod;
-                        var convertedDataRow = TypeUtility.ResolveMethodArguments(methodToRun, dataRow);
+                        var convertedDataRow = methodToRun.ResolveMethodArguments(dataRow);
 
                         if (methodToRun.IsGenericMethodDefinition)
                         {

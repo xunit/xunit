@@ -110,6 +110,140 @@ public class Xunit2TheoryAcceptanceTests
         }
 
         [Fact]
+        public void ParamsParameters_Valid()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithParamsParameters));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_ManyPassed(array: [1, 2, 3, 4, 5, ...])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_NonePassed(array: [])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_MatchingArray(array: [1])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_NonArray(array: [1])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_NonMatchingArray(array: [[1]])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_Null(array: null)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OptionalParameters_ManyPassed(s: ""def"", i: 2, array: [3, 4, 5])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OptionalParameters_NonePassed(s: ""abc"", i: 1, array: [])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_ManyPassed(i: 1, array: [2, 3, 4, 5, 6])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_NullPassed(i: 1, array: null)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_OnePassed(i: 1, array: [])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_OnePassed_MatchingArray(i: 1, array: [2])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_OnePassed_NonArray(i: 1, array: [2])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_OnePassed_NonMatchingArray(i: 1, array: [[2]])", result.Test.DisplayName)
+            );
+        }
+
+        public class ClassWithParamsParameters
+        {
+            [Theory]
+            [InlineData]
+            public void OneParameter_NonePassed(params object[] array)
+            {
+                Assert.Empty(array);
+            }
+
+            [Theory]
+            [InlineData(null)]
+            public void OneParameter_OnePassed_Null(params object[] array)
+            {
+                Assert.Null(array);
+            }
+
+            [Theory]
+            [InlineData(1)]
+            public void OneParameter_OnePassed_NonArray(params object[] array)
+            {
+                Assert.Equal(new object[] { 1 }, array);
+            }
+
+            [Theory]
+            [InlineData(new object[] { new object[] { 1 } })]
+            public void OneParameter_OnePassed_MatchingArray(params object[] array)
+            {
+                Assert.Equal(new object[] { 1 }, array);
+            }
+
+            [Theory]
+            [InlineData(new int[] { 1 })]
+            public void OneParameter_OnePassed_NonMatchingArray(params object[] array)
+            {
+                Assert.Equal(new object[] { new int[] { 1 } }, array);
+            }
+
+            [Theory]
+            [InlineData(1, 2, 3, 4, 5, 6)]
+            public void OneParameter_ManyPassed(params object[] array)
+            {
+                Assert.Equal(new object[] { 1, 2, 3, 4, 5, 6 }, array);
+            }
+
+            [Theory]
+            [InlineData(1)]
+            public void TwoParameters_OnePassed(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Empty(array);
+            }
+
+            [Theory]
+            [InlineData(1, null)]
+            public void TwoParameters_NullPassed(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Null(array);
+            }
+
+            [Theory]
+            [InlineData(1, 2)]
+            public void TwoParameters_OnePassed_NonArray(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Equal(new object[] { 2 }, array);
+            }
+
+            [Theory]
+            [InlineData(1, new object[] { 2 })]
+            public void TwoParameters_OnePassed_MatchingArray(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Equal(new object[] { 2 }, array);
+            }
+
+            [Theory]
+            [InlineData(1, new int[] { 2 })]
+            public void TwoParameters_OnePassed_NonMatchingArray(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Equal(new object[] { new int[] { 2 } }, array);
+            }
+
+            [Theory]
+            [InlineData(1, 2, 3, 4, 5, 6)]
+            public void TwoParameters_ManyPassed(int i, params object[] array)
+            {
+                Assert.Equal(i, 1);
+                Assert.Equal(new object[] { 2, 3, 4, 5, 6 }, array);
+            }
+
+            [Theory]
+            [InlineData]
+            public void OptionalParameters_NonePassed(string s = "abc", int i = 1, params object[] array)
+            {
+                Assert.Equal("abc", s);
+                Assert.Equal(1, i);
+                Assert.Empty(array);
+            }
+
+            [Theory]
+            [InlineData("def", 2, 3, 4, 5)]
+            public void OptionalParameters_ManyPassed(string s = "abc", int i = 1, params object[] array)
+            {
+                Assert.Equal("def", s);
+                Assert.Equal(2, i);
+                Assert.Equal(new object[] { 3, 4, 5 }, array);
+            }
+        }
+
+        [Fact]
         public void Skipped()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));

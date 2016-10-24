@@ -47,8 +47,7 @@ namespace Xunit.Sdk
             var parameterTypes = new Type[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
                 parameterTypes[i] = parameters[i].ParameterType;
-
-            testMethodArguments = TypeUtility.ResolveMethodArguments(TestMethod, testMethodArguments);
+            
             TestMethodArguments = Reflector.ConvertArguments(testMethodArguments, parameterTypes);
 
             IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
