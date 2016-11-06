@@ -180,7 +180,7 @@ public class XunitFiltersTests
             var method2 = Mocks.TestCase<Namespace1.ClassInNamespace1.InnerClass1>("Name2");
             var method3 = Mocks.TestCase<Namespace1.ClassInNamespace1.InnerClass1>("Name3");
             filters.IncludedMethods.Add("Namespace1.ClassInNamespace1+InnerClass1.Name1");
-            filters.AddIncludedMethod("Namespace1.ClassInNamespace1+InnerClass1.Name2");
+            filters.IncludedMethods.Add("Namespace1.ClassInNamespace1+InnerClass1.Name2");
 
             Assert.True(filters.Filter(method1));
             Assert.True(filters.Filter(method2));
@@ -195,9 +195,9 @@ public class XunitFiltersTests
             var method2 = Mocks.TestCase<Namespace1.ClassInNamespace1.InnerClass1>("Name2");
             var method3 = Mocks.TestCase<Namespace1.ClassInNamespace1.InnerClass1>("Name3");
             var method4 = Mocks.TestCase<Namespace1.ClassInNamespace1.InnerClass2>("Name3");
-            filters.AddIncludedMethod("*.Name1");
-            filters.AddIncludedMethod("Namespace1.*.Name2");
-            filters.AddIncludedMethod("*+InnerClass2.*");
+            filters.IncludedMethods.Add("Namespace1.ClassInNamespace1+InnerClass1.N?me1");
+            filters.IncludedMethods.Add("Namespace1.*.Name2");
+            filters.IncludedMethods.Add("*+InnerClass2.*");
 
             Assert.True(filters.Filter(method1));
             Assert.True(filters.Filter(method2));

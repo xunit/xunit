@@ -288,7 +288,7 @@ namespace Xunit.ConsoleClient
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -method");
 
-                    project.Filters.AddIncludedMethod(option.Value);
+                    project.Filters.IncludedMethods.Add(option.Value);
                 }
                 else if (optionName == "namespace")
                 {
