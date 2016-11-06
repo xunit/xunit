@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Xunit;
 using Xunit.Sdk;
 
@@ -70,6 +72,81 @@ public class EqualityAssertsTests
             var y = new List<object> { new List<object> { new List<object> { new List<object>() } } };
 
             Assert.Equal(x, y);
+        }
+
+        [Fact]
+        public void IReadOnlyCollection_IEnumerable()
+        {
+            var expected = new string[] { "foo", "bar" };
+            var actual = (IReadOnlyCollection<string>)new ReadOnlyCollection<string>(expected);
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (object)actual);
+            Assert.Equal(actual, expected);
+            Assert.Equal(actual, (object)expected);
+        }
+
+        [Fact]
+        public void StringArray_ObjectArray()
+        {
+            var expected = new string[] { "foo", "bar" };
+            var actual = new object[] { "foo", "bar" };
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (object)actual);
+            Assert.Equal(actual, expected);
+            Assert.Equal(actual, (object)expected);
+        }
+
+        [Fact]
+        public void MultidimensionalArrays()
+        {
+            var expected = new string[] { "foo", "bar" };
+            var actual = new string[,] { { "foo" }, { "bar" } };
+
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IDictionary_SameTypes()
+        {
+            var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+            var actual = new Dictionary<string, string> { ["foo"] = "bar" };
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (IDictionary)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IDictionary_DifferentTypes()
+        {
+            var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+            var actual = new ConcurrentDictionary<string, string>(expected);
+
+            Assert.Equal(expected, (IDictionary)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_SameTypes()
+        {
+            var expected = new HashSet<string> { "foo", "bar" };
+            var actual = new HashSet<string> { "foo", "bar" };
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (ISet<string>)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_DifferentTypes()
+        {
+            var expected = new HashSet<string> { "bar", "foo" };
+            var actual = new SortedSet<string> { "foo", "bar" };
+
+            Assert.Equal(expected, (ISet<string>)actual);
+            Assert.Equal(expected, (object)actual);
         }
 
         class SpyComparable : IComparable
@@ -185,6 +262,19 @@ public class EqualityAssertsTests
             Assert.Equal(0.11111, 0.11444, 2);
         }
 
+        [Fact]
+        public void Success_Zero()
+        {
+            Assert.Equal(0.0, 0.0);
+            Assert.Equal(0.0, (object)0.0);
+        }
+
+        [Fact]
+        public void Success_PositiveZero_NegativeZero()
+        {
+            Assert.Equal(0.0, -0.0);
+        }
+
         [CulturedFact]
         public void Failure()
         {
@@ -234,6 +324,104 @@ public class EqualityAssertsTests
         public void Success()
         {
             Assert.NotEqual("bob", "jim");
+        }
+
+        [Fact]
+        public void String_Double_Failure()
+        {
+            Assert.NotEqual("0", (object)0.0);
+            Assert.NotEqual((object)0.0, "0");
+        }
+
+        [Fact]
+        public void IReadOnlyCollection_IEnumerable_Success()
+        {
+            var expected = new string[] { "foo", "bar" };
+            var actual = (IReadOnlyCollection<string>)new ReadOnlyCollection<string>(new string[] { "foo", "baz" });
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IReadOnlyCollection_IEnumerable_Failure()
+        {
+            var expected = new string[] { "foo", "bar" };
+            var actual = (IReadOnlyCollection<string>)new ReadOnlyCollection<string>(expected);
+            
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, (object)actual));
+        }
+
+        [Fact]
+        public void StringArray_ObjectArray_Success()
+        {
+            var expected = new string[] { "foo", "bar" };
+            var actual = new object[] { "foo", "baz" };
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void StringArray_ObjectArray_Failure()
+        {
+            var expected = new string[] { "foo", "bar" };
+            var actual = new object[] { "foo", "bar" };
+            
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
+            Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, (object)actual));
+        }
+        
+        [Fact]
+        public void MultidimensionalArrays()
+        {
+            var expected = new string[] { "foo", "bar" };
+            var actual = new string[,] { { "foo" }, { "baz" } };
+
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IDictionary_SameTypes()
+        {
+            var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+            var actual = new Dictionary<string, string> { ["foo"] = "baz" };
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (IDictionary)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IDictionary_DifferentTypes()
+        {
+            var expected = new Dictionary<string, string> { ["foo"] = "bar" };
+            var actual = new ConcurrentDictionary<string, string> { ["foo"] = "baz" };
+
+            Assert.NotEqual(expected, (IDictionary)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_SameTypes()
+        {
+            var expected = new HashSet<string> { "foo", "bar" };
+            var actual = new HashSet<string> { "foo", "baz" };
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (ISet<string>)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_DifferentTypes()
+        {
+            var expected = new HashSet<string> { "bar", "foo" };
+            var actual = new SortedSet<string> { "foo", "baz" };
+
+            Assert.NotEqual(expected, (ISet<string>)actual);
+            Assert.NotEqual(expected, (object)actual);
         }
 
         [Fact]
