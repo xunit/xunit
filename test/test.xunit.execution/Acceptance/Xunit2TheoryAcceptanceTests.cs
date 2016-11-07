@@ -250,7 +250,9 @@ public class Xunit2TheoryAcceptanceTests
 
             Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ExplicitConversion(e: Explicit { Value = ""abc"" })", result.Test.DisplayName),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ImplicitConversion(i: Implicit { Value = ""abc"" })", result.Test.DisplayName)
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ImplicitConversion(i: Implicit { Value = ""abc"" })", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToLong(i: 1)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.UIntToULong(i: 1)", result.Test.DisplayName)
             );
         }
 
@@ -268,6 +270,20 @@ public class Xunit2TheoryAcceptanceTests
             public void ImplicitConversion(Implicit i)
             {
                 Assert.Equal("abc", i.Value);
+            }
+
+            [Theory]
+            [InlineData(1)]
+            public void IntToLong(long i)
+            {
+                Assert.Equal(1L, i);
+            }
+
+            [Theory]
+            [InlineData((uint)1)]
+            public void UIntToULong(ulong i)
+            {
+                Assert.Equal(1UL, i);
             }
 
             public class Explicit
