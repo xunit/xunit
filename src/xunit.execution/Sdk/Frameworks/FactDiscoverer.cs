@@ -32,8 +32,8 @@ namespace Xunit.Sdk
             => new XunitTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
 
         /// <summary>
-        /// Discover test cases from a test method. By default, inspects the test method's argument list
-        /// to ensure it's empty, and if not, returns a single <see cref="ExecutionErrorTestCase"/>;
+        /// Discover test cases from a test method. By default, if the method is generic, or
+        /// it contains arguments, returns a single <see cref="ExecutionErrorTestCase"/>;
         /// otherwise, it returns the result of calling <see cref="CreateTestCase"/>.
         /// </summary>
         /// <param name="discoveryOptions">The discovery options to be used.</param>
@@ -42,10 +42,14 @@ namespace Xunit.Sdk
         /// <returns>Returns zero or more test cases represented by the test method.</returns>
         public virtual IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
-            var testCase =
-                testMethod.Method.GetParameters().Any()
-                    ? new ExecutionErrorTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?")
-                    : CreateTestCase(discoveryOptions, testMethod, factAttribute);
+            IXunitTestCase testCase;
+
+            if (testMethod.Method.GetParameters().Any())
+                testCase = new ExecutionErrorTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
+            else if (testMethod.Method.IsGenericMethodDefinition)
+                testCase = new ExecutionErrorTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to be generic.");
+            else
+                testCase = CreateTestCase(discoveryOptions, testMethod, factAttribute);
 
             return new[] { testCase };
         }
