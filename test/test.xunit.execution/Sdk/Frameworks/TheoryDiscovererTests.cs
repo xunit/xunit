@@ -246,6 +246,58 @@ public class TheoryDiscovererTests : AcceptanceTestV2
     }
 
     [Fact]
+    public void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
+    {
+        var results = Run<ITestFailed>(typeof(NoSuchDataDiscovererClass));
+
+        var failure = Assert.Single(results);
+        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
+        Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NoSuchDataDiscovererAttribute on TheoryDiscovererTests+NoSuchDataDiscovererClass.Test does not exist.", failure.Messages.Single());
+    }
+
+    public class NoSuchDataDiscovererClass
+    {
+        [Theory]
+        [NoSuchDataDiscoverer]
+        public void Test() { }
+    }
+
+    [DataDiscoverer("Foo.Blah.ThingDiscoverer", "invalid_assembly_name")]
+    public class NoSuchDataDiscovererAttribute : DataAttribute
+    {
+        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [Fact]
+    public void NotADataDiscoverer_ThrowsInvalidOperationException()
+    {
+        var results = Run<ITestFailed>(typeof(NotADataDiscovererClass));
+
+        var failure = Assert.Single(results);
+        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
+        Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NotADataDiscovererAttribute on TheoryDiscovererTests+NotADataDiscovererClass.Test does not implement IDataDiscoverer.", failure.Messages.Single());
+    }
+
+    public class NotADataDiscovererClass
+    {
+        [Theory]
+        [NotADataDiscoverer]
+        public void Test() { }
+    }
+
+    [DataDiscoverer("TheoryDiscovererTests", "test.xunit.execution")]
+    public class NotADataDiscovererAttribute : DataAttribute
+    {
+        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [Fact]
     public void NonDiscoveryEnumeratedDataYieldsSingleTheoryTestCase()
     {
         var discoverer = TestableTheoryDiscoverer.Create();
