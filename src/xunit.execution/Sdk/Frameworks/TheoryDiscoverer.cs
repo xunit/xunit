@@ -105,7 +105,52 @@ namespace Xunit.Sdk
                     foreach (var dataAttribute in dataAttributes)
                     {
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
-                        var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererAttribute);
+                        IDataDiscoverer discoverer;
+                        try
+                        {
+                            discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererAttribute);
+                        }
+                        catch (InvalidCastException)
+                        {
+                            IReflectionAttributeInfo reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
+
+                            if (reflectionAttribute != null)
+                            {
+                                results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
+                                              discoveryOptions.MethodDisplayOrDefault(),
+                                              testMethod,
+                                              $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."));
+                            }
+                            else
+                            {
+                                results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
+                                             discoveryOptions.MethodDisplayOrDefault(),
+                                             testMethod,
+                                             $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."));
+                            }
+                            continue;
+                        }
+                        if (discoverer == null)
+                        {
+                            IReflectionAttributeInfo reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
+
+                            if (reflectionAttribute != null)
+                            {
+                                results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
+                                              discoveryOptions.MethodDisplayOrDefault(),
+                                              testMethod,
+                                              $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."));
+                            }
+                            else
+                            {
+                                results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
+                                             discoveryOptions.MethodDisplayOrDefault(),
+                                             testMethod,
+                                             $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."));
+                            }
+                            continue;
+                        }
+
                         skipReason = dataAttribute.GetNamedArgument<string>("Skip");
 
                         if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
