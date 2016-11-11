@@ -28,7 +28,7 @@ public class TestCaseBulkDeserializerTests
     {
         var guid = Guid.NewGuid();
         var results = default(List<KeyValuePair<string, ITestCase>>);
-        var serializedTestCases = new List<string> { $":F:TestCaseBulkDeserializerTests+TestClass:FactMethod:2:{guid.ToString("N")}" };
+        var serializedTestCases = new List<string> { $":F:TestCaseBulkDeserializerTests+TestClass:FactMethod:2:1:{guid.ToString("N")}" };
         Action<List<KeyValuePair<string, ITestCase>>> callback = r => results = r;
 
         new TestCaseBulkDeserializer(discoverer, executor, serializedTestCases, callback);

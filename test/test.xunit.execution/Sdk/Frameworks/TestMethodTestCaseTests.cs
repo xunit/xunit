@@ -5,6 +5,7 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 using Xunit.Serialization;
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
+using TestMethodDisplayOptions = Xunit.Sdk.TestMethodDisplayOptions;
 
 public class TestMethodTestCaseTests
 {
@@ -164,8 +165,11 @@ public class TestMethodTestCaseTests
     {
         public TestableTestMethodTestCase() { }
 
-        public TestableTestMethodTestCase(ITestMethod testMethod, object[] testMethodArguments = null, TestMethodDisplay defaultMethodDisplay = TestMethodDisplay.ClassAndMethod)
-            : base(defaultMethodDisplay, testMethod, testMethodArguments) { }
+        public TestableTestMethodTestCase(ITestMethod testMethod,
+                                          object[] testMethodArguments = null,
+                                          TestMethodDisplay defaultMethodDisplay = TestMethodDisplay.ClassAndMethod,
+                                          TestMethodDisplayOptions defaultMethodDisplayOptions = TestMethodDisplayOptions.None)
+            : base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments) { }
 
         public static TestableTestMethodTestCase Create<TClass>(string methodName, object[] testMethodArguments = null)
         {

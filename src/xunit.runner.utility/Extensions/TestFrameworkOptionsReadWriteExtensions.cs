@@ -62,6 +62,24 @@ public static class TestFrameworkOptionsReadWriteExtensions
     }
 
     /// <summary>
+    /// Gets a flag that determines the default display name format options for test methods.
+    /// </summary>
+    public static TestMethodDisplayOptions? GetMethodDisplayOptions(this ITestFrameworkDiscoveryOptions discoveryOptions)
+    {
+        var methodDisplayOptionsString = discoveryOptions.GetValue<string>(TestOptionsNames.Discovery.MethodDisplayOptions);
+        return methodDisplayOptionsString != null ? (TestMethodDisplayOptions?)Enum.Parse(typeof(TestMethodDisplayOptions), methodDisplayOptionsString) : null;
+    }
+
+    /// <summary>
+    /// Gets a flag that determines the default display name format options for test methods. If the flag is not present,
+    /// returns the default value (<see cref="TestMethodDisplayOptions.None"/>).
+    /// </summary>
+    public static TestMethodDisplayOptions GetMethodDisplayOptionsOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions)
+    {
+        return discoveryOptions.GetMethodDisplayOptions() ?? TestMethodDisplayOptions.None;
+    }
+
+    /// <summary>
     /// Gets a flag that determines whether theories are pre-enumerated. If they enabled, then the
     /// discovery system will return a test case for each row of test data; they are disabled, then the
     /// discovery system will return a single test case for the theory.
@@ -121,6 +139,14 @@ public static class TestFrameworkOptionsReadWriteExtensions
     public static void SetMethodDisplay(this ITestFrameworkDiscoveryOptions discoveryOptions, TestMethodDisplay? value)
     {
         discoveryOptions.SetValue(TestOptionsNames.Discovery.MethodDisplay, value.HasValue ? value.GetValueOrDefault().ToString() : null);
+    }
+
+    /// <summary>
+    /// Sets the flags that determine the default display options for test methods.
+    /// </summary>
+    public static void SetMethodDisplayOptions(this ITestFrameworkDiscoveryOptions discoveryOptions, TestMethodDisplayOptions? value)
+    {
+        discoveryOptions.SetValue(TestOptionsNames.Discovery.MethodDisplayOptions, value.HasValue ? value.GetValueOrDefault().ToString() : null);
     }
 
     /// <summary>

@@ -19,9 +19,14 @@ namespace TestUtility
         /// </summary>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
+        /// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
         /// <param name="testMethod">The method under test.</param>
-        public CulturedXunitTheoryTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, string culture)
-            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod)
+        public CulturedXunitTheoryTestCase(IMessageSink diagnosticMessageSink,
+                                           TestMethodDisplay defaultMethodDisplay,
+                                           TestMethodDisplayOptions defaultMethodDisplayOptions,
+                                           ITestMethod testMethod,
+                                           string culture)
+            : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
         {
             Initialize(culture);
         }

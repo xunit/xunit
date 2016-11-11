@@ -22,9 +22,13 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
+        /// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
         /// <param name="testMethod">The method under test.</param>
-        public XunitTheoryTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod)
-            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod) { }
+        public XunitTheoryTestCase(IMessageSink diagnosticMessageSink,
+                                   TestMethodDisplay defaultMethodDisplay,
+                                   TestMethodDisplayOptions defaultMethodDisplayOptions,
+                                   ITestMethod testMethod)
+            : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod) { }
 
         /// <inheritdoc />
         public override Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink,

@@ -48,7 +48,7 @@ namespace Namespace1
                 }
 
                 Assert.Collection(serializations,
-                    s => Assert.Equal($":F:Namespace1.Class1:FactMethod:1:{testCollectionId.ToString("N")}", s),
+                    s => Assert.Equal($":F:Namespace1.Class1:FactMethod:1:0:{testCollectionId.ToString("N")}", s),
                     s => Assert.StartsWith("Xunit.Sdk.XunitTestCase, xunit.execution.{Platform}:", s)
                 );
 

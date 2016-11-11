@@ -46,17 +46,18 @@ namespace Xunit.Sdk
         {
             if (value.Length > 3 && value.StartsWith(":F:"))
             {
-                // Format from XunitTestFrameworkDiscoverer.Serialize: ":F:{typeName}:{methodName}:{defaultMethodDisplay}:{collectionId}"
+                // Format from XunitTestFrameworkDiscoverer.Serialize: ":F:{typeName}:{methodName}:{defaultMethodDisplay}:{defaultMethodDisplayOptions}:{collectionId}"
                 var parts = value.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length > 4)
                 {
                     var typeInfo = discoverer.Value.AssemblyInfo.GetType(parts[1]);
-                    var testCollectionUniqueId = Guid.Parse(parts[4]);
+                    var testCollectionUniqueId = Guid.Parse(parts[5]);
                     var testClass = discoverer.Value.CreateTestClass(typeInfo, testCollectionUniqueId);
                     var methodInfo = testClass.Class.GetMethod(parts[2], true);
                     var testMethod = new TestMethod(testClass, methodInfo);
                     var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[3]);
-                    return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, testMethod);
+                    var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[4]);
+                    return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
                 }
             }
 

@@ -15,28 +15,38 @@ namespace Xunit.Sdk
     /// </summary>
     public abstract class TestMethodTestCase : LongLivedMarshalByRefObject, ITestCase, IDisposable
     {
-        Dictionary<string, List<string>> traits;
-        string skipReason;
         string displayName;
+        DisplayNameFormatter formatter;
         bool initialized;
         IMethodInfo method;
         ITypeInfo[] methodGenericTypes;
+        string skipReason;
+        Dictionary<string, List<string>> traits;
         volatile string uniqueID;
 
         /// <summary>
         /// Used for de-serialization.
         /// </summary>
-        protected TestMethodTestCase() { }
+        protected TestMethodTestCase()
+        {
+            formatter = new DisplayNameFormatter();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodTestCase"/> class.
         /// </summary>
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
+        /// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
         /// <param name="testMethod">The test method this test case belongs to.</param>
         /// <param name="testMethodArguments">The arguments for the test method.</param>
-        protected TestMethodTestCase(TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, object[] testMethodArguments = null)
+        protected TestMethodTestCase(TestMethodDisplay defaultMethodDisplay,
+                                     TestMethodDisplayOptions defaultMethodDisplayOptions,
+                                     ITestMethod testMethod,
+                                     object[] testMethodArguments = null)
         {
             DefaultMethodDisplay = defaultMethodDisplay;
+            DefaultMethodDisplayOptions = defaultMethodDisplayOptions;
+            formatter = new DisplayNameFormatter(defaultMethodDisplay, defaultMethodDisplayOptions);
             TestMethod = testMethod;
             TestMethodArguments = testMethodArguments;
         }
@@ -47,11 +57,11 @@ namespace Xunit.Sdk
         protected string BaseDisplayName
         {
             get
-            {
+            { 
                 if (DefaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
-                    return $"{TestMethod.TestClass.Class.Name}.{TestMethod.Method.Name}";
+                    return formatter.Format($"{TestMethod.TestClass.Class.Name}.{TestMethod.Method.Name}");
 
-                return TestMethod.Method.Name;
+                return formatter.Format(TestMethod.Method.Name);
             }
         }
 
@@ -59,6 +69,11 @@ namespace Xunit.Sdk
         /// Returns the default method display to use (when not customized).
         /// </summary>
         protected internal TestMethodDisplay DefaultMethodDisplay { get; private set; }
+
+        /// <summary>
+        /// Returns the default method display options to use (when not customized).
+        /// </summary>
+        protected internal TestMethodDisplayOptions DefaultMethodDisplayOptions { get; private set; }
 
         /// <inheritdoc/>
         public string DisplayName
@@ -278,6 +293,7 @@ namespace Xunit.Sdk
             data.AddValue("TestMethod", TestMethod);
             data.AddValue("TestMethodArguments", TestMethodArguments);
             data.AddValue("DefaultMethodDisplay", DefaultMethodDisplay.ToString());
+            data.AddValue("DefaultMethodDisplayOptions", DefaultMethodDisplayOptions.ToString());
         }
 
         /// <inheritdoc/>
@@ -286,6 +302,8 @@ namespace Xunit.Sdk
             TestMethod = data.GetValue<ITestMethod>("TestMethod");
             TestMethodArguments = data.GetValue<object[]>("TestMethodArguments");
             DefaultMethodDisplay = (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), data.GetValue<string>("DefaultMethodDisplay"));
+            DefaultMethodDisplayOptions = (TestMethodDisplayOptions)Enum.Parse(typeof(TestMethodDisplayOptions), data.GetValue<string>("DefaultMethodDisplayOptions"));
+            formatter = new DisplayNameFormatter(DefaultMethodDisplay, DefaultMethodDisplayOptions);
         }
     }
 }

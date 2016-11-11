@@ -85,7 +85,7 @@ namespace Xunit.Sdk
             if (factAttributes.Count > 1)
             {
                 var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
-                var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, testMethod, message);
+                var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
                 return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
             }
 
@@ -164,7 +164,7 @@ namespace Xunit.Sdk
                 var className = testCase.TestMethod?.TestClass?.Class?.Name;
                 var methodName = testCase.TestMethod?.Method?.Name;
                 if (className != null && methodName != null && (xunitTestCase.TestMethodArguments == null || xunitTestCase.TestMethodArguments.Length == 0))
-                    return $":F:{className}:{methodName}:{(int)xunitTestCase.DefaultMethodDisplay}:{testCase.TestMethod.TestClass.TestCollection.UniqueID.ToString("N")}";
+                    return $":F:{className}:{methodName}:{(int)xunitTestCase.DefaultMethodDisplay}:{(int)xunitTestCase.DefaultMethodDisplayOptions}:{testCase.TestMethod.TestClass.TestCollection.UniqueID.ToString("N")}";
             }
 
             return base.Serialize(testCase);
