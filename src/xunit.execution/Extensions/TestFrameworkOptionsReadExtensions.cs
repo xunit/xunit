@@ -36,6 +36,15 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
+    /// Gets a flag that determines the default display options to format test methods.
+    /// </summary>
+    public static TestMethodDisplayOptions? MethodDisplayOptions(this ITestFrameworkDiscoveryOptions discoveryOptions)
+    {
+        var methodDisplayOptionsString = discoveryOptions.GetValue<string>(TestOptionsNames.Discovery.MethodDisplayOptions);
+        return methodDisplayOptionsString != null ? (TestMethodDisplayOptions?)Enum.Parse(typeof(TestMethodDisplayOptions), methodDisplayOptionsString) : null;
+    }
+
+    /// <summary>
     /// Gets a flag that determines the default display name format for test methods. If the flag is not present,
     /// returns the default value (<see cref="TestMethodDisplay.ClassAndMethod"/>).
     /// </summary>
@@ -45,8 +54,17 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
-    /// Gets a flag that determines whether theories are pre-enumerated. If enabled, then the
-    /// discovery system will return a test case for each row of test data; if disabled, the
+    /// Gets the options that determine the default display formatting options for test methods. If no options are not present,
+    /// returns the default value (<see cref="TestMethodDisplayOptions.None"/>).
+    /// </summary>
+    public static TestMethodDisplayOptions MethodDisplayOptionsOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions)
+    {
+        return discoveryOptions.MethodDisplayOptions() ?? TestMethodDisplayOptions.None;
+    }
+
+    /// <summary>
+    /// Gets a flag that determines whether theories are pre-enumerated. If they enabled, then the
+    /// discovery system will return a test case for each row of test data; they are disabled, then the
     /// discovery system will return a single test case for the theory.
     /// </summary>
     public static bool? PreEnumerateTheories(this ITestFrameworkDiscoveryOptions discoveryOptions)

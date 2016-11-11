@@ -37,6 +37,7 @@ namespace Xunit
                         result.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? result.InternalDiagnosticMessages;
                         result.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? result.MaxParallelThreads;
                         result.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? result.MethodDisplay;
+                        result.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? result.MethodDisplayOptions;
                         result.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
                         result.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
                         result.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
@@ -106,6 +107,7 @@ namespace Xunit
             public const string InternalDiagnosticMessages = "xunit.internalDiagnosticMessages";
             public const string MaxParallelThreads = "xunit.maxParallelThreads";
             public const string MethodDisplay = "xunit.methodDisplay";
+            public const string MethodDisplayOptions = "xunit.methodDisplayOptions";
             public const string ParallelizeAssembly = "xunit.parallelizeAssembly";
             public const string ParallelizeTestCollections = "xunit.parallelizeTestCollections";
             public const string PreEnumerateTheories = "xunit.preEnumerateTheories";

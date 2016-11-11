@@ -8,6 +8,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
+using TestMethodDisplayOptions = Xunit.Sdk.TestMethodDisplayOptions;
 
 public static class Mocks
 {
@@ -92,7 +93,7 @@ public static class Mocks
     public static ExecutionErrorTestCase ExecutionErrorTestCase(string message, IMessageSink diagnosticMessageSink = null)
     {
         var testMethod = TestMethod();
-        return new ExecutionErrorTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, testMethod, message);
+        return new ExecutionErrorTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
     }
 
     public static IReflectionAttributeInfo FactAttribute(string displayName = null, string skip = null)
@@ -586,14 +587,14 @@ public static class Mocks
     {
         var method = TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-        return new XunitTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, method, testMethodArguments);
+        return new XunitTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, method, testMethodArguments);
     }
 
     public static XunitTheoryTestCase XunitTheoryTestCase<TClassUnderTest>(string methodName, ITestCollection collection = null, IMessageSink diagnosticMessageSink = null)
     {
         var method = TestMethod(typeof(TClassUnderTest), methodName, collection);
 
-        return new XunitTheoryTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, method);
+        return new XunitTheoryTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, method);
     }
 
     // Helpers

@@ -3,6 +3,7 @@
     "internalDiagnosticMessages": "blarch",
     "maxParallelThreads": "abc",
     "methodDisplay": "fooBar",
+    "methodDisplayOptions": "fooBar",
     "parallelizeAssembly": true,
     "parallelizetestcollections": "biff",
     "preEnumerateTheories": "baz"

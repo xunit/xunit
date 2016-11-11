@@ -30,7 +30,7 @@ namespace Xunit.Sdk
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Please override CreateTestCasesForDataRow instead")]
         protected virtual IXunitTestCase CreateTestCaseForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow)
-            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, dataRow);
+            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, dataRow);
 
         /// <summary>
         /// Creates test cases for a single row of data. By default, returns a single instance of <see cref="XunitTestCase"/>
@@ -50,7 +50,7 @@ namespace Xunit.Sdk
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Please override CreateTestCasesForSkip instead")]
         protected virtual IXunitTestCase CreateTestCaseForSkip(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, string skipReason)
-            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
+            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod);
 
         /// <summary>
         /// Creates test cases for a skipped theory. By default, returns a single instance of <see cref="XunitTestCase"/>
@@ -70,7 +70,7 @@ namespace Xunit.Sdk
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Please override CreateTestCasesForTheory instead")]
         protected virtual IXunitTestCase CreateTestCaseForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
-            => new XunitTheoryTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
+            => new XunitTheoryTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod);
 
         /// <summary>
         /// Creates test cases for the entire theory. This is used when one or more of the theory data items
@@ -91,7 +91,7 @@ namespace Xunit.Sdk
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Please override CreateTestCasesForSkippedDataRow instead")]
         protected virtual IXunitTestCase CreateTestCaseForSkippedDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow, string skipReason)
-            => new XunitSkippedDataRowTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, skipReason, dataRow);
+            => new XunitSkippedDataRowTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, skipReason, dataRow);
 
         /// <summary>
         /// Creates test cases for a single row of skipped data. By default, returns a single instance of <see cref="XunitSkippedDataRowTestCase"/>
@@ -156,6 +156,7 @@ namespace Xunit.Sdk
                                     new ExecutionErrorTestCase(
                                         DiagnosticMessageSink,
                                         discoveryOptions.MethodDisplayOrDefault(),
+                                        discoveryOptions.MethodDisplayOptionsOrDefault(),
                                         testMethod,
                                         $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
                                     )
@@ -165,6 +166,7 @@ namespace Xunit.Sdk
                                     new ExecutionErrorTestCase(
                                         DiagnosticMessageSink,
                                         discoveryOptions.MethodDisplayOrDefault(),
+                                        discoveryOptions.MethodDisplayOptionsOrDefault(),
                                         testMethod,
                                         $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
                                     )
@@ -182,6 +184,7 @@ namespace Xunit.Sdk
                                     new ExecutionErrorTestCase(
                                         DiagnosticMessageSink,
                                         discoveryOptions.MethodDisplayOrDefault(),
+                                        discoveryOptions.MethodDisplayOptionsOrDefault(),
                                         testMethod,
                                         $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
                                     )
@@ -191,6 +194,7 @@ namespace Xunit.Sdk
                                     new ExecutionErrorTestCase(
                                         DiagnosticMessageSink,
                                         discoveryOptions.MethodDisplayOrDefault(),
+                                        discoveryOptions.MethodDisplayOptionsOrDefault(),
                                         testMethod,
                                         $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
                                     )
@@ -211,6 +215,7 @@ namespace Xunit.Sdk
                                 new ExecutionErrorTestCase(
                                     DiagnosticMessageSink,
                                     discoveryOptions.MethodDisplayOrDefault(),
+                                    discoveryOptions.MethodDisplayOptionsOrDefault(),
                                     testMethod,
                                     $"Test data returned null for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}. Make sure it is statically initialized before this test method is called."
                                 )
@@ -242,6 +247,7 @@ namespace Xunit.Sdk
                     if (results.Count == 0)
                         results.Add(new ExecutionErrorTestCase(DiagnosticMessageSink,
                                                                discoveryOptions.MethodDisplayOrDefault(),
+                                                               discoveryOptions.MethodDisplayOptionsOrDefault(),
                                                                testMethod,
                                                                $"No data found for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}"));
 
