@@ -13,7 +13,8 @@ namespace Xunit.ConsoleClient
         {
             Console.WriteLine("xUnit.net console test runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version);
             Console.WriteLine("Copyright (C) 2013 Outercurve Foundation.");
-
+            Console.WriteLine("Custom Hibernating Rhinos build - source available at http://github.com/ayende/xunit");
+               
             if (args.Length == 0 || args[0] == "/?")
             {
                 PrintUsage();
@@ -110,6 +111,7 @@ namespace Xunit.ConsoleClient
                 List<IResultXmlTransform> transforms = TransformFactory.GetAssemblyTransforms(assembly);
 
                 Console.WriteLine();
+				Console.WriteLine("Custom Hibernating Rhinos build - source available at http://github.com/ayende/xunit");
                 Console.WriteLine("xunit.dll:     Version {0}", testAssembly.XunitVersion);
                 Console.WriteLine("Test assembly: {0}", testAssembly.AssemblyFilename);
                 Console.WriteLine();
@@ -117,15 +119,19 @@ namespace Xunit.ConsoleClient
                 try
                 {
                     var methods = new List<TestMethod>(testAssembly.EnumerateTestMethods(project.Filters.Filter));
+
+	                SortByTiming(assembly, methods);
+
                     if (methods.Count == 0)
                     {
                         Console.WriteLine("Skipping assembly (no tests match the specified filter).");
                         continue;
                     }
 
-                    var callback =
+	                var timingReport = assembly.AssemblyFilename + "." + DateTime.UtcNow.ToString("O").Replace(":","-")  +".test-metrics.txt";
+	                var callback =
                         teamcity ? (RunnerCallback)new TeamCityRunnerCallback()
-                                 : new StandardRunnerCallback(silent, methods.Count);
+								 : new StandardRunnerCallback(timingReport, silent, methods.Count);
                     var assemblyXml = testAssembly.Run(methods, callback);
 
                     ++totalAssemblies;
@@ -154,5 +160,36 @@ namespace Xunit.ConsoleClient
 
             return totalFailures;
         }
+
+	    private static void SortByTiming(XunitProjectAssembly assembly, List<TestMethod> methods)
+	    {
+			var fileMask = Path.GetFileName(assembly.AssemblyFilename) + ".*.test-metrics.txt";
+		    var results = Directory.GetFileSystemEntries(Path.GetDirectoryName(assembly.AssemblyFilename), fileMask);
+			if (results.Length == 0)
+			    return;
+
+		    var timings = new Dictionary<string, int>();
+			foreach (var line in File.ReadAllLines(results[results.Length-1]))
+			{
+				var strings = line.Split('\t');
+				if (strings.Length != 2)
+					continue;
+				int val;
+				if (int.TryParse(strings[1], out val) == false)
+					continue;
+				timings[strings[0]] = val;
+			}
+
+			methods.Sort((x, y) =>
+			{
+				int xTime;
+				if (timings.TryGetValue(x.DisplayName, out xTime) == false)
+					xTime = -1;
+				int yTime;
+				if (timings.TryGetValue(y.DisplayName, out yTime) == false)
+					yTime = -1;
+				return xTime - yTime;
+			});
+	    }
     }
 }

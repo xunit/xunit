@@ -147,7 +147,7 @@ namespace Xunit.Sdk
                 {
                     var oldSyncContext = SynchronizationContext.Current;
 
-                    using (var asyncSyncContext = new AsyncTestSyncContext())
+					using (var asyncSyncContext = new AsyncTestSyncContext(method))
                     {
                         SynchronizationContext.SetSynchronizationContext(asyncSyncContext);
 
