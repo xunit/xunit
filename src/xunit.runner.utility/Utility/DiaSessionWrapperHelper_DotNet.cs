@@ -1,10 +1,12 @@
-#if !PLATFORM_DOTNET
+#if PLATFORM_DOTNET && NETSTANDARD1_5
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Xunit
 {
@@ -19,37 +21,7 @@ namespace Xunit
         {
             try
             {
-                assembly = Assembly.ReflectionOnlyLoadFrom(assemblyFileName);
-                string assemblyDirectory = Path.GetDirectoryName(assemblyFileName);
-
-                AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += (sender, args) =>
-                {
-                    try
-                    {
-                        // Try to load it normally
-                        var name = AppDomain.CurrentDomain.ApplyPolicy(args.Name);
-                        return Assembly.ReflectionOnlyLoad(name);
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            // If a normal implicit load fails, try to load it from the directory that
-                            // the test assembly lives in
-                            return Assembly.ReflectionOnlyLoadFrom(
-                                Path.Combine(
-                                    assemblyDirectory,
-                                    new AssemblyName(args.Name).Name + ".dll"
-                                )
-                            );
-                        }
-                        catch
-                        {
-                            // If all else fails, say we couldn't find it
-                            return null;
-                        }
-                    }
-                };
+                assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) });
             }
             catch { }
 
@@ -162,7 +134,7 @@ namespace Xunit
                     {
                         // DiaSession only ever wants you to ask for the declaring type
                         typeName = method.DeclaringType.FullName;
-                        assemblyPath = method.DeclaringType.Assembly.Location;
+                        assemblyPath = method.DeclaringType.GetAssembly().Location;
 
                         // See if this is an async method by looking for [AsyncStateMachine] on the method,
                         // which means we need to pass the state machine's "MoveNext" method.

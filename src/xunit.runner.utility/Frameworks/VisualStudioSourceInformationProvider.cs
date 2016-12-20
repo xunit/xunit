@@ -1,4 +1,4 @@
-﻿#if !PLATFORM_DOTNET
+﻿#if !NETSTANDARD1_1
 
 using Xunit.Abstractions;
 

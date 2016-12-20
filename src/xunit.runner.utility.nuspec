@@ -17,6 +17,11 @@
         <dependency id="NETStandard.Library" version="1.6.0" />
         <dependency id="xunit.abstractions" version="2.0.1" />
       </group>
+      <group targetFramework="netstandard1.5">
+        <dependency id="NETStandard.Library" version="1.6.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.1.0" />
+        <dependency id="xunit.abstractions" version="2.0.1" />
+      </group>
       <group targetFramework="portable-net45+win8+wpa81">
         <dependency id="xunit.abstractions" version="2.0.1" />
       </group>
@@ -37,5 +42,9 @@
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.dll" target="lib\netstandard1.1\" />
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.pdb" target="lib\netstandard1.1\" />
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.xml" target="lib\netstandard1.1\" />
+
+    <file src="xunit.runner.utility\bin\Release\netstandard1.5\xunit.runner.utility.dotnet.dll" target="lib\netstandard1.5\" />
+    <file src="xunit.runner.utility\bin\Release\netstandard1.5\xunit.runner.utility.dotnet.pdb" target="lib\netstandard1.5\" />
+    <file src="xunit.runner.utility\bin\Release\netstandard1.5\xunit.runner.utility.dotnet.xml" target="lib\netstandard1.5\" />
   </files>
 </package>
