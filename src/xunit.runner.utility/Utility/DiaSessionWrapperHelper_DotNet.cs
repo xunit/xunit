@@ -3,17 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Xunit
 {
     class DiaSessionWrapperHelper : LongLivedMarshalByRefObject
     {
-        static readonly Func<MethodInfo, Type> GetStateMachineType = InitializeGetStateMachineType();
-
         readonly Assembly assembly;
         readonly Dictionary<string, Type> typeNameMap;
 
@@ -46,78 +42,7 @@ namespace Xunit
                     typeNameMap = new Dictionary<string, Type>();
             }
         }
-
-        static Type GetStateMachineType_NoOp(MethodInfo method)
-        {
-            return null;
-        }
-
-        static Func<MethodInfo, Type> InitializeGetStateMachineType()
-        {
-            Type asyncStateMachineAttribute = Type.GetType("System.Runtime.CompilerServices.AsyncStateMachineAttribute");
-            if (asyncStateMachineAttribute == null)
-                return GetStateMachineType_NoOp;
-
-            ConstructorInfo asyncStateMachineAttributeConstructor = asyncStateMachineAttribute.GetConstructor(new[] { typeof(Type) });
-            if (asyncStateMachineAttributeConstructor == null)
-                return GetStateMachineType_NoOp;
-
-            // Types and constants used in the expression construction
-            Type customAttributeDataType = typeof(CustomAttributeData);
-            Type methodInfoType = typeof(MethodInfo);
-            Type memberInfoType = typeof(MemberInfo);
-            Type objectType = typeof(object);
-            Type typeType = typeof(Type);
-            Type enumerableType = typeof(Enumerable);
-
-            // Lambda input parameter: MethodInfo method
-            var methodParam = Expression.Parameter(methodInfoType, "method");
-
-            // CustomAttributeData.GetCustomAttributes(method)
-            var attributes = Expression.Call(
-                customAttributeDataType,
-                "GetCustomAttributes",
-                new Type[0],
-                new Expression[] { Expression.Convert(methodParam, memberInfoType) }
-            );
-
-            // attr => attr.Constructor == asyncStateMachineAttributeConstructor
-            var attrParameter = Expression.Parameter(customAttributeDataType, "attr");
-            var constructorProperty = Expression.Property(attrParameter, "Constructor");
-            var asyncMachineAttributeConstructorValue = Expression.Constant(asyncStateMachineAttributeConstructor);
-            var constructorEquality = Expression.Equal(constructorProperty, asyncMachineAttributeConstructorValue);
-            var attributeSelector = Expression.Lambda<Func<CustomAttributeData, bool>>(constructorEquality, new[] { attrParameter });
-
-            // var attribute = CustomAttributeData.GetCustomAttributes(method)
-            //                                    .SingleOrDefault(attr => attr.Constructor == asyncStateMachineAttributeConstructor);
-            var attribute = Expression.Call(
-                enumerableType,
-                "SingleOrDefault",
-                new Type[] { customAttributeDataType },
-                new Expression[] { attributes, attributeSelector }
-            );
-
-            // attribute == null
-            var attributeNullEquality = Expression.Equal(attribute, Expression.Constant(null, objectType));
-
-            // (Type)attribute.ConstructorArguments[0].Value
-            var constructorArguments = Expression.Property(attribute, "ConstructorArguments");
-            var firstConstructorArgument = Expression.Call(constructorArguments, "get_Item", new Type[0], Expression.Constant(0));
-            var firstConstructorArgumentValue = Expression.Property(firstConstructorArgument, "Value");
-            var firstConstructorArgumentValueAsType = Expression.Convert(firstConstructorArgumentValue, typeType);
-
-            // if (attribute == null)
-            //     return null;
-            // else
-            //     return (Type)attribute.ConstructorArguments[0].Value;
-            var conditional = Expression.Condition(
-                attributeNullEquality,
-                Expression.Constant(null, typeType),
-                firstConstructorArgumentValueAsType
-            );
-
-            return Expression.Lambda<Func<MethodInfo, Type>>(conditional, methodParam).Compile();
-        }
+      
 
         public void Normalize(ref string typeName, ref string methodName, ref string assemblyPath)
         {
@@ -136,9 +61,8 @@ namespace Xunit
                         typeName = method.DeclaringType.FullName;
                         assemblyPath = method.DeclaringType.GetAssembly().Location;
 
-                        // See if this is an async method by looking for [AsyncStateMachine] on the method,
-                        // which means we need to pass the state machine's "MoveNext" method.
-                        Type stateMachineType = GetStateMachineType(method);
+                        var stateMachineType = method.GetCustomAttribute<AsyncStateMachineAttribute>()?.StateMachineType;
+                        
                         if (stateMachineType != null)
                         {
                             typeName = stateMachineType.FullName;
