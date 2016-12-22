@@ -1,4 +1,4 @@
-#if PLATFORM_DOTNET && NETSTANDARD1_5
+#if NETSTANDARD1_5
 using System;
 using System.Collections.Generic;
 using System.IO;

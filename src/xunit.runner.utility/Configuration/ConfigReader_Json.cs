@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-#if PLATFORM_DOTNET && NETSTANDARD1_1
+#if NETSTANDARD1_1
 using System.Reflection;
 #endif
 
@@ -129,7 +129,7 @@ namespace Xunit
             return null;
         }
 
-#if PLATFORM_DOTNET && NETSTANDARD1_1
+#if NETSTANDARD1_1
         static Lazy<MethodInfo> fileOpenReadMethod = new Lazy<MethodInfo>(GetFileOpenReadMethod);
 
         static MethodInfo GetFileOpenReadMethod()
