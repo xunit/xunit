@@ -56,7 +56,7 @@ namespace Xunit.Runner.Reporters
         {
             try
             {
-                while (!shouldExit)
+                while (!shouldExit || !addQueue.IsEmpty || !updateQueue.IsEmpty)
                 {
                     workEvent.Wait();   // Wait for work
                     workEvent.Reset();  // Reset first to ensure any subsequent modification sets
