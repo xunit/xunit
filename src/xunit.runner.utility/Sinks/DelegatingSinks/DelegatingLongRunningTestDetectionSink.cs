@@ -128,9 +128,13 @@ namespace Xunit
 
         void SendLongRunningMessage()
         {
-            var now = UtcNow;
-            var longRunningTestCases = executingTestCases.Where(kvp => (now - kvp.Value) >= longRunningTestTime)
+            Dictionary<ITestCase, TimeSpan> longRunningTestCases;
+            lock (executingTestCases)
+            {
+                var now = UtcNow;
+                longRunningTestCases = executingTestCases.Where(kvp => (now - kvp.Value) >= longRunningTestTime)
                                                          .ToDictionary(k => k.Key, v => now - v.Value);
+            }
 
             if (longRunningTestCases.Count > 0)
                 callback(new LongRunningTestsSummary(longRunningTestTime, longRunningTestCases));
