@@ -15,6 +15,7 @@
             "frameworkAssemblies": {
                 "System.Net.Http": "",
                 "System.Net.Http.WebRequest": "",
+                "System.Runtime": "",
                 "System.Web.Extensions": ""
             }
         },
@@ -27,8 +28,7 @@
                 "outputName": "xunit.runner.reporters.dotnet"
             },
             "dependencies": {
-                "NETStandard.Library": "1.6.0",
-                "Newtonsoft.Json": "9.0.1"
+                "NETStandard.Library": "1.6.0"
             }
         }
     },

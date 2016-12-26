@@ -101,16 +101,16 @@ namespace Xunit.Runner.Reporters
         void AppVeyorAddTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
                              string errorMessage, string errorStackTrace, string stdOut)
         {
-            var body = new AddUpdateTestRequest
+            var body = new Dictionary<string, object>
             {
-                TestName = testName,
-                TestFramework = testFramework,
-                FileName = fileName,
-                Outcome = outcome,
-                DurationMilliseconds = durationMilliseconds,
-                ErrorMessage = errorMessage,
-                ErrorStackTrace = errorStackTrace,
-                StdOut = TrimStdOut(stdOut),
+                { "testName", testName },
+                { "testFramework", testFramework },
+                { "fileName", fileName },
+                { "outcome", outcome },
+                { "durationMilliseconds", durationMilliseconds },
+                { "ErrorMessage", errorMessage },
+                { "ErrorStackTrace", errorStackTrace },
+                { "StdOut", TrimStdOut(stdOut) },
             };
 
             client.AddTest(body);
@@ -119,16 +119,16 @@ namespace Xunit.Runner.Reporters
         void AppVeyorUpdateTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
                                 string errorMessage, string errorStackTrace, string stdOut)
         {
-            var body = new AddUpdateTestRequest
+            var body = new Dictionary<string, object>
             {
-                TestName = testName,
-                TestFramework = testFramework,
-                FileName = fileName,
-                Outcome = outcome,
-                DurationMilliseconds = durationMilliseconds,
-                ErrorMessage = errorMessage,
-                ErrorStackTrace = errorStackTrace,
-                StdOut = TrimStdOut(stdOut),
+                { "testName", testName },
+                { "testFramework", testFramework },
+                { "fileName", fileName },
+                { "outcome", outcome },
+                { "durationMilliseconds", durationMilliseconds },
+                { "ErrorMessage", errorMessage },
+                { "ErrorStackTrace", errorStackTrace },
+                { "StdOut", TrimStdOut(stdOut) },
             };
 
             client.UpdateTest(body);
@@ -136,18 +136,5 @@ namespace Xunit.Runner.Reporters
 
         static string TrimStdOut(string str)
             => str != null && str.Length > MaxLength ? str.Substring(0, MaxLength) : str;
-
-        public class AddUpdateTestRequest
-        {
-            public string TestName { get; set; }
-            public string FileName { get; set; }
-            public string TestFramework { get; set; }
-            public string Outcome { get; set; }
-            public long? DurationMilliseconds { get; set; }
-            public string ErrorMessage { get; set; }
-            public string ErrorStackTrace { get; set; }
-            public string StdOut { get; set; }
-            public string StdErr { get; set; }
-        }
     }
 }

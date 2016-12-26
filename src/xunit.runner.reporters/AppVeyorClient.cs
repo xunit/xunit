@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
-#if PLATFORM_DOTNET
-using Newtonsoft.Json;
-#else
-using System.Web.Script.Serialization;
-#endif
 
 namespace Xunit.Runner.Reporters
 {
@@ -38,9 +33,9 @@ namespace Xunit.Runner.Reporters
         readonly ManualResetEventSlim workEvent = new ManualResetEventSlim(false);
         volatile bool shouldExit;
 
-        ConcurrentQueue<AppVeyorReporterMessageHandler.AddUpdateTestRequest> addQueue = new ConcurrentQueue<AppVeyorReporterMessageHandler.AddUpdateTestRequest>();
+        ConcurrentQueue<IDictionary<string, object>> addQueue = new ConcurrentQueue<IDictionary<string, object>>();
 
-        ConcurrentQueue<AppVeyorReporterMessageHandler.AddUpdateTestRequest> updateQueue = new ConcurrentQueue<AppVeyorReporterMessageHandler.AddUpdateTestRequest>();
+        ConcurrentQueue<IDictionary<string, object>> updateQueue = new ConcurrentQueue<IDictionary<string, object>>();
 
         public void WaitOne(CancellationToken cancellationToken)
         {
@@ -62,8 +57,8 @@ namespace Xunit.Runner.Reporters
                     workEvent.Reset();  // Reset first to ensure any subsequent modification sets
 
                     // Get local copies of the queues
-                    var aq = Interlocked.Exchange(ref addQueue, new ConcurrentQueue<AppVeyorReporterMessageHandler.AddUpdateTestRequest>());
-                    var uq = Interlocked.Exchange(ref updateQueue, new ConcurrentQueue<AppVeyorReporterMessageHandler.AddUpdateTestRequest>());
+                    var aq = Interlocked.Exchange(ref addQueue, new ConcurrentQueue<IDictionary<string, object>>());
+                    var uq = Interlocked.Exchange(ref updateQueue, new ConcurrentQueue<IDictionary<string, object>>());
 
                     if (previousErrors)
                         break;
@@ -82,19 +77,19 @@ namespace Xunit.Runner.Reporters
         }
 
 
-        public void AddTest(AppVeyorReporterMessageHandler.AddUpdateTestRequest request)
+        public void AddTest(IDictionary<string, object> request)
         {
             addQueue.Enqueue(request);
             workEvent.Set();
         }
 
-        public void UpdateTest(AppVeyorReporterMessageHandler.AddUpdateTestRequest request)
+        public void UpdateTest(IDictionary<string, object> request)
         {
             updateQueue.Enqueue(request);
             workEvent.Set();
         }
 
-        async Task SendRequest(HttpMethod method, ICollection<AppVeyorReporterMessageHandler.AddUpdateTestRequest> body)
+        async Task SendRequest(HttpMethod method, ICollection<IDictionary<string, object>> body)
         {
             if (body.Count == 0)
                 return;
@@ -130,13 +125,10 @@ namespace Xunit.Runner.Reporters
         }
 
 
-        static string ToJson(IEnumerable<AppVeyorReporterMessageHandler.AddUpdateTestRequest> data)
+        static string ToJson(IEnumerable<IDictionary<string, object>> data)
         {
-#if PLATFORM_DOTNET
-            return JsonConvert.SerializeObject(data);
-#else
-            return new JavaScriptSerializer().Serialize(data);
-#endif
+            var results = string.Join(",", data.Select(x => x.ToJson()));
+            return $"[{results}]";
         }
     }
 }

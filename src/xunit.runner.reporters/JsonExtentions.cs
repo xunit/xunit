@@ -1,24 +1,59 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Xunit.Abstractions;
-
-#if PLATFORM_DOTNET
-using Newtonsoft.Json;
-#else
-using System.Web.Script.Serialization;
-#endif
 
 namespace Xunit.Runner.Reporters
 {
     public static class JsonExtentions
     {
-        static string ToJson(object data)
+        public static string ToJson(this IDictionary<string, object> data)
         {
-#if PLATFORM_DOTNET
-            return JsonConvert.SerializeObject(data);
-#else
-            return new JavaScriptSerializer().Serialize(data);
-#endif
+            var sb = new StringBuilder();
+
+            foreach (var kvp in data)
+                AddValue(sb, kvp.Key, kvp.Value);
+
+            return "{" + sb.ToString() + "}";
+        }
+
+        static void AddValue(StringBuilder sb, string name, object value)
+        {
+            if (value == null)
+                return;
+
+            if (sb.Length != 0)
+                sb.Append(',');
+
+            if (value is int || value is long || value is float || value is double || value is decimal)
+                sb.AppendFormat(@"""{0}"":{1}", name, value);
+            else if (value is bool)
+                sb.AppendFormat(@"""{0}"":{1}", name, value.ToString().ToLower());
+            else
+                sb.AppendFormat(@"""{0}"":""{1}""", name, JsonEscape(value.ToString()));
+        }
+
+        static string JsonEscape(string value)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var c in value)
+                switch (c)
+                {
+                    case '\\': sb.Append("\\\\"); break;
+                    case '"': sb.Append(@"\\"""); break;
+                    case '\t': sb.Append("\\t"); break;
+                    case '\r': sb.Append("\\r"); break;
+                    case '\n': sb.Append("\\n"); break;
+                    default:
+                        if (c < 32)
+                            sb.AppendFormat("\\u{0:X4}", (int)c);
+                        else
+                            sb.Append(c);
+                        break;
+                }
+
+            return sb.ToString();
         }
 
         // Field Adders
