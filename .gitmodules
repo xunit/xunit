@@ -1,3 +1,3 @@
 [submodule "src/xunit.assert/Asserts"]
 	path = src/xunit.assert/Asserts
-	url = https://github.com/xunit/assert.xunit.git
+	url = https://github.com/xunit/assert.xunit
