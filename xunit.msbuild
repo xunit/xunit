@@ -25,7 +25,7 @@
 
   <!-- Build server targets -->
 
-  <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;GitLink;Packages;ZipArtifacts" />
+  <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;PdbGit;Packages;ZipArtifacts" />
   <Target Name="TeamCity" DependsOnTargets="CI;PushMyGet" />
 
   <!-- Individual targets -->
@@ -42,7 +42,7 @@
       <CleanFolderList
         Include="**\bin;
                  **\obj;
-                 packages\gitlink;
+                 packages\PdbGit;
                  packages\xunit.buildtasks"/>
     </ItemGroup>
     <Delete Files="@(CleanFileList)"/>
@@ -52,7 +52,7 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; install gitlink -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\gitlink\')" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; install PdbGit -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\PdbGit\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\test\test.xunit1\packages.config&quot; -SolutionDirectory &quot;$(SolutionDir)&quot; -NonInteractive -Verbosity quiet" />
   </Target>
 
@@ -97,11 +97,13 @@
         Condition=" '$(BuildSemanticVersion)' != '' "/>
   </Target>
 
-  <Target Name='GitLink'>
-    <Warning Condition=" '$(CommitHash)' == '' "
-        Text="Skipping GitLink because CommitHash was not specified." />
-    <Exec Condition=" '$(CommitHash)' != '' "
-        Command='packages\gitlink\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f $(SolutionName) -u https://github.com/xunit/xunit -s $(CommitHash)' IgnoreExitCode='true' />
+  <Target Name='PdbGit'>
+    <ItemGroup>
+      <PdbGitFiles Include="src\xunit.assert\bin\$(Configuration)\*\xunit.assert.pdb" />
+      <PdbGitFiles Include="src\xunit.execution\bin\$(Configuration)\*\xunit.execution.*.pdb" />
+      <PdbGitFiles Include="src\xunit.runner.utility\bin\$(Configuration)\*\xunit.runner.utility.*.pdb" />
+    </ItemGroup>
+    <Exec Command='packages\PdbGit\tools\PdbGit.exe "%(PdbGitFiles.Identity)"' />
   </Target>
 
   <Target Name='Packages'>
