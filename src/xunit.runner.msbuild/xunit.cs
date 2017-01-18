@@ -44,7 +44,7 @@ namespace Xunit.Runner.MSBuild
         /// Sets whether test failures will be ignored and allow the build to proceed.
         /// When set to <c>false</c>, test failures will cause the build to fail.
         /// </summary>
-        public bool IgnoreFailures { get; protected set; }
+        public bool IgnoreFailures { get; set; }
 
         public bool FailSkips { get; protected set; }
 
