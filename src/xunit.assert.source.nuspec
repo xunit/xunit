@@ -14,11 +14,11 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>true</developmentDependency>
     <contentFiles>
-      <files include="contentFiles/cs/netstandard1.0/Asserts/**/*.cs" buildAction="Compile" />
+      <files include="contentFiles/cs/netstandard1.1/Asserts/**/*.cs" buildAction="Compile" />
     </contentFiles>
   </metadata>
   <files>
     <file src="xunit.assert\Asserts\**\*.cs" target="Content\Asserts" />
-    <file src="xunit.assert\Asserts\**\*.cs" target="contentFiles\cs\netstandard1.0\Asserts" />
+    <file src="xunit.assert\Asserts\**\*.cs" target="contentFiles\cs\netstandard1.1\Asserts" />
   </files>
 </package>

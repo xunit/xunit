@@ -8,7 +8,7 @@
         "warningsAsErrors": true
     },
     "frameworks": {
-        "net45": { }
+        "net452": { }
     },
     "dependencies": {
         "test.utility": "99.99.99-dev"

@@ -25,7 +25,7 @@
         "xmlDoc": true
     },
     "frameworks": {
-        "net45": {
+        "net452": {
             "buildOptions": {
                 "outputName": "xunit.runner.utility.desktop"
             },
@@ -55,7 +55,7 @@
                 "outputName": "xunit.runner.utility.dotnet"
             },
             "dependencies": {
-                "NETStandard.Library": "1.6.0"
+                "NETStandard.Library": "1.6.1"
             }
         },
       "netstandard1.5": {
@@ -67,8 +67,8 @@
           "outputName": "xunit.runner.utility.dotnet"
         },
         "dependencies": {
-          "NETStandard.Library": "1.6.0",
-          "System.Reflection.TypeExtensions": "4.1.0"
+          "NETStandard.Library": "1.6.1",
+          "System.Reflection.TypeExtensions": "4.3.0"
         }
       } 
     },

@@ -7,7 +7,7 @@
         "warningsAsErrors": true
     },
     "frameworks": {
-        "net45": {
+        "net452": {
             "frameworkAssemblies": {
                 "System.Web.Extensions": "",
                 "System.Xml": "",

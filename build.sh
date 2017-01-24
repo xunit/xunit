@@ -58,9 +58,9 @@ build_step "Compiling binaries"
 build_step "Running unit tests\n"
 
 	# TODO: execution & runner.utility tests fail on Mono
-	mono src/xunit.console/bin/Release/net45/**/xunit.console.exe \
-		test/test.xunit.assert/bin/Release/net45/test.xunit.assert.dll \
-		test/test.xunit.console/bin/Release/net45/test.xunit.console.dll \
-		test/test.xunit.runner.reporters/bin/Release/net45/test.xunit.runner.reporters.dll \
+	mono src/xunit.console/bin/Release/net452/**/xunit.console.exe \
+		test/test.xunit.assert/bin/Release/net452/test.xunit.assert.dll \
+		test/test.xunit.console/bin/Release/net452/test.xunit.console.dll \
+		test/test.xunit.runner.reporters/bin/Release/net452/test.xunit.runner.reporters.dll \
 		-noappdomain -parallel none \
 			|| fatal "Unit tests have failed."

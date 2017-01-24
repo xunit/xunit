@@ -13,20 +13,18 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
+      <group targetFramework="net452">
+        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
+      </group>
       <group targetFramework="netstandard1.1">
-        <dependency id="NETStandard.Library" version="1.6.0" />
-        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="portable-net45+win8+wpa81">
-        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="net45">
+        <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.runner.reporters\bin\Release\net45\xunit.runner.reporters.desktop.dll" target="lib\net45\" />
+    <file src="xunit.runner.reporters\bin\Release\net452\xunit.runner.reporters.desktop.dll" target="lib\net452\" />
+
     <file src="xunit.runner.reporters\bin\Release\netstandard1.1\xunit.runner.reporters.dotnet.dll" target="lib\netstandard1.1\" />
   </files>
 </package>

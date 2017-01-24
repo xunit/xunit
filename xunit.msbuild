@@ -67,7 +67,7 @@
     <RegexReplace
         Pattern="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console&quot;"
         Replacement="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console.x86&quot;"
-        Files="src\xunit.console\bin\$(Configuration)_x86\net45\win7-x64\xunit.console.x86.exe.config" />
+        Files="src\xunit.console\bin\$(Configuration)_x86\net452\win7-x64\xunit.console.x86.exe.config" />
   </Target>
 
   <Target Name="_Test32" DependsOnTargets="Build">

@@ -8,7 +8,7 @@
         "warningsAsErrors": true
     },
     "frameworks": {
-        "net45": { }
+        "net452": { }
     },
     "dependencies": {
         "TestDriven.Framework": "2.0.0",

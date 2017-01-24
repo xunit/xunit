@@ -13,19 +13,16 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
+      <group targetFramework="net35">
+        <dependency id="xunit.abstractions" version="2.0.1" />
+      </group>
       <group targetFramework="netstandard1.1">
-        <dependency id="NETStandard.Library" version="1.6.0" />
+        <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="xunit.abstractions" version="2.0.1" />
       </group>
       <group targetFramework="netstandard1.5">
-        <dependency id="NETStandard.Library" version="1.6.0" />
-        <dependency id="System.Reflection.TypeExtensions" version="4.1.0" />
-        <dependency id="xunit.abstractions" version="2.0.1" />
-      </group>
-      <group targetFramework="portable-net45+win8+wpa81">
-        <dependency id="xunit.abstractions" version="2.0.1" />
-      </group>
-      <group targetFramework="net35">
+        <dependency id="NETStandard.Library" version="1.6.1" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
         <dependency id="xunit.abstractions" version="2.0.1" />
       </group>
     </dependencies>
@@ -35,9 +32,9 @@
     <file src="xunit.runner.utility\bin\Release\net35\xunit.runner.utility.desktop.pdb" target="lib\net35\" />
     <file src="xunit.runner.utility\bin\Release\net35\xunit.runner.utility.desktop.xml" target="lib\net35\" />
 
-    <file src="xunit.runner.utility\bin\Release\net45\xunit.runner.utility.desktop.dll" target="lib\net45\" />
-    <file src="xunit.runner.utility\bin\Release\net45\xunit.runner.utility.desktop.pdb" target="lib\net45\" />
-    <file src="xunit.runner.utility\bin\Release\net45\xunit.runner.utility.desktop.xml" target="lib\net45\" />
+    <file src="xunit.runner.utility\bin\Release\net452\xunit.runner.utility.desktop.dll" target="lib\net452\" />
+    <file src="xunit.runner.utility\bin\Release\net452\xunit.runner.utility.desktop.pdb" target="lib\net452\" />
+    <file src="xunit.runner.utility\bin\Release\net452\xunit.runner.utility.desktop.xml" target="lib\net452\" />
 
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.dll" target="lib\netstandard1.1\" />
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.dotnet.pdb" target="lib\netstandard1.1\" />

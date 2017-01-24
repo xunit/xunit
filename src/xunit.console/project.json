@@ -32,7 +32,7 @@
         }
     },
     "frameworks": {
-        "net45": {
+        "net452": {
             "frameworkAssemblies": {
                 "System.Configuration": "",
                 "System.Xml": "",

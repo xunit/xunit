@@ -7,7 +7,7 @@
         "warningsAsErrors": true
     },
     "frameworks": {
-        "net45": {
+        "net452": {
             "frameworkAssemblies": {
                 "Microsoft.Build.Framework": "",
                 "Microsoft.Build.Utilities.v4.0": "",

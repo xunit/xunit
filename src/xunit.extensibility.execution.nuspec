@@ -13,22 +13,15 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <group targetFramework="netstandard1.0">
-        <dependency id="NETStandard.Library" version="1.6.0" />
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="portable-net45+win8+wp8+wpa81">
+      <group targetFramework="netstandard1.1">
+        <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.execution\bin\Release\net45\xunit.execution.desktop.dll" target="lib\net45\" />
-    <file src="xunit.execution\bin\Release\net45\xunit.execution.desktop.pdb" target="lib\net45\" />
-    <file src="xunit.execution\bin\Release\net45\xunit.execution.desktop.xml" target="lib\net45\" />
-    
-    <file src="xunit.execution\bin\Release\netstandard1.0\xunit.execution.dotnet.dll" target="lib\netstandard1.0\" />
-    <file src="xunit.execution\bin\Release\netstandard1.0\xunit.execution.dotnet.pdb" target="lib\netstandard1.0\" />
-    <file src="xunit.execution\bin\Release\netstandard1.0\xunit.execution.dotnet.xml" target="lib\netstandard1.0\" />
+    <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.dll" target="lib\netstandard1.1\" />
+    <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.pdb" target="lib\netstandard1.1\" />
+    <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.xml" target="lib\netstandard1.1\" />
   </files>
 </package>

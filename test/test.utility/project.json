@@ -12,7 +12,7 @@
         "warningsAsErrors": true
     },
     "frameworks": {
-        "net45": {
+        "net452": {
             "dependencies": {
                 "FSharp.Compiler.Service": "6.0.2",
                 "NSubstitute": "1.10.0",
@@ -24,7 +24,7 @@
                 "define": [ "PLATFORM_DOTNET" ]
             },
             "dependencies": {
-                "NETStandard.Library": "1.6.0"
+                "NETStandard.Library": "1.6.1"
             }
         }
     },
