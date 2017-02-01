@@ -26,7 +26,7 @@ namespace Xunit.ConsoleClient
             {
                 var reporters = GetAvailableRunnerReporters();
 
-                if (args.Length == 0 || args[0] == "-?")
+                if (args.Length == 0 || args[0] == "-?" || args[0] == "/?" || args[0] == "-h" || args[0] == "--help")
                 {
                     PrintHeader();
                     PrintUsage(reporters);
