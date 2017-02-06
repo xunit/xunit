@@ -1,67 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit;
-using Xunit.Sdk;
 
 public class Xunit1TestCaseTests
 {
-    public class Serialization
-    {
-        [Fact(Skip = "Test fails due to a different copy of Xunit.Runner.Utility loaded into the execution AppDomain using LoadFrom")]
-        public static void CanRoundTrip_PublicClass_PublicTestMethod()
-        {
-            var testCase = Create(typeof(Serialization), "CanRoundTrip_PublicClass_PublicTestMethod");
-
-            var serialized = SerializationHelper.Serialize(testCase);
-            var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
-
-            Assert.NotNull(deserialized);
-        }
-
-        [Fact(Skip = "Test fails due to a different copy of Xunit.Runner.Utility loaded into the execution AppDomain using LoadFrom")]
-        public static void CanRoundTrip_PublicClass_PrivateTestMethod()
-        {
-            var testCase = Create(typeof(Serialization), "CanRoundTrip_PublicClass_PrivateTestMethod");
-
-            var serialized = SerializationHelper.Serialize(testCase);
-            var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
-
-            Assert.NotNull(deserialized);
-        }
-
-        [Fact(Skip = "Test fails due to a different copy of Xunit.Runner.Utility loaded into the execution AppDomain using LoadFrom")]
-        public static void CanRoundTrip_PrivateClass()
-        {
-            var testCase = Create(typeof(PrivateClass), "TestMethod");
-
-            var serialized = SerializationHelper.Serialize(testCase);
-            var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
-
-            Assert.NotNull(deserialized);
-        }
-
-        [Fact(Skip = "Test fails due to a different copy of Xunit.Runner.Utility loaded into the execution AppDomain using LoadFrom")]
-        public static void RoundTrippedTraitsAreCaseInsensitive()
-        {
-            var traits = new Dictionary<string, List<string>> { { "foo", new List<string> { "bar" } } };
-            var testCase = Create(typeof(Serialization), "CanRoundTrip_PublicClass_PrivateTestMethod", traits);
-
-            var serialized = SerializationHelper.Serialize(testCase);
-            var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
-
-            Assert.True(deserialized.Traits.Contains("fOo", "bAr", StringComparer.OrdinalIgnoreCase));
-        }
-
-        class PrivateClass
-        {
-            [Fact]
-            public static void TestMethod()
-            {
-                Assert.True(false);
-            }
-        }
-    }
-
     public class UniqueID
     {
         [Fact]
