@@ -14,7 +14,8 @@
     "frameworks": {
         "net452": {
             "dependencies": {
-                "FSharp.Compiler.Service": "6.0.2",
+                "FSharp.Compiler.Service": "9.0.1",
+                "FSharp.Core": "4.0.0.1",
                 "NSubstitute": "1.10.0",
                 "xunit.runner.tdnet": "99.99.99-dev"
             }
