@@ -53,11 +53,13 @@ namespace Xunit.Sdk
 
         void QueueTestOutput(string output)
         {
+            output = EscapeInvalidHexChars(output);
+
             lock (lockObject)
             {
                 GuardInitialized();
 
-                buffer.Append(EscapeInvalidHexChars(output));
+                buffer.Append(output);
             }
 
             messageBus.QueueMessage(new TestOutput(test, output));

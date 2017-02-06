@@ -6,13 +6,6 @@ using Xunit.Sdk;
 
 public class TestOutputHelperTests
 {
-    private readonly ITestOutputHelper _output;
-
-    public TestOutputHelperTests(ITestOutputHelper output)
-    {
-        _output = output;
-    }
-
     public static IEnumerable<object[]> InvalidStrings_TestData()
     {
         // Valid
@@ -31,12 +24,19 @@ public class TestOutputHelperTests
 
     [Theory]
     [MemberData(nameof(InvalidStrings_TestData))]
-    public void WriteLine(string message, string expected)
+    public void WriteLine(string outputText, string expected)
     {
-        _output.WriteLine(message);
-        if (_output is TestOutputHelper)
-        {
-            Assert.Equal(expected + Environment.NewLine, ((TestOutputHelper)_output).Output);
-        }
+        var output = new TestOutputHelper();
+        var messageBus = new SpyMessageBus();
+        var testCase = Mocks.TestCase();
+        var test = Mocks.Test(testCase, "Test Display Name");
+        output.Initialize(messageBus, test);
+
+        output.WriteLine(outputText);
+
+        var message = Assert.Single(messageBus.Messages);
+        var outputMessage = Assert.IsAssignableFrom<ITestOutput>(message);
+        Assert.Equal(expected + Environment.NewLine, outputMessage.Output);
+        Assert.Equal(expected + Environment.NewLine, output.Output);
     }
 }
