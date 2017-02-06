@@ -24,7 +24,7 @@ namespace Xunit.Sdk
                 var ctorArgsWithMessageSink = ctorArgs.Concat(new object[] { diagnosticMessageSink }).ToArray();
                 result = Activator.CreateInstance(type, ctorArgsWithMessageSink);
             }
-            catch
+            catch (MissingMemberException)
             {
                 try
                 {

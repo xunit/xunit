@@ -142,7 +142,7 @@ namespace Xunit.Sdk
                 catch (Exception ex)
                 {
                     result = null;
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex}"));
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}"));
                 }
 
                 discovererCache[discovererType] = result;
