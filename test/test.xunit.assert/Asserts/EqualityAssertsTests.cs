@@ -99,15 +99,6 @@ public class EqualityAssertsTests
         }
 
         [Fact]
-        public void MultidimensionalArrays()
-        {
-            var expected = new string[] { "foo", "bar" };
-            var actual = new string[,] { { "foo" }, { "bar" } };
-
-            Assert.Equal(expected, (object)actual);
-        }
-
-        [Fact]
         public void IDictionary_SameTypes()
         {
             var expected = new Dictionary<string, string> { ["foo"] = "bar" };
