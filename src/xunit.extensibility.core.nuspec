@@ -16,6 +16,9 @@
       <reference file="xunit.core.dll" />
     </references>
     <dependencies>
+      <group targetFramework="net452">
+        <dependency id="xunit.abstractions" version="2.0.1" />
+      </group>
       <group targetFramework="netstandard1.1">
         <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="xunit.abstractions" version="2.0.1" />
