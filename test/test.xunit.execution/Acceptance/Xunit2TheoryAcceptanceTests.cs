@@ -244,6 +244,70 @@ public class Xunit2TheoryAcceptanceTests
         }
 
         [Fact]
+        public void ImplicitExplicitConversions()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithOperatorConversions));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ExplicitConversion(e: Explicit { Value = ""abc"" })", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ImplicitConversion(i: Implicit { Value = ""abc"" })", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToLong(i: 1)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.UIntToULong(i: 1)", result.Test.DisplayName)
+            );
+        }
+
+        public class ClassWithOperatorConversions
+        {
+            [Theory]
+            [InlineData("abc")]
+            public void ExplicitConversion(Explicit e)
+            {
+                Assert.Equal("abc", e.Value);
+            }
+
+            [Theory]
+            [InlineData("abc")]
+            public void ImplicitConversion(Implicit i)
+            {
+                Assert.Equal("abc", i.Value);
+            }
+
+            [Theory]
+            [InlineData(1)]
+            public void IntToLong(long i)
+            {
+                Assert.Equal(1L, i);
+            }
+
+            [Theory]
+            [InlineData((uint)1)]
+            public void UIntToULong(ulong i)
+            {
+                Assert.Equal(1UL, i);
+            }
+
+            public class Explicit
+            {
+                public string Value { get; set; }
+
+                public static explicit operator Explicit(string value)
+                {
+                    return new Explicit() { Value = value };
+                }
+            }
+
+            public class Implicit
+            {
+                public string Value { get; set; }
+
+                public static implicit operator Implicit(string value)
+                {
+                    return new Implicit() { Value = value };
+                }
+            }
+        }
+
+        [Fact]
         public void Skipped()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
