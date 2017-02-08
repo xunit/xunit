@@ -61,16 +61,13 @@ namespace Xunit.Sdk
                     var discovererType = SerializationHelper.GetType(args[1], args[0]);
                     if (discovererType == null)
                     {
-                        IReflectionAttributeInfo reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
+                        var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
 
                         if (reflectionAttribute != null)
-                        {
                             Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
-                        }
                         else
-                        {
                             Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
-                        }
+
                         continue;
                     }
 
@@ -81,25 +78,23 @@ namespace Xunit.Sdk
                     }
                     catch (InvalidCastException)
                     {
-                        IReflectionAttributeInfo reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
+                        var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
 
                         if (reflectionAttribute != null)
-                        {
                             Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
-                        }
                         else
-                        {
                             Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
-                        }
+
                         continue;
                     }
 
-                    IEnumerable<object[]> data = discoverer.GetData(dataAttribute, TestCase.TestMethod.Method);
+                    var data = discoverer.GetData(dataAttribute, TestCase.TestMethod.Method);
                     if (data == null)
                     {
                         Aggregator.Add(new InvalidOperationException($"Test data returned null for {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
                         continue;
                     }
+
                     foreach (var dataRow in data)
                     {
                         toDispose.AddRange(dataRow.OfType<IDisposable>());

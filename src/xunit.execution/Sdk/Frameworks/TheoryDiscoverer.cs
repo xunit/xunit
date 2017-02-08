@@ -112,42 +112,53 @@ namespace Xunit.Sdk
                         }
                         catch (InvalidCastException)
                         {
-                            IReflectionAttributeInfo reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
+                            var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
 
                             if (reflectionAttribute != null)
-                            {
-                                results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
-                                              discoveryOptions.MethodDisplayOrDefault(),
-                                              testMethod,
-                                              $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."));
-                            }
+                                results.Add(
+                                    new ExecutionErrorTestCase(
+                                        diagnosticMessageSink,
+                                        discoveryOptions.MethodDisplayOrDefault(),
+                                        testMethod,
+                                        $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
+                                    )
+                                );
                             else
-                            {
-                                results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
-                                             discoveryOptions.MethodDisplayOrDefault(),
-                                             testMethod,
-                                             $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."));
-                            }
+                                results.Add(
+                                    new ExecutionErrorTestCase(
+                                        diagnosticMessageSink,
+                                        discoveryOptions.MethodDisplayOrDefault(),
+                                        testMethod,
+                                        $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
+                                    )
+                                );
+
                             continue;
                         }
+
                         if (discoverer == null)
                         {
-                            IReflectionAttributeInfo reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
+                            var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
 
                             if (reflectionAttribute != null)
-                            {
-                                results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
-                                              discoveryOptions.MethodDisplayOrDefault(),
-                                              testMethod,
-                                              $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."));
-                            }
+                                results.Add(
+                                    new ExecutionErrorTestCase(
+                                        diagnosticMessageSink,
+                                        discoveryOptions.MethodDisplayOrDefault(),
+                                        testMethod,
+                                        $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
+                                    )
+                                );
                             else
-                            {
-                                results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
-                                             discoveryOptions.MethodDisplayOrDefault(),
-                                             testMethod,
-                                             $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."));
-                            }
+                                results.Add(
+                                    new ExecutionErrorTestCase(
+                                        diagnosticMessageSink,
+                                        discoveryOptions.MethodDisplayOrDefault(),
+                                        testMethod,
+                                        $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
+                                    )
+                                );
+
                             continue;
                         }
 
@@ -156,7 +167,7 @@ namespace Xunit.Sdk
                         if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
                             return new[] { CreateTestCaseForTheory(discoveryOptions, testMethod, theoryAttribute) };
 
-                        IEnumerable<object[]> data = discoverer.GetData(dataAttribute, testMethod.Method);
+                        var data = discoverer.GetData(dataAttribute, testMethod.Method);
                         if (data == null)
                         {
                             results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
@@ -165,6 +176,7 @@ namespace Xunit.Sdk
                                           $"Test data returned null for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
                             continue;
                         }
+
                         foreach (var dataRow in data)
                         {
                             // Determine whether we can serialize the test case, since we need a way to uniquely
