@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 public class ArgumentFormatterTests
@@ -15,35 +14,35 @@ public class ArgumentFormatterTests
         {
             Assert.Equal("null", ArgumentFormatter.Format(null));
         }
-        
+
         // NOTE: It's important that this stays as MemberData
         // instead of InlineData. String constants in attributes
         // are stored as UTF-8 as IL, so since "\uD800" cannot
         // be converted to valid UTF-8, it ends up getting corrupted
         // and being stored as two characters instead. Thus, this test
         // will fail:
-        
+
         // [Theory]
         // [InlineData("\uD800", 1)]
         // public void HasLength(string s, int length)
         // {
         //     Assert.Equal(length, s.Length);
         // }
-        
+
         // While this one will pass:
-        
+
         // public static IEnumerable<object[]> HasLength_TestData()
         // {
         //     yield return new object[] { "\uD800", 1 };
         // }
-        
+
         // [Theory]
         // [MemberData(nameof(HasLength_TestData))]
         // public void HasLength(string s, int length)
         // {
         //     Assert.Equal(length, s.Length);
         // }
-        
+
         // For more information, see the following links:
         // - http://stackoverflow.com/q/36104766/4077294
         // - http://codeblog.jonskeet.uk/2014/11/07/when-is-a-string-not-a-string/
@@ -173,6 +172,54 @@ public class ArgumentFormatterTests
         public static void TypeValue(Type type, string expected)
         {
             Assert.Equal(expected, ArgumentFormatter.Format(type));
+        }
+    }
+
+    public class Enums
+    {
+        public enum NonFlagsEnum
+        {
+            Value0 = 0,
+            Value1 = 1
+        }
+
+        [Theory]
+        [InlineData(0, "Value0")]
+        [InlineData(1, "Value1")]
+        [InlineData(42, "42")]
+        public static void NonFlags(NonFlagsEnum enumValue, string expected)
+        {
+            var actual = ArgumentFormatter.Format(enumValue);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Flags]
+        public enum FlagsEnum
+        {
+            Nothing = 0,
+            Value1 = 1,
+            Value2 = 2,
+        }
+
+        [Theory]
+        [InlineData(0, "Nothing")]
+        [InlineData(1, "Value1")]
+        [InlineData(3, "Value1 | Value2")]
+        [InlineData(7, "7")]    // This is expected, not "Value1 | Value2 | 4"
+        public static void Flags(FlagsEnum enumValue, string expected)
+        {
+            var actual = ArgumentFormatter.Format(enumValue);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [CulturedFact]
+        public static void FlagsWithCulture()
+        {
+            var actual = ArgumentFormatter.Format(FlagsEnum.Value1 | FlagsEnum.Value2);
+
+            Assert.Equal("Value1 | Value2", actual);
         }
     }
 
