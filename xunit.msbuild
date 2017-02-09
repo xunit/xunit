@@ -17,6 +17,7 @@
     <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(SolutionDir)\.nuget\nuget.exe</NuGetExePath>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">normal</RequestedVerbosity>
     <MyGetUrl Condition="'$(MyGetUrl)' == ''">https://www.myget.org/F/xunit/api/v2/package</MyGetUrl>
+    <MyGetSymbolsUrl Condition="'$(MyGetSymbolsUrl)' == ''">https://www.myget.org/F/xunit/symbols/api/v2/package</MyGetSymbolsUrl>
   </PropertyGroup>
   <ItemGroup>
     <NuspecFiles
@@ -135,8 +136,10 @@
   <Target Name="PushMyGet" DependsOnTargets="_DownloadNuGet" Condition=" '$(ForcePushMyGet)' == 'true' Or '$(GitBranch)' == 'master' Or '$(GitBranch)' == 'refs/heads/master' ">
     <ItemGroup>
       <NupkgFiles Include="*.nupkg" Exclude="*.symbols.nupkg" />
+      <NupkgSymbolsFiles Include="*.symbols.nupkg" />
     </ItemGroup>
     <Exec Command='"$(NuGetExePath)" push %(NupkgFiles.Identity) -NonInteractive -Source $(MyGetUrl)' />
+    <Exec Command='"$(NuGetExePath)" push %(NupkgSymbolsFiles.Identity) -NonInteractive -Source $(MyGetSymbolsUrl)' />
   </Target>
 
   <Target Name="PushNuGet" DependsOnTargets="_DownloadNuGet">
