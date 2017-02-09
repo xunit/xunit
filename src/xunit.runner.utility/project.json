@@ -27,7 +27,7 @@
     "frameworks": {
         "net452": {
             "buildOptions": {
-                "outputName": "xunit.runner.utility.desktop"
+                "outputName": "xunit.runner.utility.net452"
             },
             "frameworkAssemblies": {
                 "System.Configuration": "",
@@ -38,7 +38,7 @@
         },
         "net35": {
             "buildOptions": {
-                "outputName": "xunit.runner.utility.desktop"
+                "outputName": "xunit.runner.utility.net35"
             },
             "frameworkAssemblies": {
                 "System.Configuration": "",
@@ -50,9 +50,9 @@
             "buildOptions": {
                 "define": [ "PLATFORM_DOTNET" ],
                 "embed": [
-                    "Resources/xunit.runner.utility.dotnet.rd.xml"
+                    "Resources/xunit.runner.utility.netstandard11.rd.xml"
                 ],
-                "outputName": "xunit.runner.utility.dotnet"
+                "outputName": "xunit.runner.utility.netstandard11"
             },
             "dependencies": {
                 "NETStandard.Library": "1.6.0"
@@ -62,9 +62,9 @@
             "buildOptions": {
                 "define": [ "PLATFORM_DOTNET" ],
                 "embed": [
-                    "Resources/xunit.runner.utility.dotnet.rd.xml"
+                    "Resources/xunit.runner.utility.netstandard15.rd.xml"
                 ],
-                "outputName": "xunit.runner.utility.dotnet"
+                "outputName": "xunit.runner.utility.netstandard15"
             },
             "dependencies": {
                 "NETStandard.Library": "1.6.0",

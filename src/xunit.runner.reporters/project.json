@@ -10,7 +10,7 @@
     "frameworks": {
         "net452": {
             "buildOptions": {
-                "outputName": "xunit.runner.reporters.desktop"
+                "outputName": "xunit.runner.reporters.net452"
             },
             "frameworkAssemblies": {
                 "System.Net.Http": "",
@@ -23,9 +23,9 @@
             "buildOptions": {
                 "define": [ "PLATFORM_DOTNET" ],
                 "embed": [
-                    "Resources/xunit.runner.reporters.dotnet.rd.xml"
+                    "Resources/xunit.runner.reporters.netstandard11.rd.xml"
                 ],
-                "outputName": "xunit.runner.reporters.dotnet"
+                "outputName": "xunit.runner.reporters.netstandard11"
             },
             "dependencies": {
                 "NETStandard.Library": "1.6.0"

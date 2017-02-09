@@ -19,13 +19,24 @@
     <MyGetUrl Condition="'$(MyGetUrl)' == ''">https://www.myget.org/F/xunit/api/v2/package</MyGetUrl>
   </PropertyGroup>
   <ItemGroup>
-    <NuspecFiles Include="src\*.nuspec" />
+    <NuspecFiles
+        Include="src\xunit.assert.source.nuspec;
+                 src\xunit.core.nuspec;
+                 src\xunit.nuspec" />
+    <NuspecFilesWithSymbols
+        Include="src\xunit.assert.nuspec;
+                 src\xunit.extensibility.core.nuspec;
+                 src\xunit.extensibility.execution.nuspec;
+                 src\xunit.runner.console.nuspec;
+                 src\xunit.runner.msbuild.nuspec;
+                 src\xunit.runner.reporters.nuspec;
+                 src\xunit.runner.utility.nuspec" />
     <ProjectJsonFiles Include="src\*\project.json;test\*\project.json" />
   </ItemGroup>
 
   <!-- Build server targets -->
 
-  <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;PdbGit;Packages;ZipArtifacts" />
+  <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts" />
   <Target Name="TeamCity" DependsOnTargets="CI;PushMyGet" />
 
   <!-- Individual targets -->
@@ -52,7 +63,6 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; install PdbGit -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\PdbGit\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\test\test.xunit1\packages.config&quot; -SolutionDirectory &quot;$(SolutionDir)&quot; -NonInteractive -Verbosity quiet" />
   </Target>
 
@@ -93,21 +103,19 @@
     <RegexReplace
         Pattern='99\.99\.99-dev'
         Replacement='$(BuildSemanticVersion)'
-        Files='@(NuspecFiles);@(ProjectJsonFiles)'
+        Files='@(NuspecFiles);@(NuspecFilesWithSymbols);@(ProjectJsonFiles)'
         Condition=" '$(BuildSemanticVersion)' != '' "/>
   </Target>
 
-  <Target Name='PdbGit'>
-    <ItemGroup>
-      <PdbGitFiles Include="src\xunit.assert\bin\$(Configuration)\*\xunit.assert.pdb" />
-      <PdbGitFiles Include="src\xunit.execution\bin\$(Configuration)\*\xunit.execution.*.pdb" />
-      <PdbGitFiles Include="src\xunit.runner.utility\bin\$(Configuration)\*\xunit.runner.utility.*.pdb" />
-    </ItemGroup>
-    <Exec Command='packages\PdbGit\tools\PdbGit.exe "%(PdbGitFiles.Identity)"' />
-  </Target>
-
   <Target Name='Packages'>
+    <!-- Delete all the obj folders before packing things -->
+    <ItemGroup>
+      <ObjSourceFiles Include='**\obj\**\*.cs' />
+    </ItemGroup>
+    <Delete Files='@(ObjSourceFiles)' />
+
     <Exec Command='"$(NuGetExePath)" pack %(NuspecFiles.Identity) -NonInteractive -Verbosity quiet' />
+    <Exec Command='"$(NuGetExePath)" pack %(NuspecFilesWithSymbols.Identity) -Symbols -NonInteractive -Verbosity quiet' />
   </Target>
 
   <Target Name='ZipArtifacts'>
@@ -126,14 +134,14 @@
 
   <Target Name="PushMyGet" DependsOnTargets="_DownloadNuGet" Condition=" '$(ForcePushMyGet)' == 'true' Or '$(GitBranch)' == 'master' Or '$(GitBranch)' == 'refs/heads/master' ">
     <ItemGroup>
-      <NupkgFiles Include="*.nupkg" />
+      <NupkgFiles Include="*.nupkg" Exclude="*.symbols.nupkg" />
     </ItemGroup>
     <Exec Command='"$(NuGetExePath)" push %(NupkgFiles.Identity) -NonInteractive -Source $(MyGetUrl)' />
   </Target>
 
   <Target Name="PushNuGet" DependsOnTargets="_DownloadNuGet">
     <ItemGroup>
-      <NupkgFiles Include="*.nupkg" Exclude="*.symbols*.nupkg" />
+      <NupkgFiles Include="*.nupkg" Exclude="*.symbols.nupkg" />
     </ItemGroup>
     <Exec Command='"$(NuGetExePath)" push %(NupkgFiles.Identity) -Source https://www.nuget.org/api/v2/package -NonInteractive' />
   </Target>
