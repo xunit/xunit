@@ -55,22 +55,22 @@
                 "outputName": "xunit.runner.utility.dotnet"
             },
             "dependencies": {
-                "NETStandard.Library": "1.6.1"
+                "NETStandard.Library": "1.6.0"
             }
         },
-      "netstandard1.5": {
-        "buildOptions": {
-          "define": [ "PLATFORM_DOTNET" ],
-          "embed": [
-            "Resources/xunit.runner.utility.dotnet.rd.xml"
-          ],
-          "outputName": "xunit.runner.utility.dotnet"
-        },
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "System.Reflection.TypeExtensions": "4.3.0"
-        }
-      } 
+        "netstandard1.5": {
+            "buildOptions": {
+                "define": [ "PLATFORM_DOTNET" ],
+                "embed": [
+                    "Resources/xunit.runner.utility.dotnet.rd.xml"
+                ],
+                "outputName": "xunit.runner.utility.dotnet"
+            },
+            "dependencies": {
+                "NETStandard.Library": "1.6.0",
+                "System.Reflection.TypeExtensions": "4.3.0"
+            }
+        } 
     },
     "dependencies": {
         "xunit.abstractions": "2.0.1"
