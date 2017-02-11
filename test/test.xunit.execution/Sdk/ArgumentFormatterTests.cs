@@ -183,7 +183,7 @@ public class ArgumentFormatterTests
             Value1 = 1
         }
 
-        [Theory]
+        [CulturedTheory]
         [InlineData(0, "Value0")]
         [InlineData(1, "Value1")]
         [InlineData(42, "42")]
@@ -202,7 +202,7 @@ public class ArgumentFormatterTests
             Value2 = 2,
         }
 
-        [Theory]
+        [CulturedTheory]
         [InlineData(0, "Nothing")]
         [InlineData(1, "Value1")]
         [InlineData(3, "Value1 | Value2")]
@@ -212,14 +212,6 @@ public class ArgumentFormatterTests
             var actual = ArgumentFormatter.Format(enumValue);
 
             Assert.Equal(expected, actual);
-        }
-
-        [CulturedFact]
-        public static void FlagsWithCulture()
-        {
-            var actual = ArgumentFormatter.Format(FlagsEnum.Value1 | FlagsEnum.Value2);
-
-            Assert.Equal("Value1 | Value2", actual);
         }
     }
 

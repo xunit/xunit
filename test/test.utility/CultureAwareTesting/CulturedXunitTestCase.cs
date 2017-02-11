@@ -1,4 +1,4 @@
-#if !PLATFORM_DOTNET
+#if NET452
 
 using System;
 using System.ComponentModel;
@@ -30,11 +30,11 @@ namespace TestUtility
 
             Traits.Add("Culture", culture);
 
-            DisplayName += $" [{culture}]";
+            DisplayName += $"[{culture}]";
         }
 
         protected override string GetUniqueID()
-            => $"{base.GetUniqueID()} [{culture}]";
+            => $"{base.GetUniqueID()}[{culture}]";
 
         public override void Deserialize(IXunitSerializationInfo data)
         {
