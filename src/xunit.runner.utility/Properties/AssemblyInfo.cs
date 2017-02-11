@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Reflection;
 
-#if PLATFORM_DOTNET
-[assembly: AssemblyTitle("xUnit.net Runner Utility (dotnet)")]
+#if NET35
+[assembly: AssemblyTitle("xUnit.net Runner Utility (.NET 3.5)")]
+#elif NET452
+[assembly: AssemblyTitle("xUnit.net Runner Utility (.NET 4.5.2)")]
+#elif NETSTANDARD1_1
+[assembly: AssemblyTitle("xUnit.net Runner Utility (.NET Standard 1.1)")]
+#elif NETSTANDARD1_5
+[assembly: AssemblyTitle("xUnit.net Runner Utility (.NET Standard 1.5)")]
 #else
-[assembly: AssemblyTitle("xUnit.net Runner Utility (desktop)")]
+#error Unknown target platform
 #endif
 
 [assembly: CLSCompliant(true)]
