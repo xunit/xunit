@@ -68,7 +68,7 @@
             },
             "dependencies": {
                 "NETStandard.Library": "1.6.0",
-                "System.Reflection.TypeExtensions": "4.3.0"
+                "System.Reflection.TypeExtensions": "4.1.0"
             }
         } 
     },
