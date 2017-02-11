@@ -1,79 +1,134 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
-using Xunit.Sdk;
-
-#if PLATFORM_DOTNET
-using Newtonsoft.Json;
-#else
-using System.Web.Script.Serialization;
-#endif
+using System.Threading.Tasks;
 
 namespace Xunit.Runner.Reporters
 {
-    public static class AppVeyorClient
+    public class AppVeyorClient
     {
-        static readonly HttpClient client = new HttpClient();
-        static readonly MediaTypeWithQualityHeaderValue jsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
-        static volatile bool previousErrors;
+        readonly IRunnerLogger logger;
+        readonly string baseUri;
 
-        public static void SendRequest(IRunnerLogger logger, string url, HttpMethod method, object body)
+        public AppVeyorClient(IRunnerLogger logger, string baseUri)
         {
-            if (previousErrors)
-                return;
+            this.logger = logger;
+            this.baseUri = $"{baseUri}/api/tests/batch";
 
-            lock (jsonMediaType)
+            workTask = Task.Run(RunLoop);
+        }
+
+        readonly HttpClient client = new HttpClient();
+        readonly MediaTypeWithQualityHeaderValue jsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
+
+        readonly Task workTask;
+        volatile bool previousErrors;
+
+        readonly ManualResetEventSlim finished = new ManualResetEventSlim(false);
+        readonly ManualResetEventSlim workEvent = new ManualResetEventSlim(false);
+        volatile bool shouldExit;
+
+        ConcurrentQueue<IDictionary<string, object>> addQueue = new ConcurrentQueue<IDictionary<string, object>>();
+
+        ConcurrentQueue<IDictionary<string, object>> updateQueue = new ConcurrentQueue<IDictionary<string, object>>();
+
+        public void WaitOne(CancellationToken cancellationToken)
+        {
+            // Free up to process any remaining work
+            shouldExit = true;
+            workEvent.Set();
+
+            finished.Wait(cancellationToken);
+            finished.Dispose();
+        }
+
+        async Task RunLoop()
+        {
+            try
             {
-                using (var finished = new ManualResetEvent(false))
+                while (!shouldExit || !addQueue.IsEmpty || !updateQueue.IsEmpty)
                 {
-                    XunitWorkerThread.QueueUserWorkItem(async () =>
-                    {
-                        var bodyString = ToJson(body);
+                    workEvent.Wait();   // Wait for work
+                    workEvent.Reset();  // Reset first to ensure any subsequent modification sets
 
-                        try
-                        {
-                            var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
+                    // Get local copies of the queues
+                    var aq = Interlocked.Exchange(ref addQueue, new ConcurrentQueue<IDictionary<string, object>>());
+                    var uq = Interlocked.Exchange(ref updateQueue, new ConcurrentQueue<IDictionary<string, object>>());
 
-                            var request = new HttpRequestMessage(method, url);
-                            request.Content = new ByteArrayContent(bodyBytes);
-                            request.Content.Headers.ContentType = jsonMediaType;
-                            request.Headers.Accept.Add(jsonMediaType);
+                    if (previousErrors)
+                        break;
 
-                            using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-                            {
-                                var response = await client.SendAsync(request, tcs.Token);
-                                if (!response.IsSuccessStatusCode)
-                                {
-                                    logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
-                                    previousErrors = true;
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogError($"When sending '{method} {url}' with body '{bodyString}', exception was thrown: {ex.Message}");
-                            previousErrors = true;
-                        }
-                        finally
-                        {
-                            finished.Set();
-                        }
-                    });
-
-                    finished.WaitOne();
+                    await Task.WhenAll(
+                        SendRequest(HttpMethod.Post, aq.ToArray()),
+                        SendRequest(HttpMethod.Put, uq.ToArray())
+                    ).ConfigureAwait(false);
                 }
+            }
+            catch { }
+            finally
+            {
+                finished.Set();
             }
         }
 
-        static string ToJson(object data)
+
+        public void AddTest(IDictionary<string, object> request)
         {
-#if PLATFORM_DOTNET
-            return JsonConvert.SerializeObject(data);
-#else
-            return new JavaScriptSerializer().Serialize(data);
-#endif
+            addQueue.Enqueue(request);
+            workEvent.Set();
+        }
+
+        public void UpdateTest(IDictionary<string, object> request)
+        {
+            updateQueue.Enqueue(request);
+            workEvent.Set();
+        }
+
+        async Task SendRequest(HttpMethod method, ICollection<IDictionary<string, object>> body)
+        {
+            if (body.Count == 0)
+                return;
+
+            var bodyString = ToJson(body);
+
+            try
+            {
+                var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
+
+                var request = new HttpRequestMessage(method, baseUri)
+                {
+                    Content = new ByteArrayContent(bodyBytes)
+                };
+                request.Content.Headers.ContentType = jsonMediaType;
+                request.Headers.Accept.Add(jsonMediaType);
+
+                using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                {
+                    var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        logger.LogWarning($"When sending '{method} {baseUri}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        previousErrors = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"When sending '{method} {baseUri}' with body '{bodyString}', exception was thrown: {ex.Message}");
+                throw;
+            }
+        }
+
+
+        static string ToJson(IEnumerable<IDictionary<string, object>> data)
+        {
+            var results = string.Join(",", data.Select(x => x.ToJson()));
+            return $"[{results}]";
         }
     }
 }

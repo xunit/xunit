@@ -1,99 +1,56 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
-  <metadata minClientVersion="2.8.5">
+  <metadata minClientVersion="2.12">
     <id>xunit.extensibility.execution</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Extensibility: Execution]</title>
     <authors>James Newkirk,Brad Wilson</authors>
-    <description>Includes xunit.execution.*.dll for extensibility purposes.
-
-Supported platforms:
-- Desktop .NET 4.5+
-- .NET Core (Universal Windows Apps 10+, DNX Core 5+)
-- Windows 8
-- Windows Phone 8 (Silverlight)
-- Universal (Windows Phone 8.1+, Windows 8.1+)
-- Xamarin (MonoTouch, MonoAndroid, Xamarin iOS Universal)
-- Portable Libraries (supporting Profile259)</description>
+    <summary>Includes xunit.execution.*.dll for extensibility purposes.</summary>
+    <description>Includes xunit.execution.*.dll for extensibility purposes.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <group targetFramework="dnx451">
+      <group targetFramework="net452">
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
-      <group targetFramework="dotnet">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-        <dependency id="System.Collections" version="4.0.0" />
-        <dependency id="System.Diagnostics.Debug" version="4.0.0" />
-        <dependency id="System.Globalization" version="4.0.0" />
-        <dependency id="System.IO" version="4.0.0" />
-        <dependency id="System.Linq" version="4.0.0" />
-        <dependency id="System.Linq.Expressions" version="4.0.0" />
-        <dependency id="System.Reflection" version="4.0.0" />
-        <dependency id="System.Reflection.Extensions" version="4.0.0" />
-        <dependency id="System.Runtime" version="4.0.0" />
-        <dependency id="System.Runtime.Extensions" version="4.0.0" />
-        <dependency id="System.Text.Encoding" version="4.0.0" />
-        <dependency id="System.Threading" version="4.0.0" />
-        <dependency id="System.Threading.Tasks" version="4.0.0" />
-        <dependency id="xunit.abstractions" version="2.0.0" />
-      </group>
-      <group targetFramework="monoandroid">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="monotouch">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="net45">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="win8">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="wp8">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="wpa81">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="xamarinios">
+      <group targetFramework="netstandard1.1">
+        <dependency id="NETStandard.Library" version="1.6.0" />
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\dotnet\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\dotnet\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\dotnet\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\dnx451\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\dnx451\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\dnx451\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\monoandroid\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\monoandroid\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\monoandroid\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\monotouch\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\monotouch\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\monotouch\" />
-    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.dll" target="lib\net45\" />
-    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.pdb" target="lib\net45\" />
-    <file src="xunit.execution.desktop\bin\Release\xunit.execution.desktop.xml" target="lib\net45\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\win8\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\win8\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\win8\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\wp8\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\wp8\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\wp8\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\wpa81\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\wpa81\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\wpa81\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.dll" target="lib\xamarinios\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.pdb" target="lib\xamarinios\" />
-    <file src="xunit.execution.dotnet\bin\Release\xunit.execution.dotnet.xml" target="lib\xamarinios\" />
+    <file src="xunit.execution\bin\Release\net452\xunit.execution.desktop.dll" target="lib\net452\" />
+    <file src="xunit.execution\bin\Release\net452\xunit.execution.desktop.pdb" target="lib\net452\" />
+    <file src="xunit.execution\bin\Release\net452\xunit.execution.desktop.xml" target="lib\net452\" />
+
+    <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.dll" target="lib\netstandard1.1\" />
+    <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.pdb" target="lib\netstandard1.1\" />
+    <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.xml" target="lib\netstandard1.1\" />
+
+    <file src="common\AssemblyExtensions.cs"                              target="src\common\" />
+    <file src="common\CommonTasks.cs"                                     target="src\common\" />
+    <file src="common\DictionaryExtensions.cs"                            target="src\common\" />
+    <file src="common\ExceptionExtensions.cs"                             target="src\common\" />
+    <file src="common\ExceptionUtility.cs"                                target="src\common\" />
+    <file src="common\ExecutionHelper.cs"                                 target="src\common\" />
+    <file src="common\GlobalAssemblyInfo.cs"                              target="src\common\" />
+    <file src="common\Guard.cs"                                           target="src\common\" />
+    <file src="common\LongLivedMarshalByRefObject.cs"                     target="src\common\" />
+    <file src="common\NewReflectionExtensions.cs"                         target="src\common\" />
+    <file src="common\NullMessageSink.cs"                                 target="src\common\" />
+    <file src="common\SerializationHelper.cs"                             target="src\common\" />
+    <file src="common\SourceInformation.cs"                               target="src\common\" />
+    <file src="common\TestOptionsNames.cs"                                target="src\common\" />
+    <file src="common\XunitSerializationInfo.cs"                          target="src\common\" />
+    <file src="common\XunitWorkerThread.cs"                               target="src\common\" />
+    <file src="messages\**\*.cs"                                          target="src\messages\" />
+    <file src="xunit.assert\Asserts\Sdk\ArgumentFormatter.cs"             target="src\xunit.assert\Asserts\Sdk\" />
+    <file src="xunit.assert\Asserts\Sdk\AssertEqualityComparer.cs"        target="src\xunit.assert\Asserts\Sdk\" />
+    <file src="xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" target="src\xunit.assert\Asserts\Sdk\" />
+    <file src="xunit.execution\**\*.cs"                                   target="src\xunit.execution\" />
   </files>
 </package>

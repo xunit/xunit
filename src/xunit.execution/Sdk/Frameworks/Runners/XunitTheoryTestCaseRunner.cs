@@ -59,23 +59,59 @@ namespace Xunit.Sdk
                     var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
                     var args = discovererAttribute.GetConstructorArguments().Cast<string>().ToList();
                     var discovererType = SerializationHelper.GetType(args[1], args[0]);
-                    var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererType);
+                    if (discovererType == null)
+                    {
+                        var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
 
-                    foreach (var dataRow in discoverer.GetData(dataAttribute, TestCase.TestMethod.Method))
+                        if (reflectionAttribute != null)
+                            Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
+                        else
+                            Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
+
+                        continue;
+                    }
+
+                    IDataDiscoverer discoverer;
+                    try
+                    {
+                        discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererType);
+                    }
+                    catch (InvalidCastException)
+                    {
+                        var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
+
+                        if (reflectionAttribute != null)
+                            Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
+                        else
+                            Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
+
+                        continue;
+                    }
+
+                    var data = discoverer.GetData(dataAttribute, TestCase.TestMethod.Method);
+                    if (data == null)
+                    {
+                        Aggregator.Add(new InvalidOperationException($"Test data returned null for {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
+                        continue;
+                    }
+
+                    foreach (var dataRow in data)
                     {
                         toDispose.AddRange(dataRow.OfType<IDisposable>());
 
                         ITypeInfo[] resolvedTypes = null;
                         var methodToRun = TestMethod;
+                        var convertedDataRow = methodToRun.ResolveMethodArguments(dataRow);
 
                         if (methodToRun.IsGenericMethodDefinition)
                         {
-                            resolvedTypes = TestCase.TestMethod.Method.ResolveGenericTypes(dataRow);
+                            resolvedTypes = TestCase.TestMethod.Method.ResolveGenericTypes(convertedDataRow);
                             methodToRun = methodToRun.MakeGenericMethod(resolvedTypes.Select(t => ((IReflectionTypeInfo)t).Type).ToArray());
                         }
 
                         var parameterTypes = methodToRun.GetParameters().Select(p => p.ParameterType).ToArray();
-                        var convertedDataRow = Reflector.ConvertArguments(dataRow, parameterTypes);
+                        convertedDataRow = Reflector.ConvertArguments(convertedDataRow, parameterTypes);
+
                         var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
                         var test = new XunitTest(TestCase, theoryDisplayName);
                         var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip");

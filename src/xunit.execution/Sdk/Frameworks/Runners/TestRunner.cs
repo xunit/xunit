@@ -147,8 +147,11 @@ namespace Xunit.Sdk
                     if (!aggregator.HasExceptions)
                     {
                         var tuple = await aggregator.RunAsync(() => InvokeTestAsync(aggregator));
-                        runSummary.Time = tuple.Item1;
-                        output = tuple.Item2;
+                        if (tuple != null)
+                        {
+                            runSummary.Time = tuple.Item1;
+                            output = tuple.Item2;
+                        }
                     }
 
                     var exception = aggregator.ToException();

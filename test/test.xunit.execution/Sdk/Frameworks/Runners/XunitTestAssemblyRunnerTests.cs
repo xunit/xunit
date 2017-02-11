@@ -165,21 +165,6 @@ public class XunitTestAssemblyRunnerTests
 
     public class RunAsync
     {
-        [Fact(Skip = "Flaky test, need a way to ensure thread swaps that's better than Thread.Sleep")]
-        public static async void Parallel_MultipleThreads()
-        {
-            var passing = Mocks.XunitTestCase<ClassUnderTest>("Passing");
-            var other = Mocks.XunitTestCase<ClassUnderTest>("Other");
-            var options = TestFrameworkOptions.ForExecution();
-            options.SetMaxParallelThreads(2);
-            var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
-
-            await runner.RunAsync();
-
-            var threadIDs = runner.TestCasesRun.Select(x => x.Item1).ToList();
-            Assert.NotEqual(threadIDs[0], threadIDs[1]);
-        }
-
         [Fact]
         public static async void Parallel_SingleThread()
         {

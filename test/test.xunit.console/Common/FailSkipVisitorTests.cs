@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#pragma warning disable CS0618
+
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;

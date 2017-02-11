@@ -101,6 +101,7 @@ public class PropertyAssertsTests
 
     public class PropertyChangedAsync
     {
+#pragma warning disable CS1998
         [Fact]
         public async void GuardClauses()
         {
@@ -173,6 +174,8 @@ public class PropertyAssertsTests
 
             Assert.Null(ex);
         }
+
+#pragma warning restore CS1998
 
         [Fact]
         public async void ExceptionThrownWhenPropertyChangedToUnexpectedValue()

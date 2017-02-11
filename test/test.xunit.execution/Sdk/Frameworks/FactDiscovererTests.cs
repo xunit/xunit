@@ -50,6 +50,21 @@ public class FactDiscovererTests
         Assert.Equal("[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?", failed.Messages.Single());
     }
 
+    [Fact]
+    public async void GenericFact_ReturnsTestCaseWhichThrows()
+    {
+        var discoverer = TestableFactDiscoverer.Create();
+        var testMethod = Mocks.TestMethod(typeof(ClassUnderTest), "GenericFact");
+
+        var testCases = discoverer.Discover(options, testMethod, factAttribute);
+
+        var testCase = Assert.Single(testCases);
+        await testCase.RunAsync(SpyMessageSink.Create(), messageBus, new object[0], aggregator, cancellationTokenSource);
+        var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
+        Assert.Equal(typeof(InvalidOperationException).FullName, failed.ExceptionTypes.Single());
+        Assert.Equal("[Fact] methods are not allowed to be generic.", failed.Messages.Single());
+    }
+
     class ClassUnderTest
     {
         [Fact]
@@ -57,6 +72,9 @@ public class FactDiscovererTests
 
         [Fact]
         public void FactWithParameters(int x) { }
+
+        [Fact]
+        public void GenericFact<T>() { }
     }
 
     class TestableFactDiscoverer : FactDiscoverer

@@ -1,4 +1,6 @@
-﻿using Xunit.Sdk;
+﻿#if !PLATFORM_DOTNET
+
+using Xunit.Sdk;
 
 namespace Xunit
 {
@@ -8,3 +10,5 @@ namespace Xunit
         public CulturedFactAttribute(params string[] cultures) { }
     }
 }
+
+#endif

@@ -58,7 +58,7 @@ namespace Xunit
 
             if (this.sourceInformationProvider == null)
             {
-#if PLATFORM_DOTNET
+#if NETSTANDARD1_1
                 this.sourceInformationProvider = new NullSourceInformationProvider();
 #else
                 this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);

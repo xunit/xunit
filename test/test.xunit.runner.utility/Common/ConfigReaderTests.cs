@@ -40,6 +40,7 @@ public class ConfigReaderTests
             Assert.True(result.ParallelizeAssemblyOrDefault);
             Assert.False(result.ParallelizeTestCollectionsOrDefault);
             Assert.False(result.PreEnumerateTheoriesOrDefault);
+            Assert.Equal(5, result.LongRunningTestSecondsOrDefault);
         }
 
         [Fact]
@@ -83,6 +84,7 @@ public class ConfigReaderTests
             Assert.True(result.ParallelizeAssemblyOrDefault);
             Assert.False(result.ParallelizeTestCollectionsOrDefault);
             Assert.False(result.PreEnumerateTheoriesOrDefault);
+            Assert.Equal(5, result.LongRunningTestSecondsOrDefault);
         }
 
         [Fact]

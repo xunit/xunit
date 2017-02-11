@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata minClientVersion="2.8.1">
+  <metadata minClientVersion="2.12">
     <id>xunit.runner.msbuild</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner: MSBuild]</title>
     <authors>James Newkirk,Brad Wilson</authors>
-    <description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests.</description>
+    <summary>MSBuild runner for the xUnit.net framework.</summary>
+    <description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests. Requires .NET 4.5.2 or later.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
@@ -14,12 +15,19 @@
     <developmentDependency>true</developmentDependency>
   </metadata>
   <files>
-    <file src="xunit.console\*.xslt"                                                target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.abstractions.dll"             target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.reporters.desktop.dll" target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.utility.desktop.dll"   target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\bin\Release\xunit.runner.msbuild.dll"           target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"               target="build\portable-net45+win8+wp8+wpa81\" />
-    <file src="build\_"                                                             target="lib\portable-net45+win8+wp8+wpa81\_" />
+    <file src="xunit.console\*.xslt"                                                      target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.abstractions.dll"            target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.reporters.net452.dll" target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.utility.net452.dll"   target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.msbuild.dll"          target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.msbuild.pdb"          target="build\net452\" />
+    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"                     target="build\net452\" />
+    <file src="build\_._"                                                                 target="lib\net452\_._" />
+
+    <file src="common\AssemblyExtensions.cs"   target="src\common\" />
+    <file src="common\DictionaryExtensions.cs" target="src\common\" />
+    <file src="common\GlobalAssemblyInfo.cs"   target="src\common\" />
+    <file src="common\Guard.cs"                target="src\common\" />
+    <file src="xunit.runner.msbuild\**\*.cs"   target="src\xunit.runner.msbuild\" />
   </files>
 </package>

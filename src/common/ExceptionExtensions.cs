@@ -16,7 +16,7 @@ static class ExceptionExtensions
     /// </remarks>
     public static void RethrowWithNoStackTraceLoss(this Exception ex)
     {
-#if PLATFORM_NET35
+#if NET35
         FieldInfo remoteStackTraceString =
             typeof(Exception).GetField("_remoteStackTraceString", BindingFlags.Instance | BindingFlags.NonPublic) ??
             typeof(Exception).GetField("remote_stack_trace", BindingFlags.Instance | BindingFlags.NonPublic);

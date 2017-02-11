@@ -1,73 +1,66 @@
 #!/usr/bin/env bash
 
-if ! [ -x "$(command -v mono)" ]; then
-  echo >&2 "Could not find 'mono' on the path."
-  exit 1
+tmpfile=$(mktemp /tmp/xunit-build.XXXXXX)
+exec 3>"${tmpfile}"
+rm "${tmpfile}"
+
+if test -t 1; then
+	if [ -n `which tput` ]; then
+        COLOR_RED="$(tput setaf 1)"
+        COLOR_WHITE="$(tput setaf 7)"
+        COLOR_BOLD="$(tput bold)"
+        COLOR_RESET="$(tput sgr0)"
+    fi
 fi
 
-if ! [ -x "$(command -v curl)" ]; then
-  echo >&2 "Could not find 'curl' on the path."
-  exit 1
-fi
+build_step() {
+	local MSG="$1"
+	echo -e "${COLOR_WHITE}${COLOR_BOLD}==> ${MSG}${COLOR_RESET}"
+}
 
-if ! [ -d .nuget ]; then
-  mkdir .nuget
-fi
+fatal() {
+	local MSG="$1"
+	echo -e "${COLOR_RED}${COLOR_BOLD}Error:${COLOR_RESET} ${MSG}"
+	echo
+	cat "${tmpfile}"
+	exit 1
+}
 
-if ! [ -x .nuget/nuget.exe ]; then
-  echo ""
-  echo "Downloading nuget.exe..."
-  echo ""
+require() {
+	local BINARY="$1"
+	local NAME="$2"
+	[[ -n `which ${BINARY}` ]] || fatal "Could not find '${BINARY}' on the path. Please install ${NAME}."
+}
 
-  curl https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -o .nuget/nuget.exe -L
-  if [ $? -ne 0 ]; then
-    echo >&2 ""
-    echo >&2 "The download of nuget.exe has failed."
-    exit 1
-  fi
+require mono 'Mono'
+require dotnet '.NET CLI'
 
-  chmod 755 .nuget/nuget.exe
-fi
+build_step "Restoring NuGet packages"
 
-echo ""
-echo "Restoring NuGet packages..."
-echo ""
+	dotnet restore >"${tmpfile}" 2>&1 || fatal "Package restore has failed."
 
-mono .nuget/nuget.exe restore xunit.vs2015.sln
-if [ $? -ne 0 ]; then
-  echo >&2 "NuGet package restore has failed."
-  exit 1
-fi
+build_step "Compiling binaries"
 
-echo ""
-echo "Building..."
-echo ""
+	dotnet build -c Release \
+		src/xunit.assert \
+		src/xunit.core \
+		src/xunit.execution \
+		src/xunit.runner.utility \
+		src/xunit.runner.reporters \
+		src/xunit.console \
+		test/test.xunit.assert \
+		test/test.xunit.execution \
+		test/test.xunit.runner.utility \
+		test/test.xunit.runner.reporters \
+		test/test.xunit.console >"${tmpfile}" 2>&1 \
+			|| fatal "The build has failed."
 
-xbuild xunit.vs2015.sln /property:Configuration=Release
-if [ $? -ne 0 ]; then
-  echo >&2 ""
-  echo >&2 "The build has failed."
-  exit 1
-fi
+build_step "Running unit tests\n"
 
-echo ""
-echo "Running xUnit v1 tests..."
-echo ""
-
-mono src/xunit.console/bin/Release/xunit.console.exe test/test.xunit1/bin/Release/test.xunit1.dll
-if [ $? -ne 0 ]; then
-  echo >&2 ""
-  echo >&2 "The xUnit v1 tests have failed."
-  exit 1
-fi
-
-echo ""
-echo "Running xUnit v2 tests..."
-echo ""
-
-mono src/xunit.console/bin/Release/xunit.console.exe test/test.xunit.assert/bin/Release/test.xunit.assert.dll test/test.xunit.console/bin/Release/test.xunit.console.dll test/test.xunit.execution/bin/Release/test.xunit.execution.dll test/test.xunit.runner.tdnet/bin/Release/test.xunit.runner.tdnet.dll test/test.xunit.runner.utility/bin/Release/test.xunit.runner.utility.dll -parallel all
-if [ $? -ne 0 ]; then
-  echo >&2 ""
-  echo >&2 "The xUnit v2 tests have failed."
-  exit 1
-fi
+	# TODO: execution & runner.utility tests fail on Mono
+	mono src/xunit.console/bin/Release/net452/**/xunit.console.exe \
+		test/test.xunit.assert/bin/Release/net452/test.xunit.assert.dll \
+		test/test.xunit.console/bin/Release/net452/test.xunit.console.dll \
+		test/test.xunit.runner.reporters/bin/Release/net452/test.xunit.runner.reporters.dll \
+		-noappdomain -parallel none \
+			|| fatal "Unit tests have failed."

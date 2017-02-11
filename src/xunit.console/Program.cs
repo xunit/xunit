@@ -2,12 +2,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
@@ -17,7 +17,7 @@ namespace Xunit.ConsoleClient
         static readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
         static bool failed;
         static IRunnerLogger logger;
-        static IMessageSink reporterMessageHandler;
+        static IMessageSinkWithTypes reporterMessageHandler;
 
         [STAThread]
         public static int Main(string[] args)
@@ -26,7 +26,7 @@ namespace Xunit.ConsoleClient
             {
                 var reporters = GetAvailableRunnerReporters();
 
-                if (args.Length == 0 || args[0] == "-?")
+                if (args.Length == 0 || args[0] == "-?" || args[0] == "/?" || args[0] == "-h" || args[0] == "--help")
                 {
                     PrintHeader();
                     PrintUsage(reporters);
@@ -54,7 +54,7 @@ namespace Xunit.ConsoleClient
                     Debugger.Launch();
 
                 logger = new ConsoleRunnerLogger(!commandLine.NoColor);
-                reporterMessageHandler = commandLine.Reporter.CreateMessageHandler(logger);
+                reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(commandLine.Reporter.CreateMessageHandler(logger));
 
                 if (!commandLine.NoLogo)
                     PrintHeader();
@@ -115,8 +115,10 @@ namespace Xunit.ConsoleClient
 
                 foreach (var type in types)
                 {
-                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+#pragma warning disable CS0618
+                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
                         continue;
+#pragma warning restore CS0618
                     var ctor = type.GetConstructor(new Type[0]);
                     if (ctor == null)
                     {
@@ -154,7 +156,7 @@ namespace Xunit.ConsoleClient
         {
             var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
 
-            Console.WriteLine("Copyright (C) 2015 Outercurve Foundation.");
+            Console.WriteLine("Copyright (C) 2016 .NET Foundation.");
             Console.WriteLine();
             Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
             Console.WriteLine();
@@ -192,6 +194,8 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -namespace \"name\"      : run all methods in a given namespace (i.e.,");
             Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
+            Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
+            Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
             Console.WriteLine();
 
             var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();
@@ -256,6 +260,9 @@ namespace Xunit.ConsoleClient
 
                 clockTime.Stop();
 
+                if (assembliesElement != null)
+                    assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+
                 if (completionMessages.Count > 0)
                     reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, completionMessages.OrderBy(kvp => kvp.Key).ToList()));
             }
@@ -305,21 +312,22 @@ namespace Xunit.ConsoleClient
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
-                var diagnosticMessageVisitor = new DiagnosticMessageVisitor(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
+                var diagnosticMessageSink = new DiagnosticMessageSink(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
+                var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
-                using (var discoveryVisitor = new TestDiscoveryVisitor())
+                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
+                using (var discoverySink = new TestDiscoverySink(() => cancel))
                 {
                     // Discover & filter the tests
                     reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
 
-                    controller.Find(false, discoveryVisitor, discoveryOptions);
-                    discoveryVisitor.Finished.WaitOne();
+                    controller.Find(false, discoverySink, discoveryOptions);
+                    discoverySink.Finished.WaitOne();
 
-                    var testCasesDiscovered = discoveryVisitor.TestCases.Count;
-                    var filteredTestCases = discoveryVisitor.TestCases.Where(filters.Filter).ToList();
+                    var testCasesDiscovered = discoverySink.TestCases.Count;
+                    var filteredTestCases = discoverySink.TestCases.Where(filters.Filter).ToList();
                     var testCasesToRun = filteredTestCases.Count;
 
                     reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
@@ -334,14 +342,18 @@ namespace Xunit.ConsoleClient
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-                        IExecutionVisitor resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
+                        if (assemblyElement != null)
+                            resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
+                        if (longRunningSeconds > 0)
+                            resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
                         if (failSkips)
-                            resultsVisitor = new FailSkipVisitor(resultsVisitor);
+                            resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-                        controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
-                        resultsVisitor.Finished.WaitOne();
+                        controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+                        resultsSink.Finished.WaitOne();
 
-                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsVisitor.ExecutionSummary));
+                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
                     }
                 }
             }

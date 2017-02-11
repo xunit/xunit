@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Xunit;
 using Xunit.ConsoleClient;
@@ -63,6 +62,7 @@ public class CommandLineTests
             Assert.Equal("config file not found: " + configFile, exception.Message);
         }
 
+#pragma warning disable CS0618
         [Fact]
         public static void MultipleAssembliesDoesNotThrow()
         {
@@ -110,6 +110,7 @@ public class CommandLineTests
                 }
             );
         }
+#pragma warning restore CS0618
 
         [Theory]
         [InlineData("assembly1.config", "assembly2.config")]
@@ -259,6 +260,7 @@ public class CommandLineTests
         }
     }
 
+#pragma warning disable CS0618
     public class NoShadowOption
     {
         [Fact]
@@ -283,6 +285,7 @@ public class CommandLineTests
             Assert.False(assembly.ShadowCopy);
         }
     }
+#pragma warning restore CS0618
 
     public class FailSkipsOption
     {
@@ -702,7 +705,7 @@ public class CommandLineTests
         {
             var commandLine = TestableCommandLine.Parse("assemblyName.dll");
 
-            Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
+            Assert.IsType<DefaultRunnerReporterWithTypes>(commandLine.Reporter);
         }
 
         [Fact]
@@ -712,7 +715,7 @@ public class CommandLineTests
 
             var commandLine = TestableCommandLine.Parse(new[] { implicitReporter }, "assemblyName.dll");
 
-            Assert.IsType<DefaultRunnerReporter>(commandLine.Reporter);
+            Assert.IsType<DefaultRunnerReporterWithTypes>(commandLine.Reporter);
         }
 
         [Fact]
@@ -734,6 +737,16 @@ public class CommandLineTests
             var commandLine = TestableCommandLine.Parse(new[] { explicitReporter, implicitReporter }, "assemblyName.dll", "-switch");
 
             Assert.Same(implicitReporter, commandLine.Reporter);
+        }
+
+        [Fact]
+        public void WithEnvironmentalOverride_WithEnvironmentalOverridesDisabled_UsesDefaultReporter()
+        {
+            var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+
+            var commandLine = TestableCommandLine.Parse(new[] { implicitReporter }, "assemblyName.dll", "-noautoreporters");
+
+            Assert.IsType<DefaultRunnerReporterWithTypes>(commandLine.Reporter);
         }
 
         [Fact]

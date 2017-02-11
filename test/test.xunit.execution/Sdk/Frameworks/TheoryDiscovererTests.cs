@@ -28,6 +28,33 @@ public class TheoryDiscovererTests : AcceptanceTestV2
     }
 
     [Fact]
+    public void NullMemberData_ThrowsInvalidOperationException()
+    {
+        var results = Run<ITestFailed>(typeof(NullDataClass));
+
+        var failure = Assert.Single(results);
+        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
+        Assert.Equal("Test data returned null for TheoryDiscovererTests+NullDataClass.NullMemberData. Make sure it is statically initialized before this test method is called.", failure.Messages.Single());
+    }
+
+    public class NullDataClass
+    {
+        public static IEnumerable<object[]> InitializedInConstructor;
+
+        public NullDataClass()
+        {
+            InitializedInConstructor = new List<object[]>
+            {
+                new object[] { "1", "2"}
+            };
+        }
+
+        [Theory]
+        [MemberData(nameof(InitializedInConstructor))]
+        public void NullMemberData(string str1, string str2) { }
+    }
+
+    [Fact]
     public void EmptyTheoryData()
     {
         var failures = Run<ITestFailed>(typeof(EmptyTheoryDataClass));
@@ -216,6 +243,58 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         [InlineData(42)]
         [InlineData(ConformanceLevel.Auto)]
         public void TheTest(object x) { }
+    }
+
+    [Fact]
+    public void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
+    {
+        var results = Run<ITestFailed>(typeof(NoSuchDataDiscovererClass));
+
+        var failure = Assert.Single(results);
+        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
+        Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NoSuchDataDiscovererAttribute on TheoryDiscovererTests+NoSuchDataDiscovererClass.Test does not exist.", failure.Messages.Single());
+    }
+
+    public class NoSuchDataDiscovererClass
+    {
+        [Theory]
+        [NoSuchDataDiscoverer]
+        public void Test() { }
+    }
+
+    [DataDiscoverer("Foo.Blah.ThingDiscoverer", "invalid_assembly_name")]
+    public class NoSuchDataDiscovererAttribute : DataAttribute
+    {
+        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [Fact]
+    public void NotADataDiscoverer_ThrowsInvalidOperationException()
+    {
+        var results = Run<ITestFailed>(typeof(NotADataDiscovererClass));
+
+        var failure = Assert.Single(results);
+        Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
+        Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NotADataDiscovererAttribute on TheoryDiscovererTests+NotADataDiscovererClass.Test does not implement IDataDiscoverer.", failure.Messages.Single());
+    }
+
+    public class NotADataDiscovererClass
+    {
+        [Theory]
+        [NotADataDiscoverer]
+        public void Test() { }
+    }
+
+    [DataDiscoverer("TheoryDiscovererTests", "test.xunit.execution")]
+    public class NotADataDiscovererAttribute : DataAttribute
+    {
+        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [Fact]

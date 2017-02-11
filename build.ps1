@@ -26,5 +26,5 @@ if ($maxCpuCount -lt 1) {
     $maxCpuCountText = ":$maxCpuCount"
 }
 
-$allArgs = @("xunit.msbuild", "/m$maxCpuCountText", "/nologo", "/verbosity:$verbosity", "/t:$target", "/property:RequestedVerbosity=$verbosity", "/property:SolutionName=xunit.vs2015.sln", $args)
+$allArgs = @("xunit.msbuild", "/nr:false", "/m$maxCpuCountText", "/nologo", "/verbosity:$verbosity", "/t:$target", "/property:RequestedVerbosity=$verbosity", "/property:SolutionName=xunit.vs2015.sln", $args)
 & $msbuild $allArgs

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
+﻿using System.Collections.Generic;
 using NSubstitute;
 using Xunit.Abstractions;
 
@@ -134,7 +129,7 @@ namespace Xunit.Runner.Reporters
             string output = null;
             logger.LogImportantMessage(Arg.Do<string>(str => output = str));
 
-            jsonReporterMessageHandler.OnMessage(message);
+            jsonReporterMessageHandler.OnMessageWithTypes(message, null);
 
             Assert.Equal(expectedJson, output);
         }

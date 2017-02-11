@@ -162,22 +162,30 @@ public class FixtureAcceptanceTests
             Assert.Single(messages);
         }
 
-        class FixtureSpy : IClassFixture<ThrowIfNotCompleted>
+        class Alpha { }
+        class Beta { }
+
+        /// <remarks>
+        /// We include two class fixtures and test that each one is only initialised once.
+        /// Regression testing for https://github.com/xunit/xunit/issues/869
+        /// </remarks>
+        class FixtureSpy : IClassFixture<ThrowIfNotCompleted<Alpha>>, IClassFixture<ThrowIfNotCompleted<Beta>>
         {
-            public FixtureSpy(ThrowIfNotCompleted data)
+            public FixtureSpy(ThrowIfNotCompleted<Alpha> alpha, ThrowIfNotCompleted<Beta> beta)
             {
-                Assert.True(data.SetupComplete);
+                Assert.Equal(1, alpha.SetupCalls);
+                Assert.Equal(1, beta.SetupCalls);
             }
 
             [Fact]
             public void TheTest() { }
         }
 
-        class ThrowIfNotCompleted : IAsyncLifetime
+        class ThrowIfNotCompleted<T> : IAsyncLifetime
         {
             public Task InitializeAsync()
             {
-                SetupComplete = true;
+                ++SetupCalls;
                 return Task.FromResult(0);
             }
 
@@ -186,7 +194,7 @@ public class FixtureAcceptanceTests
                 return Task.FromResult(0);
             }
 
-            public bool SetupComplete = false;
+            public int SetupCalls = 0;
         }
 
         [Fact]
@@ -526,15 +534,23 @@ public class FixtureAcceptanceTests
             Assert.Equal(2, results.Count);
         }
 
+        class Alpha { }
+        class Beta { }
+
+        /// <remarks>
+        /// We include two class fixtures and test that each one is only initialised once.
+        /// Regression testing for https://github.com/xunit/xunit/issues/869
+        /// </remarks>
         [CollectionDefinition("Async once")]
-        public class AsyncOnceCollection : ICollectionFixture<CountedAsyncFixture> { }
+        public class AsyncOnceCollection : ICollectionFixture<CountedAsyncFixture<Alpha>>, ICollectionFixture<CountedAsyncFixture<Beta>> { }
 
         [Collection("Async once")]
         class Fixture1
         {
-            public Fixture1(CountedAsyncFixture fixture)
+            public Fixture1(CountedAsyncFixture<Alpha> alpha, CountedAsyncFixture<Beta> beta)
             {
-                Assert.Equal(1, fixture.Count);
+                Assert.Equal(1, alpha.Count);
+                Assert.Equal(1, beta.Count);
             }
 
             [Fact]
@@ -544,16 +560,17 @@ public class FixtureAcceptanceTests
         [Collection("Async once")]
         class Fixture2
         {
-            public Fixture2(CountedAsyncFixture fixture)
+            public Fixture2(CountedAsyncFixture<Alpha> alpha, CountedAsyncFixture<Beta> beta)
             {
-                Assert.Equal(1, fixture.Count);
+                Assert.Equal(1, alpha.Count);
+                Assert.Equal(1, beta.Count);
             }
 
             [Fact]
             public void TheTest() { }
         }
 
-        class CountedAsyncFixture : IAsyncLifetime
+        class CountedAsyncFixture<T> : IAsyncLifetime
         {
             public int Count = 0;
             public Task InitializeAsync()

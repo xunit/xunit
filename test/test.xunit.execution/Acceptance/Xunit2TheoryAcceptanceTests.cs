@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -13,6 +12,301 @@ public class Xunit2TheoryAcceptanceTests
 {
     public class TheoryTests : AcceptanceTestV2
     {
+        [Fact]
+        public void OptionalParameters_Valid()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithOptionalParameters));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_NonePassed(s: null)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_OneNonNullPassed(s: ""abc"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_OneNullPassed(s: null)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneParameter_NonePassed(s: ""abc"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneParameter_OnePassed(s: ""def"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_TwoParameters_OnePassed(s: ""abc"", i: 5)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_TwoParameters_TwoPassed(s: ""abc"", i: 6)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.TwoOptional_TwoParameters_FirstOnePassed(s: ""def"", i: 5)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.TwoOptional_TwoParameters_NonePassed(s: ""abc"", i: 5)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.TwoOptional_TwoParameters_TwoPassedInOrder(s: ""def"", i: 6)", result.Test.DisplayName)
+            );
+        }
+
+        public class ClassWithOptionalParameters
+        {
+            [Theory]
+            [InlineData]
+            public void OneOptional_OneParameter_NonePassed(string s = "abc")
+            {
+                Assert.Equal("abc", s);
+            }
+
+            [Theory]
+            [InlineData("def")]
+            public void OneOptional_OneParameter_OnePassed(string s = "abc")
+            {
+                Assert.Equal("def", s);
+            }
+
+            [Theory]
+            [InlineData]
+            public void OneOptional_OneNullParameter_NonePassed(string s = null)
+            {
+                Assert.Null(s);
+            }
+
+            [Theory]
+            [InlineData("abc")]
+            public void OneOptional_OneNullParameter_OneNonNullPassed(string s = null)
+            {
+                Assert.Equal("abc", s);
+            }
+
+            [Theory]
+            [InlineData(null)]
+            public void OneOptional_OneNullParameter_OneNullPassed(string s = null)
+            {
+                Assert.Null(s);
+            }
+
+            [Theory]
+            [InlineData("abc")]
+            public void OneOptional_TwoParameters_OnePassed(string s, int i = 5)
+            {
+                Assert.Equal("abc", s);
+                Assert.Equal(5, i);
+            }
+
+            [Theory]
+            [InlineData("abc", 6)]
+            public void OneOptional_TwoParameters_TwoPassed(string s, int i = 5)
+            {
+                Assert.Equal("abc", s);
+                Assert.Equal(6, i);
+            }
+
+            [Theory]
+            [InlineData]
+            public void TwoOptional_TwoParameters_NonePassed(string s = "abc", int i = 5)
+            {
+                Assert.Equal("abc", s);
+                Assert.Equal(5, i);
+            }
+
+            [Theory]
+            [InlineData("def")]
+            public void TwoOptional_TwoParameters_FirstOnePassed(string s = "abc", int i = 5)
+            {
+                Assert.Equal("def", s);
+                Assert.Equal(5, i);
+            }
+
+            [Theory]
+            [InlineData("def", 6)]
+            public void TwoOptional_TwoParameters_TwoPassedInOrder(string s = "abc", int i = 5)
+            {
+                Assert.Equal("def", s);
+                Assert.Equal(6, i);
+            }
+        }
+
+        [Fact]
+        public void ParamsParameters_Valid()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithParamsParameters));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_ManyPassed(array: [1, 2, 3, 4, 5, ...])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_NonePassed(array: [])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_MatchingArray(array: [1])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_NonArray(array: [1])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_NonMatchingArray(array: [[1]])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_Null(array: null)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OptionalParameters_ManyPassed(s: ""def"", i: 2, array: [3, 4, 5])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OptionalParameters_NonePassed(s: ""abc"", i: 1, array: [])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_ManyPassed(i: 1, array: [2, 3, 4, 5, 6])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_NullPassed(i: 1, array: null)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_OnePassed(i: 1, array: [])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_OnePassed_MatchingArray(i: 1, array: [2])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_OnePassed_NonArray(i: 1, array: [2])", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.TwoParameters_OnePassed_NonMatchingArray(i: 1, array: [[2]])", result.Test.DisplayName)
+            );
+        }
+
+        public class ClassWithParamsParameters
+        {
+            [Theory]
+            [InlineData]
+            public void OneParameter_NonePassed(params object[] array)
+            {
+                Assert.Empty(array);
+            }
+
+            [Theory]
+            [InlineData(null)]
+            public void OneParameter_OnePassed_Null(params object[] array)
+            {
+                Assert.Null(array);
+            }
+
+            [Theory]
+            [InlineData(1)]
+            public void OneParameter_OnePassed_NonArray(params object[] array)
+            {
+                Assert.Equal(new object[] { 1 }, array);
+            }
+
+            [Theory]
+            [InlineData(new object[] { new object[] { 1 } })]
+            public void OneParameter_OnePassed_MatchingArray(params object[] array)
+            {
+                Assert.Equal(new object[] { 1 }, array);
+            }
+
+            [Theory]
+            [InlineData(new int[] { 1 })]
+            public void OneParameter_OnePassed_NonMatchingArray(params object[] array)
+            {
+                Assert.Equal(new object[] { new int[] { 1 } }, array);
+            }
+
+            [Theory]
+            [InlineData(1, 2, 3, 4, 5, 6)]
+            public void OneParameter_ManyPassed(params object[] array)
+            {
+                Assert.Equal(new object[] { 1, 2, 3, 4, 5, 6 }, array);
+            }
+
+            [Theory]
+            [InlineData(1)]
+            public void TwoParameters_OnePassed(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Empty(array);
+            }
+
+            [Theory]
+            [InlineData(1, null)]
+            public void TwoParameters_NullPassed(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Null(array);
+            }
+
+            [Theory]
+            [InlineData(1, 2)]
+            public void TwoParameters_OnePassed_NonArray(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Equal(new object[] { 2 }, array);
+            }
+
+            [Theory]
+            [InlineData(1, new object[] { 2 })]
+            public void TwoParameters_OnePassed_MatchingArray(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Equal(new object[] { 2 }, array);
+            }
+
+            [Theory]
+            [InlineData(1, new int[] { 2 })]
+            public void TwoParameters_OnePassed_NonMatchingArray(int i, params object[] array)
+            {
+                Assert.Equal(1, i);
+                Assert.Equal(new object[] { new int[] { 2 } }, array);
+            }
+
+            [Theory]
+            [InlineData(1, 2, 3, 4, 5, 6)]
+            public void TwoParameters_ManyPassed(int i, params object[] array)
+            {
+                Assert.Equal(i, 1);
+                Assert.Equal(new object[] { 2, 3, 4, 5, 6 }, array);
+            }
+
+            [Theory]
+            [InlineData]
+            public void OptionalParameters_NonePassed(string s = "abc", int i = 1, params object[] array)
+            {
+                Assert.Equal("abc", s);
+                Assert.Equal(1, i);
+                Assert.Empty(array);
+            }
+
+            [Theory]
+            [InlineData("def", 2, 3, 4, 5)]
+            public void OptionalParameters_ManyPassed(string s = "abc", int i = 1, params object[] array)
+            {
+                Assert.Equal("def", s);
+                Assert.Equal(2, i);
+                Assert.Equal(new object[] { 3, 4, 5 }, array);
+            }
+        }
+
+        [Fact]
+        public void ImplicitExplicitConversions()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithOperatorConversions));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ExplicitConversion(e: Explicit { Value = ""abc"" })", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ImplicitConversion(i: Implicit { Value = ""abc"" })", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToLong(i: 1)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.UIntToULong(i: 1)", result.Test.DisplayName)
+            );
+        }
+
+        public class ClassWithOperatorConversions
+        {
+            [Theory]
+            [InlineData("abc")]
+            public void ExplicitConversion(Explicit e)
+            {
+                Assert.Equal("abc", e.Value);
+            }
+
+            [Theory]
+            [InlineData("abc")]
+            public void ImplicitConversion(Implicit i)
+            {
+                Assert.Equal("abc", i.Value);
+            }
+
+            [Theory]
+            [InlineData(1)]
+            public void IntToLong(long i)
+            {
+                Assert.Equal(1L, i);
+            }
+
+            [Theory]
+            [InlineData((uint)1)]
+            public void UIntToULong(ulong i)
+            {
+                Assert.Equal(1UL, i);
+            }
+
+            public class Explicit
+            {
+                public string Value { get; set; }
+
+                public static explicit operator Explicit(string value)
+                {
+                    return new Explicit() { Value = value };
+                }
+            }
+
+            public class Implicit
+            {
+                public string Value { get; set; }
+
+                public static implicit operator Implicit(string value)
+                {
+                    return new Implicit() { Value = value };
+                }
+            }
+        }
+
         [Fact]
         public void Skipped()
         {
@@ -597,6 +891,59 @@ public class Xunit2TheoryAcceptanceTests
             [MemberData("DataSource")]
             public void TestViaMethodData(int x) { }
         }
+
+        [Fact]
+        public void CanUseMethodDataInSubTypeFromTestInBaseType()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(SubClassWithTestData));
+
+            var passed = Assert.Single(testMessages.Cast<ITestPassed>());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+SubClassWithTestData.Test(x: 42)", passed.Test.DisplayName);
+        }
+
+        public abstract class BaseClassWithTestWithoutData
+        {
+            [Theory]
+            [MemberData("TestData")]
+            public void Test(int x)
+            {
+                Assert.Equal(42, x);
+            }
+        }
+
+        public class SubClassWithTestData : BaseClassWithTestWithoutData
+        {
+            public static IEnumerable<object[]> TestData()
+            {
+                yield return new object[] { 42 };
+            }
+        }
+
+        [Fact]
+        public void SubTypeInheritsTestsFromBaseType()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(SubClassWithNoTests));
+
+            var passed = Assert.Single(testMessages.Cast<ITestPassed>());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+SubClassWithNoTests.Test(x: 42)", passed.Test.DisplayName);
+        }
+
+        public abstract class BaseClassWithTestAndData
+        {
+            public static IEnumerable<object[]> TestData()
+            {
+                yield return new object[] { 42 };
+            }
+
+            [Theory]
+            [MemberData("TestData")]
+            public void Test(int x)
+            {
+                Assert.Equal(42, x);
+            }
+        }
+
+        public class SubClassWithNoTests : BaseClassWithTestAndData { }
 
         [Fact]
         public void CanPassParametersToDataMethod()

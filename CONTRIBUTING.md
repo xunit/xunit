@@ -1,9 +1,13 @@
+# Code of Conduct
+
+Please note that this project is released with a [Contributor Code of Conduct](http://www.dotnetfoundation.org/code-of-conduct). By participating in this project you agree to abide by its terms.
+
 # Before you file a bug...
 
 * Is this a question? Ask it on our [Slack server](https://xunit.slack.com) instead. (Not a member? It's easy [to sign up](https://xunit-slackin.herokuapp.com/).)
 * Did you [read the documentation](https://xunit.github.io/)?
-* Did you search the issues list to see if someone already reported it?
-* Did you create a simple repro for the problem?
+* Did you search the issues list to see if someone already reported it?<br />_When looking for duplicates, make sure to look through open **and** closed issues._
+* Did you create a simple repro for the problem?<br />_We won't look at your bug until you provide a repro project or complete repro steps._
 
 # Before you submit a PR...
 

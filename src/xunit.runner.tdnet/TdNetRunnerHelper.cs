@@ -26,30 +26,26 @@ namespace Xunit.Runner.TdNet
 
             var assemblyFileName = assembly.GetLocalCodeBase();
             configuration = ConfigReader.Load(assemblyFileName);
-            var diagnosticMessageVisitor = new DiagnosticMessageVisitor(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
-            xunit = new Xunit2(configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false, diagnosticMessageSink: diagnosticMessageVisitor);
+            var diagnosticMessageSink = new DiagnosticMessageSink(testListener, Path.GetFileNameWithoutExtension(assemblyFileName), configuration.DiagnosticMessagesOrDefault);
+            xunit = new Xunit2(configuration.AppDomainOrDefault, new NullSourceInformationProvider(), assemblyFileName, shadowCopy: false, diagnosticMessageSink: diagnosticMessageSink);
             toDispose.Push(xunit);
         }
 
         public virtual IReadOnlyList<ITestCase> Discover()
-        {
-            return Discover(sink => xunit.Find(false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
-        }
+            => Discover(sink => xunit.Find(false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
 
         IReadOnlyList<ITestCase> Discover(Type type)
-        {
-            return Discover(sink => xunit.Find(type.FullName, false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
-        }
+            => Discover(sink => xunit.Find(type.FullName, false, sink, TestFrameworkOptions.ForDiscovery(configuration)));
 
-        IReadOnlyList<ITestCase> Discover(Action<IMessageSink> discoveryAction)
+        IReadOnlyList<ITestCase> Discover(Action<IMessageSinkWithTypes> discoveryAction)
         {
             try
             {
-                var visitor = new TestDiscoveryVisitor();
-                toDispose.Push(visitor);
-                discoveryAction(visitor);
-                visitor.Finished.WaitOne();
-                return visitor.TestCases.ToList();
+                var sink = new TestDiscoverySink();
+                toDispose.Push(sink);
+                discoveryAction(sink);
+                sink.Finished.WaitOne();
+                return sink.TestCases.ToList();
             }
             catch (Exception ex)
             {
@@ -71,15 +67,15 @@ namespace Xunit.Runner.TdNet
                 if (testCases == null)
                     testCases = Discover();
 
-                var visitor = new ResultVisitor(testListener, testCases.Count) { TestRunState = initialRunState };
-                toDispose.Push(visitor);
+                var resultSink = new ResultSink(testListener, testCases.Count) { TestRunState = initialRunState };
+                toDispose.Push(resultSink);
 
                 var executionOptions = TestFrameworkOptions.ForExecution(configuration);
-                xunit.RunTests(testCases, visitor, executionOptions);
+                xunit.RunTests(testCases, resultSink, executionOptions);
 
-                visitor.Finished.WaitOne();
+                resultSink.Finished.WaitOne();
 
-                return visitor.TestRunState;
+                return resultSink.TestRunState;
             }
             catch (Exception ex)
             {

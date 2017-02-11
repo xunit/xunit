@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +11,6 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using Microsoft.Build.Framework;
-using Xunit.Abstractions;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.Runner.MSBuild
@@ -25,7 +25,7 @@ namespace Xunit.Runner.MSBuild
         int? maxThreadCount;
         bool? parallelizeAssemblies;
         bool? parallelizeTestCollections;
-        IMessageSink reporterMessageHandler;
+        IMessageSinkWithTypes reporterMessageHandler;
         bool? shadowCopy;
 
         public bool AppDomains { set { appDomains = value; } }
@@ -44,7 +44,7 @@ namespace Xunit.Runner.MSBuild
         /// Sets whether test failures will be ignored and allow the build to proceed.
         /// When set to <c>false</c>, test failures will cause the build to fail.
         /// </summary>
-        public bool IgnoreFailures { get; protected set; }
+        public bool IgnoreFailures { get; set; }
 
         public bool FailSkips { get; protected set; }
 
@@ -75,6 +75,8 @@ namespace Xunit.Runner.MSBuild
             get { return Xml != null || XmlV1 != null || Html != null || NUnit != null; }
         }
 
+        public bool NoAutoReporters { get; set; }
+
         public bool NoLogo { get; set; }
 
         public ITaskItem NUnit { get; set; }
@@ -90,12 +92,6 @@ namespace Xunit.Runner.MSBuild
 
         public bool ShadowCopy { set { shadowCopy = value; } }
 
-        // Obsolote; remove post 2.1 RTM
-        public bool TeamCity { get; set; }
-
-        // Obsolote; remove post 2.1 RTM
-        public bool Verbose { get; set; }
-
         public string WorkingFolder { get; set; }
 
         public ITaskItem Xml { get; set; }
@@ -110,17 +106,6 @@ namespace Xunit.Runner.MSBuild
         public override bool Execute()
         {
             RemotingUtility.CleanUpRegisteredChannels();
-
-            if (TeamCity)
-            {
-                Log.LogError("The 'TeamCity' property is deprecated. Please set the 'Reporter' property to 'teamcity' instead.");
-                return false;
-            }
-            if (Verbose)
-            {
-                Log.LogError("The 'Verbose' property is deprecated. Please set the 'Reporter' property to 'verbose' instead.");
-                return false;
-            }
 
             XElement assembliesElement = null;
             var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
@@ -154,29 +139,12 @@ namespace Xunit.Runner.MSBuild
 
             using (AssemblyHelper.SubscribeResolve())
             {
-                var reporters = GetAvailableRunnerReporters();
-                var reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
-
-                if (reporter == null && !string.IsNullOrWhiteSpace(Reporter))
-                {
-                    reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
-                    if (reporter == null)
-                    {
-                        var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).Select(r => r.RunnerSwitch.ToLowerInvariant()).OrderBy(x => x).ToList();
-                        if (switchableReporters.Count == 0)
-                            Log.LogError("Reporter value '{0}' is invalid. There are no available reporters.", Reporter);
-                        else
-                            Log.LogError("Reporter value '{0}' is invalid. Available reporters: {1}", Reporter, string.Join(", ", switchableReporters));
-
-                        return false;
-                    }
-                }
-
+                var reporter = GetReporter();
                 if (reporter == null)
-                    reporter = new DefaultRunnerReporter();
+                    return false;
 
                 logger = new MSBuildLogger(Log);
-                reporterMessageHandler = reporter.CreateMessageHandler(logger);
+                reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
                 if (!NoLogo)
                     Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild Runner ({0})", environment);
@@ -223,6 +191,9 @@ namespace Xunit.Runner.MSBuild
 
                 clockTime.Stop();
 
+                if (assembliesElement != null)
+                    assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+
                 if (completionMessages.Count > 0)
                     reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, completionMessages.OrderBy(kvp => kvp.Key).ToList()));
             }
@@ -246,47 +217,6 @@ namespace Xunit.Runner.MSBuild
 
             // ExitCode is set to 1 for test failures and -1 for Exceptions.
             return ExitCode == 0 || (ExitCode == 1 && IgnoreFailures);
-        }
-
-        List<IRunnerReporter> GetAvailableRunnerReporters()
-        {
-            var result = new List<IRunnerReporter>();
-            var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
-
-            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
-            {
-                Type[] types;
-
-                try
-                {
-                    var assembly = Assembly.LoadFile(dllFile);
-                    types = assembly.GetTypes();
-                }
-                catch (ReflectionTypeLoadException ex)
-                {
-                    types = ex.Types;
-                }
-                catch
-                {
-                    continue;
-                }
-
-                foreach (var type in types)
-                {
-                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-                        continue;
-                    var ctor = type.GetConstructor(new Type[0]);
-                    if (ctor == null)
-                    {
-                        Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
-                        continue;
-                    }
-
-                    result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
-                }
-            }
-
-            return result;
         }
 
         protected virtual XElement ExecuteAssembly(XunitProjectAssembly assembly)
@@ -314,21 +244,22 @@ namespace Xunit.Runner.MSBuild
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections);
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
-                var diagnosticMessageVisitor = new DiagnosticMessageVisitor(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
+                var diagnosticMessageSink = new DiagnosticMessageSink(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
+                var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageVisitor))
-                using (var discoveryVisitor = new TestDiscoveryVisitor())
+                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
+                using (var discoverySink = new TestDiscoverySink(() => cancel))
                 {
                     // Discover & filter the tests
                     reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
 
-                    controller.Find(false, discoveryVisitor, discoveryOptions);
-                    discoveryVisitor.Finished.WaitOne();
+                    controller.Find(false, discoverySink, discoveryOptions);
+                    discoverySink.Finished.WaitOne();
 
-                    var testCasesDiscovered = discoveryVisitor.TestCases.Count;
-                    var filteredTestCases = discoveryVisitor.TestCases.Where(Filters.Filter).ToList();
+                    var testCasesDiscovered = discoverySink.TestCases.Count;
+                    var filteredTestCases = discoverySink.TestCases.Where(Filters.Filter).ToList();
                     var testCasesToRun = filteredTestCases.Count;
 
                     reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
@@ -341,18 +272,22 @@ namespace Xunit.Runner.MSBuild
                         if (SerializeTestCases)
                             filteredTestCases = filteredTestCases.Select(controller.Serialize).Select(controller.Deserialize).ToList();
 
-                        IExecutionVisitor resultsVisitor = new XmlAggregateVisitor(reporterMessageHandler, completionMessages, assemblyElement, () => cancel);
+                        IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel, (path, summary) => completionMessages.TryAdd(path, summary));
+                        if (assemblyElement != null)
+                            resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
+                        if (longRunningSeconds > 0)
+                            resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
                         if (FailSkips)
-                            resultsVisitor = new FailSkipVisitor(resultsVisitor);
+                            resultsSink = new DelegatingFailSkipSink(resultsSink);
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-                        controller.RunTests(filteredTestCases, resultsVisitor, executionOptions);
-                        resultsVisitor.Finished.WaitOne();
+                        controller.RunTests(filteredTestCases, resultsSink, executionOptions);
+                        resultsSink.Finished.WaitOne();
 
-                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsVisitor.ExecutionSummary));
+                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
 
-                        if (resultsVisitor.ExecutionSummary.Failed != 0)
+                        if (resultsSink.ExecutionSummary.Failed != 0)
                             ExitCode = 1;
                     }
                 }
@@ -377,12 +312,81 @@ namespace Xunit.Runner.MSBuild
             return assemblyElement;
         }
 
+        protected virtual List<IRunnerReporter> GetAvailableRunnerReporters()
+        {
+            var result = new List<IRunnerReporter>();
+            var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+
+            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
+            {
+                Type[] types;
+
+                try
+                {
+                    var assembly = Assembly.LoadFile(dllFile);
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types;
+                }
+                catch
+                {
+                    continue;
+                }
+
+                foreach (var type in types)
+                {
+#pragma warning disable CS0618
+                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+                        continue;
+#pragma warning restore CS0618
+
+                    var ctor = type.GetConstructor(new Type[0]);
+                    if (ctor == null)
+                    {
+                        Log.LogWarning("Type {0} in assembly {1} appears to be a runner reporter, but does not have an empty constructor.", type.FullName, dllFile);
+                        continue;
+                    }
+
+                    result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+                }
+            }
+
+            return result;
+        }
+
+        protected IRunnerReporter GetReporter()
+        {
+            var reporters = GetAvailableRunnerReporters();
+            IRunnerReporter reporter = null;
+            if (!NoAutoReporters)
+                reporter = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
+
+            if (reporter == null && !string.IsNullOrWhiteSpace(Reporter))
+            {
+                reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
+                if (reporter == null)
+                {
+                    var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).Select(r => r.RunnerSwitch.ToLowerInvariant()).OrderBy(x => x).ToList();
+                    if (switchableReporters.Count == 0)
+                        Log.LogError("Reporter value '{0}' is invalid. There are no available reporters.", Reporter);
+                    else
+                        Log.LogError("Reporter value '{0}' is invalid. Available reporters: {1}", Reporter, string.Join(", ", switchableReporters));
+
+                    return null;
+                }
+            }
+
+            return reporter ?? new DefaultRunnerReporterWithTypes();
+        }
+
         static void Transform(string resourceName, XNode xml, ITaskItem outputFile)
         {
             var xmlTransform = new XslCompiledTransform();
 
             using (var writer = XmlWriter.Create(outputFile.GetMetadata("FullPath"), new XmlWriterSettings { Indent = true }))
-            using (var xsltReader = XmlReader.Create(typeof(xunit).Assembly.GetManifestResourceStream("Xunit.Runner.MSBuild." + resourceName)))
+            using (var xsltReader = XmlReader.Create(typeof(xunit).Assembly.GetManifestResourceStream("xunit.runner.msbuild." + resourceName)))
             using (var xmlReader = xml.CreateReader())
             {
                 xmlTransform.Load(xsltReader);

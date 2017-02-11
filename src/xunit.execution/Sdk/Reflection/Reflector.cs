@@ -44,7 +44,7 @@ namespace Xunit.Sdk
 
         internal static object ConvertArgument(object arg, Type type)
         {
-            if (arg != null && arg.GetType() != type)
+            if (arg != null && !type.IsAssignableFrom(arg.GetType()))
             {
                 try
                 {

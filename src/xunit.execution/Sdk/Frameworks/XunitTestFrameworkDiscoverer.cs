@@ -19,6 +19,7 @@ namespace Xunit.Sdk
         public static readonly string DisplayName = string.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", new object[] { typeof(XunitTestFrameworkDiscoverer).GetTypeInfo().Assembly.GetName().Version });
 
         readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
+        readonly Dictionary<Type, Type> discovererTypeCache = new Dictionary<Type, Type>(); // key is a Type that is or derives from FactAttribute
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
@@ -79,12 +80,22 @@ namespace Xunit.Sdk
             if (factAttribute == null)
                 return true;
 
-            var testCaseDiscovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitTestCaseDiscovererAttribute)).FirstOrDefault();
-            if (testCaseDiscovererAttribute == null)
-                return true;
+            var factAttributeType = (factAttribute as IReflectionAttributeInfo)?.Attribute.GetType();
 
-            var args = testCaseDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-            var discovererType = SerializationHelper.GetType(args[1], args[0]);
+            Type discovererType = null;
+            if (factAttributeType == null || !discovererTypeCache.TryGetValue(factAttributeType, out discovererType))
+            {
+                var testCaseDiscovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitTestCaseDiscovererAttribute)).FirstOrDefault();
+                if (testCaseDiscovererAttribute != null)
+                {
+                    var args = testCaseDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
+                    discovererType = SerializationHelper.GetType(args[1], args[0]);
+                }
+
+                if (factAttributeType != null)
+                    discovererTypeCache[factAttributeType] = discovererType;
+
+            }
             if (discovererType == null)
                 return true;
 
@@ -131,7 +142,7 @@ namespace Xunit.Sdk
                 catch (Exception ex)
                 {
                     result = null;
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex}"));
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}"));
                 }
 
                 discovererCache[discovererType] = result;

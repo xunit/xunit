@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#pragma warning disable CS0618
+
+using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -27,13 +27,15 @@ namespace Xunit
         /// to explicitly enable the runner. If the return value is <c>null</c>,
         /// then the reported can only be environmentally enabled (implicitly).
         /// This value is used either as a command line switch (with the console or
-        /// DNX runner) or as a runner configuration value (with the MSBuild runner).
+        /// .NET CLI runner) or as a runner configuration value (with the MSBuild runner).
         /// </summary>
         string RunnerSwitch { get; }
 
         /// <summary>
         /// Creates a message handler that will report messages for the given
-        /// test assembly.
+        /// test assembly. Ideally, the handler should also implement <see cref="IMessageSinkWithTypes"/>
+        /// for optimal performance, but plain implementations of <see cref="IMessageSink"/> are supported
+        /// for backward compatibility reasons.
         /// </summary>
         /// <param name="logger">The logger used to send result messages to</param>
         /// <returns>The message handler that handles the messages</returns>

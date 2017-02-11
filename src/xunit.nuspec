@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
-  <metadata minClientVersion="2.8.5">
+  <metadata minClientVersion="2.12">
     <id>xunit</id>
     <version>99.99.99-dev</version>
     <title>xUnit.net</title>
     <authors>James Newkirk,Brad Wilson</authors>
+    <summary>xUnit.net is a developer testing framework, built to support Test Driven Development.</summary>
     <description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.
 
-Installing this package installs xunit.core and xunit.assert.
-    </description>
+Installing this package installs xunit.core and xunit.assert.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <dependency id="xunit.core"   version="[99.99.99-dev]" />
+      <dependency id="xunit.core" version="[99.99.99-dev]" />
       <dependency id="xunit.assert" version="[99.99.99-dev]" />
     </dependencies>
   </metadata>

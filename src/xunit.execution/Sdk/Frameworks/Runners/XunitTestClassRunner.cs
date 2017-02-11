@@ -47,6 +47,11 @@ namespace Xunit.Sdk
         protected Dictionary<Type, object> ClassFixtureMappings { get; set; } = new Dictionary<Type, object>();
 
         /// <summary>
+        /// Gets the already initialized async fixtures <see cref="CreateClassFixtureAsync"/>.
+        /// </summary>
+        protected HashSet<IAsyncLifetime> InitializedAsyncFixtures { get; set; } = new HashSet<IAsyncLifetime>();
+
+        /// <summary>
         /// Creates the instance of a class fixture type to be used by the test class. If the fixture can be created,
         /// it should be placed into the <see cref="ClassFixtureMappings"/> dictionary; if it cannot, then the method
         /// should record the error by calling <code>Aggregator.Add</code>.
@@ -88,9 +93,13 @@ namespace Xunit.Sdk
         async Task CreateClassFixtureAsync(Type fixtureType)
         {
             CreateClassFixture(fixtureType);
-            foreach(var uninitializedFixture in ClassFixtureMappings.Values.OfType<IAsyncLifetime>())
-                await Aggregator.RunAsync(uninitializedFixture.InitializeAsync);
-            
+            var uninitializedFixtures = ClassFixtureMappings.Values
+                                        .OfType<IAsyncLifetime>()
+                                        .Where(fixture => !InitializedAsyncFixtures.Contains(fixture))
+                                        .ToList();
+
+            InitializedAsyncFixtures.UnionWith(uninitializedFixtures);
+            await Task.WhenAll(uninitializedFixtures.Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync)));
         }
 
         /// <inheritdoc/>
@@ -126,25 +135,29 @@ namespace Xunit.Sdk
             if (testClassTypeInfo.ImplementedInterfaces.Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
                 Aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
 
+            var createClassFixtureAsyncTasks = new List<Task>();
             foreach (var interfaceType in testClassTypeInfo.ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-                await CreateClassFixtureAsync(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
+                createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GetTypeInfo().GenericTypeArguments.Single()));
 
             if (TestClass.TestCollection.CollectionDefinition != null)
             {
                 var declarationType = ((IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
                 foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-                    await CreateClassFixtureAsync(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
+                    createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(interfaceType.GetTypeInfo().GenericTypeArguments.Single()));
             }
+
+            await Task.WhenAll(createClassFixtureAsyncTasks);
         }
 
         /// <inheritdoc/>
         protected override async Task BeforeTestClassFinishedAsync()
         {
-            foreach (var fixture in ClassFixtureMappings.Values.OfType<IAsyncLifetime>())
-                await Aggregator.RunAsync(fixture.DisposeAsync);
+            var disposeAsyncTasks = ClassFixtureMappings.Values.OfType<IAsyncLifetime>().Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync)).ToList();
 
             foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
+
+            await Task.WhenAll(disposeAsyncTasks);
         }
 
         /// <inheritdoc/>

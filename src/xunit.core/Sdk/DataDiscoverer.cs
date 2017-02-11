@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -17,7 +18,25 @@ namespace Xunit.Sdk
             var reflectionTestMethod = testMethod as IReflectionMethodInfo;
 
             if (reflectionDataAttribute != null && reflectionTestMethod != null)
-                return ((DataAttribute)reflectionDataAttribute.Attribute).GetData(reflectionTestMethod.MethodInfo);
+            {
+                var attribute = (DataAttribute)reflectionDataAttribute.Attribute;
+                try
+                {
+                    return attribute.GetData(reflectionTestMethod.MethodInfo);
+                }
+                catch (ArgumentException)
+                {
+                    // If we couldn't find the data on the base type, check if it is in current type.
+                    // This allows base classes to specify data that exists on a sub type, but not on the base type.
+                    var memberDataAttribute = attribute as MemberDataAttribute;
+                    var reflectionTestMethodType = reflectionTestMethod.Type as IReflectionTypeInfo;
+                    if (memberDataAttribute != null && memberDataAttribute.MemberType == null)
+                    {
+                        memberDataAttribute.MemberType = reflectionTestMethodType.Type;
+                    }
+                    return attribute.GetData(reflectionTestMethod.MethodInfo);
+                }
+            }
 
             return null;
         }

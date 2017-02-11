@@ -105,15 +105,79 @@ namespace Xunit.Sdk
                     foreach (var dataAttribute in dataAttributes)
                     {
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
-                        var discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererAttribute);
+                        IDataDiscoverer discoverer;
+                        try
+                        {
+                            discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererAttribute);
+                        }
+                        catch (InvalidCastException)
+                        {
+                            var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
+
+                            if (reflectionAttribute != null)
+                                results.Add(
+                                    new ExecutionErrorTestCase(
+                                        diagnosticMessageSink,
+                                        discoveryOptions.MethodDisplayOrDefault(),
+                                        testMethod,
+                                        $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
+                                    )
+                                );
+                            else
+                                results.Add(
+                                    new ExecutionErrorTestCase(
+                                        diagnosticMessageSink,
+                                        discoveryOptions.MethodDisplayOrDefault(),
+                                        testMethod,
+                                        $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not implement IDataDiscoverer."
+                                    )
+                                );
+
+                            continue;
+                        }
+
+                        if (discoverer == null)
+                        {
+                            var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
+
+                            if (reflectionAttribute != null)
+                                results.Add(
+                                    new ExecutionErrorTestCase(
+                                        diagnosticMessageSink,
+                                        discoveryOptions.MethodDisplayOrDefault(),
+                                        testMethod,
+                                        $"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
+                                    )
+                                );
+                            else
+                                results.Add(
+                                    new ExecutionErrorTestCase(
+                                        diagnosticMessageSink,
+                                        discoveryOptions.MethodDisplayOrDefault(),
+                                        testMethod,
+                                        $"A data discoverer specified on {testMethod.TestClass.Class.Name}.{testMethod.Method.Name} does not exist."
+                                    )
+                                );
+
+                            continue;
+                        }
+
                         skipReason = dataAttribute.GetNamedArgument<string>("Skip");
 
                         if (!discoverer.SupportsDiscoveryEnumeration(dataAttribute, testMethod.Method))
                             return new[] { CreateTestCaseForTheory(discoveryOptions, testMethod, theoryAttribute) };
 
-                        // GetData may return null, but that's okay; we'll let the NullRef happen and then catch it
-                        // down below so that we get the composite test case.
-                        foreach (var dataRow in discoverer.GetData(dataAttribute, testMethod.Method))
+                        var data = discoverer.GetData(dataAttribute, testMethod.Method);
+                        if (data == null)
+                        {
+                            results.Add(new ExecutionErrorTestCase(diagnosticMessageSink,
+                                          discoveryOptions.MethodDisplayOrDefault(),
+                                          testMethod,
+                                          $"Test data returned null for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}. Make sure it is statically initialized before this test method is called."));
+                            continue;
+                        }
+
+                        foreach (var dataRow in data)
                         {
                             // Determine whether we can serialize the test case, since we need a way to uniquely
                             // identify a test and serialization is the best way to do that. If it's not serializable,

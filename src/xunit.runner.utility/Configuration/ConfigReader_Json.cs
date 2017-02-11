@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-#if PLATFORM_DOTNET
+#if NETSTANDARD1_1
 using System.Reflection;
 #endif
 
@@ -53,6 +53,16 @@ namespace Xunit
                                 int maxParallelThreads;
                                 if (int.TryParse(numberValue.Raw, out maxParallelThreads) && maxParallelThreads > 0)
                                     result.MaxParallelThreads = maxParallelThreads;
+                            }
+                        }
+                        else if (string.Equals(propertyName, Configuration.LongRunningTestSeconds, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var numberValue = propertyValue as JsonNumber;
+                            if (numberValue != null)
+                            {
+                                int seconds;
+                                if (int.TryParse(numberValue.Raw, out seconds) && seconds > 0)
+                                    result.LongRunningTestSeconds = seconds;
                             }
                         }
                         else if (string.Equals(propertyName, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
@@ -119,7 +129,7 @@ namespace Xunit
             return null;
         }
 
-#if PLATFORM_DOTNET
+#if NETSTANDARD1_1
         static Lazy<MethodInfo> fileOpenReadMethod = new Lazy<MethodInfo>(GetFileOpenReadMethod);
 
         static MethodInfo GetFileOpenReadMethod()
@@ -156,6 +166,7 @@ namespace Xunit
             public const string ParallelizeTestCollections = "parallelizeTestCollections";
             public const string PreEnumerateTheories = "preEnumerateTheories";
             public const string ShadowCopy = "shadowCopy";
+            public const string LongRunningTestSeconds = "longRunningTestSeconds";
         }
     }
 }

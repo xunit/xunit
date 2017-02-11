@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -80,6 +81,65 @@ public class XunitTheoryTestCaseRunnerTests
         Assert.Contains(messageBus.Messages.OfType<ITestSkipped>(), skipped => skipped.Test.DisplayName == "Display Name(x: 0, y: 0, z: \"World!\")");
     }
 
+    [Fact]
+    public async void ThrowingToString()
+    {
+        var messageBus = new SpyMessageBus();
+        var runner = TestableXunitTheoryTestCaseRunner.Create<ClassWithThrowingToString>("Test", messageBus, "Display Name");
+
+        var summary = await runner.RunAsync();
+        var passed = messageBus.Messages.OfType<ITestPassed>().Single();
+        Assert.Equal("Display Name(c: TargetInvocationException was thrown formatting an object of type \"XunitTheoryTestCaseRunnerTests+ClassWithThrowingToString\")", passed.Test.DisplayName);
+    }
+
+    public class ClassWithThrowingToString
+    {
+        public static IEnumerable<object[]> TestData()
+        {
+            yield return new object[] { new ClassWithThrowingToString() };
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData))]
+        public static void Test(ClassWithThrowingToString c)
+        {
+            Assert.NotNull(c);
+        }
+
+        public override string ToString()
+        {
+            throw new DivideByZeroException();
+        }
+    }
+
+    [Fact]
+    public async void ThrowingEnumerator()
+    {
+        var messageBus = new SpyMessageBus();
+        var runner = TestableXunitTheoryTestCaseRunner.Create<ClassWithThrowingEnumerator>("Test", messageBus, "Display Name");
+
+        var summary = await runner.RunAsync();
+        var passed = messageBus.Messages.OfType<ITestPassed>().Single();
+        Assert.Equal("Display Name(c: [ClassWithThrowingEnumerator { }])", passed.Test.DisplayName);
+    }
+
+    public class ClassWithThrowingEnumerator
+    {
+        public static IEnumerable<object[]> TestData()
+        {
+            yield return new object[] { new ClassWithThrowingEnumerator[] { new ClassWithThrowingEnumerator() } };
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData))]
+        public void Test(ClassWithThrowingEnumerator[] c) { }
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new InvalidOperationException();
+        }
+    }
+
     class ClassUnderTest
     {
         public static bool DataWasDisposed;
@@ -142,13 +202,13 @@ public class XunitTheoryTestCaseRunnerTests
 
     class TestableXunitTheoryTestCaseRunner : XunitTheoryTestCaseRunner
     {
-        TestableXunitTheoryTestCaseRunner(IXunitTestCase testCase, 
-                                          string displayName, 
-                                          string skipReason, 
-                                          object[] constructorArguments, 
+        TestableXunitTheoryTestCaseRunner(IXunitTestCase testCase,
+                                          string displayName,
+                                          string skipReason,
+                                          object[] constructorArguments,
                                           IMessageSink diagnosticMessageSink,
-                                          IMessageBus messageBus, 
-                                          ExceptionAggregator aggregator, 
+                                          IMessageBus messageBus,
+                                          ExceptionAggregator aggregator,
                                           CancellationTokenSource cancellationTokenSource)
             : base(testCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource) { }
 
