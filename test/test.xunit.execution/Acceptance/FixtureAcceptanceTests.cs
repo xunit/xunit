@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -145,6 +146,70 @@ public class FixtureAcceptanceTests
             public FixtureSpy(EmptyFixtureData data)
             {
                 Assert.NotNull(data);
+            }
+
+            [Fact]
+            public void TheTest() { }
+        }
+
+        [Fact]
+        public void TestClassWithDefaultParameter()
+        {
+            var messages = Run<ITestPassed>(typeof(ClassWithDefaultCtorArg));
+
+            var msg = Assert.Single(messages);
+            Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithDefaultCtorArg.TheTest", msg.Test.DisplayName);
+        }
+
+        class ClassWithDefaultCtorArg : IClassFixture<EmptyFixtureData>
+        {
+            public ClassWithDefaultCtorArg(EmptyFixtureData fixture, int x = 0)
+            {
+                Assert.NotNull(fixture);
+                Assert.Equal(0, x);
+            }
+
+            [Fact]
+            public void TheTest() { }
+        }
+
+        [Fact]
+        public void TestClassWithOptionalParameter()
+        {
+            var messages = Run<ITestPassed>(typeof(ClassWithOptionalCtorArg));
+
+            var msg = Assert.Single(messages);
+            Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithOptionalCtorArg.TheTest", msg.Test.DisplayName);
+        }
+
+        class ClassWithOptionalCtorArg : IClassFixture<EmptyFixtureData>
+        {
+            public ClassWithOptionalCtorArg(EmptyFixtureData fixture, [Optional]int x, [Optional]object y)
+            {
+                Assert.NotNull(fixture);
+                Assert.Equal(0, x);
+                Assert.Null(y);
+            }
+
+            [Fact]
+            public void TheTest() { }
+        }
+
+        [Fact]
+        public void TestClassWithParamsParameter()
+        {
+            var messages = Run<ITestPassed>(typeof(ClassWithParamsArg));
+
+            var msg = Assert.Single(messages);
+            Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithParamsArg.TheTest", msg.Test.DisplayName);
+        }
+
+        class ClassWithParamsArg : IClassFixture<EmptyFixtureData>
+        {
+            public ClassWithParamsArg(EmptyFixtureData fixture, params object[] x)
+            {
+                Assert.NotNull(fixture);
+                Assert.Empty(x);
             }
 
             [Fact]
