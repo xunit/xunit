@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -454,6 +455,32 @@ public class Xunit2TheoryAcceptanceTests
             public void TestMethod(object value, Type expected)
             {
                 Assert.IsType(expected, value);
+            }
+        }
+
+        [Fact]
+        public void AsyncTaskMethod_MultipleInlineDataAttributes()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithAsyncTaskMethod));
+
+            var passed = testMessages.Cast<ITestPassed>().OrderBy(t => t.Test.DisplayName).ToArray();
+            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(x: A)", passed[0].Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(x: B)", passed[1].Test.DisplayName);
+        }
+
+        enum SomeEnum
+        {
+            A, B
+        }
+
+        class ClassWithAsyncTaskMethod
+        {
+            [Theory]
+            [InlineData(SomeEnum.A)]
+            [InlineData(SomeEnum.B)]
+            async Task TestMethod(SomeEnum x)
+            {
+                await Task.Run(() => "Any statement, to prevent a C# compiler error");
             }
         }
     }
