@@ -10,14 +10,12 @@ namespace Xunit.Sdk
     /// <remarks>This class is only ever used if the discoverer is preenumerating theories and the datarow is serializable.</remarks>
     public class XunitSkippedDataRowTestCase : XunitTestCase
     {
-        readonly string skipReason;
+        string skipReason;
 
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-        public XunitSkippedDataRowTestCase()
-        {
-        }
+        public XunitSkippedDataRowTestCase() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitSkippedDataRowTestCase"/> class.
@@ -27,21 +25,32 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method this test case belongs to.</param>
         /// <param name="skipReason">The reason that this test case will be skipped</param>
         /// <param name="testMethodArguments">The arguments for the test method.</param>
-        public XunitSkippedDataRowTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, string skipReason, object[] testMethodArguments = null) : 
+        public XunitSkippedDataRowTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, string skipReason, object[] testMethodArguments = null) :
             base(diagnosticMessageSink, defaultMethodDisplay, testMethod, testMethodArguments)
         {
             this.skipReason = skipReason;
         }
 
-        /// <summary>
-        /// Gets the skip reason for the test case. Overrides the default to use the skip reason from the 
-        /// value found during discovery
-        /// </summary>
-        /// <param name="factAttribute">The fact attribute the decorated the test case.</param>
-        /// <returns>The skip reason, if skipped; <c>null</c>, otherwise.</returns>
+        /// <inheritdoc/>
+        public override void Deserialize(IXunitSerializationInfo data)
+        {
+            base.Deserialize(data);
+
+            this.skipReason = data.GetValue<string>("SkipReason");
+        }
+
+        /// <inheritdoc/>
         protected override string GetSkipReason(IAttributeInfo factAttribute)
         {
             return skipReason;
+        }
+
+        /// <inheritdoc/>
+        public override void Serialize(IXunitSerializationInfo data)
+        {
+            base.Serialize(data);
+
+            data.AddValue("SkipReason", skipReason);
         }
     }
 }
