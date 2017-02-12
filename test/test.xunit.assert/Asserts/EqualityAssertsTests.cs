@@ -140,6 +140,96 @@ public class EqualityAssertsTests
             Assert.Equal(expected, (object)actual);
         }
 
+        [Fact]
+        public void ISet_NonGenericSubClass_Equal()
+        {
+            var expected = new NonGenericSet { "bar", "foo" };
+            var actual = new NonGenericSet { "bar", "foo" };
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (ISet<string>)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_NonGenericSubClass_NotEqual()
+        {
+            var expected = new NonGenericSet { "bar", "foo" };
+            var actual = new NonGenericSet { "bar", "baz" };
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (ISet<string>)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_NonGenericSubClass_DifferentCounts()
+        {
+            var expected = new NonGenericSet { "bar" };
+            var actual = new NonGenericSet { "bar", "foo" };
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (ISet<string>)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_NonGenericSubClass_DifferentTypesEqual()
+        {
+            var expected = new NonGenericSet { "bar" };
+            var actual = new HashSet<string> { "bar" };
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (ISet<string>)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_NonGenericSubClass_DifferentTypesNotEqual()
+        {
+            var expected = new NonGenericSet { "bar" };
+            var actual = new HashSet<int> { 1 };
+            
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class NonGenericSet : HashSet<string> { }
+
+        [Fact]
+        public void ISet_TwoGenericSubClass_Equal()
+        {
+            var expected = new TwoGenericSet<string, int> { "foo", "bar" };
+            var actual = new TwoGenericSet<string, int> { "foo", "bar" };
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (ISet<string>)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_TwoGenericSubClass_NotEqual()
+        {
+            var expected = new TwoGenericSet<string, int> { "foo", "bar" };
+            var actual = new TwoGenericSet<string, int> { "foo", "baz" };
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (ISet<string>)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void ISet_TwoGenericSubClass_DifferentCounts()
+        {
+            var expected = new TwoGenericSet<string, int> { "bar" };
+            var actual = new TwoGenericSet<string, int> { "foo", "bar" };
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (ISet<string>)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class TwoGenericSet<T, U> : HashSet<T> { }
+
         class SpyComparable : IComparable
         {
             public bool CompareCalled;
