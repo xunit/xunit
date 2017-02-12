@@ -105,7 +105,13 @@ namespace Xunit.Sdk
             // If the argument has not been provided, pass the default value
             int unresolvedParametersCount = hasParamsParameter ? parameters.Length - 1 : parameters.Length;
             for (int i = arguments.Length; i < unresolvedParametersCount; i++)
-                newArguments[i] = parameters[i].DefaultValue;
+            {
+                ParameterInfo parameter = parameters[i];
+                if (parameter.HasDefaultValue)
+                    newArguments[i] = parameter.DefaultValue;
+                else
+                    newArguments[i] = parameter.ParameterType.GetTypeInfo().GetDefaultValue();
+            }
 
             return newArguments;
         }
