@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -95,8 +96,6 @@ namespace Xunit.Sdk
         /// <returns>The test class constructor arguments.</returns>
         protected virtual object[] CreateTestClassConstructorArguments()
         {
-            var constructorArguments = new List<object>();
-
             var isStaticClass = Class.Type.GetTypeInfo().IsAbstract && Class.Type.GetTypeInfo().IsSealed;
             if (!isStaticClass)
             {
@@ -106,23 +105,32 @@ namespace Xunit.Sdk
                     var unusedArguments = new List<Tuple<int, ParameterInfo>>();
                     var parameters = ctor.GetParameters();
 
+                    object[] constructorArguments = new object[parameters.Length];
                     for (int idx = 0; idx < parameters.Length; ++idx)
                     {
                         var parameter = parameters[idx];
                         object argumentValue;
 
                         if (TryGetConstructorArgument(ctor, idx, parameter, out argumentValue))
-                            constructorArguments.Add(argumentValue);
+                            constructorArguments[idx] = argumentValue;
+                        else if (parameter.HasDefaultValue)
+                            constructorArguments[idx] = parameter.DefaultValue;
+                        else if (parameter.IsOptional)
+                            constructorArguments[idx] = parameter.ParameterType.GetTypeInfo().GetDefaultValue();
+                        else if (parameter.GetCustomAttribute<ParamArrayAttribute>() != null)
+                            constructorArguments[idx] = Array.CreateInstance(parameter.ParameterType, 0);
                         else
                             unusedArguments.Add(Tuple.Create(idx, parameter));
                     }
 
                     if (unusedArguments.Count > 0)
                         Aggregator.Add(new TestClassException(FormatConstructorArgsMissingMessage(ctor, unusedArguments)));
+
+                    return constructorArguments;
                 }
             }
 
-            return constructorArguments.ToArray();
+            return new object[0];
         }
 
         /// <summary>

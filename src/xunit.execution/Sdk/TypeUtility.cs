@@ -386,5 +386,15 @@ namespace Xunit.Sdk
 
             return resolvedTypes;
         }
+
+        internal static object GetDefaultValue(this TypeInfo typeInfo)
+        {
+            if (typeInfo.IsValueType)
+            {
+                return Activator.CreateInstance(typeInfo.AsType());
+            }
+
+            return null;
+        }
     }
 }
