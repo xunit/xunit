@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -466,6 +467,32 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.IsType(expected, value);
             }
         }
+
+        [Fact]
+        public void AsyncTaskMethod_MultipleInlineDataAttributes()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithAsyncTaskMethod));
+
+            var passed = testMessages.Cast<ITestPassed>().OrderBy(t => t.Test.DisplayName).ToArray();
+            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(x: A)", passed[0].Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(x: B)", passed[1].Test.DisplayName);
+        }
+
+        enum SomeEnum
+        {
+            A, B
+        }
+
+        class ClassWithAsyncTaskMethod
+        {
+            [Theory]
+            [InlineData(SomeEnum.A)]
+            [InlineData(SomeEnum.B)]
+            async Task TestMethod(SomeEnum x)
+            {
+                await Task.Run(() => "Any statement, to prevent a C# compiler error");
+            }
+        }
     }
 
     public class ClassDataTests : AcceptanceTestV2
@@ -476,9 +503,9 @@ public class Xunit2TheoryAcceptanceTests
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
-            Assert.Equal($"Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: {21.12}, z: \"Hello, world!\")", passing.Test.DisplayName);
+            Assert.Equal($"Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 42, y: {21.12}, z: \"Hello, world!\")", passing.Test.DisplayName);
             var failed = Assert.Single(testMessages.OfType<ITestFailed>());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaInlineData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 0, y: 0, z: null)", failed.Test.DisplayName);
             Assert.Empty(testMessages.OfType<ITestSkipped>());
         }
 
@@ -486,7 +513,7 @@ public class Xunit2TheoryAcceptanceTests
         {
             [Theory]
             [ClassData(typeof(ClassDataSource))]
-            public void TestViaInlineData(int x, double y, string z)
+            public void TestViaClassData(int x, double y, string z)
             {
                 Assert.NotNull(z);
             }
@@ -500,10 +527,25 @@ public class Xunit2TheoryAcceptanceTests
                 yield return new object[] { 0, 0.0, null };
             }
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        [Fact]
+        public void NoDefaultConstructor_Fails()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassNotImplementingIEnumerable));
+
+            var failed = Assert.Single(testMessages.Cast<ITestFailed>());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable.TestMethod", failed.Test.DisplayName);
+            Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable must implement IEnumerable<object[]> to be used as ClassData for the test method named 'TestMethod' on Xunit2TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable", failed.Messages.Single());
+        }
+
+        class ClassNotImplementingIEnumerable
+        {
+            [Theory]
+            [ClassData(typeof(ClassNotImplementingIEnumerable))]
+            public void TestMethod() { }
         }
     }
 

@@ -43,7 +43,7 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method to resolve.</param>
         /// <param name="arguments">The user-supplied method arguments.</param>
         /// <returns>The argument values</returns>
-        public static object[] ResolveMethodArguments(this MethodInfo testMethod, object[] arguments)
+        public static object[] ResolveMethodArguments(this MethodBase testMethod, object[] arguments)
         {
             ParameterInfo[] parameters = testMethod.GetParameters();
             bool hasParamsParameter = false;

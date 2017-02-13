@@ -35,6 +35,72 @@ public class EqualityAssertsTests
         }
 
         [Fact]
+        public void Comparable_NonGeneric_SameType_Equal()
+        {
+            var expected = new MultiComparable(1);
+            var actual = new MultiComparable(1);
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (IComparable)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void Comparable_NonGeneric_SameType_NotEqual()
+        {
+            var expected = new MultiComparable(1);
+            var actual = new MultiComparable(2);
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (IComparable)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void Comparable_NonGeneric_DifferentType_Equal()
+        {
+            var expected = new MultiComparable(1);
+            var actual = 1;
+            
+            Assert.Equal(expected, (IComparable)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void Comparable_NonGeneric_DifferentType_NotEqual()
+        {
+            var expected = new MultiComparable(1);
+            var actual = 2;
+            
+            Assert.NotEqual(expected, (IComparable)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class MultiComparable : IComparable
+        {
+            private int Value { get; }
+
+            public MultiComparable(int value)
+            {
+                Value = value;
+            }
+
+            public int CompareTo(object obj)
+            {
+                if (obj is int)
+                {
+                    return Value.CompareTo(obj);
+                }
+                else if (obj is MultiComparable)
+                {
+                    return Value.CompareTo(((MultiComparable)obj).Value);
+                }
+
+                throw new InvalidOperationException();
+            }
+        }
+
+        [Fact]
         public void Comparable_Generic()
         {
             SpyComparable_Generic obj1 = new SpyComparable_Generic();
