@@ -111,6 +111,64 @@ public class EqualityAssertsTests
         }
 
         [Fact]
+        public void Comparable_SubClass_SubClass_Equal()
+        {
+            var expected = new ComparableSubClassA(1);
+            var actual = new ComparableSubClassB(1);
+
+            Assert.Equal<ComparableBaseClass>(expected, actual);
+        }
+
+        [Fact]
+        public void Comparable_SubClass_SubClass_NotEqual()
+        {
+            var expected = new ComparableSubClassA(1);
+            var actual = new ComparableSubClassB(2);
+
+            Assert.NotEqual<ComparableBaseClass>(expected, actual);
+        }
+
+        [Fact]
+        public void Comparable_BaseClass_SubClass_Equal()
+        {
+            var expected = new ComparableBaseClass(1);
+            var actual = new ComparableSubClassA(1);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void Comparable_SubClass_BaseClass_Equal()
+        {
+            var expected = new ComparableSubClassA(1);
+            var actual = new ComparableBaseClass(1);
+
+            Assert.Equal(expected, actual);
+        }
+
+        class ComparableBaseClass : IComparable<ComparableBaseClass>
+        {
+            private int Value { get; }
+
+            public ComparableBaseClass(int value)
+            {
+                Value = value;
+            }
+
+            public int CompareTo(ComparableBaseClass other) => Value.CompareTo(other.Value);
+        }
+
+        class ComparableSubClassA : ComparableBaseClass
+        {
+            public ComparableSubClassA(int value) : base(value) { }
+        }
+
+        class ComparableSubClassB : ComparableBaseClass
+        {
+            public ComparableSubClassB(int value) : base(value) { }
+        }
+
+        [Fact]
         public void Equatable()
         {
             SpyEquatable obj1 = new SpyEquatable();
@@ -120,6 +178,64 @@ public class EqualityAssertsTests
 
             Assert.True(obj1.Equals__Called);
             Assert.Same(obj2, obj1.Equals_Other);
+        }
+
+        [Fact]
+        public void Equatable_SubClass_SubClass_Equal()
+        {
+            var expected = new EquatableSubClassA(1);
+            var actual = new EquatableSubClassB(1);
+
+            Assert.Equal<EquatableBaseClass>(expected, actual);
+        }
+
+        [Fact]
+        public void Equatable_SubClass_SubClass_NotEqual()
+        {
+            var expected = new EquatableSubClassA(1);
+            var actual = new EquatableSubClassB(2);
+
+            Assert.NotEqual<EquatableBaseClass>(expected, actual);
+        }
+
+        [Fact]
+        public void Equatable_BaseClass_SubClass_Equal()
+        {
+            var expected = new EquatableBaseClass(1);
+            var actual = new EquatableSubClassA(1);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void Equatable_SubClass_BaseClass_Equal()
+        {
+            var expected = new EquatableSubClassA(1);
+            var actual = new EquatableBaseClass(1);
+
+            Assert.Equal(expected, actual);
+        }
+
+        class EquatableBaseClass : IEquatable<EquatableBaseClass>
+        {
+            private int Value { get; }
+
+            public EquatableBaseClass(int value)
+            {
+                Value = value;
+            }
+
+            public bool Equals(EquatableBaseClass other) => Value == other.Value;
+        }
+
+        class EquatableSubClassA : EquatableBaseClass
+        {
+            public EquatableSubClassA(int value) : base(value) { }
+        }
+
+        class EquatableSubClassB : EquatableBaseClass
+        {
+            public EquatableSubClassB(int value) : base(value) { }
         }
 
         [Fact]
@@ -677,9 +793,7 @@ public class EqualityAssertsTests
         }
     }
 
-    private class BaseClass
-    {
-    }
+    private class BaseClass { }
 
     private class DerivedClass : BaseClass
     {
@@ -710,14 +824,8 @@ public class EqualityAssertsTests
             this.bars = bars;
         }
 
-        public IEnumerator<BaseClass> GetEnumerator()
-        {
-            return this.bars.GetEnumerator();
-        }
+        public IEnumerator<BaseClass> GetEnumerator() => bars.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
