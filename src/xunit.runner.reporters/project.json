@@ -30,6 +30,18 @@
             "dependencies": {
                 "NETStandard.Library": "1.6.0"
             }
+        },
+        "netstandard1.5": {
+            "buildOptions": {
+                "define": [ "PLATFORM_DOTNET" ],
+                "embed": [
+                    "Resources/xunit.runner.reporters.netstandard15.rd.xml"
+                ],
+                "outputName": "xunit.runner.reporters.netstandard15"
+            },
+            "dependencies": {
+                "NETStandard.Library": "1.6.0"
+            }
         }
     },
     "dependencies": {
