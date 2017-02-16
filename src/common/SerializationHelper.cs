@@ -224,7 +224,8 @@ namespace Xunit.Sdk
                 }
             }
 
-            if (string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(assemblyName, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase))
                 return typeName;
 
 #if XUNIT_FRAMEWORK    // This behavior is only for v2, and only done on the remote app domain side
