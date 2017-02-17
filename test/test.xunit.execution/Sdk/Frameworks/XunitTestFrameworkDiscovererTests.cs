@@ -191,14 +191,16 @@ public class XunitTestFrameworkDiscovererTests
         [Fact]
         public static void CallsSourceProviderWhenTypesAreFoundInAssembly()
         {
+            var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
+            var assemblyInfo = Substitute.For<IAssemblyInfo>();
+            assemblyInfo.GetTypes(true).Returns(new[] { typeInfo });
+            assemblyInfo.GetType(typeInfo.Name).Returns(typeInfo);
             var sourceProvider = Substitute.For<ISourceInformationProvider>();
             sourceProvider.GetSourceInformation(null)
                           .ReturnsForAnyArgs(new Xunit.SourceInformation { FileName = "Source File", LineNumber = 42 });
-            var framework = TestableXunitTestFrameworkDiscoverer.Create(sourceProvider: sourceProvider);
-            var typeInfo = Reflector.Wrap(typeof(ClassWithSingleTest));
-            framework.Assembly.GetType("abc").Returns(typeInfo);
+            var framework = TestableXunitTestFrameworkDiscoverer.Create(assemblyInfo, sourceProvider);
 
-            framework.Find("abc", includeSourceInformation: true);
+            framework.Find(typeInfo.Name, includeSourceInformation: true);
 
             Assert.Collection(framework.TestCases,
                 testCase =>
