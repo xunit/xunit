@@ -1,1 +1,0 @@
-﻿using System.Diagnostics.CodeAnalysis;[assembly: SuppressMessage("Microsoft.Naming", "CA1709:IdentifierShouldBeCasedCorrectly", MessageId = "abstractions")]
