@@ -36,7 +36,7 @@ namespace Xunit
                 LineNumber = navData.LineNumber
             };
         }
-        
+
         /// <inheritdoc/>
         public void Dispose()
         {

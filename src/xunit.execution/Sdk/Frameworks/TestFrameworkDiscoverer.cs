@@ -12,7 +12,6 @@ namespace Xunit.Sdk
     /// </summary>
     public abstract class TestFrameworkDiscoverer : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer
     {
-        readonly DiaSessionHelperForAsyncMethods diaSessionHelper;
         readonly Lazy<string> targetFramework;
 
         /// <summary>
@@ -34,7 +33,6 @@ namespace Xunit.Sdk
             DisposalTracker = new DisposalTracker();
             SourceProvider = sourceProvider;
 
-            diaSessionHelper = new DiaSessionHelperForAsyncMethods(AssemblyInfo);
             targetFramework = new Lazy<string>(() =>
             {
                 string result = null;
@@ -186,7 +184,7 @@ namespace Xunit.Sdk
         protected bool ReportDiscoveredTestCase(ITestCase testCase, bool includeSourceInformation, IMessageBus messageBus)
         {
             if (includeSourceInformation && SourceProvider != null)
-                testCase.SourceInformation = diaSessionHelper.NormalizeAndGetSourceInformation(SourceProvider, testCase);
+                testCase.SourceInformation = SourceProvider.GetSourceInformation(testCase);
 
             return messageBus.QueueMessage(new TestCaseDiscoveryMessage(testCase));
         }
