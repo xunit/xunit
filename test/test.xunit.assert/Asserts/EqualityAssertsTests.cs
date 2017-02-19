@@ -169,6 +169,47 @@ public class EqualityAssertsTests
         }
 
         [Fact]
+        public void Comparable_Generic_ThrowsException_Equal()
+        {
+            var expected = new ComparableThrower(1);
+            var actual = new ComparableThrower(1);
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (IComparable<ComparableThrower>)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void Comparable_Generic_ThrowsException_NotEqual()
+        {
+            var expected = new ComparableThrower(1);
+            var actual = new ComparableThrower(2);
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (IComparable<ComparableThrower>)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class ComparableThrower : IComparable<ComparableThrower>
+        {
+            public int Value { get; }
+
+            public ComparableThrower(int value)
+            {
+                Value = value;
+            }
+
+            public int CompareTo(ComparableThrower other)
+            {
+                throw new InvalidOperationException();
+            }
+
+            public override bool Equals(object obj) => Value == ((ComparableThrower)obj).Value;
+
+            public override int GetHashCode() => Value;
+        }
+
+        [Fact]
         public void Equatable()
         {
             SpyEquatable obj1 = new SpyEquatable();
