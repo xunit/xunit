@@ -18,11 +18,12 @@ public class JsonExtensionsTests
             { "decimal", 21.12M },
             { "boolean", true },
             { "guid", Guid.Empty },
+            { "stringWithQuote", "\"bar\"" },
         };
 
         var result = JsonExtentions.ToJson(data);
 
-        Assert.Equal(@"{""string"":""bar"",""int32"":42,""int64"":42,""single"":21.12,""double"":21.12,""decimal"":21.12,""boolean"":true,""guid"":""00000000-0000-0000-0000-000000000000""}", result);
+        Assert.Equal(@"{""string"":""bar"",""int32"":42,""int64"":42,""single"":21.12,""double"":21.12,""decimal"":21.12,""boolean"":true,""guid"":""00000000-0000-0000-0000-000000000000"",""stringWithQuote"":""\""bar\""""}", result);
     }
 
     [Fact]
