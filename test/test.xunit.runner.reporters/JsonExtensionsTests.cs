@@ -36,6 +36,6 @@ public class JsonExtensionsTests
 
         var result = JsonExtentions.ToJson(data);
 
-        Assert.Equal(@"{""foo"":""\u0000 \u001F \t \r \n \\ \\""Hello!\\""""}", result);
+        Assert.Equal(@"{""foo"":""\u0000 \u001F \t \r \n \\ \""Hello!\""""}", result);
     }
 }
