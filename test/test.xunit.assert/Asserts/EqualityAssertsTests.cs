@@ -289,6 +289,73 @@ public class EqualityAssertsTests
         }
 
         [Fact]
+        public void IStructuralEquatable_Equal()
+        {
+            var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
+            var actual = new Tuple<StringWrapper>(new StringWrapper("a"));
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (IStructuralEquatable)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IStructuralEquatable_NotEqual()
+        {
+            var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
+            var actual = new Tuple<StringWrapper>(new StringWrapper("b"));
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (IStructuralEquatable)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IStructuralEquatable_ExpectedNull_ActualNull()
+        {
+            var expected = new Tuple<StringWrapper>(null);
+            var actual = new Tuple<StringWrapper>(null);
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, (IStructuralEquatable)actual);
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IStructuralEquatable_ExpectedNull_ActualNonNull()
+        {
+            var expected = new Tuple<StringWrapper>(null);
+            var actual = new Tuple<StringWrapper>(new StringWrapper("a"));
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (IStructuralEquatable)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IStructuralEquatable_ExpectedNonNull_ActualNull()
+        {
+            var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
+            var actual = new Tuple<StringWrapper>(null);
+
+            Assert.NotEqual(expected, actual);
+            Assert.NotEqual(expected, (IStructuralEquatable)actual);
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class StringWrapper : IEquatable<StringWrapper>
+        {
+            public string Value { get; }
+
+            public StringWrapper(string value)
+            {
+                Value = value;
+            }
+
+            bool IEquatable<StringWrapper>.Equals(StringWrapper other) => Value == other.Value;
+        }
+
+        [Fact]
         public void DepthExample()
         {
             var x = new List<object> { new List<object> { new List<object> { new List<object>() } } };
