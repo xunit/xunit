@@ -353,7 +353,7 @@ public class CollectionAssertsTests
 
             EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty(list));
 
-            Assert.Equal("Assert.Empty() Failure", ex.Message);
+            Assert.Equal($"Assert.Empty() Failure{Environment.NewLine}Collection: [42]", ex.Message);
         }
 
         [Fact]
@@ -377,7 +377,7 @@ public class CollectionAssertsTests
         {
             EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty("Foo"));
 
-            Assert.Equal("Assert.Empty() Failure", ex.Message);
+            Assert.Equal($"Assert.Empty() Failure{Environment.NewLine}Collection: \"Foo\"", ex.Message);
         }
     }
 
