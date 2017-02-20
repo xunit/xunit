@@ -520,6 +520,173 @@ public class EqualityAssertsTests
 
         class TwoGenericSet<T, U> : HashSet<T> { }
 
+        [Fact]
+        public void IEquatableActual_Implicit_Equal()
+        {
+            var expected = new ImplicitIEquatableExpected(1);
+            var actual = new IntWrapper(1);
+
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IEquatableActual_Implicit_NotEqual()
+        {
+            var expected = new ImplicitIEquatableExpected(1);
+            var actual = new IntWrapper(2);
+
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class ImplicitIEquatableExpected : IEquatable<IntWrapper>
+        {
+            public int Value { get; }
+
+            public ImplicitIEquatableExpected(int value)
+            {
+                Value = value;
+            }
+
+            public bool Equals(IntWrapper other) => Value == other.Value;
+        }
+
+        [Fact]
+        public void IEquatableActual_Explicit_Equal()
+        {
+            var expected = new ExplicitIEquatableExpected(1);
+            var actual = new IntWrapper(1);
+
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IEquatableActual_Explicit_NotEqual()
+        {
+            var expected = new ImplicitIEquatableExpected(1);
+            var actual = new IntWrapper(2);
+
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class ExplicitIEquatableExpected : IEquatable<IntWrapper>
+        {
+            public int Value { get; }
+
+            public ExplicitIEquatableExpected(int value)
+            {
+                Value = value;
+            }
+
+            bool IEquatable<IntWrapper>.Equals(IntWrapper other) => Value == other.Value;
+        }
+
+        [Fact]
+        public void IComparableActual_Implicit_Equal()
+        {
+            var expected = new ImplicitIComparableExpected(1);
+            var actual = new IntWrapper(1);
+
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IComparableActual_Implicit_NotEqual()
+        {
+            var expected = new ImplicitIComparableExpected(1);
+            var actual = new IntWrapper(2);
+
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class ImplicitIComparableExpected : IComparable<IntWrapper>
+        {
+            public int Value { get; }
+
+            public ImplicitIComparableExpected(int value)
+            {
+                Value = value;
+            }
+
+            public int CompareTo(IntWrapper other) => Value.CompareTo(other.Value);
+        }
+
+        [Fact]
+        public void IComparableActual_Explicit_Equal()
+        {
+            var expected = new ExplicitIComparableActual(1);
+            var actual = new IntWrapper(1);
+
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IComparableActual_Explicit_NotEqual()
+        {
+            var expected = new ImplicitIComparableExpected(1);
+            var actual = new IntWrapper(2);
+
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class ExplicitIComparableActual : IComparable<IntWrapper>
+        {
+            public int Value { get; }
+
+            public ExplicitIComparableActual(int value)
+            {
+                Value = value;
+            }
+
+            int IComparable<IntWrapper>.CompareTo(IntWrapper other) => Value.CompareTo(other.Value);
+        }
+
+        [Fact]
+        public void IComparableActual_ThrowsException_Equal()
+        {
+            var expected = new IComparableActualThrower(1);
+            var actual = new IntWrapper(1);
+            
+            Assert.Equal(expected, (object)actual);
+        }
+
+        [Fact]
+        public void IComparableActual_ThrowsException_NotEqual()
+        {
+            var expected = new IComparableActualThrower(1);
+            var actual = new IntWrapper(2);
+
+            Assert.NotEqual(expected, (object)actual);
+        }
+
+        class IComparableActualThrower : IComparable<IntWrapper>
+        {
+            public int Value { get; }
+
+            public IComparableActualThrower(int value)
+            {
+                Value = value;
+            }
+
+            public int CompareTo(IntWrapper other)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override bool Equals(object obj) => Value == ((IntWrapper)obj).Value;
+
+            public override int GetHashCode() => Value;
+        }
+
+        class IntWrapper
+        {
+            public int Value { get; }
+
+            public IntWrapper(int value)
+            {
+                Value = value;
+            }
+        }
+
         class SpyComparable : IComparable
         {
             public bool CompareCalled;
