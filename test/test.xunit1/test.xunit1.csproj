@@ -9,7 +9,7 @@
   <ItemGroup>
     <Compile Include="..\..\src\common\AssemblyExtensions.cs" />
     <None Include="App.config" />
-    <Content Include="**\*.xls">
+    <Content Include="xunit.extensions\**\*.xls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <PackageReference Include="Moq" Version="4.1.1308.2321" />
