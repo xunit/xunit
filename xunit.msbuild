@@ -35,8 +35,10 @@
     <ProjectJsonFiles Include="src\*\project.json;test\*\project.json" />
   </ItemGroup>
 
-  <!-- Build server targets -->
+  <!-- Meta targets -->
 
+  <Target Name="Build" DependsOnTargets="PackageRestore;_Build" />
+  <Target Name="Test" DependsOnTargets="Build;_Test32;_Test64" />
   <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts" />
   <Target Name="TeamCity" DependsOnTargets="CI;PushMyGet" />
 
@@ -66,7 +68,7 @@
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
   </Target>
 
-  <Target Name="Build" DependsOnTargets="PackageRestore">
+  <Target Name="_Build">
     <!-- Do "dotnet restore" here because we may have changed things before starting the build, but after PackageRestore is run -->
     <MSBuild Projects="$(SolutionName)" Properties="Configuration=$(Configuration)" Targets="restore" />
     <MSBuild Projects="$(SolutionName)" Properties="Configuration=$(Configuration)" Targets="build" />
@@ -74,7 +76,7 @@
     <RegexReplace
         Pattern="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console&quot;"
         Replacement="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console.x86&quot;"
-        Files="src\xunit.console\bin\$(Configuration)_x86\net452\xunit.console.x86.exe.config" />
+        Files="src\xunit.console\bin\$(Configuration)_x86\net452\win7-x86\xunit.console.x86.exe.config" />
   </Target>
 
   <Target Name="_Test32" DependsOnTargets="Build">
@@ -88,8 +90,6 @@
         Condition="'$(PROCESSOR_ARCHITEW6432)' != ''"
         Command="$(SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe tools\xunit.tests.msbuild /nologo /p:Configuration=$(Configuration);ParallelizeTests=$(ParallelizeTests) /v:$(RequestedVerbosity)" />
   </Target>
-
-  <Target Name="Test" DependsOnTargets="Build;_Test32;_Test64" />
 
   <Target Name="SetVersionNumber">
     <RegexReplace
