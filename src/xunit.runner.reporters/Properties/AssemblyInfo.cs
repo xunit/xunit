@@ -6,6 +6,8 @@
 [assembly: AssemblyTitle("xUnit.net Runner Reporters (.NET Standard 1.1)")]
 #elif NETSTANDARD1_5
 [assembly: AssemblyTitle("xUnit.net Runner Reporters (.NET Standard 1.5)")]
+#elif NETCOREAPP1_0
+[assembly: AssemblyTitle("xUnit.net Runner Reporters (.NET Core Application 1.0)")]
 #else
 #error Unknown target platform
 #endif

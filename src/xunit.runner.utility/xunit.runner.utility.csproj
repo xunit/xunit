@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <VersionPrefix>99.99.99-dev</VersionPrefix>
-    <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5</TargetFrameworks>
+    <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>xunit.runner.utility</AssemblyName>
@@ -55,8 +55,11 @@
     <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard11.rd.xml" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.1.0" />
     <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard15.rd.xml" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.1.0" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
     <AssemblyName>xunit.runner.utility.net35</AssemblyName>
@@ -70,6 +73,10 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
     <AssemblyName>xunit.runner.utility.netstandard15</AssemblyName>
+    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
+    <AssemblyName>xunit.runner.utility.netcoreapp10</AssemblyName>
     <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
   </PropertyGroup>
 </Project>

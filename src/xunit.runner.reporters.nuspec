@@ -24,6 +24,10 @@
         <dependency id="NETStandard.Library" version="1.6.0" />
         <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
       </group>
+      <group targetFramework="netcoreapp1.0">
+        <dependency id="NETStandard.Library" version="1.6.0" />
+        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
+      </group>
     </dependencies>
   </metadata>
   <files>
@@ -35,6 +39,9 @@
 
     <file src="xunit.runner.reporters\bin\Release\netstandard1.5\xunit.runner.reporters.netstandard15.dll" target="lib\netstandard1.5\" />
     <file src="xunit.runner.reporters\bin\Release\netstandard1.5\xunit.runner.reporters.netstandard15.pdb" target="lib\netstandard1.5\" />
+
+    <file src="xunit.runner.reporters\bin\Release\netcoreapp1.0\xunit.runner.reporters.netcoreapp10.dll" target="lib\netcoreapp1.0\" />
+    <file src="xunit.runner.reporters\bin\Release\netcoreapp1.0\xunit.runner.reporters.netcoreapp10.pdb" target="lib\netcoreapp1.0\" />
 
     <file src="common\GlobalAssemblyInfo.cs"    target="src\common\" />
     <file src="common\XunitWorkerThread.cs"     target="src\common\" />
