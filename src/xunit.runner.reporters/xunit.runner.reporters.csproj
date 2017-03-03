@@ -36,15 +36,12 @@
     <AssemblyName>xunit.runner.reporters.net452</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
     <AssemblyName>xunit.runner.reporters.netstandard11</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
-    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
     <AssemblyName>xunit.runner.reporters.netstandard15</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
     <AssemblyName>xunit.runner.reporters.netcoreapp10</AssemblyName>
   </PropertyGroup>
 </Project>

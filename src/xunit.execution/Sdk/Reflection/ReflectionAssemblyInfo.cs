@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
-
-#if PLATFORM_DOTNET
-using System;
-using System.IO;
-#endif
 
 namespace Xunit.Sdk
 {
@@ -30,7 +27,7 @@ namespace Xunit.Sdk
         /// <param name="assemblyFileName">The assembly to be wrapped.</param>
         public ReflectionAssemblyInfo(string assemblyFileName)
         {
-#if PLATFORM_DOTNET
+#if NETSTANDARD1_1
             Assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName), Version = new Version(0, 0, 0, 0) });
 #else
             Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
@@ -45,7 +42,7 @@ namespace Xunit.Sdk
         {
             get
             {
-#if PLATFORM_DOTNET
+#if NETSTANDARD1_1
                 return Assembly.GetName().Name + ".dll";  // Make sure we only use the short form
 #else
                 return Assembly.GetLocalCodeBase();

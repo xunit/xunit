@@ -67,7 +67,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITypeInfo Type
         {
-#if PLATFORM_DOTNET
+#if NETSTANDARD1_1
             get { throw new NotSupportedException(); }
 #else
             get { return Reflector.Wrap(MethodInfo.ReflectedType); }

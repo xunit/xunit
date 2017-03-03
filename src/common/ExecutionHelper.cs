@@ -1,10 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
-
-#if PLATFORM_DOTNET
 using System.Reflection;
-#endif
 
 namespace Xunit
 {
@@ -23,7 +20,7 @@ namespace Xunit
                     {
                         platformSuffix = null;
 
-#if PLATFORM_DOTNET
+#if NETSTANDARD1_1 || NETSTANDARD1_3
                         foreach (var suffix in new[] { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" })
                             try
                             {

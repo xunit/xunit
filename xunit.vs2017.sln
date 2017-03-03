@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26127.0
+VisualStudioVersion = 15.0.26228.0
 MinimumVisualStudioVersion = 14.0.22823.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{DAED8494-AC8A-4C67-A8F1-616D95ECC302}"
 EndProject
@@ -16,7 +16,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Targets", "Targets", "{942F0424-C972-4983-8A66-B8EB64A28F23}"
 	ProjectSection(SolutionItems) = preProject
 		xunit.msbuild = xunit.msbuild
-		tools\xunit.tests.msbuild = tools\xunit.tests.msbuild
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Runners", "Runners", "{C11636E8-A3D7-4B0C-BC1E-2726B02A101F}"
@@ -81,7 +80,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.utility", "test\test.u
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.execution", "test\test.xunit.execution\test.xunit.execution.csproj", "{6A997545-19C4-46C6-8F25-67E5938B79C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit1", "test\test.xunit1\test.xunit1.csproj", "{61615231-0BD8-43FA-903E-27F5A5A5E3F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit1", "test\test.xunit1\test.xunit1.csproj", "{61615231-0BD8-43FA-903E-27F5A5A5E3F6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.console", "test\test.xunit.console\test.xunit.console.csproj", "{1D8C8259-A9C6-4698-8FF5-0BA00FDB7478}"
 EndProject

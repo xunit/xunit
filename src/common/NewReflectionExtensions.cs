@@ -11,28 +11,28 @@ static class NewReflectionExtensions
 
     public static Assembly GetAssembly(this Type type)
     {
-#if PLATFORM_DOTNET
-        return type.GetTypeInfo().Assembly;
-#else
+#if NET35
         return type.Assembly;
+#else
+        return type.GetTypeInfo().Assembly;
 #endif
     }
 
     public static Attribute[] GetCustomAttributes(this Assembly assembly)
     {
-#if PLATFORM_DOTNET
-        return assembly.GetCustomAttributes<Attribute>().ToArray();
-#else
+#if NET35
         return assembly.GetCustomAttributes(false).Cast<Attribute>().ToArray();
+#else
+        return assembly.GetCustomAttributes<Attribute>().ToArray();
 #endif
     }
 
     public static bool IsEnum(this Type type)
     {
-#if PLATFORM_DOTNET
-        return type.GetTypeInfo().IsEnum;
-#else
+#if NET35
         return type.IsEnum;
+#else
+        return type.GetTypeInfo().IsEnum;
 #endif
     }
 
@@ -42,10 +42,10 @@ static class NewReflectionExtensions
 
         try
         {
-#if PLATFORM_DOTNET
-            Assembly.Load(new AssemblyName { Name = assemblyName });
-#else
+#if NET35
             Assembly.Load(assemblyName);
+#else
+            Assembly.Load(new AssemblyName { Name = assemblyName });
 #endif
             return true;
         }
@@ -57,19 +57,19 @@ static class NewReflectionExtensions
 
     public static bool IsGenericType(this Type type)
     {
-#if PLATFORM_DOTNET
-        return type.GetTypeInfo().IsGenericType;
-#else
+#if NET35
         return type.IsGenericType;
+#else
+        return type.GetTypeInfo().IsGenericType;
 #endif
     }
 
     public static bool IsGenericTypeDefinition(this Type type)
     {
-#if PLATFORM_DOTNET
-        return type.GetTypeInfo().IsGenericTypeDefinition;
-#else
+#if NET35
         return type.IsGenericTypeDefinition;
+#else
+        return type.GetTypeInfo().IsGenericTypeDefinition;
 #endif
     }
 
@@ -80,10 +80,10 @@ static class NewReflectionExtensions
 
     public static bool IsValueType(this Type type)
     {
-#if PLATFORM_DOTNET
-        return type.GetTypeInfo().IsValueType;
-#else
+#if NET35
         return type.IsValueType;
+#else
+        return type.GetTypeInfo().IsValueType;
 #endif
     }
 
@@ -98,7 +98,7 @@ static class NewReflectionExtensions
 
     // Existing methods
 
-#if PLATFORM_DOTNET
+#if !NET35
     public static Type[] GetGenericArguments(this Type type)
     {
         return type.GetTypeInfo().GenericTypeArguments;

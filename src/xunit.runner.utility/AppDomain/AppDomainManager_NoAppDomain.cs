@@ -16,10 +16,10 @@ namespace Xunit
         {
             try
             {
-#if PLATFORM_DOTNET
-                var type = Type.GetType($"{typeName}, {assemblyName.FullName}", true);
-#else
+#if NET35 || NET452
                 var type = Assembly.Load(assemblyName).GetType(typeName);
+#else
+                var type = Type.GetType($"{typeName}, {assemblyName.FullName}", true);
 #endif
                 return (TObject)Activator.CreateInstance(type, args);
             }
@@ -30,7 +30,7 @@ namespace Xunit
             }
         }
 
-#if !PLATFORM_DOTNET
+#if NET35 || NET452
         public TObject CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object[] args)
         {
             try

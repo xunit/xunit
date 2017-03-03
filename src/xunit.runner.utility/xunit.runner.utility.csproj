@@ -69,14 +69,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
     <AssemblyName>xunit.runner.utility.netstandard11</AssemblyName>
-    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
     <AssemblyName>xunit.runner.utility.netstandard15</AssemblyName>
-    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <AssemblyName>xunit.runner.utility.netcoreapp10</AssemblyName>
-    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
   </PropertyGroup>
 </Project>

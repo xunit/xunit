@@ -11,7 +11,7 @@ namespace Xunit
         /// </summary>
         IfAvailable = 1,
 
-#if !PLATFORM_DOTNET
+#if NET35 || NET452
         /// <summary>
         /// Requires that app domain support be used. Can only be requested by runners which link
         /// against xunit.runner.utility.desktop, and can only run test assemblies which link

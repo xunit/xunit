@@ -23,7 +23,7 @@ namespace Xunit.Sdk
             : base(assemblyName, sourceInformationProvider, diagnosticMessageSink)
         {
             string config = null;
-#if !PLATFORM_DOTNET
+#if NET452
             config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
             TestAssembly = new TestAssembly(AssemblyInfo, config, assemblyName.Version);

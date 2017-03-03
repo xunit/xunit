@@ -28,7 +28,4 @@
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
-  </PropertyGroup>
 </Project>

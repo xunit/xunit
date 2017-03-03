@@ -24,7 +24,7 @@ namespace Xunit
         /// <param name="logger">The logger used to report messages</param>
         public DefaultRunnerReporterMessageHandler(IRunnerLogger logger)
         {
-#if !PLATFORM_DOTNET
+#if NET35 || NET452
             defaultDirectory = Directory.GetCurrentDirectory();
 #endif
 
@@ -186,10 +186,10 @@ namespace Xunit
 
             if (discoveryStarting.DiscoveryOptions.GetDiagnosticMessagesOrDefault())
             {
-#if PLATFORM_DOTNET
-                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");
-#else
+#if NET35 || NET452
                 Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (app domain = {(discoveryStarting.AppDomain ? $"on [{(discoveryStarting.ShadowCopy ? "shadow copy" : "no shadow copy")}]" : "off")}, method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");
+#else
+                Logger.LogImportantMessage($"  Discovering: {assemblyDisplayName} (method display = {discoveryStarting.DiscoveryOptions.GetMethodDisplayOrDefault()})");
 #endif
             }
             else

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <VersionPrefix>99.99.99-dev</VersionPrefix>
     <TargetFramework>netstandard1.1</TargetFramework>
-    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK;PLATFORM_DOTNET</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <WarningsAsErrors>true</WarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>xunit.core</AssemblyName>

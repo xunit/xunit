@@ -49,7 +49,6 @@
     <AssemblyName>xunit.execution.desktop</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
     <AssemblyName>xunit.execution.dotnet</AssemblyName>
   </PropertyGroup>
 </Project>

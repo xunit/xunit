@@ -2,7 +2,6 @@
   <PropertyGroup>
     <VersionPrefix>99.99.99-dev</VersionPrefix>
     <TargetFramework>netstandard1.1</TargetFramework>
-    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
     <WarningsAsErrors>true</WarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>xunit.assert</AssemblyName>
