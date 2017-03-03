@@ -1,6 +1,4 @@
-﻿#if NET452
-
-using Xunit.Sdk;
+﻿using Xunit.Sdk;
 
 namespace Xunit
 {
@@ -10,5 +8,3 @@ namespace Xunit
         public CulturedFactAttribute(params string[] cultures) { }
     }
 }
-
-#endif

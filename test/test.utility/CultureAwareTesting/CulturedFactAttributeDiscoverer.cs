@@ -1,7 +1,4 @@
-﻿#if NET452
-
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -29,5 +26,3 @@ namespace TestUtility
         }
     }
 }
-
-#endif

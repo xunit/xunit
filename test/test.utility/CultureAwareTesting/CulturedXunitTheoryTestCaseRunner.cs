@@ -1,6 +1,4 @@
-﻿#if NET452
-
-using System;
+﻿using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,12 +30,12 @@ namespace TestUtility
         {
             try
             {
-                originalCulture = Thread.CurrentThread.CurrentCulture;
-                originalUICulture = Thread.CurrentThread.CurrentUICulture;
+                originalCulture = CurrentCulture;
+                originalUICulture = CurrentUICulture;
 
-                var cultureInfo = CultureInfo.GetCultureInfo(culture);
-                Thread.CurrentThread.CurrentCulture = cultureInfo;
-                Thread.CurrentThread.CurrentUICulture = cultureInfo;
+                var cultureInfo = new CultureInfo(culture);
+                CurrentCulture = cultureInfo;
+                CurrentUICulture = cultureInfo;
             }
             catch (Exception ex)
             {
@@ -51,13 +49,33 @@ namespace TestUtility
         protected override Task BeforeTestCaseFinishedAsync()
         {
             if (originalUICulture != null)
-                Thread.CurrentThread.CurrentUICulture = originalUICulture;
+                CurrentUICulture = originalUICulture;
             if (originalUICulture != null)
-                Thread.CurrentThread.CurrentCulture = originalCulture;
+                CurrentCulture = originalCulture;
 
             return base.BeforeTestCaseFinishedAsync();
         }
+
+        static CultureInfo CurrentCulture
+        {
+#if NET452
+            get => Thread.CurrentThread.CurrentCulture;
+            set => Thread.CurrentThread.CurrentCulture = value;
+#else
+            get => CultureInfo.CurrentCulture;
+            set => CultureInfo.CurrentCulture = value;
+#endif
+        }
+
+        static CultureInfo CurrentUICulture
+        {
+#if NET452
+            get => Thread.CurrentThread.CurrentUICulture;
+            set => Thread.CurrentThread.CurrentUICulture = value;
+#else
+            get => CultureInfo.CurrentUICulture;
+            set => CultureInfo.CurrentUICulture = value;
+#endif
+        }
     }
 }
-
-#endif

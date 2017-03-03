@@ -1,6 +1,4 @@
-﻿#if NET452
-
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,5 +62,3 @@ namespace TestUtility
         }
     }
 }
-
-#endif

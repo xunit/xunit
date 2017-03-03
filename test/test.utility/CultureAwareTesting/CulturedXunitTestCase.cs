@@ -1,5 +1,3 @@
-#if NET452
-
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -56,24 +54,44 @@ namespace TestUtility
                                                         ExceptionAggregator aggregator,
                                                         CancellationTokenSource cancellationTokenSource)
         {
-            var originalCulture = Thread.CurrentThread.CurrentCulture;
-            var originalUICulture = Thread.CurrentThread.CurrentUICulture;
+            var originalCulture = CurrentCulture;
+            var originalUICulture = CurrentUICulture;
 
             try
             {
-                var cultureInfo = CultureInfo.GetCultureInfo(culture);
-                Thread.CurrentThread.CurrentCulture = cultureInfo;
-                Thread.CurrentThread.CurrentUICulture = cultureInfo;
+                var cultureInfo = new CultureInfo(culture);
+                CurrentCulture = cultureInfo;
+                CurrentUICulture = cultureInfo;
 
                 return await base.RunAsync(diagnosticMessageSink, messageBus, constructorArguments, aggregator, cancellationTokenSource);
             }
             finally
             {
-                Thread.CurrentThread.CurrentCulture = originalCulture;
-                Thread.CurrentThread.CurrentUICulture = originalUICulture;
+                CurrentCulture = originalCulture;
+                CurrentUICulture = originalUICulture;
             }
+        }
+
+        static CultureInfo CurrentCulture
+        {
+#if NET452
+            get => Thread.CurrentThread.CurrentCulture;
+            set => Thread.CurrentThread.CurrentCulture = value;
+#else
+            get => CultureInfo.CurrentCulture;
+            set => CultureInfo.CurrentCulture = value;
+#endif
+        }
+
+        static CultureInfo CurrentUICulture
+        {
+#if NET452
+            get => Thread.CurrentThread.CurrentUICulture;
+            set => Thread.CurrentThread.CurrentUICulture = value;
+#else
+            get => CultureInfo.CurrentUICulture;
+            set => CultureInfo.CurrentUICulture = value;
+#endif
         }
     }
 }
-
-#endif
