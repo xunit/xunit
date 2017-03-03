@@ -11,7 +11,8 @@
   <PropertyGroup>
     <SolutionName Condition="'$(SolutionName)' == ''">xunit.vs2017.sln</SolutionName>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-    <ParallelizeTests Condition="'$(ParallelizeTests)' == ''">true</ParallelizeTests>
+    <ParallelizationSwitch Condition="'$(ParallelizeTests)' == 'false'">-parallel none -maxthreads 1</ParallelizationSwitch>
+    <ParallelizationSwitch Condition="'$(ParallelizeTests)' != 'false'">-parallel all</ParallelizationSwitch>
     <TrackFileAccess>false</TrackFileAccess>
     <SolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">$(MSBuildProjectDirectory)</SolutionDir>
     <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(SolutionDir)\.nuget\nuget.exe</NuGetExePath>
@@ -38,7 +39,9 @@
   <!-- Meta targets -->
 
   <Target Name="Build" DependsOnTargets="PackageRestore;_Build" />
-  <Target Name="Test" DependsOnTargets="Build;_Test32;_Test64" />
+  <Target Name="Test32" DependsOnTargets="Build;_Test32" />
+  <Target Name="Test64" DependsOnTargets="Build;_Test64" />
+  <Target Name="Test" DependsOnTargets="Test32;Test64" />
   <Target Name="CI" DependsOnTargets="DisableParallelization;Clean;PackageRestore;SetVersionNumber;Test;Packages;ZipArtifacts" />
   <Target Name="TeamCity" DependsOnTargets="CI;PushMyGet" />
 
@@ -79,16 +82,20 @@
         Files="src\xunit.console\bin\$(Configuration)_x86\net452\win7-x86\xunit.console.x86.exe.config" />
   </Target>
 
-  <Target Name="_Test32" DependsOnTargets="Build">
-    <MSBuild
-        Projects="tools\xunit.tests.msbuild"
-        Properties="Configuration=$(Configuration);ParallelizeTests=$(ParallelizeTests)" />
+  <Target Name="_Test32">
+    <ItemGroup>
+      <Test32Assemblies Include="test\test.xunit*\bin\$(Configuration)\net452\test.xunit*.dll" />
+    </ItemGroup>
+    <Exec Command="src\xunit.console\bin\$(Configuration)_x86\net452\win7-x86\xunit.console.x86.exe test\test.xunit1\bin\$(Configuration)\net40\test.xunit1.dll $(ParallelizationSwitch) -serialize -xml TestResults-v1-x86.xml -html TestResults-v1-x86.html" />
+    <Exec Command="src\xunit.console\bin\$(Configuration)_x86\net452\win7-x86\xunit.console.x86.exe @(Test32Assemblies->'%(Identity)', ' ')                     $(ParallelizationSwitch) -serialize -xml TestResults-v2-x86.xml -html TestResults-v2-x86.html" />
   </Target>
 
-  <Target Name="_Test64" DependsOnTargets="Build">
-    <Exec
-        Condition="'$(PROCESSOR_ARCHITEW6432)' != ''"
-        Command="$(SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe tools\xunit.tests.msbuild /nologo /p:Configuration=$(Configuration);ParallelizeTests=$(ParallelizeTests) /v:$(RequestedVerbosity)" />
+  <Target Name="_Test64">
+    <ItemGroup>
+      <Test64Assemblies Include="test\test.xunit*\bin\$(Configuration)\net452\test.xunit*.dll" />
+    </ItemGroup>
+    <Exec Command="src\xunit.console\bin\$(Configuration)\net452\win7-x86\xunit.console.exe test\test.xunit1\bin\$(Configuration)\net40\test.xunit1.dll $(ParallelizationSwitch) -serialize -xml TestResults-v1-x64.xml -html TestResults-v1-x64.html" />
+    <Exec Command="src\xunit.console\bin\$(Configuration)\net452\win7-x86\xunit.console.exe @(Test64Assemblies->'%(Identity)', ' ')                     $(ParallelizationSwitch) -serialize -xml TestResults-v2-x64.xml -html TestResults-v2-x64.html" />
   </Target>
 
   <Target Name="SetVersionNumber">
