@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26127.0
 MinimumVisualStudioVersion = 14.0.22823.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{DAED8494-AC8A-4C67-A8F1-616D95ECC302}"
 EndProject
@@ -53,45 +53,45 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{E9DF1DC4-BE5
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.core", "src\xunit.core\xunit.core.xproj", "{05CC6B6D-5A70-4B82-8118-49A89A70C425}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.assert", "src\xunit.assert\xunit.assert.xproj", "{BFCD161A-39C9-4AFE-B088-E0783CC5F700}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.execution", "src\xunit.execution\xunit.execution.xproj", "{CC208E27-8D87-47BA-94E9-C12927E95E8D}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.console", "src\xunit.console\xunit.console.xproj", "{50C6C0D7-C66D-4CBF-A25A-01CF24D51957}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.runner.utility", "src\xunit.runner.utility\xunit.runner.utility.xproj", "{267535E5-BCF5-4B1F-9055-72F3B81BB94B}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.runner.reporters", "src\xunit.runner.reporters\xunit.runner.reporters.xproj", "{6EA687A0-8EEC-4487-B022-B590058F35DE}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.runner.tdnet", "src\xunit.runner.tdnet\xunit.runner.tdnet.xproj", "{B1AB870D-C931-4DC5-AF08-8D0EA15721B7}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "xunit.runner.msbuild", "src\xunit.runner.msbuild\xunit.runner.msbuild.xproj", "{6F9F2C9B-EAF8-4E2D-B26F-8D4FBBB70DCA}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "test.xunit.assert", "test\test.xunit.assert\test.xunit.assert.xproj", "{755FD892-47E3-4F68-B612-DCABB1CD5C93}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "test.utility", "test\test.utility\test.utility.xproj", "{B9FA92D5-FDD1-4521-93B6-7BD28711209B}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "test.xunit.execution", "test\test.xunit.execution\test.xunit.execution.xproj", "{6A997545-19C4-46C6-8F25-67E5938B79C9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit1", "test\test.xunit1\test.xunit1.csproj", "{61615231-0BD8-43FA-903E-27F5A5A5E3F6}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "test.xunit.console", "test\test.xunit.console\test.xunit.console.xproj", "{1D8C8259-A9C6-4698-8FF5-0BA00FDB7478}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{EB403884-D335-40D1-AD83-BD6F92AC1744}"
 	ProjectSection(SolutionItems) = preProject
 		build.ps1 = build.ps1
 		build.sh = build.sh
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "test.xunit.runner.msbuild", "test\test.xunit.runner.msbuild\test.xunit.runner.msbuild.xproj", "{D2EAB5B1-1E8B-48CB-BCB7-7EAE91AD497B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.core", "src\xunit.core\xunit.core.csproj", "{05CC6B6D-5A70-4B82-8118-49A89A70C425}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "test.xunit.runner.reporters", "test\test.xunit.runner.reporters\test.xunit.runner.reporters.xproj", "{5123DDAC-E0D4-4009-8DE9-9F538D9611D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.assert", "src\xunit.assert\xunit.assert.csproj", "{BFCD161A-39C9-4AFE-B088-E0783CC5F700}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "test.xunit.runner.tdnet", "test\test.xunit.runner.tdnet\test.xunit.runner.tdnet.xproj", "{9277539B-8792-4D6D-8B52-DBE784EE3B3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.execution", "src\xunit.execution\xunit.execution.csproj", "{CC208E27-8D87-47BA-94E9-C12927E95E8D}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "test.xunit.runner.utility", "test\test.xunit.runner.utility\test.xunit.runner.utility.xproj", "{A605E559-074C-4693-B4A3-5F939EFCFC4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.console", "src\xunit.console\xunit.console.csproj", "{50C6C0D7-C66D-4CBF-A25A-01CF24D51957}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.runner.utility", "src\xunit.runner.utility\xunit.runner.utility.csproj", "{267535E5-BCF5-4B1F-9055-72F3B81BB94B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.runner.reporters", "src\xunit.runner.reporters\xunit.runner.reporters.csproj", "{6EA687A0-8EEC-4487-B022-B590058F35DE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.runner.tdnet", "src\xunit.runner.tdnet\xunit.runner.tdnet.csproj", "{B1AB870D-C931-4DC5-AF08-8D0EA15721B7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.runner.msbuild", "src\xunit.runner.msbuild\xunit.runner.msbuild.csproj", "{6F9F2C9B-EAF8-4E2D-B26F-8D4FBBB70DCA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.assert", "test\test.xunit.assert\test.xunit.assert.csproj", "{755FD892-47E3-4F68-B612-DCABB1CD5C93}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.utility", "test\test.utility\test.utility.csproj", "{B9FA92D5-FDD1-4521-93B6-7BD28711209B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.execution", "test\test.xunit.execution\test.xunit.execution.csproj", "{6A997545-19C4-46C6-8F25-67E5938B79C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test.xunit1", "test\test.xunit1\test.xunit1.csproj", "{61615231-0BD8-43FA-903E-27F5A5A5E3F6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.console", "test\test.xunit.console\test.xunit.console.csproj", "{1D8C8259-A9C6-4698-8FF5-0BA00FDB7478}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.runner.msbuild", "test\test.xunit.runner.msbuild\test.xunit.runner.msbuild.csproj", "{D2EAB5B1-1E8B-48CB-BCB7-7EAE91AD497B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.runner.reporters", "test\test.xunit.runner.reporters\test.xunit.runner.reporters.csproj", "{5123DDAC-E0D4-4009-8DE9-9F538D9611D5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.runner.tdnet", "test\test.xunit.runner.tdnet\test.xunit.runner.tdnet.csproj", "{9277539B-8792-4D6D-8B52-DBE784EE3B3A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.runner.utility", "test\test.xunit.runner.utility\test.xunit.runner.utility.csproj", "{A605E559-074C-4693-B4A3-5F939EFCFC4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -250,6 +250,7 @@ Global
 		{C86F3A8E-8D96-4B0C-AA02-0293F278F1B3} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{52472A94-ACC4-4C12-B9AA-0B6B12E12A48} = {3AD1513F-07B7-4C14-AB10-83682616ACE5}
 		{E9DF1DC4-BE5A-4F7B-A8DF-EC5C6A323A21} = {3AD1513F-07B7-4C14-AB10-83682616ACE5}
+		{EB403884-D335-40D1-AD83-BD6F92AC1744} = {3AD1513F-07B7-4C14-AB10-83682616ACE5}
 		{05CC6B6D-5A70-4B82-8118-49A89A70C425} = {A727699B-E50A-4F83-8627-8BE64237582C}
 		{BFCD161A-39C9-4AFE-B088-E0783CC5F700} = {A727699B-E50A-4F83-8627-8BE64237582C}
 		{CC208E27-8D87-47BA-94E9-C12927E95E8D} = {A727699B-E50A-4F83-8627-8BE64237582C}
@@ -263,7 +264,6 @@ Global
 		{6A997545-19C4-46C6-8F25-67E5938B79C9} = {AE42309B-BFBE-4253-8AD6-BBFD676152ED}
 		{61615231-0BD8-43FA-903E-27F5A5A5E3F6} = {C86F3A8E-8D96-4B0C-AA02-0293F278F1B3}
 		{1D8C8259-A9C6-4698-8FF5-0BA00FDB7478} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
-		{EB403884-D335-40D1-AD83-BD6F92AC1744} = {3AD1513F-07B7-4C14-AB10-83682616ACE5}
 		{D2EAB5B1-1E8B-48CB-BCB7-7EAE91AD497B} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
 		{5123DDAC-E0D4-4009-8DE9-9F538D9611D5} = {AE42309B-BFBE-4253-8AD6-BBFD676152ED}
 		{9277539B-8792-4D6D-8B52-DBE784EE3B3A} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}

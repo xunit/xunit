@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <VersionPrefix>99.99.99-dev</VersionPrefix>
+    <TargetFramework>net452</TargetFramework>
+    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <AssemblyName>test.xunit.execution</AssemblyName>
+    <PackageId>test.xunit.execution</PackageId>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\common\AssemblyExtensions.cs" />
+    <Compile Include="..\..\src\common\ExecutionHelper.cs" />
+    <Compile Include="..\..\src\common\Guard.cs" />
+    <Compile Include="..\..\src\common\NewReflectionExtensions.cs" />
+    <Compile Include="..\..\src\common\SerializationHelper.cs" />
+    <Compile Include="..\..\src\common\TestOptionsNames.cs" />
+    <Compile Include="..\..\src\common\XunitSerializationInfo.cs" />
+    <Compile Include="..\..\src\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs" />
+    <Compile Include="..\GlobalTestAssemblyInfo.cs" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <ProjectReference Include="..\test.utility\test.utility.csproj" />
+  </ItemGroup>
+</Project>

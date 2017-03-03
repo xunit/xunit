@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <VersionPrefix>99.99.99-dev</VersionPrefix>
+    <TargetFrameworks>net452;netstandard1.1</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>xunit.execution</AssemblyName>
+    <AssemblyOriginatorKeyFile>../signing.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>xunit.execution</PackageId>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\common\AssemblyExtensions.cs" />
+    <Compile Include="..\common\CommonTasks.cs" />
+    <Compile Include="..\common\DictionaryExtensions.cs" />
+    <Compile Include="..\common\ExceptionExtensions.cs" />
+    <Compile Include="..\common\ExceptionUtility.cs" />
+    <Compile Include="..\common\ExecutionHelper.cs" />
+    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
+    <Compile Include="..\common\Guard.cs" />
+    <Compile Include="..\common\LongLivedMarshalByRefObject.cs" />
+    <Compile Include="..\common\NewReflectionExtensions.cs" />
+    <Compile Include="..\common\NullMessageSink.cs" />
+    <Compile Include="..\common\SerializationHelper.cs" />
+    <Compile Include="..\common\SourceInformation.cs" />
+    <Compile Include="..\common\TestOptionsNames.cs" />
+    <Compile Include="..\common\XunitSerializationInfo.cs" />
+    <Compile Include="..\common\XunitWorkerThread.cs" />
+    <Compile Include="..\messages\**\*.cs" />
+    <Compile Include="..\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs" />
+    <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparer.cs" />
+    <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.core\xunit.core.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <AssemblyName>xunit.execution.desktop</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
+    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
+    <AssemblyName>xunit.execution.dotnet</AssemblyName>
+  </PropertyGroup>
+</Project>

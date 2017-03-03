@@ -17,16 +17,9 @@
         Include="..\test\test.xunit*\bin\$(Configuration)\net452\test.xunit*.dll"/>
   </ItemGroup>
 
-  <Target Name="CopyDependencies">
-    <Copy
-        SourceFiles="..\packages\xunit.1.9.2\lib\net20\xunit.dll;..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll"
-        DestinationFolder="..\test\test.xunit.runner.utility\bin\$(Configuration)\net452\"
-        SkipUnchangedFiles="true"/>
-  </Target>
-
-  <Target Name="Test" DependsOnTargets="CopyDependencies">
+  <Target Name="Test">
     <xunit
-        Assemblies="..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll"
+        Assemblies="..\test\test.xunit1\bin\$(Configuration)\net40\test.xunit1.dll"
         SerializeTestCases="true"
         Xml="..\TestResults-v1-$(PROCESSOR_ARCHITECTURE).xml"
         Html="..\TestResults-v1-$(PROCESSOR_ARCHITECTURE).html"
@@ -42,9 +35,9 @@
     />
   </Target>
 
-  <Target Name="Console" DependsOnTargets="CopyDependencies">
-    <exec Command="..\src\xunit.console\bin\$(Configuration)\net452\win7-x64\xunit.console.exe ..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll" />
-    <exec Command="..\src\xunit.console\bin\$(Configuration)\net452\win7-x64\xunit.console.exe @(TestAssemblies->'%(identity)', ' ') -parallel all" />
+  <Target Name="Console">
+    <exec Command="..\src\xunit.console\bin\$(Configuration)\net452\xunit.console.exe ..\test\test.xunit1\bin\$(Configuration)\test.xunit1.dll" />
+    <exec Command="..\src\xunit.console\bin\$(Configuration)\net452\xunit.console.exe @(TestAssemblies->'%(identity)', ' ') -parallel all" />
   </Target>
 
 </Project>

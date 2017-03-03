@@ -1,0 +1,75 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <VersionPrefix>99.99.99-dev</VersionPrefix>
+    <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5</TargetFrameworks>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>xunit.runner.utility</AssemblyName>
+    <AssemblyOriginatorKeyFile>../signing.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>xunit.runner.utility</PackageId>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\common\AssemblyExtensions.cs" />
+    <Compile Include="..\common\CommonTasks.cs" />
+    <Compile Include="..\common\DictionaryExtensions.cs" />
+    <Compile Include="..\common\ExceptionExtensions.cs" />
+    <Compile Include="..\common\ExceptionUtility.cs" />
+    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
+    <Compile Include="..\common\Guard.cs" />
+    <Compile Include="..\common\LongLivedMarshalByRefObject.cs" />
+    <Compile Include="..\common\NewReflectionExtensions.cs" />
+    <Compile Include="..\common\NullMessageSink.cs" />
+    <Compile Include="..\common\SerializationHelper.cs" />
+    <Compile Include="..\common\SourceInformation.cs" />
+    <Compile Include="..\common\TestMethodDisplay.cs" />
+    <Compile Include="..\common\TestOptionsNames.cs" />
+    <Compile Include="..\common\XunitSerializationInfo.cs" />
+    <Compile Include="..\common\XunitWorkerThread.cs" />
+    <Compile Include="..\messages\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.abstractions" Version="2.0.1" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net35' ">
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
+    <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard11.rd.xml" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+    <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard15.rd.xml" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
+    <AssemblyName>xunit.runner.utility.net35</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <AssemblyName>xunit.runner.utility.net452</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
+    <AssemblyName>xunit.runner.utility.netstandard11</AssemblyName>
+    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+    <AssemblyName>xunit.runner.utility.netstandard15</AssemblyName>
+    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
+  </PropertyGroup>
+</Project>

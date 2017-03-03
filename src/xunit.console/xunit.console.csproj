@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <VersionPrefix>99.99.99-dev</VersionPrefix>
+    <TargetFramework>net452</TargetFramework>
+    <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <PlatformTarget>anycpu</PlatformTarget>
+    <AssemblyName>xunit.console</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>xunit.console</PackageId>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\common\AssemblyExtensions.cs" />
+    <Compile Include="..\common\DictionaryExtensions.cs" />
+    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
+    <Compile Include="..\common\Guard.cs" />
+    <Content Include="*.xslt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.runner.reporters\xunit.runner.reporters.csproj" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug_x86' OR '$(Configuration)' == 'Release_x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <AssemblyName>xunit.console.x86</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+</Project>

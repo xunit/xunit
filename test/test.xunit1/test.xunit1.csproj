@@ -1,174 +1,27 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{61615231-0BD8-43FA-903E-27F5A5A5E3F6}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>test.xunit1</RootNamespace>
+    <TargetFramework>net40</TargetFramework>
+    <RuntimeIdentifer>win7-x86</RuntimeIdentifer>
+    <PlatformTarget>anycpu</PlatformTarget>
     <AssemblyName>test.xunit1</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <PackageId>test.xunit1</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Moq">
-      <HintPath>..\..\packages\Moq.4.1.1308.2321\lib\net40\Moq.dll</HintPath>
-    </Reference>
+    <Compile Include="..\..\src\common\AssemblyExtensions.cs" />
+    <None Include="App.config" />
+    <Content Include="**\*.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <PackageReference Include="Moq" Version="4.1.1308.2321" />
+    <PackageReference Include="xunit.extensions" Version="1.9.2" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit">
-      <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.extensions">
-      <HintPath>..\..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.runner.utility">
-      <HintPath>..\..\packages\xunit.1.9.2\lib\net20\xunit.runner.utility.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="$(NuGetPackageRoot)xunit\1.9.2\lib\net20\xunit.runner.utility.dll" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-    <None Include="xunit.extensions\DataTheories\AcceptanceTests\AcceptanceTestData.xls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="xunit.extensions\DataTheories\UnitTestData.xls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\..\src\common\AssemblyExtensions.cs">
-      <Link>utility\AssemblyExtensions.cs</Link>
-    </Compile>
-    <Compile Include="utility\AcceptanceTest.cs" />
-    <Compile Include="utility\AcceptanceTestInNewAppDomain.cs" />
-    <Compile Include="utility\MockAssembly.cs" />
-    <Compile Include="utility\ResultXmlUtility.cs" />
-    <Compile Include="utility\SerializationUtility.cs" />
-    <Compile Include="utility\StubExecutorWrapper.cs" />
-    <Compile Include="utility\StubTestRunner.cs" />
-    <Compile Include="utility\StubTransformer.cs" />
-    <Compile Include="utility\TestTimingAttribute.cs" />
-    <Compile Include="xunit.extensions\AssumeIdentity\AssumeIdentityAttributeAcceptanceTests.cs" />
-    <Compile Include="xunit.extensions\AssumeIdentity\AssumeIdentityAttributeFacts.cs" />
-    <Compile Include="xunit.extensions\DataTheories\AcceptanceTests\ClassDataAcceptanceTests.cs" />
-    <Compile Include="xunit.extensions\DataTheories\AcceptanceTests\ExcelDataAcceptanceTests.cs" />
-    <Compile Include="xunit.extensions\DataTheories\AcceptanceTests\InlineDataAcceptanceTests.cs" />
-    <Compile Include="xunit.extensions\DataTheories\AcceptanceTests\PropertyDataAcceptanceTests.cs" />
-    <Compile Include="xunit.extensions\DataTheories\AcceptanceTests\TheoryAcceptanceTests.cs" />
-    <Compile Include="xunit.extensions\DataTheories\DataAdapterDataAttributeTests.cs" />
-    <Compile Include="xunit.extensions\DataTheories\GenericTheoryTests.cs" />
-    <Compile Include="xunit.extensions\DataTheories\TheoryAttributeTests.cs" />
-    <Compile Include="xunit.extensions\DataTheories\TheoryCommandTests.cs" />
-    <Compile Include="xunit.extensions\FreezeClock\ClockFacts.cs" />
-    <Compile Include="xunit.extensions\FreezeClock\FreezeClockAttributeAcceptanceTests.cs" />
-    <Compile Include="xunit.extensions\FreezeClock\FreezeClockAttributeFacts.cs" />
-    <Compile Include="xunit\AcceptanceTests\AbstractTestClassTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\ApartmentAcceptanceTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\AsyncAcceptanceTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\ConfigFileAcceptanceTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\ExecutorAssemblyNodeCallbackAcceptanceTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\ExecutorCurrentDirectoryAcceptanceTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\FactMethodWithArgumentsTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\FailureTimingAcceptanceTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\FixtureDataAcceptanceTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\SkipAcceptanceTests.cs" />
-    <Compile Include="xunit\AcceptanceTests\TestTimeoutTests.cs" />
-    <Compile Include="xunit\ContainsTests.cs" />
-    <Compile Include="xunit\DoesNotContainTests.cs" />
-    <Compile Include="xunit\DoesNotThrowTests.cs" />
-    <Compile Include="xunit\EmptyTests.cs" />
-    <Compile Include="xunit\EqualTests.cs" />
-    <Compile Include="xunit\FactAttributeTests.cs" />
-    <Compile Include="xunit\FalseTests.cs" />
-    <Compile Include="xunit\InRangeTests.cs" />
-    <Compile Include="xunit\IsAssignableFromTests.cs" />
-    <Compile Include="xunit\IsNotTypeTests.cs" />
-    <Compile Include="xunit\IsTypeTests.cs" />
-    <Compile Include="xunit\NotEmptyTests.cs" />
-    <Compile Include="xunit\NotEqualTests.cs" />
-    <Compile Include="xunit\NotInRangeTests.cs" />
-    <Compile Include="xunit\NotNullTests.cs" />
-    <Compile Include="xunit\NotSameTests.cs" />
-    <Compile Include="xunit\NullTests.cs" />
-    <Compile Include="xunit\PropertyChangedTests.cs" />
-    <Compile Include="xunit\RecordTests.cs" />
-    <Compile Include="xunit\SameTests.cs" />
-    <Compile Include="xunit\Sdk\AfterTestExceptionTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\ClassCommands\TestClassCommandFactoryTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\ClassCommands\TestClassCommandRunnerTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\ClassCommands\TestClassCommandTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\TestCommands\BeforeAfterCommandTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\TestCommands\ExceptionAndOutputCaptureCommandTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\TestCommands\FactCommandTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\TestCommands\LifetimeCommandTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\TestCommands\SkipCommandTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\TestCommands\TestCommandFactoryTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\TestCommands\TestCommandTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\TestCommands\TimedCommandTests.cs" />
-    <Compile Include="xunit\Sdk\Commands\TestCommands\TimeoutCommandTests.cs" />
-    <Compile Include="xunit\Sdk\Exceptions\AssertActualExpectedExceptionTests.cs" />
-    <Compile Include="xunit\Sdk\Exceptions\AssertExceptionTests.cs" />
-    <Compile Include="xunit\Sdk\Exceptions\DoesNotThrowExceptionTests.cs" />
-    <Compile Include="xunit\Sdk\Exceptions\ExceptionRequirementTests.cs" />
-    <Compile Include="xunit\Sdk\Exceptions\InRangeExceptionTests.cs" />
-    <Compile Include="xunit\Sdk\Exceptions\NotInRangeExceptionTests.cs" />
-    <Compile Include="xunit\Sdk\Exceptions\ThrowsExceptionTests.cs" />
-    <Compile Include="xunit\Sdk\Exceptions\TraceAssertExceptionTests.cs" />
-    <Compile Include="xunit\Sdk\ExecutorCallbackTests.cs" />
-    <Compile Include="xunit\Sdk\Results\AssemblyResultTests.cs" />
-    <Compile Include="xunit\Sdk\Results\ClassResultTests.cs" />
-    <Compile Include="xunit\Sdk\Results\CompositeResultsTests.cs" />
-    <Compile Include="xunit\Sdk\Results\FailedResultTests.cs" />
-    <Compile Include="xunit\Sdk\Results\MethodResultTests.cs" />
-    <Compile Include="xunit\Sdk\Results\PassedResultTests.cs" />
-    <Compile Include="xunit\Sdk\Results\SkipResultTests.cs" />
-    <Compile Include="xunit\Sdk\Utilities\MethodUtilityTests.cs" />
-    <Compile Include="xunit\Sdk\Utilities\MultiValueDictionaryTests.cs" />
-    <Compile Include="xunit\Sdk\Utilities\ReflectorTests.cs" />
-    <Compile Include="xunit\Sdk\Utilities\TypeUtilityTests.cs" />
-    <Compile Include="xunit\SerializationTests.cs" />
-    <Compile Include="xunit\SingleTests.cs" />
-    <Compile Include="xunit\Stubs\FixtureSpy.cs" />
-    <Compile Include="xunit\Stubs\StubTestClassCommand.cs" />
-    <Compile Include="xunit\Stubs\StubTestCommand.cs" />
-    <Compile Include="xunit\ThrowsTests.cs" />
-    <Compile Include="xunit\TrueTests.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

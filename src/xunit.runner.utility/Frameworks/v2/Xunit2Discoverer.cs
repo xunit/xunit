@@ -105,32 +105,23 @@ namespace Xunit
         /// <summary>
         /// Gets a value indicating whether the tests can use app domains (must be linked against desktop execution library).
         /// </summary>
-        public bool CanUseAppDomains { get; private set; }
+        public bool CanUseAppDomains { get; }
 
         /// <summary>
         /// Gets the message sink used to report diagnostic messages.
         /// </summary>
-        public IMessageSink DiagnosticMessageSink { get; private set; }
+        public IMessageSink DiagnosticMessageSink { get; }
 
         /// <summary>
         /// Returns the test framework from the remote app domain.
         /// </summary>
-        public ITestFramework Framework
-        {
-            get { return framework; }
-        }
+        public ITestFramework Framework => framework;
 
         /// <inheritdoc/>
-        public string TargetFramework
-        {
-            get { return discoverer.TargetFramework; }
-        }
+        public string TargetFramework => discoverer.TargetFramework;
 
         /// <inheritdoc/>
-        public string TestFrameworkDisplayName
-        {
-            get { return discoverer.TestFrameworkDisplayName; }
-        }
+        public string TestFrameworkDisplayName => discoverer.TestFrameworkDisplayName;
 
         /// <summary>
         /// Creates a high performance cross AppDomain message sink that utilizes <see cref="IMessageSinkWithTypes"/>
@@ -246,14 +237,10 @@ namespace Xunit
         }
 
         static bool IsDotNet(string executionAssemblyFileName)
-        {
-            return executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
-        }
+            => executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
 
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
-        {
-            return discoverer.Serialize(testCase);
-        }
+            => discoverer.Serialize(testCase);
     }
 }

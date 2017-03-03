@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project DefaultTargets="Test" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
   <UsingTask
       AssemblyFile="packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
       TaskName="CodePlex.MSBuildTasks.RegexReplace"/>
@@ -9,7 +9,7 @@
   <!-- Settings -->
 
   <PropertyGroup>
-    <SolutionName Condition="'$(SolutionName)' == ''">xunit.vs2015.sln</SolutionName>
+    <SolutionName Condition="'$(SolutionName)' == ''">xunit.vs2017.sln</SolutionName>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <ParallelizeTests Condition="'$(ParallelizeTests)' == ''">true</ParallelizeTests>
     <TrackFileAccess>false</TrackFileAccess>
@@ -64,21 +64,17 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\test\test.xunit1\packages.config&quot; -SolutionDirectory &quot;$(SolutionDir)&quot; -NonInteractive -Verbosity quiet" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="PackageRestore">
-    <MSBuild
-        Projects="test\test.xunit1\test.xunit1.csproj"
-        Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)"/>
     <!-- Do "dotnet restore" here because we may have changed things before starting the build, but after PackageRestore is run -->
-    <Exec Command="dotnet restore -v Warning" />
-    <Exec Command="dotnet build --configuration $(Configuration) src\*\project.json test\*\project.json"/>
-    <Exec Command="dotnet build --configuration $(Configuration)_x86 src\xunit.console"/>
+    <MSBuild Projects="$(SolutionName)" Properties="Configuration=$(Configuration)" Targets="restore" />
+    <MSBuild Projects="$(SolutionName)" Properties="Configuration=$(Configuration)" Targets="build" />
+    <MSBuild Projects="src\xunit.console\xunit.console.csproj" Properties="Configuration=$(Configuration)_x86" Targets="build" />
     <RegexReplace
         Pattern="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console&quot;"
         Replacement="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console.x86&quot;"
-        Files="src\xunit.console\bin\$(Configuration)_x86\net452\win7-x64\xunit.console.x86.exe.config" />
+        Files="src\xunit.console\bin\$(Configuration)_x86\net452\xunit.console.x86.exe.config" />
   </Target>
 
   <Target Name="_Test32" DependsOnTargets="Build">

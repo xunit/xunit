@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <VersionPrefix>99.99.99-dev</VersionPrefix>
+    <TargetFrameworks>net452;netstandard1.1;netstandard1.5</TargetFrameworks>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <AssemblyName>xunit.runner.reporters</AssemblyName>
+    <PackageId>xunit.runner.reporters</PackageId>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
+    <Compile Include="..\common\XunitWorkerThread.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
+    <EmbeddedResource Include="Resources\xunit.runner.reporters.netstandard11.rd.xml" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+    <EmbeddedResource Include="Resources\xunit.runner.reporters.netstandard15.rd.xml" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <AssemblyName>xunit.runner.reporters.net452</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
+    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
+    <AssemblyName>xunit.runner.reporters.netstandard11</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+    <DefineConstants>$(DefineConstants);PLATFORM_DOTNET</DefineConstants>
+    <AssemblyName>xunit.runner.reporters.netstandard15</AssemblyName>
+  </PropertyGroup>
+</Project>

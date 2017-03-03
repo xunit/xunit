@@ -1,23 +1,19 @@
 param(
-    [string]$target = "Test",
+    [string]$target = "Build",
     [string]$verbosity = "minimal",
     [int]$maxCpuCount = 0
 )
 
-# Kill all MSBUILD.EXE processes because they could very likely have a lock against our
-# MSBuild runner from when we last ran unit tests.
-get-process -name "msbuild" -ea SilentlyContinue | %{ stop-process $_.ID -force }
+if ((get-command msbuild -ErrorAction SilentlyContinue) -eq $null) {
+    write-host -ForegroundColor Red "error: Could not find MSBUILD. Please ensure MSBUILD.EXE v15 is on the path."
+    exit 1
+}
 
-if (test-path "env:\ProgramFiles(x86)") {
-    $path = join-path ${env:ProgramFiles(x86)} "MSBuild\14.0\bin\MSBuild.exe"
-    if (test-path $path) { $msbuild = $path }
-}
-if ($msbuild -eq $null) {
-    $path = join-path $env:ProgramFiles "MSBuild\14.0\bin\MSBuild.exe"
-    if (test-path $path) { $msbuild = $path }
-}
-if ($msbuild -eq $null) {
-    throw "Could not find MSBuild v14. Please install it (or Visual Studio 2015)."
+$version = & msbuild /nologo /ver
+
+if (-not $version.StartsWith("15.")) {
+    write-host -ForegroundColor Red "error: Unexpected MSBUILD version $version. Please ensure MSBUILD.EXE v15 is on the path."
+    exit 1
 }
 
 if ($maxCpuCount -lt 1) {
@@ -26,5 +22,9 @@ if ($maxCpuCount -lt 1) {
     $maxCpuCountText = ":$maxCpuCount"
 }
 
-$allArgs = @("xunit.msbuild", "/nr:false", "/m$maxCpuCountText", "/nologo", "/verbosity:$verbosity", "/t:$target", "/property:RequestedVerbosity=$verbosity", "/property:SolutionName=xunit.vs2015.sln", $args)
-& $msbuild $allArgs
+# Kill all MSBUILD.EXE processes because they could very likely have a lock against our
+# MSBuild runner from when we last ran unit tests.
+get-process -name "msbuild" -ea SilentlyContinue | %{ stop-process $_.ID -force }
+
+$allArgs = @("xunit.msbuild", "/nr:false", "/m$maxCpuCountText", "/nologo", "/verbosity:$verbosity", "/target:$target", $args)
+& msbuild $allArgs
