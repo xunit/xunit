@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -9,11 +10,13 @@ namespace Xunit.Runner.Reporters
     public class AppVeyorReporterMessageHandler : DefaultRunnerReporterWithTypesMessageHandler
     {
         const int MaxLength = 4096;
-
-        string assemblyFileName;
+        
+        readonly ConcurrentDictionary<ITestAssembly, Tuple<string, Dictionary<string, int>>> assemblyNames = new ConcurrentDictionary<ITestAssembly, Tuple<string, Dictionary<string, int>>>();
         readonly string baseUri;
-        readonly Dictionary<string, int> testMethods = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         AppVeyorClient client;
+
+        int assembliesInFlight; 
+        readonly object clientLock = new object();
 
         public AppVeyorReporterMessageHandler(IRunnerLogger logger, string baseUri)
             : base(logger)
@@ -27,31 +30,51 @@ namespace Xunit.Runner.Reporters
 
         void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
         {
-            client.WaitOne(CancellationToken.None);
+            lock (clientLock)
+            {
+                assembliesInFlight--;
+
+                if (assembliesInFlight == 0)
+                {
+                    // Drain the queue
+                    client.WaitOne(CancellationToken.None);
+                    client = null;
+                }
+            }
         }
 
         void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
         {
-            assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
-            client = new AppVeyorClient(Logger, baseUri);
+            lock (clientLock)
+            {
+                assembliesInFlight++;
+
+                var assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
+                assemblyNames[args.Message.TestAssembly] = Tuple.Create(assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
+
+                if (client == null)
+                    client = new AppVeyorClient(Logger, baseUri);
+            }
         }
 
         void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
             var testName = args.Message.Test.DisplayName;
 
-            lock (testMethods)
-                if (testMethods.ContainsKey(testName))
-                    testName = $"{testName} {testMethods[testName]}";
+            var dict = assemblyNames[args.Message.TestAssembly].Item2;
+            lock (dict)
+                if (dict.ContainsKey(testName))
+                    testName = $"{testName} {dict[testName]}";
 
-            AppVeyorAddTest(testName, "xUnit", assemblyFileName, "Running", null, null, null, null);
+            AppVeyorAddTest(testName, "xUnit", assemblyNames[args.Message.TestAssembly].Item1, "Running", null, null, null, null);
         }
 
         protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
             var testPassed = args.Message;
+            var dict = assemblyNames[args.Message.TestAssembly].Item2;
 
-            AppVeyorUpdateTest(GetFinishedTestName(testPassed.Test.DisplayName), "xUnit", assemblyFileName, "Passed",
+            AppVeyorUpdateTest(GetFinishedTestName(testPassed.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly].Item1, "Passed",
                                Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
 
             base.HandleTestPassed(args);
@@ -60,8 +83,9 @@ namespace Xunit.Runner.Reporters
         protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
             var testSkipped = args.Message;
+            var dict = assemblyNames[args.Message.TestAssembly].Item2;
 
-            AppVeyorUpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName), "xUnit", assemblyFileName, "Skipped",
+            AppVeyorUpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly].Item1, "Skipped",
                                Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
 
             base.HandleTestSkipped(args);
@@ -71,7 +95,8 @@ namespace Xunit.Runner.Reporters
         {
             var testFailed = args.Message;
 
-            AppVeyorUpdateTest(GetFinishedTestName(testFailed.Test.DisplayName), "xUnit", assemblyFileName, "Failed",
+            var dict = assemblyNames[args.Message.TestAssembly].Item2;
+            AppVeyorUpdateTest(GetFinishedTestName(testFailed.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly].Item1, "Failed",
                                Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
                                ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
 
@@ -80,7 +105,7 @@ namespace Xunit.Runner.Reporters
 
         // AppVeyor API helpers
 
-        string GetFinishedTestName(string methodName)
+        static string GetFinishedTestName(string methodName, Dictionary<string, int> testMethods)
         {
             lock (testMethods)
             {
