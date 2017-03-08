@@ -11,7 +11,7 @@ namespace Xunit.Runner.Reporters
     {
         const int MaxLength = 4096;
         
-        readonly ConcurrentDictionary<ITestAssembly, Tuple<string, Dictionary<string, int>>> assemblyNames = new ConcurrentDictionary<ITestAssembly, Tuple<string, Dictionary<string, int>>>();
+        readonly ConcurrentDictionary<string, Tuple<string, Dictionary<string, int>>> assemblyNames = new ConcurrentDictionary<string, Tuple<string, Dictionary<string, int>>>();
         readonly string baseUri;
         AppVeyorClient client;
 
@@ -50,7 +50,7 @@ namespace Xunit.Runner.Reporters
                 assembliesInFlight++;
 
                 var assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
-                assemblyNames[args.Message.TestAssembly] = Tuple.Create(assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
+                assemblyNames[args.Message.TestAssembly.Assembly.Name] = Tuple.Create(assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
 
                 if (client == null)
                     client = new AppVeyorClient(Logger, baseUri);
@@ -61,20 +61,20 @@ namespace Xunit.Runner.Reporters
         {
             var testName = args.Message.Test.DisplayName;
 
-            var dict = assemblyNames[args.Message.TestAssembly].Item2;
+            var dict = assemblyNames[args.Message.TestAssembly.Assembly.Name].Item2;
             lock (dict)
                 if (dict.ContainsKey(testName))
                     testName = $"{testName} {dict[testName]}";
 
-            AppVeyorAddTest(testName, "xUnit", assemblyNames[args.Message.TestAssembly].Item1, "Running", null, null, null, null);
+            AppVeyorAddTest(testName, "xUnit", assemblyNames[args.Message.TestAssembly.Assembly.Name].Item1, "Running", null, null, null, null);
         }
 
         protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
             var testPassed = args.Message;
-            var dict = assemblyNames[args.Message.TestAssembly].Item2;
+            var dict = assemblyNames[args.Message.TestAssembly.Assembly.Name].Item2;
 
-            AppVeyorUpdateTest(GetFinishedTestName(testPassed.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly].Item1, "Passed",
+            AppVeyorUpdateTest(GetFinishedTestName(testPassed.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly.Assembly.Name].Item1, "Passed",
                                Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
 
             base.HandleTestPassed(args);
@@ -83,9 +83,9 @@ namespace Xunit.Runner.Reporters
         protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
             var testSkipped = args.Message;
-            var dict = assemblyNames[args.Message.TestAssembly].Item2;
+            var dict = assemblyNames[args.Message.TestAssembly.Assembly.Name].Item2;
 
-            AppVeyorUpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly].Item1, "Skipped",
+            AppVeyorUpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly.Assembly.Name].Item1, "Skipped",
                                Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
 
             base.HandleTestSkipped(args);
@@ -95,8 +95,8 @@ namespace Xunit.Runner.Reporters
         {
             var testFailed = args.Message;
 
-            var dict = assemblyNames[args.Message.TestAssembly].Item2;
-            AppVeyorUpdateTest(GetFinishedTestName(testFailed.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly].Item1, "Failed",
+            var dict = assemblyNames[args.Message.TestAssembly.Assembly.Name].Item2;
+            AppVeyorUpdateTest(GetFinishedTestName(testFailed.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly.Assembly.Name].Item1, "Failed",
                                Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
                                ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
 
