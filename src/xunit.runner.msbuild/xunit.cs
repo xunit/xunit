@@ -35,6 +35,8 @@ namespace Xunit.Runner.MSBuild
 
         public bool DiagnosticMessages { get; set; }
 
+        public bool InternalDiagnosticMessages { get; set; }
+
         public string ExcludeTraits { get; set; }
 
         [Output]
@@ -231,6 +233,7 @@ namespace Xunit.Runner.MSBuild
                 // Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
                 assembly.Configuration.PreEnumerateTheories = false;
                 assembly.Configuration.DiagnosticMessages |= DiagnosticMessages;
+                assembly.Configuration.InternalDiagnosticMessages |= InternalDiagnosticMessages;
 
                 if (appDomains.HasValue)
                     assembly.Configuration.AppDomain = appDomains.GetValueOrDefault() ? AppDomainSupport.Required : AppDomainSupport.Denied;

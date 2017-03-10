@@ -18,12 +18,29 @@ public static class TestFrameworkOptionsReadWriteExtensions
     }
 
     /// <summary>
+    /// Gets a flag that determines whether internal diagnostic messages will be emitted.
+    /// </summary>
+    public static bool? GetInternalDiagnosticMessages(this ITestFrameworkDiscoveryOptions discoveryOptions)
+    {
+        return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.InternalDiagnosticMessages);
+    }
+
+    /// <summary>
     /// Gets a flag that determines whether diagnostic messages will be emitted. If the flag is not
     /// set, returns the default value (<c>false</c>).
     /// </summary>
     public static bool GetDiagnosticMessagesOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
         return discoveryOptions.GetDiagnosticMessages() ?? false;
+    }
+
+    /// <summary>
+    /// Gets a flag that determines whether internal diagnostic messages will be emitted. If the flag is not
+    /// set, returns the default value (<c>false</c>).
+    /// </summary>
+    public static bool GetInternalDiagnosticMessagesOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions)
+    {
+        return discoveryOptions.GetInternalDiagnosticMessages() ?? false;
     }
 
     /// <summary>
@@ -91,6 +108,14 @@ public static class TestFrameworkOptionsReadWriteExtensions
     }
 
     /// <summary>
+    /// Sets a flag that determines whether internal diagnostic messages will be emitted.
+    /// </summary>
+    public static void SetInternalDiagnosticMessages(this ITestFrameworkDiscoveryOptions discoveryOptions, bool? value)
+    {
+        discoveryOptions.SetValue(TestOptionsNames.Discovery.InternalDiagnosticMessages, value);
+    }
+
+    /// <summary>
     /// Sets a flag that determines the default display name format for test methods.
     /// </summary>
     public static void SetMethodDisplay(this ITestFrameworkDiscoveryOptions discoveryOptions, TestMethodDisplay? value)
@@ -127,12 +152,29 @@ public static class TestFrameworkOptionsReadWriteExtensions
     }
 
     /// <summary>
+    /// Gets a flag that determines whether internal diagnostic messages will be emitted.
+    /// </summary>
+    public static bool? GetInternalDiagnosticMessages(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.InternalDiagnosticMessages);
+    }
+
+    /// <summary>
     /// Gets a flag that determines whether diagnostic messages will be emitted. If the flag is not
     /// present, returns the default value (<c>false</c>).
     /// </summary>
     public static bool GetDiagnosticMessagesOrDefault(this ITestFrameworkExecutionOptions executionOptions)
     {
         return executionOptions.GetDiagnosticMessages() ?? false;
+    }
+
+    /// <summary>
+    /// Gets a flag that determines whether internal diagnostic messages will be emitted. If the flag is not
+    /// present, returns the default value (<c>false</c>).
+    /// </summary>
+    public static bool GetInternalDiagnosticMessagesOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.GetInternalDiagnosticMessages() ?? false;
     }
 
     /// <summary>
@@ -197,6 +239,14 @@ public static class TestFrameworkOptionsReadWriteExtensions
     public static void SetDiagnosticMessages(this ITestFrameworkExecutionOptions executionOptions, bool? value)
     {
         executionOptions.SetValue(TestOptionsNames.Execution.DiagnosticMessages, value);
+    }
+
+    /// <summary>
+    /// Sets a flag that determines whether internal diagnostic messages will be emitted.
+    /// </summary>
+    public static void SetInternalDiagnosticMessages(this ITestFrameworkExecutionOptions executionOptions, bool? value)
+    {
+        executionOptions.SetValue(TestOptionsNames.Execution.InternalDiagnosticMessages, value);
     }
 
     /// <summary>

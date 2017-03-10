@@ -135,13 +135,15 @@ namespace Xunit.Runners
             executionCompleteEvent.SafeDispose();
         }
 
-        ITestFrameworkDiscoveryOptions GetDiscoveryOptions(bool? diagnosticMessages, TestMethodDisplay? methodDisplay, bool? preEnumerateTheories)
+        ITestFrameworkDiscoveryOptions GetDiscoveryOptions(bool? diagnosticMessages, TestMethodDisplay? methodDisplay, bool? preEnumerateTheories, bool? internalDiagnosticMessages)
         {
             var discoveryOptions = TestFrameworkOptions.ForDiscovery(configuration);
             discoveryOptions.SetSynchronousMessageReporting(true);
 
             if (diagnosticMessages.HasValue)
                 discoveryOptions.SetDiagnosticMessages(diagnosticMessages);
+            if (internalDiagnosticMessages.HasValue)
+                discoveryOptions.SetDiagnosticMessages(internalDiagnosticMessages);
             if (methodDisplay.HasValue)
                 discoveryOptions.SetMethodDisplay(methodDisplay);
             if (preEnumerateTheories.HasValue)
@@ -150,13 +152,15 @@ namespace Xunit.Runners
             return discoveryOptions;
         }
 
-        ITestFrameworkExecutionOptions GetExecutionOptions(bool? diagnosticMessages, bool? parallel, int? maxParallelThreads)
+        ITestFrameworkExecutionOptions GetExecutionOptions(bool? diagnosticMessages, bool? parallel, int? maxParallelThreads, bool? internalDiagnosticMessages)
         {
             var executionOptions = TestFrameworkOptions.ForExecution(configuration);
             executionOptions.SetSynchronousMessageReporting(true);
 
             if (diagnosticMessages.HasValue)
                 executionOptions.SetDiagnosticMessages(diagnosticMessages);
+            if (internalDiagnosticMessages.HasValue)
+                executionOptions.SetDiagnosticMessages(internalDiagnosticMessages);
             if (parallel.HasValue)
                 executionOptions.SetDisableParallelization(!parallel.GetValueOrDefault());
             if (maxParallelThreads.HasValue)
@@ -182,12 +186,15 @@ namespace Xunit.Runners
         /// By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
         /// <param name="maxParallelThreads">Set to 0 to use unlimited threads; set to any other positive integer to limit to an exact number
         /// of threads. By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
+        /// <param name="internalDiagnosticMessages">Set to <c>true</c> to enable internal diagnostic messages; set to <c>false</c> to disable them.
+        /// By default, uses the value from the assembly configuration file.</param>
         public void Start(string typeName = null,
                           bool? diagnosticMessages = null,
                           TestMethodDisplay? methodDisplay = null,
                           bool? preEnumerateTheories = null,
                           bool? parallel = null,
-                          int? maxParallelThreads = null)
+                          int? maxParallelThreads = null,
+                          bool? internalDiagnosticMessages = null)
         {
             lock (statusLock)
             {
@@ -203,7 +210,7 @@ namespace Xunit.Runners
 
             XunitWorkerThread.QueueUserWorkItem(() =>
             {
-                var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, preEnumerateTheories);
+                var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, preEnumerateTheories, internalDiagnosticMessages);
                 if (typeName != null)
                     controller.Find(typeName, false, this, discoveryOptions);
                 else
@@ -218,7 +225,7 @@ namespace Xunit.Runners
                     return;
                 }
 
-                var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, maxParallelThreads);
+                var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, maxParallelThreads, internalDiagnosticMessages);
                 controller.RunTests(testCasesToRun, this, executionOptions);
                 executionCompleteEvent.WaitOne();
             });

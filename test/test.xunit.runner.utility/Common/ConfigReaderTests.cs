@@ -22,6 +22,7 @@ public class ConfigReaderTests
             var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_Empty.json"));
 
             Assert.False(result.DiagnosticMessagesOrDefault);
+            Assert.False(result.InternalDiagnosticMessagesOrDefault);
             Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
             Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
             Assert.False(result.ParallelizeAssemblyOrDefault);
@@ -35,6 +36,7 @@ public class ConfigReaderTests
             var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_OverrideValues.json"));
 
             Assert.True(result.DiagnosticMessagesOrDefault);
+            Assert.True(result.InternalDiagnosticMessagesOrDefault);
             Assert.Equal(2112, result.MaxParallelThreadsOrDefault);
             Assert.Equal(TestMethodDisplay.Method, result.MethodDisplayOrDefault);
             Assert.True(result.ParallelizeAssemblyOrDefault);
@@ -49,6 +51,7 @@ public class ConfigReaderTests
             var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_BadValues.json"));
 
             Assert.False(result.DiagnosticMessagesOrDefault);
+            Assert.False(result.InternalDiagnosticMessagesOrDefault);
             Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
             Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
             // This value was valid as a sentinel to make sure we were trying to read values from the JSON
@@ -66,6 +69,7 @@ public class ConfigReaderTests
             var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_Empty.config"));
 
             Assert.False(result.DiagnosticMessagesOrDefault);
+            Assert.False(result.InternalDiagnosticMessagesOrDefault);
             Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
             Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
             Assert.False(result.ParallelizeAssemblyOrDefault);
@@ -79,6 +83,7 @@ public class ConfigReaderTests
             var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_OverrideValues.config"));
 
             Assert.True(result.DiagnosticMessagesOrDefault);
+            Assert.True(result.InternalDiagnosticMessagesOrDefault);
             Assert.Equal(2112, result.MaxParallelThreadsOrDefault);
             Assert.Equal(TestMethodDisplay.Method, result.MethodDisplayOrDefault);
             Assert.True(result.ParallelizeAssemblyOrDefault);
@@ -93,6 +98,7 @@ public class ConfigReaderTests
             var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_BadValues.config"));
 
             Assert.False(result.DiagnosticMessagesOrDefault);
+            Assert.False(result.InternalDiagnosticMessagesOrDefault);
             Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
             Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
             // This value was valid as a sentinel to make sure we were trying to read values from the file

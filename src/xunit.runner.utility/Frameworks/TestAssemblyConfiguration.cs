@@ -33,6 +33,19 @@ namespace Xunit
         public bool DiagnosticMessagesOrDefault { get { return DiagnosticMessages ?? false; } }
 
         /// <summary>
+        /// Gets or sets a flag indicating that the end user wants internal diagnostic messages
+        /// from the test framework.
+        /// </summary>
+        public bool? InternalDiagnosticMessages { get; set; }
+
+        /// <summary>
+        /// Gets a flag indicating that the end user wants internal diagnostic messages
+        /// from the test framework. If the flag is not set, returns the default
+        /// value (<c>false</c>).
+        /// </summary>
+        public bool InternalDiagnosticMessagesOrDefault { get { return InternalDiagnosticMessages ?? false; } }
+
+        /// <summary>
         /// Gets the number of seconds that a test can run before being considered "long running". Set to a positive
         /// value to enable the feature.
         /// </summary>

@@ -1,5 +1,6 @@
 ﻿{
     "diagnosticMessages": "blarch",
+    "internalDiagnosticMessages": "blarch",
     "maxParallelThreads": "abc",
     "methodDisplay": "fooBar",
     "parallelizeAssembly": true,
