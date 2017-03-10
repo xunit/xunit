@@ -102,7 +102,7 @@ namespace Xunit
         {
             public const string AppDomain = "xunit.appDomain";
             public const string DiagnosticMessages = "xunit.diagnosticMessages";
-            public const string InternalDiagnosticMessages = "xunit.internalDiagnosticsMessages";
+            public const string InternalDiagnosticMessages = "xunit.internalDiagnosticMessages";
             public const string MaxParallelThreads = "xunit.maxParallelThreads";
             public const string MethodDisplay = "xunit.methodDisplay";
             public const string ParallelizeAssembly = "xunit.parallelizeAssembly";
