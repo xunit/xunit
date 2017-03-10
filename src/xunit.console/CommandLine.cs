@@ -28,6 +28,8 @@ namespace Xunit.ConsoleClient
 
         public bool DiagnosticMessages { get; protected set; }
 
+        public bool InternalDiagnosticMessages { get; protected set; }
+
         public bool FailSkips { get; protected set; }
 
         public int? MaxParallelThreads { get; set; }
@@ -187,6 +189,11 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     DiagnosticMessages = true;
+                }
+                else if (optionName == "internaldiagnostics")
+                {
+                    GuardNoOptionValue(option);
+                    InternalDiagnosticMessages = true;
                 }
                 else if (optionName == "maxthreads")
                 {

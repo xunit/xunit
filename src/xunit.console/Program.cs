@@ -62,7 +62,7 @@ namespace Xunit.ConsoleClient
                 var failCount = RunProject(commandLine.Project, commandLine.Serialize, commandLine.ParallelizeAssemblies,
                                            commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
                                            commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.NoAppDomain,
-                                           commandLine.FailSkips);
+                                           commandLine.FailSkips, commandLine.InternalDiagnosticMessages);
 
                 if (commandLine.Wait)
                 {
@@ -179,6 +179,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -noshadow              : do not shadow copy assemblies");
             Console.WriteLine("  -wait                  : wait for input after completion");
             Console.WriteLine("  -diagnostics           : enable diagnostics messages for all test assemblies");
+            Console.WriteLine("  -internaldiagnostics   : enable internal diagnostics messages for all test assemblies");
             Console.WriteLine("  -debug                 : launch the debugger to debug the tests");
             Console.WriteLine("  -serialize             : serialize all test cases (for diagnostic purposes only)");
             Console.WriteLine("  -trait \"name=value\"    : only run tests with matching name/value traits");
@@ -223,7 +224,8 @@ namespace Xunit.ConsoleClient
                               bool diagnosticMessages,
                               bool noColor,
                               bool noAppDomain,
-                              bool failSkips)
+                              bool failSkips,
+                              bool internalDiagnosticMessages)
         {
             XElement assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
@@ -243,7 +245,7 @@ namespace Xunit.ConsoleClient
             {
                 if (parallelizeAssemblies.GetValueOrDefault())
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters)));
+                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters, internalDiagnosticMessages)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -252,7 +254,7 @@ namespace Xunit.ConsoleClient
                 {
                     foreach (var assembly in project.Assemblies)
                     {
-                        var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters);
+                        var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters, internalDiagnosticMessages);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -284,7 +286,8 @@ namespace Xunit.ConsoleClient
                                         bool noColor,
                                         bool noAppDomain,
                                         bool failSkips,
-                                        XunitFilters filters)
+                                        XunitFilters filters,
+                                        bool internalDiagnosticMessages)
         {
             if (cancel)
                 return null;
@@ -299,6 +302,7 @@ namespace Xunit.ConsoleClient
                 // Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
                 assembly.Configuration.PreEnumerateTheories = false;
                 assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
+                assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
 
                 if (noAppDomain)
                     assembly.Configuration.AppDomain = AppDomainSupport.Denied;

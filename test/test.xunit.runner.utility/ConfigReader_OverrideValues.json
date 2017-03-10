@@ -1,9 +1,10 @@
 ﻿{
     "diagnosticMessages": true,
+    "internalDiagnosticMessages": true,
     "maxParallelThreads": 2112,
     "methodDisplay": "method",
     "parallelizeAssembly": true,
     "parallelizetestcollections": false,
     "preEnumerateTheories": false,
-    "longRunningTestSeconds":  5 
+    "longRunningTestSeconds": 5
 }

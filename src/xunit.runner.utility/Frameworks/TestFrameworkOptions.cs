@@ -32,6 +32,7 @@ namespace Xunit
             if (configuration != null)
             {
                 result.SetDiagnosticMessages(configuration.DiagnosticMessages);
+                result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
                 result.SetMethodDisplay(configuration.MethodDisplay);
                 result.SetPreEnumerateTheories(configuration.PreEnumerateTheories);
             }
@@ -51,6 +52,7 @@ namespace Xunit
             if (configuration != null)
             {
                 result.SetDiagnosticMessages(configuration.DiagnosticMessages);
+                result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
                 result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
                 result.SetMaxParallelThreads(configuration.MaxParallelThreads);
             }

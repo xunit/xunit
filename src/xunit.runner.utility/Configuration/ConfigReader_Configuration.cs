@@ -34,6 +34,7 @@ namespace Xunit
 
                         result.AppDomain = GetEnum<AppDomainSupport>(settings, Configuration.AppDomain) ?? result.AppDomain;
                         result.DiagnosticMessages = GetBoolean(settings, Configuration.DiagnosticMessages) ?? result.DiagnosticMessages;
+                        result.InternalDiagnosticMessages = GetBoolean(settings, Configuration.InternalDiagnosticMessages) ?? result.InternalDiagnosticMessages;
                         result.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? result.MaxParallelThreads;
                         result.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? result.MethodDisplay;
                         result.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? result.ParallelizeAssembly;
@@ -101,6 +102,7 @@ namespace Xunit
         {
             public const string AppDomain = "xunit.appDomain";
             public const string DiagnosticMessages = "xunit.diagnosticMessages";
+            public const string InternalDiagnosticMessages = "xunit.internalDiagnosticsMessages";
             public const string MaxParallelThreads = "xunit.maxParallelThreads";
             public const string MethodDisplay = "xunit.methodDisplay";
             public const string ParallelizeAssembly = "xunit.parallelizeAssembly";
