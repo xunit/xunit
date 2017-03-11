@@ -25,7 +25,7 @@
     <file src="xunit.console\bin\Release_x86\net452\win7-x64\xunit.console.x86.exe"         target="tools\" />
     <file src="xunit.console\bin\Release_x86\net452\win7-x64\xunit.console.x86.exe.config"  target="tools\" />
     <file src="xunit.console\bin\Release_x86\net452\win7-x64\xunit.console.x86.pdb"         target="tools\" />
-	<file src="xunit.console\build\xunit.console.props"                     				target="build\" />
+	<file src="xunit.console\build\xunit.runner.console.props"                     				target="build\" />
 
     <file src="common\AssemblyExtensions.cs"   target="src\common\" />
     <file src="common\DictionaryExtensions.cs" target="src\common\" />
