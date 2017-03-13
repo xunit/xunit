@@ -1,35 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="..\common.props" />
   <PropertyGroup>
-    <VersionPrefix>99.99.99-dev</VersionPrefix>
     <TargetFramework>net452</TargetFramework>
-    <WarningsAsErrors>true</WarningsAsErrors>
-    <AssemblyName>xunit.runner.tdnet</AssemblyName>
-    <PackageId>xunit.runner.tdnet</PackageId>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
-
   <ItemGroup>
-    <ProjectCapability Include="ShowFilesOutsideOfProject" />
     <Compile Include="..\common\AssemblyExtensions.cs" />
     <Compile Include="..\common\GlobalAssemblyInfo.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="TestDriven.Framework" Version="2.0.0" />
   </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-
 </Project>

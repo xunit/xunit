@@ -34,42 +34,18 @@
   </metadata>
   <files>
     <file src="xunit.runner.utility\bin\Release\net35\xunit.runner.utility.net35.dll" target="lib\net35\" />
-    <file src="xunit.runner.utility\bin\Release\net35\xunit.runner.utility.net35.pdb" target="lib\net35\" />
     <file src="xunit.runner.utility\bin\Release\net35\xunit.runner.utility.net35.xml" target="lib\net35\" />
 
     <file src="xunit.runner.utility\bin\Release\net452\xunit.runner.utility.net452.dll" target="lib\net452\" />
-    <file src="xunit.runner.utility\bin\Release\net452\xunit.runner.utility.net452.pdb" target="lib\net452\" />
     <file src="xunit.runner.utility\bin\Release\net452\xunit.runner.utility.net452.xml" target="lib\net452\" />
 
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.netstandard11.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.netstandard11.pdb" target="lib\netstandard1.1\" />
     <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.netstandard11.xml" target="lib\netstandard1.1\" />
 
     <file src="xunit.runner.utility\bin\Release\netstandard1.5\xunit.runner.utility.netstandard15.dll" target="lib\netstandard1.5\" />
-    <file src="xunit.runner.utility\bin\Release\netstandard1.5\xunit.runner.utility.netstandard15.pdb" target="lib\netstandard1.5\" />
     <file src="xunit.runner.utility\bin\Release\netstandard1.5\xunit.runner.utility.netstandard15.xml" target="lib\netstandard1.5\" />
 
     <file src="xunit.runner.utility\bin\Release\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll" target="lib\netcoreapp1.0\" />
-    <file src="xunit.runner.utility\bin\Release\netcoreapp1.0\xunit.runner.utility.netcoreapp10.pdb" target="lib\netcoreapp1.0\" />
     <file src="xunit.runner.utility\bin\Release\netcoreapp1.0\xunit.runner.utility.netcoreapp10.xml" target="lib\netcoreapp1.0\" />
-
-    <file src="common\AssemblyExtensions.cs"          target="src\common\" />
-    <file src="common\CommonTasks.cs"                 target="src\common\" />
-    <file src="common\DictionaryExtensions.cs"        target="src\common\" />
-    <file src="common\ExceptionExtensions.cs"         target="src\common\" />
-    <file src="common\ExceptionUtility.cs"            target="src\common\" />
-    <file src="common\GlobalAssemblyInfo.cs"          target="src\common\" />
-    <file src="common\Guard.cs"                       target="src\common\" />
-    <file src="common\LongLivedMarshalByRefObject.cs" target="src\common\" />
-    <file src="common\NewReflectionExtensions.cs"     target="src\common\" />
-    <file src="common\NullMessageSink.cs"             target="src\common\" />
-    <file src="common\SerializationHelper.cs"         target="src\common\" />
-    <file src="common\SourceInformation.cs"           target="src\common\" />
-    <file src="common\TestMethodDisplay.cs"           target="src\common\" />
-    <file src="common\TestOptionsNames.cs"            target="src\common\" />
-    <file src="common\XunitSerializationInfo.cs"      target="src\common\" />
-    <file src="common\XunitWorkerThread.cs"           target="src\common\" />
-    <file src="messages\**\*.cs"                      target="src\messages\" />
-    <file src="xunit.runner.utility\**\*.cs"          target="src\xunit.runner.utility\" />
   </files>
 </package>

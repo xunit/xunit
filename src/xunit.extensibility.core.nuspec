@@ -28,18 +28,8 @@
   <files>
     <file src="xunit.core\bin\Release\netstandard1.1\xunit.core.dll"                  target="lib\netstandard1.1\" />
     <file src="xunit.core\bin\Release\netstandard1.1\xunit.core.dll.tdnet"            target="lib\netstandard1.1\" />
-    <file src="xunit.core\bin\Release\netstandard1.1\xunit.core.pdb"                  target="lib\netstandard1.1\" />
     <file src="xunit.core\bin\Release\netstandard1.1\xunit.core.xml"                  target="lib\netstandard1.1\" />
     <file src="xunit.runner.tdnet\bin\Release\net452\xunit.runner.tdnet.dll"          target="lib\netstandard1.1\" />
     <file src="xunit.runner.tdnet\bin\Release\net452\xunit.runner.utility.net452.dll" target="lib\netstandard1.1\" />
-
-    <file src="common\ExceptionExtensions.cs"                             target="src\common\" />
-    <file src="common\GlobalAssemblyInfo.cs"                              target="src\common\" />
-    <file src="common\Guard.cs"                                           target="src\common\" />
-    <file src="common\TestMethodDisplay.cs"                               target="src\common\" />
-    <file src="xunit.assert\Asserts\Sdk\ArgumentFormatter.cs"             target="src\xunit.assert\Asserts\Sdk\" />
-    <file src="xunit.assert\Asserts\Sdk\AssertEqualityComparer.cs"        target="src\xunit.assert\Asserts\Sdk\" />
-    <file src="xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" target="src\xunit.assert\Asserts\Sdk\" />
-    <file src="xunit.core\**\*.cs"                                        target="src\xunit.core\" />
   </files>
 </package>

@@ -20,14 +20,7 @@
     <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.reporters.net452.dll" target="build\net452\" />
     <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.utility.net452.dll"   target="build\net452\" />
     <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.msbuild.dll"          target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.msbuild.pdb"          target="build\net452\" />
     <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"                     target="build\net452\" />
     <file src="build\_._"                                                                 target="lib\net452\_._" />
-
-    <file src="common\AssemblyExtensions.cs"   target="src\common\" />
-    <file src="common\DictionaryExtensions.cs" target="src\common\" />
-    <file src="common\GlobalAssemblyInfo.cs"   target="src\common\" />
-    <file src="common\Guard.cs"                target="src\common\" />
-    <file src="xunit.runner.msbuild\**\*.cs"   target="src\xunit.runner.msbuild\" />
   </files>
 </package>
