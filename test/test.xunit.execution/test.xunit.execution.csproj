@@ -9,6 +9,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectCapability Include="ShowFilesOutsideOfProject" />
     <Compile Include="..\..\src\common\AssemblyExtensions.cs" />
     <Compile Include="..\..\src\common\ExecutionHelper.cs" />
     <Compile Include="..\..\src\common\Guard.cs" />

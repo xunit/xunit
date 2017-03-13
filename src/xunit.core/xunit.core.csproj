@@ -17,6 +17,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectCapability Include="ShowFilesOutsideOfProject" />
     <Compile Include="..\common\ExceptionExtensions.cs" />
     <Compile Include="..\common\GlobalAssemblyInfo.cs" />
     <Compile Include="..\common\Guard.cs" />

@@ -16,6 +16,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectCapability Include="ShowFilesOutsideOfProject" />
     <Compile Include="..\common\GlobalAssemblyInfo.cs" />
   </ItemGroup>
 </Project>
