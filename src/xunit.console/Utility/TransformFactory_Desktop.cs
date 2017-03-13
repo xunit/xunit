@@ -1,6 +1,7 @@
-﻿using System;
+﻿#if NET452
+
+using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,26 +19,36 @@ namespace Xunit.ConsoleClient
 
         protected TransformFactory()
         {
-            var executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
-            var exeConfiguration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            var configSection = (XunitConsoleConfigurationSection)exeConfiguration.GetSection("xunit") ?? new XunitConsoleConfigurationSection();
-
             availableTransforms.Add("xml", new Transform { CommandLine = "xml", Description = "output results to xUnit.net v2 XML file", OutputHandler = Handler_DirectWrite });
 
-            configSection.Transforms.Cast<TransformConfigurationElement>().ToList().ForEach(configElement =>
-            {
-                string xslFileName = Path.Combine(executablePath, configElement.XslFile);
-                if (!File.Exists(xslFileName))
-                    throw new ArgumentException($"cannot find transform XSL file '{xslFileName}' for transform '{configElement.CommandLine}'");
+            var executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+            var configFilePath = Path.Combine(executablePath, "xunit.console.json");
+            if (!File.Exists(configFilePath))
+                return;
 
-                availableTransforms.Add(configElement.CommandLine,
-                                        new Transform
-                                        {
-                                            CommandLine = configElement.CommandLine,
-                                            Description = configElement.Description,
-                                            OutputHandler = (xml, outputFileName) => Handler_XslTransform(xslFileName, xml, outputFileName)
-                                        });
-            });
+            using (var configStream = File.OpenRead(configFilePath))
+            using (var reader = new StreamReader(configStream))
+            {
+                var config = JsonDeserializer.Deserialize(reader) as JsonObject;
+                var xslTransforms = config.ValueAsJsonObject("xslTransforms");
+                if (xslTransforms != null)
+                    foreach (var commandLine in xslTransforms.Keys)
+                    {
+                        var transform = xslTransforms.ValueAsJsonObject(commandLine);
+                        var xslFilePath = Path.Combine(executablePath, transform.ValueAsString("file"));
+                        if (!File.Exists(xslFilePath))
+                            throw new ArgumentException($"cannot find transform XSL file '{xslFilePath}' for transform '{commandLine}'");
+
+                        availableTransforms.Add(commandLine,
+                                                new Transform
+                                                {
+                                                    CommandLine = commandLine,
+                                                    Description = transform.ValueAsString("description"),
+                                                    OutputHandler = (xml, outputFileName) => Handler_XslTransform(xslFilePath, xml, outputFileName)
+                                                });
+                    }
+
+            }
         }
 
         public static List<Transform> AvailableTransforms
@@ -70,3 +81,5 @@ namespace Xunit.ConsoleClient
         }
     }
 }
+
+#endif

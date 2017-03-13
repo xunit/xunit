@@ -24,6 +24,7 @@
     <Compile Include="..\common\ExceptionUtility.cs" />
     <Compile Include="..\common\GlobalAssemblyInfo.cs" />
     <Compile Include="..\common\Guard.cs" />
+    <Compile Include="..\common\Json.cs" />
     <Compile Include="..\common\LongLivedMarshalByRefObject.cs" />
     <Compile Include="..\common\NewReflectionExtensions.cs" />
     <Compile Include="..\common\NullMessageSink.cs" />

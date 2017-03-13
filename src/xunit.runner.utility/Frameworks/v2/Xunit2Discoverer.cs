@@ -18,6 +18,8 @@ namespace Xunit
         static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
         static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
         readonly AssemblyHelper assemblyHelper;
+#elif NETCOREAPP1_0 || NETSTANDARD1_5
+        static readonly string[] SupportedPlatforms = { "dotnet" };
 #else
         static readonly string[] SupportedPlatforms = { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
 #endif
@@ -197,7 +199,7 @@ namespace Xunit
 #endif
             }
 
-            throw new InvalidOperationException("Could not find any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => $"xunit.execution.{suffix}.dll").ToArray()));
+            throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => $"xunit.execution.{suffix}.dll").ToArray()));
         }
 
         static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport)
@@ -213,6 +215,8 @@ namespace Xunit
         {
 #if NET35 || NET452
             return AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
+#elif NETCOREAPP1_0
+            return new AssemblyName(Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath));
 #else
             // Make sure we only use the short form
             return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();

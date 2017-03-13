@@ -33,7 +33,10 @@ namespace Xunit.ConsoleClient
                     return 2;
                 }
 
+#if NET452
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+#endif
+
                 Console.CancelKeyPress += (sender, e) =>
                 {
                     if (!cancel)
@@ -77,6 +80,7 @@ namespace Xunit.ConsoleClient
             catch (ArgumentException ex)
             {
                 Console.WriteLine($"error: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
                 return 3;
             }
             catch (BadImageFormatException ex)
@@ -93,15 +97,20 @@ namespace Xunit.ConsoleClient
         static List<IRunnerReporter> GetAvailableRunnerReporters()
         {
             var result = new List<IRunnerReporter>();
-            var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+
+            var runnerPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
 
             foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
             {
-                Type[] types;
+                Type[] types = new Type[0];
 
                 try
                 {
+#if NET452
                     var assembly = Assembly.LoadFile(dllFile);
+#else
+                    var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
+#endif
                     types = assembly.GetTypes();
                 }
                 catch (ReflectionTypeLoadException ex)
@@ -116,7 +125,7 @@ namespace Xunit.ConsoleClient
                 foreach (var type in types)
                 {
 #pragma warning disable CS0618
-                    if (type == null || type.IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+                    if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
                         continue;
 #pragma warning restore CS0618
                     var ctor = type.GetConstructor(new Type[0]);
@@ -135,6 +144,7 @@ namespace Xunit.ConsoleClient
             return result;
         }
 
+#if NET452
         static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var ex = e.ExceptionObject as Exception;
@@ -146,26 +156,45 @@ namespace Xunit.ConsoleClient
 
             Environment.Exit(1);
         }
+#endif
 
         static void PrintHeader()
         {
-            Console.WriteLine($"xUnit.net Console Runner ({IntPtr.Size * 8}-bit .NET {Environment.Version})");
+#if NET452
+            var platform = $"Desktop .NET {Environment.Version}";
+#elif NETCOREAPP1_0
+            var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+#else
+#error Unknown target platform
+#endif
+
+            Console.WriteLine($"xUnit.net Console Runner ({IntPtr.Size * 8}-bit {platform})");
         }
 
         static void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
         {
+#if NET452
             var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+#else
+            var executableName = "dotnet xunit";
+#endif
 
             Console.WriteLine("Copyright (C) 2016 .NET Foundation.");
             Console.WriteLine();
             Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
             Console.WriteLine();
+#if NET452
             Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
+#else
+            Console.WriteLine("Note: Configuration files must end in .json (XML is not supported on .NET Core)");
+#endif
             Console.WriteLine();
             Console.WriteLine("Valid options:");
             Console.WriteLine("  -nologo                : do not show the copyright message");
             Console.WriteLine("  -nocolor               : do not output results with colors");
+#if NET452
             Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
+#endif
             Console.WriteLine("  -failskips             : convert skipped tests into failures");
             Console.WriteLine("  -parallel option       : set parallelization based on option");
             Console.WriteLine("                         :   none        - turn off all parallelization");
@@ -176,7 +205,9 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
             Console.WriteLine("                         :   unlimited - run with unbounded thread count");
             Console.WriteLine("                         :   (number)  - limit task thread pool size to 'count'");
+#if NET452
             Console.WriteLine("  -noshadow              : do not shadow copy assemblies");
+#endif
             Console.WriteLine("  -wait                  : wait for input after completion");
             Console.WriteLine("  -diagnostics           : enable diagnostics messages for all test assemblies");
             Console.WriteLine("  -internaldiagnostics   : enable internal diagnostics messages for all test assemblies");

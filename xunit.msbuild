@@ -76,10 +76,6 @@
     <MSBuild Projects="$(SolutionName)" Properties="Configuration=$(Configuration)" Targets="restore" />
     <MSBuild Projects="$(SolutionName)" Properties="Configuration=$(Configuration)" Targets="build" />
     <MSBuild Projects="src\xunit.console\xunit.console.csproj" Properties="Configuration=$(Configuration)_x86" Targets="build" />
-    <RegexReplace
-        Pattern="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console&quot;"
-        Replacement="type=&quot;Xunit.ConsoleClient.XunitConsoleConfigurationSection, xunit.console.x86&quot;"
-        Files="src\xunit.console\bin\$(Configuration)_x86\net452\win7-x86\xunit.console.x86.exe.config" />
   </Target>
 
   <Target Name="_Test32">
