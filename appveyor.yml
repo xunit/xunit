@@ -16,6 +16,12 @@ clone_script:
     }
     git submodule update --init --recursive --quiet
 
+branches:
+  only:
+  - master
+
+skip_branch_with_pr: true
+
 skip_tags: true
 
 nuget:
