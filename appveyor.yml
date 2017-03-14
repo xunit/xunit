@@ -1,0 +1,41 @@
+image: Visual Studio 2017
+
+environment:
+  MyGetApiKey:
+    secure: +jVb98hbYCifINyQDeQwpv69p+ZiPm6ArzYM4J+fMYUlDeNiB+UKK5a1XnUzEMpY
+
+clone_script:
+- ps: >-
+    if (-not $env:appveyor_pull_request_number) {
+        git clone -q --branch=$env:appveyor_repo_branch https://github.com/$env:appveyor_repo_name.git $env:appveyor_build_folder
+        git checkout -qf $env:appveyor_repo_commit
+    } else {
+        git clone -q https://github.com/$env:appveyor_repo_name.git $env:appveyor_build_folder
+        git fetch -q origin +refs/pull/$env:appveyor_pull_request_number/merge:
+        git checkout -qf FETCH_HEAD
+    }
+    git submodule update --init --recursive --quiet
+
+skip_tags: true
+
+nuget:
+  disable_publish_on_pr: true
+
+build_script:
+- ps: .\build.ps1 -target appveyor -buildAssemblyVersion ($env:BuildVersion + $env:APPVEYOR_BUILD_NUMBER) -buildSemanticVersion ($env:BuildSemanticVersion + $env:APPVEYOR_BUILD_NUMBER)
+
+test: off
+
+deploy: off
+
+artifacts:
+- path: artifacts/packages
+- path: artifacts/test
+
+notifications:
+- provider: Slack
+  incoming_webhook:
+    secure: k1oXe/zscPP/vX2kQXYNO1SkIMvN47r8BNA6gkM6z5+I8rKJD+g8C3+pbdARRuzUHAMO5vzD7TXeL6fMt5oIw0QBnuAGNBLx4EsBWllmPyw=
+  channel: '#pulse'
+  on_build_success: true
+  on_build_failure: true

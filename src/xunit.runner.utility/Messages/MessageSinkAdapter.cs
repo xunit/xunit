@@ -32,7 +32,7 @@ namespace Xunit
             if (messageWithTypes != null)
                 return messageWithTypes.InterfaceTypes;
 
-#if !PLATFORM_DOTNET
+#if NET35 || NET452
             // Can't get the list of interfaces across the remoting boundary
             if (System.Runtime.Remoting.RemotingServices.IsTransparentProxy(message))
                 return null;

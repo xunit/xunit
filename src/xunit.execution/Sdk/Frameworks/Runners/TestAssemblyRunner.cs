@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-
-#if PLATFORM_DOTNET
-using System.Reflection;
-using System.Runtime.Versioning;
-#else
-using System.IO;
-#endif
 
 namespace Xunit.Sdk
 {
@@ -104,11 +100,13 @@ namespace Xunit.Sdk
 
         static string GetVersion()
         {
-#if PLATFORM_DOTNET
             var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
-            return attr == null ? "(unknown version)" : attr.FrameworkDisplayName;
-#else
+            if (attr != null)
+                return attr.FrameworkDisplayName;
+#if NET452
             return Environment.Version.ToString();
+#else
+            return "(unknown version)";
 #endif
         }
 
@@ -176,7 +174,7 @@ namespace Xunit.Sdk
         {
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
-#if !PLATFORM_DOTNET
+#if NET452
             var currentDirectory = Directory.GetCurrentDirectory();
 #endif
             var testFrameworkEnvironment = GetTestFrameworkEnvironment();
@@ -184,7 +182,7 @@ namespace Xunit.Sdk
 
             using (var messageBus = CreateMessageBus())
             {
-#if !PLATFORM_DOTNET
+#if NET452
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
 #endif
 
@@ -208,7 +206,7 @@ namespace Xunit.Sdk
                     finally
                     {
                         messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
-#if !PLATFORM_DOTNET
+#if NET452
                         Directory.SetCurrentDirectory(currentDirectory);
 #endif
                     }

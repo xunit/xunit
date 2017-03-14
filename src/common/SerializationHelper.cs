@@ -157,17 +157,7 @@ namespace Xunit.Sdk
                 assemblyName = assemblyName.Substring(0, assemblyName.Length - ExecutionHelper.SubstitutionToken.Length + 1) + ExecutionHelper.PlatformSuffix;
 #endif
 
-#if PLATFORM_DOTNET
-            Assembly assembly = null;
-            try
-            {
-                // Make sure we only use the short form
-                var an = new AssemblyName(assemblyName);
-                assembly = Assembly.Load(new AssemblyName { Name = an.Name, Version = an.Version });
-
-            }
-            catch { }
-#else
+#if NET35 || NET452
             // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);
             if (assembly == null)
@@ -178,6 +168,16 @@ namespace Xunit.Sdk
                 }
                 catch { }
             }
+#else
+            Assembly assembly = null;
+            try
+            {
+                // Make sure we only use the short form
+                var an = new AssemblyName(assemblyName);
+                assembly = Assembly.Load(new AssemblyName { Name = an.Name, Version = an.Version });
+
+            }
+            catch { }
 #endif
 
             if (assembly == null)

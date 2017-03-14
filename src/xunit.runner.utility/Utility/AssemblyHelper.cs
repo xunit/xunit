@@ -1,24 +1,4 @@
-﻿#if PLATFORM_DOTNET
-
-using System;
-
-namespace Xunit
-{
-    /// <summary/>
-    public class AssemblyHelper : IDisposable
-    {
-        /// <summary/>
-        public static IDisposable SubscribeResolve()
-        {
-            return new AssemblyHelper();
-        }
-
-        /// <inheritdoc/>
-        public void Dispose() { }
-    }
-}
-
-#else
+﻿#if NET35 || NET452
 
 using System;
 using System.IO;
@@ -84,6 +64,26 @@ namespace Xunit
         {
             AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
         }
+    }
+}
+
+#else
+
+using System;
+
+namespace Xunit
+{
+    /// <summary/>
+    public class AssemblyHelper : IDisposable
+    {
+        /// <summary/>
+        public static IDisposable SubscribeResolve()
+        {
+            return new AssemblyHelper();
+        }
+
+        /// <inheritdoc/>
+        public void Dispose() { }
     }
 }
 

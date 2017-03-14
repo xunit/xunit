@@ -1,10 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
-
-#if PLATFORM_DOTNET
 using System.Reflection;
-#endif
 
 namespace Xunit
 {
@@ -12,6 +9,11 @@ namespace Xunit
     {
         static readonly string executionAssemblyNamePrefix = "xunit.execution.";
         static string platformSuffix = "__unknown__";
+#if NETSTANDARD1_1
+        static readonly string[] platformSuffixes = new[] { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
+#elif NETSTANDARD1_3 || NETSTANDARD1_5
+        static readonly string[] platformSuffixes = new[] { "dotnet" };
+#endif
 
         public static string PlatformSuffix
         {
@@ -23,8 +25,8 @@ namespace Xunit
                     {
                         platformSuffix = null;
 
-#if PLATFORM_DOTNET
-                        foreach (var suffix in new[] { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" })
+#if NETSTANDARD1_1 || NETSTANDARD1_3 || NETSTANDARD1_5
+                        foreach (var suffix in platformSuffixes)
                             try
                             {
                                 Assembly.Load(new AssemblyName { Name = executionAssemblyNamePrefix + suffix });

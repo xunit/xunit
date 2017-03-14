@@ -1,4 +1,4 @@
-﻿#if !PLATFORM_DOTNET
+﻿#if NET452
 
 using System.IO;
 using System.Reflection;

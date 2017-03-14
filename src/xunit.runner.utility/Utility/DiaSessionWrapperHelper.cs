@@ -1,4 +1,5 @@
-#if !PLATFORM_DOTNET
+#if NET35 || NET452
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -179,4 +180,5 @@ namespace Xunit
         }
     }
 }
+
 #endif
