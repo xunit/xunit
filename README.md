@@ -14,8 +14,8 @@ For project documentation, please visit the [xUnit.net project home](https://xun
 
 ## Latest Builds
 
-Channel  | Core Framework | .NET CLI Runner | Visual Studio Runner
--------- | :------------: | :-------------: | :------------------:
-CI | <a href="https://ci.appveyor.com/project/xunit/xunit"><img src="https://ci.appveyor.com/api/projects/status/3ju9yoxaeafj9owb/branch/master?svg=true" /></a> | ![#](https://img.shields.io/teamcity/http/teamcity.centurylinkcloud.com/s/xunit_dotnet_test_xunit.svg) | ![#](https://img.shields.io/teamcity/http/teamcity.centurylinkcloud.com/s/xunit_visualstudio.svg)
-NuGet | ![#](https://img.shields.io/nuget/v/xunit.svg?style=flat)<br>![#](https://img.shields.io/nuget/vpre/xunit.svg?style=flat) | &nbsp;<br>![#](https://img.shields.io/nuget/vpre/dotnet-test-xunit.svg?style=flat) | ![#](https://img.shields.io/nuget/v/xunit.runner.visualstudio.svg?style=flat)<br>![#](https://img.shields.io/nuget/vpre/xunit.runner.visualstudio.svg?style=flat)
-MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.svg?style=flat) | ![#](https://img.shields.io/myget/xunit/vpre/dotnet-test-xunit.svg?style=flat) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.runner.visualstudio.svg?style=flat)
+Channel  | Core Framework | Visual Studio Runner
+-------- | :------------: | :------------------:
+CI | <a href="https://ci.appveyor.com/project/xunit/xunit"><img src="https://ci.appveyor.com/api/projects/status/3ju9yoxaeafj9owb/branch/master?svg=true" /></a> | ![#](https://img.shields.io/teamcity/http/teamcity.centurylinkcloud.com/s/xunit_visualstudio.svg)
+NuGet | ![#](https://img.shields.io/nuget/v/xunit.svg?style=flat)<br>![#](https://img.shields.io/nuget/vpre/xunit.svg?style=flat) | ![#](https://img.shields.io/nuget/v/xunit.runner.visualstudio.svg?style=flat)<br>![#](https://img.shields.io/nuget/vpre/xunit.runner.visualstudio.svg?style=flat)
+MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.svg?style=flat) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.runner.visualstudio.svg?style=flat)
