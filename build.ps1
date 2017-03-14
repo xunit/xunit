@@ -5,7 +5,7 @@ param(
     [string]$buildSemanticVersion = ""
 )
 
-$parallelFlags = "-parallel all"
+$parallelFlags = "-parallel all -maxthreads 16"
 $nugetVersion = "3.5.0"
 
 # Helper functions
@@ -142,7 +142,7 @@ function __target__pushmyget() {
             Get-ChildItem -Filter *.nupkg artifacts\packages | ForEach-Object {
                 $cmd = '& "' + $script:nugetExe + '" push "' + $_.FullName + '" -Source https://www.myget.org/F/xunit/api/v2/package -NonInteractive -ApiKey ' + $env:MyGetApiKey
                 $message = $cmd.Replace($env:MyGetApiKey, "[redacted]")
-                exec $cmd $message
+                _exec $cmd $message
             }
         }
 }
