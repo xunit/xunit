@@ -15,12 +15,15 @@ function _build_step([string] $message) {
     Write-Host ""
 }
 
-function _dotnet([string] $command) {
-    _exec ("dotnet " + $command)
+function _dotnet([string] $command, [string] $message = "") {
+    _exec ("dotnet " + $command) $message
 }
 
-function _exec([string] $command) {
-    Write-Host -ForegroundColor DarkGray ("EXEC: " + $command)
+function _exec([string] $command, [string] $message = "") {
+    if ($message -eq "") {
+        $message = $command
+    }
+    Write-Host -ForegroundColor DarkGray ("EXEC: " + $message)
     Write-Host ""
     Invoke-Expression $command
     Write-Host ""
@@ -35,8 +38,8 @@ function _fatal([string] $message) {
     exit 1
 }
 
-function _msbuild([string] $project, [string] $config, [string] $target = "build", [string] $verbosity = "minimal") {
-    _exec ("msbuild " + $project + " /t:" + $target + " /p:Configuration=" + $config + " /v:" + $verbosity + " /m /nologo")
+function _msbuild([string] $project, [string] $config, [string] $target = "build", [string] $verbosity = "minimal", [string] $message = "") {
+    _exec ("msbuild " + $project + " /t:" + $target + " /p:Configuration=" + $config + " /v:" + $verbosity + " /m /nologo") $message
 }
 
 function _replace([string] $file, [regex]$match, [string]$replacement) {
@@ -137,10 +140,9 @@ function __target__pushmyget() {
             Write-Host ""
         } else {
             Get-ChildItem -Filter *.nupkg artifacts\packages | ForEach-Object {
-                # Directly execute rather than using _exec so we don't leak the API key
                 $cmd = '& "' + $script:nugetExe + '" push "' + $_.FullName + '" -Source https://www.myget.org/F/xunit/api/v2/package -NonInteractive -ApiKey ' + $env:MyGetApiKey
-                Invoke-Expression $cmd
-                Write-Host ""
+                $message = $cmd.Replace($env:MyGetApiKey, "[redacted]")
+                exec $cmd $message
             }
         }
 }
