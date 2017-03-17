@@ -24,6 +24,6 @@
     <file src="xunit.console\bin\Release\net452\win7-x86\xunit.console.json"                target="tools\" />
     <file src="xunit.console\bin\Release_x86\net452\win7-x86\xunit.console.x86.exe"         target="tools\" />
     <file src="xunit.console\bin\Release_x86\net452\win7-x86\xunit.console.x86.exe.config"  target="tools\" />
-	<file src="xunit.console\build\xunit.runner.console.props"                              target="build\" />
+    <file src="xunit.console\build\xunit.runner.console.props"                              target="build\" />
   </files>
 </package>
