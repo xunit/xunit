@@ -1,10 +1,7 @@
 using System;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Xunit.Abstractions;
-
-#if !PLATFORM_DOTNET
-using System.Reflection;
-#endif
 
 namespace Xunit
 {
@@ -92,7 +89,7 @@ namespace Xunit
             var wordAt = "at";
             var wordsInLine = "in {0}:line {1}";
 
-#if !PLATFORM_DOTNET
+#if NET35 || NET452
             var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
             if (getResourceStringMethod != null)
             {

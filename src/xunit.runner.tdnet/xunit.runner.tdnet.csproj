@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\common.props" />
+  <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\common\AssemblyExtensions.cs" />
+    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="TestDriven.Framework" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+</Project>

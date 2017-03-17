@@ -5,7 +5,12 @@ namespace Xunit
 {
     static class EnvironmentHelper
     {
-#if PLATFORM_DOTNET
+#if NET35 || NET452
+        public static string GetEnvironmentVariable(string variable)
+        {
+            return Environment.GetEnvironmentVariable(variable);
+        }
+#else
         static readonly Lazy<MethodInfo> getEnvironmentVariableMethod = new Lazy<MethodInfo>(GetEnvironmentVariableMethod);
 
         public static string GetEnvironmentVariable(string variable)
@@ -20,11 +25,6 @@ namespace Xunit
                 throw new InvalidOperationException("Could not find method: System.Environment.GetEnvironmentVariable");
 
             return result;
-        }
-#else
-        public static string GetEnvironmentVariable(string variable)
-        {
-            return Environment.GetEnvironmentVariable(variable);
         }
 #endif
     }

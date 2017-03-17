@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Xunit.Abstractions;
-
-#if PLATFORM_DOTNET
-using System.IO;
-#endif
 
 namespace Xunit
 {
@@ -39,11 +36,11 @@ namespace Xunit
                       bool verifyTestAssemblyExists = true)
             : base(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyTestAssemblyExists)
         {
-#if PLATFORM_DOTNET
+#if NET35 || NET452
+            var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
+#else
             var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
             var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
-#else
-            var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
 #endif
             executor = Framework.GetExecutor(assemblyName);
         }

@@ -42,7 +42,7 @@ namespace Xunit.Sdk
             if (Version == null)
                 Version = new Version(0, 0, 0, 0);
 
-#if !PLATFORM_DOTNET
+#if NET452
             if (ConfigFileName == null)
                 ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif

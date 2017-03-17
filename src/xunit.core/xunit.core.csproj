@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\common.props" />
+  <PropertyGroup>
+    <TargetFramework>netstandard1.1</TargetFramework>
+    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\common\ExceptionExtensions.cs" />
+    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
+    <Compile Include="..\common\Guard.cs" />
+    <Compile Include="..\common\TestMethodDisplay.cs" />
+    <Compile Include="..\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs" />
+    <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparer.cs" />
+    <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" />
+    <Content Include="xunit.core.dll.tdnet">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="Resources\xunit.core.rd.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.abstractions" Version="2.0.1" />
+  </ItemGroup>
+</Project>

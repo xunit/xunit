@@ -2,10 +2,12 @@ using System;
 using System.Reflection;
 using Xunit.Sdk;
 
-#if PLATFORM_DOTNET
+#if NET452
+[assembly: AssemblyTitle("xUnit.net Execution (desktop)")]
+#elif NETSTANDARD1_1
 [assembly: AssemblyTitle("xUnit.net Execution (dotnet)")]
 #else
-[assembly: AssemblyTitle("xUnit.net Execution (desktop)")]
+#error Unknown target platform
 #endif
 
 [assembly: CLSCompliant(true)]

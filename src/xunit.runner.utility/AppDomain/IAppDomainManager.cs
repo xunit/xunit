@@ -6,7 +6,7 @@ namespace Xunit
     interface IAppDomainManager : IDisposable
     {
         TObject CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object[] args);
-#if !PLATFORM_DOTNET
+#if NET35 || NET452
         TObject CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object[] args);
 #endif
     }

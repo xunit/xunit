@@ -24,33 +24,9 @@
   </metadata>
   <files>
     <file src="xunit.execution\bin\Release\net452\xunit.execution.desktop.dll" target="lib\net452\" />
-    <file src="xunit.execution\bin\Release\net452\xunit.execution.desktop.pdb" target="lib\net452\" />
     <file src="xunit.execution\bin\Release\net452\xunit.execution.desktop.xml" target="lib\net452\" />
 
     <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.pdb" target="lib\netstandard1.1\" />
     <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.xml" target="lib\netstandard1.1\" />
-
-    <file src="common\AssemblyExtensions.cs"                              target="src\common\" />
-    <file src="common\CommonTasks.cs"                                     target="src\common\" />
-    <file src="common\DictionaryExtensions.cs"                            target="src\common\" />
-    <file src="common\ExceptionExtensions.cs"                             target="src\common\" />
-    <file src="common\ExceptionUtility.cs"                                target="src\common\" />
-    <file src="common\ExecutionHelper.cs"                                 target="src\common\" />
-    <file src="common\GlobalAssemblyInfo.cs"                              target="src\common\" />
-    <file src="common\Guard.cs"                                           target="src\common\" />
-    <file src="common\LongLivedMarshalByRefObject.cs"                     target="src\common\" />
-    <file src="common\NewReflectionExtensions.cs"                         target="src\common\" />
-    <file src="common\NullMessageSink.cs"                                 target="src\common\" />
-    <file src="common\SerializationHelper.cs"                             target="src\common\" />
-    <file src="common\SourceInformation.cs"                               target="src\common\" />
-    <file src="common\TestOptionsNames.cs"                                target="src\common\" />
-    <file src="common\XunitSerializationInfo.cs"                          target="src\common\" />
-    <file src="common\XunitWorkerThread.cs"                               target="src\common\" />
-    <file src="messages\**\*.cs"                                          target="src\messages\" />
-    <file src="xunit.assert\Asserts\Sdk\ArgumentFormatter.cs"             target="src\xunit.assert\Asserts\Sdk\" />
-    <file src="xunit.assert\Asserts\Sdk\AssertEqualityComparer.cs"        target="src\xunit.assert\Asserts\Sdk\" />
-    <file src="xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" target="src\xunit.assert\Asserts\Sdk\" />
-    <file src="xunit.execution\**\*.cs"                                   target="src\xunit.execution\" />
   </files>
 </package>

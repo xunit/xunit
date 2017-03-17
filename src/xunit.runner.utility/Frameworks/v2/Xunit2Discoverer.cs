@@ -14,12 +14,14 @@ namespace Xunit
     /// </summary>
     public class Xunit2Discoverer : ITestFrameworkDiscoverer
     {
-#if PLATFORM_DOTNET
-        static readonly string[] SupportedPlatforms = { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
-#else
+#if NET35 || NET452
         static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
         static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
         readonly AssemblyHelper assemblyHelper;
+#elif NETCOREAPP1_0 || NETSTANDARD1_5
+        static readonly string[] SupportedPlatforms = { "dotnet" };
+#else
+        static readonly string[] SupportedPlatforms = { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
 #endif
 
         readonly IAppDomainManager appDomain;
@@ -75,10 +77,10 @@ namespace Xunit
             if (verifyAssembliesOnDisk)
                 Guard.FileExists("xunitExecutionAssemblyPath", xunitExecutionAssemblyPath);
 
-#if PLATFORM_DOTNET
-            CanUseAppDomains = false;
-#else
+#if NET35 || NET452
             CanUseAppDomains = !IsDotNet(xunitExecutionAssemblyPath);
+#else
+            CanUseAppDomains = false;
 #endif
 
             DiagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
@@ -86,7 +88,7 @@ namespace Xunit
             var appDomainAssembly = assemblyFileName ?? xunitExecutionAssemblyPath;
             appDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder);
 
-#if !PLATFORM_DOTNET
+#if NET35 || NET452
             var runnerUtilityAssemblyLocation = Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase());
             assemblyHelper = appDomain.CreateObjectFrom<AssemblyHelper>(typeof(AssemblyHelper).Assembly.Location, typeof(AssemblyHelper).FullName, runnerUtilityAssemblyLocation);
 #endif
@@ -105,32 +107,23 @@ namespace Xunit
         /// <summary>
         /// Gets a value indicating whether the tests can use app domains (must be linked against desktop execution library).
         /// </summary>
-        public bool CanUseAppDomains { get; private set; }
+        public bool CanUseAppDomains { get; }
 
         /// <summary>
         /// Gets the message sink used to report diagnostic messages.
         /// </summary>
-        public IMessageSink DiagnosticMessageSink { get; private set; }
+        public IMessageSink DiagnosticMessageSink { get; }
 
         /// <summary>
         /// Returns the test framework from the remote app domain.
         /// </summary>
-        public ITestFramework Framework
-        {
-            get { return framework; }
-        }
+        public ITestFramework Framework => framework;
 
         /// <inheritdoc/>
-        public string TargetFramework
-        {
-            get { return discoverer.TargetFramework; }
-        }
+        public string TargetFramework => discoverer.TargetFramework;
 
         /// <inheritdoc/>
-        public string TestFrameworkDisplayName
-        {
-            get { return discoverer.TestFrameworkDisplayName; }
-        }
+        public string TestFrameworkDisplayName => discoverer.TestFrameworkDisplayName;
 
         /// <summary>
         /// Creates a high performance cross AppDomain message sink that utilizes <see cref="IMessageSinkWithTypes"/>
@@ -156,7 +149,7 @@ namespace Xunit
         {
             discoverer.SafeDispose();
             Framework.SafeDispose();
-#if !PLATFORM_DOTNET
+#if NET35 || NET452
             assemblyHelper.SafeDispose();
 #endif
             appDomain.SafeDispose();
@@ -191,7 +184,11 @@ namespace Xunit
 
             foreach (var suffix in supportedPlatformSuffixes)
             {
-#if PLATFORM_DOTNET
+#if NET35 || NET452
+                var fileName = Path.Combine(basePath, $"xunit.execution.{suffix}.dll");
+                if (File.Exists(fileName))
+                    return fileName;
+#else
                 try
                 {
                     var assemblyName = $"xunit.execution.{suffix}";
@@ -199,32 +196,30 @@ namespace Xunit
                     return assemblyName + ".dll";
                 }
                 catch { }
-#else
-                var fileName = Path.Combine(basePath, $"xunit.execution.{suffix}.dll");
-                if (File.Exists(fileName))
-                    return fileName;
 #endif
             }
 
-            throw new InvalidOperationException("Could not find any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => $"xunit.execution.{suffix}.dll").ToArray()));
+            throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => $"xunit.execution.{suffix}.dll").ToArray()));
         }
 
         static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport)
         {
-#if PLATFORM_DOTNET
-            return SupportedPlatforms;
-#else
+#if NET35 || NET452
             return appDomainSupport == AppDomainSupport.Required ? SupportedPlatforms_ForcedAppDomains : SupportedPlatforms;
+#else
+            return SupportedPlatforms;
 #endif
         }
 
         static AssemblyName GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
         {
-#if PLATFORM_DOTNET
+#if NET35 || NET452
+            return AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
+#elif NETCOREAPP1_0
+            return new AssemblyName(Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath));
+#else
             // Make sure we only use the short form
             return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();
-#else
-            return AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
 #endif
         }
 
@@ -246,14 +241,10 @@ namespace Xunit
         }
 
         static bool IsDotNet(string executionAssemblyFileName)
-        {
-            return executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
-        }
+            => executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
 
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
-        {
-            return discoverer.Serialize(testCase);
-        }
+            => discoverer.Serialize(testCase);
     }
 }

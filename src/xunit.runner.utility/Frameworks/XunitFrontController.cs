@@ -103,9 +103,7 @@ namespace Xunit
         /// </summary>
         protected virtual IFrontController CreateInnerController()
         {
-#if PLATFORM_DOTNET
-            return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
-#else
+#if NET35 || NET452
             var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
             if (Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0)
                 return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
@@ -115,6 +113,8 @@ namespace Xunit
                 return new Xunit1(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
             throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {assemblyFolder}");
+#else
+            return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 #endif
         }
 
