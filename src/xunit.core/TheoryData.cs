@@ -90,7 +90,7 @@ namespace Xunit
     }
 
     /// <summary>
-    /// Represents a set of data for a theory with 3 parameters. Data can
+    /// Represents a set of data for a theory with 4 parameters. Data can
     /// be added to the data set using the collection initializer syntax.
     /// </summary>
     /// <typeparam name="T1">The first parameter type.</typeparam>
@@ -113,7 +113,7 @@ namespace Xunit
     }
 
     /// <summary>
-    /// Represents a set of data for a theory with 3 parameters. Data can
+    /// Represents a set of data for a theory with 5 parameters. Data can
     /// be added to the data set using the collection initializer syntax.
     /// </summary>
     /// <typeparam name="T1">The first parameter type.</typeparam>
