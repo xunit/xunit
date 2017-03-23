@@ -5,62 +5,26 @@ param(
     [string]$buildSemanticVersion = ""
 )
 
+if ($PSScriptRoot -eq $null) {
+    fatal "This build script requires PowerShell 3 or later."
+}
+
+$buildModuleFile = join-path $PSScriptRoot "tools\build\xunit-build-module.psm1"
+
+if ((test-path $buildModuleFile) -eq $false) {
+    write-host "Could not find build module. Did you forget to 'git submodule update --init'?" -ForegroundColor Red
+    exit -1
+}
+
+Set-StrictMode -Version 2
+Import-Module $buildModuleFile -Scope Local -Force -ArgumentList "3.5.0"
+Set-Location $PSScriptRoot
+
+$packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
 $parallelFlags = "-parallel all -maxthreads 16"
-$nugetVersion = "3.5.0"
+$testOutputFolder = (join-path (Get-Location) "artifacts\test")
 
 # Helper functions
-
-function _build_step([string] $message) {
-    Write-Host -ForegroundColor White $("==> " + $message + " <==")
-    Write-Host ""
-}
-
-function _dotnet([string] $command, [string] $message = "") {
-    _exec ("dotnet " + $command) $message
-}
-
-function _exec([string] $command, [string] $message = "") {
-    if ($message -eq "") {
-        $message = $command
-    }
-    Write-Host -ForegroundColor DarkGray ("EXEC: " + $message)
-    Write-Host ""
-    Invoke-Expression $command
-    Write-Host ""
-
-    if ($LASTEXITCODE -ne 0) {
-        exit 1
-    }
-}
-
-function _fatal([string] $message) {
-    Write-Host -ForegroundColor Red ("Error: " + $message)
-    exit 1
-}
-
-function _msbuild([string] $project, [string] $config, [string] $target = "build", [string] $verbosity = "minimal", [string] $message = "") {
-    _exec ("msbuild " + $project + " /t:" + $target + " /p:Configuration=" + $config + " /v:" + $verbosity + " /m /nologo") $message
-}
-
-function _replace([string] $file, [regex]$match, [string]$replacement) {
-    $content = Get-Content -raw $file
-    $content = $match.Replace($content, $replacement)
-    Set-Content $file $content -Encoding UTF8 -NoNewline
-}
-
-function _require([string] $command, [string] $message) {
-    if ((get-command $command -ErrorAction SilentlyContinue) -eq $null) {
-        _fatal $message
-    }
-}
-
-function _verify_msbuild15() {
-    $version = & msbuild /nologo /ver
-
-    if (-not $version.StartsWith("15.")) {
-        _fatal "Unexpected MSBUILD version $version. Please ensure MSBUILD.EXE v15 is on the path."
-    }
-}
 
 function _xunit_x64([string]$command) {
     _exec ("src\xunit.console\bin\" + $configuration + "\net452\win7-x86\xunit.console.exe " + $command)
@@ -111,26 +75,9 @@ function __target_test() {
 
 # Dependent targets
 
-function __target__downloadnuget() {
-    $cliVersionPath = join-path $home (".nuget\cli\" + $nugetVersion)
-    New-Item -Type Directory -Path $cliVersionPath -ErrorAction SilentlyContinue | out-null
-
-    $script:nugetExe = join-path $cliVersionPath "nuget.exe"
-    if ((test-path $script:nugetExe) -eq $false) {
-        _build_step ("Downloading NuGet version " + $nugetVersion)
-            Invoke-WebRequest ("https://dist.nuget.org/win-x86-commandline/v" + $nugetVersion + "/nuget.exe") -OutFile $script:nugetExe
-    }
-}
-
 function __target__packages() {
-    __target__downloadnuget
-
     _build_step "Creating NuGet packages"
-        $outputFolder = join-path (Get-Location) "artifacts\packages"
-        $nugetFiles = Get-ChildItem -Recurse -Include *.nuspec
-        $nugetFiles | ForEach-Object {
-            _exec ('& "' + $script:nugetExe + '" pack ' + $_.FullName + ' -NonInteractive -NoPackageAnalysis -OutputDirectory "' + $outputFolder + '"')
-        }
+        Get-ChildItem -Recurse -Filter *.nuspec | _nuget_pack -outputFolder $packageOutputFolder -configuration $configuration
 }
 
 function __target__pushmyget() {
@@ -139,25 +86,20 @@ function __target__pushmyget() {
             Write-Host -ForegroundColor Yellow "Skipping MyGet push because environment variable 'MyGetApiKey' is not set."
             Write-Host ""
         } else {
-            Get-ChildItem -Filter *.nupkg artifacts\packages | ForEach-Object {
-                $cmd = '& "' + $script:nugetExe + '" push "' + $_.FullName + '" -Source https://www.myget.org/F/xunit/api/v2/package -NonInteractive -ApiKey ' + $env:MyGetApiKey
-                $message = $cmd.Replace($env:MyGetApiKey, "[redacted]")
-                _exec $cmd $message
-            }
+            Get-ChildItem -Filter *.nupkg $packageOutputFolder | _nuget_push -source https://www.myget.org/F/xunit/api/v2/package -apiKey $env:MyGetApiKey
         }
 }
 
 function __target__setversion() {
     if ($buildAssemblyVersion -ne "") {
         _build_step ("Setting assembly version: '" + $buildAssemblyVersion + "'")
-            _replace "src\common\GlobalAssemblyInfo.cs" '\("99\.99\.99\.0"\)' ('("' + $buildAssemblyVersion + '")')
+            Get-ChildItem -Recurse -Filter GlobalAssemblyInfo.cs | _replace -match '\("99\.99\.99\.0"\)' -replacement ('("' + $buildAssemblyVersion + '")')
     }
 
     if ($buildSemanticVersion -ne "") {
         _build_step ("Setting semantic version: '" + $buildSemanticVersion + "'")
-            _replace "src\common\GlobalAssemblyInfo.cs" '\("99\.99\.99-dev"\)' ('("' + $buildSemanticVersion + '")')
-            $nugetFiles = Get-ChildItem -Recurse -Include *.nuspec
-            $nugetFiles | ForEach-Object { _replace $_.FullName '99\.99\.99-dev' $buildSemanticVersion }
+            Get-ChildItem -Recurse -Filter GlobalAssemblyInfo.cs | _replace -match '\("99\.99\.99-dev"\)' -replacement ('("' + $buildSemanticVersion + '")')
+            Get-ChildItem -Recurse -Filter *.nuspec | _replace -match '99\.99\.99-dev' -replacement $buildSemanticVersion
     }
 }
 
@@ -177,14 +119,6 @@ function __target__test64() {
 
 # Dispatch
 
-if ($PSScriptRoot -eq $null) {
-    fatal "This build script requires PowerShell 3 or later."
-}
-
-Set-Location $PSScriptRoot
-New-Item -Type directory -Path "artifacts\packages" -ErrorAction SilentlyContinue | out-null
-New-Item -Type directory -Path "artifacts\test" -ErrorAction SilentlyContinue | out-null
-
 $targetFunction = (Get-ChildItem ("Function:__target_" + $target.ToLowerInvariant()) -ErrorAction SilentlyContinue)
 if ($targetFunction -eq $null) {
     _fatal "Unknown target '$target'"
@@ -195,4 +129,6 @@ _build_step "Performing pre-build verifications"
     _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v15 is on the path."
     _verify_msbuild15
 
+_mkdir $packageOutputFolder
+_mkdir $testOutputFolder
 & $targetFunction
