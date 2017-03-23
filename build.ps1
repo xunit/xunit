@@ -6,7 +6,8 @@ param(
 )
 
 if ($PSScriptRoot -eq $null) {
-    fatal "This build script requires PowerShell 3 or later."
+    write-host "This build script requires PowerShell 3 or later." -ForegroundColor Red
+    exit -1
 }
 
 $buildModuleFile = join-path $PSScriptRoot "tools\build\xunit-build-module.psm1"
