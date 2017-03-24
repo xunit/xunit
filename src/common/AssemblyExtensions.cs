@@ -1,4 +1,4 @@
-#if NET35 || NET40 || NET452
+#if NET35 || NET40 || NET452 || NETSTANDARD1_5
 
 using System;
 using System.IO;
