@@ -74,10 +74,12 @@ namespace Xunit
                          bool verifyAssembliesOnDisk)
         {
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
+
+#if NET35 || NET452
+            // Only safe to assume the execution reference is copied in a desktop project
             if (verifyAssembliesOnDisk)
                 Guard.FileExists("xunitExecutionAssemblyPath", xunitExecutionAssemblyPath);
 
-#if NET35 || NET452
             CanUseAppDomains = !IsDotNet(xunitExecutionAssemblyPath);
 #else
             CanUseAppDomains = false;

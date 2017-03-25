@@ -35,8 +35,8 @@ static class Guard
     public static void FileExists(string argName, string fileName)
     {
         Guard.ArgumentNotNullOrEmpty(argName, fileName);
-#if NET35 || NET452 || NETCOREAPP1_0
-        Guard.ArgumentValid("assemblyFileName", $"File not found: {fileName}", File.Exists(fileName));
+#if !NETSTANDARD1_1
+        Guard.ArgumentValid(argName, $"File not found: {fileName}", File.Exists(fileName));
 #endif
     }
 #endif
