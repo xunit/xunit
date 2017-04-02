@@ -6,7 +6,12 @@
     <title>xUnit.net [Runner: .NET CLI SDK]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>.NET CLI SDK runner for the xUnit.net framework.</summary>
-    <description>.NET CLI SDK runner </description>
+    <description>.NET CLI SDK runner for the xUnit.net framework.</description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/xunit/xunit</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <packageTypes>
       <packageType name="DotnetCliTool" />
     </packageTypes>
