@@ -157,7 +157,7 @@ class Program
                 else
                 {
                     foreach (var targetFramework in targetFrameworks)
-                        returnValue = Math.Max(RunTargetFramework(testProject, targetFramework, amendOutputFileNames: true), returnValue);
+                        returnValue = Math.Max(RunTargetFramework(testProject, targetFramework, amendOutputFileNames: targetFrameworks.Length > 1), returnValue);
                 }
 
                 return returnValue;
