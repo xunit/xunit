@@ -18,7 +18,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.execution\bin\Release\net452\xunit.execution.desktop.dll" target="build\_desktop\" />
+    <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.dll" target="build\_desktop\" />
 
     <file src="build\_._" target="build\netstandard1.0\" />
 

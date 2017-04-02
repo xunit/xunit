@@ -11,9 +11,11 @@
     <Compile Include="..\common\GlobalAssemblyInfo.cs" />
     <Compile Include="..\common\Guard.cs" />
     <Compile Include="..\common\Json.cs" />
-    <Content Include="*.xslt;xunit.console.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTML.xslt" />
+    <EmbeddedResource Include="NUnitXml.xslt" />
+    <EmbeddedResource Include="xUnit1.xslt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.reporters\xunit.runner.reporters.csproj" />

@@ -48,6 +48,8 @@ function __target_build() {
     _build_step "Compiling binaries"
         _msbuild "xunit.vs2017.sln" $configuration
         _msbuild "src\xunit.console\xunit.console.csproj" ($configuration + "_x86")
+        _dotnet ("publish src\xunit.console --framework netcoreapp1.0 --configuration " + $configuration + " /nologo /verbosity:minimal")
+        _dotnet ("publish src\dotnet-xunit --framework netcoreapp1.0 --configuration " + $configuration + " /nologo /verbosity:minimal")
 }
 
 function __target_ci() {
@@ -66,6 +68,11 @@ function __target_packagerestore() {
 function __target_packages() {
     __target_build
     __target__packages
+}
+
+function __target_register() {
+    __target_packages
+    __target__register
 }
 
 function __target_test() {
@@ -89,6 +96,18 @@ function __target__pushmyget() {
         } else {
             Get-ChildItem -Filter *.nupkg $packageOutputFolder | _nuget_push -source https://www.myget.org/F/xunit/api/v2/package -apiKey $env:MyGetApiKey
         }
+}
+
+function __target__register() {
+    _download_nuget
+
+    _build_step "Registering dotnet-test to NuGet package cache"
+        $nugetCachePath = Join-Path (Join-Path $env:HOME ".nuget") "packages"
+        $packageInstallFolder = Join-Path (Join-Path $nugetCachePath "dotnet-xunit") "99.99.99-dev"
+        if (Test-Path $packageInstallFolder) {
+            Remove-Item $packageInstallFolder -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        _exec ('& "' + $nugetExe + '" add artifacts\packages\dotnet-xunit.99.99.99-dev.nupkg -NonInteractive -Expand -Source "' + $nugetCachePath + '"')
 }
 
 function __target__setversion() {

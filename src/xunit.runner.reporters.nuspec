@@ -31,12 +31,12 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.runner.reporters\bin\Release\net452\xunit.runner.reporters.net452.dll" target="lib\net452\" />
+    <file src="xunit.runner.reporters\bin\$Configuration$\net452\xunit.runner.reporters.net452.dll" target="lib\net452\" />
 
-    <file src="xunit.runner.reporters\bin\Release\netstandard1.1\xunit.runner.reporters.netstandard11.dll" target="lib\netstandard1.1\" />
+    <file src="xunit.runner.reporters\bin\$Configuration$\netstandard1.1\xunit.runner.reporters.netstandard11.dll" target="lib\netstandard1.1\" />
 
-    <file src="xunit.runner.reporters\bin\Release\netstandard1.5\xunit.runner.reporters.netstandard15.dll" target="lib\netstandard1.5\" />
+    <file src="xunit.runner.reporters\bin\$Configuration$\netstandard1.5\xunit.runner.reporters.netstandard15.dll" target="lib\netstandard1.5\" />
 
-    <file src="xunit.runner.reporters\bin\Release\netcoreapp1.0\xunit.runner.reporters.netcoreapp10.dll" target="lib\netcoreapp1.0\" />
+    <file src="xunit.runner.reporters\bin\$Configuration$\netcoreapp1.0\xunit.runner.reporters.netcoreapp10.dll" target="lib\netcoreapp1.0\" />
   </files>
 </package>

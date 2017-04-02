@@ -23,10 +23,10 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.execution\bin\Release\net452\xunit.execution.desktop.dll" target="lib\net452\" />
-    <file src="xunit.execution\bin\Release\net452\xunit.execution.desktop.xml" target="lib\net452\" />
+    <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.dll" target="lib\net452\" />
+    <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.xml" target="lib\net452\" />
 
-    <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.execution\bin\Release\netstandard1.1\xunit.execution.dotnet.xml" target="lib\netstandard1.1\" />
+    <file src="xunit.execution\bin\$Configuration$\netstandard1.1\xunit.execution.dotnet.dll" target="lib\netstandard1.1\" />
+    <file src="xunit.execution\bin\$Configuration$\netstandard1.1\xunit.execution.dotnet.xml" target="lib\netstandard1.1\" />
   </files>
 </package>

@@ -13,11 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Meta", "Meta", "{3AD1513F-0
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Targets", "Targets", "{942F0424-C972-4983-8A66-B8EB64A28F23}"
-	ProjectSection(SolutionItems) = preProject
-		xunit.msbuild = xunit.msbuild
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Runners", "Runners", "{C11636E8-A3D7-4B0C-BC1E-2726B02A101F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Runners", "Runners", "{9D9F81DC-EE05-43B4-AF77-8EFE32024E82}"
@@ -33,6 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "v1", "v1", "{C86F3A8E-8D96-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{52472A94-ACC4-4C12-B9AA-0B6B12E12A48}"
 	ProjectSection(SolutionItems) = preProject
+		src\dotnet-xunit.nuspec = src\dotnet-xunit.nuspec
 		NuGet.Config = NuGet.Config
 		src\xunit.assert.nuspec = src\xunit.assert.nuspec
 		src\xunit.assert.source.nuspec = src\xunit.assert.source.nuspec
@@ -92,6 +88,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.runner.tdnet", "test\test.xunit.runner.tdnet\test.xunit.runner.tdnet.csproj", "{9277539B-8792-4D6D-8B52-DBE784EE3B3A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.xunit.runner.utility", "test\test.xunit.runner.utility\test.xunit.runner.utility.csproj", "{A605E559-074C-4693-B4A3-5F939EFCFC4B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-xunit", "src\dotnet-xunit\dotnet-xunit.csproj", "{786596B8-9EDB-4227-B1C6-12FABCB9E85A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -237,12 +235,19 @@ Global
 		{A605E559-074C-4693-B4A3-5F939EFCFC4B}.Release_x86|Any CPU.Build.0 = Release|Any CPU
 		{A605E559-074C-4693-B4A3-5F939EFCFC4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A605E559-074C-4693-B4A3-5F939EFCFC4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{786596B8-9EDB-4227-B1C6-12FABCB9E85A}.Debug_x86|Any CPU.ActiveCfg = Debug|Any CPU
+		{786596B8-9EDB-4227-B1C6-12FABCB9E85A}.Debug_x86|Any CPU.Build.0 = Debug|Any CPU
+		{786596B8-9EDB-4227-B1C6-12FABCB9E85A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{786596B8-9EDB-4227-B1C6-12FABCB9E85A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{786596B8-9EDB-4227-B1C6-12FABCB9E85A}.Release_x86|Any CPU.ActiveCfg = Release|Any CPU
+		{786596B8-9EDB-4227-B1C6-12FABCB9E85A}.Release_x86|Any CPU.Build.0 = Release|Any CPU
+		{786596B8-9EDB-4227-B1C6-12FABCB9E85A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{786596B8-9EDB-4227-B1C6-12FABCB9E85A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{942F0424-C972-4983-8A66-B8EB64A28F23} = {3AD1513F-07B7-4C14-AB10-83682616ACE5}
 		{C11636E8-A3D7-4B0C-BC1E-2726B02A101F} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
 		{9D9F81DC-EE05-43B4-AF77-8EFE32024E82} = {D013AD79-A261-4476-93FC-9AF7E637CDB6}
 		{A727699B-E50A-4F83-8627-8BE64237582C} = {DAED8494-AC8A-4C67-A8F1-616D95ECC302}
@@ -268,5 +273,6 @@ Global
 		{5123DDAC-E0D4-4009-8DE9-9F538D9611D5} = {AE42309B-BFBE-4253-8AD6-BBFD676152ED}
 		{9277539B-8792-4D6D-8B52-DBE784EE3B3A} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
 		{A605E559-074C-4693-B4A3-5F939EFCFC4B} = {AE42309B-BFBE-4253-8AD6-BBFD676152ED}
+		{786596B8-9EDB-4227-B1C6-12FABCB9E85A} = {C11636E8-A3D7-4B0C-BC1E-2726B02A101F}
 	EndGlobalSection
 EndGlobal

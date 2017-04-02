@@ -106,7 +106,7 @@ namespace Xunit.Sdk
 #if NET452
             return Environment.Version.ToString();
 #else
-            return "(unknown version)";
+            return "Standard";
 #endif
         }
 

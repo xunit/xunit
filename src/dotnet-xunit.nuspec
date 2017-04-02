@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>dotnet-xunit</id>
+    <version>99.99.99-dev</version>
+    <title>xUnit.net [Runner: .NET CLI SDK]</title>
+    <authors>James Newkirk,Brad Wilson</authors>
+    <summary>.NET CLI SDK runner for the xUnit.net framework.</summary>
+    <description>.NET CLI SDK runner </description>
+    <packageTypes>
+      <packageType name="DotnetCliTool" />
+    </packageTypes>
+    <dependencies>
+      <group targetFramework="netcoreapp1.0">
+        <dependency id="Microsoft.NETCore.App" version="1.0.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="dotnet-xunit/prefercliruntime" target="prefercliruntime" />
+
+    <file src="dotnet-xunit/bin/$Configuration$/netcoreapp1.0/publish/dotnet-xunit.dll"                        target="lib/netcoreapp1.0/" />
+    <file src="dotnet-xunit/bin/$Configuration$/netcoreapp1.0/publish/dotnet-xunit.runtimeconfig.json"         target="lib/netcoreapp1.0/" />
+
+    <file src="xunit.console/bin/$Configuration$/net452/win7-x86/xunit.abstractions.dll"            target="tools/net452/" />
+    <file src="xunit.console/bin/$Configuration$/net452/win7-x86/xunit.console.exe"                 target="tools/net452/" />
+    <file src="xunit.console/bin/$Configuration$/net452/win7-x86/xunit.console.exe.config"          target="tools/net452/" />
+    <file src="xunit.console/bin/$Configuration$_x86/net452/win7-x86/xunit.console.x86.exe"         target="tools/net452/" />
+    <file src="xunit.console/bin/$Configuration$_x86/net452/win7-x86/xunit.console.x86.exe.config"  target="tools/net452/" />
+    <file src="xunit.console/bin/$Configuration$/net452/win7-x86/xunit.runner.reporters.net452.dll" target="tools/net452/" />
+    <file src="xunit.console/bin/$Configuration$/net452/win7-x86/xunit.runner.utility.net452.dll"   target="tools/net452/" />
+
+    <file src="xunit.console/bin/$Configuration$/netcoreapp1.0/publish/xunit.abstractions.dll"                  target="tools/netcoreapp1.0/" />
+    <file src="xunit.console/bin/$Configuration$/netcoreapp1.0/publish/xunit.console.dll"                       target="tools/netcoreapp1.0/" />
+    <file src="xunit.console/bin/$Configuration$/netcoreapp1.0/publish/xunit.console.runtimeconfig.json"        target="tools/netcoreapp1.0/" />
+    <file src="xunit.console/bin/$Configuration$/netcoreapp1.0/publish/xunit.runner.reporters.netcoreapp10.dll" target="tools/netcoreapp1.0/" />
+    <file src="xunit.console/bin/$Configuration$/netcoreapp1.0/publish/xunit.runner.utility.netcoreapp10.dll"   target="tools/netcoreapp1.0/" />
+  </files>
+</package>

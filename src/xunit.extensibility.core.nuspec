@@ -26,10 +26,10 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.core\bin\Release\netstandard1.1\xunit.core.dll"                  target="lib\netstandard1.1\" />
-    <file src="xunit.core\bin\Release\netstandard1.1\xunit.core.dll.tdnet"            target="lib\netstandard1.1\" />
-    <file src="xunit.core\bin\Release\netstandard1.1\xunit.core.xml"                  target="lib\netstandard1.1\" />
-    <file src="xunit.runner.tdnet\bin\Release\net452\xunit.runner.tdnet.dll"          target="lib\netstandard1.1\" />
-    <file src="xunit.runner.tdnet\bin\Release\net452\xunit.runner.utility.net452.dll" target="lib\netstandard1.1\" />
+    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll"                  target="lib\netstandard1.1\" />
+    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll.tdnet"            target="lib\netstandard1.1\" />
+    <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml"                  target="lib\netstandard1.1\" />
+    <file src="xunit.runner.tdnet\bin\$Configuration$\net452\xunit.runner.tdnet.dll"          target="lib\netstandard1.1\" />
+    <file src="xunit.runner.tdnet\bin\$Configuration$\net452\xunit.runner.utility.net452.dll" target="lib\netstandard1.1\" />
   </files>
 </package>

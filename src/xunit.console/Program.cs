@@ -179,7 +179,7 @@ namespace Xunit.ConsoleClient
             var executableName = "dotnet xunit";
 #endif
 
-            Console.WriteLine("Copyright (C) 2016 .NET Foundation.");
+            Console.WriteLine("Copyright (C) .NET Foundation.");
             Console.WriteLine();
             Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
             Console.WriteLine();
@@ -228,6 +228,9 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
             Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
             Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
+#if NETCOREAPP1_0
+            Console.WriteLine("  -framework \"name\"      : set the target framework");
+#endif
             Console.WriteLine();
 
             var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();

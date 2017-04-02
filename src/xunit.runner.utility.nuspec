@@ -33,19 +33,19 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.runner.utility\bin\Release\net35\xunit.runner.utility.net35.dll" target="lib\net35\" />
-    <file src="xunit.runner.utility\bin\Release\net35\xunit.runner.utility.net35.xml" target="lib\net35\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\net35\xunit.runner.utility.net35.dll" target="lib\net35\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\net35\xunit.runner.utility.net35.xml" target="lib\net35\" />
 
-    <file src="xunit.runner.utility\bin\Release\net452\xunit.runner.utility.net452.dll" target="lib\net452\" />
-    <file src="xunit.runner.utility\bin\Release\net452\xunit.runner.utility.net452.xml" target="lib\net452\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\net452\xunit.runner.utility.net452.dll" target="lib\net452\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\net452\xunit.runner.utility.net452.xml" target="lib\net452\" />
 
-    <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.netstandard11.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.runner.utility\bin\Release\netstandard1.1\xunit.runner.utility.netstandard11.xml" target="lib\netstandard1.1\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.1\xunit.runner.utility.netstandard11.dll" target="lib\netstandard1.1\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.1\xunit.runner.utility.netstandard11.xml" target="lib\netstandard1.1\" />
 
-    <file src="xunit.runner.utility\bin\Release\netstandard1.5\xunit.runner.utility.netstandard15.dll" target="lib\netstandard1.5\" />
-    <file src="xunit.runner.utility\bin\Release\netstandard1.5\xunit.runner.utility.netstandard15.xml" target="lib\netstandard1.5\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.5\xunit.runner.utility.netstandard15.dll" target="lib\netstandard1.5\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.5\xunit.runner.utility.netstandard15.xml" target="lib\netstandard1.5\" />
 
-    <file src="xunit.runner.utility\bin\Release\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll" target="lib\netcoreapp1.0\" />
-    <file src="xunit.runner.utility\bin\Release\netcoreapp1.0\xunit.runner.utility.netcoreapp10.xml" target="lib\netcoreapp1.0\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll" target="lib\netcoreapp1.0\" />
+    <file src="xunit.runner.utility\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.xml" target="lib\netcoreapp1.0\" />
   </files>
 </package>

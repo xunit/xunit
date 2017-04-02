@@ -15,12 +15,12 @@
     <developmentDependency>true</developmentDependency>
   </metadata>
   <files>
-    <file src="xunit.console\*.xslt"                                                      target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.abstractions.dll"            target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.reporters.net452.dll" target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.utility.net452.dll"   target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\Release\net452\xunit.runner.msbuild.dll"          target="build\net452\" />
-    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"                     target="build\net452\" />
-    <file src="build\_._"                                                                 target="lib\net452\_._" />
+    <file src="xunit.console\*.xslt"                                                              target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.abstractions.dll"            target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.reporters.net452.dll" target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.utility.net452.dll"   target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.msbuild.dll"          target="build\net452\" />
+    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"                             target="build\net452\" />
+    <file src="build\_._"                                                                         target="lib\net452\_._" />
   </files>
 </package>

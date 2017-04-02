@@ -20,10 +20,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.assert\bin\Release\netstandard1.1\xunit.assert.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.assert\bin\Release\netstandard1.1\xunit.assert.xml" target="lib\netstandard1.1\" />
-
-    <file src="common\GlobalAssemblyInfo.cs" target="src\common\" />
-    <file src="xunit.assert\**\*.cs"         target="src\xunit.assert\" />
+    <file src="xunit.assert\bin\$Configuration$\netstandard1.1\xunit.assert.dll" target="lib\netstandard1.1\" />
+    <file src="xunit.assert\bin\$Configuration$\netstandard1.1\xunit.assert.xml" target="lib\netstandard1.1\" />
   </files>
 </package>
