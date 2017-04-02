@@ -12,9 +12,10 @@ class Program
     static Version Version452 = new Version("4.5.2");
 
     string Configuration;
-    bool Diagnostics;
     bool Force32bit;
     string FxVersion;
+    bool InternalDiagnostics;
+    bool NoColor;
     Dictionary<string, string> ParsedArgs;
 
     static int Main(string[] args)
@@ -36,18 +37,21 @@ class Program
             {
                 ParsedArgs = ArgParser.Parse(args);
 
-                if (ParsedArgs.TryGetValue("-x86", out var _))
+                if (ParsedArgs.TryGetAndRemoveParameterWithoutValue("-x86"))
                 {
                     Force32bit = true;
                     ParsedArgs.Remove("-x86");
                 }
 
-                if (ParsedArgs.TryGetValue("-diagnostics", out var _))
-                    Diagnostics = true;
+                if (ParsedArgs.TryGetParameterWithoutValue("-internaldiagnostics"))
+                    InternalDiagnostics = true;
 
-                requestedTargetFramework = ParsedArgs.TryGetValueAndRemove("-framework");
-                Configuration = ParsedArgs.TryGetValueAndRemove("-configuration") ?? "Debug";
-                FxVersion = ParsedArgs.TryGetValueAndRemove("-fxversion");
+                if (ParsedArgs.TryGetParameterWithoutValue("-nocolor"))
+                    NoColor = true;
+
+                requestedTargetFramework = ParsedArgs.GetAndRemoveParameterWithValue("-framework");
+                Configuration = ParsedArgs.GetAndRemoveParameterWithValue("-configuration") ?? "Debug";
+                FxVersion = ParsedArgs.GetAndRemoveParameterWithValue("-fxversion");
 
                 // Need to amend the paths for the report output, since we are always running
                 // in the context of the bin folder, not the project folder
@@ -395,25 +399,29 @@ class Program
     string ToArgumentsString(Dictionary<string, string> parsedArgs)
         => string.Join(" ", parsedArgs.Select(kvp => kvp.Value == null ? kvp.Key : $"{kvp.Key} \"{kvp.Value}\""));
 
-    static void WriteLine(string message)
+    void WriteLine(string message)
         => WriteLineWithColor(ConsoleColor.White, message);
 
     void WriteLineDiagnostics(string message)
     {
-        if (Diagnostics)
+        if (InternalDiagnostics)
             WriteLineWithColor(ConsoleColor.DarkGray, message);
     }
 
-    static void WriteLineError(string message)
+    void WriteLineError(string message)
         => WriteLineWithColor(ConsoleColor.Red, message, Console.Error);
 
-    static void WriteLineWarning(string message)
+    void WriteLineWarning(string message)
         => WriteLineWithColor(ConsoleColor.Yellow, message);
 
-    static void WriteLineWithColor(ConsoleColor color, string message, TextWriter writer = null)
+    void WriteLineWithColor(ConsoleColor color, string message, TextWriter writer = null)
     {
-        Console.ForegroundColor = color;
+        if (!NoColor)
+            Console.ForegroundColor = color;
+
         (writer ?? Console.Out).WriteLine(message);
-        Console.ResetColor();
+
+        if (!NoColor)
+            Console.ResetColor();
     }
 }
