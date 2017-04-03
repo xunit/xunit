@@ -295,6 +295,7 @@ namespace Xunit.ConsoleClient
                 }
 
                 clockTime.Stop();
+                assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
 
                 if (assembliesElement != null)
                     assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
