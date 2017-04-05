@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Xunit</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" />

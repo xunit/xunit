@@ -13,14 +13,26 @@ namespace Xunit.ConsoleClient
 {
     public class Program
     {
-        volatile static bool cancel;
-        static readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
-        static bool failed;
-        static IRunnerLogger logger;
-        static IMessageSinkWithTypes reporterMessageHandler;
+        volatile bool cancel;
+        readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
+        bool failed;
+        IRunnerLogger logger;
+        IMessageSinkWithTypes reporterMessageHandler;
 
         [STAThread]
         public static int Main(string[] args)
+        {
+#if NETCOREAPP1_0
+            using (NetCoreAssemblyHelper.SubscribeResolve())
+#else
+            using (AssemblyHelper.SubscribeResolve())
+#endif
+            {
+                return new Program().EntryPoint(args);
+            }
+        }
+
+        public int EntryPoint(string[] args)
         {
             try
             {
@@ -94,7 +106,7 @@ namespace Xunit.ConsoleClient
             }
         }
 
-        static List<IRunnerReporter> GetAvailableRunnerReporters()
+        List<IRunnerReporter> GetAvailableRunnerReporters()
         {
             var result = new List<IRunnerReporter>();
 
@@ -145,7 +157,7 @@ namespace Xunit.ConsoleClient
         }
 
 #if NET452
-        static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var ex = e.ExceptionObject as Exception;
 
@@ -158,7 +170,7 @@ namespace Xunit.ConsoleClient
         }
 #endif
 
-        static void PrintHeader()
+        void PrintHeader()
         {
 #if NET452
             var platform = $"Desktop .NET {Environment.Version}";
@@ -171,7 +183,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine($"xUnit.net Console Runner ({IntPtr.Size * 8}-bit {platform})");
         }
 
-        static void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
+        void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
         {
 #if NET452
             var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
@@ -250,7 +262,7 @@ namespace Xunit.ConsoleClient
             );
         }
 
-        static int RunProject(XunitProject project,
+        int RunProject(XunitProject project,
                               bool serialize,
                               bool? parallelizeAssemblies,
                               bool? parallelizeTestCollections,
@@ -275,33 +287,30 @@ namespace Xunit.ConsoleClient
 
             var originalWorkingFolder = Directory.GetCurrentDirectory();
 
-            using (AssemblyHelper.SubscribeResolve())
+            if (parallelizeAssemblies.GetValueOrDefault())
             {
-                if (parallelizeAssemblies.GetValueOrDefault())
+                var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters, internalDiagnosticMessages)));
+                var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
+                foreach (var assemblyElement in results.Where(result => result != null))
+                    assembliesElement.Add(assemblyElement);
+            }
+            else
+            {
+                foreach (var assembly in project.Assemblies)
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters, internalDiagnosticMessages)));
-                    var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
-                    foreach (var assemblyElement in results.Where(result => result != null))
+                    var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters, internalDiagnosticMessages);
+                    if (assemblyElement != null)
                         assembliesElement.Add(assemblyElement);
                 }
-                else
-                {
-                    foreach (var assembly in project.Assemblies)
-                    {
-                        var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters, internalDiagnosticMessages);
-                        if (assemblyElement != null)
-                            assembliesElement.Add(assemblyElement);
-                    }
-                }
-
-                clockTime.Stop();
-
-                if (assembliesElement != null)
-                    assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-
-                if (completionMessages.Count > 0)
-                    reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, completionMessages.OrderBy(kvp => kvp.Key).ToList()));
             }
+
+            clockTime.Stop();
+
+            if (assembliesElement != null)
+                assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
+
+            if (completionMessages.Count > 0)
+                reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, completionMessages.OrderBy(kvp => kvp.Key).ToList()));
 
             Directory.SetCurrentDirectory(originalWorkingFolder);
 
@@ -310,7 +319,7 @@ namespace Xunit.ConsoleClient
             return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
         }
 
-        static XElement ExecuteAssembly(object consoleLock,
+        XElement ExecuteAssembly(object consoleLock,
                                         XunitProjectAssembly assembly,
                                         bool serialize,
                                         bool needsXml,
@@ -403,6 +412,9 @@ namespace Xunit.ConsoleClient
                 while (e != null)
                 {
                     Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
+#if DEBUG
+                    Console.WriteLine(e.StackTrace);
+#endif
                     e = e.InnerException;
                 }
             }
@@ -410,7 +422,7 @@ namespace Xunit.ConsoleClient
             return assemblyElement;
         }
 
-        static bool ValidateFileExists(object consoleLock, string fileName)
+        bool ValidateFileExists(object consoleLock, string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
                 return true;

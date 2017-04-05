@@ -17,6 +17,9 @@
     <EmbeddedResource Include="NUnitXml.xslt" />
     <EmbeddedResource Include="xUnit1.xslt" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
+    <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.reporters\xunit.runner.reporters.csproj" />
   </ItemGroup>

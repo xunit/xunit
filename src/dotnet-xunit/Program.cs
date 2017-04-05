@@ -183,7 +183,7 @@ class Program
         Console.WriteLine("xUnit.net .NET CLI Console Runner");
         Console.WriteLine("Copyright (C) .NET Foundation.");
         Console.WriteLine();
-        Console.WriteLine("usage: dotnet xunit [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
+        Console.WriteLine("usage: dotnet xunit [configFile] [options] [reporter] [resultFormat filename [...]]");
         Console.WriteLine();
         Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
         Console.WriteLine("      XML configuration files are only supported on net4x frameworks");
@@ -367,11 +367,7 @@ class Program
         if (!Directory.Exists(consoleFolder))
             consoleFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisAssemblyPath), "..", "..", "..", "..", "xunit.console", "bin", "Debug", "netcoreapp1.0"));
 
-        foreach (var sourceFile in Directory.EnumerateFiles(consoleFolder))
-        {
-            var destinationFile = Path.Combine(outputPath, Path.GetFileName(sourceFile));
-            File.Copy(sourceFile, destinationFile, true);
-        }
+        var runner = Path.Combine(consoleFolder, "xunit.console.dll");
 
         var dotnetArguments = "exec";
         if (File.Exists(Path.Combine(outputPath, assemblyName + ".deps.json")))
@@ -384,7 +380,7 @@ class Program
         var psi = new ProcessStartInfo
         {
             FileName = DotNetMuxer.MuxerPath,
-            Arguments = $@"{dotnetArguments} xunit.console.dll ""{targetFileName}"" {extraArgs}",
+            Arguments = $@"{dotnetArguments} ""{runner}"" ""{targetFileName}"" {extraArgs}",
             WorkingDirectory = outputPath
         };
 
