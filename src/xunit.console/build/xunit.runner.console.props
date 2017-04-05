@@ -1,0 +1,8 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>		
+		<XunitConsolePath>$(MSBuildThisFileDirectory)..\tools\xunit.console.exe</XunitConsolePath>
+		<XunitConsolePathX86>$(MSBuildThisFileDirectory)..\tools\xunit.console.x86.exe</XunitConsolePathX86>
+	</PropertyGroup>
+	
+</Project>
