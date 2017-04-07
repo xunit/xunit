@@ -195,10 +195,8 @@ class Program
         Console.WriteLine("  -nocolor               : do not output results with colors");
         Console.WriteLine("  -failskips             : convert skipped tests into failures");
         Console.WriteLine("  -parallel option       : set parallelization based on option");
-        Console.WriteLine("                         :   none        - turn off all parallelization");
-        Console.WriteLine("                         :   collections - only parallelize collections");
-        Console.WriteLine("                         :   assemblies  - only parallelize assemblies");
-        Console.WriteLine("                         :   all         - parallelize assemblies & collections");
+        Console.WriteLine("                         :   none        - turn off parallelization");
+        Console.WriteLine("                         :   collections - parallelize test collections");
         Console.WriteLine("  -maxthreads count      : maximum thread count for collection parallelization");
         Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
         Console.WriteLine("                         :   unlimited - run with unbounded thread count");
