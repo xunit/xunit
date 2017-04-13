@@ -10,16 +10,19 @@ namespace Xunit.Sdk
     /// </summary>
     public class FactDiscoverer : IXunitTestCaseDiscoverer
     {
-        readonly IMessageSink diagnosticMessageSink;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="FactDiscoverer"/> class.
         /// </summary>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         public FactDiscoverer(IMessageSink diagnosticMessageSink)
         {
-            this.diagnosticMessageSink = diagnosticMessageSink;
+            DiagnosticMessageSink = diagnosticMessageSink;
         }
+
+        /// <summary>
+        /// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
+        /// </summary>
+        protected IMessageSink DiagnosticMessageSink { get; }
 
         /// <summary>
         /// Creates a single <see cref="XunitTestCase"/> for the given test method.
@@ -29,7 +32,7 @@ namespace Xunit.Sdk
         /// <param name="factAttribute">The attribute that decorates the test method.</param>
         /// <returns></returns>
         protected virtual IXunitTestCase CreateTestCase(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
-            => new XunitTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
+            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
 
         /// <summary>
         /// Discover test cases from a test method. By default, if the method is generic, or
@@ -45,9 +48,9 @@ namespace Xunit.Sdk
             IXunitTestCase testCase;
 
             if (testMethod.Method.GetParameters().Any())
-                testCase = new ExecutionErrorTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
+                testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
             else if (testMethod.Method.IsGenericMethodDefinition)
-                testCase = new ExecutionErrorTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to be generic.");
+                testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to be generic.");
             else
                 testCase = CreateTestCase(discoveryOptions, testMethod, factAttribute);
 

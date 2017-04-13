@@ -16,8 +16,6 @@ namespace Xunit.Sdk
     [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
     public class XunitTestCase : TestMethodTestCase, IXunitTestCase
     {
-        readonly IMessageSink diagnosticMessageSink;
-
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
@@ -25,7 +23,7 @@ namespace Xunit.Sdk
         {
             // No way for us to get access to the message sink on the execution deserialization path, but that should
             // be okay, because we assume all the issues were reported during discovery.
-            diagnosticMessageSink = new NullMessageSink();
+            DiagnosticMessageSink = new NullMessageSink();
         }
 
         /// <summary>
@@ -41,8 +39,13 @@ namespace Xunit.Sdk
                              object[] testMethodArguments = null)
             : base(defaultMethodDisplay, testMethod, testMethodArguments)
         {
-            this.diagnosticMessageSink = diagnosticMessageSink;
+            DiagnosticMessageSink = diagnosticMessageSink;
         }
+
+        /// <summary>
+        /// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
+        /// </summary>
+        protected IMessageSink DiagnosticMessageSink { get; }
 
         /// <summary>
         /// Gets the display name for the test case. Calls <see cref="TypeUtility.GetDisplayNameWithArguments"/>
@@ -80,13 +83,13 @@ namespace Xunit.Sdk
                 var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
                 if (discovererAttribute != null)
                 {
-                    var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(diagnosticMessageSink, discovererAttribute);
+                    var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(DiagnosticMessageSink, discovererAttribute);
                     if (discoverer != null)
                         foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
                             Traits.Add(keyValuePair.Key, keyValuePair.Value);
                 }
                 else
-                    diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]"));
+                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Trait attribute on '{DisplayName}' did not have [TraitDiscoverer]"));
             }
         }
 

@@ -17,7 +17,6 @@ namespace Xunit.Sdk
 
         readonly ExceptionAggregator cleanupAggregator = new ExceptionAggregator();
         Exception dataDiscoveryException;
-        readonly IMessageSink diagnosticMessageSink;
         readonly List<XunitTestRunner> testRunners = new List<XunitTestRunner>();
         readonly List<IDisposable> toDispose = new List<IDisposable>();
 
@@ -42,8 +41,13 @@ namespace Xunit.Sdk
                                          CancellationTokenSource cancellationTokenSource)
             : base(testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
         {
-            this.diagnosticMessageSink = diagnosticMessageSink;
+            DiagnosticMessageSink = diagnosticMessageSink;
         }
+
+        /// <summary>
+        /// Gets the message sink used to report <see cref="IDiagnosticMessage"/> messages.
+        /// </summary>
+        protected IMessageSink DiagnosticMessageSink { get; }
 
         /// <inheritdoc/>
         protected override async Task AfterTestCaseStartingAsync()
@@ -61,9 +65,7 @@ namespace Xunit.Sdk
                     var discovererType = SerializationHelper.GetType(args[1], args[0]);
                     if (discovererType == null)
                     {
-                        var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
-
-                        if (reflectionAttribute != null)
+                        if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
                             Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
                         else
                             Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not exist."));
@@ -74,13 +76,11 @@ namespace Xunit.Sdk
                     IDataDiscoverer discoverer;
                     try
                     {
-                        discoverer = ExtensibilityPointFactory.GetDataDiscoverer(diagnosticMessageSink, discovererType);
+                        discoverer = ExtensibilityPointFactory.GetDataDiscoverer(DiagnosticMessageSink, discovererType);
                     }
                     catch (InvalidCastException)
                     {
-                        var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
-
-                        if (reflectionAttribute != null)
+                        if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
                             Aggregator.Add(new InvalidOperationException($"Data discoverer specified for {reflectionAttribute.Attribute.GetType()} on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
                         else
                             Aggregator.Add(new InvalidOperationException($"A data discoverer specified on {TestCase.TestMethod.TestClass.Class.Name}.{TestCase.TestMethod.Method.Name} does not implement IDataDiscoverer."));
@@ -113,9 +113,9 @@ namespace Xunit.Sdk
                         convertedDataRow = Reflector.ConvertArguments(convertedDataRow, parameterTypes);
 
                         var theoryDisplayName = TestCase.TestMethod.Method.GetDisplayNameWithArguments(DisplayName, convertedDataRow, resolvedTypes);
-                        var test = new XunitTest(TestCase, theoryDisplayName);
+                        var test = CreateTest(TestCase, theoryDisplayName);
                         var skipReason = SkipReason ?? dataAttribute.GetNamedArgument<string>("Skip");
-                        testRunners.Add(new XunitTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
+                        testRunners.Add(CreateTestRunner(test, MessageBus, TestClass, ConstructorArguments, methodToRun, convertedDataRow, skipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource));
                     }
                 }
             }

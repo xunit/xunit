@@ -19,7 +19,6 @@ namespace Xunit.Sdk
         public static readonly string DisplayName = string.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", new object[] { typeof(XunitTestFrameworkDiscoverer).GetTypeInfo().Assembly.GetName().Version });
 
         readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
-        readonly Dictionary<Type, Type> discovererTypeCache = new Dictionary<Type, Type>(); // key is a Type that is or derives from FactAttribute
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
@@ -46,6 +45,11 @@ namespace Xunit.Sdk
             TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(diagnosticMessageSink, collectionBehaviorAttribute, testAssembly);
             TestFrameworkDisplayName = $"{DisplayName} [{TestCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}]";
         }
+
+        /// <summary>
+        /// Gets the mapping dictionary of fact attribute type to discoverer type.
+        /// </summary>
+        protected Dictionary<Type, Type> DiscovererTypeCache { get; } = new Dictionary<Type, Type>(); // key is a Type that is or derives from FactAttribute
 
         /// <summary>
         /// Gets the test collection factory that makes test collections.
@@ -83,7 +87,7 @@ namespace Xunit.Sdk
             var factAttributeType = (factAttribute as IReflectionAttributeInfo)?.Attribute.GetType();
 
             Type discovererType = null;
-            if (factAttributeType == null || !discovererTypeCache.TryGetValue(factAttributeType, out discovererType))
+            if (factAttributeType == null || !DiscovererTypeCache.TryGetValue(factAttributeType, out discovererType))
             {
                 var testCaseDiscovererAttribute = factAttribute.GetCustomAttributes(typeof(XunitTestCaseDiscovererAttribute)).FirstOrDefault();
                 if (testCaseDiscovererAttribute != null)
@@ -93,7 +97,7 @@ namespace Xunit.Sdk
                 }
 
                 if (factAttributeType != null)
-                    discovererTypeCache[factAttributeType] = discovererType;
+                    DiscovererTypeCache[factAttributeType] = discovererType;
 
             }
             if (discovererType == null)
@@ -131,9 +135,8 @@ namespace Xunit.Sdk
         /// <returns>Returns the test case discoverer instance.</returns>
         protected IXunitTestCaseDiscoverer GetDiscoverer(Type discovererType)
         {
-            IXunitTestCaseDiscoverer result;
 
-            if (!discovererCache.TryGetValue(discovererType, out result))
+            if (!discovererCache.TryGetValue(discovererType, out IXunitTestCaseDiscoverer result))
             {
                 try
                 {

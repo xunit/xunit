@@ -13,7 +13,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestCaseRunner : TestCaseRunner<IXunitTestCase>
     {
-        readonly List<BeforeAfterTestAttribute> beforeAfterAttributes;
+        List<BeforeAfterTestAttribute> beforeAfterAttributes;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCaseRunner"/> class.
@@ -47,29 +47,23 @@ namespace Xunit.Sdk
             var parameterTypes = new Type[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
                 parameterTypes[i] = parameters[i].ParameterType;
-            
+
             TestMethodArguments = Reflector.ConvertArguments(testMethodArguments, parameterTypes);
-
-            IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
-            var collectionDefinition = testCase.TestMethod.TestClass.TestCollection.CollectionDefinition as IReflectionTypeInfo;
-            if (collectionDefinition != null)
-                beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute));
-            else
-                beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();
-
-            beforeAfterAttributes =
-                beforeAfterTestCollectionAttributes
-                         .Concat(TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-                         .Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-                         .Cast<BeforeAfterTestAttribute>()
-                         .ToList();
         }
 
         /// <summary>
         /// Gets the list of <see cref="BeforeAfterTestAttribute"/>s that will be used for this test case.
         /// </summary>
         public IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
-            => beforeAfterAttributes;
+        {
+            get
+            {
+                if (beforeAfterAttributes == null)
+                    beforeAfterAttributes = GetBeforeAfterTestAttributes();
+
+                return beforeAfterAttributes;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the arguments passed to the test class constructor
@@ -101,8 +95,48 @@ namespace Xunit.Sdk
         /// </summary>
         protected object[] TestMethodArguments { get; set; }
 
+        /// <summary>
+        /// Creates the <see cref="ITest"/> instance for the given test case.
+        /// </summary>
+        protected virtual ITest CreateTest(IXunitTestCase testCase, string displayName)
+            => new XunitTest(testCase, displayName);
+
+        /// <summary>
+        /// Creates the test runner used to run the given test.
+        /// </summary>
+        protected virtual XunitTestRunner CreateTestRunner(ITest test,
+                                                           IMessageBus messageBus,
+                                                           Type testClass,
+                                                           object[] constructorArguments,
+                                                           MethodInfo testMethod,
+                                                           object[] testMethodArguments,
+                                                           string skipReason,
+                                                           IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
+                                                           ExceptionAggregator aggregator,
+                                                           CancellationTokenSource cancellationTokenSource)
+            => new XunitTestRunner(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments,
+                                   skipReason, beforeAfterAttributes, new ExceptionAggregator(aggregator), cancellationTokenSource);
+
+        /// <summary>
+        /// Gets the list of <see cref="BeforeAfterTestAttribute"/> attributes that apply to this test case.
+        /// </summary>
+        protected virtual List<BeforeAfterTestAttribute> GetBeforeAfterTestAttributes()
+        {
+            IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
+            if (TestCase.TestMethod.TestClass.TestCollection.CollectionDefinition is IReflectionTypeInfo collectionDefinition)
+                beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute));
+            else
+                beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();
+
+            return beforeAfterTestCollectionAttributes.Concat(TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+                                                      .Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+                                                      .Cast<BeforeAfterTestAttribute>()
+                                                      .ToList();
+        }
+
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestAsync()
-            => new XunitTestRunner(new XunitTest(TestCase, DisplayName), MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, SkipReason, beforeAfterAttributes, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
+            => CreateTestRunner(CreateTest(TestCase, DisplayName), MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments,
+                                SkipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource).RunAsync();
     }
 }
