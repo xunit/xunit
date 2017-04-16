@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 class Program
 {
@@ -331,6 +332,23 @@ class Program
         }
     }
 
+    ProcessStartInfo CheckForMono(ProcessStartInfo psi)
+    {
+        // Depend on desktop CLR on Windows
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return psi;
+
+        psi.Arguments = "\"" + psi.FileName + "\" " + psi.Arguments;
+
+        // By default, OS X uses 32-bit Mono
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !Force32bit)
+            psi.FileName = "mono64";
+        else
+            psi.FileName = "mono";
+
+        return psi;
+    }
+
     int RunDesktopProject(string outputPath, string targetFileName, string extraArgs)
     {
         var thisAssemblyPath = typeof(Program).GetTypeInfo().Assembly.Location;
@@ -341,12 +359,12 @@ class Program
             consoleFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisAssemblyPath), "..", "..", "..", "..", "xunit.console", "bin", "Debug", "net452", "win7-x86"));
 
         var executableName = Force32bit ? "xunit.console.x86.exe" : "xunit.console.exe";
-        var psi = new ProcessStartInfo
+        var psi = CheckForMono(new ProcessStartInfo
         {
             FileName = Path.Combine(consoleFolder, executableName),
             Arguments = $@"""{targetFileName}"" {extraArgs}",
             WorkingDirectory = outputPath
-        };
+        });
 
         WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
 
