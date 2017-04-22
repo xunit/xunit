@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 static class DictionaryExtensions
 {
-    public static string GetAndRemoveParameterWithValue(this Dictionary<string, string> dictionary, string key)
+    public static string GetAndRemoveParameterWithValue(this Dictionary<string, List<string>> dictionary, string key)
     {
-        if (dictionary.TryGetValue(key, out var result))
+        if (dictionary.TryGetSingleValue(key, out var result))
         {
             if (result == null)
                 throw new ArgumentException($"Missing value for option '{key}'");
@@ -16,9 +16,9 @@ static class DictionaryExtensions
         return result;
     }
 
-    public static bool TryGetAndRemoveParameterWithoutValue(this Dictionary<string, string> dictionary, string key)
+    public static bool TryGetAndRemoveParameterWithoutValue(this Dictionary<string, List<string>> dictionary, string key)
     {
-        if (dictionary.TryGetValue(key, out var result))
+        if (dictionary.TryGetSingleValue(key, out var result))
         {
             if (result != null)
                 throw new ArgumentException($"Option '{key}' should not have a value");
@@ -30,9 +30,9 @@ static class DictionaryExtensions
         return false;
     }
 
-    public static bool TryGetParameterWithoutValue(this Dictionary<string, string> dictionary, string key)
+    public static bool TryGetParameterWithoutValue(this Dictionary<string, List<string>> dictionary, string key)
     {
-        if (dictionary.TryGetValue(key, out var result))
+        if (dictionary.TryGetSingleValue(key, out var result))
         {
             if (result != null)
                 throw new ArgumentException($"Option '{key}' should not have a value");
@@ -41,5 +41,19 @@ static class DictionaryExtensions
         }
 
         return false;
+    }
+
+    public static bool TryGetSingleValue(this Dictionary<string, List<string>> dictionary, string key, out string value)
+    {
+        value = null;
+
+        if (!dictionary.TryGetValue(key, out var values))
+            return false;
+
+        if (values.Count > 1)
+            throw new ArgumentException($"Option '{key}' cannot be set more than once");
+
+        value = values[0];
+        return true;
     }
 }

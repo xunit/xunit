@@ -16,7 +16,7 @@ class Program
     string FxVersion;
     bool InternalDiagnostics;
     bool NoColor;
-    Dictionary<string, string> ParsedArgs;
+    Dictionary<string, List<string>> ParsedArgs;
 
     static int Main(string[] args)
         => new Program().Execute(args);
@@ -57,8 +57,8 @@ class Program
                 // in the context of the bin folder, not the project folder
                 var currentDirectory = Directory.GetCurrentDirectory();
                 foreach (var key in OutputFileArgs)
-                    if (ParsedArgs.TryGetValue(key, out var fileName))
-                        ParsedArgs[key] = Path.GetFullPath(Path.Combine(currentDirectory, fileName));
+                    if (ParsedArgs.TryGetSingleValue(key, out var fileName))
+                        ParsedArgs[key][0] = Path.GetFullPath(Path.Combine(currentDirectory, fileName));
             }
             catch (ArgumentException ex)
             {
@@ -256,10 +256,10 @@ class Program
 
         if (amendOutputFileNames)
         {
-            var amendedParsedArgs = new Dictionary<string, string>(ParsedArgs);
+            var amendedParsedArgs = ParsedArgs.ToDictionary(kvp => kvp.Key, kvp => new List<string>(kvp.Value));
             foreach (var key in OutputFileArgs)
-                if (amendedParsedArgs.TryGetValue(key, out var filePath))
-                    amendedParsedArgs[key] = Path.Combine(Path.GetDirectoryName(filePath), $"{Path.GetFileNameWithoutExtension(filePath)}-{targetFramework}{Path.GetExtension(filePath)}");
+                if (amendedParsedArgs.TryGetSingleValue(key, out var filePath))
+                    amendedParsedArgs[key][0] = Path.Combine(Path.GetDirectoryName(filePath), $"{Path.GetFileNameWithoutExtension(filePath)}-{targetFramework}{Path.GetExtension(filePath)}");
             extraArgs = ToArgumentsString(amendedParsedArgs);
         }
         else
@@ -390,8 +390,8 @@ class Program
         return runTests.ExitCode;
     }
 
-    string ToArgumentsString(Dictionary<string, string> parsedArgs)
-        => string.Join(" ", parsedArgs.Select(kvp => kvp.Value == null ? kvp.Key : $"{kvp.Key} \"{kvp.Value}\""));
+    string ToArgumentsString(Dictionary<string, List<string>> parsedArgs)
+        => string.Join(" ", parsedArgs.SelectMany(kvp => kvp.Value.Select(value => value == null ? kvp.Key : $"{kvp.Key} \"{value}\"")));
 
     void WriteLine(string message)
         => WriteLineWithColor(ConsoleColor.White, message);
