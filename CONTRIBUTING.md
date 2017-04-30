@@ -15,3 +15,7 @@ Please note that this project is released with a [Contributor Code of Conduct](h
 * Did you read the [project governance](https://xunit.github.io/governance.html)?
 * Does the code follow existing coding styles? (spaces, comments, no regions, etc.)?
 * Did you write unit tests?
+
+# Looking for something to work on?
+
+Documentation is always in need of help. Look at our [up-for-grabs issues for the documentation site](https://github.com/xunit/xunit/issues?q=is%3Aopen%20label%3A%22%5Bs%5D%20Up%20For%20Grabs%22%20label%3A%22%5Ba%5D%20xunit.github.io%22) to find something to contribute!
