@@ -291,7 +291,7 @@ namespace Xunit.Runners
         bool DispatchMessage<TMessage>(IMessageSinkMessage message, HashSet<string> messageTypes, Action<TMessage> handler)
             where TMessage : class
         {
-            if (messageTypes != null && MessageTypeNames.TryGetValue(typeof(TMessage), out var typeName) && messageTypes.Contains(typeName))
+            if (messageTypes == null || !MessageTypeNames.TryGetValue(typeof(TMessage), out var typeName) || !messageTypes.Contains(typeName))
                 return false;
 
             handler((TMessage)message);
