@@ -93,8 +93,7 @@ class Program
             }
 
             ThisAssemblyPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
-            BuildStdProps = $"\"/p:_Xunit_ImportPropsFile={Path.Combine(ThisAssemblyPath, "import.props")}\" " +
-                            $"\"/p:_Xunit_ImportTargetsFile={Path.Combine(ThisAssemblyPath, "import.targets")}\" " +
+            BuildStdProps = $"\"/p:_Xunit_ImportTargetsFile={Path.Combine(ThisAssemblyPath, "import.targets")}\" " +
                             $"/p:Configuration={Configuration}";
 
             var returnValue = 0;

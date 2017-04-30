@@ -26,7 +26,6 @@
 
     <file src="dotnet-xunit/bin/$Configuration$/netcoreapp1.0/publish/dotnet-xunit.dll"                        target="lib/netcoreapp1.0/" />
     <file src="dotnet-xunit/bin/$Configuration$/netcoreapp1.0/publish/dotnet-xunit.runtimeconfig.json"         target="lib/netcoreapp1.0/" />
-    <file src="dotnet-xunit/bin/$Configuration$/netcoreapp1.0/publish/import.props"                            target="lib/netcoreapp1.0/" />
     <file src="dotnet-xunit/bin/$Configuration$/netcoreapp1.0/publish/import.targets"                          target="lib/netcoreapp1.0/" />
 
     <file src="xunit.console/bin/$Configuration$/net452/win7-x86/xunit.abstractions.dll"            target="tools/net452/" />

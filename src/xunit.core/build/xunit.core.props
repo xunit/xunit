@@ -3,6 +3,17 @@
   <!-- Support for importing props via the runner -->
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
 
+  <!-- Ensure binary folders are fully populated -->
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyNuGetImplementations>true</CopyNuGetImplementations>
+    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">Full</DebugType>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+  </PropertyGroup>
+
   <!-- Support for UAP (needs a copy of xunit.execution.desktop.dll because of legacy discovery in VSTest) -->
   <PropertyGroup Condition=" '$(TargetFramework)' != '' ">
     <_Xunit_TargetFrameworkPrefix>$(TargetFramework.TrimEnd('.0123456789'))</_Xunit_TargetFrameworkPrefix>
