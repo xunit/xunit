@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Support for importing props via the runner -->
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
 
