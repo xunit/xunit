@@ -1,25 +1,23 @@
-﻿#if NET35 || NET452
+﻿#if !NETSTANDARD1_1
 
 using System;
 
 namespace Xunit
 {
-    // This class wraps DiaSession, and uses DiaSessionWrapperHelper in the testing app domain to help us
+    // This class wraps DiaSession, and uses DiaSessionWrapperHelper to help us
     // discover when a test is an async test (since that requires special handling by DIA).
     class DiaSessionWrapper : IDisposable
     {
-        readonly AppDomainManager_AppDomain appDomainManager;
-        readonly DiaSessionWrapperHelper helper;
         readonly DiaSession session;
+
+#if NETSTANDARD1_5 || NETCOREAPP1_0
+        readonly DiaSessionWrapperHelper helper;
 
         public DiaSessionWrapper(string assemblyFilename)
         {
             session = new DiaSession(assemblyFilename);
 
-            var assemblyFileName = typeof(DiaSessionWrapperHelper).Assembly.GetLocalCodeBase();
-
-            appDomainManager = new AppDomainManager_AppDomain(assemblyFileName, null, true, null);
-            helper = appDomainManager.CreateObject<DiaSessionWrapperHelper>(typeof(DiaSessionWrapperHelper).Assembly.GetName(), typeof(DiaSessionWrapperHelper).FullName, assemblyFilename);
+            helper = new DiaSessionWrapperHelper(assemblyFilename);
         }
 
         public DiaNavigationData GetNavigationData(string typeName, string methodName)
@@ -28,12 +26,17 @@ namespace Xunit
             helper.Normalize(ref typeName, ref methodName, ref owningAssemblyFilename);
             return session.GetNavigationData(typeName, methodName, owningAssemblyFilename);
         }
+#else
+        public DiaSessionWrapper(string assemblyFilename)
+            => session = new DiaSession(assemblyFilename);
+
+        public DiaNavigationData GetNavigationData(string typeName, string methodName, string owningAssemblyFileName)
+            => session.GetNavigationData(typeName, methodName, owningAssemblyFileName);
+#endif
 
         public void Dispose()
-        {
-            session.Dispose();
-            appDomainManager.Dispose();
-        }
+            => session.Dispose();
     }
 }
+
 #endif
