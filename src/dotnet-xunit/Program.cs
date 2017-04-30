@@ -39,10 +39,7 @@ class Program
                 ParsedArgs = ArgParser.Parse(args);
 
                 if (ParsedArgs.TryGetAndRemoveParameterWithoutValue("-x86"))
-                {
                     Force32bit = true;
-                    ParsedArgs.Remove("-x86");
-                }
 
                 if (ParsedArgs.TryGetParameterWithoutValue("-internaldiagnostics"))
                     InternalDiagnostics = true;
