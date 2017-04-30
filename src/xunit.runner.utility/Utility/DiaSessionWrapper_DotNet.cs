@@ -1,14 +1,13 @@
-﻿#if NET35 || NET452
+﻿#if NETSTANDARD1_5 || NETCOREAPP1_0
 
 using System;
 
 namespace Xunit
 {
-    // This class wraps DiaSession, and uses DiaSessionWrapperHelper in the testing app domain to help us
-    // discover when a test is an async test (since that requires special handling by DIA).
+    // This class wraps DiaSession, and uses DiaSessionWrapperHelper  discover when a test is an async test 
+    // (since that requires special handling by DIA).
     class DiaSessionWrapper : IDisposable
     {
-        readonly AppDomainManager_AppDomain appDomainManager;
         readonly DiaSessionWrapperHelper helper;
         readonly DiaSession session;
 
@@ -16,10 +15,7 @@ namespace Xunit
         {
             session = new DiaSession(assemblyFilename);
 
-            var assemblyFileName = typeof(DiaSessionWrapperHelper).Assembly.GetLocalCodeBase();
-
-            appDomainManager = new AppDomainManager_AppDomain(assemblyFileName, null, true, null);
-            helper = appDomainManager.CreateObject<DiaSessionWrapperHelper>(typeof(DiaSessionWrapperHelper).Assembly.GetName(), typeof(DiaSessionWrapperHelper).FullName, assemblyFilename);
+            helper = new DiaSessionWrapperHelper(assemblyFilename);
         }
 
         public DiaNavigationData GetNavigationData(string typeName, string methodName)
@@ -32,8 +28,8 @@ namespace Xunit
         public void Dispose()
         {
             session.Dispose();
-            appDomainManager.Dispose();
         }
     }
 }
+
 #endif

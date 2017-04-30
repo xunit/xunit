@@ -26,15 +26,7 @@ namespace Xunit
         /// <inheritdoc/>
         public ISourceInformation GetSourceInformation(ITestCase testCase)
         {
-            var testMethod = testCase.TestMethod;
-            var testClass = testMethod.TestClass.Class;
-
-#if NET35 || NET452
-            var navData = session.GetNavigationData(testClass.Name, testMethod.Method.Name, testClass.Assembly.AssemblyPath);
-#else
-            var navData = session.GetNavigationData(testClass.Name, testMethod.Method.Name);
-#endif
-
+            var navData = session.GetNavigationData(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
             if (navData == null)
                 return EmptySourceInformation;
 
