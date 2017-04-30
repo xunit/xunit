@@ -18,10 +18,11 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.dll" target="build\_desktop\" />
-
-    <file src="build\_._" target="build\netstandard1.0\" />
-
-    <file src="xunit.core\build\xunit.core.props" target="build\uap10.0\" />
+    <file src="xunit.core\build\xunit.core.props"                                      target="build\" />
+    <file src="xunit.core\build\xunit.core.targets"                                    target="build\" />
+    <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.dll" target="build\" />
+    
+    <file src="xunit.core\build\xunit.core.props"   target="buildMultiTargeting\" />
+    <file src="xunit.core\build\xunit.core.targets" target="buildMultiTargeting\" />
   </files>
 </package>

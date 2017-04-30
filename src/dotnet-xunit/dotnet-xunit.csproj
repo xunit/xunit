@@ -4,4 +4,12 @@
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <RootNamespace>Xunit</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="import.props">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="import.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

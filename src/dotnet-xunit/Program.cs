@@ -12,12 +12,15 @@ class Program
     static HashSet<string> OutputFileArgs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "-xml", "-xmlv1", "-nunit", "-html" };
     static Version Version452 = new Version("4.5.2");
 
+    string BuildStdProps;
     string Configuration;
     bool Force32bit;
     string FxVersion;
     bool InternalDiagnostics;
+    bool NoBuild;
     bool NoColor;
     Dictionary<string, List<string>> ParsedArgs;
+    string ThisAssemblyPath;
 
     static int Main(string[] args)
         => new Program().Execute(args);
@@ -57,6 +60,8 @@ class Program
                              ?? "Debug";
                 FxVersion = ParsedArgs.GetAndRemoveParameterWithValue("-fxversion")
                          ?? ParsedArgs.GetAndRemoveParameterWithValue("--fx-version");
+                NoBuild = ParsedArgs.GetAndRemoveParameterWithoutValue("-nobuild")
+                       || ParsedArgs.GetAndRemoveParameterWithoutValue("--no-build");
 
                 // Need to amend the paths for the report output, since we are always running
                 // in the context of the bin folder, not the project folder
@@ -77,7 +82,7 @@ class Program
 
             if (testProjects.Count == 0)
             {
-                WriteLineError("Could not find any project file in the current directory.");
+                WriteLineError("Could not find any project (*.*proj) file in the current directory.");
                 return 3;
             }
 
@@ -87,99 +92,73 @@ class Program
                 return 3;
             }
 
+            ThisAssemblyPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
+            BuildStdProps = $"\"/p:_Xunit_ImportPropsFile={Path.Combine(ThisAssemblyPath, "import.props")}\" " +
+                            $"\"/p:_Xunit_ImportTargetsFile={Path.Combine(ThisAssemblyPath, "import.targets")}\" " +
+                            $"/p:Configuration={Configuration}";
+
+            var returnValue = 0;
             var testProject = testProjects[0];
-            var testProjectFolder = Path.GetDirectoryName(testProject);
-            var testProjectFile = Path.GetFileName(testProject);
-            var objFolder = Path.Combine(testProjectFolder, "obj");
 
-            var projectPropsFile = Path.Combine(objFolder, testProjectFile + ".dotnet-xunit.props");
-            File.WriteAllText(projectPropsFile, @"
-<Project>
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <CopyNuGetImplementations>true</CopyNuGetImplementations>
-    <DebugType Condition=""'$(TargetFrameworkIdentifier)' != '.NETCoreApp'"">Full</DebugType>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <GenerateDependencyFile>true</GenerateDependencyFile>
-  </PropertyGroup>
-</Project>");
-
-            var projectTargetsFile = Path.Combine(objFolder, testProjectFile + ".dotnet-xunit.targets");
-            File.WriteAllText(projectTargetsFile, @"
-<Project>
-   <Target Name=""_Xunit_GetTargetFrameworks"">
-     <ItemGroup Condition="" '$(TargetFrameworks)' == '' "">
-       <_XunitTargetFrameworksLines Include=""$(TargetFramework)"" />
-     </ItemGroup>
-     <ItemGroup Condition="" '$(TargetFrameworks)' != '' "">
-       <_XunitTargetFrameworksLines Include=""$(TargetFrameworks)"" />
-     </ItemGroup>
-     <WriteLinesToFile File=""$(_XunitInfoFile)"" Lines=""@(_XunitTargetFrameworksLines)"" Overwrite=""true"" />
-   </Target>
-   <Target Name=""_Xunit_GetTargetValues"">
-     <ItemGroup>
-       <_XunitInfoLines Include=""OutputPath: $(OutputPath)""/>
-       <_XunitInfoLines Include=""AssemblyName: $(AssemblyName)""/>
-       <_XunitInfoLines Include=""TargetFileName: $(TargetFileName)""/>
-       <_XunitInfoLines Include=""TargetFrameworkIdentifier: $(TargetFrameworkIdentifier)""/>
-       <_XunitInfoLines Include=""TargetFrameworkVersion: $(TargetFrameworkVersion)""/>
-     </ItemGroup>
-     <WriteLinesToFile File=""$(_XunitInfoFile)"" Lines=""@(_XunitInfoLines)"" Overwrite=""true"" />
-   </Target>
-</Project>");
-
-            var tmpFile = Path.GetTempFileName();
-            var psi = new ProcessStartInfo
+            var targetFrameworks = GetTargetFrameworks(testProject);
+            if (targetFrameworks == null)
             {
-                FileName = DotNetMuxer.MuxerPath,
-                Arguments = $"msbuild \"{testProject}\" /t:_Xunit_GetTargetFrameworks /nologo \"/p:_XunitInfoFile={tmpFile}\""
-            };
+                WriteLineError("Detection failed! Please ensure you're using 'xunit.core' v2.3 beta 2 or later.");
+                return 3;
+            }
 
-            WriteLine($"Detecting target frameworks in {testProjectFile}...");
-            WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
-
-            try
+            if (requestedTargetFramework != null)
             {
-                var process = Process.Start(psi);
-                var returnValue = 0;
-
-                process.WaitForExit();
-                if (process.ExitCode != 0)
+                if (!targetFrameworks.Contains(requestedTargetFramework, StringComparer.OrdinalIgnoreCase))
                 {
-                    WriteLineError("Detection failed!");
+                    WriteLineError($"Unknown target framework '{requestedTargetFramework}'; available frameworks: {string.Join(", ", targetFrameworks.Select(f => $"'{f}'"))}");
                     return 3;
                 }
 
-                var targetFrameworks = File.ReadAllLines(tmpFile);
-                if (requestedTargetFramework != null)
-                {
-                    if (!targetFrameworks.Contains(requestedTargetFramework, StringComparer.OrdinalIgnoreCase))
-                    {
-                        WriteLineError($"Unknown target framework '{requestedTargetFramework}'; available frameworks: {string.Join(", ", targetFrameworks.Select(f => $"'{f}'"))}");
-                        return 3;
-                    }
-
-                    returnValue = RunTargetFramework(testProject, requestedTargetFramework, amendOutputFileNames: false);
-                }
-                else
-                {
-                    foreach (var targetFramework in targetFrameworks)
-                        returnValue = Math.Max(RunTargetFramework(testProject, targetFramework, amendOutputFileNames: targetFrameworks.Length > 1), returnValue);
-                }
-
-                return returnValue;
+                returnValue = RunTargetFramework(testProject, requestedTargetFramework, amendOutputFileNames: false);
             }
-            finally
+            else
             {
-                File.Delete(tmpFile);
+                foreach (var targetFramework in targetFrameworks)
+                    returnValue = Math.Max(RunTargetFramework(testProject, targetFramework, amendOutputFileNames: targetFrameworks.Length > 1), returnValue);
             }
+
+            return returnValue;
         }
         catch (Exception ex)
         {
             WriteLineError(ex.ToString());
             return 3;
+        }
+    }
+
+    string[] GetTargetFrameworks(string testProject)
+    {
+        var tmpFile = Path.GetTempFileName();
+
+        try
+        {
+            var testProjectFileName = Path.GetFileName(testProject);
+            var psi = new ProcessStartInfo
+            {
+                FileName = DotNetMuxer.MuxerPath,
+                Arguments = $"msbuild \"{testProject}\" /t:_Xunit_GetTargetFrameworks /nologo \"/p:_XunitInfoFile={tmpFile}\" {BuildStdProps}"
+            };
+
+            WriteLine($"Detecting target frameworks in {testProjectFileName}...");
+            WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
+
+            var process = Process.Start(psi);
+
+            process.WaitForExit();
+            if (process.ExitCode != 0)
+                return null;
+
+            return File.ReadAllLines(tmpFile);
+        }
+        finally
+        {
+            File.Delete(tmpFile);
         }
     }
 
@@ -196,6 +175,7 @@ class Program
         Console.WriteLine("Valid options (all frameworks):");
         Console.WriteLine("  -framework name        : set the framework (default: all targeted frameworks)");
         Console.WriteLine("  -configuration name    : set the build configuration (default: 'Debug')");
+        Console.WriteLine("  -nobuild               : do not build the test assembly before running");
         Console.WriteLine("  -nologo                : do not show the copyright message");
         Console.WriteLine("  -nocolor               : do not output results with colors");
         Console.WriteLine("  -failskips             : convert skipped tests into failures");
@@ -255,8 +235,6 @@ class Program
 
     int RunTargetFramework(string testProject, string targetFramework, bool amendOutputFileNames)
     {
-        WriteLine($"Building for framework {targetFramework}...");
-
         string extraArgs;
 
         if (amendOutputFileNames)
@@ -273,10 +251,23 @@ class Program
         var tmpFile = Path.GetTempFileName();
         try
         {
+            var target = default(string);
+
+            if (NoBuild)
+            {
+                target = "_Xunit_GetTargetValues";
+                WriteLine($"Locating binaries for framework {targetFramework}...");
+            }
+            else
+            {
+                target = "Build;_Xunit_GetTargetValues";
+                WriteLine($"Building for framework {targetFramework}...");
+            }
+
             var psi = new ProcessStartInfo
             {
                 FileName = DotNetMuxer.MuxerPath,
-                Arguments = $"msbuild \"{testProject}\" /t:Build;_Xunit_GetTargetValues /nologo \"/p:_XunitInfoFile={tmpFile}\" \"/p:TargetFramework={targetFramework}\" /p:Configuration={Configuration}"
+                Arguments = $"msbuild \"{testProject}\" /t:{target} /nologo \"/p:_XunitInfoFile={tmpFile}\" \"/p:TargetFramework={targetFramework}\" {BuildStdProps}"
             };
 
             WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
@@ -355,12 +346,11 @@ class Program
 
     int RunDesktopProject(string outputPath, string targetFileName, string extraArgs)
     {
-        var thisAssemblyPath = typeof(Program).GetTypeInfo().Assembly.Location;
-        var consoleFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisAssemblyPath), "..", "..", "tools", "net452"));
+        var consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "tools", "net452"));
 
         // Debug hack to be able to run from the compilation folder
         if (!Directory.Exists(consoleFolder))
-            consoleFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisAssemblyPath), "..", "..", "..", "..", "xunit.console", "bin", "Debug", "net452", "win7-x86"));
+            consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "..", "..", "xunit.console", "bin", "Debug", "net452", "win7-x86"));
 
         var executableName = Force32bit ? "xunit.console.x86.exe" : "xunit.console.exe";
         var psi = CheckForMono(new ProcessStartInfo
@@ -380,12 +370,11 @@ class Program
 
     int RunDotNetCoreProject(string outputPath, string assemblyName, string targetFileName, string extraArgs)
     {
-        var thisAssemblyPath = typeof(Program).GetTypeInfo().Assembly.Location;
-        var consoleFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisAssemblyPath), "..", "..", "tools", "netcoreapp1.0"));
+        var consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "tools", "netcoreapp1.0"));
 
         // Debug hack to be able to run from the compilation folder
         if (!Directory.Exists(consoleFolder))
-            consoleFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisAssemblyPath), "..", "..", "..", "..", "xunit.console", "bin", "Debug", "netcoreapp1.0"));
+            consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "..", "..", "xunit.console", "bin", "Debug", "netcoreapp1.0"));
 
         var runner = Path.Combine(consoleFolder, "xunit.console.dll");
 

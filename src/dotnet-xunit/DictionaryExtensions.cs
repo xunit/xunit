@@ -3,6 +3,15 @@ using System.Collections.Generic;
 
 static class DictionaryExtensions
 {
+    public static bool GetAndRemoveParameterWithoutValue(this Dictionary<string, List<string>> dictionary, string key)
+    {
+        var result = TryGetParameterWithoutValue(dictionary, key);
+        if (result)
+            dictionary.Remove(key);
+
+        return result;
+    }
+
     public static string GetAndRemoveParameterWithValue(this Dictionary<string, List<string>> dictionary, string key)
     {
         if (dictionary.TryGetSingleValue(key, out var result))
@@ -18,16 +27,11 @@ static class DictionaryExtensions
 
     public static bool TryGetAndRemoveParameterWithoutValue(this Dictionary<string, List<string>> dictionary, string key)
     {
-        if (dictionary.TryGetSingleValue(key, out var result))
-        {
-            if (result != null)
-                throw new ArgumentException($"Option '{key}' should not have a value");
-
+        var result = TryGetParameterWithoutValue(dictionary, key);
+        if (result)
             dictionary.Remove(key);
-            return true;
-        }
 
-        return false;
+        return result;
     }
 
     public static bool TryGetParameterWithoutValue(this Dictionary<string, List<string>> dictionary, string key)

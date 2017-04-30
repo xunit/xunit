@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project>
+  <Target Name="_Xunit_GetTargetFrameworks">
+    <ItemGroup Condition=" '$(TargetFrameworks)' == '' ">
+      <_XunitTargetFrameworksLines Include="$(TargetFramework)" />
+    </ItemGroup>
+    <ItemGroup Condition=" '$(TargetFrameworks)' != '' ">
+      <_XunitTargetFrameworksLines Include="$(TargetFrameworks)" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(_XunitInfoFile)" Lines="@(_XunitTargetFrameworksLines)" Overwrite="true" />
+  </Target>
+  <Target Name="_Xunit_GetTargetValues">
+    <ItemGroup>
+      <_XunitInfoLines Include="OutputPath: $(OutputPath)"/>
+      <_XunitInfoLines Include="AssemblyName: $(AssemblyName)"/>
+      <_XunitInfoLines Include="TargetFileName: $(TargetFileName)"/>
+      <_XunitInfoLines Include="TargetFrameworkIdentifier: $(TargetFrameworkIdentifier)"/>
+      <_XunitInfoLines Include="TargetFrameworkVersion: $(TargetFrameworkVersion)"/>
+    </ItemGroup>
+    <WriteLinesToFile File="$(_XunitInfoFile)" Lines="@(_XunitInfoLines)" Overwrite="true" />
+  </Target>
+</Project>

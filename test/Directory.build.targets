@@ -1,0 +1,3 @@
+<Project>
+  <Import Condition=" '$(_Xunit_ImportTargetsFile)' != '' " Project="$(_Xunit_ImportTargetsFile)" />
+</Project>

@@ -1,7 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)..\_desktop\xunit.execution.desktop.dll">
+<Project>
+  <!-- Support for importing props via the runner -->
+  <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
+
+  <!-- Support for UAP (needs a copy of xunit.execution.desktop.dll because of legacy discovery in VSTest) -->
+  <PropertyGroup Condition=" '$(TargetFramework) != '' ">
+    <_Xunit_TargetFrameworkPrefix>$(TargetFramework.TrimEnd('.0123456789'))</_Xunit_TargetFrameworkPrefix>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(_Xunit_TargetFrameworkPrefix)' == 'uap' ">
+    <None Include="$(MSBuildThisFileDirectory)xunit.execution.desktop.dll">
       <Link>xunit.execution.desktop.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
