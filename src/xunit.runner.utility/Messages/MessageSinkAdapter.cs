@@ -28,8 +28,7 @@ namespace Xunit
         /// <returns>The hash set of interfaces, if known; <c>null</c>, otherwise.</returns>
         public static HashSet<string> GetImplementedInterfaces(IMessageSinkMessage message)
         {
-            var messageWithTypes = message as IMessageSinkMessageWithTypes;
-            if (messageWithTypes != null)
+            if (message is IMessageSinkMessageWithTypes messageWithTypes)
                 return messageWithTypes.InterfaceTypes;
 
 #if NET35 || NET452
