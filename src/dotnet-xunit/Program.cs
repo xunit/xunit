@@ -47,9 +47,16 @@ class Program
                 if (ParsedArgs.TryGetParameterWithoutValue("-nocolor"))
                     NoColor = true;
 
-                requestedTargetFramework = ParsedArgs.GetAndRemoveParameterWithValue("-framework");
-                Configuration = ParsedArgs.GetAndRemoveParameterWithValue("-configuration") ?? "Debug";
-                FxVersion = ParsedArgs.GetAndRemoveParameterWithValue("-fxversion");
+                // The extra versions are unadvertised compatibility flags to match 'dotnet' command line switches
+                requestedTargetFramework = ParsedArgs.GetAndRemoveParameterWithValue("-framework")
+                                        ?? ParsedArgs.GetAndRemoveParameterWithValue("--framework")
+                                        ?? ParsedArgs.GetAndRemoveParameterWithValue("-f");
+                Configuration = ParsedArgs.GetAndRemoveParameterWithValue("-configuration")
+                             ?? ParsedArgs.GetAndRemoveParameterWithValue("--configuration")
+                             ?? ParsedArgs.GetAndRemoveParameterWithValue("-c")
+                             ?? "Debug";
+                FxVersion = ParsedArgs.GetAndRemoveParameterWithValue("-fxversion")
+                         ?? ParsedArgs.GetAndRemoveParameterWithValue("--fx-version");
 
                 // Need to amend the paths for the report output, since we are always running
                 // in the context of the bin folder, not the project folder
