@@ -4,7 +4,7 @@
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
 
   <!-- Support for UAP (needs a copy of xunit.execution.desktop.dll because of legacy discovery in VSTest) -->
-  <PropertyGroup Condition=" '$(TargetFramework) != '' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' != '' ">
     <_Xunit_TargetFrameworkPrefix>$(TargetFramework.TrimEnd('.0123456789'))</_Xunit_TargetFrameworkPrefix>
   </PropertyGroup>
   <ItemGroup Condition=" '$(_Xunit_TargetFrameworkPrefix)' == 'uap' ">
