@@ -21,6 +21,7 @@ class Program
     bool NoColor;
     Dictionary<string, List<string>> ParsedArgs;
     string ThisAssemblyPath;
+    bool UseMsBuild;
 
     static int Main(string[] args)
         => new Program().Execute(args);
@@ -49,6 +50,9 @@ class Program
 
                 if (ParsedArgs.TryGetParameterWithoutValue("-nocolor"))
                     NoColor = true;
+
+                if (ParsedArgs.TryGetAndRemoveParameterWithoutValue("-usemsbuild"))
+                    UseMsBuild = true;
 
                 // The extra versions are unadvertised compatibility flags to match 'dotnet' command line switches
                 requestedTargetFramework = ParsedArgs.GetAndRemoveParameterWithValue("-framework")
@@ -131,6 +135,16 @@ class Program
         }
     }
 
+    ProcessStartInfo GetMsBuildProcessStartInfo(string testProject)
+    {
+        var args = $"\"{testProject}\" /nologo /verbosity:minimal {BuildStdProps} ";
+
+        if (UseMsBuild)
+            return new ProcessStartInfo { FileName = MsBuild.MsBuildName, Arguments = args };
+        else
+            return new ProcessStartInfo { FileName = DotNetMuxer.MuxerPath, Arguments = $"msbuild {args}" };
+    }
+
     string[] GetTargetFrameworks(string testProject)
     {
         var tmpFile = Path.GetTempFileName();
@@ -138,13 +152,10 @@ class Program
         try
         {
             var testProjectFileName = Path.GetFileName(testProject);
-            var psi = new ProcessStartInfo
-            {
-                FileName = DotNetMuxer.MuxerPath,
-                Arguments = $"msbuild \"{testProject}\" /t:_Xunit_GetTargetFrameworks /nologo \"/p:_XunitInfoFile={tmpFile}\" {BuildStdProps}"
-            };
-
             WriteLine($"Detecting target frameworks in {testProjectFileName}...");
+
+            var psi = GetMsBuildProcessStartInfo(testProject);
+            psi.Arguments += $"/t:_Xunit_GetTargetFrameworks \"/p:_XunitInfoFile={tmpFile}\"";
             WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
 
             var process = Process.Start(psi);
@@ -205,6 +216,7 @@ class Program
         Console.WriteLine("                         : if specified more than once, acts as an OR operation");
         Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
         Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
+        Console.WriteLine("  -usemsbuild            : build with msbuild instead of dotnet");
         Console.WriteLine();
         Console.WriteLine("Valid options (net4x frameworks only):");
         Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
@@ -263,12 +275,8 @@ class Program
                 WriteLine($"Building for framework {targetFramework}...");
             }
 
-            var psi = new ProcessStartInfo
-            {
-                FileName = DotNetMuxer.MuxerPath,
-                Arguments = $"msbuild \"{testProject}\" /t:{target} /nologo \"/p:_XunitInfoFile={tmpFile}\" \"/p:TargetFramework={targetFramework}\" {BuildStdProps}"
-            };
-
+            var psi = GetMsBuildProcessStartInfo(testProject);
+            psi.Arguments += $"/t:{target} \"/p:_XunitInfoFile={tmpFile}\" \"/p:TargetFramework={targetFramework}\"";
             WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
 
             var process = Process.Start(psi);
