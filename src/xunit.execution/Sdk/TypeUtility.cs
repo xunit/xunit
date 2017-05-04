@@ -12,7 +12,12 @@ namespace Xunit.Sdk
     {
         readonly static ITypeInfo ObjectTypeInfo = Reflector.Wrap(typeof(object));
 
-        static string ConvertToSimpleTypeName(ITypeInfo type)
+        /// <summary>
+        /// Converts a type into a name string.
+        /// </summary>
+        /// <param name="type">The type to convert.</param>
+        /// <returns>Name string of type.</returns>
+        public static string ConvertToSimpleTypeName(ITypeInfo type)
         {
             var baseTypeName = type.Name;
 

@@ -182,12 +182,24 @@ namespace Xunit.Sdk
         {
             using (var stream = new MemoryStream())
             {
-                Write(stream, TestMethod.TestClass.TestCollection.TestAssembly.Assembly.Name);
+                var assemblyName = TestMethod.TestClass.TestCollection.TestAssembly.Assembly.Name;
+
+                //Get just the assembly name (without version info) when obtained by reflection
+                IReflectionAssemblyInfo assembly = TestMethod.TestClass.TestCollection.TestAssembly.Assembly as IReflectionAssemblyInfo;
+                if (assembly != null)
+                    assemblyName = assembly.Assembly.GetName().Name;
+
+                Write(stream, assemblyName);
                 Write(stream, TestMethod.TestClass.Class.Name);
                 Write(stream, TestMethod.Method.Name);
 
                 if (TestMethodArguments != null)
                     Write(stream, SerializationHelper.Serialize(TestMethodArguments));
+
+                var genericTypes = MethodGenericTypes;
+                if (genericTypes != null)
+                    for (var idx = 0; idx < genericTypes.Length; idx++)
+                        Write(stream, TypeUtility.ConvertToSimpleTypeName(genericTypes[idx]));
 
                 stream.Position = 0;
 
