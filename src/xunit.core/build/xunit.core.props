@@ -15,10 +15,7 @@
   </PropertyGroup>
 
   <!-- Support for UAP (needs a copy of xunit.execution.desktop.dll because of legacy discovery in VSTest) -->
-  <PropertyGroup Condition=" '$(TargetFramework)' != '' ">
-    <_Xunit_TargetFrameworkPrefix>$(TargetFramework.TrimEnd('.0123456789'))</_Xunit_TargetFrameworkPrefix>
-  </PropertyGroup>
-  <ItemGroup Condition=" '$(_Xunit_TargetFrameworkPrefix)' == 'uap' ">
+  <ItemGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
     <None Include="$(MSBuildThisFileDirectory)xunit.execution.desktop.dll">
       <Link>xunit.execution.desktop.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
