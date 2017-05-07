@@ -42,7 +42,7 @@ public class StringAssertsTests
         [Fact]
         public void CanSearchForSubstringsCaseInsensitive()
         {
-            Assert.Contains("WORLD", "Hello, world!", StringComparison.InvariantCultureIgnoreCase);
+            Assert.Contains("WORLD", "Hello, world!", StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -79,7 +79,7 @@ public class StringAssertsTests
         public void CanSearchForSubstringsCaseInsensitive()
         {
             Assert.Throws<DoesNotContainException>(
-                () => Assert.DoesNotContain("WORLD", "Hello, world!", StringComparison.InvariantCultureIgnoreCase));
+                () => Assert.DoesNotContain("WORLD", "Hello, world!", StringComparison.OrdinalIgnoreCase));
         }
     }
 
@@ -169,7 +169,7 @@ public class StringAssertsTests
         [Fact]
         public void CanSearchForSubstringsCaseInsensitive()
         {
-            Assert.StartsWith("HELLO", "Hello, world!", StringComparison.InvariantCultureIgnoreCase);
+            Assert.StartsWith("HELLO", "Hello, world!", StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -210,7 +210,7 @@ public class StringAssertsTests
         [Fact]
         public void CanSearchForSubstringsCaseInsensitive()
         {
-            Assert.EndsWith("WORLD!", "Hello, world!", StringComparison.InvariantCultureIgnoreCase);
+            Assert.EndsWith("WORLD!", "Hello, world!", StringComparison.OrdinalIgnoreCase);
         }
     }
 

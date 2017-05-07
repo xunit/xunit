@@ -61,7 +61,7 @@ public class EqualityAssertsTests
         {
             var expected = new MultiComparable(1);
             var actual = 1;
-            
+
             Assert.Equal(expected, (IComparable)actual);
             Assert.Equal(expected, (object)actual);
         }
@@ -71,7 +71,7 @@ public class EqualityAssertsTests
         {
             var expected = new MultiComparable(1);
             var actual = 2;
-            
+
             Assert.NotEqual(expected, (IComparable)actual);
             Assert.NotEqual(expected, (object)actual);
         }
@@ -87,13 +87,13 @@ public class EqualityAssertsTests
 
             public int CompareTo(object obj)
             {
-                if (obj is int)
+                if (obj is int intObj)
                 {
-                    return Value.CompareTo(obj);
+                    return Value.CompareTo(intObj);
                 }
-                else if (obj is MultiComparable)
+                else if (obj is MultiComparable multiObj)
                 {
-                    return Value.CompareTo(((MultiComparable)obj).Value);
+                    return Value.CompareTo(multiObj.Value);
                 }
 
                 throw new InvalidOperationException();
@@ -479,7 +479,7 @@ public class EqualityAssertsTests
         {
             var expected = new NonGenericSet { "bar" };
             var actual = new HashSet<int> { 1 };
-            
+
             Assert.NotEqual(expected, (object)actual);
         }
 
@@ -645,7 +645,7 @@ public class EqualityAssertsTests
         {
             var expected = new IComparableActualThrower(1);
             var actual = new IntWrapper(1);
-            
+
             Assert.Equal(expected, (object)actual);
         }
 
@@ -886,7 +886,7 @@ public class EqualityAssertsTests
         {
             var expected = new string[] { "foo", "bar" };
             var actual = (IReadOnlyCollection<string>)new ReadOnlyCollection<string>(expected);
-            
+
             Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
             Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, (object)actual));
         }
@@ -906,11 +906,11 @@ public class EqualityAssertsTests
         {
             var expected = new string[] { "foo", "bar" };
             var actual = new object[] { "foo", "bar" };
-            
+
             Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, actual));
             Assert.Throws<NotEqualException>(() => Assert.NotEqual(expected, (object)actual));
         }
-        
+
         [Fact]
         public void MultidimensionalArrays()
         {
@@ -1062,7 +1062,7 @@ public class EqualityAssertsTests
         public static void Collection()
         {
             var ex = Assert.Throws<NotEqualException>(() => Assert.NotStrictEqual(new DerivedClass(), new BaseClass()));
-            Assert.Equal(@"Assert.NotEqual() Failure" + Environment.NewLine + 
+            Assert.Equal(@"Assert.NotEqual() Failure" + Environment.NewLine +
                          @"Expected: Not DerivedClass { }" + Environment.NewLine +
                          @"Actual:   BaseClass { }", ex.Message);
         }

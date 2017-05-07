@@ -44,8 +44,8 @@ namespace Xunit
             return null;
         }
 
-        public static IDisposable SubscribeResolve()
-            => new NetCoreAssemblyHelper(Path.GetDirectoryName(typeof(NetCoreAssemblyHelper).GetTypeInfo().Assembly.Location));
+        public static IDisposable SubscribeResolve(string path = null)
+            => new NetCoreAssemblyHelper(path ?? Path.GetDirectoryName(typeof(NetCoreAssemblyHelper).GetTypeInfo().Assembly.Location));
     }
 }
 

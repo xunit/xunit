@@ -54,7 +54,7 @@ public class xunitTests
             xunit.Execute();
 
             var eventArgs = Assert.IsType<BuildMessageEventArgs>(xunit.BuildEngine.Captured(x => x.LogMessageEvent(null)).Args().Single());
-            Assert.Equal(string.Format("xUnit.net MSBuild Runner ({0}-bit .NET {1})", IntPtr.Size * 8, Environment.Version), eventArgs.Message);
+            Assert.Equal(string.Format("xUnit.net MSBuild Runner ({0}-bit Desktop .NET {1})", IntPtr.Size * 8, Environment.Version), eventArgs.Message);
             Assert.Equal(MessageImportance.High, eventArgs.Importance);
         }
 

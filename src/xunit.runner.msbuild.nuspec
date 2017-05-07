@@ -6,7 +6,7 @@
     <title>xUnit.net [Runner: MSBuild]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>MSBuild runner for the xUnit.net framework.</summary>
-    <description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests. Requires .NET 4.5.2 or later.</description>
+    <description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests. Requires .NET 4.5.2 or later, or .NET Core 1.0 or later.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
@@ -19,8 +19,17 @@
     <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.abstractions.dll"            target="build\net452\" />
     <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.reporters.net452.dll" target="build\net452\" />
     <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.utility.net452.dll"   target="build\net452\" />
-    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.msbuild.dll"          target="build\net452\" />
+    <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.msbuild.net452.dll"   target="build\net452\" />
     <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"                             target="build\net452\" />
-    <file src="build\_._"                                                                         target="lib\net452\_._" />
+
+    <file src="build\_._" target="lib\net452\_._" />
+
+    <file src="xunit.runner.msbuild\bin\$Configuration$\netcoreapp1.0\xunit.abstractions.dll"                  target="build\netcoreapp1.0\" />
+    <file src="xunit.runner.msbuild\bin\$Configuration$\netcoreapp1.0\xunit.runner.reporters.netcoreapp10.dll" target="build\netcoreapp1.0\" />
+    <file src="xunit.runner.msbuild\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll"   target="build\netcoreapp1.0\" />
+    <file src="xunit.runner.msbuild\bin\$Configuration$\netcoreapp1.0\xunit.runner.msbuild.netcoreapp10.dll"   target="build\netcoreapp1.0\" />
+    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"                                          target="build\netcoreapp1.0\" />
+
+    <file src="build\_._" target="lib\netcoreapp1.0\_._" />
   </files>
 </package>
