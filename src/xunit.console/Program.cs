@@ -412,9 +412,10 @@ namespace Xunit.ConsoleClient
                 while (e != null)
                 {
                     Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
-#if DEBUG
-                    Console.WriteLine(e.StackTrace);
-#endif
+
+                    if (internalDiagnosticMessages)
+                        Console.WriteLine(e.StackTrace);
+
                     e = e.InnerException;
                 }
             }
