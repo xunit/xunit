@@ -36,17 +36,6 @@ public class xunitTests
         }
 
         [Fact]
-        public static void DoesNotChangeCurrentDirectoryWhenWorkingFolderIsNull()
-        {
-            var currentFolder = Directory.GetCurrentDirectory();
-            var xunit = new Testable_xunit();
-
-            xunit.Execute();
-
-            Assert.Equal(currentFolder, Directory.GetCurrentDirectory());
-        }
-
-        [Fact]
         public static void LogsWelcomeBanner()
         {
             var xunit = new Testable_xunit();
