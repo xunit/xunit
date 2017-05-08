@@ -8,7 +8,7 @@
     <summary>xUnit.net is a developer testing framework, built to support Test Driven Development.</summary>
     <description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features.
 
-Installing this package installs xunit.core and xunit.assert.</description>
+Installing this package installs xunit.core, xunit.assert, and xunit.analyzers.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
