@@ -70,7 +70,7 @@ namespace Xunit
 
                 if (types != null)
                     typeNameMap = types.Where(t => t != null && !string.IsNullOrEmpty(t.FullName))
-                                       .ToDictionary(k => k.FullName);
+                                       .ToDictionaryIgnoringDuplicateKeys(k => k.FullName);
                 else
                     typeNameMap = new Dictionary<string, Type>();
             }

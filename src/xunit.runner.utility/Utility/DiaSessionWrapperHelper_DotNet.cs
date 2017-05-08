@@ -38,12 +38,11 @@ namespace Xunit
 
                 if (types != null)
                     typeNameMap = types.Where(t => t != null && !string.IsNullOrEmpty(t.FullName))
-                                       .ToDictionary(k => k.FullName);
+                                       .ToDictionaryIgnoringDuplicateKeys(k => k.FullName);
                 else
                     typeNameMap = new Dictionary<string, Type>();
             }
         }
-      
 
         public void Normalize(ref string typeName, ref string methodName, ref string assemblyPath)
         {
@@ -63,7 +62,7 @@ namespace Xunit
                         assemblyPath = method.DeclaringType.GetAssembly().Location;
 
                         var stateMachineType = method.GetCustomAttribute<AsyncStateMachineAttribute>()?.StateMachineType;
-                        
+
                         if (stateMachineType != null)
                         {
                             typeName = stateMachineType.FullName;

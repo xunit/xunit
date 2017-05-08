@@ -37,4 +37,19 @@ static class DictionaryExtensions
 
         return result;
     }
+
+    // Uses the indexer instead of add, in case there are duplicate keys.
+    public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TKey, TValue>(this IEnumerable<TValue> values, Func<TValue, TKey> keySelector)
+    {
+        var result = new Dictionary<TKey, TValue>();
+
+        foreach (var value in values)
+        {
+            var key = keySelector(value);
+            if (!result.ContainsKey(key))
+                result.Add(key, value);
+        }
+
+        return result;
+    }
 }
