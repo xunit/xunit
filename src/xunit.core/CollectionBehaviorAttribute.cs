@@ -3,7 +3,7 @@
 namespace Xunit
 {
     /// <summary>
-    /// Used to declare a the default test collection behavior for the assembly.
+    /// Used to declare the default test collection behavior for the assembly.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
     public sealed class CollectionBehaviorAttribute : Attribute

@@ -432,7 +432,7 @@ public class Xunit2AcceptanceTests
 
             var idxOfFirstTestOutput = msgs.FindIndex(msg => msg is ITestOutput);
             Assert.True(idxOfFirstTestOutput >= 0, "Test should have output");
-            Assert.True(idxOfFirstTestOutput < idxOfTestPassed, "Test output messages should preceed test result");
+            Assert.True(idxOfFirstTestOutput < idxOfTestPassed, "Test output messages should precede test result");
 
             Assert.Collection(msgs.OfType<ITestOutput>(),
                 msg =>

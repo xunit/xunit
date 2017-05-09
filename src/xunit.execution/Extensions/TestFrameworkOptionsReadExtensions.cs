@@ -45,8 +45,8 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
-    /// Gets a flag that determines whether theories are pre-enumerated. If they enabled, then the
-    /// discovery system will return a test case for each row of test data; they are disabled, then the
+    /// Gets a flag that determines whether theories are pre-enumerated. If enabled, then the
+    /// discovery system will return a test case for each row of test data; if disabled, the
     /// discovery system will return a single test case for the theory.
     /// </summary>
     public static bool? PreEnumerateTheories(this ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -55,8 +55,8 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
-    /// Gets a flag that determines whether theories are pre-enumerated. If they enabled, then the
-    /// discovery system will return a test case for each row of test data; they are disabled, then the
+    /// Gets a flag that determines whether theories are pre-enumerated. If enabled, then the
+    /// discovery system will return a test case for each row of test data; if disabled, then the
     /// discovery system will return a single test case for the theory. If the flag is not present,
     /// returns the default value (<c>true</c>).
     /// </summary>

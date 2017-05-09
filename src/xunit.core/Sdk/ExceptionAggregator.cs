@@ -118,7 +118,7 @@ namespace Xunit.Sdk
         /// passed to the <see cref="Run"/> or <see cref="RunAsync"/> method.
         /// </summary>
         /// <returns>Returns <c>null</c> if no exceptions were thrown; returns the
-        /// exact exception is a single exception was thrown; returns <see cref="AggregateException"/>
+        /// exact exception if a single exception was thrown; returns <see cref="AggregateException"/>
         /// if more than one exception was thrown.</returns>
         public Exception ToException()
         {
