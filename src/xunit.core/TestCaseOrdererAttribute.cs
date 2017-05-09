@@ -4,7 +4,7 @@ namespace Xunit
 {
     /// <summary>
     /// Used to decorate an assembly, test collection, or test class to allow
-    /// the use a custom <see cref="T:Xunit.Sdk.ITestCaseOrderer"/>.
+    /// the use of a custom <see cref="T:Xunit.Sdk.ITestCaseOrderer"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
     public sealed class TestCaseOrdererAttribute : Attribute

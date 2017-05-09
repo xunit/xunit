@@ -14,7 +14,7 @@ namespace Xunit
         /// <summary>
         /// Records any exception which is thrown by the given code.
         /// </summary>
-        /// <param name="testCode">The code which may thrown an exception.</param>
+        /// <param name="testCode">The code which may throw an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
         public static Exception Exception(Action testCode)
         {
@@ -35,7 +35,7 @@ namespace Xunit
         /// Records any exception which is thrown by the given code that has
         /// a return value. Generally used for testing property accessors.
         /// </summary>
-        /// <param name="testCode">The code which may thrown an exception.</param>
+        /// <param name="testCode">The code which may throw an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
         public static Exception Exception(Func<object> testCode)
         {
@@ -65,7 +65,7 @@ namespace Xunit
         /// <summary>
         /// Records any exception which is thrown by the given task.
         /// </summary>
-        /// <param name="testCode">The task which may thrown an exception.</param>
+        /// <param name="testCode">The task which may throw an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
         public static async Task<Exception> ExceptionAsync(Func<Task> testCode)
         {

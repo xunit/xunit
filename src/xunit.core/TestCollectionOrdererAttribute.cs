@@ -3,7 +3,7 @@
 namespace Xunit
 {
     /// <summary>
-    /// Used to decorate an assembly to allow the use a custom <see cref="T:Xunit.Sdk.ITestCollectionOrderer"/>.
+    /// Used to decorate an assembly to allow the use of a custom <see cref="T:Xunit.Sdk.ITestCollectionOrderer"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, Inherited = true, AllowMultiple = false)]
     public sealed class TestCollectionOrdererAttribute : Attribute

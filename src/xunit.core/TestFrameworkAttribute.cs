@@ -4,7 +4,7 @@ using Xunit.Sdk;
 namespace Xunit
 {
     /// <summary>
-    /// Used to decorate an assembly to allow the use a custom <see cref="T:Xunit.Sdk.ITestFramework"/>.
+    /// Used to decorate an assembly to allow the use of a custom <see cref="T:Xunit.Sdk.ITestFramework"/>.
     /// </summary>
     [TestFrameworkDiscoverer("Xunit.Sdk.TestFrameworkTypeDiscoverer", "xunit.execution.{Platform}")]
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]

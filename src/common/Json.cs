@@ -172,7 +172,7 @@ namespace Xunit
                         // This is the end of file
                         return -1;
                     case '\n':
-                        // This is a new line. Let the next loop read the first charactor of the following line.
+                        // This is a new line. Let the next loop read the first character of the following line.
                         // Set position ahead of next line
                         _column = 0;
                         _line++;
@@ -341,7 +341,7 @@ namespace Xunit
                     else
                     {
                         throw new JsonDeserializerException(
-                            JsonDeserializerResource.Format_InvalidSyntaxNotExpected("charactor escape", "\\" + next),
+                            JsonDeserializerResource.Format_InvalidSyntaxNotExpected("character escape", "\\" + next),
                             _line,
                             _column);
                     }

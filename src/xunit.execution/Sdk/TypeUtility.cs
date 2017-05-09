@@ -220,7 +220,7 @@ namespace Xunit.Sdk
         /// Resolves an individual generic type given an intended generic parameter type and the type of an object passed to that type.
         /// </summary>
         /// <param name="genericType">The generic type, e.g. T, to resolve.</param>
-        /// <param name="methodParameterType">The non-generic or open generic type, e.g. T, to try to match with the type of the objecct passed to that type.</param>
+        /// <param name="methodParameterType">The non-generic or open generic type, e.g. T, to try to match with the type of the object passed to that type.</param>
         /// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
         /// <param name="resultType">The resolved type, e.g. the parameters (T, T, string, typeof(object)) -> (T, T, string, typeof(string)).</param>
         /// <returns>True if resolving was successful, else false.</returns>
