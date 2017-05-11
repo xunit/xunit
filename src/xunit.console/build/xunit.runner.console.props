@@ -3,7 +3,7 @@
     <PropertyGroup>
         <XunitConsolePath>$(MSBuildThisFileDirectory)..\tools\net452\xunit.console.exe</XunitConsolePath>
         <XunitConsolePathX86>$(MSBuildThisFileDirectory)..\tools\net452\xunit.console.x86.exe</XunitConsolePathX86>
-        <XunitConsoleNetCoreAppPath>$(MSBuildThisFileDirectory)..\tools\netcoreapp1.0\xunit.console.dll</XunitConsolePath>
+        <XunitConsoleNetCoreAppPath>$(MSBuildThisFileDirectory)..\tools\netcoreapp1.0\xunit.console.dll</XunitConsoleNetCoreAppPath>
     </PropertyGroup>
 
 </Project>
