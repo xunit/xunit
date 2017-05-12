@@ -1,0 +1,28 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Condition=" '@(XunitTest_Assemblies)' == '' ">
+    <XunitTest_Assemblies Include="$(TargetPath)" />
+  </ItemGroup>
+
+  <Target Name="XunitTest" DependsOnTargets="$(XunitTest_TargetDependencies)">
+    <xunit AppDomains="$(XunitTest_AppDomains)"
+           Assemblies="@(XunitTest_Assemblies)"
+           DiagnosticMessages="$(XunitTest_DiagnosticMessages)"
+           ExcludeTraits="$(XunitTest_ExcludeTraits)"
+           FailSkips="$(XunitTest_FailSkips)"
+           Html="@(XUnitTest_Html)"
+           IgnoreFailures="$(XunitTest_IgnoreFailures)"
+           IncludeTraits="$(XunitTest_IncludeTraits)"
+           InternalDiagnosticMessages="$(XunitTest_InternalDiagnosticMessages)"
+           MaxParallelThreads="$(XunitTest_MaxParallelThreads)"
+           NoAutoReporters="$(XunitTest_NoAutoReporters)"
+           NoLogo="$(XunitTest_NoLogo)"
+           ParallelizeAssemblies="$(XunitTest_ParallelizeAssemblies)"
+           ParallelizeTestCollections="$(XunitTest_ParallelizeTestCollections)"
+           Reporter="$(XunitTest_Reporter)"
+           ShadowCopy="$(XunitTest_ShadowCopy)"
+           WorkingFolder="$(XunitTest_WorkingFolder)"
+           Xml="@(XunitTest_Xml)"
+           XmlV1="@(XunitTest_XmlV1)"
+    />
+  </Target>
+</Project>

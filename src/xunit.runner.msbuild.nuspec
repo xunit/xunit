@@ -21,6 +21,7 @@
     <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.utility.net452.dll"   target="build\net452\" />
     <file src="xunit.runner.msbuild\bin\$Configuration$\net452\xunit.runner.msbuild.net452.dll"   target="build\net452\" />
     <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"                             target="build\net452\" />
+    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.targets"                           target="build\net452\" />
 
     <file src="build\_._" target="lib\net452\_._" />
 
@@ -29,6 +30,7 @@
     <file src="xunit.runner.msbuild\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll"   target="build\netcoreapp1.0\" />
     <file src="xunit.runner.msbuild\bin\$Configuration$\netcoreapp1.0\xunit.runner.msbuild.netcoreapp10.dll"   target="build\netcoreapp1.0\" />
     <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.props"                                          target="build\netcoreapp1.0\" />
+    <file src="xunit.runner.msbuild\build\xunit.runner.msbuild.targets"                                        target="build\netcoreapp1.0\" />
 
     <file src="build\_._" target="lib\netcoreapp1.0\_._" />
   </files>
