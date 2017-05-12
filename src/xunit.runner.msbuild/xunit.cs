@@ -34,18 +34,10 @@ namespace Xunit.Runner.MSBuild
 
         public bool DiagnosticMessages { get; set; }
 
-        public bool InternalDiagnosticMessages { get; set; }
-
         public string ExcludeTraits { get; set; }
 
         [Output]
         public int ExitCode { get; protected set; }
-
-        /// <summary>
-        /// Sets whether test failures will be ignored and allow the build to proceed.
-        /// When set to <c>false</c>, test failures will cause the build to fail.
-        /// </summary>
-        public bool IgnoreFailures { get; set; }
 
         public bool FailSkips { get; protected set; }
 
@@ -67,14 +59,16 @@ namespace Xunit.Runner.MSBuild
 
         public ITaskItem Html { get; set; }
 
+        public bool IgnoreFailures { get; set; }
+
         public string IncludeTraits { get; set; }
+
+        public bool InternalDiagnosticMessages { get; set; }
 
         public string MaxParallelThreads { get; set; }
 
         protected bool NeedsXml
-        {
-            get { return Xml != null || XmlV1 != null || Html != null || NUnit != null; }
-        }
+            => Xml != null || XmlV1 != null || Html != null || NUnit != null;
 
         public bool NoAutoReporters { get; set; }
 
