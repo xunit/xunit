@@ -3,15 +3,23 @@
   <!-- Support for importing props via the runner -->
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
 
-  <!-- Ensure binary folders are fully populated -->
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <!-- Need DebugType 'Full' for source indexing in Visual Studio -->
+    <DebugType>Full</DebugType>
+    <!-- Need copies of DLLs that come from NuGet packages, since we have no resolution system -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <CopyNuGetImplementations>true</CopyNuGetImplementations>
-    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">Full</DebugType>
+    <!-- Need binding redirects -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">
+    <!-- Need DebugType 'Portable' for source indexing in Visual Studio -->
+    <DebugType>Portable</DebugType>
+    <!-- Need to force generation of .deps.json and .runtimeconfig.json files -->
     <GenerateDependencyFile>true</GenerateDependencyFile>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
   <!-- Support for UAP (needs a copy of xunit.execution.desktop.dll because of legacy discovery in VSTest) -->
