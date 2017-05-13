@@ -3,12 +3,15 @@
   <!-- Support for importing props via the runner -->
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
 
+  <PropertyGroup>
+    <!-- All referenced DLLs need to be in the bin folder -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyNuGetImplementations>true</CopyNuGetImplementations>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <!-- Need DebugType 'Full' for source indexing in Visual Studio -->
     <DebugType>Full</DebugType>
-    <!-- Need copies of DLLs that come from NuGet packages, since we have no resolution system -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <CopyNuGetImplementations>true</CopyNuGetImplementations>
     <!-- Need binding redirects -->
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
@@ -17,7 +20,7 @@
   <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">
     <!-- Need DebugType 'Portable' for source indexing in Visual Studio -->
     <DebugType>Portable</DebugType>
-    <!-- Need to force generation of .deps.json and .runtimeconfig.json files -->
+    <!-- Need to force generation of .deps.json and .runtimeconfig.json files, even if you're not an Exe project -->
     <GenerateDependencyFile>true</GenerateDependencyFile>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
