@@ -37,6 +37,12 @@ internal static class DotNetMuxer
             fileName += ".exe";
         }
 
+#if true
+        return fileName;
+#else
+        // This is broken right now for anybody who has an incomplete set of SDKs in ~\.dotnet, which
+        // will commonly happen for users who are running KoreBuild (among other things).
+
         var fxDepsFile = AppContext.GetData("FX_DEPS_FILE") as string;
 
         if (string.IsNullOrEmpty(fxDepsFile))
@@ -59,5 +65,6 @@ internal static class DotNetMuxer
         return File.Exists(muxer)
             ? muxer
             : null;
+#endif
     }
 }
