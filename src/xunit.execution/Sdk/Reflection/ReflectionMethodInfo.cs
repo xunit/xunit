@@ -128,19 +128,24 @@ namespace Xunit.Sdk
             if (!method.IsVirtual)
                 return null;
 
-            var baseType = method.DeclaringType.GetTypeInfo().BaseType;
-            if (baseType == null)
-                return null;
-
             var methodParameters = method.GetParameters();
             var methodGenericArgCount = method.GetGenericArguments().Length;
 
-            foreach (MethodInfo m in baseType.GetMatchingMethods(method))
+            var currentType = method.DeclaringType;
+
+            while (currentType != typeof(object))
             {
-                if (m.Name == method.Name &&
-                    m.GetGenericArguments().Length == methodGenericArgCount &&
-                    ParametersHaveSameTypes(methodParameters, m.GetParameters()))
-                    return m;
+                currentType = currentType.GetTypeInfo().BaseType;
+                if (currentType == null)
+                    return null;
+
+                foreach (MethodInfo m in currentType.GetMatchingMethods(method))
+                {
+                    if (m.Name == method.Name &&
+                        m.GetGenericArguments().Length == methodGenericArgCount &&
+                        ParametersHaveSameTypes(methodParameters, m.GetParameters()))
+                        return m;
+                }
             }
 
             return null;

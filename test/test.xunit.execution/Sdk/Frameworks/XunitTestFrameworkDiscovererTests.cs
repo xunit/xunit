@@ -321,6 +321,39 @@ public class XunitTestFrameworkDiscovererTests
             Assert.Single(framework.Sink.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 42)");
             Assert.Single(framework.Sink.TestCases, testCase => testCase.DisplayName == "XunitTestFrameworkDiscovererTests+FindImpl+TheoryWithPropertyData.TheoryMethod(value: 2112)");
         }
+
+        [Fact]
+        public static void AssemblyWithMultiLevelHierarchyWithFactOverridenInNonImmediateDerivedClass_ReturnsOneTestCase()
+        {
+            var framework = TestableXunitTestFrameworkDiscoverer.Create();
+            var testClass = Mocks.TestClass(typeof(Child));
+
+            framework.FindTestsForClass(testClass);
+
+            Assert.Equal(1, framework.Sink.TestCases.Count);
+            Assert.Equal("XunitTestFrameworkDiscovererTests+FindImpl+Child.FactOverridenInNonImmediateDerivedClass", framework.Sink.TestCases[0].DisplayName);
+        }
+
+        public abstract class GrandParent
+        {
+            [Fact]
+            public virtual void FactOverridenInNonImmediateDerivedClass()
+            {
+                Assert.True(true);
+            }
+        }
+
+        public abstract class Parent : GrandParent { }
+
+        public class Child : Parent
+        {
+            public override void FactOverridenInNonImmediateDerivedClass()
+            {
+                base.FactOverridenInNonImmediateDerivedClass();
+
+                Assert.False(false);
+            }
+        }
     }
 
     public class CreateTestClass
