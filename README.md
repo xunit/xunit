@@ -14,8 +14,8 @@ For project documentation, please visit the [xUnit.net project home](https://xun
 
 ## Latest Builds
 
-Channel  | Core Framework | Visual Studio Runner
--------- | :------------: | :------------------:
-CI | <a href="https://ci.appveyor.com/project/xunit/xunit"><img src="https://ci.appveyor.com/api/projects/status/3ju9yoxaeafj9owb/branch/master?svg=true" /></a> | <a href="https://ci.appveyor.com/project/xunit/visualstudio-xunit"><img src="https://ci.appveyor.com/api/projects/status/whjnpccni1vrmvmu/branch/master?svg=true" /></a>
-NuGet | ![#](https://img.shields.io/nuget/v/xunit.svg?style=flat)<br>![#](https://img.shields.io/nuget/vpre/xunit.svg?style=flat) | ![#](https://img.shields.io/nuget/v/xunit.runner.visualstudio.svg?style=flat)<br>![#](https://img.shields.io/nuget/vpre/xunit.runner.visualstudio.svg?style=flat)
-MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.svg?style=flat) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.runner.visualstudio.svg?style=flat)
+Channel  | Core Framework | Visual Studio Runner | Analyzers
+-------- | :------------: | :------------------: | :-------:
+CI | <a href="https://ci.appveyor.com/project/xunit/xunit"><img src="https://ci.appveyor.com/api/projects/status/3ju9yoxaeafj9owb/branch/master?svg=true" /></a> | <a href="https://ci.appveyor.com/project/xunit/visualstudio-xunit"><img src="https://ci.appveyor.com/api/projects/status/whjnpccni1vrmvmu/branch/master?svg=true" /></a> | <a href="https://ci.appveyor.com/project/xunit/xunit.analyzers"><img src="https://ci.appveyor.com/api/projects/status/qvurc9j02j8a8qy4/branch/master?svg=true" /></a>
+NuGet | ![#](https://img.shields.io/nuget/v/xunit.svg?style=flat)<br>![#](https://img.shields.io/nuget/vpre/xunit.svg?style=flat) | ![#](https://img.shields.io/nuget/v/xunit.runner.visualstudio.svg?style=flat)<br>![#](https://img.shields.io/nuget/vpre/xunit.runner.visualstudio.svg?style=flat) | ![#](https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat)
+MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.svg?style=flat) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.runner.visualstudio.svg?style=flat) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat)
