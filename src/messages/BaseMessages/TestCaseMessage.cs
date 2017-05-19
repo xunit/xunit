@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -10,6 +11,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestCaseMessage"/>.
     /// </summary>
+    [Serializable]
     public class TestCaseMessage : TestMethodMessage, ITestCaseMessage
     {
         /// <summary>

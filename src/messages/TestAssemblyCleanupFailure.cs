@@ -11,6 +11,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="TestAssemblyCleanupFailure"/>.
     /// </summary>
+    [Serializable]
     public class TestAssemblyCleanupFailure : TestAssemblyMessage, ITestAssemblyCleanupFailure
     {
         /// <summary>

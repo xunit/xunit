@@ -17,6 +17,7 @@
     <Compile Include="..\common\LongLivedMarshalByRefObject.cs" />
     <Compile Include="..\common\NewReflectionExtensions.cs" />
     <Compile Include="..\common\NullMessageSink.cs" />
+    <Compile Include="..\common\SerializableAttribute.cs" />
     <Compile Include="..\common\SerializationHelper.cs" />
     <Compile Include="..\common\SourceInformation.cs" />
     <Compile Include="..\common\TestMethodDisplay.cs" />

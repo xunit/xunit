@@ -11,6 +11,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="IErrorMessage"/>.
     /// </summary>
+    [Serializable]
     public class ErrorMessage : LongLivedMarshalByRefObject, IErrorMessage
     {
         /// <summary>

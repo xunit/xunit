@@ -4,6 +4,9 @@
     <TargetFrameworks>net452;netstandard1.1</TargetFrameworks>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" />
@@ -18,6 +21,7 @@
     <Compile Include="..\common\NewReflectionExtensions.cs" />
     <Compile Include="..\common\NullMessageSink.cs" />
     <Compile Include="..\common\SerializationHelper.cs" />
+    <Compile Include="..\common\SerializableAttribute.cs" />
     <Compile Include="..\common\SourceInformation.cs" />
     <Compile Include="..\common\TestOptionsNames.cs" />
     <Compile Include="..\common\XunitSerializationInfo.cs" />
@@ -31,6 +35,7 @@
     <ProjectReference Include="..\xunit.core\xunit.core.csproj" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

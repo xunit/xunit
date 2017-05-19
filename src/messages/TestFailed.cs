@@ -10,6 +10,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestFailed"/>.
     /// </summary>
+    [Serializable]
     public class TestFailed : TestResultMessage, ITestFailed
     {
         /// <summary>

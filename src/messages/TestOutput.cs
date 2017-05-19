@@ -1,3 +1,4 @@
+using System;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -9,6 +10,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestOutput"/>.
     /// </summary>
+    [Serializable]
     public class TestOutput : TestMessage, ITestOutput
     {
         /// <summary>
