@@ -22,7 +22,7 @@ namespace Xunit.Runner.Reporters
                 }
             }
 
-            return $"{testCollection.DisplayName} ({id})";
+            return $"{testCollection.DisplayName}";
         }
 
         public virtual string DisplayName(ITest test)
