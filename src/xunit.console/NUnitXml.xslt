@@ -32,45 +32,12 @@
         </xsl:attribute>
       </environment>
       <culture-info current-culture="unknown" current-uiculture="unknown" />
-      <test-suite type="Assemblies" name="xUnit.net Tests" executed="True">
-        <xsl:attribute name="success">
-          <xsl:if test="sum(assembly/@failed) > 0">False</xsl:if>
-          <xsl:if test="sum(assembly/@failed) = 0">True</xsl:if>
-        </xsl:attribute>
-        <xsl:attribute name="result">
-          <xsl:if test="sum(assembly/@failed) > 0">Failure</xsl:if>
-          <xsl:if test="sum(assembly/@failed) = 0">Success</xsl:if>
-        </xsl:attribute>
-        <xsl:attribute name="time">
-          <xsl:value-of select="sum(assembly/@time)"/>
-        </xsl:attribute>
-        <results>
-          <xsl:apply-templates select="assembly"/>
-        </results>
-      </test-suite>
+      <xsl:apply-templates select="assembly"/>
     </test-results>
   </xsl:template>
 
   <xsl:template match="assembly">
-    <test-suite type="Assembly" executed="True">
-      <xsl:attribute name="name">
-        <xsl:value-of select="@name"/>
-      </xsl:attribute>
-      <xsl:attribute name="result">
-        <xsl:if test="@failed > 0">Failure</xsl:if>
-        <xsl:if test="@failed = 0">Success</xsl:if>
-      </xsl:attribute>
-      <xsl:attribute name="success">
-        <xsl:if test="@failed > 0">False</xsl:if>
-        <xsl:if test="@failed = 0">True</xsl:if>
-      </xsl:attribute>
-      <xsl:attribute name="time">
-        <xsl:value-of select="@time"/>
-      </xsl:attribute>
-      <results>
-        <xsl:apply-templates select="collection"/>
-      </results>
-    </test-suite>
+    <xsl:apply-templates select="collection"/>
   </xsl:template>
 
   <xsl:template match="collection">
