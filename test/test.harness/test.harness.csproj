@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
+    <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\test.utility\test.utility.csproj" />
+    <ProjectReference Include="..\test.testcasefilter\test.testcasefilter.csproj" />
+  </ItemGroup>
+</Project>
