@@ -1,6 +1,7 @@
-﻿// Imported from https://github.com/aspnet/Common/blob/bc56611fd65f1dfc7bc0ab88970bed07b29f30dc/shared/Microsoft.Extensions.CommandLineUtils.Sources/Utilities/DotNetMuxer.cs
+﻿// Imported from https://github.com/aspnet/Common/blob/a7b9be2e5020a364765efe2a33f50fa237979980/shared/Microsoft.Extensions.CommandLineUtils.Sources/Utilities/DotNetMuxer.cs
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -37,11 +38,15 @@ internal static class DotNetMuxer
             fileName += ".exe";
         }
 
-#if true
-        return fileName;
-#else
-        // This is broken right now for anybody who has an incomplete set of SDKs in ~\.dotnet, which
-        // will commonly happen for users who are running KoreBuild (among other things).
+        var mainModule = Process.GetCurrentProcess().MainModule;
+        if (!string.IsNullOrEmpty(mainModule?.FileName)
+            && Path.GetFileName(mainModule.FileName).Equals(fileName, StringComparison.OrdinalIgnoreCase))
+        {
+            return mainModule.FileName;
+        }
+
+        // if Process.MainModule is not available or it does not equal "dotnet(.exe)?", fallback to navigating to the muxer
+        // by using the location of the shared framework
 
         var fxDepsFile = AppContext.GetData("FX_DEPS_FILE") as string;
 
@@ -65,6 +70,5 @@ internal static class DotNetMuxer
         return File.Exists(muxer)
             ? muxer
             : null;
-#endif
     }
 }
