@@ -18,7 +18,7 @@ if ((test-path $buildModuleFile) -eq $false) {
 }
 
 Set-StrictMode -Version 2
-Import-Module $buildModuleFile -Scope Local -Force -ArgumentList "3.5.0"
+Import-Module $buildModuleFile -Scope Local -Force -ArgumentList "4.1.0"
 Set-Location $PSScriptRoot
 
 $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
