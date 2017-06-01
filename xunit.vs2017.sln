@@ -97,6 +97,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Visual Studio", "Visual Studio", "{2DF4CF8D-7096-45B8-BEFF-7518E5264DF4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.harness", "test\test.harness\test.harness.csproj", "{378C9C3B-D783-4728-A368-373E081ADD59}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FD040F7D-5E99-44A9-ACE7-408CA3BC3779} = {FD040F7D-5E99-44A9-ACE7-408CA3BC3779}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test.testcasefilter", "test\test.testcasefilter\test.testcasefilter.csproj", "{8D57BD0A-F46C-44FF-8AFE-D571D9230C44}"
 EndProject

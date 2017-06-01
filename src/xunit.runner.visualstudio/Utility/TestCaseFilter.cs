@@ -78,7 +78,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             }
             catch (TestPlatformFormatException e)
             {
-                logger.LogError("{0}: Exception filtering tests: {1}", Path.GetFileNameWithoutExtension(assemblyFileName), e.Message);
+                logger.LogWarning("{0}: Exception filtering tests: {1}", Path.GetFileNameWithoutExtension(assemblyFileName), e.Message);
                 return false;
             }
         }

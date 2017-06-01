@@ -8,6 +8,13 @@ namespace test.testcasefilter
         [Trait("FilterCategory", "Exclude")]
         public void TestWithTraitToFilterOn()
         {
+            Assert.True(false);
+        }
+
+        [Fact]
+        [Trait("FilterCategory", "Include")]
+        public void TestWithTraitToFilterOff()
+        {
             Assert.True(true);
         }
     }
