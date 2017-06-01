@@ -1,3 +1,4 @@
+using System;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -5,6 +6,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// An implementation of <see cref="ITest"/> for xUnit v2.
     /// </summary>
+    [Serializable]
     public class XunitTest : LongLivedMarshalByRefObject, ITest
     {
         /// <summary>

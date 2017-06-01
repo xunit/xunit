@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -11,6 +12,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyMessage"/> and <see cref="IExecutionMessage"/>.
     /// </summary>
+    [Serializable]
     public class TestAssemblyMessage : LongLivedMarshalByRefObject, ITestAssemblyMessage, IExecutionMessage
     {
         /// <summary>

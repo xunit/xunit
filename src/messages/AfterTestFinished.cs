@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
@@ -9,6 +10,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="IAfterTestFinished"/>.
     /// </summary>
+    [Serializable]
     public class AfterTestFinished : TestMessage, IAfterTestFinished
     {
         /// <summary>

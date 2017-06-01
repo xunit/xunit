@@ -11,6 +11,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyStarting"/>.
     /// </summary>
+    [Serializable]
     public class TestAssemblyStarting : TestAssemblyMessage, ITestAssemblyStarting
     {
         /// <summary>

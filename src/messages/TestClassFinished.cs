@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -10,6 +11,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestClassFinished"/>.
     /// </summary>
+    [Serializable]
     public class TestClassFinished : TestClassMessage, ITestClassFinished
     {
         /// <summary>

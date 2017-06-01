@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -11,6 +12,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="IDiagnosticMessage"/>.
     /// </summary>
+    [Serializable]
     public class DiagnosticMessage : LongLivedMarshalByRefObject, IDiagnosticMessage
 #if !XUNIT_FRAMEWORK
         , IMessageSinkMessageWithTypes

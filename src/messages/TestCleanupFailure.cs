@@ -10,6 +10,7 @@ namespace Xunit
     /// <summary>
     /// Default implementation of <see cref="ITestCleanupFailure"/>.
     /// </summary>
+    [Serializable]
     public class TestCleanupFailure : TestMessage, ITestCleanupFailure
     {
         /// <summary>

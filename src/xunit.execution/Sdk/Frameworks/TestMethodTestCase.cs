@@ -13,6 +13,7 @@ namespace Xunit.Sdk
     /// A base class implementation of <see cref="ITestCase"/> which is based on test cases being
     /// related directly to test methods.
     /// </summary>
+    [Serializable]
     public abstract class TestMethodTestCase : LongLivedMarshalByRefObject, ITestCase, IDisposable
     {
         Dictionary<string, List<string>> traits;

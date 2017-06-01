@@ -18,6 +18,7 @@
     <Compile Include="..\common\NewReflectionExtensions.cs" />
     <Compile Include="..\common\NullMessageSink.cs" />
     <Compile Include="..\common\SerializationHelper.cs" />
+    <Compile Include="..\common\SerializableAttribute.cs" />
     <Compile Include="..\common\SourceInformation.cs" />
     <Compile Include="..\common\TestOptionsNames.cs" />
     <Compile Include="..\common\XunitSerializationInfo.cs" />
@@ -31,6 +32,7 @@
     <ProjectReference Include="..\xunit.core\xunit.core.csproj" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

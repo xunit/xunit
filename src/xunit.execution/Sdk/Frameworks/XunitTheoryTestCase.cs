@@ -10,6 +10,7 @@ namespace Xunit.Sdk
     /// Represents a test case which runs multiple tests for theory data, either because the
     /// data was not enumerable or because the data was not serializable.
     /// </summary>
+    [Serializable]
     public class XunitTheoryTestCase : XunitTestCase
     {
         /// <summary/>

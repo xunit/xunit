@@ -14,6 +14,7 @@ namespace Xunit.Sdk
     /// both <see cref="FactAttribute"/> and <see cref="TheoryAttribute"/>.
     /// </summary>
     [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
+    [Serializable]
     public class XunitTestCase : TestMethodTestCase, IXunitTestCase
     {
         /// <summary/>

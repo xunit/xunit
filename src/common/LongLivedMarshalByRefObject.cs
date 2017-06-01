@@ -1,11 +1,12 @@
-﻿#if XUNIT_FRAMEWORK
+﻿using System;
+
+#if XUNIT_FRAMEWORK
 namespace Xunit
 #else
 namespace Xunit.Sdk
 #endif
 {
 #if NET35 || NET452
-    using System;
     using System.Security;
 
     #if XUNIT_FRAMEWORK
@@ -16,6 +17,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Base class for all long-lived objects that may cross over an AppDomain.
     /// </summary>
+    [Serializable]
     public abstract class LongLivedMarshalByRefObject: MarshalByRefObject
     {
     #if XUNIT_FRAMEWORK
@@ -58,6 +60,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// Base class for all long-lived objects that may cross over an AppDomain.
     /// </summary>
+    [Serializable]
     public abstract class LongLivedMarshalByRefObject
     {
         /// <summary>
