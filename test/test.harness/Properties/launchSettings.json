@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "test.harness": {
+      "commandName": "Executable",
+      "executablePath": "$(VSINSTALLDIR)\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow\\vstest.console.exe",
+      "commandLineArgs": "test.harness.dll test.testcasefilter.dll /TestCaseFilter:\"FilterCategory!=Exclude\" /testadapterpath:\"$(SolutionDir)\\src\\xunit.runner.visualstudio\\bin\\Debug\\net452\"",
+      "workingDirectory": "$(SolutionDir)\\test\\test.harness\\bin\\Debug\\net452"
+    }
+  }
+}
