@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Security;
 using System.Threading;
@@ -145,9 +146,10 @@ namespace Xunit.Sdk
         /// if you need to do some other form of invocation of the actual test method.
         /// </summary>
         /// <param name="testClassInstance">The instance of the test class</param>
+        /// <param name="arguments">The arguments the testmethod should be called with</param>
         /// <returns>The return value from the test method invocation</returns>
-        protected virtual object CallTestMethod(object testClassInstance)
-            => TestMethod.Invoke(testClassInstance, TestMethodArguments);
+        protected virtual object CallTestMethod(object testClassInstance, object[] arguments)
+            => TestMethod.Invoke(testClassInstance, arguments);
 
         /// <summary>
         /// Given an object, will determine if it is an instance of <see cref="Task"/> (in which case, it is
@@ -242,7 +244,8 @@ namespace Xunit.Sdk
                     () => Timer.AggregateAsync(
                         async () =>
                         {
-                            var parameterCount = TestMethod.GetParameters().Length;
+                            ParameterInfo[] parameters = TestMethod.GetParameters();
+                            var parameterCount = parameters.Length;
                             var valueCount = TestMethodArguments == null ? 0 : TestMethodArguments.Length;
                             if (parameterCount != valueCount)
                             {
@@ -254,7 +257,9 @@ namespace Xunit.Sdk
                             }
                             else
                             {
-                                var result = CallTestMethod(testClassInstance);
+                                var result = CallTestMethod(testClassInstance,
+                                    TestMethodArguments.Select((x, i) => Cast(x, parameters[i].ParameterType)).ToArray());
+
                                 var task = GetTaskFromResult(result);
                                 if (task != null)
                                     await task;
@@ -280,5 +285,22 @@ namespace Xunit.Sdk
         [SecuritySafeCritical]
         static void SetSynchronizationContext(SynchronizationContext context)
             => SynchronizationContext.SetSynchronizationContext(context);
+
+        static object Cast(object value, Type targetType)
+        {
+            if (value == null || value.GetType() == targetType)
+                return value;
+            else try
+                {
+                    if (targetType.GetTypeInfo().IsValueType)
+                        return Expression.Lambda<Func<object>>(Expression.Convert(Expression.Convert(Expression.Constant(value), targetType), typeof(object))).Compile()();
+                    else
+                        return Expression.Lambda<Func<object>>(Expression.Convert(Expression.Constant(value), targetType)).Compile()();
+                }
+                catch
+                {
+                    return value;
+                }
+        }
     }
 }

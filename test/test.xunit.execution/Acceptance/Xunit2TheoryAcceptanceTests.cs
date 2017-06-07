@@ -597,15 +597,65 @@ public class Xunit2TheoryAcceptanceTests
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassWithImplicitlyConvertibleData));
 
+            Assert.Collection(testMessages.Cast<ITestPassed>(),
+                passed => Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaIntAndLong(x: 5)", passed.Test.DisplayName),
+                passed => Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaImplicitData(x: A { })", passed.Test.DisplayName)
+                );
+        }
+
+        [Fact]
+        public void ExplicitlyConvertibleDataPasses()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithExplicitlyConvertibleData));
+
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
-            Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaImplicitData(x: 42)", passed.Test.DisplayName);
+            Assert.Equal("Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithExplicitlyConvertibleData.TestViaExplicitData(x: B { })", passed.Test.DisplayName);
         }
 
         class ClassWithImplicitlyConvertibleData
         {
+            public class A
+            {
+                public static implicit operator int? (A value) => (int?)42;
+
+                public static implicit operator A(int? value) => new A();
+            }
+
+            public static IEnumerable<object[]> Data = new[] { new object[] { new A() } };
+
             [Theory]
-            [InlineData(42)]
+            [MemberData(nameof(Data))]
             public void TestViaImplicitData(int? x) { }
+
+            [Theory]
+            [InlineData(5)]
+            public void TestViaIntAndLong(long x) { }
+        }
+
+        class ClassWithExplicitlyConvertibleData
+        {
+            public class A
+            {
+            }
+
+            public class B
+            {
+                public static explicit operator A(B value)
+                {
+                    return new A();
+                }
+
+                public static explicit operator B(A value)
+                {
+                    return new B();
+                }
+            }
+
+            public static IEnumerable<object[]> Data = new[] { new object[] { new B() } };
+
+            [Theory]
+            [MemberData(nameof(Data))]
+            public void TestViaExplicitData(A x) { }
         }
 
         [Fact]
