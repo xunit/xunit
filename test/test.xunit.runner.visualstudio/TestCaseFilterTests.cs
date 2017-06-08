@@ -75,7 +75,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             Assert.Empty(results);
             var args = messageLogger.ReceivedCalls().Single().GetArguments();
             Assert.Collection(args,
-                arg => Assert.Equal(TestMessageLevel.Error, arg),
+                arg => Assert.Equal(TestMessageLevel.Warning, arg),
                 arg => Assert.EndsWith("dummyTestAssembly: Exception filtering tests: Hello from the exception", (string)arg)
             );
         }

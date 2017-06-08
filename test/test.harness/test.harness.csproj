@@ -4,6 +4,9 @@
     <TargetFramework>net452</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj" />
+    <ProjectReference Include="..\..\src\xunit.core\xunit.core.csproj" />
+    <ProjectReference Include="..\..\src\xunit.execution\xunit.execution.csproj" />
     <ProjectReference Include="..\test.utility\test.utility.csproj" />
     <ProjectReference Include="..\test.testcasefilter\test.testcasefilter.csproj" />
   </ItemGroup>
