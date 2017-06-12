@@ -312,6 +312,31 @@ public class CommandLineTests
         }
     }
 
+    public class StopOnFailOption
+    {
+        [Fact]
+        public static void StopOnFailOptionNotSetStopOnFailFalse()
+        {
+            var arguements = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguements);
+
+            Assert.False(commandLine.StopOnFail);
+        }
+
+        [Theory]
+        [InlineData("-stoponfail")]
+        [InlineData("-sToPoNfAiL")]
+        public static void StopOnFailOptionSetOnFailTrue(string option)
+        {
+            var arguements = new[] { "assemblyName.dll", option };
+
+            var commandLine = TestableCommandLine.Parse(arguements);
+
+            Assert.True(commandLine.StopOnFail);
+        }
+    }
+
     public class WaitOption
     {
         [Fact]
