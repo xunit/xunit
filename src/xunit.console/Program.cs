@@ -407,7 +407,7 @@ namespace Xunit.ConsoleClient
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
                         if(stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
                         {
-                            Console.WriteLine("Canceling due to test fauler...");
+                            Console.WriteLine("Canceling due to test failure...");
                             cancel = true;
                         }
                     }
