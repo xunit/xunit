@@ -1155,6 +1155,59 @@ public class Xunit2TheoryAcceptanceTests
             [MyCustomData]
             public void Passing(int unused) { }
         }
+
+        [Fact]
+        public void MemberDataAttributeBaseSubclass_Success()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithMemberDataAttributeBase));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: ""3"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: ""4"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: 1)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: 2)", result.Test.DisplayName)
+            );
+        }
+
+        private class SingleMemberDataAttribute : MemberDataAttributeBase
+        {
+            public SingleMemberDataAttribute(string memberName, params object[] parameters) : base(memberName, parameters) { }
+
+            protected override object[] ConvertDataItem(MethodInfo testMethod, object item)
+            {
+                return new object[] { item };
+            }
+        }
+
+        private class ClassWithMemberDataAttributeBase
+        {
+            private static IEnumerable IEnumerableMethod()
+            {
+                yield return 1;
+            }
+
+            private static IEnumerable<int> IEnumerableIntMethod()
+            {
+                yield return 2;
+            }
+
+            private static IEnumerable<string> IEnumerableStringMethod()
+            {
+                yield return "3";
+            }
+
+            private static IEnumerable<object> IEnumerableObjectMethod()
+            {
+                yield return "4";
+            }
+
+            [Theory]
+            [SingleMemberData(nameof(IEnumerableMethod))]
+            [SingleMemberData(nameof(IEnumerableIntMethod))]
+            [SingleMemberData(nameof(IEnumerableStringMethod))]
+            [SingleMemberData(nameof(IEnumerableObjectMethod))]
+            public void Passing(object unused) { }
+        }
     }
 
     public class ErrorAggregation : AcceptanceTestV2
