@@ -78,9 +78,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             var loggerHelper = new LoggerHelper(logger, stopwatch);
 
 #if NET452 || NETCOREAPP1_0
-            // Reads settings like disabling appdomains, parallel etc.
-            // Do this first before invoking any thing else to ensure correct settings for the run
             RunSettingsHelper.ReadRunSettings(discoveryContext?.RunSettings?.SettingsXml);
+            if (!ValidateRuntimeFramework())
+                return;
 #endif
 
             var testPlatformContext = new TestPlatformContext
@@ -110,9 +110,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             var logger = new LoggerHelper(frameworkHandle, stopwatch);
 
 #if NET452 || NETCOREAPP1_0
-            // Reads settings like disabling appdomains, parallel etc.
-            // Do this first before invoking any thing else to ensure correct settings for the run
             RunSettingsHelper.ReadRunSettings(runContext?.RunSettings?.SettingsXml);
+            if (!ValidateRuntimeFramework())
+                return;
 #endif
 
             // In the context of Run All tests, commandline runner doesn't require source information or
@@ -163,8 +163,6 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             var logger = new LoggerHelper(frameworkHandle, stopwatch);
 
 #if NET452 || NETCOREAPP1_0
-            // Reads settings like disabling appdomains, parallel etc.
-            // Do this first before invoking any thing else to ensure correct settings for the run
             RunSettingsHelper.ReadRunSettings(runContext?.RunSettings?.SettingsXml);
 #endif
 
@@ -712,6 +710,22 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             return result;
 #endif
+        }
+
+        /// <summary>
+        /// Validates the runtime target framework from test platform with the current adapter's target.
+        /// </summary>
+        /// <returns>True if the target frameworks match.</returns>
+        static bool ValidateRuntimeFramework()
+        {
+#if NETCOREAPP1_0
+            var targetFrameworkVersion = RunSettingsHelper.TargetFrameworkVersion;
+
+            return targetFrameworkVersion.StartsWith(".NETCore", StringComparison.OrdinalIgnoreCase) ||
+                   targetFrameworkVersion.StartsWith("FrameworkCore", StringComparison.OrdinalIgnoreCase);
+#endif
+
+            return true;
         }
 
         class AssemblyDiscoveredInfo

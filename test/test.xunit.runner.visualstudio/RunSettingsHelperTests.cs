@@ -10,6 +10,7 @@ public class RunSettingsHelperTests
         Assert.False(RunSettingsHelper.NoAutoReporters);
         Assert.True(RunSettingsHelper.DesignMode);
         Assert.True(RunSettingsHelper.CollectSourceInformation);
+        Assert.Null(RunSettingsHelper.TargetFrameworkVersion);
     }
 
     [Fact]
@@ -132,5 +133,6 @@ public class RunSettingsHelperTests
         Assert.True(RunSettingsHelper.DisableAppDomain);
         Assert.True(RunSettingsHelper.DisableParallelization);
         Assert.True(RunSettingsHelper.NoAutoReporters);
+        Assert.Equal("FrameworkCore10", RunSettingsHelper.TargetFrameworkVersion);
     }
 }
