@@ -149,7 +149,7 @@ public class TestClass
 
     public class FSharp
     {
-        [Fact(Skip = "This test is temporarily skipped until VS2017")]
+        [Fact]
         public void FactAcceptanceTest()
         {
             string code = @"
@@ -201,7 +201,7 @@ let CustomName() =
             }
         }
 
-        [Fact(Skip = "This test is temporarily skipped until VS2017")]
+        [Fact]
         public void TheoryWithInlineData()
         {
             string code = @"
@@ -233,7 +233,7 @@ let TestMethod (x:int) =
             }
         }
 
-        [Fact(Skip = "This test is temporarily skipped until VS2017")]
+        [Fact]
         public void SupportsAsyncReturningMethods()
         {
             string code = @"
