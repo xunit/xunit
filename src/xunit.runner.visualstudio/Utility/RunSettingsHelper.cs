@@ -16,11 +16,13 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         /// </summary>
         public static bool DesignMode { get; private set; }
 
+        public static bool CollectSourceInformation { get; private set; }
+
         public static bool NoAutoReporters { get; private set; }
 
-/*
-        public static string ReporterSwitch { get; private set; }
-*/
+        /*
+                public static string ReporterSwitch { get; private set; }
+        */
         /// <summary>
         /// Reads settings for the current run from run settings xml
         /// </summary>
@@ -36,6 +38,8 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             // differentiate between VS or vstest.console.
             DesignMode = true;
 
+            // If runSettings doesnt have CollectSourceInformation tag then by default it should be true
+            CollectSourceInformation = true;
 
 #if !WINDOWS_UAP
             if (!string.IsNullOrEmpty(runSettingsXml))
@@ -66,9 +70,14 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                         if (bool.TryParse(noAutoReportersString, out noAutoReporters))
                             NoAutoReporters = noAutoReporters;
 
-/*
-                        ReporterSwitch = element.Element("ReporterSwitch")?.Value;
-*/
+                        var collectSourceInformationString = element.Element("CollectSourceInformation")?.Value;
+                        bool collectSourceinformation;
+                        if (bool.TryParse(collectSourceInformationString, out collectSourceinformation))
+                            CollectSourceInformation = collectSourceinformation;
+
+                        /*
+                                                ReporterSwitch = element.Element("ReporterSwitch")?.Value;
+                        */
                     }
                 }
                 catch { }

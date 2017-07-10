@@ -88,7 +88,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 // Discovery from command line (non designmode) never requires source information
                 // since there is no session or command line runner doesn't send back VSTestCase objects
                 // back to adapter.
-                RequireSourceInformation = RunSettingsHelper.DesignMode,
+                RequireSourceInformation = RunSettingsHelper.CollectSourceInformation,
 
                 // Command line runner could request for Discovery in case of running specific tests. We need
                 // the XunitTestCase serialized in this scenario.
@@ -119,7 +119,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             // serialized xunit test case property
             var testPlatformContext = new TestPlatformContext
             {
-                RequireSourceInformation = RunSettingsHelper.DesignMode,
+                RequireSourceInformation = RunSettingsHelper.CollectSourceInformation,
                 RequireXunitTestProperty = RunSettingsHelper.DesignMode
             };
 
@@ -172,7 +172,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             // serialized xunit test case property
             var testPlatformContext = new TestPlatformContext
             {
-                RequireSourceInformation = RunSettingsHelper.DesignMode,
+                RequireSourceInformation = RunSettingsHelper.CollectSourceInformation,
                 RequireXunitTestProperty = RunSettingsHelper.DesignMode
             };
 
