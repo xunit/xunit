@@ -37,6 +37,11 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
         public static string ReporterSwitch { get; private set; }
 
         /// <summary>
+        /// Gets a value which indicates the target framework the tests are being run in.
+        /// </summary>
+        public static string TargetFrameworkVersion { get; private set; }
+
+        /// <summary>
         /// Reads settings for the current run from run settings xml
         /// </summary>
         /// <param name="runSettingsXml">RunSettingsXml of the run</param>
@@ -49,6 +54,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
             DisableParallelization = false;
             NoAutoReporters = false;
             ReporterSwitch = null;
+            TargetFrameworkVersion = null;
 
 #if !WINDOWS_UAP
             if (!string.IsNullOrEmpty(runSettingsXml))
@@ -79,6 +85,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                             CollectSourceInformation = collectSourceInformation;
 
                         ReporterSwitch = element.Element("ReporterSwitch")?.Value;
+                        TargetFrameworkVersion = element.Element("TargetFrameworkVersion")?.Value;
                     }
                 }
                 catch { }

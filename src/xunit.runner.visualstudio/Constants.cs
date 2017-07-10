@@ -2,6 +2,14 @@
 {
     public static class Constants
     {
-        public const string ExecutorUri = "executor://xunit/VsTestRunner2";
+#if NET452
+        public const string ExecutorUri = "executor://xunit/VsTestRunner2/desktop";
+#elif NETCOREAPP1_0
+        public const string ExecutorUri = "executor://xunit/VsTestRunner2/netcoreapp";
+#elif WINDOWS_UAP
+        public const string ExecutorUri = "executor://xunit/VsTestRunner2/uap";
+#else
+#error Unknown target platform
+#endif
     }
 }
