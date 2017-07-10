@@ -6,40 +6,49 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 {
     public static class RunSettingsHelper
     {
-        public static bool DisableAppDomain { get; private set; }
-
-        public static bool DisableParallelization { get; private set; }
+        /// <summary>
+        /// Gets a value which indicates whether we should attempt to get source line information.
+        /// </summary>
+        public static bool CollectSourceInformation { get; private set; }
 
         /// <summary>
-        /// Design mode indicates the context of a test run. True indicates the test run is invoked from an editor
-        /// or IDE.
+        /// Gets a value which indicates whether we're running in design mode inside the IDE.
         /// </summary>
         public static bool DesignMode { get; private set; }
 
-        public static bool CollectSourceInformation { get; private set; }
+        /// <summary>
+        /// Gets a value which indicates if we should disable app domains.
+        /// </summary>
+        public static bool DisableAppDomain { get; private set; }
 
+        /// <summary>
+        /// Gets a value which indicates if we should disable parallelization.
+        /// </summary>
+        public static bool DisableParallelization { get; private set; }
+
+        /// <summary>
+        /// Gets a value which indiciates if we should disable automatic reporters.
+        /// </summary>
         public static bool NoAutoReporters { get; private set; }
 
-        /*
-                public static string ReporterSwitch { get; private set; }
-        */
+        /// <summary>
+        /// Gets a value which indicates which reporter we should use.
+        /// </summary>
+        public static string ReporterSwitch { get; private set; }
+
         /// <summary>
         /// Reads settings for the current run from run settings xml
         /// </summary>
         /// <param name="runSettingsXml">RunSettingsXml of the run</param>
         public static void ReadRunSettings(string runSettingsXml)
         {
-            // reset first, do not want to propagate earlier settings in cases where execution host is kept alive
+            // Reset to defaults
+            CollectSourceInformation = true;
+            DesignMode = true;
             DisableAppDomain = false;
             DisableParallelization = false;
             NoAutoReporters = false;
-
-            // We're keeping the default value as true since the adapter (prior to VS 2017) shouldn't
-            // differentiate between VS or vstest.console.
-            DesignMode = true;
-
-            // If runSettings doesnt have CollectSourceInformation tag then by default it should be true
-            CollectSourceInformation = true;
+            ReporterSwitch = null;
 
 #if !WINDOWS_UAP
             if (!string.IsNullOrEmpty(runSettingsXml))
@@ -50,34 +59,26 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                     if (element != null)
                     {
                         var disableAppDomainString = element.Element("DisableAppDomain")?.Value;
-                        bool disableAppDomain;
-                        if (bool.TryParse(disableAppDomainString, out disableAppDomain))
+                        if (bool.TryParse(disableAppDomainString, out bool disableAppDomain))
                             DisableAppDomain = disableAppDomain;
 
                         var disableParallelizationString = element.Element("DisableParallelization")?.Value;
-                        bool disableParallelization;
-                        if (bool.TryParse(disableParallelizationString, out disableParallelization))
+                        if (bool.TryParse(disableParallelizationString, out bool disableParallelization))
                             DisableParallelization = disableParallelization;
 
-                        // It is set to True if test is running from an Editor/IDE context.
                         var designModeString = element.Element("DesignMode")?.Value;
-                        bool designMode;
-                        if (bool.TryParse(designModeString, out designMode))
+                        if (bool.TryParse(designModeString, out bool designMode))
                             DesignMode = designMode;
 
                         var noAutoReportersString = element.Element("NoAutoReporters")?.Value;
-                        bool noAutoReporters;
-                        if (bool.TryParse(noAutoReportersString, out noAutoReporters))
+                        if (bool.TryParse(noAutoReportersString, out bool noAutoReporters))
                             NoAutoReporters = noAutoReporters;
 
                         var collectSourceInformationString = element.Element("CollectSourceInformation")?.Value;
-                        bool collectSourceinformation;
-                        if (bool.TryParse(collectSourceInformationString, out collectSourceinformation))
-                            CollectSourceInformation = collectSourceinformation;
+                        if (bool.TryParse(collectSourceInformationString, out bool collectSourceInformation))
+                            CollectSourceInformation = collectSourceInformation;
 
-                        /*
-                                                ReporterSwitch = element.Element("ReporterSwitch")?.Value;
-                        */
+                        ReporterSwitch = element.Element("ReporterSwitch")?.Value;
                     }
                 }
                 catch { }

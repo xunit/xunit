@@ -3,6 +3,15 @@ using Xunit.Runner.VisualStudio.TestAdapter;
 
 public class RunSettingsHelperTests
 {
+    void AssertDefaultValues()
+    {
+        Assert.False(RunSettingsHelper.DisableAppDomain);
+        Assert.False(RunSettingsHelper.DisableParallelization);
+        Assert.False(RunSettingsHelper.NoAutoReporters);
+        Assert.True(RunSettingsHelper.DesignMode);
+        Assert.True(RunSettingsHelper.CollectSourceInformation);
+    }
+
     [Fact]
     public void RunSettingsHelperShouldNotThrowExceptionOnBadXml()
     {
@@ -12,9 +21,7 @@ public class RunSettingsHelperTests
 
         RunSettingsHelper.ReadRunSettings(settingsXml);
 
-        // Default values must be used
-        Assert.False(RunSettingsHelper.DisableAppDomain);
-        Assert.False(RunSettingsHelper.DisableParallelization);
+        AssertDefaultValues();
     }
 
     [Fact]
@@ -34,14 +41,8 @@ public class RunSettingsHelperTests
 
         RunSettingsHelper.ReadRunSettings(settingsXml);
 
-        // Default values must be used
-        Assert.False(RunSettingsHelper.DisableAppDomain);
-        Assert.False(RunSettingsHelper.DisableParallelization);
-        Assert.False(RunSettingsHelper.NoAutoReporters);
-        Assert.True(RunSettingsHelper.DesignMode);
-        Assert.True(RunSettingsHelper.CollectSourceInformation);
+        AssertDefaultValues();
     }
-
 
     [Fact]
     public void RunSettingsHelperShouldUseDefaultValuesInCaseOfIncorrectSchemaAndIgnoreAttributes()
@@ -59,12 +60,10 @@ public class RunSettingsHelperTests
 
         RunSettingsHelper.ReadRunSettings(settingsXml);
 
-        // Attribute must be ignored
+        // Use element value, not attribute value
         Assert.True(RunSettingsHelper.DisableAppDomain);
-        // Default value must be used for disableparallelization, designmode
+        // Ignore value that isn't at the right level
         Assert.False(RunSettingsHelper.DisableParallelization);
-        Assert.True(RunSettingsHelper.DesignMode);
-        Assert.True(RunSettingsHelper.CollectSourceInformation);
     }
 
     [Fact]
@@ -81,64 +80,34 @@ public class RunSettingsHelperTests
 
         RunSettingsHelper.ReadRunSettings(settingsXml);
 
-        // Default value must be used for DisableAppDomain, DesignMode, NoAutoReporters
-        Assert.False(RunSettingsHelper.DisableAppDomain);
-        Assert.False(RunSettingsHelper.NoAutoReporters);
-        Assert.True(RunSettingsHelper.DesignMode);
-        Assert.True(RunSettingsHelper.CollectSourceInformation);
-        // DisableParallelization can be set
+        // Allow value to be read even after unexpected element body
         Assert.True(RunSettingsHelper.DisableParallelization);
-    }
-
-    [Theory]
-    [InlineData(false, false, true, true)]
-    [InlineData(false, true, true, false)]
-    [InlineData(true, false, false, true)]
-    [InlineData(true, true, false, false)]
-    public void RunSettingsHelperShouldReadValuesCorrectly(bool disableAppDomain, bool disableParallelization, bool noAutoReporters, bool collectSourceInformation)
-    {
-        string settingsXml =
-            $@"<?xml version=""1.0"" encoding=""utf-8""?>
-                <RunSettings>
-                    <RunConfiguration>
-                        <DisableAppDomain>{disableAppDomain.ToString().ToLowerInvariant()}</DisableAppDomain>
-                        <DisableParallelization>{disableParallelization.ToString().ToLowerInvariant()}</DisableParallelization>
-                        <NoAutoReporters>{noAutoReporters.ToString().ToLowerInvariant()}</NoAutoReporters>
-                        <CollectSourceInformation>{collectSourceInformation.ToString().ToLowerInvariant()}</CollectSourceInformation>
-                    </RunConfiguration>
-                </RunSettings>";
-
-        RunSettingsHelper.ReadRunSettings(settingsXml);
-
-        // Correct values must be set
-        Assert.Equal(disableAppDomain, RunSettingsHelper.DisableAppDomain);
-        Assert.Equal(disableParallelization, RunSettingsHelper.DisableParallelization);
-        Assert.Equal(noAutoReporters, RunSettingsHelper.NoAutoReporters);
-        Assert.Equal(collectSourceInformation, RunSettingsHelper.CollectSourceInformation);
     }
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void RunSettingsHelperShouldReadDesignModeSettingCorrectly(bool designMode)
+    public void RunSettingsHelperShouldReadValuesCorrectly(bool testValue)
     {
         string settingsXml =
             $@"<?xml version=""1.0"" encoding=""utf-8""?>
                 <RunSettings>
                     <RunConfiguration>
-                        <DisableAppDomain>true</DisableAppDomain>
-                        <DisableParallelization>invalid</DisableParallelization>
-                        <DesignMode>{designMode.ToString().ToLowerInvariant()}</DesignMode>
+                        <CollectSourceInformation>{testValue.ToString().ToLowerInvariant()}</CollectSourceInformation>
+                        <DesignMode>{testValue.ToString().ToLowerInvariant()}</DesignMode>
+                        <DisableAppDomain>{testValue.ToString().ToLowerInvariant()}</DisableAppDomain>
+                        <DisableParallelization>{testValue.ToString().ToLowerInvariant()}</DisableParallelization>
+                        <NoAutoReporters>{testValue.ToString().ToLowerInvariant()}</NoAutoReporters>
                     </RunConfiguration>
                 </RunSettings>";
 
         RunSettingsHelper.ReadRunSettings(settingsXml);
 
-        // Correct values must be set
-        Assert.Equal(designMode, RunSettingsHelper.DesignMode);
-        Assert.True(RunSettingsHelper.DisableAppDomain);
-        // Default value should be set for DisableParallelization
-        Assert.False(RunSettingsHelper.DisableParallelization);
+        Assert.Equal(testValue, RunSettingsHelper.CollectSourceInformation);
+        Assert.Equal(testValue, RunSettingsHelper.DesignMode);
+        Assert.Equal(testValue, RunSettingsHelper.DisableAppDomain);
+        Assert.Equal(testValue, RunSettingsHelper.DisableParallelization);
+        Assert.Equal(testValue, RunSettingsHelper.NoAutoReporters);
     }
 
     [Fact]
@@ -160,7 +129,6 @@ public class RunSettingsHelperTests
 
         RunSettingsHelper.ReadRunSettings(settingsXml);
 
-        // Correct values must be used
         Assert.True(RunSettingsHelper.DisableAppDomain);
         Assert.True(RunSettingsHelper.DisableParallelization);
         Assert.True(RunSettingsHelper.NoAutoReporters);
