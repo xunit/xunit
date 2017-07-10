@@ -18,8 +18,6 @@ namespace Xunit.Sdk
         /// </summary>
         public static readonly string DisplayName = string.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", new object[] { typeof(XunitTestFrameworkDiscoverer).GetTypeInfo().Assembly.GetName().Version });
 
-        readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
         /// </summary>
@@ -135,23 +133,15 @@ namespace Xunit.Sdk
         /// <returns>Returns the test case discoverer instance.</returns>
         protected IXunitTestCaseDiscoverer GetDiscoverer(Type discovererType)
         {
-
-            if (!discovererCache.TryGetValue(discovererType, out IXunitTestCaseDiscoverer result))
+            try
             {
-                try
-                {
-                    result = ExtensibilityPointFactory.GetXunitTestCaseDiscoverer(DiagnosticMessageSink, discovererType);
-                }
-                catch (Exception ex)
-                {
-                    result = null;
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}"));
-                }
-
-                discovererCache[discovererType] = result;
+                return ExtensibilityPointFactory.GetXunitTestCaseDiscoverer(DiagnosticMessageSink, discovererType);
             }
-
-            return result;
+            catch (Exception ex)
+            {
+                DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}"));
+                return null;
+            }
         }
     }
 }
