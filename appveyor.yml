@@ -27,6 +27,7 @@ skip_tags: true
 skip_commits:
   files:
   - CONTRIBUTING.md
+  - ISSUE_TEMPLATE.md
   - license.txt
   - README.md
   - tools/xUnitSummary.xsl
