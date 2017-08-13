@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp1.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyNuGetImplementations>true</CopyNuGetImplementations>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" />

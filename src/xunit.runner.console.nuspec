@@ -27,10 +27,10 @@
     <file src="xunit.console\bin\$Configuration$\net452\win7-x86\xunit.runner.reporters.net452.dll" target="tools\net452\" />
     <file src="xunit.console\bin\$Configuration$\net452\win7-x86\xunit.runner.utility.net452.dll"   target="tools\net452\" />
 
-    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\publish\xunit.abstractions.dll"                  target="tools\netcoreapp1.0\" />
-    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\publish\xunit.console.deps.json"                 target="tools\netcoreapp1.0\" />
-    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\publish\xunit.console.dll"                       target="tools\netcoreapp1.0\" />
-    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\publish\xunit.runner.reporters.netcoreapp10.dll" target="tools\netcoreapp1.0\" />
-    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\publish\xunit.runner.utility.netcoreapp10.dll"   target="tools\netcoreapp1.0\" />
+    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\xunit.abstractions.dll"                  target="tools\netcoreapp1.0\" />
+    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\xunit.console.deps.json"                 target="tools\netcoreapp1.0\" />
+    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\xunit.console.dll"                       target="tools\netcoreapp1.0\" />
+    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\xunit.runner.reporters.netcoreapp10.dll" target="tools\netcoreapp1.0\" />
+    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll"   target="tools\netcoreapp1.0\" />
   </files>
 </package>

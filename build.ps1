@@ -48,8 +48,6 @@ function __target_build() {
     _build_step "Compiling binaries"
         _msbuild "xunit.vs2017.sln" $configuration
         _msbuild "src\xunit.console\xunit.console.csproj" ($configuration + "_x86")
-        _dotnet ("publish src\xunit.console --framework netcoreapp1.0 --configuration " + $configuration + " /nologo /verbosity:minimal")
-        _dotnet ("publish src\dotnet-xunit --framework netcoreapp1.0 --configuration " + $configuration + " /nologo /verbosity:minimal")
 }
 
 function __target_ci() {
