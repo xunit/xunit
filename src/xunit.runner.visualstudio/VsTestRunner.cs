@@ -723,9 +723,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
             return targetFrameworkVersion.StartsWith(".NETCore", StringComparison.OrdinalIgnoreCase) ||
                    targetFrameworkVersion.StartsWith("FrameworkCore", StringComparison.OrdinalIgnoreCase);
-#endif
-
+#else
             return true;
+#endif
         }
 
         class AssemblyDiscoveredInfo
