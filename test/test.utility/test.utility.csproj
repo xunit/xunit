@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\src\xunit.execution\xunit.execution.csproj" />
     <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj" />
     <PackageReference Include="NSubstitute" Version="2.0.2" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.1.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <PackageReference Include="FSharp.Compiler.Service" Version="9.0.1" />

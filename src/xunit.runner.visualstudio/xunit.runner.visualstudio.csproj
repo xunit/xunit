@@ -10,6 +10,9 @@
     <AssemblyName Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">xunit.runner.visualstudio.dotnetcore.testadapter</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'uap10.0' ">xunit.runner.visualstudio.uwp</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
+    <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MSBuild.Sdk.Extras" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="SourceLink.Create.GitHub" Version="2.0.2" PrivateAssets="all" />

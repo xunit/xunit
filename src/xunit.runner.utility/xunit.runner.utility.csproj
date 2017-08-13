@@ -5,6 +5,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit</RootNamespace>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
+    <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" />
     <Compile Include="..\common\CommonTasks.cs" />
