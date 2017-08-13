@@ -2,6 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -49,7 +52,14 @@ namespace Xunit.Runner.Reporters
             {
                 assembliesInFlight++;
 
+                // Look for the TFM attrib to disambiguate 
+                var attrib = args.Message.TestAssembly.Assembly.GetCustomAttributes("System.Runtime.Versioning.TargetFrameworkAttribute").FirstOrDefault();
+                var arg = attrib?.GetConstructorArguments().FirstOrDefault() as string;
+                
                 var assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
+                if (arg != null)
+                    assemblyFileName = $"{assemblyFileName} ({arg})";
+
                 assemblyNames[args.Message.TestAssembly.Assembly.Name] = Tuple.Create(assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
 
                 if (client == null)
