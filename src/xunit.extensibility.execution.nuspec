@@ -17,7 +17,7 @@
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
       <group targetFramework="netstandard1.1">
-        <dependency id="NETStandard.Library" version="1.6.0" />
+        <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
       </group>
     </dependencies>

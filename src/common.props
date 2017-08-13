@@ -11,7 +11,6 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <SignAssembly>true</SignAssembly>
     <VersionPrefix>99.99.99-dev</VersionPrefix>
@@ -20,9 +19,9 @@
 
   <ItemGroup>
     <ProjectCapability Include="ShowFilesOutsideOfProject" />
-    <PackageReference Include="SourceLink.Create.GitHub" Version="2.0.2" PrivateAssets="all" />
-    <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.0.2" />
-    <DotNetCliToolReference Include="dotnet-sourcelink" Version="2.0.2" />
+    <PackageReference Include="SourceLink.Create.GitHub" Version="2.1.2" PrivateAssets="all" />
+    <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.1.2" />
+    <DotNetCliToolReference Include="dotnet-sourcelink" Version="2.1.2" />
   </ItemGroup>
 
 </Project>
