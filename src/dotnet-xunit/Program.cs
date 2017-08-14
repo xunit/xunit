@@ -375,13 +375,21 @@ class Program
         return runTests.ExitCode;
     }
 
+#if NETCOREAPP1_0
+    const string NETCOREAPP_VERSION = "netcoreapp1.0";
+#elif NETCOREAPP2_0
+    const string NETCOREAPP_VERSION = "netcoreapp2.0";
+#else
+#error Unknown target framework
+#endif
+
     int RunDotNetCoreProject(string outputPath, string assemblyName, string targetFileName, string extraArgs)
     {
-        var consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "tools", "netcoreapp1.0"));
+        var consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "tools", NETCOREAPP_VERSION));
 
         // Debug hack to be able to run from the compilation folder
         if (!Directory.Exists(consoleFolder))
-            consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "..", "..", "xunit.console", "bin", "Debug", "netcoreapp1.0"));
+            consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "..", "..", "xunit.console", "bin", "Debug", NETCOREAPP_VERSION));
 
         var runner = Path.Combine(consoleFolder, "xunit.console.dll");
 

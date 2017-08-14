@@ -174,7 +174,7 @@ namespace Xunit.ConsoleClient
         {
 #if NET452
             var platform = $"Desktop .NET {Environment.Version}";
-#elif NETCOREAPP1_0
+#elif NETCOREAPP1_0 || NETCOREAPP2_0
             var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #else
 #error Unknown target platform

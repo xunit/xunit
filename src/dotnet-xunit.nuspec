@@ -28,6 +28,10 @@
     <file src="dotnet-xunit/bin/$Configuration$/netcoreapp1.0/dotnet-xunit.runtimeconfig.json" target="lib/netcoreapp1.0/" />
     <file src="dotnet-xunit/bin/$Configuration$/netcoreapp1.0/import.targets"                  target="lib/netcoreapp1.0/" />
 
+    <file src="dotnet-xunit/bin/$Configuration$/netcoreapp2.0/dotnet-xunit.dll"                target="lib/netcoreapp2.0/" />
+    <file src="dotnet-xunit/bin/$Configuration$/netcoreapp2.0/dotnet-xunit.runtimeconfig.json" target="lib/netcoreapp2.0/" />
+    <file src="dotnet-xunit/bin/$Configuration$/netcoreapp2.0/import.targets"                  target="lib/netcoreapp2.0/" />
+
     <file src="xunit.console/bin/$Configuration$/net452/win7-x86/xunit.abstractions.dll"            target="tools/net452/" />
     <file src="xunit.console/bin/$Configuration$/net452/win7-x86/xunit.console.exe"                 target="tools/net452/" />
     <file src="xunit.console/bin/$Configuration$/net452/win7-x86/xunit.console.exe.config"          target="tools/net452/" />
@@ -41,5 +45,11 @@
     <file src="xunit.console/bin/$Configuration$/netcoreapp1.0/xunit.console.runtimeconfig.json"        target="tools/netcoreapp1.0/" />
     <file src="xunit.console/bin/$Configuration$/netcoreapp1.0/xunit.runner.reporters.netcoreapp10.dll" target="tools/netcoreapp1.0/" />
     <file src="xunit.console/bin/$Configuration$/netcoreapp1.0/xunit.runner.utility.netcoreapp10.dll"   target="tools/netcoreapp1.0/" />
+
+    <file src="xunit.console/bin/$Configuration$/netcoreapp2.0/xunit.abstractions.dll"                  target="tools/netcoreapp2.0/" />
+    <file src="xunit.console/bin/$Configuration$/netcoreapp2.0/xunit.console.dll"                       target="tools/netcoreapp2.0/" />
+    <file src="xunit.console/bin/$Configuration$/netcoreapp2.0/xunit.console.runtimeconfig.json"        target="tools/netcoreapp2.0/" />
+    <file src="xunit.console/bin/$Configuration$/netcoreapp2.0/xunit.runner.reporters.netcoreapp10.dll" target="tools/netcoreapp2.0/" />
+    <file src="xunit.console/bin/$Configuration$/netcoreapp2.0/xunit.runner.utility.netcoreapp10.dll"   target="tools/netcoreapp2.0/" />
   </files>
 </package>
