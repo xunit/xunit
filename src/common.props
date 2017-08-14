@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectCapability Include="ShowFilesOutsideOfProject" />
-    <!--<PackageReference Include="SourceLink.Create.CommandLine" Version="2.1.2" PrivateAssets="all" />-->
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.1.2" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
