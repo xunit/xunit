@@ -14,6 +14,9 @@
     <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="MSBuild.Sdk.Extras" Version="1.0.6" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
