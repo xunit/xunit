@@ -47,8 +47,14 @@ namespace Xunit
         public DiaNavigationData GetNavigationData(string typeName, string methodName, string owningAssemblyFilename)
         {
             if (!sessionHasErrors)
+            {
                 try
                 {
+                    // strip of any generic instantiation information
+                    var idx = typeName.IndexOf('[');
+                    if (idx >= 0)
+                        typeName = typeName.Substring(0, idx);
+
                     if (!wrappedSessions.ContainsKey(owningAssemblyFilename))
                         wrappedSessions[owningAssemblyFilename] = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename);
 
@@ -67,6 +73,8 @@ namespace Xunit
                 {
                     sessionHasErrors = true;
                 }
+
+            }
 
             return null;
         }

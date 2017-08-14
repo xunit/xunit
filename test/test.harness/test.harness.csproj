@@ -2,6 +2,7 @@
   <PropertyGroup>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
     <TargetFramework>net452</TargetFramework>
+    <DebugType>Full</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj" />
