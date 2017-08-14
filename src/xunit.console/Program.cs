@@ -22,7 +22,7 @@ namespace Xunit.ConsoleClient
         [STAThread]
         public static int Main(string[] args)
         {
-#if NETCOREAPP1_0
+#if NETCOREAPP1_0 || NETCOREAPP2_0
             using (NetCoreAssemblyHelper.SubscribeResolve())
 #else
             using (AssemblyHelper.SubscribeResolve())
@@ -240,7 +240,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
             Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
             Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
-#if NETCOREAPP1_0
+#if NETCOREAPP1_0 || NETCOREAPP2_0
             Console.WriteLine("  -framework \"name\"      : set the target framework");
 #endif
             Console.WriteLine();
