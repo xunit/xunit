@@ -185,8 +185,8 @@ namespace Xunit.Sdk
                 
                 // attr is null here from our new unit test, but I'm not sure if that's expected or there's a cheaper approach here
                 // Current approach is trying to avoid any changes to the abstractions at all
-                var attr = collection.Item1.CollectionDefinition?.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
-                if (attr != null && attr.GetNamedArgument<bool>(nameof(CollectionAttribute.DisableParallelization)))
+                var attr = collection.Item1.CollectionDefinition?.GetCustomAttributes(typeof(CollectionDefinitionAttribute)).SingleOrDefault();
+                if (attr?.GetNamedArgument<bool>(nameof(CollectionDefinitionAttribute.DisableParallelization)) == true)
                 {
                     (nonParallel ?? (nonParallel = new List<Func<Task<RunSummary>>>())).Add(task);
                 }

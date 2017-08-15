@@ -356,7 +356,7 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class TestNonParellelOrdering : AcceptanceTestV2
+    public class TestNonParallelOrdering : AcceptanceTestV2
     {
         [Fact]
         public void NonParallelCollectionsRunLast()
@@ -369,11 +369,16 @@ public class Xunit2AcceptanceTests
             Assert.Collection(testMessages,
                 message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
                 message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
-                message => Assert.Equal("IShouldBeLast", message.TestCase.TestMethod.Method.Name)
+                message => Assert.Equal("IShouldBeLast1", message.TestCase.TestMethod.Method.Name),
+                message => Assert.Equal("IShouldBeLast2", message.TestCase.TestMethod.Method.Name)
             );
         }
 
-        [Collection("Ordered Collection")]
+        [CollectionDefinition("Parallel Ordered Collection")]
+        [TestCaseOrderer("Xunit2AcceptanceTests+TestOrdering+AlphabeticalOrderer", "test.xunit.execution")]
+        public class CollectionClass { }
+
+        [Collection("Parallel Ordered Collection")]
         class TestClassParallelCollection
         {
             [Fact]
@@ -383,11 +388,17 @@ public class Xunit2AcceptanceTests
             public void Test2() { }
         }
 
-        [Collection("Non-Parallel Collection", DisableParallelization = true)]
+        [CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
+        [TestCaseOrderer("Xunit2AcceptanceTests+TestOrdering+AlphabeticalOrderer", "test.xunit.execution")]
+        public class TestClassNonParallelCollectionDefinition { }
+
+        [Collection("Non-Parallel Collection")]
         class TestClassNonParallelCollection
         {
             [Fact]
-            public void IShouldBeLast() { }
+            public void IShouldBeLast2() { }
+            [Fact]
+            public void IShouldBeLast1() { }
         }
     }
 
