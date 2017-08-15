@@ -356,6 +356,41 @@ public class Xunit2AcceptanceTests
         }
     }
 
+    public class TestNonParellelOrdering : AcceptanceTestV2
+    {
+        [Fact]
+        public void NonParallelCollectionsRunLast()
+        {
+            var testMessages = Run<ITestPassed>(new[] {
+                typeof(TestClassNonParallelCollection),
+                typeof(TestClassParallelCollection)
+            });
+
+            Assert.Collection(testMessages,
+                message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
+                message => Assert.Equal("Test2", message.TestCase.TestMethod.Method.Name),
+                message => Assert.Equal("IShouldBeLast", message.TestCase.TestMethod.Method.Name)
+            );
+        }
+
+        [Collection("Ordered Collection")]
+        class TestClassParallelCollection
+        {
+            [Fact]
+            public void Test1() { }
+
+            [Fact]
+            public void Test2() { }
+        }
+
+        [Collection("Non-Parallel Collection", DisableParallelization = true)]
+        class TestClassNonParallelCollection
+        {
+            [Fact]
+            public void IShouldBeLast() { }
+        }
+    }
+
     public class CustomFacts : AcceptanceTestV2
     {
         [Fact]
