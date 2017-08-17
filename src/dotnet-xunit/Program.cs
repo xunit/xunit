@@ -317,7 +317,7 @@ class Program
             if (targetFrameworkIdentifier == ".NETCoreApp")
             {
                 WriteLine($"Running .NET Core tests for framework {targetFramework}...");
-                return RunDotNetCoreProject(outputPath, assemblyName, targetFileName, extraArgs);
+                return RunDotNetCoreProject(outputPath, assemblyName, targetFileName, extraArgs, $"netcoreapp{version.Major}.0");
             }
             if (targetFrameworkIdentifier == ".NETFramework" && version >= Version452)
             {
@@ -325,7 +325,7 @@ class Program
                 return RunDesktopProject(outputPath, targetFileName, extraArgs);
             }
 
-            WriteLineWarning($"Unsupported target framework '{targetFrameworkIdentifier} {version}' (only .NETCoreApp 1.0+ and .NETFramework 4.5.2+ are supported)");
+            WriteLineWarning($"Unsupported target framework '{targetFrameworkIdentifier} {version}' (only .NETCoreApp 1.x/2.x and .NETFramework 4.5.2+ are supported)");
             return 0;
         }
         finally
@@ -375,21 +375,19 @@ class Program
         return runTests.ExitCode;
     }
 
-#if NETCOREAPP1_0
-    const string NETCOREAPP_VERSION = "netcoreapp1.0";
-#elif NETCOREAPP2_0
-    const string NETCOREAPP_VERSION = "netcoreapp2.0";
-#else
-#error Unknown target framework
-#endif
-
-    int RunDotNetCoreProject(string outputPath, string assemblyName, string targetFileName, string extraArgs)
+    int RunDotNetCoreProject(string outputPath, string assemblyName, string targetFileName, string extraArgs, string netCoreAppVersion)
     {
-        var consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "tools", NETCOREAPP_VERSION));
+        var consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "tools", netCoreAppVersion));
 
         // Debug hack to be able to run from the compilation folder
         if (!Directory.Exists(consoleFolder))
-            consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "..", "..", "xunit.console", "bin", "Debug", NETCOREAPP_VERSION));
+            consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "..", "..", "xunit.console", "bin", "Debug", netCoreAppVersion));
+
+        if (!Directory.Exists(consoleFolder))
+        {
+            WriteLineError($"Could not locate runner DLL for {netCoreAppVersion}; unsupported version of .NET Core");
+            return 3;
+        }
 
         var runner = Path.Combine(consoleFolder, "xunit.console.dll");
 
