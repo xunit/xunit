@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Xunit;
 
 class Program
 {
@@ -435,11 +436,11 @@ class Program
     void WriteLineWithColor(ConsoleColor color, string message, TextWriter writer = null)
     {
         if (!NoColor)
-            Console.ForegroundColor = color;
+            ConsoleHelper.SetColorANSI(color);
 
         (writer ?? Console.Out).WriteLine(message);
 
         if (!NoColor)
-            Console.ResetColor();
+            ConsoleHelper.ResetColorANSI();
     }
 }

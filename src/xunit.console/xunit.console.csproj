@@ -14,6 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" />
+    <Compile Include="..\common\ConsoleHelper.cs" />
     <Compile Include="..\common\DictionaryExtensions.cs" />
     <Compile Include="..\common\GlobalAssemblyInfo.cs" />
     <Compile Include="..\common\Guard.cs" />

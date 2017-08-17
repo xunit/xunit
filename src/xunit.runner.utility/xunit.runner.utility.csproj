@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" />
     <Compile Include="..\common\CommonTasks.cs" />
+    <Compile Include="..\common\ConsoleHelper.cs" />
     <Compile Include="..\common\DictionaryExtensions.cs" />
     <Compile Include="..\common\ExceptionExtensions.cs" />
     <Compile Include="..\common\ExceptionUtility.cs" />

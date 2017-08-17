@@ -14,6 +14,7 @@
     <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\common\ConsoleHelper.cs" />
     <Compile Include="..\common\GlobalAssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

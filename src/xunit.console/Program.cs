@@ -102,7 +102,7 @@ namespace Xunit.ConsoleClient
             }
             finally
             {
-                Console.ResetColor();
+                ConsoleHelper.ResetColorANSI();
             }
         }
 
@@ -143,9 +143,9 @@ namespace Xunit.ConsoleClient
                     var ctor = type.GetConstructor(new Type[0]);
                     if (ctor == null)
                     {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        ConsoleHelper.SetColorANSI(ConsoleColor.Yellow);
                         Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
-                        Console.ResetColor();
+                        ConsoleHelper.ResetColorANSI();
                         continue;
                     }
 
@@ -430,9 +430,9 @@ namespace Xunit.ConsoleClient
 
             lock (consoleLock)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
+                ConsoleHelper.SetColorANSI(ConsoleColor.Red);
                 Console.WriteLine($"File not found: {fileName}");
-                Console.ForegroundColor = ConsoleColor.Gray;
+                ConsoleHelper.SetColorANSI(ConsoleColor.Gray);
             }
 
             return false;

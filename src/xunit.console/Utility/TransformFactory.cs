@@ -70,9 +70,9 @@ namespace Xunit.ConsoleClient
                 xmlTransform.Transform(xmlReader, writer);
             }
 #else
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            ConsoleHelper.SetColorANSI(ConsoleColor.Yellow);
             Console.WriteLine($"Skipping -{key} because XSL-T is not supported on .NET Core");
-            Console.ResetColor();
+            ConsoleHelper.ResetColorANSI();
 #endif
         }
     }
