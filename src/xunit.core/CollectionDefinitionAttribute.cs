@@ -16,5 +16,10 @@ namespace Xunit
         /// </summary>
         /// <param name="name">The test collection name.</param>
         public CollectionDefinitionAttribute(string name) { }
+
+        /// <summary>
+        /// Determines whether tests in this collection runs in parallel with any other collections.
+        /// </summary>
+        public bool DisableParallelization { get; set; }
     }
 }

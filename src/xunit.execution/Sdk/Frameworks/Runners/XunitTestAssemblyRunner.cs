@@ -175,19 +175,51 @@ namespace Xunit.Sdk
             else
                 taskRunner = code => Task.Run(code, cancellationTokenSource.Token);
 
-            var tasks = OrderTestCollections().Select(
-                collection => taskRunner(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource))
-            ).ToArray();
-
+            List<Task<RunSummary>> parallel = null;
+            List<Func<Task<RunSummary>>> nonParallel = null;
             var summaries = new List<RunSummary>();
 
-            foreach (var task in tasks)
+            foreach (var collection in OrderTestCollections())
             {
-                try
+                Func<Task<RunSummary>> task = () => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource);
+                
+                // attr is null here from our new unit test, but I'm not sure if that's expected or there's a cheaper approach here
+                // Current approach is trying to avoid any changes to the abstractions at all
+                var attr = collection.Item1.CollectionDefinition?.GetCustomAttributes(typeof(CollectionDefinitionAttribute)).SingleOrDefault();
+                if (attr?.GetNamedArgument<bool>(nameof(CollectionDefinitionAttribute.DisableParallelization)) == true)
                 {
-                    summaries.Add(await task);
+                    (nonParallel ?? (nonParallel = new List<Func<Task<RunSummary>>>())).Add(task);
                 }
-                catch (TaskCanceledException) { }
+                else
+                {
+                    (parallel ?? (parallel = new List<Task<RunSummary>>())).Add(taskRunner(task));
+                }
+            }
+            
+            if (parallel?.Count > 0)
+            {
+                foreach (var task in parallel)
+                {
+                    try
+                    {
+                        summaries.Add(await task);
+                    }
+                    catch (TaskCanceledException) { }
+                }
+            }
+
+            if (nonParallel?.Count > 0)
+            {
+                foreach (var task in nonParallel)
+                {
+                    try
+                    {
+                        summaries.Add(await taskRunner(task));
+                        if (cancellationTokenSource.IsCancellationRequested)
+                            break;
+                    }
+                    catch (TaskCanceledException) { }
+                }
             }
 
             return new RunSummary()
