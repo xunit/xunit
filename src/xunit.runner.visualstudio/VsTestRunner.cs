@@ -642,9 +642,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                         var ctor = type.DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Length == 0);
                         if (ctor == null)
                         {
-                            ConsoleHelper.SetColorANSI(ConsoleColor.Yellow);
+                            ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
                             Console.WriteLine($"Type {type.FullName} in assembly {assembly} appears to be a runner reporter, but does not have an empty constructor.");
-                            ConsoleHelper.ResetColorANSI();
+                            ConsoleHelper.ResetColor();
                             continue;
                         }
 
@@ -698,9 +698,9 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                     var ctor = type.GetConstructor(new Type[0]);
                     if (ctor == null)
                     {
-                        ConsoleHelper.SetColorANSI(ConsoleColor.Yellow);
+                        ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
                         Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
-                        ConsoleHelper.ResetColorANSI();
+                        ConsoleHelper.ResetColor();
                         continue;
                     }
 

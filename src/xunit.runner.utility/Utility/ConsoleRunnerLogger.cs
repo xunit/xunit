@@ -70,12 +70,12 @@ namespace Xunit
         {
             public ColorRestorer(ConsoleColor color)
             {
-                ConsoleHelper.SetColorANSI(color);
+                ConsoleHelper.SetForegroundColor(color);
             }
 
             public void Dispose()
             {
-                ConsoleHelper.ResetColorANSI();
+                ConsoleHelper.ResetColor();
             }
         }
     }

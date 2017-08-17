@@ -436,11 +436,11 @@ class Program
     void WriteLineWithColor(ConsoleColor color, string message, TextWriter writer = null)
     {
         if (!NoColor)
-            ConsoleHelper.SetColorANSI(color);
+            ConsoleHelper.SetForegroundColor(color);
 
         (writer ?? Console.Out).WriteLine(message);
 
         if (!NoColor)
-            ConsoleHelper.ResetColorANSI();
+            ConsoleHelper.ResetColor();
     }
 }

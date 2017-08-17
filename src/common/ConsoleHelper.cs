@@ -1,4 +1,4 @@
-// This code was taken from https://github.com/Microsoft/msbuild/blob/ab090d1255caa87e742cbdbc6d7fe904ecebd975/src/Build/Logging/BaseConsoleLogger.cs#L361-L401
+// This code was adapted from https://github.com/Microsoft/msbuild/blob/ab090d1255caa87e742cbdbc6d7fe904ecebd975/src/Build/Logging/BaseConsoleLogger.cs#L361-L401
 // Under the MIT license https://github.com/Microsoft/msbuild/blob/ab090d1255caa87e742cbdbc6d7fe904ecebd975/LICENSE
 
 #if !NETSTANDARD1_1
@@ -9,7 +9,29 @@ namespace Xunit
 {
     internal static class ConsoleHelper
     {
-        internal static void SetColorANSI(ConsoleColor c)
+        internal static Action ResetColor;
+        internal static Action<ConsoleColor> SetForegroundColor;
+
+        static ConsoleHelper()
+        {
+#if NET35 || NET452
+            ResetColor = ResetColorConsole;
+            SetForegroundColor = SetForegroundColorConsole;
+#else
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+                ResetColor = ResetColorConsole;
+                SetForegroundColor = SetForegroundColorConsole;
+            }
+            else
+            {
+                ResetColor = ResetColorANSI;
+                SetForegroundColor = SetForegroundColorConsole;
+            }
+#endif
+        }
+
+        static void SetForegroundColorANSI(ConsoleColor c)
         {
             string colorString = "\x1b[";
             switch (c)
@@ -39,13 +61,14 @@ namespace Xunit
             }
         }
 
-        /// <summary>
-        /// Resets the color using ANSI escape codes
-        /// </summary>
-        internal static void ResetColorANSI()
-        {
-            Console.Out.Write("\x1b[m");
-        }
+        static void SetForegroundColorConsole(ConsoleColor c)
+            => Console.ForegroundColor = c;
+
+        static void ResetColorANSI()
+            => Console.Out.Write("\x1b[m");
+
+        static void ResetColorConsole()
+            => Console.ResetColor();
     }
 }
 

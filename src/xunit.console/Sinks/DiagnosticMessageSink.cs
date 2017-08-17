@@ -24,12 +24,12 @@ namespace Xunit.ConsoleClient
             lock (consoleLock)
             {
                 if (!noColor)
-                    ConsoleHelper.SetColorANSI(ConsoleColor.Yellow);
+                    ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
 
                 Console.WriteLine($"   {assemblyDisplayName}: {args.Message.Message}");
 
                 if (!noColor)
-                    ConsoleHelper.ResetColorANSI();
+                    ConsoleHelper.ResetColor();
             }
         }
     }
