@@ -26,7 +26,7 @@ namespace Xunit
             else
             {
                 ResetColor = ResetColorANSI;
-                SetForegroundColor = SetForegroundColorConsole;
+                SetForegroundColor = SetForegroundColorANSI;
             }
 #endif
         }
