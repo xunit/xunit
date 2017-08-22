@@ -97,7 +97,7 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
 
                 if (testPlatformContext.RequireXunitTestProperty)
                     result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, discoverer.Serialize(xunitTestCase));
-				
+
                 result.Id = GuidFromString(uri + uniqueID);
 
                 if (forceUniqueName)
