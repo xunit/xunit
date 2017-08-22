@@ -26,6 +26,7 @@ skip_tags: true
 
 skip_commits:
   files:
+  - BUILDING.md
   - CONTRIBUTING.md
   - ISSUE_TEMPLATE.md
   - license.txt
