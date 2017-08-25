@@ -752,15 +752,11 @@ namespace Xunit.Runner.VisualStudio.TestAdapter
                 var testClassName = testMethod.TestClass.Class.Name;
                 var testMethodName = testMethod.Method.Name;
 
-                TraitNames = testCase.Traits.Keys;
-                VSTestCase = VsDiscoverySink.CreateVsTestCase(source, discoverer, testCase, false, logger, testPlatformContext);
                 Name = $"{testClassName}.{testMethodName}";
-
                 TestCase = testCase;
                 UniqueID = testCase.UniqueID;
-
                 VSTestCase = VsDiscoverySink.CreateVsTestCase(source, discoverer, testCase, false, logger, testPlatformContext, testClassName, testMethodName, UniqueID);
-                TraitNames = VSTestCase.Traits.Select(x => x.Name);
+                TraitNames = testCase.Traits.Keys;
             }
 
             public void ForceUniqueName()
