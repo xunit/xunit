@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-  <Import Project="..\common.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp1.0;netcoreapp2.0</TargetFrameworks>
@@ -12,8 +11,7 @@
     <RuntimeFrameworkVersion>2.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\common\ConsoleHelper.cs" />
-    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
+    <Compile Include="..\common\ConsoleHelper.cs" LinkBase="Common" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="import.targets">

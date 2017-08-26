@@ -1,18 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\common.props" />
   <PropertyGroup>
     <TargetFramework>netstandard1.1</TargetFramework>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\common\ExceptionExtensions.cs" />
-    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
-    <Compile Include="..\common\Guard.cs" />
-    <Compile Include="..\common\TestMethodDisplay.cs" />
-    <Compile Include="..\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs" />
-    <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparer.cs" />
-    <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" />
+    <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\Guard.cs" LinkBase="Common" />
+    <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />
+    <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparer.cs" LinkBase="Common\Asserts" />
+    <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" LinkBase="Common\Asserts" />
     <Content Include="xunit.core.dll.tdnet">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

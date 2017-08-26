@@ -5,11 +5,8 @@
     <WarningsAsErrors>true</WarningsAsErrors>
     <AssemblyName>test.xunit.runner.tdnet</AssemblyName>
     <PackageId>test.xunit.runner.tdnet</PackageId>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectCapability Include="ShowFilesOutsideOfProject" />
-    <Compile Include="..\GlobalTestAssemblyInfo.cs" />
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>

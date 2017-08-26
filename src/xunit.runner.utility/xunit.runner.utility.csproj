@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\common.props" />
   <PropertyGroup>
     <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,25 +8,24 @@
     <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\common\AssemblyExtensions.cs" />
-    <Compile Include="..\common\CommonTasks.cs" />
-    <Compile Include="..\common\ConsoleHelper.cs" />
-    <Compile Include="..\common\DictionaryExtensions.cs" />
-    <Compile Include="..\common\ExceptionExtensions.cs" />
-    <Compile Include="..\common\ExceptionUtility.cs" />
-    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
-    <Compile Include="..\common\Guard.cs" />
-    <Compile Include="..\common\Json.cs" />
-    <Compile Include="..\common\LongLivedMarshalByRefObject.cs" />
-    <Compile Include="..\common\NewReflectionExtensions.cs" />
-    <Compile Include="..\common\NullMessageSink.cs" />
-    <Compile Include="..\common\SerializationHelper.cs" />
-    <Compile Include="..\common\SourceInformation.cs" />
-    <Compile Include="..\common\TestMethodDisplay.cs" />
-    <Compile Include="..\common\TestOptionsNames.cs" />
-    <Compile Include="..\common\XunitSerializationInfo.cs" />
-    <Compile Include="..\common\XunitWorkerThread.cs" />
-    <Compile Include="..\messages\**\*.cs" />
+    <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\CommonTasks.cs" LinkBase="Common" />
+    <Compile Include="..\common\ConsoleHelper.cs" LinkBase="Common" />
+    <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\ExceptionUtility.cs" LinkBase="Common" />
+    <Compile Include="..\common\Guard.cs" LinkBase="Common" />
+    <Compile Include="..\common\Json.cs" LinkBase="Common" />
+    <Compile Include="..\common\LongLivedMarshalByRefObject.cs" LinkBase="Common" />
+    <Compile Include="..\common\NewReflectionExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\NullMessageSink.cs" LinkBase="Common" />
+    <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
+    <Compile Include="..\common\SourceInformation.cs" LinkBase="Common" />
+    <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
+    <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
+    <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
+    <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
+    <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="xunit.abstractions" Version="2.0.1" />

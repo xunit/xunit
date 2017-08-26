@@ -5,16 +5,13 @@
     <WarningsAsErrors>true</WarningsAsErrors>
     <AssemblyName>test.utility</AssemblyName>
     <PackageId>test.utility</PackageId>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectCapability Include="ShowFilesOutsideOfProject" />
-    <Compile Include="..\..\src\common\AssemblyExtensions.cs" />
-    <Compile Include="..\..\src\common\DictionaryExtensions.cs" />
-    <Compile Include="..\..\src\common\ExceptionExtensions.cs" />
-    <Compile Include="..\..\src\common\ExecutionHelper.cs" />
-    <Compile Include="..\..\src\common\TestOptionsNames.cs" />
-    <Compile Include="..\GlobalTestAssemblyInfo.cs" />
+    <Compile Include="..\..\src\common\AssemblyExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\DictionaryExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\ExceptionExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\ExecutionHelper.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\TestOptionsNames.cs" LinkBase="Common" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj" />

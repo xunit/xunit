@@ -1,11 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 14.0.22823.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{DAED8494-AC8A-4C67-A8F1-616D95ECC302}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D013AD79-A261-4476-93FC-9AF7E637CDB6}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.build.props = test\Directory.build.props
+		test\Directory.build.targets = test\Directory.build.targets
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Meta", "Meta", "{3AD1513F-07B7-4C14-AB10-83682616ACE5}"
 	ProjectSection(SolutionItems) = preProject
@@ -53,7 +60,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{EB403884
 	ProjectSection(SolutionItems) = preProject
 		build.ps1 = build.ps1
 		build.sh = build.sh
-		src\common.props = src\common.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.core", "src\xunit.core\xunit.core.csproj", "{05CC6B6D-5A70-4B82-8118-49A89A70C425}"
@@ -325,5 +331,8 @@ Global
 		{378C9C3B-D783-4728-A368-373E081ADD59} = {2DF4CF8D-7096-45B8-BEFF-7518E5264DF4}
 		{8D57BD0A-F46C-44FF-8AFE-D571D9230C44} = {2DF4CF8D-7096-45B8-BEFF-7518E5264DF4}
 		{BD1E1BC0-B37B-48AA-AB56-781ACE2109D8} = {9D9F81DC-EE05-43B4-AF77-8EFE32024E82}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {290036A3-A9C9-4AB2-8D97-7DA0711FDABD}
 	EndGlobalSection
 EndGlobal

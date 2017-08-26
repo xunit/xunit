@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\common.props" />
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
@@ -7,8 +6,7 @@
     <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
-    <Compile Include="..\common\XunitWorkerThread.cs" />
+    <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj" />

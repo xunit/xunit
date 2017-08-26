@@ -6,11 +6,8 @@
     <WarningsAsErrors>true</WarningsAsErrors>
     <AssemblyName>test.xunit.assert</AssemblyName>
     <PackageId>test.xunit.assert</PackageId>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectCapability Include="ShowFilesOutsideOfProject" />
-    <Compile Include="..\GlobalTestAssemblyInfo.cs" />
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>

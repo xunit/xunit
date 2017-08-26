@@ -6,20 +6,17 @@
     <WarningsAsErrors>true</WarningsAsErrors>
     <AssemblyName>test.xunit.runner.utility</AssemblyName>
     <PackageId>test.xunit.runner.utility</PackageId>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectCapability Include="ShowFilesOutsideOfProject" />
-    <Compile Include="..\..\src\common\AssemblyExtensions.cs" />
-    <Compile Include="..\..\src\common\DictionaryExtensions.cs" />
-    <Compile Include="..\..\src\common\ExecutionHelper.cs" />
-    <Compile Include="..\..\src\common\Guard.cs" />
-    <Compile Include="..\..\src\common\NewReflectionExtensions.cs" />
-    <Compile Include="..\..\src\common\SerializationHelper.cs" />
-    <Compile Include="..\..\src\common\TestOptionsNames.cs" />
-    <Compile Include="..\..\src\common\XunitSerializationInfo.cs" />
-    <Compile Include="..\..\src\xunit.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs" />
-    <Compile Include="..\GlobalTestAssemblyInfo.cs" />
+    <Compile Include="..\..\src\common\AssemblyExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\DictionaryExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\ExecutionHelper.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\Guard.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\NewReflectionExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\SerializationHelper.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\TestOptionsNames.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\common\XunitSerializationInfo.cs" LinkBase="Common" />
+    <Compile Include="..\..\src\xunit.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs" LinkBase="Common\RunnerUtility" />
     <Content Include="ConfigReader_*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

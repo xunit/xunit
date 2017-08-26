@@ -1,3 +1,9 @@
 <Project>
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
+  <PropertyGroup>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalTestAssemblyInfo.cs" LinkBase="Properties" />
+  </ItemGroup>
 </Project>

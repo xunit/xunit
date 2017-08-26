@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\common.props" />
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <CopyNuGetImplementations>true</CopyNuGetImplementations>
@@ -14,8 +13,7 @@
     <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\common\ConsoleHelper.cs" />
-    <Compile Include="..\common\GlobalAssemblyInfo.cs" />
+    <Compile Include="..\common\ConsoleHelper.cs" LinkBase="Common" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSBuild.Sdk.Extras" Version="1.0.6" PrivateAssets="All" />

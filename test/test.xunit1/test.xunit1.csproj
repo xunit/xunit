@@ -7,8 +7,7 @@
     <PackageId>test.xunit1</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectCapability Include="ShowFilesOutsideOfProject" />
-    <Compile Include="..\..\src\common\AssemblyExtensions.cs" />
+    <Compile Include="..\..\src\common\AssemblyExtensions.cs" LinkBase="Common" />
     <None Include="App.config" />
     <Content Include="xunit.extensions\**\*.xls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
