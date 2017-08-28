@@ -736,7 +736,7 @@ namespace Xunit.Runner.VisualStudio
             var results = new List<DiscoveredTestCase>(descriptors.Count);
 
             for (int idx = 0; idx < descriptors.Count; ++idx)
-                results[idx] = new DiscoveredTestCase(source, descriptors[idx], testCases[idx], logger, testPlatformContext);
+                results.Add(new DiscoveredTestCase(source, descriptors[idx], testCases[idx], logger, testPlatformContext));
 
             return results;
         }
