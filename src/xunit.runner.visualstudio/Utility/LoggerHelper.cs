@@ -25,6 +25,11 @@ public class LoggerHelper
         SendMessage(TestMessageLevel.Informational, testCase.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath, string.Format(format, args));
     }
 
+    public void LogWithSource(string source, string format, params object[] args)
+    {
+        SendMessage(TestMessageLevel.Informational, source, string.Format(format, args));
+    }
+
     public void LogError(string format, params object[] args)
     {
         SendMessage(TestMessageLevel.Error, null, string.Format(format, args));
@@ -35,6 +40,11 @@ public class LoggerHelper
         SendMessage(TestMessageLevel.Error, testCase.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath, string.Format(format, args));
     }
 
+    public void LogErrorWithSource(string source, string format, params object[] args)
+    {
+        SendMessage(TestMessageLevel.Error, source, string.Format(format, args));
+    }
+
     public void LogWarning(string format, params object[] args)
     {
         SendMessage(TestMessageLevel.Warning, null, string.Format(format, args));
@@ -43,6 +53,11 @@ public class LoggerHelper
     public void LogWarning(ITestCase testCase, string format, params object[] args)
     {
         SendMessage(TestMessageLevel.Warning, testCase.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath, string.Format(format, args));
+    }
+
+    public void LogWarningWithSource(string source, string format, params object[] args)
+    {
+        SendMessage(TestMessageLevel.Warning, source, string.Format(format, args));
     }
 
     void SendMessage(TestMessageLevel level, string assemblyName, string message)

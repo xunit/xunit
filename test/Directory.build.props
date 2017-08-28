@@ -1,6 +1,8 @@
 <Project>
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
   <PropertyGroup>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>latest</LangVersion>

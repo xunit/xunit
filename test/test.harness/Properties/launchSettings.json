@@ -2,7 +2,7 @@
   "profiles": {
     "test.harness": {
       "commandName": "Executable",
-      "executablePath": "$(VSINSTALLDIR)\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow\\vstest.console.exe",
+      "executablePath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow\\vstest.console.exe",
       "commandLineArgs": "test.harness.dll /ListTests /testadapterpath:\"$(SolutionDir)\\src\\xunit.runner.visualstudio\\bin\\$(Configuration)\\net452\"",
       "workingDirectory": "$(SolutionDir)\\test\\test.harness\\bin\\$(Configuration)\\net452"
     }

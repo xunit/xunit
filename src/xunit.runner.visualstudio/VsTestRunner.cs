@@ -473,7 +473,7 @@ namespace Xunit.Runner.VisualStudio
                                 assemblyDiscoveredInfo = new AssemblyDiscoveredInfo
                                 {
                                     AssemblyFileName = source,
-                                    DiscoveredTestCases = visitor.TestCases.Select(testCase => new DiscoveredTestCase(source, discoverer, testCase, logger, testPlatformContext)).ToList()
+                                    DiscoveredTestCases = GetVsTestCases(source, discoverer, visitor, logger, testPlatformContext)
                                 };
                             },
                             assemblyFileName,
@@ -728,6 +728,19 @@ namespace Xunit.Runner.VisualStudio
 #endif
         }
 
+        IList<DiscoveredTestCase> GetVsTestCases(string source, ITestFrameworkDiscoverer discoverer, VsExecutionDiscoverySink visitor, LoggerHelper logger, TestPlatformContext testPlatformContext)
+        {
+            var descriptorProvider = (discoverer as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(discoverer);
+            var testCases = visitor.TestCases;
+            var descriptors = descriptorProvider.GetTestCaseDescriptors(testCases, false);
+            var results = new List<DiscoveredTestCase>(descriptors.Count);
+
+            for (int idx = 0; idx < descriptors.Count; ++idx)
+                results[idx] = new DiscoveredTestCase(source, descriptors[idx], testCases[idx], logger, testPlatformContext);
+
+            return results;
+        }
+
         class AssemblyDiscoveredInfo
         {
             public string AssemblyFileName;
@@ -746,17 +759,13 @@ namespace Xunit.Runner.VisualStudio
 
             public string UniqueID { get; }
 
-            public DiscoveredTestCase(string source, ITestFrameworkDiscoverer discoverer, ITestCase testCase, LoggerHelper logger, TestPlatformContext testPlatformContext)
+            public DiscoveredTestCase(string source, TestCaseDescriptor descriptor, ITestCase testCase, LoggerHelper logger, TestPlatformContext testPlatformContext)
             {
-                var testMethod = testCase.TestMethod;
-                var testClassName = testMethod.TestClass.Class.Name;
-                var testMethodName = testMethod.Method.Name;
-
-                Name = $"{testClassName}.{testMethodName}";
+                Name = $"{descriptor.ClassName}.{descriptor.MethodName}";
                 TestCase = testCase;
-                UniqueID = testCase.UniqueID;
-                VSTestCase = VsDiscoverySink.CreateVsTestCase(source, discoverer, testCase, false, logger, testPlatformContext, testClassName, testMethodName, UniqueID);
-                TraitNames = testCase.Traits.Keys;
+                UniqueID = descriptor.UniqueID;
+                VSTestCase = VsDiscoverySink.CreateVsTestCase(source, descriptor, false, logger, testPlatformContext);
+                TraitNames = descriptor.Traits.Keys;
             }
 
             public void ForceUniqueName()

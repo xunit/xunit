@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +13,7 @@ namespace Xunit
     /// Resharper. Runner authors who are not using AST-based discovery are strongly
     /// encouraged to use <see cref="XunitFrontController"/> instead.
     /// </summary>
-    public class Xunit2Discoverer : ITestFrameworkDiscoverer
+    public class Xunit2Discoverer : ITestFrameworkDiscoverer, ITestCaseDescriptorProvider
     {
 #if NET35 || NET452
         static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
@@ -25,8 +26,10 @@ namespace Xunit
 #endif
 
         readonly IAppDomainManager appDomain;
+        ITestCaseDescriptorProvider defaultTestCaseDescriptorProvider;
         readonly ITestFrameworkDiscoverer discoverer;
         readonly ITestFramework framework;
+        readonly AssemblyName testFrameworkAssemblyName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class.
@@ -95,7 +98,7 @@ namespace Xunit
             assemblyHelper = appDomain.CreateObjectFrom<AssemblyHelper>(typeof(AssemblyHelper).Assembly.Location, typeof(AssemblyHelper).FullName, runnerUtilityAssemblyLocation);
 #endif
 
-            var testFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
+            testFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
             if (assemblyInfo == null)
@@ -180,6 +183,28 @@ namespace Xunit
             discoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
         }
 
+        /// <inheritdoc/>
+        public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization)
+        {
+            var callbackContainer = new DescriptorCallback();
+            Action<List<string>> callback = callbackContainer.Callback;
+
+            if (defaultTestCaseDescriptorProvider == null)
+            {
+                try
+                {
+                    appDomain.CreateObject<object>(testFrameworkAssemblyName, "Xunit.Sdk.TestCaseDescriptorFactory", includeSerialization ? discoverer : null, testCases, callback);
+                    if (callbackContainer.Results != null)
+                        return callbackContainer.Results.Select(x => new TestCaseDescriptor(x)).ToList();
+                }
+                catch { }
+
+                defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(discoverer);
+            }
+
+            return defaultTestCaseDescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
+        }
+
         static string GetExecutionAssemblyFileName(AppDomainSupport appDomainSupport, string basePath)
         {
             var supportedPlatformSuffixes = GetSupportedPlatformSuffixes(appDomainSupport);
@@ -248,5 +273,12 @@ namespace Xunit
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
             => discoverer.Serialize(testCase);
+
+        class DescriptorCallback : LongLivedMarshalByRefObject
+        {
+            public List<string> Results;
+
+            public void Callback(List<string> results) => Results = results;
+        }
     }
 }

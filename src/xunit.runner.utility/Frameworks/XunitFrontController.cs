@@ -9,11 +9,12 @@ namespace Xunit
     /// Default implementation of <see cref="IFrontController"/> which supports running tests from
     /// both xUnit.net v1 and v2.
     /// </summary>
-    public class XunitFrontController : IFrontController
+    public class XunitFrontController : IFrontController, ITestCaseDescriptorProvider
     {
         readonly AppDomainSupport appDomainSupport;
         readonly string assemblyFileName;
         readonly string configFileName;
+        ITestCaseDescriptorProvider descriptorProvider;
         readonly IMessageSink diagnosticMessageSink;
         IFrontController innerController;
         readonly bool shadowCopy;
@@ -79,6 +80,7 @@ namespace Xunit
                 if (innerController == null)
                 {
                     innerController = CreateInnerController();
+                    descriptorProvider = (innerController as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(innerController);
                     toDispose.Push(innerController);
                 }
 
@@ -140,6 +142,10 @@ namespace Xunit
         {
             InnerController.Find(typeName, includeSourceInformation, messageSink, discoveryOptions);
         }
+
+        /// <inheritdoc/>
+        public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization)
+            => descriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
 
         /// <inheritdoc/>
         public virtual void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)

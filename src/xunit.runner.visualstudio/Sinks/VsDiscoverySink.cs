@@ -30,6 +30,7 @@ namespace Xunit.Runner.VisualStudio
         static readonly Uri uri = new Uri(Constants.ExecutorUri);
 
         readonly Func<bool> cancelThunk;
+        readonly ITestCaseDescriptorProvider descriptorProvider;
         readonly ITestFrameworkDiscoverer discoverer;
         readonly ITestFrameworkDiscoveryOptions discoveryOptions;
         readonly ITestCaseDiscoverySink discoverySink;
@@ -57,6 +58,8 @@ namespace Xunit.Runner.VisualStudio
             this.testPlatformContext = testPlatformContext;
             this.cancelThunk = cancelThunk;
 
+            descriptorProvider = (discoverer as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(discoverer);
+
             discoveryEventSink.TestCaseDiscoveryMessageEvent += HandleTestCaseDiscoveryMessage;
             discoveryEventSink.DiscoveryCompleteMessageEvent += HandleDiscoveryCompleteMessage;
         }
@@ -67,45 +70,32 @@ namespace Xunit.Runner.VisualStudio
 
         public void Dispose()
         {
-            ((IDisposable)Finished).Dispose();
+            Finished.Dispose();
             discoveryEventSink.Dispose();
         }
 
         public static TestCase CreateVsTestCase(string source,
-                                                ITestFrameworkDiscoverer discoverer,
-                                                ITestCase xunitTestCase,
+                                                TestCaseDescriptor descriptor,
                                                 bool forceUniqueName,
                                                 LoggerHelper logger,
-                                                TestPlatformContext testPlatformContext,
-                                                string testClassName = null,
-                                                string testMethodName = null,
-                                                string uniqueID = null)
+                                                TestPlatformContext testPlatformContext)
         {
             try
             {
-                if (string.IsNullOrEmpty(testClassName))
-                    testClassName = xunitTestCase.TestMethod.TestClass.Class.Name;
-
-                if (string.IsNullOrEmpty(testMethodName))
-                    testMethodName = xunitTestCase.TestMethod.Method.Name;
-
-                if (string.IsNullOrEmpty(uniqueID))
-                    uniqueID = xunitTestCase.UniqueID;
-
-                var fqTestMethodName = $"{testClassName}.{testMethodName}";
-                var result = new TestCase(fqTestMethodName, uri, source) { DisplayName = Escape(xunitTestCase.DisplayName) };
+                var fqTestMethodName = $"{descriptor.ClassName}.{descriptor.MethodName}";
+                var result = new TestCase(fqTestMethodName, uri, source) { DisplayName = Escape(descriptor.DisplayName) };
 
                 if (testPlatformContext.RequireXunitTestProperty)
-                    result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, discoverer.Serialize(xunitTestCase));
+                    result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, descriptor.Serialization);
 
-                result.Id = GuidFromString(uri + uniqueID);
+                result.Id = GuidFromString(uri + descriptor.UniqueID);
 
                 if (forceUniqueName)
-                    ForceUniqueName(result, uniqueID);
+                    ForceUniqueName(result, descriptor.UniqueID);
 
                 if (addTraitThunk != null)
                 {
-                    var traits = xunitTestCase.Traits;
+                    var traits = descriptor.Traits;
 
                     foreach (var key in traits.Keys)
                         foreach (var value in traits[key])
@@ -114,15 +104,15 @@ namespace Xunit.Runner.VisualStudio
 
                 if (testPlatformContext.RequireSourceInformation)
                 {
-                    result.CodeFilePath = xunitTestCase.SourceInformation.FileName;
-                    result.LineNumber = xunitTestCase.SourceInformation.LineNumber.GetValueOrDefault();
+                    result.CodeFilePath = descriptor.SourceFileName;
+                    result.LineNumber = descriptor.SourceLineNumber.GetValueOrDefault();
                 }
 
                 return result;
             }
             catch (Exception ex)
             {
-                logger.LogError(xunitTestCase, "Error creating Visual Studio test case for {0}: {1}", xunitTestCase.DisplayName, ex);
+                logger.LogErrorWithSource(source, "Error creating Visual Studio test case for {0}: {1}", descriptor.DisplayName, ex);
                 return null;
             }
         }
@@ -225,20 +215,21 @@ namespace Xunit.Runner.VisualStudio
 
         private void SendExistingTestCases()
         {
-            var forceUniqueNames = lastTestMethodTestCases.Count > 1;
+            if (lastTestMethodTestCases.Count == 0)
+                return;
 
-            foreach (var testCase in lastTestMethodTestCases)
+            var forceUniqueNames = lastTestMethodTestCases.Count > 1;
+            var descriptors = descriptorProvider.GetTestCaseDescriptors(lastTestMethodTestCases, includeSerialization: testPlatformContext.RequireXunitTestProperty);
+            foreach (var descriptor in descriptors)
             {
-                var vsTestCase = CreateVsTestCase(source, discoverer, testCase, forceUniqueNames, logger, testPlatformContext);
+                var vsTestCase = CreateVsTestCase(source, descriptor, forceUniqueNames, logger, testPlatformContext);
                 if (vsTestCase != null)
                 {
                     if (discoveryOptions.GetInternalDiagnosticMessagesOrDefault())
-                        logger.Log(testCase, "Discovered test case '{0}' (ID = '{1}', VS FQN = '{2}')", testCase.DisplayName, testCase.UniqueID, vsTestCase.FullyQualifiedName);
+                        logger.LogWithSource(source, "Discovered test case '{0}' (ID = '{1}', VS FQN = '{2}')", descriptor.DisplayName, descriptor.UniqueID, vsTestCase.FullyQualifiedName);
 
                     discoverySink.SendTestCase(vsTestCase);
                 }
-                else
-                    logger.LogWarning(testCase, "Could not create VS test case for '{0}' (ID = '{1}', VS FQN = '{2}')", testCase.DisplayName, testCase.UniqueID, vsTestCase.FullyQualifiedName);
             }
 
             lastTestMethodTestCases.Clear();
