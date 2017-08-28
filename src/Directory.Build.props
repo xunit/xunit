@@ -11,6 +11,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <LangVersion>latest</LangVersion>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <SignAssembly>true</SignAssembly>
     <VersionPrefix>99.99.99-dev</VersionPrefix>
