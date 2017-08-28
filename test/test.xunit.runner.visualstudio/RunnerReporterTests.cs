@@ -2,7 +2,7 @@
 using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Runner.VisualStudio.TestAdapter;
+using Xunit.Runner.VisualStudio;
 
 public class RunnerReporterTests
 {

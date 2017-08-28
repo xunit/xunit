@@ -1,4 +1,4 @@
-namespace Xunit.Runner.VisualStudio.TestAdapter
+namespace Xunit.Runner.VisualStudio
 {
     /// <summary>
     /// Provides contextual information on a test run/discovery based on runsettings

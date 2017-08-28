@@ -3,6 +3,7 @@
     <TargetFrameworks>net452;netstandard1.1</TargetFrameworks>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Xunit.Sdk</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />

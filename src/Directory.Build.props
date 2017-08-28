@@ -13,6 +13,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>latest</LangVersion>
     <PackageId>$(MSBuildProjectName)</PackageId>
+    <RootNamespace>Xunit</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <VersionPrefix>99.99.99-dev</VersionPrefix>
     <WarningsAsErrors>true</WarningsAsErrors>

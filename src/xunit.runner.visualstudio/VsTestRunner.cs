@@ -18,7 +18,7 @@ using Microsoft.Extensions.DependencyModel;
 using System.Reflection;
 #endif
 
-namespace Xunit.Runner.VisualStudio.TestAdapter
+namespace Xunit.Runner.VisualStudio
 {
     [FileExtension(".appx")]
     [FileExtension(".dll")]

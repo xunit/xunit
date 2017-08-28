@@ -1,5 +1,5 @@
 ﻿using Xunit;
-using Xunit.Runner.VisualStudio.TestAdapter;
+using Xunit.Runner.VisualStudio;
 
 public class RunSettingsHelperTests
 {

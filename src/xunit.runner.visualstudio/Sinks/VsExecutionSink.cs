@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 using VsTestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 using VsTestResultMessage = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResultMessage;
 
-namespace Xunit.Runner.VisualStudio.TestAdapter
+namespace Xunit.Runner.VisualStudio
 {
     public class VsExecutionSink : TestMessageSink, IExecutionSink, IDisposable
     {

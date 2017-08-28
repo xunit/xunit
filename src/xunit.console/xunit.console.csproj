@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <CopyNuGetImplementations>true</CopyNuGetImplementations>
+    <RootNamespace>Xunit.ConsoleClient</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>

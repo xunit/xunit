@@ -3,6 +3,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <CopyNuGetImplementations>true</CopyNuGetImplementations>
     <TargetFrameworks>net452;netcoreapp1.0</TargetFrameworks>
+    <RootNamespace>Xunit.Runner.MSBuild</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />

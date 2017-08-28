@@ -1,4 +1,4 @@
-﻿namespace Xunit.Runner.VisualStudio.TestAdapter
+﻿namespace Xunit.Runner.VisualStudio
 {
     public class DiagnosticMessageSink : DiagnosticEventSink
     {

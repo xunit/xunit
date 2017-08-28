@@ -19,7 +19,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography;
 #endif
 
-namespace Xunit.Runner.VisualStudio.TestAdapter
+namespace Xunit.Runner.VisualStudio
 {
     public class VsDiscoverySink : IMessageSinkWithTypes, IVsDiscoverySink, IDisposable
     {
