@@ -243,13 +243,16 @@ namespace Xunit.Runner.VisualStudio
                                                      TestAssemblyConfiguration configuration)
             where TVisitor : IVsDiscoverySink, IDisposable
         {
-            var reporterMessageHandler = GetRunnerReporter(new[] { assemblyFileName }).CreateMessageHandler(new VisualStudioRunnerLogger(logger));
-            var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFileName };
-            var fileName = Path.GetFileNameWithoutExtension(assemblyFileName);
+            if (cancelled)
+                return false;
+
+            var fileName = "(unknown assembly)";
+
             try
             {
-                if (cancelled)
-                    return false;
+                var reporterMessageHandler = GetRunnerReporter(new[] { assemblyFileName }).CreateMessageHandler(new VisualStudioRunnerLogger(logger));
+                var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFileName };
+                fileName = Path.GetFileNameWithoutExtension(assemblyFileName);
 
                 if (!IsXunitTestAssembly(assemblyFileName))
                 {
@@ -301,6 +304,7 @@ namespace Xunit.Runner.VisualStudio
                 else
                     logger.LogWarning("Exception discovering tests from {0}: {1}", fileName, ex);
             }
+
             return true;
         }
 
@@ -432,20 +436,22 @@ namespace Xunit.Runner.VisualStudio
             if (cancelled)
                 return;
 
-            var assembly = new XunitProjectAssembly { AssemblyFilename = runInfo.AssemblyFileName };
-            var assemblyFileName = runInfo.AssemblyFileName;
-            var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
-            var configuration = runInfo.Configuration;
-            var shadowCopy = configuration.ShadowCopyOrDefault;
-
-            var appDomain = assembly.Configuration.AppDomain ?? AppDomainDefaultBehavior;
-            var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
-
-            if (RunSettingsHelper.DisableAppDomain)
-                appDomain = AppDomainSupport.Denied;
+            var assemblyDisplayName = "(unknown assembly)";
 
             try
             {
+                var assembly = new XunitProjectAssembly { AssemblyFilename = runInfo.AssemblyFileName };
+                var assemblyFileName = runInfo.AssemblyFileName;
+                assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
+                var configuration = runInfo.Configuration;
+                var shadowCopy = configuration.ShadowCopyOrDefault;
+
+                var appDomain = assembly.Configuration.AppDomain ?? AppDomainDefaultBehavior;
+                var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
+
+                if (RunSettingsHelper.DisableAppDomain)
+                    appDomain = AppDomainSupport.Denied;
+
 #if WINDOWS_UAP
                 // For AppX Apps, use the package location
                 assemblyFileName = Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, Path.GetFileName(assemblyFileName));
