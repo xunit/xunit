@@ -12,6 +12,8 @@ namespace Xunit
             this.assemblyFileName = assemblyFileName;
         }
 
+        public bool HasAppDomain => false;
+
         public TObject CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object[] args)
         {
             try

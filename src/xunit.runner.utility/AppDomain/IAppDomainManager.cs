@@ -5,6 +5,8 @@ namespace Xunit
 {
     interface IAppDomainManager : IDisposable
     {
+        bool HasAppDomain { get; }
+
         TObject CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object[] args);
 #if NET35 || NET452
         TObject CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object[] args);

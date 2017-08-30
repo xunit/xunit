@@ -191,13 +191,16 @@ namespace Xunit
 
             if (defaultTestCaseDescriptorProvider == null)
             {
-                try
+                if (appDomain.HasAppDomain)
                 {
-                    appDomain.CreateObject<object>(testFrameworkAssemblyName, "Xunit.Sdk.TestCaseDescriptorFactory", includeSerialization ? discoverer : null, testCases, callback);
-                    if (callbackContainer.Results != null)
-                        return callbackContainer.Results.Select(x => new TestCaseDescriptor(x)).ToList();
+                    try
+                    {
+                        appDomain.CreateObject<object>(testFrameworkAssemblyName, "Xunit.Sdk.TestCaseDescriptorFactory", includeSerialization ? discoverer : null, testCases, callback);
+                        if (callbackContainer.Results != null)
+                            return callbackContainer.Results.Select(x => new TestCaseDescriptor(x)).ToList();
+                    }
+                    catch { }
                 }
-                catch { }
 
                 defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(discoverer);
             }

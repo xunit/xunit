@@ -34,6 +34,8 @@ namespace Xunit
 
         public string ConfigFileName { get; private set; }
 
+        public bool HasAppDomain => true;
+
         static AppDomain CreateAppDomain(string assemblyFilename, string configFilename, bool shadowCopy, string shadowCopyFolder)
         {
             var setup = new AppDomainSetup();
