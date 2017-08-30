@@ -24,6 +24,7 @@ Set-Location $PSScriptRoot
 $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
 $parallelFlags = "-parallel all -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
+$binlogOutputFolder = (join-path (Get-Location) "artifacts\build")
 
 # Helper functions
 
@@ -46,8 +47,8 @@ function __target_build() {
     __target_packagerestore
 
     _build_step "Compiling binaries"
-        _msbuild "xunit.vs2017.sln" $configuration
-        _msbuild "src\xunit.console\xunit.console.csproj" ($configuration + "_x86")
+        _msbuild "xunit.vs2017.sln" $configuration -binlogFile (join-path $binlogOutputFolder "build.binlog")
+        _msbuild "src\xunit.console\xunit.console.csproj" ($configuration + "_x86") -binlogFile (join-path $binlogOutputFolder "build_x86.binlog")
 }
 
 function __target_ci() {
@@ -146,8 +147,9 @@ _build_step "Performing pre-build verifications"
     _require dotnet "Could not find 'dotnet'. Please ensure .NET CLI Tooling is installed."
     _verify_dotnetsdk_version "2.0.0"
     _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v15 is on the path."
-    _verify_msbuild15
+    _verify_msbuild_version "15.3.0"
 
 _mkdir $packageOutputFolder
 _mkdir $testOutputFolder
+_mkdir $binlogOutputFolder
 & $targetFunction
