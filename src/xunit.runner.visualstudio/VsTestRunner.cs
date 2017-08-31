@@ -502,11 +502,6 @@ namespace Xunit.Runner.VisualStudio
                         var filter = new TestCaseFilter(runContext, logger, assemblyDiscoveredInfo.AssemblyFileName, traitNames);
                         var filteredTestCases = assemblyDiscoveredInfo.DiscoveredTestCases.Where(dtc => filter.MatchTestCase(dtc.VSTestCase)).ToList();
 
-                        // Force unique names if there is more than 1 testcase with the same name
-                        foreach (var groupWithDuplicateNames in filteredTestCases.GroupBy(dtc => dtc.Name).Where(group => group.Count() > 1))
-                            foreach (var discoveredTestCaseWithDuplicateName in groupWithDuplicateNames)
-                                discoveredTestCaseWithDuplicateName.ForceUniqueName();
-
                         foreach (var filteredTestCase in filteredTestCases)
                         {
                             var uniqueID = filteredTestCase.UniqueID;
@@ -767,15 +762,12 @@ namespace Xunit.Runner.VisualStudio
 
             public DiscoveredTestCase(string source, TestCaseDescriptor descriptor, ITestCase testCase, LoggerHelper logger, TestPlatformContext testPlatformContext)
             {
-                Name = $"{descriptor.ClassName}.{descriptor.MethodName}";
+                Name = $"{descriptor.ClassName}.{descriptor.MethodName} ({descriptor.UniqueID})";
                 TestCase = testCase;
                 UniqueID = descriptor.UniqueID;
-                VSTestCase = VsDiscoverySink.CreateVsTestCase(source, descriptor, false, logger, testPlatformContext);
+                VSTestCase = VsDiscoverySink.CreateVsTestCase(source, descriptor, logger, testPlatformContext);
                 TraitNames = descriptor.Traits.Keys;
             }
-
-            public void ForceUniqueName()
-                => VsDiscoverySink.ForceUniqueName(VSTestCase, UniqueID);
         }
     }
 }

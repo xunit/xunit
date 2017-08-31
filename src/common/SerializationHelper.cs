@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,8 @@ namespace Xunit.Sdk
     /// </summary>
     static class SerializationHelper
     {
+        static readonly ConcurrentDictionary<Type, string> typeToTypeNameMap = new ConcurrentDictionary<Type, string>();
+
         /// <summary>
         /// De-serializes an object.
         /// </summary>
@@ -192,49 +195,56 @@ namespace Xunit.Sdk
         /// </summary>
         public static string GetTypeNameForSerialization(Type type)
         {
-            if (!type.IsFromLocalAssembly())
-                throw new ArgumentException($"We cannot serialize type {type.FullName} because it lives in the GAC", nameof(type));
-
             // Use the abstract Type instead of concretes like RuntimeType
             if (typeof(Type).IsAssignableFrom(type))
                 type = typeof(Type);
 
-            var typeName = type.FullName;
-            var assemblyName = type.GetAssembly().FullName.Split(',')[0];
+            return typeToTypeNameMap.GetOrAdd(type, GetTypeNameAsString);
 
-            var arrayRanks = new Stack<int>();
-            while (type.IsArray)
+            string GetTypeNameAsString(Type typeToMap)
             {
-                arrayRanks.Push(type.GetArrayRank());
-                type = type.GetElementType();
-            }
+                if (!type.IsFromLocalAssembly())
+                    throw new ArgumentException($"We cannot serialize type {type.FullName} because it lives in the GAC", nameof(type));
 
-            if (type.IsGenericType() && !type.IsGenericTypeDefinition())
-            {
-                var typeDefinition = type.GetGenericTypeDefinition();
-                var innerTypes = type.GetGenericArguments().Select(t => $"[{GetTypeNameForSerialization(t)}]").ToArray();
-                typeName = $"{typeDefinition.FullName}[{string.Join(",", innerTypes)}]";
+                var typeName = typeToMap.FullName;
+                var assemblyName = typeToMap.GetAssembly().FullName.Split(',')[0];
 
-                while (arrayRanks.Count > 0)
+                var arrayRanks = new Stack<int>();
+                while (typeToMap.IsArray)
                 {
-                    typeName += '[';
-                    for (var commas = arrayRanks.Pop() - 1; commas > 0; --commas)
-                        typeName += ',';
-                    typeName += ']';
+                    arrayRanks.Push(typeToMap.GetArrayRank());
+                    typeToMap = typeToMap.GetElementType();
                 }
-            }
 
-            if (string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(assemblyName, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase))
-                return typeName;
+                if (typeToMap.IsGenericType() && !typeToMap.IsGenericTypeDefinition())
+                {
+                    var typeDefinition = typeToMap.GetGenericTypeDefinition();
+                    var innerTypes = typeToMap.GetGenericArguments()
+                                              .Select(t => $"[{GetTypeNameForSerialization(t)}]")
+                                              .ToArray();
+                    typeName = $"{typeDefinition.FullName}[{string.Join(",", innerTypes)}]";
 
-#if XUNIT_FRAMEWORK    // This behavior is only for v2, and only done on the remote app domain side
-            // If this is a platform specific assembly, strip off the trailing . and name and replace it with the token
-            if (type.GetAssembly().GetCustomAttributes().FirstOrDefault(a => a != null && a.GetType().FullName == "Xunit.Sdk.PlatformSpecificAssemblyAttribute") != null)
-                assemblyName = assemblyName.Substring(0, assemblyName.LastIndexOf('.')) + ExecutionHelper.SubstitutionToken;
+                    while (arrayRanks.Count > 0)
+                    {
+                        typeName += '[';
+                        for (var commas = arrayRanks.Pop() - 1; commas > 0; --commas)
+                            typeName += ',';
+                        typeName += ']';
+                    }
+                }
+
+                if (string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(assemblyName, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase))
+                    return typeName;
+
+#if XUNIT_FRAMEWORK // This behavior is only for v2, and only done on the remote app domain side
+                // If this is a platform specific assembly, strip off the trailing . and name and replace it with the token
+                if (typeToMap.GetAssembly().GetCustomAttributes().FirstOrDefault(a => a != null && a.GetType().FullName == "Xunit.Sdk.PlatformSpecificAssemblyAttribute") != null)
+                    assemblyName = assemblyName.Substring(0, assemblyName.LastIndexOf('.')) + ExecutionHelper.SubstitutionToken;
 #endif
 
-            return $"{typeName}, {assemblyName}";
+                return $"{typeName}, {assemblyName}";
+            }
         }
 
         /// <summary>

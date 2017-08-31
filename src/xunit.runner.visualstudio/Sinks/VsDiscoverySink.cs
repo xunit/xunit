@@ -25,6 +25,7 @@ namespace Xunit.Runner.VisualStudio
     {
         const string Ellipsis = "...";
         const int MaximumDisplayNameLength = 447;
+        const int TestCaseDescriptorBatchSize = 100;
 
         static readonly Action<TestCase, string, string> addTraitThunk = GetAddTraitThunk();
         static readonly Uri uri = new Uri(Constants.ExecutorUri);
@@ -35,12 +36,10 @@ namespace Xunit.Runner.VisualStudio
         readonly ITestFrameworkDiscoveryOptions discoveryOptions;
         readonly ITestCaseDiscoverySink discoverySink;
         readonly DiscoveryEventSink discoveryEventSink = new DiscoveryEventSink();
-        readonly List<ITestCase> lastTestMethodTestCases = new List<ITestCase>();
         readonly LoggerHelper logger;
         readonly string source;
+        readonly List<ITestCase> testCaseBatch = new List<ITestCase>();
         readonly TestPlatformContext testPlatformContext;
-
-        string lastTestMethod;
 
         public VsDiscoverySink(string source,
                                ITestFrameworkDiscoverer discoverer,
@@ -76,22 +75,18 @@ namespace Xunit.Runner.VisualStudio
 
         public static TestCase CreateVsTestCase(string source,
                                                 TestCaseDescriptor descriptor,
-                                                bool forceUniqueName,
                                                 LoggerHelper logger,
                                                 TestPlatformContext testPlatformContext)
         {
             try
             {
-                var fqTestMethodName = $"{descriptor.ClassName}.{descriptor.MethodName}";
+                var fqTestMethodName = $"{descriptor.ClassName}.{descriptor.MethodName} ({descriptor.UniqueID})";
                 var result = new TestCase(fqTestMethodName, uri, source) { DisplayName = Escape(descriptor.DisplayName) };
 
                 if (testPlatformContext.RequireXunitTestProperty)
                     result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, descriptor.Serialization);
 
                 result.Id = GuidFromString(uri + descriptor.UniqueID);
-
-                if (forceUniqueName)
-                    ForceUniqueName(result, descriptor.UniqueID);
 
                 if (addTraitThunk != null)
                 {
@@ -115,11 +110,6 @@ namespace Xunit.Runner.VisualStudio
                 logger.LogErrorWithSource(source, "Error creating Visual Studio test case for {0}: {1}", descriptor.DisplayName, ex);
                 return null;
             }
-        }
-
-        public static void ForceUniqueName(TestCase testCase, string uniqueID)
-        {
-            testCase.FullyQualifiedName = $"{testCase.FullyQualifiedName} ({uniqueID})";
         }
 
         static string Escape(string value)
@@ -189,14 +179,11 @@ namespace Xunit.Runner.VisualStudio
 
         void HandleTestCaseDiscoveryMessage(MessageHandlerArgs<ITestCaseDiscoveryMessage> args)
         {
-            var testCase = args.Message.TestCase;
-            var testMethod = $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}";
-            if (lastTestMethod != testMethod)
-                SendExistingTestCases();
-
-            lastTestMethod = testMethod;
-            lastTestMethodTestCases.Add(testCase);
+            testCaseBatch.Add(args.Message.TestCase);
             TotalTests++;
+
+            if (testCaseBatch.Count == TestCaseDescriptorBatchSize)
+                SendExistingTestCases();
 
             HandleCancellation(args);
         }
@@ -215,14 +202,13 @@ namespace Xunit.Runner.VisualStudio
 
         private void SendExistingTestCases()
         {
-            if (lastTestMethodTestCases.Count == 0)
+            if (testCaseBatch.Count == 0)
                 return;
 
-            var forceUniqueNames = lastTestMethodTestCases.Count > 1;
-            var descriptors = descriptorProvider.GetTestCaseDescriptors(lastTestMethodTestCases, includeSerialization: testPlatformContext.RequireXunitTestProperty);
+            var descriptors = descriptorProvider.GetTestCaseDescriptors(testCaseBatch, includeSerialization: testPlatformContext.RequireXunitTestProperty);
             foreach (var descriptor in descriptors)
             {
-                var vsTestCase = CreateVsTestCase(source, descriptor, forceUniqueNames, logger, testPlatformContext);
+                var vsTestCase = CreateVsTestCase(source, descriptor, logger, testPlatformContext);
                 if (vsTestCase != null)
                 {
                     if (discoveryOptions.GetInternalDiagnosticMessagesOrDefault())
@@ -232,7 +218,7 @@ namespace Xunit.Runner.VisualStudio
                 }
             }
 
-            lastTestMethodTestCases.Clear();
+            testCaseBatch.Clear();
         }
 
         public static string fqTestMethodName { get; set; }
