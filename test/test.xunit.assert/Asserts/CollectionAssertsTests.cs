@@ -162,6 +162,31 @@ public class CollectionAssertsTests
 
             Assert.Contains("Hi there", list);
         }
+
+        [Fact]
+        public static void ICollectionContainsIsTrueButContainsWithDefaultComparerIsFalse()
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
+
+            // ICollection<T>.Contains is called if the container implements ICollection<T>.
+            // If either ICollection<T>.Contains or the default equality comparer report that
+            // the collection has the item, the assert should pass.
+            Assert.Contains("HI THERE", set);
+        }
+
+        [Fact]
+        public static void ICollectionContainsIsFalseButContainsWithDefaultComparerIsTrue()
+        {
+            var collections = new[]
+            {
+                new[] { 1, 2, 3, 4 }
+            };
+
+            // ICollection<T>.Contains is called if the container implements ICollection<T>.
+            // If either ICollection<T>.Contains or the default equality comparer report that
+            // the collection has the item, the assert should pass.
+            Assert.Contains(new[] { 1, 2, 3, 4 }, collections);
+        }
     }
 
     public class Contains_WithComparer
@@ -181,6 +206,21 @@ public class CollectionAssertsTests
             var list = new List<int> { 42 };
 
             Assert.Contains(43, list, new MyComparer());
+        }
+
+        [Fact]
+        public static void DoesNotTryToCallICollectionContains()
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
+
+            // ICollection<T>.Contains would return true, but we're passing in a custom comparer to Assert.Contains
+            // (and ICollection<T>.Contains does not accept a comparer) so we should not attempt to use that result.
+            var ex = Assert.Throws<ContainsException>(() => Assert.Contains("HI THERE", set, StringComparer.Ordinal));
+
+            Assert.Equal(
+                "Assert.Contains() Failure" + Environment.NewLine +
+                "Not found: HI THERE" + Environment.NewLine +
+                @"In value:  HashSet<String> [""Hi there""]", ex.Message);
         }
 
         class MyComparer : IEqualityComparer<int>
@@ -267,6 +307,39 @@ public class CollectionAssertsTests
 
             Assert.DoesNotContain(42, list);
         }
+
+        [Fact]
+        public static void ICollectionContainsIsTrueButContainsWithDefaultComparerIsFalse()
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
+
+            // ICollection<T>.Contains is called if the container implements ICollection<T>.
+            // If either ICollection<T>.Contains or the default equality comparer report that
+            // the collection has the item, the assert should fail.
+            var ex = Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain("HI THERE", set));
+
+            Assert.Equal("Assert.DoesNotContain() Failure" + Environment.NewLine +
+                         "Found:    HI THERE" + Environment.NewLine +
+                         @"In value: HashSet<String> [""Hi there""]", ex.Message);
+        }
+
+        [Fact]
+        public static void ICollectionContainsIsFalseButContainsWithDefaultComparerIsTrue()
+        {
+            var collections = new[]
+            {
+                new[] { 1, 2, 3, 4 }
+            };
+
+            // ICollection<T>.Contains is called if the container implements ICollection<T>.
+            // If either ICollection<T>.Contains or the default equality comparer report that
+            // the collection has the item, the assert should fail.
+            var ex = Assert.Throws<DoesNotContainException>(() => Assert.DoesNotContain(new[] { 1, 2, 3, 4 }, collections));
+
+            Assert.Equal("Assert.DoesNotContain() Failure" + Environment.NewLine +
+                         "Found:    Int32[] [1, 2, 3, 4]" + Environment.NewLine +
+                         "In value: Int32[][] [[1, 2, 3, 4]]", ex.Message);
+        }
     }
 
     public class DoesNotContain_WithComparer
@@ -287,6 +360,16 @@ public class CollectionAssertsTests
             list.Add(42);
 
             Assert.DoesNotContain(42, list, new MyComparer());
+        }
+
+        [Fact]
+        public static void DoesNotTryToCallICollectionContains()
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Hi there" };
+
+            // ICollection<T>.Contains would return true, but we're passing in a custom comparer to Assert.DoesNotContain
+            // (and ICollection<T>.Contains does not accept a comparer) so we should not attempt to use that result.
+            Assert.DoesNotContain("HI THERE", set, StringComparer.Ordinal);
         }
 
         class MyComparer : IEqualityComparer<int>
