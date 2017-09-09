@@ -562,7 +562,7 @@ public class EqualityAssertsTests
         [Fact]
         public void IEquatableActual_Explicit_NotEqual()
         {
-            var expected = new ImplicitIEquatableExpected(1);
+            var expected = new ExplicitIEquatableExpected(1);
             var actual = new IntWrapper(2);
 
             Assert.NotEqual(expected, (object)actual);
@@ -622,7 +622,7 @@ public class EqualityAssertsTests
         [Fact]
         public void IComparableActual_Explicit_NotEqual()
         {
-            var expected = new ImplicitIComparableExpected(1);
+            var expected = new ExplicitIComparableActual(1);
             var actual = new IntWrapper(2);
 
             Assert.NotEqual(expected, (object)actual);
