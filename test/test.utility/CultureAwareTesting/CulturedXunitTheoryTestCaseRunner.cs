@@ -50,7 +50,7 @@ namespace TestUtility
         {
             if (originalUICulture != null)
                 CurrentUICulture = originalUICulture;
-            if (originalUICulture != null)
+            if (originalCulture != null)
                 CurrentCulture = originalCulture;
 
             return base.BeforeTestCaseFinishedAsync();
