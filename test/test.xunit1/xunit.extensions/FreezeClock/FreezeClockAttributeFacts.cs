@@ -22,7 +22,7 @@ namespace Xunit1.Extensions
                 DateTime result2 = Clock.Now;
 
                 Assert.Equal(result1, result2);
-                Assert.True((result1 - reference).Milliseconds < 1000);
+                Assert.True((result1 - reference).TotalMilliseconds < 1000);
             }
             finally
             {

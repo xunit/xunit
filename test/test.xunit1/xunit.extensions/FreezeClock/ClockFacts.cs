@@ -66,7 +66,7 @@ namespace Xunit1.Extensions
 
                 DateTime result = Clock.Now;
 
-                Assert.True((result - now).Milliseconds < 1000);
+                Assert.True((result - now).TotalMilliseconds < 1000);
             }
 
             [Fact]
@@ -139,7 +139,7 @@ namespace Xunit1.Extensions
 
                 DateTime result = Clock.UtcNow;
 
-                Assert.True((result - now).Milliseconds < 1000);
+                Assert.True((result - now).TotalMilliseconds < 1000);
             }
 
             [Fact]

@@ -17,7 +17,7 @@ namespace Xunit1.Extensions
             DateTime result2 = Clock.Now;
 
             Assert.Equal(result1, result2);
-            Assert.True((reference - result1).Milliseconds < 1000);
+            Assert.True((reference - result1).TotalMilliseconds < 1000);
         }
 
         [Fact, FreezeClock(2006, 12, 31)]
