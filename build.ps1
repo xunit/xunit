@@ -44,7 +44,7 @@ function __target_appveyor() {
 }
 
 function __target_build() {
-    __target_packagerestore
+    __target_restore
 
     _build_step "Compiling binaries"
         _msbuild "xunit.vs2017.sln" $configuration -binlogFile (join-path $binlogOutputFolder "build.binlog")
@@ -60,8 +60,7 @@ function __target_ci() {
 }
 
 function __target_packagerestore() {
-    _build_step "Restoring NuGet packages"
-        _dotnet "restore xunit.vs2017.sln"
+    __target_restore
 }
 
 function __target_packages() {
@@ -72,6 +71,11 @@ function __target_packages() {
 function __target_register() {
     __target_packages
     __target__register
+}
+
+function __target_restore() {
+    _build_step "Restoring NuGet packages"
+        _dotnet "restore xunit.vs2017.sln"
 }
 
 function __target_test() {
