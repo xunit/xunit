@@ -8,6 +8,7 @@
     <PackageId>test.xunit.assert</PackageId>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Asserts\Sdk" />
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>

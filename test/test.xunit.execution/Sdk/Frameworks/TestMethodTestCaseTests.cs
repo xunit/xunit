@@ -47,7 +47,7 @@ public class TestMethodTestCaseTests
 
             var testCase = new TestableTestMethodTestCase(testMethod, arguments);
 
-            Assert.Equal("MockType.MockMethod(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
+            Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: 42, p2: \"Hello, world!\", p3: 'A')", testCase.DisplayName);
         }
 
         [Fact]
@@ -58,7 +58,7 @@ public class TestMethodTestCaseTests
 
             var testCase = new TestableTestMethodTestCase(testMethod, new object[0]);
 
-            Assert.Equal("MockType.MockMethod(p1: ???)", testCase.DisplayName);
+            Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: ???)", testCase.DisplayName);
         }
 
         [CulturedFact]
@@ -70,7 +70,7 @@ public class TestMethodTestCaseTests
 
             var testCase = new TestableTestMethodTestCase(testMethod, arguments);
 
-            Assert.Equal($"MockType.MockMethod(p1: 42, ???: {21.12})", testCase.DisplayName);
+            Assert.Equal($"{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}(p1: 42, ???: {21.12})", testCase.DisplayName);
         }
 
         [Theory]

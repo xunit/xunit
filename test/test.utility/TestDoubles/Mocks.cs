@@ -1,6 +1,4 @@
-﻿#if NET452
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,9 +16,9 @@ public static class Mocks
         attributes = attributes ?? new IReflectionAttributeInfo[0];
 
         var result = Substitute.For<IAssemblyInfo, InterfaceProxy<IAssemblyInfo>>();
-        result.Name.Returns(assemblyFileName == null ? null : Path.GetFileNameWithoutExtension(assemblyFileName));
+        result.Name.Returns(assemblyFileName == null ? "assembly:" + Guid.NewGuid().ToString("n") : Path.GetFileNameWithoutExtension(assemblyFileName));
         result.AssemblyPath.Returns(assemblyFileName);
-        result.GetType("").ReturnsForAnyArgs(types == null ? null : types.FirstOrDefault());
+        result.GetType("").ReturnsForAnyArgs(types?.FirstOrDefault());
         result.GetTypes(true).ReturnsForAnyArgs(types ?? new ITypeInfo[0]);
         result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
         return result;
@@ -111,11 +109,14 @@ public static class Mocks
         if (attributes == null)
             return Enumerable.Empty<IAttributeInfo>();
 
-        var attributeType = GetType(fullyQualifiedTypeName);
+        var attributeType = Type.GetType(fullyQualifiedTypeName);
+        if (attributeType == null)
+            return Enumerable.Empty<IAttributeInfo>();
+
         return attributes.Where(attribute => attributeType.IsAssignableFrom(attribute.Attribute.GetType())).ToList();
     }
 
-    public static IMethodInfo MethodInfo(string methodName = "MockMethod",
+    public static IMethodInfo MethodInfo(string methodName = null,
                                          IReflectionAttributeInfo[] attributes = null,
                                          IParameterInfo[] parameters = null,
                                          ITypeInfo type = null,
@@ -132,7 +133,7 @@ public static class Mocks
         result.IsAbstract.Returns(isAbstract);
         result.IsPublic.Returns(isPublic);
         result.IsStatic.Returns(isStatic);
-        result.Name.Returns(methodName);
+        result.Name.Returns(methodName ?? "method:" + Guid.NewGuid().ToString("n"));
         result.ReturnType.Returns(returnType);
         result.Type.Returns(type);
         result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
@@ -201,7 +202,12 @@ public static class Mocks
 
     public static TestAssembly TestAssembly(Assembly assembly = null, string configFileName = null)
     {
-        return new TestAssembly(Reflector.Wrap(assembly ?? Assembly.GetExecutingAssembly()), configFileName ?? AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+#if NET452
+        if (configFileName == null)
+            configFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+#endif
+
+        return new TestAssembly(Reflector.Wrap(assembly ?? typeof(Mocks).GetTypeInfo().Assembly), configFileName);
     }
 
     public static ITestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(bool diagnosticMessages = false, int toRun = 42, int discovered = 2112)
@@ -309,7 +315,7 @@ public static class Mocks
     public static IReflectionAttributeInfo TestCaseOrdererAttribute<TOrderer>()
     {
         var ordererType = typeof(TOrderer);
-        return TestCaseOrdererAttribute(ordererType.FullName, ordererType.Assembly.FullName);
+        return TestCaseOrdererAttribute(ordererType.FullName, ordererType.GetTypeInfo().Assembly.FullName);
     }
 
     public static ITestClass TestClass(string typeName, IReflectionAttributeInfo[] attributes = null)
@@ -326,7 +332,7 @@ public static class Mocks
     public static TestClass TestClass(Type type, ITestCollection collection = null)
     {
         if (collection == null)
-            collection = TestCollection(type.Assembly);
+            collection = TestCollection(type.GetTypeInfo().Assembly);
 
         return new TestClass(collection, Reflector.Wrap(type));
     }
@@ -334,9 +340,9 @@ public static class Mocks
     public static TestCollection TestCollection(Assembly assembly = null, ITypeInfo definition = null, string displayName = null)
     {
         if (assembly == null)
-            assembly = Assembly.GetExecutingAssembly();
+            assembly = typeof(Mocks).GetTypeInfo().Assembly;
         if (displayName == null)
-            displayName = "Mock test collection for " + assembly.GetLocalCodeBase();
+            displayName = "Mock test collection for " + assembly.CodeBase;
 
         return new TestCollection(TestAssembly(assembly), definition, displayName);
     }
@@ -370,7 +376,7 @@ public static class Mocks
     public static IReflectionAttributeInfo TestCollectionOrdererAttribute<TOrderer>()
     {
         var ordererType = typeof(TOrderer);
-        return TestCollectionOrdererAttribute(ordererType.FullName, ordererType.Assembly.FullName);
+        return TestCollectionOrdererAttribute(ordererType.FullName, ordererType.GetTypeInfo().Assembly.FullName);
     }
 
     public static ITestFailed TestFailed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M, Exception ex = null)
@@ -412,12 +418,12 @@ public static class Mocks
         var attribute = Activator.CreateInstance(type);
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(attribute);
-        result.GetCustomAttributes(null).ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), CustomAttributeData.GetCustomAttributes(attribute.GetType()).Select(Reflector.Wrap).ToArray()));
+        result.GetCustomAttributes(null).ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), CustomAttributeData.GetCustomAttributes(attribute.GetType().GetTypeInfo()).Select(Reflector.Wrap).ToArray()));
         return result;
     }
 
-    public static ITestMethod TestMethod(string typeName = "MockType",
-                                         string methodName = "MockMethod",
+    public static ITestMethod TestMethod(string typeName = null,
+                                         string methodName = null,
                                          string displayName = null,
                                          string skip = null,
                                          IEnumerable<IParameterInfo> parameters = null,
@@ -562,10 +568,13 @@ public static class Mocks
         return result;
     }
 
-    public static ITypeInfo TypeInfo(string typeName = "MockType", IMethodInfo[] methods = null, IReflectionAttributeInfo[] attributes = null, string assemblyFileName = null)
+    public static ITypeInfo TypeInfo(string typeName = null,
+                                     IMethodInfo[] methods = null,
+                                     IReflectionAttributeInfo[] attributes = null,
+                                     string assemblyFileName = null)
     {
         var result = Substitute.For<ITypeInfo, InterfaceProxy<ITypeInfo>>();
-        result.Name.Returns(typeName);
+        result.Name.Returns(typeName ?? "type:" + Guid.NewGuid().ToString("n"));
         result.GetMethods(false).ReturnsForAnyArgs(methods ?? new IMethodInfo[0]);
         var assemblyInfo = AssemblyInfo(assemblyFileName: assemblyFileName);
         result.Assembly.Returns(assemblyInfo);
@@ -601,22 +610,4 @@ public static class Mocks
 
         return result;
     }
-
-    private static Type GetType(string assemblyQualifiedAttributeTypeName)
-    {
-        var parts = assemblyQualifiedAttributeTypeName.Split(new[] { ',' }, 2).Select(x => x.Trim()).ToList();
-        if (parts.Count == 0)
-            return null;
-
-        if (parts.Count == 1)
-            return Type.GetType(parts[0]);
-
-        var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == parts[1]);
-        if (assembly == null)
-            return null;
-
-        return assembly.GetType(parts[0]);
-    }
 }
-
-#endif

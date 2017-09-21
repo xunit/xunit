@@ -182,13 +182,13 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         var discoverer = TestableTheoryDiscoverer.Create();
         var theoryAttribute = Mocks.TheoryAttribute();
         var dataAttribute = Mocks.DataAttribute();
-        var testMethod = Mocks.TestMethod(methodAttributes: new[] { theoryAttribute, dataAttribute });
+        var testMethod = Mocks.TestMethod("MockTheoryType", "MockTheoryMethod", methodAttributes: new[] { theoryAttribute, dataAttribute });
 
         var testCases = discoverer.Discover(discoveryOptions, testMethod, theoryAttribute);
 
         var testCase = Assert.Single(testCases);
         var theoryTestCase = Assert.IsType<XunitTheoryTestCase>(testCase);
-        Assert.Equal("MockType.MockMethod", theoryTestCase.DisplayName);
+        Assert.Equal("MockTheoryType.MockTheoryMethod", theoryTestCase.DisplayName);
     }
 
     [Fact]

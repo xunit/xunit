@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -25,7 +24,7 @@ public class XunitTestCaseTests
     [Fact]
     public static void SkipReason()
     {
-        var testMethod = Mocks.TestMethod("MockType", "MockMethod", skip: "Skip Reason");
+        var testMethod = Mocks.TestMethod(skip: "Skip Reason");
 
         var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, testMethod);
 
@@ -99,7 +98,7 @@ public class XunitTestCaseTests
             Assert.Empty(testCase.Traits);
             var diagnosticMessages = messages.OfType<IDiagnosticMessage>();
             var diagnosticMessage = Assert.Single(diagnosticMessages);
-            Assert.Equal("Trait attribute on 'MockType.MockMethod' did not have [TraitDiscoverer]", diagnosticMessage.Message);
+            Assert.Equal($"Trait attribute on '{testCase.DisplayName}' did not have [TraitDiscoverer]", diagnosticMessage.Message);
         }
 
         class BadTraitAttribute : Attribute, ITraitAttribute { }

@@ -134,7 +134,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
             sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
             sink.OnMessage(new TestCaseStarting(testCase));
-            await sink.AdvanceClockAsync(1000);
+            await sink.AdvanceClockAsync(1500);
             sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
             sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
 

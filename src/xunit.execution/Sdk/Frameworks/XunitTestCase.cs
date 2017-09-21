@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -16,6 +17,9 @@ namespace Xunit.Sdk
     [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {DisplayName}, skip = {SkipReason} \}")]
     public class XunitTestCase : TestMethodTestCase, IXunitTestCase
     {
+        static ConcurrentDictionary<string, IEnumerable<IAttributeInfo>> assemblyTraitAttributeCache = new ConcurrentDictionary<string, IEnumerable<IAttributeInfo>>(StringComparer.OrdinalIgnoreCase);
+        static ConcurrentDictionary<string, IEnumerable<IAttributeInfo>> typeTraitAttributeCache = new ConcurrentDictionary<string, IEnumerable<IAttributeInfo>>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
@@ -93,11 +97,17 @@ namespace Xunit.Sdk
             }
         }
 
+        static IEnumerable<IAttributeInfo> GetCachedTraitAttributes(IAssemblyInfo assembly)
+            => assemblyTraitAttributeCache.GetOrAdd(assembly.Name, () => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
+
+        static IEnumerable<IAttributeInfo> GetCachedTraitAttributes(ITypeInfo type)
+            => typeTraitAttributeCache.GetOrAdd(type.Name, () => type.GetCustomAttributes(typeof(ITraitAttribute)));
+
         static IEnumerable<IAttributeInfo> GetTraitAttributesData(ITestMethod testMethod)
         {
-            return testMethod.TestClass.Class.Assembly.GetCustomAttributes(typeof(ITraitAttribute))
-                .Concat(testMethod.Method.GetCustomAttributes(typeof(ITraitAttribute)))
-                .Concat(testMethod.TestClass.Class.GetCustomAttributes(typeof(ITraitAttribute)));
+            return GetCachedTraitAttributes(testMethod.TestClass.Class.Assembly)
+                  .Concat(testMethod.Method.GetCustomAttributes(typeof(ITraitAttribute)))
+                  .Concat(GetCachedTraitAttributes(testMethod.TestClass.Class));
         }
 
         /// <inheritdoc/>

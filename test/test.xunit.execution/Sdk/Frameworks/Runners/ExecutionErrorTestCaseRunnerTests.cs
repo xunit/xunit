@@ -39,7 +39,6 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
                 var testStarting = Assert.IsAssignableFrom<ITestStarting>(msg);
                 Assert.Same(testCase.TestMethod.TestClass.TestCollection, testStarting.TestCollection);
                 Assert.Same(testCase, testStarting.TestCase);
-                Assert.Equal("MockType.MockMethod", testStarting.Test.DisplayName);
             },
             msg =>
             {
@@ -56,7 +55,6 @@ public class ExecutionErrorTestCaseRunnerTests : IDisposable
                 var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
                 Assert.Same(testCase.TestMethod.TestClass.TestCollection, testFinished.TestCollection);
                 Assert.Same(testCase, testFinished.TestCase);
-                Assert.Equal("MockType.MockMethod", testFinished.Test.DisplayName);
                 Assert.Equal(0m, testFinished.ExecutionTime);
                 Assert.Empty(testFinished.Output);
             },
