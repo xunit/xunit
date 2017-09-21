@@ -59,7 +59,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{EB403884-D335-40D1-AD83-BD6F92AC1744}"
 	ProjectSection(SolutionItems) = preProject
 		build.ps1 = build.ps1
-		build.sh = build.sh
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.core", "src\xunit.core\xunit.core.csproj", "{05CC6B6D-5A70-4B82-8118-49A89A70C425}"
