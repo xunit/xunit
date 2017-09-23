@@ -1,15 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- GenerateBindingRedirectsOutputType needs to be set in a target, see https://github.com/Microsoft/msbuild/issues/1310#issuecomment-309596435 -->
-  <Target Name="_Xunit_ForceGenerationOfBindingRedirects"
-          AfterTargets="ResolveAssemblyReferences"
-          BeforeTargets="GenerateBindingRedirects"
-          Condition="'$(AutoGenerateBindingRedirects)' == 'true'">
-    <PropertyGroup>
-      <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    </PropertyGroup>
-  </Target>
+
+  <!-- TPv1 uses 'full' symbols; TPv2 uses 'portable' symbols -->
+  <PropertyGroup>
+    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">full</DebugType>
+    <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">portable</DebugType>
+  </PropertyGroup>
+
+  <!-- Desktop CLR needs auto-generated binding redirects -->
+  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <!-- .NET Core need .deps.json and .runtimeconfig.json files -->
+  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
+
+  <!-- UWP in TPv1 does discovery in desktop CLR, so needs desktop execution library -->
+  <ItemGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
+    <None Include="$(MSBuildThisFileDirectory)xunit.execution.desktop.dll">
+      <Link>xunit.execution.desktop.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </None>
+  </ItemGroup>
 
   <!-- Support for importing targets via the runner -->
   <Import Condition=" '$(_Xunit_ImportTargetsFile)' != '' " Project="$(_Xunit_ImportTargetsFile)" />
+
 </Project>

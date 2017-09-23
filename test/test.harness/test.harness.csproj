@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\src\xunit.core\build\xunit.core.props" />
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
@@ -17,7 +18,5 @@
     <None Update="PerfTests.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="PerfTests.cs" />
     <Compile Update="PerfTests.cs" DesignTime="True" AutoGen="True" DependentUpon="PerfTests.tt" />
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
+  <Import Project="..\..\src\xunit.core\build\xunit.core.targets" />
 </Project>

@@ -1,35 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <!-- All referenced DLLs need to be in the bin folder -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <CopyNuGetImplementations>true</CopyNuGetImplementations>
-  </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-    <!-- Need DebugType 'Full' for source indexing in Visual Studio -->
-    <DebugType>Full</DebugType>
-    <!-- Need binding redirects -->
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">
-    <!-- Need DebugType 'Portable' for source indexing in Visual Studio -->
-    <DebugType>Portable</DebugType>
-    <!-- Need to force generation of .deps.json and .runtimeconfig.json files, even if you're not an Exe project -->
-    <GenerateDependencyFile>true</GenerateDependencyFile>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-  </PropertyGroup>
-
-  <!-- Support for UAP (needs a copy of xunit.execution.desktop.dll because of legacy discovery in VSTest) -->
-  <ItemGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
-    <None Include="$(MSBuildThisFileDirectory)xunit.execution.desktop.dll">
-      <Link>xunit.execution.desktop.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </None>
+  <ItemGroup>
+    <ProjectCapability Include="TestContainer" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <DebugSymbols>true</DebugSymbols>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
 
   <!-- Support for importing props via the runner -->
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
+
 </Project>
