@@ -4,7 +4,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
 
-namespace Xunit.Runner.MSBuild.Xslt
+namespace Xunit.Runner.MSBuild
 {
     public class CrossPlatform
     {
