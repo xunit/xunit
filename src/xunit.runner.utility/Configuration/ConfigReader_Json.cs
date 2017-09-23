@@ -46,6 +46,8 @@ namespace Xunit
                                 result.PreEnumerateTheories = booleanValue;
                             if (string.Equals(propertyName, Configuration.ShadowCopy, StringComparison.OrdinalIgnoreCase))
                                 result.ShadowCopy = booleanValue;
+                            if (string.Equals(propertyName, Configuration.StopOnFail, StringComparison.OrdinalIgnoreCase))
+                                result.StopOnFail = booleanValue;
                         }
                         else if (string.Equals(propertyName, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
                         {
@@ -169,6 +171,7 @@ namespace Xunit
             public const string ParallelizeTestCollections = "parallelizeTestCollections";
             public const string PreEnumerateTheories = "preEnumerateTheories";
             public const string ShadowCopy = "shadowCopy";
+            public const string StopOnFail = "stopOnFail";
             public const string LongRunningTestSeconds = "longRunningTestSeconds";
         }
     }

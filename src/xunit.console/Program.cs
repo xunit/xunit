@@ -77,7 +77,7 @@ namespace Xunit.ConsoleClient
                 var failCount = RunProject(commandLine.Project, commandLine.Serialize, commandLine.ParallelizeAssemblies,
                                            commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
                                            commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.NoAppDomain,
-                                           commandLine.FailSkips, commandLine.InternalDiagnosticMessages);
+                                           commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages);
 
                 if (commandLine.Wait)
                 {
@@ -208,6 +208,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
 #endif
             Console.WriteLine("  -failskips             : convert skipped tests into failures");
+            Console.WriteLine("  -stoponfail            : stop on first test failure");
             Console.WriteLine("  -parallel option       : set parallelization based on option");
             Console.WriteLine("                         :   none        - turn off all parallelization");
             Console.WriteLine("                         :   collections - only parallelize collections");
@@ -271,6 +272,7 @@ namespace Xunit.ConsoleClient
                               bool noColor,
                               bool noAppDomain,
                               bool failSkips,
+                              bool stopOnFail,
                               bool internalDiagnosticMessages)
         {
             XElement assembliesElement = null;
@@ -289,7 +291,7 @@ namespace Xunit.ConsoleClient
 
             if (parallelizeAssemblies.GetValueOrDefault())
             {
-                var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters, internalDiagnosticMessages)));
+                var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages)));
                 var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                 foreach (var assemblyElement in results.Where(result => result != null))
                     assembliesElement.Add(assemblyElement);
@@ -298,7 +300,7 @@ namespace Xunit.ConsoleClient
             {
                 foreach (var assembly in project.Assemblies)
                 {
-                    var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, project.Filters, internalDiagnosticMessages);
+                    var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, noAppDomain, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages);
                     if (assemblyElement != null)
                         assembliesElement.Add(assemblyElement);
                 }
@@ -329,6 +331,7 @@ namespace Xunit.ConsoleClient
                                         bool noColor,
                                         bool noAppDomain,
                                         bool failSkips,
+                                        bool stopOnFail,
                                         XunitFilters filters,
                                         bool internalDiagnosticMessages)
         {
@@ -353,6 +356,7 @@ namespace Xunit.ConsoleClient
                 // Setup discovery and execution options with command-line overrides
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
                 var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
+                executionOptions.SetStopOnTestFail(stopOnFail);
                 if (maxThreadCount.HasValue)
                     executionOptions.SetMaxParallelThreads(maxThreadCount);
                 if (parallelizeTestCollections.HasValue)
@@ -401,6 +405,11 @@ namespace Xunit.ConsoleClient
                         resultsSink.Finished.WaitOne();
 
                         reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
+                        if(stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
+                        {
+                            Console.WriteLine("Canceling due to test failure...");
+                            cancel = true;
+                        }
                     }
                 }
             }
