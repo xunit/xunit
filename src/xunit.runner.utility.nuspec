@@ -26,8 +26,10 @@
         <dependency id="xunit.abstractions" version="2.0.1" />
       </group>
       <group targetFramework="netcoreapp1.0">
+        <dependency id="Microsoft.Extensions.DependencyModel" version="2.0.0" />
         <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
+        <dependency id="System.Runtime.Loader" version="4.3.0" />
         <dependency id="xunit.abstractions" version="2.0.1" />
       </group>
     </dependencies>

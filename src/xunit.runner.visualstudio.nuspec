@@ -19,8 +19,8 @@ Supported platforms:
     <developmentDependency>true</developmentDependency>
     <dependencies>
       <group targetFramework="netcoreapp1.0">
-        <dependency id="Microsoft.DotNet.PlatformAbstractions" version="1.1.0" />
-        <dependency id="Microsoft.Extensions.DependencyModel" version="1.1.0" />
+        <dependency id="Microsoft.DotNet.PlatformAbstractions" version="2.0.0" />
+        <dependency id="Microsoft.Extensions.DependencyModel" version="2.0.0" />
         <dependency id="Microsoft.TestPlatform.ObjectModel" version="15.0.0" />
       </group>
     </dependencies>

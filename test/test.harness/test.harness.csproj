@@ -16,6 +16,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="PerfTests.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="PerfTests.cs" />
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Compile Update="PerfTests.cs" DesignTime="True" AutoGen="True" DependentUpon="PerfTests.tt" />
   </ItemGroup>
   <Import Project="..\..\src\xunit.core\build\xunit.core.targets" />

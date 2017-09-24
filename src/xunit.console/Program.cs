@@ -21,16 +21,7 @@ namespace Xunit.ConsoleClient
 
         [STAThread]
         public static int Main(string[] args)
-        {
-#if NETCOREAPP1_0 || NETCOREAPP2_0
-            using (NetCoreAssemblyHelper.SubscribeResolve())
-#else
-            using (AssemblyHelper.SubscribeResolve())
-#endif
-            {
-                return new Program().EntryPoint(args);
-            }
-        }
+            => new Program().EntryPoint(args);
 
         public int EntryPoint(string[] args)
         {
@@ -263,15 +254,15 @@ namespace Xunit.ConsoleClient
         }
 
         int RunProject(XunitProject project,
-                              bool serialize,
-                              bool? parallelizeAssemblies,
-                              bool? parallelizeTestCollections,
-                              int? maxThreadCount,
-                              bool diagnosticMessages,
-                              bool noColor,
-                              bool noAppDomain,
-                              bool failSkips,
-                              bool internalDiagnosticMessages)
+                       bool serialize,
+                       bool? parallelizeAssemblies,
+                       bool? parallelizeTestCollections,
+                       int? maxThreadCount,
+                       bool diagnosticMessages,
+                       bool noColor,
+                       bool noAppDomain,
+                       bool failSkips,
+                       bool internalDiagnosticMessages)
         {
             XElement assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
@@ -320,17 +311,17 @@ namespace Xunit.ConsoleClient
         }
 
         XElement ExecuteAssembly(object consoleLock,
-                                        XunitProjectAssembly assembly,
-                                        bool serialize,
-                                        bool needsXml,
-                                        bool? parallelizeTestCollections,
-                                        int? maxThreadCount,
-                                        bool diagnosticMessages,
-                                        bool noColor,
-                                        bool noAppDomain,
-                                        bool failSkips,
-                                        XunitFilters filters,
-                                        bool internalDiagnosticMessages)
+                                 XunitProjectAssembly assembly,
+                                 bool serialize,
+                                 bool needsXml,
+                                 bool? parallelizeTestCollections,
+                                 int? maxThreadCount,
+                                 bool diagnosticMessages,
+                                 bool noColor,
+                                 bool noAppDomain,
+                                 bool failSkips,
+                                 XunitFilters filters,
+                                 bool internalDiagnosticMessages)
         {
             if (cancel)
                 return null;
@@ -364,6 +355,9 @@ namespace Xunit.ConsoleClient
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
+#if NETCOREAPP1_0 || NETCOREAPP2_0
+                using (new NetCoreAssemblyDependencyResolver(assembly.AssemblyFilename))
+#endif
                 using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 using (var discoverySink = new TestDiscoverySink(() => cancel))
                 {

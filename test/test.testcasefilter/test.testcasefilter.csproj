@@ -5,4 +5,9 @@
   <ItemGroup>
     <ProjectReference Include="..\test.utility\test.utility.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

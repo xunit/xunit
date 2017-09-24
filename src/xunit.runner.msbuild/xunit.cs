@@ -245,7 +245,7 @@ namespace Xunit.Runner.MSBuild
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 #if NETCOREAPP1_0
-                using (NetCoreAssemblyHelper.SubscribeResolve(Path.GetDirectoryName(assembly.AssemblyFilename)))
+                using (new NetCoreAssemblyDependencyResolver(assembly.AssemblyFilename))
 #endif
                 using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 using (var discoverySink = new TestDiscoverySink(() => cancel))
