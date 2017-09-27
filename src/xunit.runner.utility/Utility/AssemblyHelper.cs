@@ -54,9 +54,9 @@ namespace Xunit
         /// provide automatic assembly resolution for assemblies in the runner.
         /// </summary>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
-        public static IDisposable SubscribeResolve()
+        public static IDisposable SubscribeResolve(string path = null)
         {
-            return new AssemblyHelper(Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()));
+            return new AssemblyHelper(path ?? Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()));
         }
 
         /// <inheritdoc/>
