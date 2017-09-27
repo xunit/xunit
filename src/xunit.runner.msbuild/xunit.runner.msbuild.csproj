@@ -5,6 +5,9 @@
     <TargetFrameworks>net452;netcoreapp1.0</TargetFrameworks>
     <RootNamespace>Xunit.Runner.MSBuild</RootNamespace>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
+    <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
