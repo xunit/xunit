@@ -1,12 +1,13 @@
-// Adapted from https://samcragg.wordpress.com/2017/06/30/resolving-assemblies-in-net-core/
-
 #if NETCOREAPP1_0
+
+// Adapted from https://samcragg.wordpress.com/2017/06/30/resolving-assemblies-in-net-core/
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
@@ -20,6 +21,12 @@ namespace Xunit
     /// </summary>
     public class NetCoreAssemblyDependencyResolver : IDisposable
     {
+        static string CurrentRuntime = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win"
+                                     : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "osx"
+                                     : RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "unix"
+                                     : "unknown";
+
+        readonly Dictionary<string, RuntimeLibrary> assemblyFileNameToLibraryMap;
         readonly string assemblyFolder;
         readonly ICompilationAssemblyResolver assemblyResolver;
         readonly DependencyContext dependencyContext;
@@ -39,12 +46,16 @@ namespace Xunit
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFilePath);
             assemblyFolder = Path.GetDirectoryName(assemblyFilePath);
             dependencyContext = DependencyContext.Load(assembly);
-            assemblyResolver = new CompositeCompilationAssemblyResolver(new ICompilationAssemblyResolver[]
-            {
-                new AppBaseCompilationAssemblyResolver(assemblyFolder),
-                new ReferenceAssemblyPathResolver(),
-                new PackageCompilationAssemblyResolver()
-            });
+
+            assemblyFileNameToLibraryMap =
+                dependencyContext.RuntimeLibraries
+                                 .Where(lib => lib.RuntimeAssemblyGroups?.Count > 0)
+                                 .Select(lib => Tuple.Create(lib, lib.RuntimeAssemblyGroups.FirstOrDefault(grp => grp.Runtime == CurrentRuntime || string.IsNullOrEmpty(grp.Runtime))))
+                                 .Where(tuple => tuple.Item2 != null && tuple.Item2.AssetPaths != null)
+                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(tuple.Item1, Path.GetFileNameWithoutExtension(path))))
+                                 .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item2, tuple => tuple.Item1, StringComparer.OrdinalIgnoreCase);
+
+            assemblyResolver = new XunitPackageCompilationAssemblyResolver();
             loadContext = AssemblyLoadContext.GetLoadContext(assembly);
             loadContext.Resolving += OnResolving;
         }
@@ -55,28 +66,35 @@ namespace Xunit
 
         Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
         {
-            bool NamesMatch(RuntimeLibrary runtime)
-                => string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
-
             // Try to find dependency from .deps.json
-            var library = dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatch);
-            if (library != null)
+            if (assemblyFileNameToLibraryMap.TryGetValue(name.Name, out var library))
             {
                 var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
                                                      library.RuntimeAssemblyGroups.SelectMany(g => g.AssetPaths),
                                                      library.Dependencies, library.Serviceable);
 
                 var assemblies = new List<string>();
-                assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies);
-
-                if (assemblies.Count > 0)
-                    return loadContext.LoadFromAssemblyPath(assemblies[0]);
+                if (assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
+                {
+                    var assembly = assemblies.FirstOrDefault(a => string.Equals(name.Name, Path.GetFileNameWithoutExtension(a), StringComparison.OrdinalIgnoreCase));
+                    if (assembly != null)
+                        return loadContext.LoadFromAssemblyPath(assembly);
+                }
             }
 
             // Try to find dependency in the local folder
             var assemblyPath = Path.Combine(assemblyFolder, name.Name);
-            return AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath + ".dll")
-                ?? AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath + ".exe");
+
+            foreach (var extension in new[] { ".dll", ".exe" })
+                try
+                {
+                    var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath + extension);
+                    if (assembly != null)
+                        return assembly;
+                }
+                catch { }
+
+            return null;
         }
     }
 }
