@@ -11,12 +11,7 @@ namespace Xunit
     {
         internal static bool TryResolvePackagePath(CompilationLibrary library, string basePath, out string packagePath)
         {
-            var path = library.Path;
-            if (string.IsNullOrEmpty(path))
-                path = Path.Combine(library.Name, library.Version);
-
-            packagePath = Path.Combine(basePath, path);
-
+            packagePath = Path.Combine(basePath, library.Name, library.Version);
             return Directory.Exists(packagePath);
         }
 

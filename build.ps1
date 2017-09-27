@@ -56,6 +56,7 @@ function __target_ci() {
 
     __target__setversion
     __target_test
+    __target__publish
     __target__packages
 }
 
@@ -65,6 +66,7 @@ function __target_packagerestore() {
 
 function __target_packages() {
     __target_build
+    __target__publish
     __target__packages
 }
 
@@ -89,6 +91,14 @@ function __target_test() {
 function __target__packages() {
     _build_step "Creating NuGet packages"
         Get-ChildItem -Recurse -Filter *.nuspec | _nuget_pack -outputFolder $packageOutputFolder -configuration $configuration
+}
+
+function __target__publish() {
+    _build_step "Publishing projects for packaging"
+        _dotnet "publish src\xunit.console --configuration $configuration --framework netcoreapp1.0"
+        _dotnet "publish src\xunit.console --configuration $configuration --framework netcoreapp2.0"
+        _dotnet "publish src\xunit.runner.msbuild --configuration $configuration --framework netcoreapp1.0"
+        _dotnet "publish src\xunit.runner.visualstudio --configuration $configuration --framework netcoreapp1.0"
 }
 
 function __target__pushmyget() {

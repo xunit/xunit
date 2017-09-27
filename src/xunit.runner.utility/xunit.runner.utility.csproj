@@ -49,13 +49,13 @@
     <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard11.rd.xml" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.1.0" />
     <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard15.rd.xml" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="Microsoft.DotNet.InternalAbstractions" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="1.0.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
     <AssemblyName>xunit.runner.utility.net35</AssemblyName>

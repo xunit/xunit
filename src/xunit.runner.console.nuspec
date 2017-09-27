@@ -24,5 +24,9 @@
     <file src="xunit.console\bin\$Configuration$_x86\net452\win7-x86\xunit.console.x86.exe.config"  target="tools\net452\" />
     <file src="xunit.console\bin\$Configuration$\net452\win7-x86\xunit.runner.reporters.net452.dll" target="tools\net452\" />
     <file src="xunit.console\bin\$Configuration$\net452\win7-x86\xunit.runner.utility.net452.dll"   target="tools\net452\" />
+
+    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\publish\*.*" target="tools\netcoreapp1.0\" />
+
+    <file src="xunit.console\bin\$Configuration$\netcoreapp2.0\publish\*.*" target="tools\netcoreapp2.0\" />
   </files>
 </package>

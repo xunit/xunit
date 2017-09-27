@@ -19,8 +19,8 @@ Supported platforms:
     <developmentDependency>true</developmentDependency>
     <dependencies>
       <group targetFramework="netcoreapp1.0">
-        <dependency id="Microsoft.DotNet.PlatformAbstractions" version="2.0.0" />
-        <dependency id="Microsoft.Extensions.DependencyModel" version="2.0.0" />
+        <dependency id="Microsoft.DotNet.InternalAbstractions" version="1.0.0" />
+        <dependency id="Microsoft.Extensions.DependencyModel" version="1.0.0" />
         <dependency id="Microsoft.TestPlatform.ObjectModel" version="15.0.0" />
       </group>
     </dependencies>
@@ -40,9 +40,7 @@ Supported platforms:
     <file src="xunit.runner.visualstudio\build\xunit.runner.visualstudio.uwp.props"                            target="build\uap10.0\xunit.runner.visualstudio.props" />
     <file src="xunit.runner.visualstudio\build\xunit.runner.visualstudio.uwp.targets"                          target="build\uap10.0\xunit.runner.visualstudio.targets" />
 
-    <file src="xunit.runner.visualstudio\bin\$Configuration$\netcoreapp1.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll" target="build\netcoreapp1.0\" />
-    <file src="xunit.runner.visualstudio\bin\$Configuration$\netcoreapp1.0\xunit.runner.reporters.netcoreapp10.dll"              target="build\netcoreapp1.0\" />
-    <file src="xunit.runner.visualstudio\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll"                target="build\netcoreapp1.0\" />
-    <file src="xunit.runner.visualstudio\build\xunit.runner.visualstudio.dotnetcore.props"                                       target="build\netcoreapp1.0\xunit.runner.visualstudio.props" />
+    <file src="xunit.runner.visualstudio\bin\$Configuration$\netcoreapp1.0\publish\*.*"    target="build\netcoreapp1.0\" />
+    <file src="xunit.runner.visualstudio\build\xunit.runner.visualstudio.dotnetcore.props" target="build\netcoreapp1.0\xunit.runner.visualstudio.props" />
   </files>
 </package>
