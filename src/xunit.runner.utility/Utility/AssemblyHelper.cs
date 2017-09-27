@@ -8,7 +8,7 @@ namespace Xunit
 {
     /// <summary>
     /// This class provides assistance with assembly resolution for missing assemblies. Runners may
-    /// need to use <see cref="SubscribeResolve()" /> to help automatically resolve missing assemblies
+    /// need to use <see cref="SubscribeResolve(string)" /> to help automatically resolve missing assemblies
     /// when running tests.
     /// </summary>
     public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
@@ -64,26 +64,6 @@ namespace Xunit
         {
             AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
         }
-    }
-}
-
-#else
-
-using System;
-
-namespace Xunit
-{
-    /// <summary/>
-    public class AssemblyHelper : IDisposable
-    {
-        /// <summary/>
-        public static IDisposable SubscribeResolve()
-        {
-            return new AssemblyHelper();
-        }
-
-        /// <inheritdoc/>
-        public void Dispose() { }
     }
 }
 

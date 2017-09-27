@@ -131,7 +131,9 @@ namespace Xunit.Runner.MSBuild
 
             var originalWorkingFolder = Directory.GetCurrentDirectory();
 
+#if NET452
             using (AssemblyHelper.SubscribeResolve())
+#endif
             {
                 var reporter = GetReporter();
                 if (reporter == null)
