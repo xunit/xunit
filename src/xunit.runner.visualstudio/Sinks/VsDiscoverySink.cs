@@ -80,7 +80,7 @@ namespace Xunit.Runner.VisualStudio
         {
             try
             {
-                var fqTestMethodName = $"{descriptor.ClassName}.{descriptor.MethodName} ({descriptor.UniqueID})";
+                var fqTestMethodName = $"{descriptor.ClassName}.{descriptor.MethodName}";
                 var result = new TestCase(fqTestMethodName, uri, source) { DisplayName = Escape(descriptor.DisplayName) };
 
                 if (testPlatformContext.RequireXunitTestProperty)
@@ -220,8 +220,6 @@ namespace Xunit.Runner.VisualStudio
 
             testCaseBatch.Clear();
         }
-
-        public static string fqTestMethodName { get; set; }
 
 #if WINDOWS_UAP
         readonly static HashAlgorithmProvider Hasher = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
