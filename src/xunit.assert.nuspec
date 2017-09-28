@@ -6,7 +6,7 @@
     <title>xUnit.net [Assertion Library]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>Includes the assertion library from xUnit.net (xunit.assert.dll).</summary>
-    <description>Includes the assertion library from xUnit.net (xunit.assert.dll).</description>
+    <description>Includes the assertion library from xUnit.net (xunit.assert.dll). Supports .NET Standard 1.1.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>

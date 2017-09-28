@@ -6,7 +6,7 @@
     <title>xUnit.net [Runner: Console]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>Console runner for the xUnit.net framework.</summary>
-    <description>Console runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests. Requires .NET 4.5.2 or later.</description>
+    <description>Console runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests. Supports .NET 4.5.2 or later, .NET Core 1.x, and .NET Core 2.x.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>

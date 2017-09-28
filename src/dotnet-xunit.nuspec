@@ -6,7 +6,7 @@
     <title>xUnit.net [Runner: .NET CLI SDK]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>.NET CLI SDK runner for the xUnit.net framework.</summary>
-    <description>.NET CLI SDK runner for the xUnit.net framework.</description>
+    <description>.NET CLI SDK runner for the xUnit.net framework. Supports .NET 4.5.2 or later, .NET Core 1.x, and .NET Core 2.x.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>

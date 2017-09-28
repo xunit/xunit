@@ -6,7 +6,7 @@
     <title>xUnit.net [Runner Reporters]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>Includes runner reporters: TeamCity, AppVeyor, Verbose and Quiet.</summary>
-    <description>Includes runner reporters for TeamCity, AppVeyor, Verbose and Quiet output for test runners.</description>
+    <description>Includes runner reporters for TeamCity, AppVeyor, Verbose and Quiet output for test runners. Supports .NET 4.5.2 or later, .NET Standard 1.1, .NET Standard 1.5, and .NET Core 1.0 or later.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>

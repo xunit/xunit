@@ -5,12 +5,7 @@
     <version>99.99.99-dev</version>
     <title>xUnit.net [Runner: Visual Studio]</title>
     <authors>James Newkirk, Brad Wilson</authors>
-    <description>Visual Studio 2012+ Test Explorer runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests.
-
-Supported platforms:
-- Desktop .NET 2.0+
-- .NET Core (including ASP.NET Core) 1.0+
-- Universal Windows App 10+</description>
+    <description>Visual Studio 2012+ Test Explorer runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2 and v2.0+ tests. Supports .NET 2.0 or later, .NET Core 1.0 or later, and Universal Windows 10.0 or later.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>

@@ -6,7 +6,7 @@
     <title>xUnit.net [Runner Utility]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>Includes the version-independent runner for xUnit.net (xunit.runner.utility.*.dll).</summary>
-    <description>Includes the version-independent runner for xUnit.net to run both v1.9.2 and v2.0+ tests (xunit.runner.utility.*.dll).</description>
+    <description>Includes the version-independent runner for xUnit.net to run both v1.9.2 and v2.0+ tests (xunit.runner.utility.*.dll). Supports .NET 3.5, .NET 4.5.2 or later, .NET Standard 1.1, .NET Standard 1.5, and .NET Core 1.0 or later.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>

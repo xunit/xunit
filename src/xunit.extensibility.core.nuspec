@@ -6,7 +6,7 @@
     <title>xUnit.net [Extensibility: Core]</title>
     <authors>James Newkirk,Brad Wilson</authors>
     <summary>Includes xunit.core.dll for extensibility purposes.</summary>
-    <description>Includes xunit.core.dll for extensibility purposes.</description>
+    <description>Includes xunit.core.dll for extensibility purposes. Supports .NET 4.5.2 or later, and .NET Standard 1.1.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
