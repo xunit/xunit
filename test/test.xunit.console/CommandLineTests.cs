@@ -787,20 +787,6 @@ public class CommandLineTests
             Assert.Equal("xml", output.Key);
             Assert.Equal("foo.xml", output.Value);
         }
-
-        [Fact]
-        public static void OutputWithFolder()
-        {
-            var arguments = new[] {"assemblyName.dll", "-xml", "bar/foo.xml"};
-
-            var commandLine = TestableCommandLine.Parse(arguments);
-
-            var output = Assert.Single(commandLine.Project.Output);
-            Assert.Equal("xml", output.Key);
-            Assert.Equal("bar/foo.xml", output.Value);
-            Assert.True(Directory.Exists("bar"));
-            Directory.Delete("bar");
-        }
     }
 
     class TestableCommandLine : CommandLine
