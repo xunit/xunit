@@ -8,7 +8,6 @@ namespace Xunit.Runner.MSBuild
 {
     public class CrossPlatform
     {
-#if NET452
         public static void Transform(IRunnerLogger logger, string outputDisplayName, string resourceName, XNode xml, ITaskItem outputFile)
         {
             var xmlTransform = new System.Xml.Xsl.XslCompiledTransform();
@@ -26,16 +25,5 @@ namespace Xunit.Runner.MSBuild
             => Assembly.LoadFile(dllFile);
 
         public static string Version => $"Desktop .NET {Environment.Version}";
-#endif
-
-#if NETCOREAPP1_0
-        public static void Transform(IRunnerLogger logger, string outputDisplayName, string resourceName, XNode xml, ITaskItem outputFile)
-            => logger.LogWarning($"Skipping '{outputDisplayName}=\"{outputFile.ItemSpec}\"' because XSL-T is not supported on .NET Core");
-
-        public static Assembly LoadAssembly(string dllFile)
-            => System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(dllFile);
-
-        public static string Version => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
-#endif
     }
 }

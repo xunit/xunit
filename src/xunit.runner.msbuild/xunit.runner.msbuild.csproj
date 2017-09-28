@@ -1,19 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp1.0</TargetFrameworks>
+    <AssemblyName>xunit.runner.msbuild.net452</AssemblyName>
     <RootNamespace>Xunit.Runner.MSBuild</RootNamespace>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
+    <TargetFramework>net452</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\Guard.cs" LinkBase="Common" />
-    <Compile Include="..\xunit.console\Utility\NetCoreAssemblyHelper.cs" LinkBase="Common" />
     <EmbeddedResource Include="..\xunit.console\*.xslt" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Xml" />
@@ -22,16 +19,6 @@
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0'">
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.1.548" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.548" />
-  </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <AssemblyName>xunit.runner.msbuild.net452</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <AssemblyName>xunit.runner.msbuild.netcoreapp10</AssemblyName>
-  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.reporters\xunit.runner.reporters.csproj" />
   </ItemGroup>

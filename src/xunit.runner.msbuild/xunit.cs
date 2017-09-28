@@ -131,11 +131,7 @@ namespace Xunit.Runner.MSBuild
 
             var originalWorkingFolder = Directory.GetCurrentDirectory();
 
-#if NET452
             using (AssemblyHelper.SubscribeResolve())
-#else
-            using (new NetCoreAssemblyDependencyResolver(typeof(xunit).GetTypeInfo().Assembly))
-#endif
             {
                 var reporter = GetReporter();
                 if (reporter == null)
@@ -248,9 +244,6 @@ namespace Xunit.Runner.MSBuild
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-#if NETCOREAPP1_0
-                using (new NetCoreAssemblyDependencyResolver(assembly.AssemblyFilename))
-#endif
                 using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 using (var discoverySink = new TestDiscoverySink(() => cancel))
                 {
