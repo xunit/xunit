@@ -393,10 +393,6 @@ class Program
         var runner = Path.Combine(consoleFolder, "xunit.console.dll");
 
         var dotnetArguments = "exec";
-        if (File.Exists(Path.Combine(outputPath, assemblyName + ".deps.json")))
-            dotnetArguments += $@" --depsfile ""{assemblyName}.deps.json""";
-        if (File.Exists(Path.Combine(outputPath, assemblyName + ".runtimeconfig.json")))
-            dotnetArguments += $@" --runtimeconfig ""{assemblyName}.runtimeconfig.json""";
         if (FxVersion != null)
             dotnetArguments += $" --fx-version {FxVersion}";
 
