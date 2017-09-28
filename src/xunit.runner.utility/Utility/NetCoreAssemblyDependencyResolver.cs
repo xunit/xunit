@@ -65,9 +65,6 @@ namespace Xunit
         {
             dependencyContext = DependencyContext.Load(assembly);
 
-            // We create a mapping which includes two keys: "{filename}/" and "{filename}/{version}". Sometimes resolution will come with
-            // a version attached and sometimes not, so we want to offer up both options (and when versionless, hit the highest version
-            // number available).
             assemblyFileNameToLibraryMap =
                 dependencyContext.RuntimeLibraries
                                  .Where(lib => lib.RuntimeAssemblyGroups?.Count > 0)
