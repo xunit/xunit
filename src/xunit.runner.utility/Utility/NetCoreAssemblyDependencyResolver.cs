@@ -26,11 +26,11 @@ namespace Xunit
                                      : RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "unix"
                                      : "unknown";
 
-        readonly Dictionary<string, RuntimeLibrary> assemblyFileNameToLibraryMap;
-        readonly string assemblyFolder;
-        readonly ICompilationAssemblyResolver assemblyResolver;
-        readonly DependencyContext dependencyContext;
-        readonly AssemblyLoadContext loadContext;
+        Dictionary<string, RuntimeLibrary> assemblyFileNameToLibraryMap;
+        string assemblyFolder;
+        ICompilationAssemblyResolver assemblyResolver;
+        DependencyContext dependencyContext;
+        AssemblyLoadContext loadContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NetCoreAssemblyDependencyResolver"/> class.
@@ -45,15 +45,39 @@ namespace Xunit
 
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFilePath);
             assemblyFolder = Path.GetDirectoryName(assemblyFilePath);
+
+            Initialize(assembly);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NetCoreAssemblyDependencyResolver"/> class.
+        /// </summary>
+        /// <param name="assembly">The assembly</param>
+        public NetCoreAssemblyDependencyResolver(Assembly assembly)
+        {
+            var assemblyFilePath = assembly.GetLocalCodeBase();
+            assemblyFolder = Path.GetDirectoryName(assemblyFilePath);
+
+            Initialize(assembly);
+        }
+
+        void Initialize(Assembly assembly)
+        {
             dependencyContext = DependencyContext.Load(assembly);
 
+            // We create a mapping which includes two keys: "{filename}/" and "{filename}/{version}". Sometimes resolution will come with
+            // a version attached and sometimes not, so we want to offer up both options (and when versionless, hit the highest version
+            // number available).
             assemblyFileNameToLibraryMap =
                 dependencyContext.RuntimeLibraries
                                  .Where(lib => lib.RuntimeAssemblyGroups?.Count > 0)
                                  .Select(lib => Tuple.Create(lib, lib.RuntimeAssemblyGroups.FirstOrDefault(grp => grp.Runtime == CurrentRuntime || string.IsNullOrEmpty(grp.Runtime))))
                                  .Where(tuple => tuple.Item2 != null && tuple.Item2.AssetPaths != null)
                                  .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(tuple.Item1, Path.GetFileNameWithoutExtension(path))))
-                                 .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item2, tuple => tuple.Item1, StringComparer.OrdinalIgnoreCase);
+                                 .OrderByDescending(tuple => tuple.Item1.Version)
+                                 .SelectMany(tuple => new[] { Tuple.Create($"{tuple.Item2}/", tuple.Item1),
+                                                              Tuple.Create($"{tuple.Item2}/{tuple.Item1.Version}", tuple.Item1) })
+                                 .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
 
             assemblyResolver = new XunitPackageCompilationAssemblyResolver();
             loadContext = AssemblyLoadContext.GetLoadContext(assembly);
@@ -66,8 +90,10 @@ namespace Xunit
 
         Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
         {
+            var key = $"{name.Name}/{name.Version}";
+
             // Try to find dependency from .deps.json
-            if (assemblyFileNameToLibraryMap.TryGetValue(name.Name, out var library))
+            if (assemblyFileNameToLibraryMap.TryGetValue(key, out var library))
             {
                 var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
                                                      library.RuntimeAssemblyGroups.SelectMany(g => g.AssetPaths),

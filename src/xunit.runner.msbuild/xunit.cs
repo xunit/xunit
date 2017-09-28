@@ -133,6 +133,8 @@ namespace Xunit.Runner.MSBuild
 
 #if NET452
             using (AssemblyHelper.SubscribeResolve())
+#else
+            using (new NetCoreAssemblyDependencyResolver(typeof(xunit).GetTypeInfo().Assembly))
 #endif
             {
                 var reporter = GetReporter();
