@@ -74,10 +74,7 @@ namespace Xunit
                                  .Select(lib => Tuple.Create(lib, lib.RuntimeAssemblyGroups.FirstOrDefault(grp => grp.Runtime == CurrentRuntime || string.IsNullOrEmpty(grp.Runtime))))
                                  .Where(tuple => tuple.Item2 != null && tuple.Item2.AssetPaths != null)
                                  .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(tuple.Item1, Path.GetFileNameWithoutExtension(path))))
-                                 .OrderByDescending(tuple => tuple.Item1.Version)
-                                 .SelectMany(tuple => new[] { Tuple.Create($"{tuple.Item2}/", tuple.Item1),
-                                                              Tuple.Create($"{tuple.Item2}/{tuple.Item1.Version}", tuple.Item1) })
-                                 .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
+                                 .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item2, tuple => tuple.Item1, StringComparer.OrdinalIgnoreCase);
 
             assemblyResolver = new XunitPackageCompilationAssemblyResolver();
             loadContext = AssemblyLoadContext.GetLoadContext(assembly);
@@ -90,10 +87,8 @@ namespace Xunit
 
         Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
         {
-            var key = $"{name.Name}/{name.Version}";
-
             // Try to find dependency from .deps.json
-            if (assemblyFileNameToLibraryMap.TryGetValue(key, out var library))
+            if (assemblyFileNameToLibraryMap.TryGetValue(name.Name, out var library))
             {
                 var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
                                                      library.RuntimeAssemblyGroups.SelectMany(g => g.AssetPaths),
