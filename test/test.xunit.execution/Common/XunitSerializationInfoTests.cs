@@ -20,6 +20,9 @@ public class XunitSerializationInfoTests
             yield return new object[] { typeof(byte), byte.MaxValue };
             yield return new object[] { typeof(byte?), byte.MinValue };
             yield return new object[] { typeof(byte?), null };
+            yield return new object[] { typeof(sbyte), sbyte.MaxValue };
+            yield return new object[] { typeof(sbyte?), sbyte.MinValue };
+            yield return new object[] { typeof(sbyte?), null };
             yield return new object[] { typeof(short), short.MaxValue };
             yield return new object[] { typeof(short?), short.MinValue };
             yield return new object[] { typeof(short?), null };

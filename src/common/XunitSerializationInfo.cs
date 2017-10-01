@@ -118,6 +118,9 @@ namespace Xunit.Serialization
             if (type == typeof(byte?) || type == typeof(byte))
                 return byte.Parse(serializedValue, CultureInfo.InvariantCulture);
 
+            if (type == typeof(sbyte?) || type == typeof(sbyte))
+                return sbyte.Parse(serializedValue, CultureInfo.InvariantCulture);
+
             if (type == typeof(short?) || type == typeof(short))
                 return short.Parse(serializedValue, CultureInfo.InvariantCulture);
 
@@ -241,6 +244,10 @@ namespace Xunit.Serialization
             if (byteData != null)
                 return byteData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
+            var sbyteData = value as sbyte?;
+            if (sbyteData != null)
+                return sbyteData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+
             var ushortData = value as ushort?;
             if (ushortData != null)
                 return ushortData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
@@ -328,6 +335,7 @@ namespace Xunit.Serialization
             typeof(char),           typeof(char?),
             typeof(string),
             typeof(byte),           typeof(byte?),
+            typeof(sbyte),          typeof(sbyte?),
             typeof(short),          typeof(short?),
             typeof(ushort),         typeof(ushort?),
             typeof(int),            typeof(int?),
