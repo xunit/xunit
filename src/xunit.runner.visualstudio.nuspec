@@ -16,7 +16,7 @@
       <group targetFramework="netcoreapp1.0">
         <dependency id="Microsoft.DotNet.InternalAbstractions" version="1.0.0" />
         <dependency id="Microsoft.Extensions.DependencyModel" version="1.0.0" />
-        <dependency id="Microsoft.TestPlatform.ObjectModel" version="15.0.0" />
+        <dependency id="Microsoft.NET.Test.Sdk" version="15.0.0" />
       </group>
     </dependencies>
   </metadata>
