@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +9,7 @@ namespace Xunit
 {
     /// <summary>
     /// Provides a base class for attributes that will provide member data. The member data must return
-    /// something compatible with <see cref="IEnumerable&lt;Object&gt;"/>.
+    /// something compatible with <see cref="IEnumerable"/>.
     /// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
     /// </summary>
     [CLSCompliant(false)]
@@ -66,11 +67,11 @@ namespace Xunit
             if (obj == null)
                 return null;
 
-            var dataItems = obj as IEnumerable<object>;
+            var dataItems = obj as IEnumerable;
             if (dataItems == null)
-                throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable<object>");
+                throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable");
 
-            return dataItems.Select(item => ConvertDataItem(testMethod, item));
+            return dataItems.Cast<object>().Select(item => ConvertDataItem(testMethod, item));
         }
 
         /// <summary>
