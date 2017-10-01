@@ -18,6 +18,7 @@ class Program
     bool Force32bit;
     string FxVersion;
     bool InternalDiagnostics;
+    string MsBuildVerbosity;
     bool NoBuild;
     bool NoColor;
     Dictionary<string, List<string>> ParsedArgs;
@@ -54,6 +55,8 @@ class Program
 
                 if (ParsedArgs.TryGetAndRemoveParameterWithoutValue("-usemsbuild"))
                     UseMsBuild = true;
+
+                MsBuildVerbosity = ParsedArgs.GetAndRemoveParameterWithValue("-msbuildverbosity");
 
                 // The extra versions are unadvertised compatibility flags to match 'dotnet' command line switches
                 requestedTargetFramework = ParsedArgs.GetAndRemoveParameterWithValue("-framework")
@@ -138,7 +141,7 @@ class Program
 
     ProcessStartInfo GetMsBuildProcessStartInfo(string testProject)
     {
-        var args = $"\"{testProject}\" /nologo /verbosity:minimal {BuildStdProps} ";
+        var args = $"\"{testProject}\" /nologo /verbosity:{MsBuildVerbosity ?? "minimal"} {BuildStdProps} ";
 
         if (UseMsBuild)
             return new ProcessStartInfo { FileName = MsBuild.MsBuildName, Arguments = args };
@@ -219,6 +222,7 @@ class Program
         Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
         Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
         Console.WriteLine("  -usemsbuild            : build with msbuild instead of dotnet");
+        Console.WriteLine("  -msbuildverbosity      : sets MSBuild verbosity level (default: 'quiet')");
         Console.WriteLine();
         Console.WriteLine("Valid options (net4x frameworks only):");
         Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
