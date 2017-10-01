@@ -16,6 +16,7 @@
       <_XunitInfoLines Include="TargetFileName: $(TargetFileName)"/>
       <_XunitInfoLines Include="TargetFrameworkIdentifier: $(TargetFrameworkIdentifier)"/>
       <_XunitInfoLines Include="TargetFrameworkVersion: $(TargetFrameworkVersion)"/>
+      <_XunitInfoLines Include="RuntimeFrameworkVersion: $(RuntimeFrameworkVersion)"/>
     </ItemGroup>
     <WriteLinesToFile File="$(_XunitInfoFile)" Lines="@(_XunitInfoLines)" Overwrite="true" />
   </Target>

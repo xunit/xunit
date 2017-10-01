@@ -295,6 +295,7 @@ class Program
             var targetFileName = "";
             var targetFrameworkIdentifier = "";
             var targetFrameworkVersion = "";
+            var runtimeFrameworkVersion = "";
 
             foreach (var line in lines)
             {
@@ -312,14 +313,17 @@ class Program
                     targetFrameworkIdentifier = value;
                 else if (name == "targetframeworkversion")
                     targetFrameworkVersion = value;
+                else if (name == "runtimeframeworkversion")
+                    runtimeFrameworkVersion = value;
             }
 
             var version = string.IsNullOrWhiteSpace(targetFrameworkVersion) ? new Version("0.0.0.0") : new Version(targetFrameworkVersion.TrimStart('v'));
 
             if (targetFrameworkIdentifier == ".NETCoreApp")
             {
-                WriteLine($"Running .NET Core tests for framework {targetFramework}...");
-                return RunDotNetCoreProject(outputPath, assemblyName, targetFileName, extraArgs, $"netcoreapp{version.Major}.0");
+                var fxVersion = FxVersion ?? runtimeFrameworkVersion;
+                WriteLine($"Running .NET Core {fxVersion} tests for framework {targetFramework}...");
+                return RunDotNetCoreProject(outputPath, assemblyName, targetFileName, extraArgs, fxVersion, $"netcoreapp{version.Major}.0");
             }
             if (targetFrameworkIdentifier == ".NETFramework" && version >= Version452)
             {
@@ -377,7 +381,7 @@ class Program
         return runTests.ExitCode;
     }
 
-    int RunDotNetCoreProject(string outputPath, string assemblyName, string targetFileName, string extraArgs, string netCoreAppVersion)
+    int RunDotNetCoreProject(string outputPath, string assemblyName, string targetFileName, string extraArgs, string fxVersion, string netCoreAppVersion)
     {
         var consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "tools", netCoreAppVersion));
 
@@ -392,15 +396,10 @@ class Program
         }
 
         var runner = Path.Combine(consoleFolder, "xunit.console.dll");
-
-        var dotnetArguments = "exec";
-        if (FxVersion != null)
-            dotnetArguments += $" --fx-version {FxVersion}";
-
         var psi = new ProcessStartInfo
         {
             FileName = DotNetMuxer.MuxerPath,
-            Arguments = $@"{dotnetArguments} ""{runner}"" ""{targetFileName}"" {extraArgs}",
+            Arguments = $@"exec --fx-version {fxVersion} ""{runner}"" ""{targetFileName}"" {extraArgs}",
             WorkingDirectory = outputPath
         };
 
