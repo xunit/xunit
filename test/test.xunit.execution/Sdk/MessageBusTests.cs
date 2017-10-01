@@ -82,4 +82,50 @@ public class MessageBusTests
             message => Assert.Same(message, msg3)
         );
     }
+
+    [Fact]
+    public static void QueueReturnsTrueForFailIfStopOnFailFalse()
+    {
+        var messages = new List<IMessageSinkMessage>();
+        var sink = SpyMessageSink.Create(messages: messages);
+        var msg1 = Substitute.For<IMessageSinkMessage>();
+        var msg2 = Substitute.For<ITestFailed>();
+        var msg3 = Substitute.For<IMessageSinkMessage>();
+
+        using (var bus = new MessageBus(sink))
+        {
+            Assert.True(bus.QueueMessage(msg1));
+            Assert.True(bus.QueueMessage(msg2));
+            Assert.True(bus.QueueMessage(msg3));
+        }
+
+        Assert.Collection(messages,
+            message => Assert.Same(msg1, message),
+            message => Assert.Same(msg2, message),
+            message => Assert.Same(msg3, message)
+        );
+    }
+
+    [Fact]
+    public static void QueueReturnsFalseForFailIfStopOnFailTrue()
+    {
+        var messages = new List<IMessageSinkMessage>();
+        var sink = SpyMessageSink.Create(messages: messages);
+        var msg1 = Substitute.For<IMessageSinkMessage>();
+        var msg2 = Substitute.For<ITestFailed>();
+        var msg3 = Substitute.For<IMessageSinkMessage>();
+
+        using (var bus = new MessageBus(sink, true))
+        {
+            Assert.True(bus.QueueMessage(msg1));
+            Assert.False(bus.QueueMessage(msg2));
+            Assert.False(bus.QueueMessage(msg3));
+        }
+
+        Assert.Collection(messages,
+            message => Assert.Same(msg1, message),
+            message => Assert.Same(msg2, message),
+            message => Assert.Same(msg3, message)
+        );
+    }
 }

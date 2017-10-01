@@ -62,6 +62,8 @@ namespace Xunit.ConsoleClient
 
         public bool Serialize { get; protected set; }
 
+        public bool StopOnFail { get; protected set; }
+
         public bool Wait { get; protected set; }
 
         protected virtual string GetFullPath(string fileName)
@@ -154,6 +156,11 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     FailSkips = true;
+                }
+                else if (optionName == "stoponfail")
+                {
+                    GuardNoOptionValue(option);
+                    StopOnFail = true;
                 }
                 else if (optionName == "nocolor")
                 {

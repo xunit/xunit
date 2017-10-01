@@ -190,6 +190,7 @@ class Program
         Console.WriteLine("  -nologo                : do not show the copyright message");
         Console.WriteLine("  -nocolor               : do not output results with colors");
         Console.WriteLine("  -failskips             : convert skipped tests into failures");
+        Console.WriteLine("  -stoponfail            : stop on first test failure");
         Console.WriteLine("  -parallel option       : set parallelization based on option");
         Console.WriteLine("                         :   none        - turn off parallelization");
         Console.WriteLine("                         :   collections - parallelize test collections");

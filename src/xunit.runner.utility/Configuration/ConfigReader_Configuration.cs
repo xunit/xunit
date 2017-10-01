@@ -41,6 +41,7 @@ namespace Xunit
                         result.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? result.ParallelizeTestCollections;
                         result.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? result.PreEnumerateTheories;
                         result.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? result.ShadowCopy;
+                        result.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? result.StopOnFail;
                         result.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? result.LongRunningTestSeconds;
 
                         return result;
@@ -109,6 +110,7 @@ namespace Xunit
             public const string ParallelizeTestCollections = "xunit.parallelizeTestCollections";
             public const string PreEnumerateTheories = "xunit.preEnumerateTheories";
             public const string ShadowCopy = "xunit.shadowCopy";
+            public const string StopOnFail = "xunit.stopOnFail";
             public const string LongRunningTestSeconds = "xunit.longRunningTestSeconds";
         }
     }

@@ -126,5 +126,16 @@ namespace Xunit
         /// returns the default value (<c>true</c>).
         /// </summary>
         public bool ShadowCopyOrDefault { get { return ShadowCopy ?? true; } }
+
+        /// <summary>
+        /// Gets or sets a flag indicating whether testing should stop on a failure.
+        /// </summary>
+        public bool? StopOnFail { get; set; }
+
+        /// <summary>
+        /// Gets a flag indicating whether testing should stop on a test failure. If the flag is not set,
+        /// returns the default value (<c>false</c>).
+        /// </summary>
+        public bool StopOnFailOrDefault { get { return StopOnFail ?? false; } }
     }
 }

@@ -250,6 +250,14 @@ public static class TestFrameworkOptionsReadWriteExtensions
     }
 
     /// <summary>
+    /// Sets a flag that determines whether xUnit.net stop testing when a test fails.
+    /// </summary>
+    public static void SetStopOnTestFail(this ITestFrameworkExecutionOptions executionOptions, bool? value)
+    {
+        executionOptions.SetValue(TestOptionsNames.Execution.StopOnFail, value);
+    }
+
+    /// <summary>
     /// Sets a flag to disable parallelization.
     /// </summary>
     public static void SetDisableParallelization(this ITestFrameworkExecutionOptions executionOptions, bool? value)

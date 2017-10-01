@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Xunit;
 using Xunit.ConsoleClient;
@@ -310,6 +309,31 @@ public class CommandLineTests
             var commandLine = TestableCommandLine.Parse(arguments);
 
             Assert.True(commandLine.FailSkips);
+        }
+    }
+
+    public class StopOnFailOption
+    {
+        [Fact]
+        public static void StopOnFailOptionNotSetStopOnFailFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.StopOnFail);
+        }
+
+        [Theory]
+        [InlineData("-stoponfail")]
+        [InlineData("-sToPoNfAiL")]
+        public static void StopOnFailOptionSetOnFailTrue(string option)
+        {
+            var arguments = new[] { "assemblyName.dll", option };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.StopOnFail);
         }
     }
 
