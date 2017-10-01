@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 14.0.22823.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{DAED8494-AC8A-4C67-A8F1-616D95ECC302}"
 	ProjectSection(SolutionItems) = preProject
@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{52472A94
 		NuGet.Config = NuGet.Config
 		src\xunit.assert.nuspec = src\xunit.assert.nuspec
 		src\xunit.assert.source.nuspec = src\xunit.assert.source.nuspec
+		src\xunit.console.nuspec = src\xunit.console.nuspec
 		src\xunit.core.nuspec = src\xunit.core.nuspec
 		src\xunit.extensibility.core.nuspec = src\xunit.extensibility.core.nuspec
 		src\xunit.extensibility.execution.nuspec = src\xunit.extensibility.execution.nuspec
