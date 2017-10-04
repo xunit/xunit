@@ -15,11 +15,41 @@
     <ProjectReference Include="..\test.testcasefilter\test.testcasefilter.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="App.config">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>App.cs</LastGenOutput>
+    </None>
     <None Update="PerfTests.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="PerfTests.cs" />
+    <None Update="Properties\launchSettings.json">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>launchSettings.cs</LastGenOutput>
+    </None>
+    <None Update="readme.txt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>readme.cs</LastGenOutput>
+    </None>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Update="App.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>App.config</DependentUpon>
+    </Compile>
     <Compile Update="PerfTests.cs" DesignTime="True" AutoGen="True" DependentUpon="PerfTests.tt" />
+    <Compile Update="Properties\launchSettings.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>launchSettings.json</DependentUpon>
+    </Compile>
+    <Compile Update="readme.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>readme.txt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <Import Project="..\..\src\xunit.core\build\xunit.core.targets" />
 </Project>

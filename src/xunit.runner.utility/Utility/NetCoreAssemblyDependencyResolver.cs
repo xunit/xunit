@@ -26,7 +26,7 @@ namespace Xunit
                                      : RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "unix"
                                      : "unknown";
 
-        Dictionary<string, RuntimeLibrary> assemblyFileNameToLibraryMap;
+        Dictionary<string, Tuple<RuntimeLibrary, RuntimeAssetGroup>> assemblyFileNameToLibraryMap;
         string assemblyFolder;
         ICompilationAssemblyResolver assemblyResolver;
         DependencyContext dependencyContext;
@@ -69,9 +69,9 @@ namespace Xunit
                 dependencyContext.RuntimeLibraries
                                  .Where(lib => lib.RuntimeAssemblyGroups?.Count > 0)
                                  .Select(lib => Tuple.Create(lib, lib.RuntimeAssemblyGroups.FirstOrDefault(grp => grp.Runtime == CurrentRuntime || string.IsNullOrEmpty(grp.Runtime))))
-                                 .Where(tuple => tuple.Item2 != null && tuple.Item2.AssetPaths != null)
-                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(tuple.Item1, Path.GetFileNameWithoutExtension(path))))
-                                 .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item2, tuple => tuple.Item1, StringComparer.OrdinalIgnoreCase);
+                                 .Where(tuple => tuple.Item2?.AssetPaths != null)
+                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(Path.GetFileNameWithoutExtension(path), Tuple.Create(tuple.Item1, tuple.Item2))))
+                                 .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
 
             assemblyResolver = new XunitPackageCompilationAssemblyResolver();
             loadContext = AssemblyLoadContext.GetLoadContext(assembly);
@@ -85,11 +85,12 @@ namespace Xunit
         Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
         {
             // Try to find dependency from .deps.json
-            if (assemblyFileNameToLibraryMap.TryGetValue(name.Name, out var library))
+            if (assemblyFileNameToLibraryMap.TryGetValue(name.Name, out var libraryTuple))
             {
+                var library = libraryTuple.Item1;
+                var assetGroup = libraryTuple.Item2;
                 var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
-                                                     library.RuntimeAssemblyGroups.SelectMany(g => g.AssetPaths),
-                                                     library.Dependencies, library.Serviceable);
+                                                     assetGroup.AssetPaths, library.Dependencies, library.Serviceable);
 
                 var assemblies = new List<string>();
                 if (assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
