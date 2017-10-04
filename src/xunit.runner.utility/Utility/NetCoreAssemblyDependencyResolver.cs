@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.Loader;
+using Microsoft.DotNet.InternalAbstractions;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
 
@@ -21,11 +21,6 @@ namespace Xunit
     /// </summary>
     public class NetCoreAssemblyDependencyResolver : IDisposable
     {
-        static string CurrentRuntime = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win"
-                                     : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "osx"
-                                     : RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "unix"
-                                     : "unknown";
-
         Dictionary<string, Tuple<RuntimeLibrary, RuntimeAssetGroup>> assemblyFileNameToLibraryMap;
         string assemblyFolder;
         ICompilationAssemblyResolver assemblyResolver;
@@ -65,14 +60,32 @@ namespace Xunit
         {
             dependencyContext = DependencyContext.Load(assembly);
 
-            assemblyFileNameToLibraryMap =
+            var compatibleRuntimes = default(HashSet<string>);
+            var currentRuntime = RuntimeEnvironment.GetRuntimeIdentifier();
+            var fallbacks = dependencyContext.RuntimeGraph.FirstOrDefault(x => string.Equals(x.Runtime, currentRuntime, StringComparison.OrdinalIgnoreCase));
+            if (fallbacks != null)
+                compatibleRuntimes = new HashSet<string>(fallbacks.Fallbacks, StringComparer.OrdinalIgnoreCase);
+            else
+                compatibleRuntimes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            compatibleRuntimes.Add(currentRuntime);
+            compatibleRuntimes.Add(string.Empty);
+
+            var runtimeLibraries =
                 dependencyContext.RuntimeLibraries
                                  .Where(lib => lib.RuntimeAssemblyGroups?.Count > 0)
-                                 .Select(lib => Tuple.Create(lib, lib.RuntimeAssemblyGroups.FirstOrDefault(grp => grp.Runtime == CurrentRuntime || string.IsNullOrEmpty(grp.Runtime))))
+                                 .Select(lib => Tuple.Create(lib, lib.RuntimeAssemblyGroups.FirstOrDefault(libGroup => compatibleRuntimes.Contains(libGroup.Runtime))))
                                  .Where(tuple => tuple.Item2?.AssetPaths != null)
-                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(Path.GetFileNameWithoutExtension(path), Tuple.Create(tuple.Item1, tuple.Item2))))
-                                 .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
+                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(Path.GetFileNameWithoutExtension(path), Tuple.Create(tuple.Item1, tuple.Item2))));
 
+            var nativeLibraries =
+                dependencyContext.RuntimeLibraries
+                                 .Where(lib => lib.NativeLibraryGroups?.Count > 0)
+                                 .Select(lib => Tuple.Create(lib, lib.NativeLibraryGroups.FirstOrDefault(libGroup => compatibleRuntimes.Contains(libGroup.Runtime))))
+                                 .Where(tuple => tuple.Item2?.AssetPaths != null)
+                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(Path.GetFileNameWithoutExtension(path), Tuple.Create(tuple.Item1, tuple.Item2))));
+
+            assemblyFileNameToLibraryMap = runtimeLibraries.Concat(nativeLibraries).ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
             assemblyResolver = new XunitPackageCompilationAssemblyResolver();
             loadContext = AssemblyLoadContext.GetLoadContext(assembly);
             loadContext.Resolving += OnResolving;
