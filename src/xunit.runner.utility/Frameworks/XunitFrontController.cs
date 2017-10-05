@@ -70,22 +70,33 @@ namespace Xunit
 
         }
 
+        ITestCaseBulkDeserializer BulkDeserializer
+        {
+            get
+            {
+                EnsureInitialized();
+                return bulkDeserializer;
+            }
+        }
+
         /// <inheritdoc/>
         public bool CanUseAppDomains
             => InnerController.CanUseAppDomains;
+
+        ITestCaseDescriptorProvider DescriptorProvider
+        {
+            get
+            {
+                EnsureInitialized();
+                return descriptorProvider;
+            }
+        }
 
         IFrontController InnerController
         {
             get
             {
-                if (innerController == null)
-                {
-                    innerController = CreateInnerController();
-                    descriptorProvider = (innerController as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(innerController);
-                    bulkDeserializer = (innerController as ITestCaseBulkDeserializer) ?? new DefaultTestCaseBulkDeserializer(innerController);
-                    toDispose.Push(innerController);
-                }
-
+                EnsureInitialized();
                 return innerController;
             }
         }
@@ -104,7 +115,7 @@ namespace Xunit
 
         /// <inheritdoc/>
         public List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations)
-            => bulkDeserializer.BulkDeserialize(serializations);
+            => BulkDeserializer.BulkDeserialize(serializations);
 
         /// <summary>
         /// FOR INTERNAL USE ONLY.
@@ -137,6 +148,17 @@ namespace Xunit
                 disposable.Dispose();
         }
 
+        void EnsureInitialized()
+        {
+            if (innerController == null)
+            {
+                innerController = CreateInnerController();
+                descriptorProvider = (innerController as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(innerController);
+                bulkDeserializer = (innerController as ITestCaseBulkDeserializer) ?? new DefaultTestCaseBulkDeserializer(innerController);
+                toDispose.Push(innerController);
+            }
+        }
+
         /// <inheritdoc/>
         public virtual void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
@@ -151,7 +173,7 @@ namespace Xunit
 
         /// <inheritdoc/>
         public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization)
-            => descriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
+            => DescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
 
         /// <inheritdoc/>
         public virtual void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
