@@ -8,7 +8,7 @@ namespace Xunit.Sdk
     /// <summary>
     /// INTERNAL CLASS. DO NOT USE.
     /// </summary>
-    public class TestCaseBulkDeserializer
+    public class TestCaseBulkDeserializer : LongLivedMarshalByRefObject
     {
         static IMessageSink DiagnosticMessageSink = new NullMessageSink();
 

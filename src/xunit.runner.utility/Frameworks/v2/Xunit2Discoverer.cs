@@ -26,7 +26,6 @@ namespace Xunit
 #endif
 
         ITestCaseDescriptorProvider defaultTestCaseDescriptorProvider;
-        readonly ITestFrameworkDiscoverer remoteDiscoverer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class.
@@ -103,7 +102,7 @@ namespace Xunit
 
             Framework = AppDomain.CreateObject<ITestFramework>(TestFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider, DiagnosticMessageSink);
 
-            remoteDiscoverer = Framework.GetDiscoverer(assemblyInfo);
+            RemoteDiscoverer = Framework.GetDiscoverer(assemblyInfo);
         }
 
         internal IAppDomainManager AppDomain { get; }
@@ -123,13 +122,15 @@ namespace Xunit
         /// </summary>
         public ITestFramework Framework { get; }
 
+        internal ITestFrameworkDiscoverer RemoteDiscoverer { get; }
+
         /// <inheritdoc/>
-        public string TargetFramework => remoteDiscoverer.TargetFramework;
+        public string TargetFramework => RemoteDiscoverer.TargetFramework;
 
         internal AssemblyName TestFrameworkAssemblyName { get; }
 
         /// <inheritdoc/>
-        public string TestFrameworkDisplayName => remoteDiscoverer.TestFrameworkDisplayName;
+        public string TestFrameworkDisplayName => RemoteDiscoverer.TestFrameworkDisplayName;
 
         /// <summary>
         /// Creates a high performance cross AppDomain message sink that utilizes <see cref="IMessageSinkWithTypes"/>
@@ -153,7 +154,7 @@ namespace Xunit
         /// <inheritdoc/>
         public virtual void Dispose()
         {
-            remoteDiscoverer.SafeDispose();
+            RemoteDiscoverer.SafeDispose();
             Framework.SafeDispose();
 #if NET35 || NET452
             assemblyHelper.SafeDispose();
@@ -169,7 +170,7 @@ namespace Xunit
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            remoteDiscoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
+            RemoteDiscoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
         }
 
         /// <summary>
@@ -181,7 +182,7 @@ namespace Xunit
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            remoteDiscoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
+            RemoteDiscoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
         }
 
         /// <inheritdoc/>
@@ -196,14 +197,14 @@ namespace Xunit
                 {
                     try
                     {
-                        AppDomain.CreateObject<object>(TestFrameworkAssemblyName, "Xunit.Sdk.TestCaseDescriptorFactory", includeSerialization ? remoteDiscoverer : null, testCases, callback);
+                        AppDomain.CreateObject<object>(TestFrameworkAssemblyName, "Xunit.Sdk.TestCaseDescriptorFactory", includeSerialization ? RemoteDiscoverer : null, testCases, callback);
                         if (callbackContainer.Results != null)
                             return callbackContainer.Results.Select(x => new TestCaseDescriptor(x)).ToList();
                     }
                     catch { }
                 }
 
-                defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(remoteDiscoverer);
+                defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(RemoteDiscoverer);
             }
 
             return defaultTestCaseDescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
@@ -276,7 +277,7 @@ namespace Xunit
 
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
-            => remoteDiscoverer.Serialize(testCase);
+            => RemoteDiscoverer.Serialize(testCase);
 
         class DescriptorCallback : LongLivedMarshalByRefObject
         {

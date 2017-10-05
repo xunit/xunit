@@ -60,7 +60,7 @@ namespace Xunit
                 {
                     try
                     {
-                        AppDomain.CreateObject<object>(TestFrameworkAssemblyName, "Xunit.Sdk.TestCaseBulkDeserializer", remoteExecutor, serializations, callback);
+                        AppDomain.CreateObject<object>(TestFrameworkAssemblyName, "Xunit.Sdk.TestCaseBulkDeserializer", RemoteDiscoverer, remoteExecutor, serializations, callback);
                         if (callbackContainer.Results != null)
                             return callbackContainer.Results;
                     }
