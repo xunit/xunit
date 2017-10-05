@@ -518,11 +518,18 @@ namespace Xunit.Runner.VisualStudio
 
                         var deserializedTestCasesByUniqueId = controller.BulkDeserialize(serializations);
 
-                        for (int idx = 0; idx < runInfo.TestCases.Count; ++idx)
+                        if (deserializedTestCasesByUniqueId == null)
+                            logger.LogError("Received null response from BulkDeserialize");
+                        else
                         {
-                            var kvp = deserializedTestCasesByUniqueId[idx];
-                            testCasesMap.Add(kvp.Key, runInfo.TestCases[idx]);
-                            testCases.Add(kvp.Value);
+                            logger.Log("Received {0} results from {1} requests", deserializedTestCasesByUniqueId.Count, serializations.Count);
+
+                            for (int idx = 0; idx < runInfo.TestCases.Count; ++idx)
+                            {
+                                var kvp = deserializedTestCasesByUniqueId[idx];
+                                testCasesMap.Add(kvp.Key, runInfo.TestCases[idx]);
+                                testCases.Add(kvp.Value);
+                            }
                         }
                     }
 
