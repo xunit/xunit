@@ -30,25 +30,32 @@ namespace Xunit.Sdk
         {
             var testCase = default(ITestCase);
 
-            if (serialization.Length > 3 && serialization.StartsWith(":F:"))
+            try
             {
-                // Format from TestCaseDescriptorFactory: ":F:{typeName}:{methodName}:{defaultMethodDisplay}"
-                var parts = serialization.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length > 3)
+                if (serialization.Length > 3 && serialization.StartsWith(":F:"))
                 {
-                    var typeInfo = discoverer.AssemblyInfo.GetType(parts[1]);
-                    var testClass = discoverer.CreateTestClass(typeInfo);
-                    var methodInfo = testClass.Class.GetMethod(parts[2], true);
-                    var testMethod = new TestMethod(testClass, methodInfo);
-                    var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[3]);
-                    testCase = new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, testMethod);
+                    // Format from TestCaseDescriptorFactory: ":F:{typeName}:{methodName}:{defaultMethodDisplay}"
+                    var parts = serialization.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length > 3)
+                    {
+                        var typeInfo = discoverer.AssemblyInfo.GetType(parts[1]);
+                        var testClass = discoverer.CreateTestClass(typeInfo);
+                        var methodInfo = testClass.Class.GetMethod(parts[2], true);
+                        var testMethod = new TestMethod(testClass, methodInfo);
+                        var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[3]);
+                        testCase = new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, testMethod);
+                    }
                 }
+
+                if (testCase == null)
+                    testCase = executor.Deserialize(serialization);
+
+                return new KeyValuePair<string, ITestCase>(testCase.UniqueID, testCase);
             }
-
-            if (testCase == null)
-                testCase = executor.Deserialize(serialization);
-
-            return new KeyValuePair<string, ITestCase>(testCase.UniqueID, testCase);
+            catch (Exception ex)
+            {
+                return new KeyValuePair<string, ITestCase>(ex.ToString(), null);
+            }
         }
     }
 }

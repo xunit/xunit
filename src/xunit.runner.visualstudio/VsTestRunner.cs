@@ -515,13 +515,10 @@ namespace Xunit.Runner.VisualStudio
                                                         .Select(tc => tc.GetPropertyValue<string>(SerializedTestCaseProperty, null))
                                                         .ToList();
 
-                            for (int idx = 0; idx < runInfo.TestCases.Count; ++idx)
-                                logger.Log("Deserializing {0}: {1}", runInfo.TestCases[idx].DisplayName, serializations[idx] ?? "(null)");
-
                             var deserializedTestCasesByUniqueId = controller.BulkDeserialize(serializations);
 
                             if (deserializedTestCasesByUniqueId == null)
-                                logger.LogError("Received null response from BulkDeserialize");
+                                logger.LogErrorWithSource(assemblyFileName, "Received null response from BulkDeserialize");
                             else
                             {
                                 logger.Log("Received {0} results from {1} requests", deserializedTestCasesByUniqueId.Count, serializations.Count);
@@ -531,12 +528,21 @@ namespace Xunit.Runner.VisualStudio
                                     try
                                     {
                                         var kvp = deserializedTestCasesByUniqueId[idx];
-                                        testCasesMap.Add(kvp.Key, runInfo.TestCases[idx]);
-                                        testCases.Add(kvp.Value);
+                                        var vsTestCase = runInfo.TestCases[idx];
+
+                                        if (kvp.Value == null)
+                                        {
+                                            logger.LogErrorWithSource(assemblyFileName, "Test case {0} failed to deserialize: {1}", vsTestCase.DisplayName, kvp.Key);
+                                        }
+                                        else
+                                        {
+                                            testCasesMap.Add(kvp.Key, vsTestCase);
+                                            testCases.Add(kvp.Value);
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
-                                        logger.LogWarningWithSource(assemblyFileName, "Catastrophic error deserializing item #{0}: {1}", idx, ex);
+                                        logger.LogErrorWithSource(assemblyFileName, "Catastrophic error deserializing item #{0}: {1}", idx, ex);
                                     }
                                 }
                             }
