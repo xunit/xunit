@@ -187,19 +187,6 @@ namespace Xunit.Runner.VisualStudio
         static bool ContainsAppX(IEnumerable<string> sources)
             => sources.Any(s => string.Compare(Path.GetExtension(s), ".appx", StringComparison.OrdinalIgnoreCase) == 0);
 
-        static ITestCase Deserialize(LoggerHelper logger, ITestFrameworkExecutor executor, TestCase testCase)
-        {
-            try
-            {
-                return executor.Deserialize(testCase.GetPropertyValue<string>(SerializedTestCaseProperty, null));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Unable to de-serialize test case {0}: {1}", testCase.DisplayName, ex);
-                return null;
-            }
-        }
-
         void DiscoverTests<TVisitor>(IEnumerable<string> sources,
                                      LoggerHelper logger,
                                      TestPlatformContext testPlatformContext,
@@ -522,11 +509,12 @@ namespace Xunit.Runner.VisualStudio
                     }
                     else
                     {
-                        // We are in Run Specific tests scenario, the `TestCase` objects are available.
-                        // Query the `TestCase` objects to find XunitTestCase objects.
                         var serializations = runInfo.TestCases
-                                                    .Select(tc => (string)tc.GetPropertyValue(SerializedTestCaseProperty))
+                                                    .Select(tc => tc.GetPropertyValue<string>(SerializedTestCaseProperty, null))
                                                     .ToList();
+
+                        for (int idx = 0; idx < runInfo.TestCases.Count; ++idx)
+                            logger.Log("Deserializing {0}: {1}", runInfo.TestCases[idx].DisplayName, serializations[idx] ?? "(null)");
 
                         var deserializedTestCasesByUniqueId = controller.BulkDeserialize(serializations);
 
