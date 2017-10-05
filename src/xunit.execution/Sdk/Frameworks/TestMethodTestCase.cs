@@ -58,7 +58,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Returns the default method display to use (when not customized).
         /// </summary>
-        protected TestMethodDisplay DefaultMethodDisplay { get; private set; }
+        protected internal TestMethodDisplay DefaultMethodDisplay { get; private set; }
 
         /// <inheritdoc/>
         public string DisplayName

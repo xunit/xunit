@@ -5,7 +5,7 @@ Write-Host -Foreground Yellow -NoNewLine "xunit.console.exe (net452):  "
 Write-Host (Measure-Command { & src\xunit.console\bin\Debug\net452\win7-x86\xunit.console.exe test\test.harness\bin\Debug\net452\test.harness.dll -class Foo }).TotalMilliseconds
 
 Write-Host -Foreground Yellow -NoNewLine "dotnet vstest (netcore1.0):  "
-Write-Host (Measure-Command { & dotnet vstest /Framework:FrameworkCore10 /Tests:Foo /Settings:test\test.harness\Settings.runsettings test\test.harness\bin\Debug\netcoreapp1.0\test.harness.dll }).TotalMilliseconds
+Write-Host (Measure-Command { & dotnet vstest /Framework:FrameworkCore10 /ListTests /Settings:test\test.harness\Settings.runsettings test\test.harness\bin\Debug\netcoreapp1.0\test.harness.dll }).TotalMilliseconds
 
 Write-Host -Foreground Yellow -NoNewLine "dotnet xunit (netcore1.0):   "
-Write-Host (Measure-Command { & dotnet exec --depsfile test\test.harness\bin\Debug\netcoreapp1.0\test.harness.deps.json src\xunit.console\bin\Debug\netcoreapp1.0\xunit.console.dll test\test.harness\bin\Debug\netcoreapp1.0\test.harness.dll -class Foo }).TotalMilliseconds
+Write-Host (Measure-Command { & dotnet src\xunit.console\bin\Debug\netcoreapp1.0\xunit.console.dll test\test.harness\bin\Debug\netcoreapp1.0\test.harness.dll -class Foo }).TotalMilliseconds

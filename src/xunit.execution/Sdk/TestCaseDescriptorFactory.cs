@@ -15,6 +15,7 @@ namespace Xunit.Sdk
         const string SeparatorEscape = "\\n";
 
         static Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>();
+        static Type XunitTestCaseType = typeof(XunitTestCase);
 
         /// <summary/>
         public TestCaseDescriptorFactory(object discovererObject, object testCasesObject, object callbackObject)
@@ -27,17 +28,34 @@ namespace Xunit.Sdk
             foreach (var testCase in testCases)
             {
                 var result = new StringBuilder();
+                var className = testCase.TestMethod?.TestClass?.Class?.Name;
+                var methodName = testCase.TestMethod?.Method?.Name;
+
                 result.AppendFormat("C {1}{0}M {2}{0}U {3}{0}D {4}{0}",
                                     Separator,
-                                    testCase.TestMethod?.TestClass?.Class?.Name,
-                                    testCase.TestMethod?.Method?.Name,
+                                    className,
+                                    methodName,
                                     testCase.UniqueID,
                                     Escape(testCase.DisplayName));
 
                 if (discoverer != null)
+                {
+                    var serialization = default(string);
+
+                    if (testCase.GetType() == XunitTestCaseType)
+                    {
+                        var xunitTestCase = (XunitTestCase)testCase;
+                        if (xunitTestCase.TestMethodArguments == null || xunitTestCase.TestMethodArguments.Length == 0)
+                            serialization = $":F:{className}:{methodName}:{(int)xunitTestCase.DefaultMethodDisplay}";
+                    }
+
+                    if (serialization == null)
+                        serialization = discoverer.Serialize(testCase);
+
                     result.AppendFormat("S {1}{0}",
                                         Separator,
-                                        discoverer.Serialize(testCase));
+                                        serialization);
+                }
 
                 if (!string.IsNullOrEmpty(testCase.SkipReason))
                     result.AppendFormat("R {1}{0}",

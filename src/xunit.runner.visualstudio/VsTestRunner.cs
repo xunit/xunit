@@ -524,14 +524,17 @@ namespace Xunit.Runner.VisualStudio
                     {
                         // We are in Run Specific tests scenario, the `TestCase` objects are available.
                         // Query the `TestCase` objects to find XunitTestCase objects.
-                        foreach (var vstestCase in runInfo.TestCases)
+                        var serializations = runInfo.TestCases
+                                                    .Select(tc => (string)tc.GetPropertyValue(SerializedTestCaseProperty))
+                                                    .ToList();
+
+                        var deserializedTestCasesByUniqueId = controller.BulkDeserialize(serializations);
+
+                        for (int idx = 0; idx < runInfo.TestCases.Count; ++idx)
                         {
-                            var xunitTestCase = Deserialize(logger, controller, vstestCase);
-                            if (xunitTestCase != null)
-                            {
-                                testCasesMap.Add(xunitTestCase.UniqueID, vstestCase);
-                                testCases.Add(xunitTestCase);
-                            }
+                            var kvp = deserializedTestCasesByUniqueId[idx];
+                            testCasesMap.Add(kvp.Key, runInfo.TestCases[idx]);
+                            testCases.Add(kvp.Value);
                         }
                     }
 

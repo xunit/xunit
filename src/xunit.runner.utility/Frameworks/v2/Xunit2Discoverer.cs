@@ -25,11 +25,8 @@ namespace Xunit
         static readonly string[] SupportedPlatforms = { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
 #endif
 
-        readonly IAppDomainManager appDomain;
         ITestCaseDescriptorProvider defaultTestCaseDescriptorProvider;
-        readonly ITestFrameworkDiscoverer discoverer;
-        readonly ITestFramework framework;
-        readonly AssemblyName testFrameworkAssemblyName;
+        readonly ITestFrameworkDiscoverer remoteDiscoverer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class.
@@ -91,23 +88,25 @@ namespace Xunit
             DiagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
 
             var appDomainAssembly = assemblyFileName ?? xunitExecutionAssemblyPath;
-            appDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder);
+            AppDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder);
 
 #if NET35 || NET452
             var runnerUtilityAssemblyLocation = Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase());
-            assemblyHelper = appDomain.CreateObjectFrom<AssemblyHelper>(typeof(AssemblyHelper).Assembly.Location, typeof(AssemblyHelper).FullName, runnerUtilityAssemblyLocation);
+            assemblyHelper = AppDomain.CreateObjectFrom<AssemblyHelper>(typeof(AssemblyHelper).Assembly.Location, typeof(AssemblyHelper).FullName, runnerUtilityAssemblyLocation);
 #endif
 
-            testFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
+            TestFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
 
             // If we didn't get an assemblyInfo object, we can leverage the reflection-based IAssemblyInfo wrapper
             if (assemblyInfo == null)
-                assemblyInfo = appDomain.CreateObject<IAssemblyInfo>(testFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
+                assemblyInfo = AppDomain.CreateObject<IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
 
-            framework = appDomain.CreateObject<ITestFramework>(testFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider, DiagnosticMessageSink);
+            Framework = AppDomain.CreateObject<ITestFramework>(TestFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider, DiagnosticMessageSink);
 
-            discoverer = Framework.GetDiscoverer(assemblyInfo);
+            remoteDiscoverer = Framework.GetDiscoverer(assemblyInfo);
         }
+
+        internal IAppDomainManager AppDomain { get; }
 
         /// <summary>
         /// Gets a value indicating whether the tests can use app domains (must be linked against desktop execution library).
@@ -122,13 +121,15 @@ namespace Xunit
         /// <summary>
         /// Returns the test framework from the remote app domain.
         /// </summary>
-        public ITestFramework Framework => framework;
+        public ITestFramework Framework { get; }
 
         /// <inheritdoc/>
-        public string TargetFramework => discoverer.TargetFramework;
+        public string TargetFramework => remoteDiscoverer.TargetFramework;
+
+        internal AssemblyName TestFrameworkAssemblyName { get; }
 
         /// <inheritdoc/>
-        public string TestFrameworkDisplayName => discoverer.TestFrameworkDisplayName;
+        public string TestFrameworkDisplayName => remoteDiscoverer.TestFrameworkDisplayName;
 
         /// <summary>
         /// Creates a high performance cross AppDomain message sink that utilizes <see cref="IMessageSinkWithTypes"/>
@@ -141,7 +142,7 @@ namespace Xunit
             {
                 var sinkWithTypes = MessageSinkWithTypesAdapter.Wrap(sink);
                 var asssemblyName = typeof(OptimizedRemoteMessageSink).GetAssembly().GetName();
-                return appDomain.CreateObject<IMessageSink>(asssemblyName, typeof(OptimizedRemoteMessageSink).FullName, sinkWithTypes);
+                return AppDomain.CreateObject<IMessageSink>(asssemblyName, typeof(OptimizedRemoteMessageSink).FullName, sinkWithTypes);
             }
             catch    // This really shouldn't happen, but falling back makes sense in catastrophic cases
             {
@@ -152,12 +153,12 @@ namespace Xunit
         /// <inheritdoc/>
         public virtual void Dispose()
         {
-            discoverer.SafeDispose();
+            remoteDiscoverer.SafeDispose();
             Framework.SafeDispose();
 #if NET35 || NET452
             assemblyHelper.SafeDispose();
 #endif
-            appDomain.SafeDispose();
+            AppDomain.SafeDispose();
         }
 
         /// <summary>
@@ -168,7 +169,7 @@ namespace Xunit
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            discoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
+            remoteDiscoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
         }
 
         /// <summary>
@@ -180,7 +181,7 @@ namespace Xunit
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
-            discoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
+            remoteDiscoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
         }
 
         /// <inheritdoc/>
@@ -191,18 +192,18 @@ namespace Xunit
 
             if (defaultTestCaseDescriptorProvider == null)
             {
-                if (appDomain.HasAppDomain)
+                if (AppDomain.HasAppDomain)
                 {
                     try
                     {
-                        appDomain.CreateObject<object>(testFrameworkAssemblyName, "Xunit.Sdk.TestCaseDescriptorFactory", includeSerialization ? discoverer : null, testCases, callback);
+                        AppDomain.CreateObject<object>(TestFrameworkAssemblyName, "Xunit.Sdk.TestCaseDescriptorFactory", includeSerialization ? remoteDiscoverer : null, testCases, callback);
                         if (callbackContainer.Results != null)
                             return callbackContainer.Results.Select(x => new TestCaseDescriptor(x)).ToList();
                     }
                     catch { }
                 }
 
-                defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(discoverer);
+                defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(remoteDiscoverer);
             }
 
             return defaultTestCaseDescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
@@ -275,7 +276,7 @@ namespace Xunit
 
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
-            => discoverer.Serialize(testCase);
+            => remoteDiscoverer.Serialize(testCase);
 
         class DescriptorCallback : LongLivedMarshalByRefObject
         {

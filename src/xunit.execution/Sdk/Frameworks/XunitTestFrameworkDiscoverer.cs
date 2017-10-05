@@ -55,7 +55,7 @@ namespace Xunit.Sdk
         public IXunitTestCollectionFactory TestCollectionFactory { get; private set; }
 
         /// <inheritdoc/>
-        protected override ITestClass CreateTestClass(ITypeInfo @class)
+        protected internal override ITestClass CreateTestClass(ITypeInfo @class)
         {
             return new TestClass(TestCollectionFactory.Get(@class), @class);
         }
@@ -68,7 +68,7 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report discovery messages to.</param>
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         /// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
-        protected virtual bool FindTestsForMethod(ITestMethod testMethod, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
+        protected internal virtual bool FindTestsForMethod(ITestMethod testMethod, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
             if (factAttributes.Count > 1)

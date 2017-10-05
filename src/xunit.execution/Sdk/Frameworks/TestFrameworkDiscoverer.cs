@@ -48,7 +48,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the assembly that's being discovered.
         /// </summary>
-        protected IAssemblyInfo AssemblyInfo { get; set; }
+        protected internal IAssemblyInfo AssemblyInfo { get; set; }
 
         /// <summary>
         /// Gets the message sink used to report diagnostic messages.
@@ -76,7 +76,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="class">The CLR type.</param>
         /// <returns>The test class.</returns>
-        protected abstract ITestClass CreateTestClass(ITypeInfo @class);
+        protected internal abstract ITestClass CreateTestClass(ITypeInfo @class);
 
         /// <inheritdoc/>
         public void Dispose()

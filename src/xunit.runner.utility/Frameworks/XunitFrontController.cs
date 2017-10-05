@@ -9,10 +9,11 @@ namespace Xunit
     /// Default implementation of <see cref="IFrontController"/> which supports running tests from
     /// both xUnit.net v1 and v2.
     /// </summary>
-    public class XunitFrontController : IFrontController, ITestCaseDescriptorProvider
+    public class XunitFrontController : IFrontController, ITestCaseDescriptorProvider, ITestCaseBulkDeserializer
     {
         readonly AppDomainSupport appDomainSupport;
         readonly string assemblyFileName;
+        ITestCaseBulkDeserializer bulkDeserializer;
         readonly string configFileName;
         ITestCaseDescriptorProvider descriptorProvider;
         readonly IMessageSink diagnosticMessageSink;
@@ -81,6 +82,7 @@ namespace Xunit
                 {
                     innerController = CreateInnerController();
                     descriptorProvider = (innerController as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(innerController);
+                    bulkDeserializer = (innerController as ITestCaseBulkDeserializer) ?? new DefaultTestCaseBulkDeserializer(innerController);
                     toDispose.Push(innerController);
                 }
 
@@ -99,6 +101,10 @@ namespace Xunit
         {
             get { return InnerController.TestFrameworkDisplayName; }
         }
+
+        /// <inheritdoc/>
+        public List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations)
+            => bulkDeserializer.BulkDeserialize(serializations);
 
         /// <summary>
         /// FOR INTERNAL USE ONLY.

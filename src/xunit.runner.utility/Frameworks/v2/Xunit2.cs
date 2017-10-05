@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
 
@@ -9,9 +11,10 @@ namespace Xunit
     /// This class be used to do discovery and execution of xUnit.net v2 tests
     /// using a reflection-based implementation of <see cref="IAssemblyInfo"/>.
     /// </summary>
-    public class Xunit2 : Xunit2Discoverer, IFrontController
+    public class Xunit2 : Xunit2Discoverer, IFrontController, ITestCaseBulkDeserializer
     {
-        readonly ITestFrameworkExecutor executor;
+        ITestCaseBulkDeserializer defaultTestCaseBulkDeserializer;
+        readonly ITestFrameworkExecutor remoteExecutor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2"/> class.
@@ -42,19 +45,44 @@ namespace Xunit
             var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();
             var assemblyName = new AssemblyName { Name = an.Name, Version = an.Version };
 #endif
-            executor = Framework.GetExecutor(assemblyName);
+            remoteExecutor = Framework.GetExecutor(assemblyName);
+        }
+
+        /// <inheritdoc/>
+        public List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations)
+        {
+            var callbackContainer = new DeserializeCallback();
+            Action<List<KeyValuePair<string, ITestCase>>> callback = callbackContainer.Callback;
+
+            if (defaultTestCaseBulkDeserializer == null)
+            {
+                if (AppDomain.HasAppDomain)
+                {
+                    try
+                    {
+                        AppDomain.CreateObject<object>(TestFrameworkAssemblyName, "Xunit.Sdk.TestCaseBulkDeserializer", remoteExecutor, serializations, callback);
+                        if (callbackContainer.Results != null)
+                            return callbackContainer.Results;
+                    }
+                    catch { }
+                }
+
+                defaultTestCaseBulkDeserializer = new DefaultTestCaseBulkDeserializer(remoteExecutor);
+            }
+
+            return defaultTestCaseBulkDeserializer.BulkDeserialize(serializations);
         }
 
         /// <inheritdoc/>
         public ITestCase Deserialize(string value)
         {
-            return executor.Deserialize(value);
+            return remoteExecutor.Deserialize(value);
         }
 
         /// <inheritdoc/>
         public override sealed void Dispose()
         {
-            executor.SafeDispose();
+            remoteExecutor.SafeDispose();
 
             base.Dispose();
         }
@@ -67,7 +95,7 @@ namespace Xunit
         /// <param name="executionOptions">The options to be used during test execution.</param>
         public void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
         {
-            executor.RunAll(CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions, executionOptions);
+            remoteExecutor.RunAll(CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions, executionOptions);
         }
 
         /// <summary>
@@ -78,7 +106,14 @@ namespace Xunit
         /// <param name="executionOptions">The options to be used during test execution.</param>
         public void RunTests(IEnumerable<ITestCase> testCases, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
         {
-            executor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), executionOptions);
+            remoteExecutor.RunTests(testCases, CreateOptimizedRemoteMessageSink(messageSink), executionOptions);
+        }
+
+        class DeserializeCallback : LongLivedMarshalByRefObject
+        {
+            public List<KeyValuePair<string, ITestCase>> Results;
+
+            public void Callback(List<KeyValuePair<string, ITestCase>> results) => Results = results;
         }
     }
 }
