@@ -378,6 +378,7 @@ class Program
         });
 
         WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
+        WriteLineDiagnostics($"  IN: {psi.WorkingDirectory}");
 
         var runTests = Process.Start(psi);
         runTests.WaitForExit();
@@ -408,6 +409,7 @@ class Program
         };
 
         WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
+        WriteLineDiagnostics($"  IN: {psi.WorkingDirectory}");
 
         var runTests = Process.Start(psi);
         runTests.WaitForExit();
