@@ -351,12 +351,13 @@ namespace Xunit.ConsoleClient
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
                 var diagnosticMessageSink = new DiagnosticMessageSink(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
+                var internalDiagnosticsMessageSink = new DiagnosticMessageSink(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor, ConsoleColor.DarkGray);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 #if NETCOREAPP1_0 || NETCOREAPP2_0
-                using (new NetCoreAssemblyDependencyResolver(assembly.AssemblyFilename))
+                using (new NetCoreAssemblyDependencyResolver(assembly.AssemblyFilename, internalDiagnosticsMessageSink))
 #endif
                 using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 using (var discoverySink = new TestDiscoverySink(() => cancel))

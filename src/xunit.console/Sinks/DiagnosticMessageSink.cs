@@ -7,13 +7,15 @@ namespace Xunit.ConsoleClient
     {
         readonly string assemblyDisplayName;
         readonly object consoleLock;
+        readonly ConsoleColor displayColor;
         readonly bool noColor;
 
-        public DiagnosticMessageSink(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor)
+        public DiagnosticMessageSink(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor, ConsoleColor displayColor = ConsoleColor.Yellow)
         {
             this.consoleLock = consoleLock;
             this.assemblyDisplayName = assemblyDisplayName;
             this.noColor = noColor;
+            this.displayColor = displayColor;
 
             if (showDiagnostics)
                 Diagnostics.DiagnosticMessageEvent += HandleDiagnosticMessage;
@@ -24,7 +26,7 @@ namespace Xunit.ConsoleClient
             lock (consoleLock)
             {
                 if (!noColor)
-                    ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+                    ConsoleHelper.SetForegroundColor(displayColor);
 
                 Console.WriteLine($"   {assemblyDisplayName}: {args.Message.Message}");
 
