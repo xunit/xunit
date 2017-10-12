@@ -1,25 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <!-- TPv1 uses 'full' symbols; TPv2 uses 'portable' symbols -->
-  <PropertyGroup>
-    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">full</DebugType>
-    <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">portable</DebugType>
-  </PropertyGroup>
-
-  <!-- Desktop CLR needs auto-generated binding redirects -->
+  <!-- Desktop CLR needs auto-generated binding redirects (and full PDBs for TPv1) -->
   <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <DebugType Condition=" '$(DebugType)' == '' ">full</DebugType>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
-  <!-- .NET Core need .deps.json and .runtimeconfig.json files -->
+  <!-- .NET Core need .deps.json and .runtimeconfig.json files (and portable PDBs for TPv2) -->
   <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">
+    <DebugType Condition=" '$(DebugType)' == '' ">portable</DebugType>
     <GenerateDependencyFile>true</GenerateDependencyFile>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
-  <!-- UWP in TPv1 does discovery in desktop CLR, so needs desktop execution library -->
+  <!-- UWP in TPv1 does discovery in desktop CLR, so needs desktop execution library (and full PDBs) -->
+  <PropertyGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
+    <DebugType Condition=" '$(DebugType)' == '' ">full</DebugType>
+  </PropertyGroup>
   <ItemGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
     <None Include="$(MSBuildThisFileDirectory)xunit.execution.desktop.dll">
       <Link>xunit.execution.desktop.dll</Link>
