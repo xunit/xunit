@@ -38,7 +38,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
 
             sink.OnMessage(Substitute.For<ITestAssemblyStarting>());
             sink.OnMessage(new TestCaseStarting(testCase));
-            await sink.AdvanceClockAsync(1000);
+            await sink.AdvanceClockAsync(1500);
             sink.OnMessage(new TestCaseFinished(testCase, 8009, 1, 0, 0));
             sink.OnMessage(Substitute.For<ITestAssemblyFinished>());
 
@@ -46,7 +46,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
             Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
             var receivedTestCasePair = Assert.Single(@event.TestCases);
             Assert.Same(testCase, receivedTestCasePair.Key);
-            Assert.Equal(TimeSpan.FromSeconds(1), receivedTestCasePair.Value);
+            Assert.Equal(TimeSpan.FromMilliseconds(1500), receivedTestCasePair.Value);
         }
     }
 
