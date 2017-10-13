@@ -20,6 +20,13 @@ namespace Xunit
     /// </summary>
     public class NetCoreAssemblyDependencyResolver : AssemblyLoadContext, IDisposable
     {
+        static readonly string[] UnmanagedDllFormats = {
+            "{0}",                       // Might already be the full filename (most likely code that only runs on a single OS)
+            "{0}.dll", "{0}.exe",        // Windows
+            "{0}.so", "lib{0}.so",       // Linux
+            "{0}.dylib", "lib{0}.dylib"  // OS X
+        };
+
         readonly string assemblyFolder;
         readonly XunitPackageCompilationAssemblyResolver assemblyResolver;
         readonly DependencyContext dependencyContext;
@@ -67,7 +74,7 @@ namespace Xunit
                                  .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
 
             if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver..ctor] Managed assembly map includes: {string.Join(",", managedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}]"));
+                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver..ctor] Managed assembly map includes: {string.Join(",", managedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}"));
 
             unmanagedAssemblyMap =
                 dependencyContext.RuntimeLibraries
@@ -78,7 +85,7 @@ namespace Xunit
                                  .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
 
             if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver..ctor] Unmanaged assembly map includes: {string.Join(",", managedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}]"));
+                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver..ctor] Unmanaged assembly map includes: {string.Join(",", unmanagedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}"));
 
             Default.Resolving += OnResolving;
         }
@@ -94,28 +101,58 @@ namespace Xunit
         /// <inheritdoc/>
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
-            if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Attempting resolution of unmanaged assembly '{unmanagedDllName}'"));
-
-            if (unmanagedAssemblyMap.TryGetValue(unmanagedDllName, out var libraryTuple))
+            foreach (var format in UnmanagedDllFormats)
             {
-                var library = libraryTuple.Item1;
-                var assetGroup = libraryTuple.Item2;
-                var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
-                                                     assetGroup.AssetPaths, library.Dependencies, library.Serviceable);
+                var formattedUnmanagedDllName = string.Format(format, unmanagedDllName);
 
-                var assemblies = new List<string>();
-                if (assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
+                if (internalDiagnosticsMessageSink != null)
+                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Attempting resolution of unmanaged assembly '{formattedUnmanagedDllName}'"));
+
+                if (unmanagedAssemblyMap.TryGetValue(formattedUnmanagedDllName, out var libraryTuple))
                 {
-                    var resolvedAssemblyPath = assemblies.FirstOrDefault(a => string.Equals(unmanagedDllName, Path.GetFileName(a), StringComparison.OrdinalIgnoreCase));
-                    if (resolvedAssemblyPath != null)
+                    var library = libraryTuple.Item1;
+                    var assetGroup = libraryTuple.Item2;
+                    var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
+                                                         assetGroup.AssetPaths, library.Dependencies, library.Serviceable);
+
+                    var assemblies = new List<string>();
+                    if (assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
                     {
-                        var assembly = LoadUnmanagedDllFromPath(resolvedAssemblyPath);
-                        if (assembly != null)
-                            return assembly;
+                        var resolvedAssemblyPath = assemblies.FirstOrDefault(a => string.Equals(formattedUnmanagedDllName, Path.GetFileName(a), StringComparison.OrdinalIgnoreCase));
+                        if (resolvedAssemblyPath != null)
+                        {
+                            resolvedAssemblyPath = Path.GetFullPath(resolvedAssemblyPath);
+
+                            var assembly = LoadUnmanagedDllFromPath(resolvedAssemblyPath);
+                            if (assembly != null)
+                            {
+                                if (internalDiagnosticsMessageSink != null)
+                                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Successful resolution via dependencies: '{resolvedAssemblyPath}'"));
+
+                                return assembly;
+                            }
+                            else
+                            {
+                                if (internalDiagnosticsMessageSink != null)
+                                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
+                            }
+                        }
+                        else
+                        {
+                            if (internalDiagnosticsMessageSink != null)
+                                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                        }
+                    }
+                    else
+                    {
+                        if (internalDiagnosticsMessageSink != null)
+                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
                     }
                 }
             }
+
+            if (internalDiagnosticsMessageSink != null)
+                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Failed resolution, passed down to next resolver"));
 
             return base.LoadUnmanagedDll(unmanagedDllName);
         }
@@ -139,6 +176,8 @@ namespace Xunit
                     var resolvedAssemblyPath = assemblies.FirstOrDefault(a => string.Equals(name.Name, Path.GetFileNameWithoutExtension(a), StringComparison.OrdinalIgnoreCase));
                     if (resolvedAssemblyPath != null)
                     {
+                        resolvedAssemblyPath = Path.GetFullPath(resolvedAssemblyPath);
+
                         var assembly = LoadFromAssemblyPath(resolvedAssemblyPath);
                         if (assembly != null)
                         {
