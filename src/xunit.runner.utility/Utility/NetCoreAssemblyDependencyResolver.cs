@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using Microsoft.DotNet.InternalAbstractions;
 using Microsoft.Extensions.DependencyModel;
@@ -20,12 +21,8 @@ namespace Xunit
     /// </summary>
     public class NetCoreAssemblyDependencyResolver : AssemblyLoadContext, IDisposable
     {
-        static readonly string[] UnmanagedDllFormats = {
-            "{0}",                       // Might already be the full filename (most likely code that only runs on a single OS)
-            "{0}.dll", "{0}.exe",        // Windows
-            "{0}.so", "lib{0}.so",       // Linux & FreeBSD
-            "{0}.dylib", "lib{0}.dylib"  // OS X
-        };
+        static readonly Tuple<string, Assembly> ManagedAssemblyNotFound = new Tuple<string, Assembly>(null, null);
+        static readonly string[] UnmanagedDllFormats = GetUnmanagedDllFormats().ToArray();
 
         readonly string assemblyFolder;
         readonly XunitPackageCompilationAssemblyResolver assemblyResolver;
@@ -98,6 +95,26 @@ namespace Xunit
         public void Dispose()
             => Default.Resolving -= OnResolving;
 
+        static IEnumerable<string> GetUnmanagedDllFormats()
+        {
+            yield return "{0}";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                yield return "{0}.dll";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                yield return "lib{0}.dylib";
+                yield return "{0}.dylib";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                yield return "lib{0}.so";
+                yield return "{0}.so";
+            }
+        }
+
         /// <inheritdoc/>
         protected override Assembly Load(AssemblyName assemblyName)
             => Default.LoadFromAssemblyName(assemblyName);
@@ -105,14 +122,113 @@ namespace Xunit
         /// <inheritdoc/>
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
-            unmanagedAssemblyCache.TryGetValue(unmanagedDllName, out var resolvedAssemblyPath);
+            var result = base.LoadUnmanagedDll(unmanagedDllName);
+            if (result != default)
+                return result;
 
-            if (resolvedAssemblyPath != null)
-                return LoadUnmanagedDllFromPath(resolvedAssemblyPath);
+            if (!unmanagedAssemblyCache.TryGetValue(unmanagedDllName, out var resolvedAssemblyPath))
+            {
+                if (internalDiagnosticsMessageSink != null)
+                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Resolving '{unmanagedDllName}'"));
 
-            if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Attempting resolution of unmanaged assembly '{unmanagedDllName}'"));
+                resolvedAssemblyPath = ResolveUnmanagedAssembly(unmanagedDllName);
+                unmanagedAssemblyCache[unmanagedDllName] = resolvedAssemblyPath;
 
+                if (internalDiagnosticsMessageSink != null)
+                {
+                    if (resolvedAssemblyPath == null)
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Resolution failed, passed down to next resolver"));
+                    else
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Successful: '{resolvedAssemblyPath}'"));
+                }
+            }
+
+            return resolvedAssemblyPath != null ? LoadUnmanagedDllFromPath(resolvedAssemblyPath) : default;
+        }
+
+        Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
+        {
+            if (!managedAssemblyCache.TryGetValue(name.Name, out var result))
+            {
+                if (internalDiagnosticsMessageSink != null)
+                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Resolving '{name.Name}'"));
+
+                var tupleResult = ResolveManagedAssembly(name.Name);
+                var resolvedAssemblyPath = tupleResult.Item1;
+                result = tupleResult.Item2;
+                managedAssemblyCache[name.Name] = result;
+
+                if (internalDiagnosticsMessageSink != null)
+                {
+                    if (result == null)
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Resolution failed, passed down to next resolver"));
+                    else
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Successful: '{resolvedAssemblyPath}'"));
+                }
+            }
+
+            return result;
+        }
+
+        Tuple<string, Assembly> ResolveManagedAssembly(string assemblyName)
+        {
+            // Try to find dependency in the local folder
+            var assemblyPath = Path.Combine(assemblyFolder, assemblyName);
+
+            foreach (var extension in new[] { ".dll", ".exe" })
+                try
+                {
+                    var resolvedAssemblyPath = assemblyPath + extension;
+                    if (File.Exists(resolvedAssemblyPath))
+                    {
+                        var assembly = LoadFromAssemblyPath(resolvedAssemblyPath);
+                        if (assembly != null)
+                            return Tuple.Create(resolvedAssemblyPath, assembly);
+                    }
+                }
+                catch { }
+
+            // Try to find dependency from .deps.json
+            if (managedAssemblyMap.TryGetValue(assemblyName, out var libraryTuple))
+            {
+                var library = libraryTuple.Item1;
+                var assetGroup = libraryTuple.Item2;
+                var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
+                                                     assetGroup.AssetPaths, library.Dependencies, library.Serviceable);
+
+                var assemblies = new List<string>();
+                if (assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
+                {
+                    var resolvedAssemblyPath = assemblies.FirstOrDefault(a => string.Equals(assemblyName, Path.GetFileNameWithoutExtension(a), StringComparison.OrdinalIgnoreCase));
+                    if (resolvedAssemblyPath != null)
+                    {
+                        resolvedAssemblyPath = Path.GetFullPath(resolvedAssemblyPath);
+
+                        var assembly = LoadFromAssemblyPath(resolvedAssemblyPath);
+                        if (assembly != null)
+                            return Tuple.Create(resolvedAssemblyPath, assembly);
+
+                        if (internalDiagnosticsMessageSink != null)
+                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.ResolveManagedAssembly] Found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
+                    }
+                    else
+                    {
+                        if (internalDiagnosticsMessageSink != null)
+                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.ResolveManagedAssembly] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                    }
+                }
+                else
+                {
+                    if (internalDiagnosticsMessageSink != null)
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.ResolveManagedAssembly] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                }
+            }
+
+            return ManagedAssemblyNotFound;
+        }
+
+        string ResolveUnmanagedAssembly(string unmanagedDllName)
+        {
             foreach (var format in UnmanagedDllFormats)
             {
                 var formattedUnmanagedDllName = string.Format(format, unmanagedDllName);
@@ -126,119 +242,22 @@ namespace Xunit
                     var assemblies = new List<string>();
                     if (assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
                     {
-                        resolvedAssemblyPath = assemblies.FirstOrDefault(a => string.Equals(formattedUnmanagedDllName, Path.GetFileName(a), StringComparison.OrdinalIgnoreCase));
+                        var resolvedAssemblyPath = assemblies.FirstOrDefault(a => string.Equals(formattedUnmanagedDllName, Path.GetFileName(a), StringComparison.OrdinalIgnoreCase));
                         if (resolvedAssemblyPath != null)
-                        {
-                            resolvedAssemblyPath = Path.GetFullPath(resolvedAssemblyPath);
-                            break;
-                        }
-                        else
-                        {
-                            if (internalDiagnosticsMessageSink != null)
-                                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
-                        }
+                            return Path.GetFullPath(resolvedAssemblyPath);
+
+                        if (internalDiagnosticsMessageSink != null)
+                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.ResolveUnmanagedDll] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
                     }
                     else
                     {
                         if (internalDiagnosticsMessageSink != null)
-                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.ResolveUnmanagedDll] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
                     }
                 }
             }
 
-            unmanagedAssemblyCache[unmanagedDllName] = resolvedAssemblyPath;
-
-            var result = LoadUnmanagedDllFromPath(resolvedAssemblyPath);
-            if (internalDiagnosticsMessageSink != null)
-            {
-                if (result == null)
-                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Failed resolution, passed down to next resolver"));
-                else
-                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.LoadUnmanagedDll] Successful resolution via dependencies: '{resolvedAssemblyPath}'"));
-            }
-
-            return result != default ? result : base.LoadUnmanagedDll(unmanagedDllName);
-        }
-
-        Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
-        {
-            if (managedAssemblyCache.TryGetValue(name.Name, out var result))
-                return result;
-
-            if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Attempting resolution of managed assembly '{name.Name}'"));
-
-            // Try to find dependency in the local folder
-            var assemblyPath = Path.Combine(assemblyFolder, name.Name);
-
-            foreach (var extension in new[] { ".dll", ".exe" })
-                try
-                {
-                    var resolvedAssemblyPath = assemblyPath + extension;
-                    var assembly = LoadFromAssemblyPath(resolvedAssemblyPath);
-                    if (assembly != null)
-                    {
-                        if (internalDiagnosticsMessageSink != null)
-                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Successful resolution via local folder: '{resolvedAssemblyPath}'"));
-
-                        result = assembly;
-                        break;
-                    }
-                }
-                catch { }
-
-            // Try to find dependency from .deps.json
-            if (result == null)
-            {
-                if (managedAssemblyMap.TryGetValue(name.Name, out var libraryTuple))
-                {
-                    var library = libraryTuple.Item1;
-                    var assetGroup = libraryTuple.Item2;
-                    var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
-                                                         assetGroup.AssetPaths, library.Dependencies, library.Serviceable);
-
-                    var assemblies = new List<string>();
-                    if (assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
-                    {
-                        var resolvedAssemblyPath = assemblies.FirstOrDefault(a => string.Equals(name.Name, Path.GetFileNameWithoutExtension(a), StringComparison.OrdinalIgnoreCase));
-                        if (resolvedAssemblyPath != null)
-                        {
-                            resolvedAssemblyPath = Path.GetFullPath(resolvedAssemblyPath);
-
-                            var assembly = LoadFromAssemblyPath(resolvedAssemblyPath);
-                            if (assembly != null)
-                            {
-                                if (internalDiagnosticsMessageSink != null)
-                                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Successful resolution via dependencies: '{resolvedAssemblyPath}'"));
-
-                                result = assembly;
-                            }
-                            else
-                            {
-                                if (internalDiagnosticsMessageSink != null)
-                                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
-                            }
-                        }
-                        else
-                        {
-                            if (internalDiagnosticsMessageSink != null)
-                                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
-                        }
-                    }
-                    else
-                    {
-                        if (internalDiagnosticsMessageSink != null)
-                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
-                    }
-                }
-            }
-
-            managedAssemblyCache[name.Name] = result;
-
-            if (internalDiagnosticsMessageSink != null && result == null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[NetCoreAssemblyDependencyResolver.OnResolving] Failed resolution, passed down to next resolver"));
-
-            return result;
+            return null;
         }
     }
 }
