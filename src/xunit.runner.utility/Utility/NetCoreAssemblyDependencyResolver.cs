@@ -53,7 +53,7 @@ namespace Xunit
             var assembly = LoadFromAssemblyPath(assemblyFilePath);
 
             assemblyFolder = Path.GetDirectoryName(assemblyFilePath);
-            assemblyResolver = new XunitPackageCompilationAssemblyResolver();
+            assemblyResolver = new XunitPackageCompilationAssemblyResolver(internalDiagnosticsMessageSink);
             dependencyContext = DependencyContext.Load(assembly);
 
             var compatibleRuntimes = default(HashSet<string>);

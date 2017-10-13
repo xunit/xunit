@@ -5,20 +5,27 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.DotNet.InternalAbstractions;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
     class XunitPackageCompilationAssemblyResolver : ICompilationAssemblyResolver
     {
-        readonly List<string> nugetPackageDirectories = GetDefaultProbeDirectories();
+        readonly List<string> nugetPackageDirectories;
 
-        static List<string> GetDefaultProbeDirectories() =>
-            GetDefaultProbeDirectories(RuntimeEnvironment.OperatingSystemPlatform);
+        public XunitPackageCompilationAssemblyResolver(IMessageSink internalDiagnosticsMessageSink)
+        {
+            nugetPackageDirectories = GetDefaultProbeDirectories(internalDiagnosticsMessageSink);
+        }
 
-        static List<string> GetDefaultProbeDirectories(Platform osPlatform)
+        static List<string> GetDefaultProbeDirectories(IMessageSink internalDiagnosticsMessageSink) =>
+            GetDefaultProbeDirectories(RuntimeEnvironment.OperatingSystemPlatform, internalDiagnosticsMessageSink);
+
+        static List<string> GetDefaultProbeDirectories(Platform osPlatform, IMessageSink internalDiagnosticsMessageSink)
         {
             var results = new List<string>();
 
@@ -45,6 +52,9 @@ namespace Xunit
                 if (!string.IsNullOrEmpty(basePath))
                     results.Add(Path.Combine(basePath, ".nuget", "packages"));
             }
+
+            if (internalDiagnosticsMessageSink != null)
+                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[XunitPackageCompilationAssemblyResolverGetDefaultProbeDirectories] returns: [{string.Join(",", results.Select(x => $"'{x}'"))}]"));
 
             return results;
         }
