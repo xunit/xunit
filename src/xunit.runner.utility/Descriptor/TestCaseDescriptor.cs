@@ -25,7 +25,7 @@ namespace Xunit
             for (var idx = 0; idx < lines.Length; ++idx)
             {
                 var line = lines[idx];
-                var text = Decode(line.Substring(2));
+                var text = line.Substring(2);
 
                 switch (line[0])
                 {
@@ -42,7 +42,7 @@ namespace Xunit
                         break;
 
                     case 'D':
-                        DisplayName = text;
+                        DisplayName = Decode(text);
                         break;
 
                     case 'S':
@@ -50,7 +50,7 @@ namespace Xunit
                         break;
 
                     case 'R':
-                        SkipReason = text;
+                        SkipReason = Decode(text);
                         break;
 
                     case 'F':

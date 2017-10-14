@@ -36,7 +36,7 @@ namespace Xunit.Sdk
                                     className,
                                     methodName,
                                     testCase.UniqueID,
-                                    Escape(testCase.DisplayName));
+                                    Encode(testCase.DisplayName));
 
                 if (discoverer != null)
                 {
@@ -60,7 +60,7 @@ namespace Xunit.Sdk
                 if (!string.IsNullOrEmpty(testCase.SkipReason))
                     result.AppendFormat("R {1}{0}",
                                         Separator,
-                                        Escape(testCase.SkipReason));
+                                        Encode(testCase.SkipReason));
 
                 if (!string.IsNullOrEmpty(testCase.SourceInformation?.FileName))
                     result.AppendFormat("F {1}{0}L {2}{0}",
@@ -72,8 +72,8 @@ namespace Xunit.Sdk
                     foreach (var value in name.Value)
                         result.AppendFormat("T {1}{0}{2}{0}",
                                             Separator,
-                                            Escape(name.Key),
-                                            Escape(value));
+                                            Encode(name.Key),
+                                            Encode(value));
 
                 results.Add(result.ToString());
             }
@@ -81,7 +81,7 @@ namespace Xunit.Sdk
             callback(results);
         }
 
-        static string Escape(string value)
+        static string Encode(string value)
             => value?.Replace(Separator, SeparatorEscape);
     }
 }
