@@ -64,7 +64,7 @@ namespace Xunit
                         if (callbackContainer.Results != null)
                             return callbackContainer.Results;
                     }
-                    catch { }
+                    catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseBulkDeserialize" doesn't exist
                 }
 
                 defaultTestCaseBulkDeserializer = new DefaultTestCaseBulkDeserializer(remoteExecutor);

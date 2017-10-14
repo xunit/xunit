@@ -19,9 +19,9 @@ namespace Xunit
             try
             {
 #if NET35 || NET452
-                var type = Assembly.Load(assemblyName).GetType(typeName);
+                var type = Assembly.Load(assemblyName).GetType(typeName, throwOnError: true);
 #else
-                var type = Type.GetType($"{typeName}, {assemblyName.FullName}", true);
+                var type = Type.GetType($"{typeName}, {assemblyName.FullName}", throwOnError: true);
 #endif
                 return (TObject)Activator.CreateInstance(type, args);
             }
@@ -37,7 +37,7 @@ namespace Xunit
         {
             try
             {
-                var type = Assembly.LoadFrom(assemblyLocation).GetType(typeName);
+                var type = Assembly.LoadFrom(assemblyLocation).GetType(typeName, throwOnError: true);
                 return (TObject)Activator.CreateInstance(type, args);
             }
             catch (TargetInvocationException ex)

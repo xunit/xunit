@@ -201,7 +201,7 @@ namespace Xunit
                         if (callbackContainer.Results != null)
                             return callbackContainer.Results.Select(x => new TestCaseDescriptor(x)).ToList();
                     }
-                    catch { }
+                    catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseDescriptorFactory" doesn't exist
                 }
 
                 defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(RemoteDiscoverer);
