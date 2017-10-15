@@ -521,8 +521,6 @@ namespace Xunit.Runner.VisualStudio
                                 logger.LogErrorWithSource(assemblyFileName, "Received null response from BulkDeserialize");
                             else
                             {
-                                logger.Log("Received {0} results from {1} requests", deserializedTestCasesByUniqueId.Count, serializations.Count);
-
                                 for (int idx = 0; idx < runInfo.TestCases.Count; ++idx)
                                 {
                                     try
