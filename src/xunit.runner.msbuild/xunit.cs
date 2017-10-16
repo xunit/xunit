@@ -200,7 +200,8 @@ namespace Xunit.Runner.MSBuild
             if (NeedsXml)
             {
                 if (Xml != null)
-                    assembliesElement.Save(new FileStream(Xml.GetMetadata("FullPath"), FileMode.OpenOrCreate));
+                    using (var xmlStream = new FileStream(Xml.GetMetadata("FullPath"), FileMode.OpenOrCreate, FileAccess.Write))
+                        assembliesElement.Save(xmlStream);
 
                 if (XmlV1 != null)
                     CrossPlatform.Transform(logger, "XmlV1", "xUnit1.xslt", assembliesElement, XmlV1);
