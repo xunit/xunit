@@ -61,20 +61,11 @@ namespace Internal.Microsoft.Extensions.DependencyModel
             var framework = string.Empty;
             var isPortable = true;
 
-            CompilationOptions compilationOptions = null;
-            List<Target> targets = null;
-            Dictionary<string, LibraryStub> libraryStubs = null;
-            List<RuntimeFallbacks> runtimeFallbacks = null;
-
             ReadRuntimeTarget(root.ValueAsJsonObject(DependencyContextStrings.RuntimeTargetPropertyName), out var runtimeTargetName, out var runtimeSignature);
-            compilationOptions = ReadCompilationOptions(root.ValueAsJsonObject(DependencyContextStrings.CompilationOptionsPropertName));
-
-            if (root.Value(DependencyContextStrings.TargetsPropertyName) is JsonObject targetsJson)
-                targets = ReadTargets(targetsJson);
-            if (root.Value(DependencyContextStrings.LibrariesPropertyName) is JsonObject librariesJson)
-                libraryStubs = ReadLibraries(librariesJson);
-            if (root.Value(DependencyContextStrings.RuntimesPropertyName) is JsonObject runtimesJson)
-                runtimeFallbacks = ReadRuntimes(runtimesJson);
+            var compilationOptions = ReadCompilationOptions(root.ValueAsJsonObject(DependencyContextStrings.CompilationOptionsPropertName));
+            var targets = ReadTargets(root.ValueAsJsonObject(DependencyContextStrings.TargetsPropertyName));
+            var libraryStubs = ReadLibraries(root.ValueAsJsonObject(DependencyContextStrings.LibrariesPropertyName));
+            var runtimeFallbacks = ReadRuntimes(root.ValueAsJsonObject(DependencyContextStrings.RuntimesPropertyName));
 
             if (compilationOptions == null)
                 compilationOptions = CompilationOptions.Default;
@@ -198,8 +189,9 @@ namespace Internal.Microsoft.Extensions.DependencyModel
 
             var targets = new List<Target>();
 
-            foreach (var key in targetsJson.Keys)
-                targets.Add(ReadTarget(key, targetsJson.ValueAsJsonObject(key)));
+            if (targetsJson != null)
+                foreach (var key in targetsJson.Keys)
+                    targets.Add(ReadTarget(key, targetsJson.ValueAsJsonObject(key)));
 
             return targets;
         }
