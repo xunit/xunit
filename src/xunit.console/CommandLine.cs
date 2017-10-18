@@ -42,6 +42,10 @@ namespace Xunit.ConsoleClient
 
         public bool NoLogo { get; protected set; }
 
+#if DEBUG
+        public bool Pause { get; protected set; }
+#endif
+
         public XunitProject Project { get; protected set; }
 
         public bool? ParallelizeAssemblies { get; protected set; }
@@ -177,6 +181,13 @@ namespace Xunit.ConsoleClient
                     GuardNoOptionValue(option);
                     NoAutoReporters = true;
                 }
+#if DEBUG
+                else if (optionName == "pause")
+                {
+                    GuardNoOptionValue(option);
+                    Pause = true;
+                }
+#endif
                 else if (optionName == "debug")
                 {
                     GuardNoOptionValue(option);
