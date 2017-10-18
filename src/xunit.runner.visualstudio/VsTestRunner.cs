@@ -12,8 +12,8 @@ using Xunit.Abstractions;
 #if NETCOREAPP1_0
 using System.Reflection;
 using System.Text;
-using Microsoft.DotNet.InternalAbstractions;
-using Microsoft.Extensions.DependencyModel;
+using Internal.Microsoft.DotNet.PlatformAbstractions;
+using Internal.Microsoft.Extensions.DependencyModel;
 #elif NET452
 using System.Reflection;
 #endif

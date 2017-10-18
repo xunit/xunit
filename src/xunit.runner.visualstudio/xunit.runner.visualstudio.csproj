@@ -1,18 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <DefineConstants Condition=" '$(TargetFramework)' == 'uap10.0' ">$(DefineConstants);WINDOWS_UAP</DefineConstants>
-    <TargetFrameworks>net452;netcoreapp1.0;uap10.0</TargetFrameworks>
-    <VersionPrefix>99.99.99-dev</VersionPrefix>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net452' ">xunit.runner.visualstudio.testadapter</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">xunit.runner.visualstudio.dotnetcore.testadapter</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'uap10.0' ">xunit.runner.visualstudio.uwp</AssemblyName>
+    <DefineConstants Condition=" '$(TargetFramework)' == 'uap10.0' ">$(DefineConstants);WINDOWS_UAP</DefineConstants>
     <RootNamespace>Xunit.Runner.VisualStudio</RootNamespace>
+    <TargetFrameworks>net452;netcoreapp1.0;uap10.0</TargetFrameworks>
+    <VersionPrefix>99.99.99-dev</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\ConsoleHelper.cs" LinkBase="Common" />
+    <Compile Include="..\common\Json.cs" LinkBase="Common" />
+    <Compile Include="..\common\Microsoft.DotNet.PlatformAbstractions\**\*.cs" LinkBase="Common\Microsoft.DotNet.PlatformAbstractions" />
+    <None Include="..\common\Microsoft.DotNet.PlatformAbstractions\LICENSE" LinkBase="Common\Microsoft.DotNet.PlatformAbstractions" />
+    <Compile Include="..\common\Microsoft.Extensions.DependencyModel\**\*.cs" LinkBase="Common\Microsoft.Extensions.DependencyModel" />
+    <None Include="..\common\Microsoft.Extensions.DependencyModel\LICENSE" LinkBase="Common\Microsoft.Extensions.DependencyModel" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSBuild.Sdk.Extras" Version="1.0.6" PrivateAssets="All" />

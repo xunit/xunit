@@ -7,8 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
-using Microsoft.DotNet.InternalAbstractions;
-using Microsoft.Extensions.DependencyModel;
+using Internal.Microsoft.DotNet.PlatformAbstractions;
+using Internal.Microsoft.Extensions.DependencyModel;
 using Xunit.Abstractions;
 
 namespace Xunit

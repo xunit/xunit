@@ -1,11 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net35' ">xunit.runner.utility.net35</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net452' ">xunit.runner.utility.net452</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.1' ">xunit.runner.utility.netstandard11</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.5' ">xunit.runner.utility.netstandard15</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">xunit.runner.utility.netcoreapp10</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit</RootNamespace>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.0.0</RuntimeFrameworkVersion>
+    <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
@@ -26,6 +30,10 @@
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
+    <Compile Include="..\common\Microsoft.DotNet.PlatformAbstractions\**\*.cs" LinkBase="Common\Microsoft.DotNet.PlatformAbstractions" />
+    <None Include="..\common\Microsoft.DotNet.PlatformAbstractions\LICENSE" LinkBase="Common\Microsoft.DotNet.PlatformAbstractions" />
+    <Compile Include="..\common\Microsoft.Extensions.DependencyModel\**\*.cs" LinkBase="Common\Microsoft.Extensions.DependencyModel" />
+    <None Include="..\common\Microsoft.Extensions.DependencyModel\LICENSE" LinkBase="Common\Microsoft.Extensions.DependencyModel" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
   </ItemGroup>
   <ItemGroup>
@@ -53,23 +61,6 @@
     <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard15.rd.xml" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <PackageReference Include="Microsoft.DotNet.InternalAbstractions" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="1.0.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
-    <AssemblyName>xunit.runner.utility.net35</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <AssemblyName>xunit.runner.utility.net452</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-    <AssemblyName>xunit.runner.utility.netstandard11</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
-    <AssemblyName>xunit.runner.utility.netstandard15</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <AssemblyName>xunit.runner.utility.netcoreapp10</AssemblyName>
-  </PropertyGroup>
 </Project>

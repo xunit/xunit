@@ -6,15 +6,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.DotNet.InternalAbstractions;
-using Microsoft.Extensions.DependencyModel;
-using Microsoft.Extensions.DependencyModel.Resolution;
+using Internal.Microsoft.DotNet.PlatformAbstractions;
+using Internal.Microsoft.Extensions.DependencyModel;
+using Internal.Microsoft.Extensions.DependencyModel.Resolution;
 using Xunit.Abstractions;
 
 namespace Xunit
 {
     class XunitPackageCompilationAssemblyResolver : ICompilationAssemblyResolver
     {
+        static readonly IFileSystem fileSystem = new FileSystemWrapper();
         readonly List<string> nugetPackageDirectories;
 
         public XunitPackageCompilationAssemblyResolver(IMessageSink internalDiagnosticsMessageSink)
@@ -65,7 +66,7 @@ namespace Xunit
                 return false;
 
             foreach (var directory in nugetPackageDirectories)
-                if (ResolverUtils.TryResolvePackagePath(library, directory, out var packagePath))
+                if (ResolverUtils.TryResolvePackagePath(fileSystem, library, directory, out var packagePath))
                     if (TryResolveFromPackagePath(library, packagePath, out var fullPathsFromPackage))
                     {
                         assemblies.AddRange(fullPathsFromPackage);
@@ -75,13 +76,13 @@ namespace Xunit
             return false;
         }
 
-        static bool TryResolveFromPackagePath(CompilationLibrary library, string basePath, out IEnumerable<string> results)
+        bool TryResolveFromPackagePath(CompilationLibrary library, string basePath, out IEnumerable<string> results)
         {
             var paths = new List<string>();
 
             foreach (var assembly in library.Assemblies)
             {
-                if (!ResolverUtils.TryResolveAssemblyFile(basePath, assembly, out var fullName))
+                if (!ResolverUtils.TryResolveAssemblyFile(fileSystem, basePath, assembly, out var fullName))
                 {
                     // if one of the files can't be found, skip this package path completely.
                     // there are package paths that don't include all of the "ref" assemblies 
