@@ -490,8 +490,6 @@ namespace Xunit.Runner.VisualStudio
 
                         // Filter tests
                         var traitNames = new HashSet<string>(assemblyDiscoveredInfo.DiscoveredTestCases.SelectMany(testCase => testCase.TraitNames));
-
-                        // Apply any filtering
                         var filter = new TestCaseFilter(runContext, logger, assemblyDiscoveredInfo.AssemblyFileName, traitNames);
                         var filteredTestCases = assemblyDiscoveredInfo.DiscoveredTestCases.Where(dtc => filter.MatchTestCase(dtc.VSTestCase)).ToList();
 
@@ -514,6 +512,12 @@ namespace Xunit.Runner.VisualStudio
                             var serializations = runInfo.TestCases
                                                         .Select(tc => tc.GetPropertyValue<string>(SerializedTestCaseProperty, null))
                                                         .ToList();
+
+                            if (configuration.InternalDiagnosticMessagesOrDefault)
+                                logger.LogWithSource(runInfo.AssemblyFileName, "Deserializing {0} test case(s):{1}{2}",
+                                                                                serializations.Count,
+                                                                                Environment.NewLine,
+                                                                                string.Join(Environment.NewLine, serializations.Select(x => $"  {x}")));
 
                             var deserializedTestCasesByUniqueId = controller.BulkDeserialize(serializations);
 
