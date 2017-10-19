@@ -13,6 +13,8 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer
     {
+        static Type XunitTestCaseType = typeof(XunitTestCase);
+
         /// <summary>
         /// Gets the display name of the xUnit.net v2 test framework.
         /// </summary>
@@ -142,6 +144,21 @@ namespace Xunit.Sdk
                 DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex.Unwrap()}"));
                 return null;
             }
+        }
+
+        /// <inheritdoc/>
+        public override string Serialize(ITestCase testCase)
+        {
+            if (testCase.GetType() == XunitTestCaseType)
+            {
+                var xunitTestCase = (XunitTestCase)testCase;
+                var className = testCase.TestMethod?.TestClass?.Class?.Name;
+                var methodName = testCase.TestMethod?.Method?.Name;
+                if (className != null && methodName != null && (xunitTestCase.TestMethodArguments == null || xunitTestCase.TestMethodArguments.Length == 0))
+                    return $":F:{className}:{methodName}:{(int)xunitTestCase.DefaultMethodDisplay}";
+            }
+
+            return base.Serialize(testCase);
         }
     }
 }

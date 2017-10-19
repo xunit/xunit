@@ -11,6 +11,8 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFrameworkExecutor : TestFrameworkExecutor<IXunitTestCase>
     {
+        readonly Lazy<XunitTestFrameworkDiscoverer> discoverer;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
         /// </summary>
@@ -27,6 +29,7 @@ namespace Xunit.Sdk
             config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
             TestAssembly = new TestAssembly(AssemblyInfo, config, assemblyName.Version);
+            discoverer = new Lazy<XunitTestFrameworkDiscoverer>(() => new XunitTestFrameworkDiscoverer(AssemblyInfo, SourceInformationProvider, DiagnosticMessageSink));
         }
 
         /// <summary>
@@ -36,7 +39,28 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         protected override ITestFrameworkDiscoverer CreateDiscoverer()
-            => new XunitTestFrameworkDiscoverer(AssemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
+            => discoverer.Value;
+
+        /// <inheritdoc/>
+        public override ITestCase Deserialize(string value)
+        {
+            if (value.Length > 3 && value.StartsWith(":F:"))
+            {
+                // Format from TestCaseDescriptorFactory: ":F:{typeName}:{methodName}:{defaultMethodDisplay}"
+                var parts = value.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 3)
+                {
+                    var typeInfo = discoverer.Value.AssemblyInfo.GetType(parts[1]);
+                    var testClass = discoverer.Value.CreateTestClass(typeInfo);
+                    var methodInfo = testClass.Class.GetMethod(parts[2], true);
+                    var testMethod = new TestMethod(testClass, methodInfo);
+                    var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[3]);
+                    return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, testMethod);
+                }
+            }
+
+            return base.Deserialize(value);
+        }
 
         /// <inheritdoc/>
         protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions)

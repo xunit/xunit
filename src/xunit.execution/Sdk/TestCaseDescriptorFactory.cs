@@ -15,7 +15,6 @@ namespace Xunit.Sdk
         const string SeparatorEscape = "\\n";
 
         static Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>();
-        static Type XunitTestCaseType = typeof(XunitTestCase);
 
         /// <summary/>
         public TestCaseDescriptorFactory(object discovererObject, object testCasesObject, object callbackObject)
@@ -39,23 +38,9 @@ namespace Xunit.Sdk
                                     Encode(testCase.DisplayName));
 
                 if (discoverer != null)
-                {
-                    var serialization = default(string);
-
-                    if (testCase.GetType() == XunitTestCaseType)
-                    {
-                        var xunitTestCase = (XunitTestCase)testCase;
-                        if (xunitTestCase.TestMethodArguments == null || xunitTestCase.TestMethodArguments.Length == 0)
-                            serialization = $":F:{className}:{methodName}:{(int)xunitTestCase.DefaultMethodDisplay}";
-                    }
-
-                    if (serialization == null)
-                        serialization = discoverer.Serialize(testCase);
-
                     result.AppendFormat("S {1}{0}",
                                         Separator,
-                                        serialization);
-                }
+                                        discoverer.Serialize(testCase));
 
                 if (!string.IsNullOrEmpty(testCase.SkipReason))
                     result.AppendFormat("R {1}{0}",
