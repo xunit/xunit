@@ -368,9 +368,7 @@ namespace Xunit.ConsoleClient
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-#if NETCOREAPP1_0 || NETCOREAPP2_0
-                using (new NetCoreAssemblyDependencyResolver(assembly.AssemblyFilename, internalDiagnosticsMessageSink))
-#endif
+                using (AssemblyHelper.SubscribeResolveForAssembly(assembly.AssemblyFilename, internalDiagnosticsMessageSink))
                 using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 using (var discoverySink = new TestDiscoverySink(() => cancel))
                 {
