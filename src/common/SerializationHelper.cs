@@ -32,7 +32,7 @@ namespace Xunit.Sdk
 
             var deserializedType = GetType(pieces[0]);
             if (deserializedType == null)
-                throw new ArgumentException("Could not load type " + pieces[0], nameof(serializedValue));
+                throw new ArgumentException($"Could not load type '{pieces[0]}' from serialization value '{serializedValue}'", nameof(serializedValue));
 
             if (!typeof(IXunitSerializable).IsAssignableFrom(deserializedType))
                 throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(serializedValue));
