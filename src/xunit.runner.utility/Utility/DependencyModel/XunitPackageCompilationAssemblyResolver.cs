@@ -28,7 +28,7 @@ namespace Xunit
 
         static List<string> GetDefaultProbeDirectories(Platform osPlatform, IMessageSink internalDiagnosticsMessageSink)
         {
-            var results = new List<string>();
+            var results = new HashSet<string>();
 
 #if NETCOREAPP1_0
             // The fact that the original code would only use PROBING_DIRECTORIES was causing failures to load
@@ -37,7 +37,8 @@ namespace Xunit
             var listOfDirectories = probeDirectories as string;
 
             if (!string.IsNullOrEmpty(listOfDirectories))
-                results.AddRange(listOfDirectories.Split(new char[] { Path.PathSeparator }, StringSplitOptions.RemoveEmptyEntries));
+                foreach (var directory in listOfDirectories.Split(new char[] { Path.PathSeparator }, StringSplitOptions.RemoveEmptyEntries))
+                    results.Add(directory);
 #endif
 
             // Allow the user to override the default location of NuGet packages
@@ -57,9 +58,9 @@ namespace Xunit
             }
 
             if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[XunitPackageCompilationAssemblyResolverGetDefaultProbeDirectories] returns: [{string.Join(",", results.Select(x => $"'{x}'"))}]"));
+                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[XunitPackageCompilationAssemblyResolver.GetDefaultProbeDirectories] returns: [{string.Join(",", results.Select(x => $"'{x}'"))}]"));
 
-            return results;
+            return results.ToList();
         }
 
         public bool TryResolveAssemblyPaths(CompilationLibrary library, List<string> assemblies)
