@@ -26,6 +26,10 @@ namespace Xunit
             AppDomain.CurrentDomain.AssemblyResolve += Resolve;
         }
 
+        /// <inheritdoc/>
+        public void Dispose()
+            => AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
+
         Assembly LoadAssembly(AssemblyName assemblyName)
         {
             var path = Path.Combine(directory, assemblyName.Name);
@@ -45,9 +49,7 @@ namespace Xunit
         }
 
         Assembly Resolve(object sender, ResolveEventArgs args)
-        {
-            return LoadAssembly(new AssemblyName(args.Name));
-        }
+            => LoadAssembly(new AssemblyName(args.Name));
 
         /// <summary>
         /// Subscribes to the current <see cref="AppDomain"/> <see cref="AppDomain.AssemblyResolve"/> event, to
@@ -55,15 +57,18 @@ namespace Xunit
         /// </summary>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
         public static IDisposable SubscribeResolve(string path = null)
-        {
-            return new AssemblyHelper(path ?? Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()));
-        }
+            => new AssemblyHelper(path ?? Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()));
 
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
-        }
+#if NET452
+        /// <summary>
+        /// Subscribes to the current <see cref="AppDomain"/> <see cref="AppDomain.AssemblyResolve"/> event, to
+        /// provide automatic assembly resolution from an assembly which has a .deps.json file from the .NET SDK
+        /// build process.
+        /// </summary>
+        /// <returns>An object which, when disposed, un-subscribes.</returns>
+        public static IDisposable SubscribeResolveForAssembly(string assemblyFileName, Xunit.Abstractions.IMessageSink internalDiagnosticsMessageSink = null)
+            => DependencyContextAssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, internalDiagnosticsMessageSink);
+#endif
     }
 }
 
