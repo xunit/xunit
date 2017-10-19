@@ -35,9 +35,7 @@ namespace Xunit
             this.internalDiagnosticsMessageSink = internalDiagnosticsMessageSink;
 
             var assembly = LoadFromAssemblyPath(assemblyFileName);
-
             var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
-            var assemblyResolver = new XunitPackageCompilationAssemblyResolver(internalDiagnosticsMessageSink);
             var dependencyContext = DependencyContext.Load(assembly);
 
             assemblyCache = new DependencyContextAssemblyCache(assemblyFolder, dependencyContext, internalDiagnosticsMessageSink);
