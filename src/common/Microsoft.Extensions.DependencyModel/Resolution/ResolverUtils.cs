@@ -14,7 +14,7 @@ namespace Internal.Microsoft.Extensions.DependencyModel.Resolution
             var path = library.Path;
             if (string.IsNullOrEmpty(path))
             {
-                path = Path.Combine(library.Name, library.Version);
+                path = Path.Combine(library.Name.ToLowerInvariant(), library.Version.ToLowerInvariant());
             }
 
             packagePath = Path.Combine(basePath, path);
