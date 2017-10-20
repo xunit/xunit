@@ -109,7 +109,7 @@ public class TestCaseDescriptorFactoryTests
 
             var result = Assert.Single(callbackResults);
             var serialization = Assert.Single(result.Split('\n').Where(line => line.StartsWith("S ")));
-            Assert.Equal("S :F:TestCaseDescriptorFactoryTests+TestClass:FactMethod:1", serialization);
+            Assert.Equal($"S :F:TestCaseDescriptorFactoryTests+TestClass:FactMethod:1:{testCase.TestMethod.TestClass.TestCollection.UniqueID.ToString("N")}", serialization);
         }
 
         [Fact]

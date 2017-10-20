@@ -46,12 +46,13 @@ namespace Xunit.Sdk
         {
             if (value.Length > 3 && value.StartsWith(":F:"))
             {
-                // Format from TestCaseDescriptorFactory: ":F:{typeName}:{methodName}:{defaultMethodDisplay}"
+                // Format from XunitTestFrameworkDiscoverer.Serialize: ":F:{typeName}:{methodName}:{defaultMethodDisplay}:{collectionId}"
                 var parts = value.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length > 3)
+                if (parts.Length > 4)
                 {
                     var typeInfo = discoverer.Value.AssemblyInfo.GetType(parts[1]);
-                    var testClass = discoverer.Value.CreateTestClass(typeInfo);
+                    var testCollectionUniqueId = Guid.Parse(parts[4]);
+                    var testClass = discoverer.Value.CreateTestClass(typeInfo, testCollectionUniqueId);
                     var methodInfo = testClass.Class.GetMethod(parts[2], true);
                     var testMethod = new TestMethod(testClass, methodInfo);
                     var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[3]);

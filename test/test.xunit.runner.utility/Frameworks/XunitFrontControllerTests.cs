@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -30,6 +31,7 @@ namespace Namespace1
             using (var assembly = CSharpAcceptanceTestV2Assembly.Create(code))
             {
                 var serializations = default(List<string>);
+                var testCollectionId = default(Guid);
 
                 using (var serializationController = new TestableXunitFrontController(assembly.FileName))
                 {
@@ -38,12 +40,13 @@ namespace Namespace1
                     sink.Finished.WaitOne();
 
                     var testCases = sink.Messages.OfType<ITestCaseDiscoveryMessage>().OrderBy(tcdm => tcdm.TestCase.TestMethod.Method.Name).Select(tcdm => tcdm.TestCase).ToList();
+                    testCollectionId = testCases[0].TestMethod.TestClass.TestCollection.UniqueID;
                     var descriptors = serializationController.GetTestCaseDescriptors(testCases, true);
                     serializations = descriptors.Select(d => d.Serialization).ToList();
                 }
 
                 Assert.Collection(serializations,
-                    s => Assert.Equal(":F:Namespace1.Class1:FactMethod:1", s),
+                    s => Assert.Equal($":F:Namespace1.Class1:FactMethod:1:{testCollectionId.ToString("N")}", s),
                     s => Assert.StartsWith("Xunit.Sdk.XunitTestCase, xunit.execution.{Platform}:", s)
                 );
 

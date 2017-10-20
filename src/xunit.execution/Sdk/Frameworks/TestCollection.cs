@@ -23,13 +23,16 @@ namespace Xunit.Sdk
         /// <param name="collectionDefinition">The optional type which contains the collection definition</param>
         /// <param name="displayName">The display name for the test collection</param>
         public TestCollection(ITestAssembly testAssembly, ITypeInfo collectionDefinition, string displayName)
+            : this(testAssembly, collectionDefinition, displayName, Guid.NewGuid()) { }
+
+        internal TestCollection(ITestAssembly testAssembly, ITypeInfo collectionDefinition, string displayName, Guid uniqueId)
         {
             Guard.ArgumentNotNull("testAssembly", testAssembly);
 
             CollectionDefinition = collectionDefinition;
             DisplayName = displayName;
             TestAssembly = testAssembly;
-            UniqueID = Guid.NewGuid();
+            UniqueID = uniqueId;
         }
 
         /// <inheritdoc/>

@@ -62,6 +62,15 @@ namespace Xunit.Sdk
             return new TestClass(TestCollectionFactory.Get(@class), @class);
         }
 
+        internal ITestClass CreateTestClass(ITypeInfo @class, Guid testCollectionUniqueId)
+        {
+            // This method is called for special fact deserialization, to ensure that the test collection unique
+            // ID lines up with the ones that will be deserialized through normal mechanisms.
+            var discoveredTestCollection = TestCollectionFactory.Get(@class);
+            var testCollection = new TestCollection(discoveredTestCollection.TestAssembly, discoveredTestCollection.CollectionDefinition, discoveredTestCollection.DisplayName, testCollectionUniqueId);
+            return new TestClass(testCollection, @class);
+        }
+
         /// <summary>
         /// Finds the tests on a test method.
         /// </summary>
@@ -155,7 +164,7 @@ namespace Xunit.Sdk
                 var className = testCase.TestMethod?.TestClass?.Class?.Name;
                 var methodName = testCase.TestMethod?.Method?.Name;
                 if (className != null && methodName != null && (xunitTestCase.TestMethodArguments == null || xunitTestCase.TestMethodArguments.Length == 0))
-                    return $":F:{className}:{methodName}:{(int)xunitTestCase.DefaultMethodDisplay}";
+                    return $":F:{className}:{methodName}:{(int)xunitTestCase.DefaultMethodDisplay}:{testCase.TestMethod.TestClass.TestCollection.UniqueID.ToString("N")}";
             }
 
             return base.Serialize(testCase);
