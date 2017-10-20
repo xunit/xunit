@@ -5,7 +5,7 @@ using Xunit.Runner.Reporters;
 
 public class JsonExtensionsTests
 {
-    [Fact]
+    [CulturedFact]
     public void SimpleValues()
     {
         var data = new Dictionary<string, object>
