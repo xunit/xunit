@@ -26,7 +26,7 @@ namespace Xunit.Runner.Reporters
                 sb.Append(',');
 
             if (value is int || value is long || value is float || value is double || value is decimal)
-                sb.AppendFormat(@"""{0}"":{1}", name, value);
+                sb.AppendFormat(@"""{0}"":{1}", name, Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture));
             else if (value is bool)
                 sb.AppendFormat(@"""{0}"":{1}", name, value.ToString().ToLower());
             else
