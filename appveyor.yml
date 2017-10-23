@@ -43,7 +43,6 @@ nuget:
 
 build_script:
 - ps: .\build.ps1 -target appveyor -buildAssemblyVersion ($env:BuildVersion + $env:APPVEYOR_BUILD_NUMBER) -buildSemanticVersion ($env:BuildSemanticVersion + $env:APPVEYOR_BUILD_NUMBER)
-- ps: '.\SignClient\Sign-Package.ps1'
   
 test: off
 
