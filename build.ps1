@@ -39,7 +39,8 @@ function _xunit_x86([string]$command) {
 # Top-level targets
 
 function __target_appveyor() {
-    __target_ci
+    __target_ci    
+    __target_signclient
     __target__pushmyget
 }
 
@@ -58,6 +59,10 @@ function __target_ci() {
     __target_test
     __target__publish
     __target__packages
+}
+
+function __target_signclient() {    
+    .\SignClient\Sign-Package.ps1
 }
 
 function __target_packagerestore() {
