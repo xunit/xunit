@@ -3,7 +3,9 @@ image: Visual Studio 2017
 environment:
   MyGetApiKey:
     secure: +jVb98hbYCifINyQDeQwpv69p+ZiPm6ArzYM4J+fMYUlDeNiB+UKK5a1XnUzEMpY
-
+  SignClientSecret:
+    secure: bkFZxe/+pW/X6nOwSYgMfr7XCgZD8F5KPNCsvHntf55YqvpYdnQucPZT5xmnf7eY
+    
 clone_script:
 - ps: >-
     if (-not $env:appveyor_pull_request_number) {
@@ -38,7 +40,7 @@ nuget:
 
 build_script:
 - ps: .\build.ps1 -target appveyor -buildAssemblyVersion ($env:BuildVersion + $env:APPVEYOR_BUILD_NUMBER) -buildSemanticVersion ($env:BuildSemanticVersion + $env:APPVEYOR_BUILD_NUMBER)
-
+  
 test: off
 
 deploy: off

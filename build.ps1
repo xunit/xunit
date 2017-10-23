@@ -25,6 +25,11 @@ $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
 $parallelFlags = "-parallel all -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
 $binlogOutputFolder = (join-path (Get-Location) "artifacts\build")
+$solutionFolder = Get-Location
+
+$signClientVersion = "0.9.0"
+$signClientFolder = (join-path (Get-Location) "packages\SignClient.$signClientVersion")
+$signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings.json")
 
 # Helper functions
 
@@ -39,7 +44,8 @@ function _xunit_x86([string]$command) {
 # Top-level targets
 
 function __target_appveyor() {
-    __target_ci
+    __target_ci    
+    __target__signpackages
     __target__pushmyget
 }
 
@@ -133,6 +139,24 @@ function __target__setversion() {
             Get-ChildItem -Recurse -Filter GlobalAssemblyInfo.cs | _replace -match '\("99\.99\.99-dev"\)' -replacement ('("' + $buildSemanticVersion + '")')
             Get-ChildItem -Recurse -Filter *.nuspec | _replace -match '99\.99\.99-dev' -replacement $buildSemanticVersion
     }
+}
+
+function __target__signpackages() {
+        if ($env:SignClientSecret -ne $null) {
+            if ((test-path $signClientFolder) -eq $false) {
+                _build_step ("Downloading SignClient " + $signClientVersion)
+                    _exec ('& "' + $nugetExe + '" install SignClient -version ' + $signClientVersion + ' -SolutionDir "' + $solutionFolder + '" -Verbosity quiet -NonInteractive')
+            }
+
+            _build_step "Signing NuGet packages"
+                $appPath = (join-path $signClientFolder "tools\netcoreapp2.0\SignClient.dll")
+                $nupgks = Get-ChildItem (join-path $packageOutputFolder "*.nupkg") | ForEach-Object { $_.FullName }
+                foreach ($nupkg in $nupgks) {
+                    $cmd = '& dotnet "' + $appPath + '" sign -c "' + $signClientAppSettings + '" -s ' + $env:SignClientSecret + ' -n "xUnit.net" -d "xUnit.net" -u "https://github.com/xunit/xunit" -i "' + $nupkg + '"'
+                    $msg = $cmd.Replace($env:SignClientSecret, '[Redacted]')
+                    _exec $cmd $msg
+                }
+        }
 }
 
 function __target__test32() {
