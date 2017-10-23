@@ -22,8 +22,11 @@ class Program
     bool NoBuild;
     bool NoColor;
     Dictionary<string, List<string>> ParsedArgs;
+    bool Quiet;
     string ThisAssemblyPath;
     bool UseMsBuild;
+
+    string DefaultMsBuildVerbosity => Quiet ? "quiet" : "minimal";
 
     static int Main(string[] args)
         => new Program().Execute(args);
@@ -49,6 +52,9 @@ class Program
 
                 if (ParsedArgs.TryGetParameterWithoutValue("-internaldiagnostics"))
                     InternalDiagnostics = true;
+
+                if (ParsedArgs.TryGetParameterWithoutValue("-quiet"))
+                    Quiet = true;
 
                 if (ParsedArgs.TryGetParameterWithoutValue("-nocolor"))
                     NoColor = true;
@@ -141,7 +147,7 @@ class Program
 
     ProcessStartInfo GetMsBuildProcessStartInfo(string testProject)
     {
-        var args = $"\"{testProject}\" /nologo /verbosity:{MsBuildVerbosity ?? "minimal"} {BuildStdProps} ";
+        var args = $"\"{testProject}\" /nologo /verbosity:{MsBuildVerbosity ?? DefaultMsBuildVerbosity} {BuildStdProps} ";
 
         if (UseMsBuild)
             return new ProcessStartInfo { FileName = MsBuild.MsBuildName, Arguments = args };
@@ -222,7 +228,7 @@ class Program
         Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
         Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
         Console.WriteLine("  -usemsbuild            : build with msbuild instead of dotnet");
-        Console.WriteLine("  -msbuildverbosity      : sets MSBuild verbosity level (default: 'quiet')");
+        Console.WriteLine("  -msbuildverbosity      : sets MSBuild verbosity level (default: 'minimal')");
         Console.WriteLine();
         Console.WriteLine("Valid options (net4x frameworks only):");
         Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
@@ -421,7 +427,10 @@ class Program
         => string.Join(" ", parsedArgs.SelectMany(kvp => kvp.Value.Select(value => value == null ? kvp.Key : $"{kvp.Key} \"{value}\"")));
 
     void WriteLine(string message)
-        => WriteLineWithColor(ConsoleColor.White, message);
+    {
+        if (!Quiet)
+            WriteLineWithColor(ConsoleColor.White, message);
+    }
 
     void WriteLineDiagnostics(string message)
     {
