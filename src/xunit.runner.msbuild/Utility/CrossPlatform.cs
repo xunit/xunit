@@ -13,7 +13,7 @@ namespace Xunit.Runner.MSBuild
             var xmlTransform = new System.Xml.Xsl.XslCompiledTransform();
 
             using (var writer = XmlWriter.Create(outputFile.GetMetadata("FullPath"), new XmlWriterSettings { Indent = true }))
-            using (var xsltReader = XmlReader.Create(typeof(xunit).Assembly.GetManifestResourceStream("xunit.runner.msbuild." + resourceName)))
+            using (var xsltReader = XmlReader.Create(typeof(xunit).Assembly.GetManifestResourceStream("Xunit.Runner.MSBuild." + resourceName)))
             using (var xmlReader = xml.CreateReader())
             {
                 xmlTransform.Load(xsltReader);
