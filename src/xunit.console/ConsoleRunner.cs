@@ -75,6 +75,9 @@ namespace Xunit.ConsoleClient
                                            commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.NoAppDomain,
                                            commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages);
 
+                if (cancel)
+                    return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
+
                 if (commandLine.Wait)
                 {
                     Console.WriteLine();

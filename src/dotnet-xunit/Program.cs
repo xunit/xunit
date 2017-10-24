@@ -33,6 +33,9 @@ class Program
 
     int Execute(string[] args)
     {
+        // Let Ctrl+C pass down into the child processes, ignoring it here
+        Console.CancelKeyPress += (sender, e) => e.Cancel = true;
+
         try
         {
             if (args.Any(HelpArgs.Contains))
@@ -110,7 +113,6 @@ class Program
             BuildStdProps = $"\"/p:_Xunit_ImportTargetsFile={Path.Combine(ThisAssemblyPath, "import.targets")}\" " +
                             $"/p:Configuration={Configuration}";
 
-            var returnValue = 0;
             var testProject = testProjects[0];
 
             var targetFrameworks = GetTargetFrameworks(testProject);
@@ -128,12 +130,18 @@ class Program
                     return 3;
                 }
 
-                returnValue = RunTargetFramework(testProject, requestedTargetFramework, amendOutputFileNames: false);
+                return RunTargetFramework(testProject, requestedTargetFramework, amendOutputFileNames: false);
             }
-            else
+
+            var returnValue = 0;
+
+            foreach (var targetFramework in targetFrameworks)
             {
-                foreach (var targetFramework in targetFrameworks)
-                    returnValue = Math.Max(RunTargetFramework(testProject, targetFramework, amendOutputFileNames: targetFrameworks.Length > 1), returnValue);
+                var result = RunTargetFramework(testProject, targetFramework, amendOutputFileNames: targetFrameworks.Length > 1);
+                if (result < 0)
+                    return result;
+
+                returnValue = Math.Max(result, returnValue);
             }
 
             return returnValue;
@@ -296,7 +304,7 @@ class Program
             if (process.ExitCode != 0)
             {
                 WriteLineError("Build failed!");
-                return 1;
+                return process.ExitCode;
             }
 
             var lines = File.ReadAllLines(tmpFile);
