@@ -42,7 +42,7 @@ namespace Xunit.Sdk
         {
             get
             {
-#if NETSTANDARD1_1
+#if NETSTANDARD1_1 || NETSTANDARD2_0
                 return Assembly.GetName().Name + ".dll";  // Make sure we only use the short form
 #else
                 return Assembly.GetLocalCodeBase();

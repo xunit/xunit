@@ -220,7 +220,8 @@ public class ResultVisitorTests
             Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
             Assert.Equal(42, testResult.TotalTests);
             Assert.Equal("System.Exception : " + ex.Message, testResult.Message);
-            Assert.Equal(ex.StackTrace, testResult.StackTrace);
+            // Depending on runtime StackTrace may differ by +Method vs .Method so normalize
+            Assert.Equal(ex.StackTrace.Replace("+", "."), testResult.StackTrace.Replace("+", "."));
         }
 
         [Fact]
