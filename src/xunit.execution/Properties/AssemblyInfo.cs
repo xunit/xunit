@@ -6,6 +6,8 @@ using Xunit.Sdk;
 [assembly: AssemblyTitle("xUnit.net Execution (desktop)")]
 #elif NETSTANDARD1_1
 [assembly: AssemblyTitle("xUnit.net Execution (dotnet)")]
+#elif NETSTANDARD2_0
+[assembly: AssemblyTitle("xUnit.net Execution (dotnet)")]
 #else
 #error Unknown target platform
 #endif

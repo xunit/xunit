@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard1.1</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard1.1;netstandard2.0</TargetFrameworks>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit.Sdk</RootNamespace>
@@ -37,6 +37,9 @@
     <AssemblyName>xunit.execution.desktop</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
+    <AssemblyName>xunit.execution.dotnet</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <AssemblyName>xunit.execution.dotnet</AssemblyName>
   </PropertyGroup>
 </Project>

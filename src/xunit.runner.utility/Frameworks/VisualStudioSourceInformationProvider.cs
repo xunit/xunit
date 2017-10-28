@@ -1,4 +1,4 @@
-﻿#if !NETSTANDARD1_1
+﻿#if !(NETSTANDARD1_1 || NETSTANDARD2_0)
 
 using Xunit.Abstractions;
 
