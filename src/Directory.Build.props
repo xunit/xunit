@@ -21,6 +21,9 @@
 
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)common\GlobalAssemblyInfo.cs" LinkBase="Properties" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.2" PrivateAssets="all" />
   </ItemGroup>
 

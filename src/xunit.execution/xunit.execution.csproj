@@ -1,10 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard1.1</TargetFrameworks>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net452' ">xunit.execution.desktop</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.1' ">xunit.execution.dotnet</AssemblyName>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit.Sdk</RootNamespace>
+    <TargetFrameworks>net452;netstandard1.1</TargetFrameworks>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\CommonTasks.cs" LinkBase="Common" />
@@ -26,17 +30,9 @@
     <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparer.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\xunit.assert\Asserts\Sdk\AssertEqualityComparerAdapter.cs" LinkBase="Common\Asserts" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\xunit.core\xunit.core.csproj" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <AssemblyName>xunit.execution.desktop</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-    <AssemblyName>xunit.execution.dotnet</AssemblyName>
-  </PropertyGroup>
+
 </Project>

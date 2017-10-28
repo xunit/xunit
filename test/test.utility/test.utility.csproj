@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <VersionPrefix>99.99.99-dev</VersionPrefix>
     <TargetFrameworks>net452;netstandard1.5</TargetFrameworks>
-    <WarningsAsErrors>true</WarningsAsErrors>
-    <AssemblyName>test.utility</AssemblyName>
-    <PackageId>test.utility</PackageId>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\..\src\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\DictionaryExtensions.cs" LinkBase="Common" />
@@ -13,21 +11,26 @@
     <Compile Include="..\..\src\common\ExecutionHelper.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\TestOptionsNames.cs" LinkBase="Common" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSubstitute" Version="2.0.2" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.1.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.assert\xunit.assert.csproj" />
     <ProjectReference Include="..\..\src\xunit.execution\xunit.execution.csproj" />
     <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj" />
-    <PackageReference Include="NSubstitute" Version="2.0.2" />
-    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.1.0" />
   </ItemGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <PackageReference Include="FSharp.Compiler.Service" Version="9.0.1" />
     <PackageReference Include="FSharp.Core" Version="4.0.0.1" />
     <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <PackageReference Include="System.Globalization" Version="4.3.0" />
   </ItemGroup>
+
 </Project>

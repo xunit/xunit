@@ -1,5 +1,10 @@
 <Project>
 
+  <PropertyGroup>
+    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.0.0</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">2.0.0</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <PackageReference Include="NETStandard.Library" Version="1.6.0">
       <!-- Suppress the warning about forced downgrade. This is caused by SourceLink.Create.CommandLine -->

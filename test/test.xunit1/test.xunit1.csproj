@@ -1,27 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net40</TargetFramework>
-    <RuntimeIdentifer>win7-x86</RuntimeIdentifer>
-    <PlatformTarget>anycpu</PlatformTarget>
-    <AssemblyName>test.xunit1</AssemblyName>
-    <PackageId>test.xunit1</PackageId>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\..\src\common\AssemblyExtensions.cs" LinkBase="Common" />
-    <None Include="App.config" />
-    <Content Include="xunit.extensions\**\*.xls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Moq" Version="4.1.1308.2321" />
     <PackageReference Include="xunit.extensions" Version="1.9.2" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="$(NuGetPackageRoot)xunit\1.9.2\lib\net20\xunit.runner.utility.dll" />
   </ItemGroup>
+
 </Project>

@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <VersionPrefix>99.99.99-dev</VersionPrefix>
     <TargetFramework>net452</TargetFramework>
     <DefineConstants>$(DefineConstants);UNIT_TEST</DefineConstants>
-    <WarningsAsErrors>true</WarningsAsErrors>
-    <AssemblyName>test.xunit.runner.utility</AssemblyName>
-    <PackageId>test.xunit.runner.utility</PackageId>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\..\src\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\DictionaryExtensions.cs" LinkBase="Common" />
@@ -17,18 +15,20 @@
     <Compile Include="..\..\src\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\XunitSerializationInfo.cs" LinkBase="Common" />
     <Compile Include="..\..\src\xunit.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs" LinkBase="Common\RunnerUtility" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="ConfigReader_*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="App.config" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
   <Target Name="CopyXunitV1" AfterTargets="Build">
     <Copy SourceFiles="$(NuGetPackageRoot)xunit\1.9.2\lib\net20\xunit.dll;$(NuGetPackageRoot)xunit.extensions\1.9.2\lib\net20\xunit.extensions.dll" DestinationFolder="$(OutputPath)" />
   </Target>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Web" />
-    <Reference Include="Microsoft.CSharp" />
-    <ProjectReference Include="..\test.utility\test.utility.csproj" />
-  </ItemGroup>
+
 </Project>

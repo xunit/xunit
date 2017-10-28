@@ -1,21 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp1.0;netcoreapp2.0</TargetFrameworks>
-    <RootNamespace>Xunit</RootNamespace>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <RuntimeFrameworkVersion>1.0.0</RuntimeFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
-    <RuntimeFrameworkVersion>2.0.0</RuntimeFrameworkVersion>
-  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\common\ConsoleHelper.cs" LinkBase="Common" />
   </ItemGroup>
+
   <ItemGroup>
     <Content Include="import.targets">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
 </Project>

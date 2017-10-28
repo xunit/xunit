@@ -1,25 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <AssemblyName>xunit.runner.msbuild.net452</AssemblyName>
     <RootNamespace>Xunit.Runner.MSBuild</RootNamespace>
     <TargetFramework>net452</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\Guard.cs" LinkBase="Common" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="..\xunit.console\*.xslt" />
   </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.reporters\xunit.runner.reporters.csproj" />
   </ItemGroup>
+
 </Project>

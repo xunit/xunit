@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net35' ">xunit.runner.utility.net35</AssemblyName>
@@ -11,6 +12,7 @@
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.0.0</RuntimeFrameworkVersion>
     <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\CommonTasks.cs" LinkBase="Common" />
@@ -36,31 +38,27 @@
     <None Include="..\common\Microsoft.Extensions.DependencyModel\LICENSE" LinkBase="Common\Microsoft.Extensions.DependencyModel" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="xunit.abstractions" Version="2.0.1" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net35' ">
-    <Reference Include="System" />
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net35' OR '$(TargetFramework)' == 'net452' ">
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Xml" />
     <Reference Include="System.Web" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Web" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
     <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard11.rd.xml" />
   </ItemGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.1.0" />
     <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard15.rd.xml" />
   </ItemGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
   </ItemGroup>
+
 </Project>

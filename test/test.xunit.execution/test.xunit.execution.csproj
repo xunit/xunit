@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <VersionPrefix>99.99.99-dev</VersionPrefix>
-    <TargetFramework>net452</TargetFramework>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
-    <WarningsAsErrors>true</WarningsAsErrors>
-    <AssemblyName>test.xunit.execution</AssemblyName>
-    <PackageId>test.xunit.execution</PackageId>
+    <TargetFramework>net452</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\..\src\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\ExecutionHelper.cs" LinkBase="Common" />
@@ -15,12 +13,6 @@
     <Compile Include="..\..\src\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\XunitSerializationInfo.cs" LinkBase="Common" />
-    <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
-    <ProjectReference Include="..\test.utility\test.utility.csproj" />
-  </ItemGroup>
+
 </Project>
