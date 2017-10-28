@@ -388,7 +388,7 @@ class Program
         {
             FileName = Path.Combine(consoleFolder, executableName),
             Arguments = $@"""{targetFileName}"" {extraArgs}",
-            WorkingDirectory = outputPath
+            WorkingDirectory = Path.GetFullPath(outputPath)
         });
 
         WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
@@ -419,7 +419,7 @@ class Program
         {
             FileName = DotNetMuxer.MuxerPath,
             Arguments = $@"exec --fx-version {fxVersion} ""{runner}"" ""{targetFileName}"" {extraArgs}",
-            WorkingDirectory = outputPath
+            WorkingDirectory = Path.GetFullPath(outputPath)
         };
 
         WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
