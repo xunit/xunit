@@ -815,23 +815,21 @@ public class CommandLineTests
 
     class TestableCommandLine : CommandLine
     {
+        public readonly IRunnerReporter Reporter;
+
         private TestableCommandLine(IReadOnlyList<IRunnerReporter> reporters, params string[] arguments)
-            : base(reporters, arguments, filename => !filename.StartsWith("badConfig.") && filename != "fileName")
-        { }
+            : base(arguments, filename => !filename.StartsWith("badConfig.") && filename != "fileName")
+        {
+            Reporter = ChooseReporter(reporters);
+        }
 
         protected override string GetFullPath(string fileName)
-        {
-            return $"/full/path/{fileName}";
-        }
+            => $"/full/path/{fileName}";
 
-        public static TestableCommandLine Parse(params string[] arguments)
-        {
-            return new TestableCommandLine(new IRunnerReporter[0], arguments);
-        }
+        public static new TestableCommandLine Parse(params string[] arguments)
+            => new TestableCommandLine(new IRunnerReporter[0], arguments);
 
-        public new static TestableCommandLine Parse(IReadOnlyList<IRunnerReporter> reporters, params string[] arguments)
-        {
-            return new TestableCommandLine(reporters, arguments);
-        }
+        public static TestableCommandLine Parse(IReadOnlyList<IRunnerReporter> reporters, params string[] arguments)
+            => new TestableCommandLine(reporters, arguments);
     }
 }

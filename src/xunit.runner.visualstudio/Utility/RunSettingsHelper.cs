@@ -1,8 +1,4 @@
-﻿#if !WINDOWS_UAP
-using System.Xml.Linq;
-#endif
-
-namespace Xunit.Runner.VisualStudio
+﻿namespace Xunit.Runner.VisualStudio
 {
     public static class RunSettingsHelper
     {
@@ -25,6 +21,8 @@ namespace Xunit.Runner.VisualStudio
         /// Gets a value which indicates if we should disable parallelization.
         /// </summary>
         public static bool DisableParallelization { get; private set; }
+
+        public static bool InternalDiagnostics { get; private set; }
 
         /// <summary>
         /// Gets a value which indiciates if we should disable automatic reporters.
@@ -52,6 +50,7 @@ namespace Xunit.Runner.VisualStudio
             DesignMode = true;
             DisableAppDomain = false;
             DisableParallelization = false;
+            InternalDiagnostics = false;
             NoAutoReporters = false;
             ReporterSwitch = null;
             TargetFrameworkVersion = null;
@@ -61,7 +60,7 @@ namespace Xunit.Runner.VisualStudio
             {
                 try
                 {
-                    var element = XDocument.Parse(runSettingsXml)?.Element("RunSettings")?.Element("RunConfiguration");
+                    var element = System.Xml.Linq.XDocument.Parse(runSettingsXml)?.Element("RunSettings")?.Element("RunConfiguration");
                     if (element != null)
                     {
                         var disableAppDomainString = element.Element("DisableAppDomain")?.Value;
@@ -75,6 +74,10 @@ namespace Xunit.Runner.VisualStudio
                         var designModeString = element.Element("DesignMode")?.Value;
                         if (bool.TryParse(designModeString, out bool designMode))
                             DesignMode = designMode;
+
+                        var internalDiagnosticsString = element.Element("InternalDiagnostics")?.Value;
+                        if (bool.TryParse(internalDiagnosticsString, out bool internalDiagnostics))
+                            InternalDiagnostics = internalDiagnostics;
 
                         var noAutoReportersString = element.Element("NoAutoReporters")?.Value;
                         if (bool.TryParse(noAutoReportersString, out bool noAutoReporters))

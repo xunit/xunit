@@ -133,8 +133,9 @@ namespace Xunit.Runner.MSBuild
             }
 
             var originalWorkingFolder = Directory.GetCurrentDirectory();
+            var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(Log, InternalDiagnosticMessages);
 
-            using (AssemblyHelper.SubscribeResolve())
+            using (AssemblyHelper.SubscribeResolveForDirectory(internalDiagnosticsMessageSink))
             {
                 var reporter = GetReporter();
                 if (reporter == null)
@@ -245,7 +246,7 @@ namespace Xunit.Runner.MSBuild
                     executionOptions.SetStopOnTestFail(stopOnFail);
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
-                var diagnosticMessageSink = new DiagnosticMessageSink(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
+                var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(Log, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;

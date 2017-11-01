@@ -7,14 +7,12 @@ namespace Xunit.ConsoleClient
         [STAThread]
         public static int Main(string[] args)
         {
-#if NET452
-            using (AssemblyHelper.SubscribeResolve())
-#else
-            using (NetCoreAssemblyHelper.SubscribeResolve())
-#endif
-            {
-                return new ConsoleRunner().EntryPoint(args);
-            }
+            var consoleLock = new object();
+            var commandLine = CommandLine.Parse(args);
+            var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(consoleLock, commandLine.InternalDiagnosticMessages, commandLine.NoColor);
+
+            using (AssemblyHelper.SubscribeResolveForDirectory(internalDiagnosticsMessageSink))
+                return new ConsoleRunner(consoleLock, commandLine).EntryPoint(args);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Xunit
     /// </summary>
     public class ConsoleRunnerLogger : IRunnerLogger
     {
-        readonly object lockObject = new object();
+        readonly object lockObject;
         readonly bool useColors;
 
         /// <summary>
@@ -18,16 +18,22 @@ namespace Xunit
         /// </summary>
         /// <param name="useColors">A flag to indicate whether colors should be used when
         /// logging messages.</param>
-        public ConsoleRunnerLogger(bool useColors)
+        public ConsoleRunnerLogger(bool useColors) : this(useColors, new object()) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
+        /// </summary>
+        /// <param name="useColors">A flag to indicate whether colors should be used when
+        /// logging messages.</param>
+        /// <param name="lockObject">The lock object used to prevent console clashes.</param>
+        public ConsoleRunnerLogger(bool useColors, object lockObject)
         {
             this.useColors = useColors;
+            this.lockObject = lockObject;
         }
 
         /// <inheritdoc/>
-        public object LockObject
-        {
-            get { return lockObject; }
-        }
+        public object LockObject => lockObject;
 
         /// <inheritdoc/>
         public void LogError(StackFrameInfo stackFrame, string message)
@@ -62,21 +68,15 @@ namespace Xunit
         }
 
         IDisposable SetColor(ConsoleColor color)
-        {
-            return useColors ? new ColorRestorer(color) : null;
-        }
+            => useColors ? new ColorRestorer(color) : null;
 
         class ColorRestorer : IDisposable
         {
             public ColorRestorer(ConsoleColor color)
-            {
-                ConsoleHelper.SetForegroundColor(color);
-            }
+                => ConsoleHelper.SetForegroundColor(color);
 
             public void Dispose()
-            {
-                ConsoleHelper.ResetColor();
-            }
+                => ConsoleHelper.ResetColor();
         }
     }
 }

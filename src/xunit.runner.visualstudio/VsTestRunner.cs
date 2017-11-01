@@ -77,11 +77,9 @@ namespace Xunit.Runner.VisualStudio
             var stopwatch = Stopwatch.StartNew();
             var loggerHelper = new LoggerHelper(logger, stopwatch);
 
-#if NET452 || NETCOREAPP1_0
             RunSettingsHelper.ReadRunSettings(discoveryContext?.RunSettings?.SettingsXml);
             if (!ValidateRuntimeFramework())
                 return;
-#endif
 
             var testPlatformContext = new TestPlatformContext
             {
@@ -109,11 +107,9 @@ namespace Xunit.Runner.VisualStudio
             var stopwatch = Stopwatch.StartNew();
             var logger = new LoggerHelper(frameworkHandle, stopwatch);
 
-#if NET452 || NETCOREAPP1_0
             RunSettingsHelper.ReadRunSettings(runContext?.RunSettings?.SettingsXml);
             if (!ValidateRuntimeFramework())
                 return;
-#endif
 
             // In the context of Run All tests, commandline runner doesn't require source information or
             // serialized xunit test case property
@@ -162,9 +158,7 @@ namespace Xunit.Runner.VisualStudio
             var stopwatch = Stopwatch.StartNew();
             var logger = new LoggerHelper(frameworkHandle, stopwatch);
 
-#if NET452 || NETCOREAPP1_0
             RunSettingsHelper.ReadRunSettings(runContext?.RunSettings?.SettingsXml);
-#endif
 
             // In the context of Run Specific tests, commandline runner doesn't require source information or
             // serialized xunit test case property
@@ -198,9 +192,9 @@ namespace Xunit.Runner.VisualStudio
             {
                 RemotingUtility.CleanUpRegisteredChannels();
 
-#if NET452
-                using (AssemblyHelper.SubscribeResolve())
-#endif
+                var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, RunSettingsHelper.InternalDiagnostics);
+
+                using (AssemblyHelper.SubscribeResolveForDirectory(MessageSinkAdapter.Wrap(internalDiagnosticsMessageSink)))
                 {
                     foreach (var assemblyFileNameCanBeWithoutAbsolutePath in sources)
                     {
@@ -208,7 +202,7 @@ namespace Xunit.Runner.VisualStudio
                         var configuration = LoadConfiguration(assemblyFileName);
                         var fileName = Path.GetFileNameWithoutExtension(assemblyFileName);
                         var shadowCopy = configuration.ShadowCopyOrDefault;
-                        var diagnosticSink = new DiagnosticMessageSink(logger, fileName, configuration.DiagnosticMessagesOrDefault);
+                        var diagnosticSink = DiagnosticMessageSink.ForDiagnostics(logger, fileName, configuration.DiagnosticMessagesOrDefault);
 
                         using (var framework = new XunitFrontController(AppDomainDefaultBehavior, assemblyFileName, shadowCopy: shadowCopy, diagnosticMessageSink: MessageSinkAdapter.Wrap(diagnosticSink)))
                             if (!DiscoverTestsInSource(framework, logger, testPlatformContext, visitorFactory, visitComplete, assemblyFileName, shadowCopy, configuration))
@@ -398,10 +392,9 @@ namespace Xunit.Runner.VisualStudio
                 var parallelizeAssemblies = !RunSettingsHelper.DisableParallelization && runInfos.All(runInfo => runInfo.Configuration.ParallelizeAssemblyOrDefault);
                 var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(GetRunnerReporter(runInfos.Select(ari => ari.AssemblyFileName))
                                                                         .CreateMessageHandler(new VisualStudioRunnerLogger(logger)));
+                var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, RunSettingsHelper.InternalDiagnostics);
 
-#if NET452
-                using (AssemblyHelper.SubscribeResolve())
-#endif
+                using (AssemblyHelper.SubscribeResolveForDirectory(MessageSinkAdapter.Wrap(internalDiagnosticsMessageSink)))
                 {
                     if (parallelizeAssemblies)
                         runInfos
@@ -450,7 +443,7 @@ namespace Xunit.Runner.VisualStudio
                 assemblyFileName = Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, Path.GetFileName(assemblyFileName));
 #endif
 
-                var diagnosticSink = new DiagnosticMessageSink(logger, assemblyDisplayName, runInfo.Configuration.DiagnosticMessagesOrDefault);
+                var diagnosticSink = DiagnosticMessageSink.ForDiagnostics(logger, assemblyDisplayName, runInfo.Configuration.DiagnosticMessagesOrDefault);
                 var diagnosticMessageSink = MessageSinkAdapter.Wrap(diagnosticSink);
                 using (var controller = new XunitFrontController(appDomain, assemblyFileName, shadowCopy: shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 {

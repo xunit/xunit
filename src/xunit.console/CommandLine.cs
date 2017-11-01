@@ -8,13 +8,10 @@ namespace Xunit.ConsoleClient
     public class CommandLine
     {
         readonly Stack<string> arguments = new Stack<string>();
-        IRunnerReporter reporter;
-        readonly IReadOnlyList<IRunnerReporter> reporters;
+        readonly List<string> unknownOptions = new List<string>();
 
-        protected CommandLine(IReadOnlyList<IRunnerReporter> reporters, string[] args, Predicate<string> fileExists = null)
+        protected CommandLine(string[] args, Predicate<string> fileExists = null)
         {
-            this.reporters = reporters;
-
             if (fileExists == null)
                 fileExists = File.Exists;
 
@@ -52,23 +49,33 @@ namespace Xunit.ConsoleClient
 
         public bool? ParallelizeTestCollections { get; set; }
 
-        public IRunnerReporter Reporter
-        {
-            get
-            {
-                var result = reporter;
-                if (!NoAutoReporters)
-                    result = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? result;
-
-                return result ?? new DefaultRunnerReporterWithTypes();
-            }
-        }
-
         public bool Serialize { get; protected set; }
 
         public bool StopOnFail { get; protected set; }
 
         public bool Wait { get; protected set; }
+
+        public IRunnerReporter ChooseReporter(IReadOnlyList<IRunnerReporter> reporters)
+        {
+            var result = default(IRunnerReporter);
+
+            foreach (var unknownOption in unknownOptions)
+            {
+                var reporter = reporters.FirstOrDefault(r => r.RunnerSwitch == unknownOption);
+                if (reporter == null)
+                    throw new ArgumentException($"unknown option: -{unknownOption}");
+
+                if (result != null)
+                    throw new ArgumentException("only one reporter is allowed");
+
+                result = reporter;
+            }
+
+            if (!NoAutoReporters)
+                result = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? result;
+
+            return result ?? new DefaultRunnerReporterWithTypes();
+        }
 
         protected virtual string GetFullPath(string fileName)
         {
@@ -101,10 +108,8 @@ namespace Xunit.ConsoleClient
                 || fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
         }
 
-        public static CommandLine Parse(IReadOnlyList<IRunnerReporter> reporters, params string[] args)
-        {
-            return new CommandLine(reporters, args);
-        }
+        public static CommandLine Parse(params string[] args)
+            => new CommandLine(args);
 
         protected XunitProject Parse(Predicate<string> fileExists)
         {
@@ -324,28 +329,21 @@ namespace Xunit.ConsoleClient
                 }
                 else
                 {
-                    // Might be a reporter...
-                    var maybeReporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, optionName, StringComparison.OrdinalIgnoreCase));
-                    if (maybeReporter != null)
+                    // Might be a result output file...
+                    if (TransformFactory.AvailableTransforms.Any(t => t.CommandLine.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
                     {
-                        GuardNoOptionValue(option);
-                        if (reporter != null)
-                            throw new ArgumentException("only one reporter is allowed");
-
-                        reporter = maybeReporter;
-                    }
-                    // ...or an result output file
-                    else
-                    {
-                        if (!TransformFactory.AvailableTransforms.Any(t => t.CommandLine.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
-                            throw new ArgumentException($"unknown option: {option.Key}");
-
                         if (option.Value == null)
                             throw new ArgumentException($"missing filename for {option.Key}");
 
                         EnsurePathExists(option.Value);
 
                         project.Output.Add(optionName, option.Value);
+                    }
+                    // ...or it might be a reporter (we won't know until later)
+                    else
+                    {
+                        GuardNoOptionValue(option);
+                        unknownOptions.Add(optionName);
                     }
                 }
             }

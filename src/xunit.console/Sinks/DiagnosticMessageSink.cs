@@ -10,7 +10,7 @@ namespace Xunit.ConsoleClient
         readonly ConsoleColor displayColor;
         readonly bool noColor;
 
-        public DiagnosticMessageSink(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor, ConsoleColor displayColor = ConsoleColor.Yellow)
+        DiagnosticMessageSink(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor, ConsoleColor displayColor)
         {
             this.consoleLock = consoleLock;
             this.assemblyDisplayName = assemblyDisplayName;
@@ -21,6 +21,15 @@ namespace Xunit.ConsoleClient
                 Diagnostics.DiagnosticMessageEvent += HandleDiagnosticMessage;
         }
 
+        public static DiagnosticMessageSink ForDiagnostics(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor)
+            => new DiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.Yellow);
+
+        public static DiagnosticMessageSink ForInternalDiagnostics(object consoleLock, bool showDiagnostics, bool noColor)
+            => new DiagnosticMessageSink(consoleLock, null, showDiagnostics, noColor, ConsoleColor.DarkGray);
+
+        public static DiagnosticMessageSink ForInternalDiagnostics(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor)
+            => new DiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
+
         void HandleDiagnosticMessage(MessageHandlerArgs<IDiagnosticMessage> args)
         {
             lock (consoleLock)
@@ -28,7 +37,10 @@ namespace Xunit.ConsoleClient
                 if (!noColor)
                     ConsoleHelper.SetForegroundColor(displayColor);
 
-                Console.WriteLine($"   {assemblyDisplayName}: {args.Message.Message}");
+                if (assemblyDisplayName != null)
+                    Console.WriteLine($"   {assemblyDisplayName}: {args.Message.Message}");
+                else
+                    Console.WriteLine($"   {args.Message.Message}");
 
                 if (!noColor)
                     ConsoleHelper.ResetColor();

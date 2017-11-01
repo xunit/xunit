@@ -14,10 +14,18 @@ namespace Xunit.ConsoleClient
     class ConsoleRunner
     {
         volatile bool cancel;
+        CommandLine commandLine;
+        object consoleLock;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
         bool failed;
         IRunnerLogger logger;
         IMessageSinkWithTypes reporterMessageHandler;
+
+        public ConsoleRunner(object consoleLock, CommandLine commandLine)
+        {
+            this.consoleLock = consoleLock;
+            this.commandLine = commandLine;
+        }
 
         public int EntryPoint(string[] args)
         {
@@ -50,7 +58,7 @@ namespace Xunit.ConsoleClient
                 if (!defaultDirectory.EndsWith(new string(new[] { Path.DirectorySeparatorChar }), StringComparison.Ordinal))
                     defaultDirectory += Path.DirectorySeparatorChar;
 
-                var commandLine = CommandLine.Parse(reporters, args);
+                var reporter = commandLine.ChooseReporter(reporters);
 
 #if DEBUG
                 if (commandLine.Pause)
@@ -64,8 +72,8 @@ namespace Xunit.ConsoleClient
                 if (commandLine.Debug)
                     Debugger.Launch();
 
-                logger = new ConsoleRunnerLogger(!commandLine.NoColor);
-                reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(commandLine.Reporter.CreateMessageHandler(logger));
+                logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
+                reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
                 if (!commandLine.NoLogo)
                     PrintHeader();
@@ -281,7 +289,6 @@ namespace Xunit.ConsoleClient
             var clockTime = Stopwatch.StartNew();
             var xmlTransformers = TransformFactory.GetXmlTransformers(project);
             var needsXml = xmlTransformers.Count > 0;
-            var consoleLock = new object();
 
             if (!parallelizeAssemblies.HasValue)
                 parallelizeAssemblies = project.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
@@ -365,8 +372,8 @@ namespace Xunit.ConsoleClient
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
-                var diagnosticMessageSink = new DiagnosticMessageSink(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
-                var internalDiagnosticsMessageSink = new DiagnosticMessageSink(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor, ConsoleColor.DarkGray);
+                var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
+                var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
