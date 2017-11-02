@@ -29,6 +29,7 @@
     <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\common\SourceInformation.cs" LinkBase="Common" />
     <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
+    <Compile Include="..\common\TestMethodDisplayOptions.cs" LinkBase="Common" />
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />

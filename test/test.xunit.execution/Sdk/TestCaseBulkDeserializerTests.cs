@@ -21,12 +21,14 @@ public class TestCaseBulkDeserializerTests
         executor = new XunitTestFrameworkExecutor(assembly.GetName(), sourceInformationProvider, diagnosticMessageSink);
     }
 
-    [Fact]
-    public void CanDeserializeSpecialFactSerialization()
+    [Theory]
+    [InlineData(":F:TestCaseBulkDeserializerTests+TestClass:FactMethod:2")]
+    [InlineData(":F:TestCaseBulkDeserializerTests+TestClass:FactMethod:2:1")]
+    public void CanDeserializeSpecialFactSerialization(string serializedTestCase)
     {
         var guid = Guid.NewGuid();
         var results = default(List<KeyValuePair<string, ITestCase>>);
-        var serializedTestCases = new List<string> { $":F:TestCaseBulkDeserializerTests+TestClass:FactMethod:2:{guid.ToString("N")}" };
+        var serializedTestCases = new List<string> { $"{serializedTestCase}:{guid.ToString("N")}" };
         Action<List<KeyValuePair<string, ITestCase>>> callback = r => results = r;
 
         new TestCaseBulkDeserializer(discoverer, executor, serializedTestCases, callback);

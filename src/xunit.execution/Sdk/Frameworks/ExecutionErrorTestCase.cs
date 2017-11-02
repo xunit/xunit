@@ -22,10 +22,16 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
+        /// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
         /// <param name="testMethod">The test method.</param>
         /// <param name="errorMessage">The error message to report for the test.</param>
-        public ExecutionErrorTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, string errorMessage)
-            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod)
+        public ExecutionErrorTestCase(
+            IMessageSink diagnosticMessageSink,
+            TestMethodDisplay defaultMethodDisplay,
+            TestMethodDisplayOptions defaultMethodDisplayOptions,
+            ITestMethod testMethod,
+            string errorMessage)
+            : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod)
         {
             ErrorMessage = errorMessage;
         }

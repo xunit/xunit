@@ -162,7 +162,7 @@ namespace Xunit.Runners
             executionCompleteEvent.SafeDispose();
         }
 
-        ITestFrameworkDiscoveryOptions GetDiscoveryOptions(bool? diagnosticMessages, TestMethodDisplay? methodDisplay, bool? preEnumerateTheories, bool? internalDiagnosticMessages)
+        ITestFrameworkDiscoveryOptions GetDiscoveryOptions(bool? diagnosticMessages, TestMethodDisplay? methodDisplay, TestMethodDisplayOptions? methodDisplayOptions, bool? preEnumerateTheories, bool? internalDiagnosticMessages)
         {
             var discoveryOptions = TestFrameworkOptions.ForDiscovery(configuration);
             discoveryOptions.SetSynchronousMessageReporting(true);
@@ -173,6 +173,8 @@ namespace Xunit.Runners
                 discoveryOptions.SetDiagnosticMessages(internalDiagnosticMessages);
             if (methodDisplay.HasValue)
                 discoveryOptions.SetMethodDisplay(methodDisplay);
+            if (methodDisplayOptions.HasValue)
+                discoveryOptions.SetMethodDisplayOptions(methodDisplayOptions);
             if (preEnumerateTheories.HasValue)
                 discoveryOptions.SetPreEnumerateTheories(preEnumerateTheories);
 
@@ -206,6 +208,8 @@ namespace Xunit.Runners
         /// By default, uses the value from the assembly configuration file.</param>
         /// <param name="methodDisplay">Set to choose the default display name style for test methods.
         /// By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
+        /// <param name="methodDisplayOptions">Set to choose the default display name style options for test methods.
+        /// By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
         /// <param name="preEnumerateTheories">Set to <c>true</c> to pre-enumerate individual theory tests; set to <c>false</c> to use
         /// a single test case for the theory. By default, uses the value from the assembly configuration file. (This parameter is ignored
         /// for xUnit.net v1 tests.)</param>
@@ -218,6 +222,7 @@ namespace Xunit.Runners
         public void Start(string typeName = null,
                           bool? diagnosticMessages = null,
                           TestMethodDisplay? methodDisplay = null,
+                          TestMethodDisplayOptions? methodDisplayOptions = null,
                           bool? preEnumerateTheories = null,
                           bool? parallel = null,
                           int? maxParallelThreads = null,
@@ -237,7 +242,7 @@ namespace Xunit.Runners
 
             XunitWorkerThread.QueueUserWorkItem(() =>
             {
-                var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, preEnumerateTheories, internalDiagnosticMessages);
+                var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, internalDiagnosticMessages);
                 if (typeName != null)
                     controller.Find(typeName, false, this, discoveryOptions);
                 else

@@ -22,7 +22,10 @@ namespace TestUtility
             if (cultures == null || cultures.Length == 0)
                 cultures = new[] { "en-US", "fr-FR" };
 
-            return cultures.Select(culture => new CulturedXunitTestCase(diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, culture)).ToList();
+            var methodDisplay = discoveryOptions.MethodDisplayOrDefault();
+            var methodDisplayOptions = discoveryOptions.MethodDisplayOptionsOrDefault();
+
+            return cultures.Select(culture => new CulturedXunitTestCase(diagnosticMessageSink, methodDisplay, methodDisplayOptions, testMethod, culture)).ToList();
         }
     }
 }

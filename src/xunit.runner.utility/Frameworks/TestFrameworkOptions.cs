@@ -34,6 +34,7 @@ namespace Xunit
                 result.SetDiagnosticMessages(configuration.DiagnosticMessages);
                 result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
                 result.SetMethodDisplay(configuration.MethodDisplay);
+                result.SetMethodDisplayOptions(configuration.MethodDisplayOptions);
                 result.SetPreEnumerateTheories(configuration.PreEnumerateTheories);
             }
 

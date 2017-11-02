@@ -18,10 +18,11 @@ namespace TestUtility
 
         public CulturedXunitTestCase(IMessageSink diagnosticMessageSink,
                                      TestMethodDisplay defaultMethodDisplay,
+                                     TestMethodDisplayOptions defaultMethodDisplayOptions,
                                      ITestMethod testMethod,
                                      string culture,
                                      object[] testMethodArguments = null)
-            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod, testMethodArguments)
+            : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
         {
             Initialize(culture);
         }

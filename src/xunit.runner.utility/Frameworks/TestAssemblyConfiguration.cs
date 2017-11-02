@@ -80,6 +80,17 @@ namespace Xunit
         public TestMethodDisplay MethodDisplayOrDefault { get { return MethodDisplay ?? TestMethodDisplay.ClassAndMethod; } }
 
         /// <summary>
+        /// Gets or sets the default display options for test methods.
+        /// </summary>
+        public TestMethodDisplayOptions? MethodDisplayOptions { get; set; }
+
+        /// <summary>
+        /// Gets the default display options for test methods. If the value is not set, returns
+        /// the default value (<see cref="TestMethodDisplayOptions.None"/>).
+        /// </summary>
+        public TestMethodDisplayOptions MethodDisplayOptionsOrDefault { get { return MethodDisplayOptions ?? TestMethodDisplayOptions.None; } }
+
+        /// <summary>
         /// Gets or sets a flag indicating that this assembly is safe to parallelize against
         /// other assemblies.
         /// </summary>

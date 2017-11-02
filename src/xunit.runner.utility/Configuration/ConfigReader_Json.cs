@@ -82,6 +82,19 @@ namespace Xunit
                                 catch { }
                             }
                         }
+                        else if (string.Equals(propertyName, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var stringValue = propertyValue as JsonString;
+                            if (stringValue != null)
+                            {
+                                try
+                                {
+                                    var methodDisplayOptions = Enum.Parse(typeof(TestMethodDisplayOptions), stringValue, true);
+                                    result.MethodDisplayOptions = (TestMethodDisplayOptions)methodDisplayOptions;
+                                }
+                                catch { }
+                            }
+                        }
                         else if (string.Equals(propertyName, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
                         {
                             var stringValue = propertyValue as JsonString;
@@ -167,6 +180,7 @@ namespace Xunit
             public const string InternalDiagnosticMessages = "internalDiagnosticMessages";
             public const string MaxParallelThreads = "maxParallelThreads";
             public const string MethodDisplay = "methodDisplay";
+            public const string MethodDisplayOptions = "methodDisplayOptions";
             public const string ParallelizeAssembly = "parallelizeAssembly";
             public const string ParallelizeTestCollections = "parallelizeTestCollections";
             public const string PreEnumerateTheories = "preEnumerateTheories";

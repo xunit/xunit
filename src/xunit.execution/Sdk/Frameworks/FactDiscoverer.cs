@@ -32,7 +32,7 @@ namespace Xunit.Sdk
         /// <param name="factAttribute">The attribute that decorates the test method.</param>
         /// <returns></returns>
         protected virtual IXunitTestCase CreateTestCase(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
-            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
+            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod);
 
         /// <summary>
         /// Discover test cases from a test method. By default, if the method is generic, or
@@ -48,9 +48,9 @@ namespace Xunit.Sdk
             IXunitTestCase testCase;
 
             if (testMethod.Method.GetParameters().Any())
-                testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
+                testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
             else if (testMethod.Method.IsGenericMethodDefinition)
-                testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, "[Fact] methods are not allowed to be generic.");
+                testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, "[Fact] methods are not allowed to be generic.");
             else
                 testCase = CreateTestCase(discoveryOptions, testMethod, factAttribute);
 
