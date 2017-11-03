@@ -21,7 +21,7 @@ public class ReflectorTests
         {
             var guid = Guid.Parse(text);
 
-            var args = Reflector.ConvertArguments(new[] { text }, new[] { typeof(Guid) });
+            var args = Reflector.ConvertArguments(new object[] { text }, new[] { typeof(Guid) });
 
             Assert.Equal(guid, Assert.IsType<Guid>(args[0]));
         }
