@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -64,6 +65,16 @@ namespace Xunit.Sdk
                         if (type == typeof(Guid))
                         {
                             return Guid.Parse(arg.ToString());
+                        }
+
+                        if (type == typeof(DateTime))
+                        {
+                            return DateTime.Parse(arg.ToString(), CultureInfo.InvariantCulture);
+                        }
+
+                        if (type == typeof(DateTimeOffset))
+                        {
+                            return DateTimeOffset.Parse(arg.ToString(), CultureInfo.InvariantCulture);
                         }
 
                         return Convert.ChangeType(arg, type);
