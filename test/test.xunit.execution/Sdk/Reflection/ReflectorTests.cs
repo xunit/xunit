@@ -34,7 +34,7 @@ public class ReflectorTests
         {
             var dateTime = DateTime.Parse(text, CultureInfo.InvariantCulture);
 
-            var args = Reflector.ConvertArguments(new[] { text }, new[] { typeof(DateTime) });
+            var args = Reflector.ConvertArguments(new object[] { text }, new[] { typeof(DateTime) });
 
             Assert.Equal(dateTime, Assert.IsType<DateTime>(args[0]));
         }
@@ -47,7 +47,7 @@ public class ReflectorTests
         {
             var dateTimeOffset = DateTimeOffset.Parse(text, CultureInfo.InvariantCulture);
 
-            var args = Reflector.ConvertArguments(new[] { text }, new[] { typeof(DateTimeOffset) });
+            var args = Reflector.ConvertArguments(new object[] { text }, new[] { typeof(DateTimeOffset) });
 
             Assert.Equal(dateTimeOffset, Assert.IsType<DateTimeOffset>(args[0]));
         }
