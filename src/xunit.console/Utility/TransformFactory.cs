@@ -58,7 +58,7 @@ namespace Xunit.ConsoleClient
 
         static void Handler_XslTransform(string key, string resourceName, XElement xml, string outputFileName)
         {
-#if NET452
+#if NET452 || NETCOREAPP2_0
             var xmlTransform = new System.Xml.Xsl.XslCompiledTransform();
 
             using (var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true }))
@@ -71,7 +71,7 @@ namespace Xunit.ConsoleClient
             }
 #else
             ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-            Console.WriteLine($"Skipping -{key} because XSL-T is not supported on .NET Core");
+            Console.WriteLine($"Skipping -{key} because XSL-T is not supported on .NET Core 1.x");
             ConsoleHelper.ResetColor();
 #endif
         }
