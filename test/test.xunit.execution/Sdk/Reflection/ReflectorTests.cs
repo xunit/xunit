@@ -51,6 +51,33 @@ public class ReflectorTests
 
             Assert.Equal(dateTimeOffset, Assert.IsType<DateTimeOffset>(args[0]));
         }
+
+        [Theory]
+        [InlineData("{5B21E154-15EB-4B1E-BC30-127E8A41ECA1}")]
+        public void GuidSmokeTest(Guid actual)
+        {
+            var expected = Guid.Parse("{5B21E154-15EB-4B1E-BC30-127E8A41ECA1}");
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Theory]
+        [InlineData("2017-11-3 16:48")]
+        public void DateTimeSmokeTest(DateTime actual)
+        {
+            var expected = DateTime.Parse("2017-11-3 16:48", CultureInfo.InvariantCulture);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Theory]
+        [InlineData("2017-11-3 16:48")]
+        public void DateTimeOffsetSmokeTest(DateTimeOffset actual)
+        {
+            var expected = DateTimeOffset.Parse("2017-11-3 16:48", CultureInfo.InvariantCulture);
+
+            Assert.Equal(expected, actual);
+        }
     }
 
     public class Undecorated // Defaults, inherited = true, multiple = false
