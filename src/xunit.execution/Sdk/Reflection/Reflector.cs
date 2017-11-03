@@ -34,13 +34,10 @@ namespace Xunit.Sdk
 
             if (args.Length == types.Length)
             {
-                var converted = new List<object>(args.Length);
                 for (var idx = 0; idx < args.Length; idx++)
                 {
-                    converted.Add(ConvertArgument(args[idx], types[idx]));
+                    args[idx] = ConvertArgument(args[idx], types[idx]);
                 }
-
-                return converted.ToArray();
             }
 
             return args;
