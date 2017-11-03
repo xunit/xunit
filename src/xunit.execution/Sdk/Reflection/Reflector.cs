@@ -33,10 +33,13 @@ namespace Xunit.Sdk
 
             if (args.Length == types.Length)
             {
+                var converted = new List<object>(args.Length);
                 for (var idx = 0; idx < args.Length; idx++)
                 {
-                    args[idx] = ConvertArgument(args[idx], types[idx]);
+                    converted.Add(ConvertArgument(args[idx], types[idx]));
                 }
+
+                return converted.ToArray();
             }
 
             return args;
@@ -58,6 +61,11 @@ namespace Xunit.Sdk
                     }
                     else
                     {
+                        if (type == typeof(Guid))
+                        {
+                            return Guid.Parse(arg.ToString());
+                        }
+
                         return Convert.ChangeType(arg, type);
                     }
                 }
