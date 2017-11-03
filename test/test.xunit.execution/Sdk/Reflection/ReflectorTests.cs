@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -23,6 +24,32 @@ public class ReflectorTests
             var args = Reflector.ConvertArguments(new[] { text }, new[] { typeof(Guid) });
 
             Assert.Equal(guid, Assert.IsType<Guid>(args[0]));
+        }
+
+        [Theory]
+        [InlineData("2017-11-3")]
+        [InlineData("2017-11-3 16:48")]
+        [InlineData("16:48")]
+        public void ConvertsStringToDateTime(string text)
+        {
+            var dateTime = DateTime.Parse(text, CultureInfo.InvariantCulture);
+
+            var args = Reflector.ConvertArguments(new[] { text }, new[] { typeof(DateTime) });
+
+            Assert.Equal(dateTime, Assert.IsType<DateTime>(args[0]));
+        }
+
+        [Theory]
+        [InlineData("2017-11-3")]
+        [InlineData("2017-11-3 16:48")]
+        [InlineData("16:48")]
+        public void ConvertsStringToDateTimeOffset(string text)
+        {
+            var dateTimeOffset = DateTimeOffset.Parse(text, CultureInfo.InvariantCulture);
+
+            var args = Reflector.ConvertArguments(new[] { text }, new[] { typeof(DateTimeOffset) });
+
+            Assert.Equal(dateTimeOffset, Assert.IsType<DateTimeOffset>(args[0]));
         }
     }
 
