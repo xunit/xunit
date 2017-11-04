@@ -171,7 +171,7 @@ namespace Xunit
                         ? discoveryFinished.TestCasesDiscovered.ToString()
                         : $"{discoveryFinished.TestCasesToRun} of {discoveryFinished.TestCasesDiscovered}";
 
-                Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName} (running {count} test case{(discoveryFinished.TestCasesToRun == 1 ? "" : "s")})");
+                Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName} (found {count} test case{(discoveryFinished.TestCasesToRun == 1 ? "" : "s")})");
             }
             else
                 Logger.LogImportantMessage($"  Discovered:  {assemblyDisplayName}");
