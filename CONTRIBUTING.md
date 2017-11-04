@@ -19,4 +19,4 @@ Please note that this project is released with a [Contributor Code of Conduct](h
 
 # Looking for something to work on?
 
-Documentation is always in need of help. Look at our [up-for-grabs issues for the documentation site](https://github.com/xunit/xunit/issues?q=is%3Aopen%20label%3A%22%5Bs%5D%20Up%20For%20Grabs%22%20label%3A%22%5Ba%5D%20xunit.github.io%22) to find something to contribute!
+Documentation is always in need of help. Look at our ["help wanted" issues for the documentation site](https://github.com/xunit/xunit/issues?q=is%3Aopen+label%3A%22help+wanted%22+label%3A%22%5Ba%5D+xunit.github.io%22) to find something to contribute!
