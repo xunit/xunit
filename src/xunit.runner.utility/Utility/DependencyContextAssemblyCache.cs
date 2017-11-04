@@ -14,6 +14,7 @@ namespace Xunit
 {
     class DependencyContextAssemblyCache
     {
+        static readonly string[] ManagedAssemblyExtensions = new[] { ".dll", ".exe" };
         static readonly Tuple<string, Assembly> ManagedAssemblyNotFound = new Tuple<string, Assembly>(null, null);
 
         readonly string assemblyFolder;
@@ -81,9 +82,6 @@ namespace Xunit
         {
             if (!managedAssemblyCache.TryGetValue(assemblyName, out var result))
             {
-                if (internalDiagnosticsMessageSink != null)
-                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolving '{assemblyName}'"));
-
                 var tupleResult = ResolveManagedAssembly(assemblyName, managedAssemblyLoader);
                 var resolvedAssemblyPath = tupleResult.Item1;
                 result = tupleResult.Item2;
@@ -92,9 +90,9 @@ namespace Xunit
                 if (internalDiagnosticsMessageSink != null)
                 {
                     if (result == null)
-                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolution failed, passed down to next resolver"));
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolution for '{assemblyName}' failed, passed down to next resolver"));
                     else
-                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Successful: '{resolvedAssemblyPath}'"));
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolved '{assemblyName}' to '{resolvedAssemblyPath}'"));
                 }
             }
 
@@ -106,7 +104,7 @@ namespace Xunit
             // Try to find dependency in the local folder
             var assemblyPath = Path.Combine(assemblyFolder, assemblyName);
 
-            foreach (var extension in new[] { ".dll", ".exe" })
+            foreach (var extension in ManagedAssemblyExtensions)
                 try
                 {
                     var resolvedAssemblyPath = assemblyPath + extension;
@@ -140,18 +138,18 @@ namespace Xunit
                             return Tuple.Create(resolvedAssemblyPath, assembly);
 
                         if (internalDiagnosticsMessageSink != null)
-                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveManagedAssembly] Found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
+                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveManagedAssembly] Resolving '{assemblyName}', found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
                     }
                     else
                     {
                         if (internalDiagnosticsMessageSink != null)
-                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveManagedAssembly] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveManagedAssembly] Resolving '{assemblyName}', found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
                     }
                 }
                 else
                 {
                     if (internalDiagnosticsMessageSink != null)
-                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveManagedAssembly] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveManagedAssembly] Resolving '{assemblyName}', found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
                 }
             }
 
@@ -190,18 +188,15 @@ namespace Xunit
         {
             if (!unmanagedAssemblyCache.TryGetValue(unmanagedDllName, out var resolvedAssemblyPath))
             {
-                if (internalDiagnosticsMessageSink != null)
-                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedDll] Resolving '{unmanagedDllName}'"));
-
                 resolvedAssemblyPath = ResolveUnmanagedAssembly(unmanagedDllName);
                 unmanagedAssemblyCache[unmanagedDllName] = resolvedAssemblyPath;
 
                 if (internalDiagnosticsMessageSink != null)
                 {
                     if (resolvedAssemblyPath == null)
-                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedDll] Resolution failed, passed down to next resolver"));
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolution for '{unmanagedDllName}' failed, passed down to next resolver"));
                     else
-                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedDll] Successful: '{resolvedAssemblyPath}'"));
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolved '{unmanagedDllName}' to '{resolvedAssemblyPath}'"));
                 }
             }
 

@@ -50,18 +50,15 @@ namespace Xunit
             if (lookupCache.TryGetValue(assemblyName.Name, out var result))
                 return result;
 
-            if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolving '{assemblyName.Name}'"));
-
             var path = Path.Combine(directory, assemblyName.Name);
             result = ResolveAndLoadAssembly(path, out var resolvedAssemblyPath);
 
             if (internalDiagnosticsMessageSink != null)
             {
                 if (result == null)
-                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolution failed, passed down to next resolver"));
+                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{assemblyName.Name}' failed, passed down to next resolver"));
                 else
-                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Successful: '{resolvedAssemblyPath}'"));
+                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolved '{assemblyName.Name}' to '{resolvedAssemblyPath}'"));
             }
 
             lookupCache[assemblyName.Name] = result;
@@ -102,7 +99,7 @@ namespace Xunit
         /// </summary>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
         public static IDisposable SubscribeResolveForAssembly(string assemblyFileName, IMessageSink internalDiagnosticsMessageSink = null)
-            => null;    // We don't support .deps.json on Desktop CLR, because it's only available in .NET Core
+            => SubscribeResolveForDirectory(internalDiagnosticsMessageSink, Path.GetDirectoryName(Path.GetFullPath(assemblyFileName)));
 
         /// <summary>
         /// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
