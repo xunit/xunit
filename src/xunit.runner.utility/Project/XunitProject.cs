@@ -19,7 +19,7 @@ namespace Xunit
         }
 
         /// <summary/>
-        public IEnumerable<XunitProjectAssembly> Assemblies
+        public ICollection<XunitProjectAssembly> Assemblies
         {
             get { return assemblies; }
         }

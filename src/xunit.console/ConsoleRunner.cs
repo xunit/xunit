@@ -40,6 +40,9 @@ namespace Xunit.ConsoleClient
                     return 2;
                 }
 
+                if (commandLine.Project.Assemblies.Count == 0)
+                    throw new ArgumentException("must specify at least one assembly");
+
 #if NET452
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 #endif
@@ -96,20 +99,27 @@ namespace Xunit.ConsoleClient
 
                 return failCount > 0 ? 1 : 0;
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
+                if (!commandLine.NoColor)
+                    ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
+
                 Console.WriteLine($"error: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
-                return 3;
-            }
-            catch (BadImageFormatException ex)
-            {
-                Console.WriteLine(ex.Message);
-                return 4;
+
+                if (commandLine.InternalDiagnosticMessages)
+                {
+                    if (!commandLine.NoColor)
+                        ConsoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
+
+                    Console.WriteLine(ex.StackTrace);
+                }
+
+                return ex is ArgumentException ? 3 : 4;
             }
             finally
             {
-                ConsoleHelper.ResetColor();
+                if (!commandLine.NoColor)
+                    ConsoleHelper.ResetColor();
             }
         }
 

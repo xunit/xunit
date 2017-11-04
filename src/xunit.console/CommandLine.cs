@@ -61,9 +61,7 @@ namespace Xunit.ConsoleClient
 
             foreach (var unknownOption in unknownOptions)
             {
-                var reporter = reporters.FirstOrDefault(r => r.RunnerSwitch == unknownOption);
-                if (reporter == null)
-                    throw new ArgumentException($"unknown option: -{unknownOption}");
+                var reporter = reporters.FirstOrDefault(r => r.RunnerSwitch == unknownOption) ?? throw new ArgumentException($"unknown option: -{unknownOption}");
 
                 if (result != null)
                     throw new ArgumentException("only one reporter is allowed");
@@ -140,9 +138,6 @@ namespace Xunit.ConsoleClient
 
                 assemblies.Add(Tuple.Create(assemblyFile, configFile));
             }
-
-            if (assemblies.Count == 0)
-                throw new ArgumentException("must specify at least one assembly");
 
             var project = GetProjectFile(assemblies);
 
@@ -247,8 +242,7 @@ namespace Xunit.ConsoleClient
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -parallel");
 
-                    ParallelismOption parallelismOption;
-                    if (!Enum.TryParse(option.Value, out parallelismOption))
+                    if (!Enum.TryParse(option.Value, out ParallelismOption parallelismOption))
                         throw new ArgumentException("incorrect argument value for -parallel");
 
                     switch (parallelismOption)
