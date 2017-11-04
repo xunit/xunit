@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NET452
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -154,3 +156,5 @@ public class XunitTestCaseTests
         }
     }
 }
+
+#endif

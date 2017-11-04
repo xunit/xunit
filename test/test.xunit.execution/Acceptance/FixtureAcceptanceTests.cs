@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NET452
+
+using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -681,3 +683,5 @@ public class FixtureAcceptanceTests
         public readonly int Identity;
     }
 }
+
+#endif

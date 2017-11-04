@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if NET452
+
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -273,3 +274,5 @@ let AsyncFailing() =
         }
     }
 }
+
+#endif

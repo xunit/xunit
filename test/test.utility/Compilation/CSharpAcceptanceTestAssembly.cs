@@ -8,6 +8,9 @@ using Microsoft.CSharp;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
+    protected CSharpAcceptanceTestAssembly(string basePath)
+        : base(basePath) { }
+
     protected override void Compile(string code, string[] references)
     {
         var parameters = new CompilerParameters()

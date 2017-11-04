@@ -7,8 +7,9 @@ using System.Reflection;
 
 public abstract class AcceptanceTestAssembly : IDisposable
 {
-    protected AcceptanceTestAssembly()
+    protected AcceptanceTestAssembly(string basePath)
     {
+        BasePath = basePath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
         FileName = Path.Combine(BasePath, Path.GetRandomFileName() + ".dll");
         PdbName = Path.Combine(BasePath, Path.GetFileNameWithoutExtension(FileName) + ".pdb");
 
@@ -21,7 +22,7 @@ public abstract class AcceptanceTestAssembly : IDisposable
 
     public AssemblyName AssemblyName { get; protected set; }
 
-    public static string BasePath => Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+    public string BasePath { get; }
 
     public string FileName { get; protected set; }
 

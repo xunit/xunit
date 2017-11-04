@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NET452
+
+using System;
 using System.Globalization;
 using System.Threading;
 using Xunit;
@@ -38,3 +40,5 @@ public class Xunit1ExceptionUtilityTests
         }
     }
 }
+
+#endif

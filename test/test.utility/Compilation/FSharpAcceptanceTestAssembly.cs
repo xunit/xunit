@@ -9,6 +9,9 @@ using Microsoft.FSharp.Core;
 
 public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
+    protected FSharpAcceptanceTestAssembly(string basePath)
+        : base(basePath) { }
+
     protected override IEnumerable<string> GetStandardReferences()
         => Enumerable.Empty<string>();
 
@@ -23,6 +26,7 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
                 sourcePath,
                 $"--out:{FileName}",
                 $"--pdb:{PdbName}",
+                $"--lib:\"{BasePath}\"",
                 "--debug",
                 "--target:library"
             }

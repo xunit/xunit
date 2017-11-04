@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NET452
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -866,3 +868,5 @@ public class AmbiguouslyNamedTestMethods
             => Executor;
     }
 }
+
+#endif

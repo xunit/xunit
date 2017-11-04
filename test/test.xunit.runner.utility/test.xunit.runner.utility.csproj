@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <DefineConstants>$(DefineConstants);UNIT_TEST</DefineConstants>
   </PropertyGroup>
 
@@ -27,8 +27,12 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <Target Name="CopyXunitV1" AfterTargets="Build">
-    <Copy SourceFiles="$(NuGetPackageRoot)xunit\1.9.2\lib\net20\xunit.dll;$(NuGetPackageRoot)xunit.extensions\1.9.2\lib\net20\xunit.extensions.dll" DestinationFolder="$(OutputPath)" />
+  <Target Condition=" '$(TargetFramework)' == 'net452' " Name="CopyXunitV1" AfterTargets="Build">
+    <ItemGroup>
+      <XunitV1Binaries Include="$(NuGetPackageRoot)xunit\1.9.2\lib\net20\xunit.dll" />
+      <XunitV1Binaries Include="$(NuGetPackageRoot)xunit.extensions\1.9.2\lib\net20\xunit.extensions.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(XunitV1Binaries)" DestinationFolder="$(OutputPath)" />
   </Target>
 
 </Project>

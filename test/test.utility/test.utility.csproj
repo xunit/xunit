@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard1.5</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard1.5;netcoreapp2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,10 +27,6 @@
     <PackageReference Include="FSharp.Compiler.Service" Version="9.0.1" />
     <PackageReference Include="FSharp.Core" Version="4.0.0.1" />
     <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <PackageReference Include="System.Globalization" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

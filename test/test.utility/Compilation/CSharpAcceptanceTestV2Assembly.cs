@@ -1,11 +1,14 @@
 #if NET452
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 
 public class CSharpAcceptanceTestV2Assembly : CSharpAcceptanceTestAssembly
 {
-    private CSharpAcceptanceTestV2Assembly() { }
+    private CSharpAcceptanceTestV2Assembly(string basePath)
+        : base(basePath) { }
 
     protected override IEnumerable<string> GetStandardReferences()
     {
@@ -15,7 +18,8 @@ public class CSharpAcceptanceTestV2Assembly : CSharpAcceptanceTestAssembly
 
     public static CSharpAcceptanceTestV2Assembly Create(string code, params string[] references)
     {
-        var assembly = new CSharpAcceptanceTestV2Assembly();
+        var basePath = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
+        var assembly = new CSharpAcceptanceTestV2Assembly(basePath);
         assembly.Compile(code, references);
         return assembly;
     }

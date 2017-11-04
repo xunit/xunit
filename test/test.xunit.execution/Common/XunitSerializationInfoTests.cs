@@ -196,6 +196,7 @@ public class XunitSerializationInfoTests
             Assert.Equal("SomeValue", result);
         }
 
+#if NET452
         [Fact]
         public static void CannotSerializeEnumFromGAC()
         {
@@ -207,6 +208,7 @@ public class XunitSerializationInfoTests
             Assert.Equal("value", argEx.ParamName);
             Assert.StartsWith("We cannot serialize enum System.Xml.ConformanceLevel.Auto because it lives in the GAC", argEx.Message);
         }
+#endif
 
         [Fact]
         public static void CanSerializeTypeFromMscorlib()
@@ -228,6 +230,7 @@ public class XunitSerializationInfoTests
             Assert.Equal("Xunit.Serialization.XunitSerializationInfo, test.xunit.execution", result);
         }
 
+#if NET452
         [Fact]
         public static void CannotSerializeTypeFromGAC()
         {
@@ -239,6 +242,7 @@ public class XunitSerializationInfoTests
             Assert.Equal("type", argEx.ParamName);
             Assert.StartsWith("We cannot serialize type System.Xml.XmlDocument because it lives in the GAC", argEx.Message);
         }
+#endif
     }
 
     public class SerializeTriple

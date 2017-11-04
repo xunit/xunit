@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\src\xunit.core\build\xunit.core.props" />
-
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp1.0;netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
   </PropertyGroup>
@@ -18,7 +16,5 @@
     <Compile Update="PerfTests.cs" DesignTime="True" AutoGen="True" DependentUpon="PerfTests.tt" />
     <None Update="PerfTests.tt" Generator="TextTemplatingFileGenerator" LastGenOutput="PerfTests.cs" />
   </ItemGroup>
-
-  <Import Project="..\..\src\xunit.core\build\xunit.core.targets" />
 
 </Project>

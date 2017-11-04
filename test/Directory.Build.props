@@ -1,5 +1,7 @@
 <Project>
 
+  <Import Condition=" '$(MSBuildProjectName)' != 'test.utility' " Project="..\src\xunit.core\build\xunit.core.props" />
+
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
 
   <PropertyGroup>

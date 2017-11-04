@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿#if NET452
+
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -47,3 +49,5 @@ public class AsyncAcceptanceTests : AcceptanceTestV2
         }
     }
 }
+
+#endif

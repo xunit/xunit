@@ -1,5 +1,7 @@
 <Project>
 
+  <Import Condition=" '$(MSBuildProjectName)' != 'test.utility' " Project="..\src\xunit.core\build\xunit.core.targets" />
+
   <Import Condition=" '$(_Xunit_ImportTargetsFile)' != '' " Project="$(_Xunit_ImportTargetsFile)" />
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">

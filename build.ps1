@@ -23,6 +23,7 @@ Set-Location $PSScriptRoot
 
 $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
 $parallelFlags = "-parallel all -maxthreads 16"
+$nonparallelFlags = "-parallel collections -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
 $binlogOutputFolder = (join-path (Get-Location) "artifacts\build")
 $solutionFolder = Get-Location
@@ -39,6 +40,10 @@ function _xunit_x64([string]$command) {
 
 function _xunit_x86([string]$command) {
     _exec ("src\xunit.console\bin\" + $configuration + "_x86\net452\win7-x86\xunit.console.x86.exe " + $command)
+}
+
+function _xunit_netcore([string]$targetFramework, [string]$command) {
+    _exec ("dotnet src\xunit.console\bin\" + $configuration + "\" + $targetFramework + "\xunit.console.dll " + $command)
 }
 
 # Top-level targets
@@ -59,6 +64,7 @@ function __target_build() {
 
 function __target_ci() {
     $script:parallelFlags = "-parallel none -maxthreads 1"
+    $script:nonparallelFlags = "-parallel none -maxthreads 1"
 
     __target__setversion
     __target_test
@@ -90,6 +96,7 @@ function __target_test() {
     __target_build
     __target__test32
     __target__test64
+    __target__testcore
 }
 
 # Dependent targets
@@ -160,17 +167,23 @@ function __target__signpackages() {
 }
 
 function __target__test32() {
-    _build_step "Running 32-bit unit tests"
-        $v2_assemblies = Get-ChildItem -Recurse -Include test.xunit.*.dll | Where-Object { $_.FullName -match "bin\\Release\\net452" } | ForEach-Object { $_.FullName }
-        _xunit_x86 ("test\test.xunit1\bin\" + $configuration + "\net40\test.xunit1.dll " + $parallelFlags + " -serialize -xml artifacts\test\v1-x86.xml -html artifacts\test\v1-x86.html")
-        _xunit_x86 ($v2_assemblies                                                       + $parallelFlags + " -serialize -xml artifacts\test\v2-x86.xml -html artifacts\test\v2-x86.html")
+    _build_step "Running tests: 32-bit .NET 4.x"
+        $v2_assemblies = [System.String]::Join(" ", (Get-ChildItem -Recurse -Include test.xunit.*.dll | Where-Object { $_.FullName -match "bin\\" + $configuration + "\\net452" } | ForEach-Object { $_.FullName }))
+        _xunit_x86 ("test\test.xunit1\bin\" + $configuration + "\net40\test.xunit1.dll " + $parallelFlags + " -noappdomain -serialize -xml artifacts\test\v1-x86.xml -html artifacts\test\v1-x86.html")
+        _xunit_x86 ($v2_assemblies                                                 + " " + $parallelFlags + " -noappdomain -serialize -xml artifacts\test\v2-x86.xml -html artifacts\test\v2-x86.html")
 }
 
 function __target__test64() {
-    _build_step "Running 64-bit unit tests"
-        $v2_assemblies = Get-ChildItem -Recurse -Include test.xunit.*.dll | Where-Object { $_.FullName -match "bin\\Release\\net452" } | ForEach-Object { $_.FullName }
-        _xunit_x64 ("test\test.xunit1\bin\" + $configuration + "\net40\test.xunit1.dll " + $parallelFlags + " -serialize -xml artifacts\test\v1-x64.xml -html artifacts\test\v1-x64.html")
-        _xunit_x64 ($v2_assemblies                                                       + $parallelFlags + " -serialize -xml artifacts\test\v2-x64.xml -html artifacts\test\v2-x64.html")
+    _build_step "Running tests: 64-bit .NET 4.x"
+        $v2_assemblies = [System.String]::Join(" ", (Get-ChildItem -Recurse -Include test.xunit.*.dll | Where-Object { $_.FullName -match "bin\\" + $configuration + "\\net452" } | ForEach-Object { $_.FullName }))
+        #_xunit_x64 ("test\test.xunit1\bin\" + $configuration + "\net40\test.xunit1.dll " + $parallelFlags + " -noappdomain -serialize -xml artifacts\test\v1-x64.xml -html artifacts\test\v1-x64.html")
+        _xunit_x64 ($v2_assemblies                                                 + " " + $parallelFlags + " -noappdomain -serialize -xml artifacts\test\v2-x64.xml -html artifacts\test\v2-x64.html")
+}
+
+function __target__testcore() {
+    _build_step "Running tests: .NET Core 2.0"
+        $netcore_assemblies = [System.String]::Join(" ", (Get-ChildItem -Recurse -Include test.xunit.*.dll | Where-Object { $_.FullName -match "bin\\" + $configuration + "\\netcoreapp2.0" } | ForEach-Object { $_.FullName }))
+        _xunit_netcore "netcoreapp2.0" ($netcore_assemblies + " " + $nonparallelFlags + " -serialize -xml artifacts\test\v2-netcore.xml -html artifacts\test\v2-netcore.html")
 }
 
 # Dispatch

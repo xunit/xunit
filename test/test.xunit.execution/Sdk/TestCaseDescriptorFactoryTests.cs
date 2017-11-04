@@ -88,7 +88,7 @@ public class TestCaseDescriptorFactoryTests
         {
             var sourceInformationProvider = new NullSourceInformationProvider();
             var diagnosticMessageSink = new Xunit.NullMessageSink();
-            var assembly = typeof(TestCaseBulkDeserializerTests).Assembly;
+            var assembly = typeof(TestCaseDescriptorFactoryTests).Assembly;
             var assemblyInfo = Reflector.Wrap(assembly);
 
             discoverer = new XunitTestFrameworkDiscoverer(assemblyInfo, sourceInformationProvider, diagnosticMessageSink);

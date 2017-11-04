@@ -59,8 +59,10 @@ public class TestAssemblyRunnerTests
                 msg =>
                 {
                     var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(msg);
+#if NET452
                     Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.TestAssembly.Assembly.AssemblyPath);
                     Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, starting.TestAssembly.ConfigFileName);
+#endif
                     Assert.InRange(starting.StartTime, DateTime.Now.AddMinutes(-15), DateTime.Now);
                     Assert.Equal("The test framework environment", starting.TestEnvironment);
                     Assert.Equal("The test framework display name", starting.TestFrameworkDisplayName);
@@ -133,8 +135,10 @@ public class TestAssemblyRunnerTests
             await runner.RunAsync();
 
             var cleanupFailure = Assert.Single(messages.OfType<ITestAssemblyCleanupFailure>());
+#if NET452
             Assert.Equal(thisAssembly.GetLocalCodeBase(), cleanupFailure.TestAssembly.Assembly.AssemblyPath);
             Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, cleanupFailure.TestAssembly.ConfigFileName);
+#endif
             Assert.Equal(testCases, cleanupFailure.TestCases);
             Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
         }

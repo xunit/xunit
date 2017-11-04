@@ -115,7 +115,11 @@ public class DefaultRunnerReporterMessageHandlerTests
     {
         [Theory]
         [InlineData(false, "[Imp] =>   Discovering: testAssembly")]
+#if NET452
         [InlineData(true, "[Imp] =>   Discovering: testAssembly (app domain = on [no shadow copy], method display = ClassAndMethod)")]
+#else
+        [InlineData(true, "[Imp] =>   Discovering: testAssembly (method display = ClassAndMethod)")]
+#endif
         public static void LogsMessage(bool diagnosticMessages, string expectedResult)
         {
             var message = Mocks.TestAssemblyDiscoveryStarting(diagnosticMessages: diagnosticMessages, appDomain: true);

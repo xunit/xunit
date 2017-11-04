@@ -21,15 +21,6 @@ public class CommandLineTests
     public class Filename
     {
         [Fact]
-        public static void MissingAssemblyFileNameThrows()
-        {
-            var exception = Record.Exception(() => TestableCommandLine.Parse(new[] { "-teamcity" }));
-
-            Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("must specify at least one assembly", exception.Message);
-        }
-
-        [Fact]
         public static void AssemblyFileNameNotPresentThrows()
         {
             var arguments = new string[1];

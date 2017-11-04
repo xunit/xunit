@@ -61,6 +61,7 @@ public class ConfigReaderTests
         }
     }
 
+#if NET452
     public class Load_WithXml
     {
         [Fact]
@@ -107,4 +108,5 @@ public class ConfigReaderTests
             Assert.True(result.PreEnumerateTheoriesOrDefault);
         }
     }
+#endif
 }

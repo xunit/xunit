@@ -38,13 +38,15 @@ public class SerializationHelperTests
             Assert.Same(type, deserializedType);
         }
 
+#if NET452
         [Fact]
-        public static void CannotRoundTypeTypesFromTheGAC()
+        public static void CannotRoundTripTypesFromTheGAC()
         {
             var ex = Assert.Throws<ArgumentException>("type", () => SerializationHelper.GetTypeNameForSerialization(typeof(Uri)));
 
             Assert.StartsWith("We cannot serialize type System.Uri because it lives in the GAC", ex.Message);
         }
+#endif
     }
 
     public class IsSerializable
@@ -54,7 +56,9 @@ public class SerializationHelperTests
         {
             Assert.True(SerializationHelper.IsSerializable(typeof(string)));               // Can serialization types from mscorlib
             Assert.True(SerializationHelper.IsSerializable(typeof(SerializationHelper)));  // Can serialize types from local libraries
+#if NET452
             Assert.False(SerializationHelper.IsSerializable(typeof(Uri)));                 // Can't serialize types from the GAC
+#endif
         }
     }
 }
