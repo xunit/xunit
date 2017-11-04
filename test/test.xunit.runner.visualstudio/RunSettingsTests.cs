@@ -1,16 +1,16 @@
 ﻿using Xunit;
 using Xunit.Runner.VisualStudio;
 
-public class RunSettingsHelperTests
+public class RunSettingsTests
 {
-    void AssertDefaultValues()
+    void AssertDefaultValues(RunSettings runSettings)
     {
-        Assert.False(RunSettingsHelper.DisableAppDomain);
-        Assert.False(RunSettingsHelper.DisableParallelization);
-        Assert.False(RunSettingsHelper.NoAutoReporters);
-        Assert.True(RunSettingsHelper.DesignMode);
-        Assert.True(RunSettingsHelper.CollectSourceInformation);
-        Assert.Null(RunSettingsHelper.TargetFrameworkVersion);
+        Assert.False(runSettings.DisableAppDomain);
+        Assert.False(runSettings.DisableParallelization);
+        Assert.False(runSettings.NoAutoReporters);
+        Assert.True(runSettings.DesignMode);
+        Assert.True(runSettings.CollectSourceInformation);
+        Assert.Null(runSettings.TargetFrameworkVersion);
     }
 
     [Fact]
@@ -20,9 +20,9 @@ public class RunSettingsHelperTests
             @"<?xml version=""1.0"" encoding=""utf-8""?>
             <RunSettings";
 
-        RunSettingsHelper.ReadRunSettings(settingsXml);
+        var runSettings = RunSettings.Parse(settingsXml);
 
-        AssertDefaultValues();
+        AssertDefaultValues(runSettings);
     }
 
     [Fact]
@@ -40,9 +40,9 @@ public class RunSettingsHelperTests
                     </RunConfiguration>
                 </RunSettings>";
 
-        RunSettingsHelper.ReadRunSettings(settingsXml);
+        var runSettings = RunSettings.Parse(settingsXml);
 
-        AssertDefaultValues();
+        AssertDefaultValues(runSettings);
     }
 
     [Fact]
@@ -59,12 +59,12 @@ public class RunSettingsHelperTests
                     </RunConfiguration>
                 </RunSettings>";
 
-        RunSettingsHelper.ReadRunSettings(settingsXml);
+        var runSettings = RunSettings.Parse(settingsXml);
 
         // Use element value, not attribute value
-        Assert.True(RunSettingsHelper.DisableAppDomain);
+        Assert.True(runSettings.DisableAppDomain);
         // Ignore value that isn't at the right level
-        Assert.False(RunSettingsHelper.DisableParallelization);
+        Assert.False(runSettings.DisableParallelization);
     }
 
     [Fact]
@@ -79,10 +79,10 @@ public class RunSettingsHelperTests
                     </RunConfiguration>
                 </RunSettings>";
 
-        RunSettingsHelper.ReadRunSettings(settingsXml);
+        var runSettings = RunSettings.Parse(settingsXml);
 
         // Allow value to be read even after unexpected element body
-        Assert.True(RunSettingsHelper.DisableParallelization);
+        Assert.True(runSettings.DisableParallelization);
     }
 
     [Theory]
@@ -102,13 +102,13 @@ public class RunSettingsHelperTests
                     </RunConfiguration>
                 </RunSettings>";
 
-        RunSettingsHelper.ReadRunSettings(settingsXml);
+        var runSettings = RunSettings.Parse(settingsXml);
 
-        Assert.Equal(testValue, RunSettingsHelper.CollectSourceInformation);
-        Assert.Equal(testValue, RunSettingsHelper.DesignMode);
-        Assert.Equal(testValue, RunSettingsHelper.DisableAppDomain);
-        Assert.Equal(testValue, RunSettingsHelper.DisableParallelization);
-        Assert.Equal(testValue, RunSettingsHelper.NoAutoReporters);
+        Assert.Equal(testValue, runSettings.CollectSourceInformation);
+        Assert.Equal(testValue, runSettings.DesignMode);
+        Assert.Equal(testValue, runSettings.DisableAppDomain);
+        Assert.Equal(testValue, runSettings.DisableParallelization);
+        Assert.Equal(testValue, runSettings.NoAutoReporters);
     }
 
     [Fact]
@@ -128,11 +128,11 @@ public class RunSettingsHelperTests
                         </RunConfiguration>
                 </RunSettings>";
 
-        RunSettingsHelper.ReadRunSettings(settingsXml);
+        var runSettings = RunSettings.Parse(settingsXml);
 
-        Assert.True(RunSettingsHelper.DisableAppDomain);
-        Assert.True(RunSettingsHelper.DisableParallelization);
-        Assert.True(RunSettingsHelper.NoAutoReporters);
-        Assert.Equal("FrameworkCore10", RunSettingsHelper.TargetFrameworkVersion);
+        Assert.True(runSettings.DisableAppDomain);
+        Assert.True(runSettings.DisableParallelization);
+        Assert.True(runSettings.NoAutoReporters);
+        Assert.Equal("FrameworkCore10", runSettings.TargetFrameworkVersion);
     }
 }

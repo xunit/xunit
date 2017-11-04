@@ -37,7 +37,8 @@ public class RunnerReporterTests
     [Fact]
     public void GetRunnerReporter()
     {
-        var runnerReporter = VsTestRunner.GetRunnerReporter(new[] { Assembly.GetExecutingAssembly().Location });
+        var settings = new RunSettings { NoAutoReporters = false };
+        var runnerReporter = VsTestRunner.GetRunnerReporter(settings, new[] { Assembly.GetExecutingAssembly().Location });
 
         Assert.Equal(typeof(TestRunnerReporter).AssemblyQualifiedName, runnerReporter.GetType().AssemblyQualifiedName);
     }

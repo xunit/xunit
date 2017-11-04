@@ -1,51 +1,11 @@
-﻿namespace Xunit.Runner.VisualStudio
+﻿using System;
+
+namespace Xunit.Runner.VisualStudio
 {
-    public static class RunSettingsHelper
+    public class RunSettings
     {
-        /// <summary>
-        /// Gets a value which indicates whether we should attempt to get source line information.
-        /// </summary>
-        public static bool CollectSourceInformation { get; private set; }
-
-        /// <summary>
-        /// Gets a value which indicates whether we're running in design mode inside the IDE.
-        /// </summary>
-        public static bool DesignMode { get; private set; }
-
-        /// <summary>
-        /// Gets a value which indicates if we should disable app domains.
-        /// </summary>
-        public static bool DisableAppDomain { get; private set; }
-
-        /// <summary>
-        /// Gets a value which indicates if we should disable parallelization.
-        /// </summary>
-        public static bool DisableParallelization { get; private set; }
-
-        public static bool InternalDiagnostics { get; private set; }
-
-        /// <summary>
-        /// Gets a value which indiciates if we should disable automatic reporters.
-        /// </summary>
-        public static bool NoAutoReporters { get; private set; }
-
-        /// <summary>
-        /// Gets a value which indicates which reporter we should use.
-        /// </summary>
-        public static string ReporterSwitch { get; private set; }
-
-        /// <summary>
-        /// Gets a value which indicates the target framework the tests are being run in.
-        /// </summary>
-        public static string TargetFrameworkVersion { get; private set; }
-
-        /// <summary>
-        /// Reads settings for the current run from run settings xml
-        /// </summary>
-        /// <param name="runSettingsXml">RunSettingsXml of the run</param>
-        public static void ReadRunSettings(string runSettingsXml)
+        public RunSettings()
         {
-            // Reset to defaults
             CollectSourceInformation = true;
             DesignMode = true;
             DisableAppDomain = false;
@@ -54,6 +14,52 @@
             NoAutoReporters = false;
             ReporterSwitch = null;
             TargetFrameworkVersion = null;
+        }
+
+        /// <summary>
+        /// Gets a value which indicates whether we should attempt to get source line information.
+        /// </summary>
+        public bool CollectSourceInformation { get; set; }
+
+        /// <summary>
+        /// Gets a value which indicates whether we're running in design mode inside the IDE.
+        /// </summary>
+        public bool DesignMode { get; set; }
+
+        /// <summary>
+        /// Gets a value which indicates if we should disable app domains.
+        /// </summary>
+        public bool DisableAppDomain { get; set; }
+
+        /// <summary>
+        /// Gets a value which indicates if we should disable parallelization.
+        /// </summary>
+        public bool DisableParallelization { get; set; }
+
+        public bool InternalDiagnostics { get; set; }
+
+        /// <summary>
+        /// Gets a value which indiciates if we should disable automatic reporters.
+        /// </summary>
+        public bool NoAutoReporters { get; set; }
+
+        /// <summary>
+        /// Gets a value which indicates which reporter we should use.
+        /// </summary>
+        public string ReporterSwitch { get; set; }
+
+        /// <summary>
+        /// Gets a value which indicates the target framework the tests are being run in.
+        /// </summary>
+        public string TargetFrameworkVersion { get; set; }
+
+        /// <summary>
+        /// Reads settings for the current run from run settings xml
+        /// </summary>
+        /// <param name="runSettingsXml">RunSettingsXml of the run</param>
+        public static RunSettings Parse(string runSettingsXml)
+        {
+            var result = new RunSettings();
 
 #if !WINDOWS_UAP
             if (!string.IsNullOrEmpty(runSettingsXml))
@@ -65,34 +71,46 @@
                     {
                         var disableAppDomainString = element.Element("DisableAppDomain")?.Value;
                         if (bool.TryParse(disableAppDomainString, out bool disableAppDomain))
-                            DisableAppDomain = disableAppDomain;
+                            result.DisableAppDomain = disableAppDomain;
 
                         var disableParallelizationString = element.Element("DisableParallelization")?.Value;
                         if (bool.TryParse(disableParallelizationString, out bool disableParallelization))
-                            DisableParallelization = disableParallelization;
+                            result.DisableParallelization = disableParallelization;
 
                         var designModeString = element.Element("DesignMode")?.Value;
                         if (bool.TryParse(designModeString, out bool designMode))
-                            DesignMode = designMode;
+                            result.DesignMode = designMode;
 
                         var internalDiagnosticsString = element.Element("InternalDiagnostics")?.Value;
                         if (bool.TryParse(internalDiagnosticsString, out bool internalDiagnostics))
-                            InternalDiagnostics = internalDiagnostics;
+                            result.InternalDiagnostics = internalDiagnostics;
 
                         var noAutoReportersString = element.Element("NoAutoReporters")?.Value;
                         if (bool.TryParse(noAutoReportersString, out bool noAutoReporters))
-                            NoAutoReporters = noAutoReporters;
+                            result.NoAutoReporters = noAutoReporters;
 
                         var collectSourceInformationString = element.Element("CollectSourceInformation")?.Value;
                         if (bool.TryParse(collectSourceInformationString, out bool collectSourceInformation))
-                            CollectSourceInformation = collectSourceInformation;
+                            result.CollectSourceInformation = collectSourceInformation;
 
-                        ReporterSwitch = element.Element("ReporterSwitch")?.Value;
-                        TargetFrameworkVersion = element.Element("TargetFrameworkVersion")?.Value;
+                        result.ReporterSwitch = element.Element("ReporterSwitch")?.Value;
+                        result.TargetFrameworkVersion = element.Element("TargetFrameworkVersion")?.Value;
                     }
                 }
                 catch { }
             }
+#endif
+
+            return result;
+        }
+
+        public bool IsMatchingTargetFramework()
+        {
+#if NETCOREAPP1_0
+            return TargetFrameworkVersion.StartsWith(".NETCore", StringComparison.OrdinalIgnoreCase) ||
+                   TargetFrameworkVersion.StartsWith("FrameworkCore", StringComparison.OrdinalIgnoreCase);
+#else
+            return true;
 #endif
         }
     }

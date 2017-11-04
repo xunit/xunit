@@ -77,8 +77,8 @@ namespace Xunit.Runner.VisualStudio
             var stopwatch = Stopwatch.StartNew();
             var loggerHelper = new LoggerHelper(logger, stopwatch);
 
-            RunSettingsHelper.ReadRunSettings(discoveryContext?.RunSettings?.SettingsXml);
-            if (!ValidateRuntimeFramework())
+            var runSettings = RunSettings.Parse(discoveryContext?.RunSettings?.SettingsXml);
+            if (!runSettings.IsMatchingTargetFramework())
                 return;
 
             var testPlatformContext = new TestPlatformContext
@@ -86,16 +86,15 @@ namespace Xunit.Runner.VisualStudio
                 // Discovery from command line (non designmode) never requires source information
                 // since there is no session or command line runner doesn't send back VSTestCase objects
                 // back to adapter.
-                RequireSourceInformation = RunSettingsHelper.CollectSourceInformation,
+                RequireSourceInformation = runSettings.CollectSourceInformation,
 
                 // Command line runner could request for Discovery in case of running specific tests. We need
                 // the XunitTestCase serialized in this scenario.
                 RequireXunitTestProperty = true
             };
 
-            DiscoverTests(sources,
-                loggerHelper,
-                testPlatformContext,
+            DiscoverTests(
+                sources, loggerHelper, testPlatformContext, runSettings,
                 (source, discoverer, discoveryOptions) => new VsDiscoverySink(source, discoverer, loggerHelper, discoverySink, discoveryOptions, testPlatformContext, () => cancelled)
             );
         }
@@ -107,16 +106,16 @@ namespace Xunit.Runner.VisualStudio
             var stopwatch = Stopwatch.StartNew();
             var logger = new LoggerHelper(frameworkHandle, stopwatch);
 
-            RunSettingsHelper.ReadRunSettings(runContext?.RunSettings?.SettingsXml);
-            if (!ValidateRuntimeFramework())
+            var runSettings = RunSettings.Parse(runContext?.RunSettings?.SettingsXml);
+            if (!runSettings.IsMatchingTargetFramework())
                 return;
 
             // In the context of Run All tests, commandline runner doesn't require source information or
             // serialized xunit test case property
             var testPlatformContext = new TestPlatformContext
             {
-                RequireSourceInformation = RunSettingsHelper.CollectSourceInformation,
-                RequireXunitTestProperty = RunSettingsHelper.DesignMode
+                RequireSourceInformation = runSettings.CollectSourceInformation,
+                RequireXunitTestProperty = runSettings.DesignMode
             };
 
             // In this case, we need to go thru the files manually
@@ -137,8 +136,9 @@ namespace Xunit.Runner.VisualStudio
                                        .Where(file => !platformAssemblies.Contains(Path.GetFileName(file))));
             }
 
-            RunTests(runContext, frameworkHandle, logger, testPlatformContext, () =>
-                sources.Select(source =>
+            RunTests(
+                runContext, frameworkHandle, logger, testPlatformContext, runSettings,
+                () => sources.Select(source =>
                 {
                     var assemblyFileName = GetAssemblyFileName(source);
                     return new AssemblyRunInfo
@@ -147,7 +147,8 @@ namespace Xunit.Runner.VisualStudio
                         Configuration = LoadConfiguration(assemblyFileName),
                         TestCases = null // PERF: delay the discovery until we actually require it in RunTestsInAssembly
                     };
-                }).ToList());
+                }).ToList()
+            );
         }
 
         void ITestExecutor.RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
@@ -157,19 +158,18 @@ namespace Xunit.Runner.VisualStudio
 
             var stopwatch = Stopwatch.StartNew();
             var logger = new LoggerHelper(frameworkHandle, stopwatch);
-
-            RunSettingsHelper.ReadRunSettings(runContext?.RunSettings?.SettingsXml);
+            var runSettings = RunSettings.Parse(runContext?.RunSettings?.SettingsXml);
 
             // In the context of Run Specific tests, commandline runner doesn't require source information or
             // serialized xunit test case property
             var testPlatformContext = new TestPlatformContext
             {
-                RequireSourceInformation = RunSettingsHelper.CollectSourceInformation,
-                RequireXunitTestProperty = RunSettingsHelper.DesignMode
+                RequireSourceInformation = runSettings.CollectSourceInformation,
+                RequireXunitTestProperty = runSettings.DesignMode
             };
 
             RunTests(
-                runContext, frameworkHandle, logger, testPlatformContext,
+                runContext, frameworkHandle, logger, testPlatformContext, runSettings,
                 () => tests.GroupBy(testCase => testCase.Source)
                            .Select(group => new AssemblyRunInfo { AssemblyFileName = group.Key, Configuration = LoadConfiguration(group.Key), TestCases = group.ToList() })
                            .ToList()
@@ -184,6 +184,7 @@ namespace Xunit.Runner.VisualStudio
         void DiscoverTests<TVisitor>(IEnumerable<string> sources,
                                      LoggerHelper logger,
                                      TestPlatformContext testPlatformContext,
+                                     RunSettings runSettings,
                                      Func<string, ITestFrameworkDiscoverer, ITestFrameworkDiscoveryOptions, TVisitor> visitorFactory,
                                      Action<string, ITestFrameworkDiscoverer, ITestFrameworkDiscoveryOptions, TVisitor> visitComplete = null)
             where TVisitor : IVsDiscoverySink, IDisposable
@@ -192,7 +193,7 @@ namespace Xunit.Runner.VisualStudio
             {
                 RemotingUtility.CleanUpRegisteredChannels();
 
-                var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, RunSettingsHelper.InternalDiagnostics);
+                var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, runSettings.InternalDiagnostics);
 
                 using (AssemblyHelper.SubscribeResolveForDirectory(MessageSinkAdapter.Wrap(internalDiagnosticsMessageSink)))
                 {
@@ -205,7 +206,7 @@ namespace Xunit.Runner.VisualStudio
                         var diagnosticSink = DiagnosticMessageSink.ForDiagnostics(logger, fileName, configuration.DiagnosticMessagesOrDefault);
 
                         using (var framework = new XunitFrontController(AppDomainDefaultBehavior, assemblyFileName, shadowCopy: shadowCopy, diagnosticMessageSink: MessageSinkAdapter.Wrap(diagnosticSink)))
-                            if (!DiscoverTestsInSource(framework, logger, testPlatformContext, visitorFactory, visitComplete, assemblyFileName, shadowCopy, configuration))
+                            if (!DiscoverTestsInSource(framework, logger, testPlatformContext, runSettings, visitorFactory, visitComplete, assemblyFileName, shadowCopy, configuration))
                                 break;
                     }
                 }
@@ -219,6 +220,7 @@ namespace Xunit.Runner.VisualStudio
         private bool DiscoverTestsInSource<TVisitor>(XunitFrontController framework,
                                                      LoggerHelper logger,
                                                      TestPlatformContext testPlatformContext,
+                                                     RunSettings runSettings,
                                                      Func<string, ITestFrameworkDiscoverer, ITestFrameworkDiscoveryOptions, TVisitor> visitorFactory,
                                                      Action<string, ITestFrameworkDiscoverer, ITestFrameworkDiscoveryOptions, TVisitor> visitComplete,
                                                      string assemblyFileName,
@@ -233,7 +235,7 @@ namespace Xunit.Runner.VisualStudio
 
             try
             {
-                var reporterMessageHandler = GetRunnerReporter(new[] { assemblyFileName }).CreateMessageHandler(new VisualStudioRunnerLogger(logger));
+                var reporterMessageHandler = GetRunnerReporter(runSettings, new[] { assemblyFileName }).CreateMessageHandler(new VisualStudioRunnerLogger(logger));
                 var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFileName };
                 fileName = Path.GetFileNameWithoutExtension(assemblyFileName);
 
@@ -377,6 +379,7 @@ namespace Xunit.Runner.VisualStudio
                       IFrameworkHandle frameworkHandle,
                       LoggerHelper logger,
                       TestPlatformContext testPlatformContext,
+                      RunSettings runSettings,
                       Func<List<AssemblyRunInfo>> getRunInfos)
         {
             Guard.ArgumentNotNull("runContext", runContext);
@@ -389,21 +392,21 @@ namespace Xunit.Runner.VisualStudio
                 cancelled = false;
 
                 var runInfos = getRunInfos();
-                var parallelizeAssemblies = !RunSettingsHelper.DisableParallelization && runInfos.All(runInfo => runInfo.Configuration.ParallelizeAssemblyOrDefault);
-                var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(GetRunnerReporter(runInfos.Select(ari => ari.AssemblyFileName))
+                var parallelizeAssemblies = !runSettings.DisableParallelization && runInfos.All(runInfo => runInfo.Configuration.ParallelizeAssemblyOrDefault);
+                var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(GetRunnerReporter(runSettings, runInfos.Select(ari => ari.AssemblyFileName))
                                                                         .CreateMessageHandler(new VisualStudioRunnerLogger(logger)));
-                var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, RunSettingsHelper.InternalDiagnostics);
+                var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, runSettings.InternalDiagnostics);
 
                 using (AssemblyHelper.SubscribeResolveForDirectory(MessageSinkAdapter.Wrap(internalDiagnosticsMessageSink)))
                 {
                     if (parallelizeAssemblies)
                         runInfos
-                            .Select(runInfo => RunTestsInAssemblyAsync(runContext, frameworkHandle, logger, testPlatformContext, reporterMessageHandler, runInfo))
+                            .Select(runInfo => RunTestsInAssemblyAsync(runContext, frameworkHandle, logger, testPlatformContext, runSettings, reporterMessageHandler, runInfo))
                             .ToList()
                             .ForEach(@event => @event.WaitOne());
                     else
                         runInfos
-                            .ForEach(runInfo => RunTestsInAssembly(runContext, frameworkHandle, logger, testPlatformContext, reporterMessageHandler, runInfo));
+                            .ForEach(runInfo => RunTestsInAssembly(runContext, frameworkHandle, logger, testPlatformContext, runSettings, reporterMessageHandler, runInfo));
                 }
             }
             catch (Exception ex)
@@ -416,6 +419,7 @@ namespace Xunit.Runner.VisualStudio
                                 IFrameworkHandle frameworkHandle,
                                 LoggerHelper logger,
                                 TestPlatformContext testPlatformContext,
+                                RunSettings runSettings,
                                 IMessageSinkWithTypes reporterMessageHandler,
                                 AssemblyRunInfo runInfo)
         {
@@ -435,7 +439,7 @@ namespace Xunit.Runner.VisualStudio
                 var appDomain = assembly.Configuration.AppDomain ?? AppDomainDefaultBehavior;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-                if (RunSettingsHelper.DisableAppDomain)
+                if (runSettings.DisableAppDomain)
                     appDomain = AppDomainSupport.Denied;
 
 #if WINDOWS_UAP
@@ -453,7 +457,7 @@ namespace Xunit.Runner.VisualStudio
                     {
                         // Discover tests
                         AssemblyDiscoveredInfo assemblyDiscoveredInfo = new AssemblyDiscoveredInfo();
-                        DiscoverTestsInSource(controller, logger, testPlatformContext,
+                        DiscoverTestsInSource(controller, logger, testPlatformContext, runSettings,
                             (source, discoverer, discoveryOptions) => new VsExecutionDiscoverySink(() => cancelled),
                             (source, discoverer, discoveryOptions, visitor) =>
                             {
@@ -550,7 +554,7 @@ namespace Xunit.Runner.VisualStudio
 
                     // Execute tests
                     var executionOptions = TestFrameworkOptions.ForExecution(runInfo.Configuration);
-                    if (RunSettingsHelper.DisableParallelization)
+                    if (runSettings.DisableParallelization)
                     {
                         executionOptions.SetSynchronousMessageReporting(true);
                         executionOptions.SetDisableParallelization(true);
@@ -581,6 +585,7 @@ namespace Xunit.Runner.VisualStudio
                                                  IFrameworkHandle frameworkHandle,
                                                  LoggerHelper logger,
                                                  TestPlatformContext testPlatformContext,
+                                                 RunSettings runSettings,
                                                  IMessageSinkWithTypes reporterMessageHandler,
                                                  AssemblyRunInfo runInfo)
         {
@@ -589,7 +594,7 @@ namespace Xunit.Runner.VisualStudio
             {
                 try
                 {
-                    RunTestsInAssembly(runContext, frameworkHandle, logger, testPlatformContext, reporterMessageHandler, runInfo);
+                    RunTestsInAssembly(runContext, frameworkHandle, logger, testPlatformContext, runSettings, reporterMessageHandler, runInfo);
                 }
                 finally
                 {
@@ -606,12 +611,12 @@ namespace Xunit.Runner.VisualStudio
             return @event;
         }
 
-        public static IRunnerReporter GetRunnerReporter(IEnumerable<string> assemblyFileNames)
+        public static IRunnerReporter GetRunnerReporter(RunSettings runSettings, IEnumerable<string> assemblyFileNames)
         {
             var reporter = default(IRunnerReporter);
             try
             {
-                if (!RunSettingsHelper.NoAutoReporters)
+                if (!runSettings.NoAutoReporters)
                     reporter = GetAvailableRunnerReporters(assemblyFileNames).FirstOrDefault(r => r.IsEnvironmentallyEnabled);
             }
             catch { }
@@ -729,22 +734,6 @@ namespace Xunit.Runner.VisualStudio
             }
 
             return result;
-#endif
-        }
-
-        /// <summary>
-        /// Validates the runtime target framework from test platform with the current adapter's target.
-        /// </summary>
-        /// <returns>True if the target frameworks match.</returns>
-        static bool ValidateRuntimeFramework()
-        {
-#if NETCOREAPP1_0
-            var targetFrameworkVersion = RunSettingsHelper.TargetFrameworkVersion;
-
-            return targetFrameworkVersion.StartsWith(".NETCore", StringComparison.OrdinalIgnoreCase) ||
-                   targetFrameworkVersion.StartsWith("FrameworkCore", StringComparison.OrdinalIgnoreCase);
-#else
-            return true;
 #endif
         }
 
