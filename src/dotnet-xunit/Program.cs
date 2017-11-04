@@ -259,9 +259,9 @@ class Program
         // TODO: Can't dynamically get the transform factory list, hardcoded for now...
         Console.WriteLine("Result formats: (optional, choose one or more)");
         Console.WriteLine("  -xml <filename>        : output results to xUnit.net v2 XML file");
-        Console.WriteLine("  -xmlv1 <filename>      : [net4x only] output results to xUnit.net v1 XML file");
-        Console.WriteLine("  -nunit <filename>      : [net4x only] output results to NUnit v2.5 XML file");
-        Console.WriteLine("  -html <filename>       : [net4x only] output results to HTML file");
+        Console.WriteLine("  -xmlv1 <filename>      : output results to xUnit.net v1 XML file");
+        Console.WriteLine("  -nunit <filename>      : output results to NUnit v2.5 XML file");
+        Console.WriteLine("  -html <filename>       : output results to HTML file");
     }
 
     int RunTargetFramework(string testProject, string targetFramework, bool amendOutputFileNames)
