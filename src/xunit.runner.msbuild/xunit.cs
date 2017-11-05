@@ -15,7 +15,6 @@ namespace Xunit.Runner.MSBuild
 {
     public class xunit : MSBuildTask, ICancelableTask
     {
-        bool? appDomains;
         volatile bool cancel;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
         XunitFilters filters;
@@ -27,7 +26,7 @@ namespace Xunit.Runner.MSBuild
         bool? shadowCopy;
         bool? stopOnFail;
 
-        public bool AppDomains { set { appDomains = value; } }
+        public string AppDomains { get; set; }
 
         [Required]
         public ITaskItem[] Assemblies { get; set; }
@@ -110,6 +109,31 @@ namespace Xunit.Runner.MSBuild
             if (NeedsXml)
                 assembliesElement = new XElement("assemblies");
 
+            var appDomains = default(AppDomainSupport?);
+            switch (AppDomains?.ToLowerInvariant())    // Using ToLowerInvariant() here for back compat for when this was a boolean
+            {
+                case null:
+                    break;
+
+                case "ifavailable":
+                    appDomains = AppDomainSupport.IfAvailable;
+                    break;
+
+                case "true":
+                case "required":
+                    appDomains = AppDomainSupport.Required;
+                    break;
+
+                case "false":
+                case "denied":
+                    appDomains = AppDomainSupport.Denied;
+                    break;
+
+                default:
+                    Log.LogError("AppDomains value '{0}' is invalid: must be 'ifavailable', 'required', or 'denied'", AppDomains);
+                    return false;
+            }
+
             switch (MaxParallelThreads)
             {
                 case null:
@@ -172,7 +196,7 @@ namespace Xunit.Runner.MSBuild
 
                 if (parallelizeAssemblies.GetValueOrDefault())
                 {
-                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly)));
+                    var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains)));
                     var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                     foreach (var assemblyElement in results.Where(result => result != null))
                         assembliesElement.Add(assemblyElement);
@@ -181,7 +205,7 @@ namespace Xunit.Runner.MSBuild
                 {
                     foreach (var assembly in project.Assemblies)
                     {
-                        var assemblyElement = ExecuteAssembly(assembly);
+                        var assemblyElement = ExecuteAssembly(assembly, appDomains);
                         if (assemblyElement != null)
                             assembliesElement.Add(assemblyElement);
                     }
@@ -218,7 +242,7 @@ namespace Xunit.Runner.MSBuild
             return ExitCode == 0 || (ExitCode == 1 && IgnoreFailures);
         }
 
-        protected virtual XElement ExecuteAssembly(XunitProjectAssembly assembly)
+        protected virtual XElement ExecuteAssembly(XunitProjectAssembly assembly, AppDomainSupport? appDomains)
         {
             if (cancel)
                 return null;
@@ -233,7 +257,7 @@ namespace Xunit.Runner.MSBuild
                 assembly.Configuration.InternalDiagnosticMessages |= InternalDiagnosticMessages;
 
                 if (appDomains.HasValue)
-                    assembly.Configuration.AppDomain = appDomains.GetValueOrDefault() ? AppDomainSupport.IfAvailable : AppDomainSupport.Denied;
+                    assembly.Configuration.AppDomain = appDomains;
 
                 // Setup discovery and execution options with command-line overrides
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
