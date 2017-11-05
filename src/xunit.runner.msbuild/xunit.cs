@@ -38,7 +38,7 @@ namespace Xunit.Runner.MSBuild
         [Output]
         public int ExitCode { get; protected set; }
 
-        public bool FailSkips { get; protected set; }
+        public bool FailSkips { get; set; }
 
         protected XunitFilters Filters
         {
