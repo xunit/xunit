@@ -27,6 +27,7 @@ namespace Xunit.Runner.VisualStudio
     [ExtensionUri(Constants.ExecutorUri)]
     public class VsTestRunner : ITestDiscoverer, ITestExecutor
     {
+        static IRunnerReporter[] NoReporters = new IRunnerReporter[0];
         public static TestProperty SerializedTestCaseProperty = GetTestProperty();
 
 #if WINDOWS_UAP || NETCOREAPP1_0
@@ -235,7 +236,7 @@ namespace Xunit.Runner.VisualStudio
 
             try
             {
-                var reporterMessageHandler = GetRunnerReporter(runSettings, new[] { assemblyFileName }).CreateMessageHandler(new VisualStudioRunnerLogger(logger));
+                var reporterMessageHandler = GetRunnerReporter(logger, runSettings, new[] { assemblyFileName }).CreateMessageHandler(new VisualStudioRunnerLogger(logger));
                 var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFileName };
                 fileName = Path.GetFileNameWithoutExtension(assemblyFileName);
 
@@ -393,7 +394,7 @@ namespace Xunit.Runner.VisualStudio
 
                 var runInfos = getRunInfos();
                 var parallelizeAssemblies = !runSettings.DisableParallelization && runInfos.All(runInfo => runInfo.Configuration.ParallelizeAssemblyOrDefault);
-                var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(GetRunnerReporter(runSettings, runInfos.Select(ari => ari.AssemblyFileName))
+                var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(GetRunnerReporter(logger, runSettings, runInfos.Select(ari => ari.AssemblyFileName))
                                                                         .CreateMessageHandler(new VisualStudioRunnerLogger(logger)));
                 var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, runSettings.InternalDiagnostics);
 
@@ -611,24 +612,33 @@ namespace Xunit.Runner.VisualStudio
             return @event;
         }
 
-        public static IRunnerReporter GetRunnerReporter(RunSettings runSettings, IEnumerable<string> assemblyFileNames)
+        public static IRunnerReporter GetRunnerReporter(LoggerHelper logger, RunSettings runSettings, IEnumerable<string> assemblyFileNames)
         {
             var reporter = default(IRunnerReporter);
+            var availableReporters = new Lazy<IReadOnlyList<IRunnerReporter>>(() => GetAvailableRunnerReporters(assemblyFileNames));
+
             try
             {
-                if (!runSettings.NoAutoReporters)
-                    reporter = GetAvailableRunnerReporters(assemblyFileNames).FirstOrDefault(r => r.IsEnvironmentallyEnabled);
+                if (!string.IsNullOrEmpty(runSettings.ReporterSwitch))
+                {
+                    reporter = availableReporters.Value.FirstOrDefault(r => string.Equals(r.RunnerSwitch, runSettings.ReporterSwitch, StringComparison.OrdinalIgnoreCase));
+                    if (reporter is default)
+                        logger.LogWarning("Could not find requested reporter '{0}'", runSettings.ReporterSwitch);
+                }
+
+                if (reporter is default && !runSettings.NoAutoReporters)
+                    reporter = availableReporters.Value.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
             }
             catch { }
 
             return reporter ?? new DefaultRunnerReporterWithTypes();
         }
 
-        static IEnumerable<IRunnerReporter> GetAvailableRunnerReporters(IEnumerable<string> sources)
+        static IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters(IEnumerable<string> sources)
         {
 #if WINDOWS_UAP
             // No reporters on UWP
-            return Enumerable.Empty<IRunnerReporter>();
+            return NoReporters;
 #elif NETCOREAPP1_0
             // Combine all input libs and merge their contexts to find the potential reporters
             var result = new List<IRunnerReporter>();

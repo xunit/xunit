@@ -10,6 +10,7 @@ public class RunSettingsTests
         Assert.False(runSettings.NoAutoReporters);
         Assert.True(runSettings.DesignMode);
         Assert.True(runSettings.CollectSourceInformation);
+        Assert.Null(runSettings.ReporterSwitch);
         Assert.Null(runSettings.TargetFrameworkVersion);
     }
 
@@ -125,6 +126,7 @@ public class RunSettingsTests
                             <DisableParallelization>true</DisableParallelization>
                             <MaxCpuCount>4</MaxCpuCount>
                             <NoAutoReporters>true</NoAutoReporters>
+                            <ReporterSwitch>foo</ReporterSwitch>
                         </RunConfiguration>
                 </RunSettings>";
 
@@ -134,5 +136,6 @@ public class RunSettingsTests
         Assert.True(runSettings.DisableParallelization);
         Assert.True(runSettings.NoAutoReporters);
         Assert.Equal("FrameworkCore10", runSettings.TargetFrameworkVersion);
+        Assert.Equal("foo", runSettings.ReporterSwitch);
     }
 }
