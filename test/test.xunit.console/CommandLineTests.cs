@@ -228,6 +228,46 @@ public class CommandLineTests
         }
     }
 
+    public class AppDomainsOption
+    {
+        [Fact]
+        public static void DefaultValueIsNull()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll");
+
+            Assert.Null(commandLine.AppDomains);
+        }
+
+        [Fact]
+        public static void MissingValue()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-appdomains"));
+
+            Assert.Equal("missing argument for -appdomains", ex.Message);
+        }
+
+        [Fact]
+        public static void InvalidValue()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-appdomains", "foo"));
+
+            Assert.Equal("incorrect argument value for -appdomains (must be 'ifavailable', 'required', or 'denied')", ex.Message);
+        }
+
+        [Theory]
+        [InlineData("ifavailable", AppDomainSupport.IfAvailable)]
+#if NET452
+        [InlineData("required", AppDomainSupport.Required)]
+#endif
+        [InlineData("denied", AppDomainSupport.Denied)]
+        public static void ValidValues(string value, AppDomainSupport expected)
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-appdomains", value);
+
+            Assert.Equal(expected, commandLine.AppDomains);
+        }
+    }
+
     public class NoLogoOption
     {
         [Fact]

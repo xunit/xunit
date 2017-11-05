@@ -21,6 +21,8 @@ namespace Xunit.ConsoleClient
             Project = Parse(fileExists);
         }
 
+        public AppDomainSupport? AppDomains { get; protected set; }
+
         public bool Debug { get; protected set; }
 
         public bool DiagnosticMessages { get; protected set; }
@@ -30,8 +32,6 @@ namespace Xunit.ConsoleClient
         public bool FailSkips { get; protected set; }
 
         public int? MaxParallelThreads { get; set; }
-
-        public bool NoAppDomain { get; protected set; }
 
         public bool NoAutoReporters { get; protected set; }
 
@@ -171,10 +171,10 @@ namespace Xunit.ConsoleClient
                     GuardNoOptionValue(option);
                     NoColor = true;
                 }
-                else if (optionName == "noappdomain")
+                else if (optionName == "noappdomain")    // Here for historical reasons
                 {
                     GuardNoOptionValue(option);
-                    NoAppDomain = true;
+                    AppDomains = AppDomainSupport.Denied;
                 }
                 else if (optionName == "noautoreporters")
                 {
@@ -212,6 +212,34 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     InternalDiagnosticMessages = true;
+                }
+                else if (optionName == "appdomains")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -appdomains");
+
+                    switch (option.Value)
+                    {
+                        case "ifavailable":
+                            AppDomains = AppDomainSupport.IfAvailable;
+                            break;
+
+                        case "required":
+#if NET452
+                            // We don't want to throw here on .NET Core, because the user may be specifying a value
+                            // via "dotnet xunit" that is only compatible with some target frameworks.
+                            AppDomains = AppDomainSupport.Required;
+#endif
+                            break;
+
+                        case "denied":
+                            AppDomains = AppDomainSupport.Denied;
+                            break;
+
+                        default:
+                            throw new ArgumentException("incorrect argument value for -appdomains (must be 'ifavailable', 'required', or 'denied')");
+
+                    }
                 }
                 else if (optionName == "maxthreads")
                 {
@@ -360,7 +388,7 @@ namespace Xunit.ConsoleClient
         {
             var directory = Path.GetDirectoryName(path);
 
-            if(string.IsNullOrEmpty(directory))
+            if (string.IsNullOrEmpty(directory))
                 return;
 
             Directory.CreateDirectory(directory);

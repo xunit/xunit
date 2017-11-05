@@ -239,7 +239,10 @@ class Program
         Console.WriteLine("  -msbuildverbosity      : sets MSBuild verbosity level (default: 'minimal')");
         Console.WriteLine();
         Console.WriteLine("Valid options (net4x frameworks only):");
-        Console.WriteLine("  -noappdomain           : do not use app domains to run test code");
+        Console.WriteLine("  -appdomains mode       : choose an app domain mode");
+        Console.WriteLine("                         :   ifavailable - choose based on library type");
+        Console.WriteLine("                         :   required    - force app domains on");
+        Console.WriteLine("                         :   denied      - force app domains off");
         Console.WriteLine("  -noshadow              : do not shadow copy assemblies");
         Console.WriteLine("  -x86                   : force tests to run in 32-bit mode");
         Console.WriteLine();

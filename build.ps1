@@ -169,15 +169,15 @@ function __target__signpackages() {
 function __target__test32() {
     _build_step "Running tests: 32-bit .NET 4.x"
         $v2_assemblies = [System.String]::Join(" ", (Get-ChildItem -Recurse -Include test.xunit.*.dll | Where-Object { $_.FullName -match "bin\\" + $configuration + "\\net452" } | ForEach-Object { $_.FullName }))
-        _xunit_x86 ("test\test.xunit1\bin\" + $configuration + "\net40\test.xunit1.dll " + $parallelFlags + " -noappdomain -serialize -xml artifacts\test\v1-x86.xml -html artifacts\test\v1-x86.html")
-        _xunit_x86 ($v2_assemblies                                                 + " " + $parallelFlags + " -noappdomain -serialize -xml artifacts\test\v2-x86.xml -html artifacts\test\v2-x86.html")
+        _xunit_x86 ("test\test.xunit1\bin\" + $configuration + "\net40\test.xunit1.dll " + $parallelFlags + " -appdomains denied -serialize -xml artifacts\test\v1-x86.xml -html artifacts\test\v1-x86.html")
+        _xunit_x86 ($v2_assemblies                                                 + " " + $parallelFlags + " -appdomains denied -serialize -xml artifacts\test\v2-x86.xml -html artifacts\test\v2-x86.html")
 }
 
 function __target__test64() {
     _build_step "Running tests: 64-bit .NET 4.x"
         $v2_assemblies = [System.String]::Join(" ", (Get-ChildItem -Recurse -Include test.xunit.*.dll | Where-Object { $_.FullName -match "bin\\" + $configuration + "\\net452" } | ForEach-Object { $_.FullName }))
-        #_xunit_x64 ("test\test.xunit1\bin\" + $configuration + "\net40\test.xunit1.dll " + $parallelFlags + " -noappdomain -serialize -xml artifacts\test\v1-x64.xml -html artifacts\test\v1-x64.html")
-        _xunit_x64 ($v2_assemblies                                                 + " " + $parallelFlags + " -noappdomain -serialize -xml artifacts\test\v2-x64.xml -html artifacts\test\v2-x64.html")
+        _xunit_x64 ("test\test.xunit1\bin\" + $configuration + "\net40\test.xunit1.dll " + $parallelFlags + " -appdomains denied -serialize -xml artifacts\test\v1-x64.xml -html artifacts\test\v1-x64.html")
+        _xunit_x64 ($v2_assemblies                                                 + " " + $parallelFlags + " -appdomains denied -serialize -xml artifacts\test\v2-x64.xml -html artifacts\test\v2-x64.html")
 }
 
 function __target__testcore() {
