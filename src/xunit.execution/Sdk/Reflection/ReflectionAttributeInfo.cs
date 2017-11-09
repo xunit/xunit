@@ -109,21 +109,17 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public TValue GetNamedArgument<TValue>(string propertyName)
+        public TValue GetNamedArgument<TValue>(string argumentName)
         {
-            PropertyInfo propInfo = default(PropertyInfo);
-            foreach (var pi in Attribute.GetType().GetRuntimeProperties())
-            {
-                if (pi.Name == propertyName)
-                {
-                    propInfo = pi;
-                    break;
-                }
-            }
+            foreach (var propInfo in Attribute.GetType().GetRuntimeProperties())
+                if (propInfo.Name == argumentName)
+                    return (TValue)propInfo.GetValue(Attribute);
 
-            Guard.ArgumentValid("propertyName", $"Could not find property {propertyName} on instance of {Attribute.GetType().FullName}", propInfo != null);
+            foreach (var fieldInfo in Attribute.GetType().GetRuntimeFields())
+                if (fieldInfo.Name == argumentName)
+                    return (TValue)fieldInfo.GetValue(Attribute);
 
-            return (TValue)propInfo.GetValue(Attribute, Reflector.EmptyArgs);
+            throw new ArgumentException($"Could not find property or field named '{argumentName}' on instance of '{Attribute.GetType().FullName}'", nameof(argumentName));
         }
 
         Attribute Instantiate(CustomAttributeData attributeData)
@@ -144,7 +140,20 @@ namespace Xunit.Sdk
             for (int i = 0; i < attributeData.NamedArguments.Count; i++)
             {
                 var namedArg = attributeData.NamedArguments[i];
-                (ati.GetRuntimeProperty(namedArg.MemberName)).SetValue(attribute, GetTypedValue(namedArg.TypedValue), null);
+                var typedValue = GetTypedValue(namedArg.TypedValue);
+                var memberName = namedArg.MemberName;
+
+                var propInfo = ati.GetRuntimeProperty(memberName);
+                if (propInfo != null)
+                    propInfo.SetValue(attribute, typedValue);
+                else
+                {
+                    var fieldInfo = ati.GetRuntimeField(memberName);
+                    if (fieldInfo != null)
+                        fieldInfo.SetValue(attribute, typedValue);
+                    else
+                        throw new ArgumentException($"Could not find property or field named '{memberName}' on instance of '{Attribute.GetType().FullName}'", nameof(attributeData));
+                }
             }
 
             return attribute;
