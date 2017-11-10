@@ -20,11 +20,14 @@ namespace Xunit
         {
             Traits = new Dictionary<string, List<string>>();
 
-            var lines = descriptorText.TrimEnd(SeparatorChar).Split(SeparatorChar);
+            var lines = descriptorText.Split(SeparatorChar);
 
             for (var idx = 0; idx < lines.Length; ++idx)
             {
                 var line = lines[idx];
+                if (line.Length == 0)
+                    continue;
+
                 var text = line.Substring(2);
 
                 switch (line[0])
