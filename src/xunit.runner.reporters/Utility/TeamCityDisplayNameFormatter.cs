@@ -22,12 +22,24 @@ namespace Xunit.Runner.Reporters
                 }
             }
 
-            return $"{testCollection.DisplayName} ({id})";
+            return EscapeValue($"{testCollection.DisplayName}");
         }
 
         public virtual string DisplayName(ITest test)
         {
             return test.DisplayName;
+        }
+
+        static string EscapeValue(string value)
+        {
+            value = value.Replace("|", "||");
+            value = value.Replace("'", "|'");
+            value = value.Replace("[", "|[");
+            value = value.Replace("]", "|]");
+            value = value.Replace("\r", "|r");
+            value = value.Replace("\n", "|n");
+
+            return value;
         }
     }
 }
