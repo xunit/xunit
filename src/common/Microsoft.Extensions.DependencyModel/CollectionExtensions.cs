@@ -1,4 +1,4 @@
-﻿#if NET452 || NETCOREAPP1_0
+﻿#if NET452 || NETCOREAPP1_0 || NETCOREAPP2_0
 
 using System.Linq;
 using Internal.Microsoft.Extensions.DependencyModel;
