@@ -54,7 +54,7 @@ namespace Xunit
         /// <inheritdoc/>
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
-            var result = assemblyCache.LoadUnmanagedDll(unmanagedDllName, path => LoadUnmanagedDllFromPath(path));
+            var result = assemblyCache.LoadUnmanagedLibrary(unmanagedDllName, path => LoadUnmanagedDllFromPath(path));
             if (result == default)
                 result = base.LoadUnmanagedDll(unmanagedDllName);
 

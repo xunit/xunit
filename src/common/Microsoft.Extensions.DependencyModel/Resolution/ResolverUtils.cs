@@ -28,7 +28,7 @@ namespace Internal.Microsoft.Extensions.DependencyModel.Resolution
 
         internal static bool TryResolveAssemblyFile(IFileSystem fileSystem, string basePath, string assemblyPath, out string fullName)
         {
-            fullName = Path.Combine(basePath, assemblyPath);
+            fullName = Path.GetFullPath(Path.Combine(basePath, assemblyPath));
             if (fileSystem.File.Exists(fullName))
             {
                 return true;

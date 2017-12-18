@@ -1,11 +1,12 @@
-﻿#if NET452 || NETCOREAPP1_0
+﻿#if NET452 || NETCOREAPP1_0 || NETCOREAPP2_0
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using Internal.Microsoft.DotNet.PlatformAbstractions;
 using Internal.Microsoft.Extensions.DependencyModel;
 using Xunit.Abstractions;
 using RuntimeEnvironment = Internal.Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment;
@@ -14,39 +15,43 @@ namespace Xunit
 {
     class DependencyContextAssemblyCache
     {
-        static readonly string[] ManagedAssemblyExtensions = new[] { ".dll", ".exe" };
+        static readonly RuntimeFallbacks AnyAndBase = new RuntimeFallbacks("unknown", "any", "base");
+        static readonly string[] ManagedAssemblyExtensions = { ".dll", ".exe" };
         static readonly Tuple<string, Assembly> ManagedAssemblyNotFound = new Tuple<string, Assembly>(null, null);
+        static readonly Regex RuntimeIdRegex = new Regex(@"(?<os>[A-Za-z0-9]+)(\.(?<version>[0-9\.]+))?(?<arch>\-[A-Za-z0-9]+)?(?<extra>\-[A-Za-z0-9]+)?");
 
         readonly string assemblyFolder;
         readonly XunitPackageCompilationAssemblyResolver assemblyResolver;
+        readonly string currentRuntimeIdentifier;
         readonly DependencyContext dependencyContext;
+        readonly Lazy<string> fallbackRuntimeIdentifier;
+        readonly IFileSystem fileSystem;
         readonly IMessageSink internalDiagnosticsMessageSink;
         readonly Dictionary<string, Assembly> managedAssemblyCache;
         readonly Dictionary<string, Tuple<RuntimeLibrary, RuntimeAssetGroup>> managedAssemblyMap;
+        readonly Platform operatingSystemPlatform;
 
         public DependencyContextAssemblyCache(string assemblyFolder,
                                               DependencyContext dependencyContext,
-                                              IMessageSink internalDiagnosticsMessageSink)
+                                              IMessageSink internalDiagnosticsMessageSink,
+                                              Platform? operatingSystemPlatform = null,
+                                              string currentRuntimeIdentifier = null,
+                                              IFileSystem fileSystem = null)
         {
             this.assemblyFolder = assemblyFolder;
             this.dependencyContext = dependencyContext;
             this.internalDiagnosticsMessageSink = internalDiagnosticsMessageSink;
+            this.operatingSystemPlatform = operatingSystemPlatform ?? RuntimeEnvironment.OperatingSystemPlatform;
+            this.currentRuntimeIdentifier = currentRuntimeIdentifier ?? RuntimeEnvironment.GetRuntimeIdentifier();
+            this.fileSystem = fileSystem ?? new FileSystemWrapper();
 
-            assemblyResolver = new XunitPackageCompilationAssemblyResolver(internalDiagnosticsMessageSink);
+            fallbackRuntimeIdentifier = new Lazy<string>(() => GetFallbackRuntime(currentRuntimeIdentifier));
+            assemblyResolver = new XunitPackageCompilationAssemblyResolver(internalDiagnosticsMessageSink, fileSystem);
 
             if (internalDiagnosticsMessageSink != null)
                 internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache..ctor] Runtime graph: [{string.Join(",", dependencyContext.RuntimeGraph.Select(x => $"'{x.Runtime}'"))}]"));
 
-            var compatibleRuntimes = default(HashSet<string>);
-            var currentRuntime = RuntimeEnvironment.GetRuntimeIdentifier();
-            var fallbacks = dependencyContext.RuntimeGraph.FirstOrDefault(x => string.Equals(x.Runtime, currentRuntime, StringComparison.OrdinalIgnoreCase));
-            if (fallbacks != null)
-                compatibleRuntimes = new HashSet<string>(fallbacks.Fallbacks, StringComparer.OrdinalIgnoreCase);
-            else
-                compatibleRuntimes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            compatibleRuntimes.Add(currentRuntime);
-            compatibleRuntimes.Add(string.Empty);
+            var compatibleRuntimes = GetCompatibleRuntimes(dependencyContext);
 
             if (internalDiagnosticsMessageSink != null)
                 internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache..ctor] Compatible runtimes: [{string.Join(",", compatibleRuntimes.Select(x => $"'{x}'"))}]"));
@@ -55,27 +60,79 @@ namespace Xunit
             managedAssemblyMap =
                 dependencyContext.RuntimeLibraries
                                  .Where(lib => lib.RuntimeAssemblyGroups?.Count > 0)
-                                 .Select(lib => Tuple.Create(lib, lib.RuntimeAssemblyGroups.FirstOrDefault(libGroup => compatibleRuntimes.Contains(libGroup.Runtime))))
-                                 .Where(tuple => tuple.Item2?.AssetPaths != null)
-                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(Path.GetFileNameWithoutExtension(path), Tuple.Create(tuple.Item1, tuple.Item2))))
+                                 .Select(lib => compatibleRuntimes.Select(runtime => Tuple.Create(lib, lib.RuntimeAssemblyGroups.FirstOrDefault(libGroup => string.Equals(libGroup.Runtime, runtime))))
+                                                                  .FirstOrDefault(tuple => tuple.Item2?.AssetPaths != null))
+                                 .Where(tuple => tuple != null)
+                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null)
+                                                                            .Select(path => Tuple.Create(Path.GetFileNameWithoutExtension(path), Tuple.Create(tuple.Item1, tuple.Item2))))
                                  .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
 
             if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache..ctor] Managed assembly map includes: {string.Join(",", managedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}"));
+                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache..ctor] Managed assembly map: [{string.Join(",", managedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}]"));
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_0 || NETCOREAPP2_0
+            unmanagedDllFormats = GetUnmanagedDllFormats().ToArray();
             unmanagedAssemblyCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             unmanagedAssemblyMap =
                 dependencyContext.RuntimeLibraries
-                                 .Where(lib => lib.NativeLibraryGroups?.Count > 0)
-                                 .Select(lib => Tuple.Create(lib, lib.NativeLibraryGroups.FirstOrDefault(libGroup => compatibleRuntimes.Contains(libGroup.Runtime))))
-                                 .Where(tuple => tuple.Item2?.AssetPaths != null)
-                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null).Select(path => Tuple.Create(Path.GetFileName(path), Tuple.Create(tuple.Item1, tuple.Item2))))
+                                 .Select(lib => compatibleRuntimes.Select(runtime => Tuple.Create(lib, lib.NativeLibraryGroups.FirstOrDefault(libGroup => string.Equals(libGroup.Runtime, runtime))))
+                                                                  .FirstOrDefault(tuple => tuple.Item2?.AssetPaths != null))
+                                 .Where(tuple => tuple != null)
+                                 .SelectMany(tuple => tuple.Item2.AssetPaths.Where(x => x != null)
+                                                                            .Select(path => Tuple.Create(Path.GetFileName(path), Tuple.Create(tuple.Item1, tuple.Item2))))
                                  .ToDictionaryIgnoringDuplicateKeys(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.OrdinalIgnoreCase);
 
             if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache..ctor] Unmanaged assembly map includes: {string.Join(",", unmanagedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}"));
+                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache..ctor] Unmanaged assembly map: [{string.Join(",", unmanagedAssemblyMap.Keys.Select(k => $"'{k}'").OrderBy(k => k, StringComparer.OrdinalIgnoreCase))}]"));
+#else
+            if (internalDiagnosticsMessageSink != null)
+                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage("[DependencyContextAssemblyCache..ctor] Unmanaged assembly map: []"));
 #endif
+        }
+
+        List<string> GetCompatibleRuntimes(DependencyContext dependencyContext)
+        {
+            var result = new List<string>(GetFallbacks(dependencyContext.RuntimeGraph).Fallbacks);
+            result.Insert(0, fallbackRuntimeIdentifier.IsValueCreated ? fallbackRuntimeIdentifier.Value : currentRuntimeIdentifier);
+            result.Add(string.Empty);
+            return result;
+        }
+
+        RuntimeFallbacks GetFallbacks(IReadOnlyList<RuntimeFallbacks> runtimeGraph)
+            => runtimeGraph.FirstOrDefault(x => string.Equals(x.Runtime, currentRuntimeIdentifier, StringComparison.OrdinalIgnoreCase))
+            ?? runtimeGraph.FirstOrDefault(x => string.Equals(x.Runtime, fallbackRuntimeIdentifier.Value, StringComparison.OrdinalIgnoreCase))
+            ?? AnyAndBase;
+
+        // This mimics the behavior of https://github.com/dotnet/core-setup/blob/863047f3ca16bada3ffc82493d1dbad6e560b80a/src/corehost/common/pal.h#L53-L73
+        string GetFallbackRuntime(string runtime)
+        {
+            var match = RuntimeIdRegex.Match(runtime);
+            var arch = match.Groups?["arch"]?.Value;
+            var result = default(string);
+
+            switch (operatingSystemPlatform)
+            {
+                case Platform.Windows:
+                    result = "win10" + arch;
+                    break;
+
+                case Platform.Darwin:
+                    result = "osx.10.12" + arch;
+                    break;
+
+                case Platform.Linux:
+                    result = "linux" + arch;
+                    break;
+
+                default:
+                    result = "unknown";
+                    break;
+            }
+
+            if (internalDiagnosticsMessageSink != null)
+                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.GetFallbackRuntime] Could not find runtime '{runtime}', falling back to '{result}'"));
+
+            return result;
         }
 
         public Assembly LoadManagedDll(string assemblyName, Func<string, Assembly> managedAssemblyLoader)
@@ -102,13 +159,13 @@ namespace Xunit
         Tuple<string, Assembly> ResolveManagedAssembly(string assemblyName, Func<string, Assembly> managedAssemblyLoader)
         {
             // Try to find dependency in the local folder
-            var assemblyPath = Path.Combine(assemblyFolder, assemblyName);
+            var assemblyPath = Path.Combine(Path.GetFullPath(assemblyFolder), assemblyName);
 
             foreach (var extension in ManagedAssemblyExtensions)
                 try
                 {
                     var resolvedAssemblyPath = assemblyPath + extension;
-                    if (File.Exists(resolvedAssemblyPath))
+                    if (fileSystem.File.Exists(resolvedAssemblyPath))
                     {
                         var assembly = managedAssemblyLoader(resolvedAssemblyPath);
                         if (assembly != null)
@@ -123,7 +180,8 @@ namespace Xunit
                 var library = libraryTuple.Item1;
                 var assetGroup = libraryTuple.Item2;
                 var wrapper = new CompilationLibrary(library.Type, library.Name, library.Version, library.Hash,
-                                                     assetGroup.AssetPaths, library.Dependencies, library.Serviceable);
+                                                     assetGroup.AssetPaths, library.Dependencies, library.Serviceable,
+                                                     library.Path, library.HashPath);
 
                 var assemblies = new List<string>();
                 if (assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies))
@@ -156,58 +214,68 @@ namespace Xunit
             return ManagedAssemblyNotFound;
         }
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_0 || NETCOREAPP2_0
         // Unmanaged DLL support
 
-        static readonly string[] UnmanagedDllFormats = GetUnmanagedDllFormats().ToArray();
+        readonly string[] unmanagedDllFormats;
 
         readonly Dictionary<string, string> unmanagedAssemblyCache;
         readonly Dictionary<string, Tuple<RuntimeLibrary, RuntimeAssetGroup>> unmanagedAssemblyMap;
 
-        static IEnumerable<string> GetUnmanagedDllFormats()
+        IEnumerable<string> GetUnmanagedDllFormats()
         {
             yield return "{0}";
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (operatingSystemPlatform == Platform.Windows)
             {
                 yield return "{0}.dll";
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            else if (operatingSystemPlatform == Platform.Darwin)
             {
                 yield return "lib{0}.dylib";
                 yield return "{0}.dylib";
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            else if (operatingSystemPlatform == Platform.Linux)
             {
                 yield return "lib{0}.so";
                 yield return "{0}.so";
             }
         }
 
-        public IntPtr LoadUnmanagedDll(string unmanagedDllName, Func<string, IntPtr> unmanagedAssemblyLoader)
+        public IntPtr LoadUnmanagedLibrary(string unmanagedLibraryName, Func<string, IntPtr> unmanagedAssemblyLoader)
         {
-            if (!unmanagedAssemblyCache.TryGetValue(unmanagedDllName, out var resolvedAssemblyPath))
-            {
-                resolvedAssemblyPath = ResolveUnmanagedAssembly(unmanagedDllName);
-                unmanagedAssemblyCache[unmanagedDllName] = resolvedAssemblyPath;
+            var result = default(IntPtr);
+            var needDiagnostics = false;
 
-                if (internalDiagnosticsMessageSink != null)
-                {
-                    if (resolvedAssemblyPath == null)
-                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolution for '{unmanagedDllName}' failed, passed down to next resolver"));
-                    else
-                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolved '{unmanagedDllName}' to '{resolvedAssemblyPath}'"));
-                }
+            if (!unmanagedAssemblyCache.TryGetValue(unmanagedLibraryName, out var resolvedAssemblyPath))
+            {
+                resolvedAssemblyPath = ResolveUnmanagedLibrary(unmanagedLibraryName);
+                unmanagedAssemblyCache[unmanagedLibraryName] = resolvedAssemblyPath;
+                needDiagnostics = true;
             }
 
-            return resolvedAssemblyPath != null ? unmanagedAssemblyLoader(resolvedAssemblyPath) : default;
+            if (resolvedAssemblyPath != null)
+                result = unmanagedAssemblyLoader(resolvedAssemblyPath);
+
+            if (needDiagnostics && internalDiagnosticsMessageSink != null)
+                if (result != default)
+                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolved '{unmanagedLibraryName}' to '{resolvedAssemblyPath}'"));
+                else
+                {
+                    if (resolvedAssemblyPath != null)
+                        internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolving '{unmanagedLibraryName}', found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
+
+                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolution for '{unmanagedLibraryName}' failed, passed down to next resolver"));
+                }
+
+            return result;
         }
 
-        public string ResolveUnmanagedAssembly(string unmanagedDllName)
+        public string ResolveUnmanagedLibrary(string unmanagedLibraryName)
         {
-            foreach (var format in UnmanagedDllFormats)
+            foreach (var format in unmanagedDllFormats)
             {
-                var formattedUnmanagedDllName = string.Format(format, unmanagedDllName);
+                var formattedUnmanagedDllName = string.Format(format, unmanagedLibraryName);
 
                 if (unmanagedAssemblyMap.TryGetValue(formattedUnmanagedDllName, out var libraryTuple))
                 {
@@ -223,12 +291,12 @@ namespace Xunit
                             return Path.GetFullPath(resolvedAssemblyPath);
 
                         if (internalDiagnosticsMessageSink != null)
-                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveUnmanagedDll] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveUnmanagedLibrary] Found a resolved path, but could not map a filename in [{string.Join(",", assemblies.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
                     }
                     else
                     {
                         if (internalDiagnosticsMessageSink != null)
-                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveUnmanagedDll] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
+                            internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[DependencyContextAssemblyCache.ResolveUnmanagedLibrary] Found in dependency map, but unable to resolve a path in [{string.Join(",", assetGroup.AssetPaths.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).Select(k => $"'{k}'"))}]"));
                     }
                 }
             }

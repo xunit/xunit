@@ -34,7 +34,7 @@ namespace Internal.Microsoft.Extensions.DependencyModel
 
         private static DependencyContextPaths GetCurrent()
         {
-#if NETCOREAPP1_0
+#if NETCOREAPP1_0 || NETCOREAPP2_0
             var deps = AppContext.GetData(DepsFilesProperty);
             var fxDeps = AppContext.GetData(FxDepsFileProperty);
 #elif NET452

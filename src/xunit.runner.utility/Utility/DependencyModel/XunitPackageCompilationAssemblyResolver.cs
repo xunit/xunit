@@ -1,4 +1,4 @@
-﻿#if NET452 || NETCOREAPP1_0
+﻿#if NET452 || NETCOREAPP1_0 || NETCOREAPP2_0
 
 // Adapted from https://github.com/dotnet/core-setup/blob/652b680dff6b1afb9cd26cc3c2e883a664c209fd/src/managed/Microsoft.Extensions.DependencyModel/Resolution/PackageCompilationAssemblyResolver.cs
 
@@ -15,12 +15,14 @@ namespace Xunit
 {
     class XunitPackageCompilationAssemblyResolver : ICompilationAssemblyResolver
     {
-        static readonly IFileSystem fileSystem = new FileSystemWrapper();
+        readonly IFileSystem fileSystem;
         readonly List<string> nugetPackageDirectories;
 
-        public XunitPackageCompilationAssemblyResolver(IMessageSink internalDiagnosticsMessageSink)
+        public XunitPackageCompilationAssemblyResolver(IMessageSink internalDiagnosticsMessageSink,
+                                                       IFileSystem fileSystem = null)
         {
             nugetPackageDirectories = GetDefaultProbeDirectories(internalDiagnosticsMessageSink);
+            this.fileSystem = fileSystem ?? new FileSystemWrapper();
         }
 
         static List<string> GetDefaultProbeDirectories(IMessageSink internalDiagnosticsMessageSink) =>

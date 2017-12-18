@@ -32,7 +32,6 @@ namespace Internal.Microsoft.Extensions.DependencyModel
         public string RuntimeSignature { get; }
 
         public bool IsPortable { get; }
-
     }
 }
 
