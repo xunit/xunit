@@ -45,7 +45,7 @@ namespace Xunit
             this.currentRuntimeIdentifier = currentRuntimeIdentifier ?? RuntimeEnvironment.GetRuntimeIdentifier();
             this.fileSystem = fileSystem ?? new FileSystemWrapper();
 
-            fallbackRuntimeIdentifier = new Lazy<string>(() => GetFallbackRuntime(currentRuntimeIdentifier));
+            fallbackRuntimeIdentifier = new Lazy<string>(() => GetFallbackRuntime(this.currentRuntimeIdentifier));
             assemblyResolver = new XunitPackageCompilationAssemblyResolver(internalDiagnosticsMessageSink, fileSystem);
 
             if (internalDiagnosticsMessageSink != null)
@@ -107,7 +107,7 @@ namespace Xunit
         string GetFallbackRuntime(string runtime)
         {
             var match = RuntimeIdRegex.Match(runtime);
-            var arch = match.Groups?["arch"]?.Value;
+            var arch = match?.Groups?["arch"]?.Value;
             var result = default(string);
 
             switch (operatingSystemPlatform)
