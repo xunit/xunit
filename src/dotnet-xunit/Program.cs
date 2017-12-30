@@ -418,19 +418,25 @@ class Program
         }
 
         var runner = Path.Combine(consoleFolder, "xunit.console.dll");
-        var psi = new ProcessStartInfo
-        {
-            FileName = DotNetMuxer.MuxerPath,
-            Arguments = $@"exec --fx-version {fxVersion} ""{runner}"" ""{targetFileName}"" {extraArgs}",
-            WorkingDirectory = Path.GetFullPath(outputPath)
-        };
+        var workingDirectory = Path.GetFullPath(outputPath);
+        var targetFileNameWithoutExtension = Path.GetFileNameWithoutExtension(targetFileName);
+        var depsFile = targetFileNameWithoutExtension + ".deps.json";
+        var runtimeConfigJson = targetFileNameWithoutExtension + ".runtimeconfig.json";
+
+        var args = $@"exec --fx-version {fxVersion} --depsfile ""{depsFile}"" ";
+
+        if (File.Exists(Path.Combine(workingDirectory, runtimeConfigJson)))
+            args += $@"--runtimeconfig ""{runtimeConfigJson}"" ";
+
+        args += $@"""{runner}"" ""{targetFileName}"" {extraArgs}";
+
+        var psi = new ProcessStartInfo { FileName = DotNetMuxer.MuxerPath, Arguments = args, WorkingDirectory = workingDirectory };
 
         WriteLineDiagnostics($"EXEC: \"{psi.FileName}\" {psi.Arguments}");
         WriteLineDiagnostics($"  IN: {psi.WorkingDirectory}");
 
         var runTests = Process.Start(psi);
         runTests.WaitForExit();
-
         return runTests.ExitCode;
     }
 

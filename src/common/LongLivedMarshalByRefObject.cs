@@ -8,17 +8,17 @@ namespace Xunit.Sdk
     using System;
     using System.Security;
 
-    #if XUNIT_FRAMEWORK
+#if XUNIT_FRAMEWORK
     using System.Collections.Concurrent;
     using System.Runtime.Remoting;
-    #endif
+#endif
 
     /// <summary>
     /// Base class for all long-lived objects that may cross over an AppDomain.
     /// </summary>
-    public abstract class LongLivedMarshalByRefObject: MarshalByRefObject
+    public abstract class LongLivedMarshalByRefObject : MarshalByRefObject
     {
-    #if XUNIT_FRAMEWORK
+#if XUNIT_FRAMEWORK
         static ConcurrentBag<MarshalByRefObject> remoteObjects = new ConcurrentBag<MarshalByRefObject>();
 
         /// <summary>
@@ -40,12 +40,12 @@ namespace Xunit.Sdk
 
             remoteObjects = new ConcurrentBag<MarshalByRefObject>();
         }
-    #else
+#else
         /// <summary>
         /// Disconnects all remote objects.
         /// </summary>
         public static void DisconnectAll() { }
-    #endif
+#endif
 
         /// <inheritdoc/>
         [SecurityCritical]

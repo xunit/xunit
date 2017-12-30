@@ -6,15 +6,14 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Xunit
 {
     /// <summary>
-    /// This class provides assistance with assembly resolution for missing assemblies. To help with resolution
-    /// of dependencies from a folder, use <see cref="SubscribeResolveForDirectory"/>; for help with resolution
-    /// of dependencies from an assembly (with potential use of .deps.json), use <see cref="SubscribeResolveForAssembly"/>.
+    /// This class provides assistance with assembly resolution for missing assemblies.
     /// </summary>
-    public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
+    class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
     {
         static readonly string[] Extensions = { ".dll", ".exe" };
 
@@ -56,9 +55,9 @@ namespace Xunit
             if (internalDiagnosticsMessageSink != null)
             {
                 if (result == null)
-                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{assemblyName.Name}' failed, passed down to next resolver"));
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{assemblyName.Name}' failed, passed down to next resolver"));
                 else
-                    internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolved '{assemblyName.Name}' to '{resolvedAssemblyPath}'"));
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_Desktop.LoadAssembly] Resolved '{assemblyName.Name}' to '{resolvedAssemblyPath}'"));
             }
 
             lookupCache[assemblyName.Name] = result;
@@ -86,12 +85,6 @@ namespace Xunit
             return null;
         }
 
-        /// <summary/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Please use SubscribeResolveForDirectory instead")]
-        public static IDisposable SubscribeResolve(string path = null)
-            => SubscribeResolveForDirectory(null, null);
-
         /// <summary>
         /// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
         /// an assembly and any of its dependencies. Depending on the target platform, this may include the use
@@ -99,19 +92,16 @@ namespace Xunit
         /// </summary>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
         public static IDisposable SubscribeResolveForAssembly(string assemblyFileName, IMessageSink internalDiagnosticsMessageSink = null)
-            => SubscribeResolveForDirectory(internalDiagnosticsMessageSink, Path.GetDirectoryName(Path.GetFullPath(assemblyFileName)));
+            => new AssemblyHelper(Path.GetDirectoryName(Path.GetFullPath(assemblyFileName)), internalDiagnosticsMessageSink);
 
         /// <summary>
         /// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
-        /// any assemblies located in a folder. This is typically used to help resolve the dependencies of
-        /// the runner utility library from its location in the NuGet packages folder.
+        /// an assembly and any of its dependencies. Depending on the target platform, this may include the use
+        /// of the .deps.json file generated during the build process.
         /// </summary>
-        /// <param name="internalDiagnosticsMessageSink">The optional message sink to send internal diagnostics messages to.</param>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
-        /// <param name="directory">The optional directory to use for resolving assemblies; if <c>null</c> is passed,
-        /// then it uses the directory which contains the runner utility assembly.</param>
-        public static IDisposable SubscribeResolveForDirectory(IMessageSink internalDiagnosticsMessageSink = null, string directory = null)
-            => new AssemblyHelper(directory ?? Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase()), internalDiagnosticsMessageSink);
+        public static IDisposable SubscribeResolveForAssembly(Type typeInAssembly, IMessageSink internalDiagnosticsMessageSink = null)
+            => new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location), internalDiagnosticsMessageSink);
     }
 }
 

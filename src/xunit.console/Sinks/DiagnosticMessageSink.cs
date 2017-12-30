@@ -3,12 +3,13 @@ using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
-    public class DiagnosticMessageSink : TestMessageSink
+    public class DiagnosticMessageSink : IMessageSink
     {
         readonly string assemblyDisplayName;
         readonly object consoleLock;
         readonly ConsoleColor displayColor;
         readonly bool noColor;
+        readonly bool showDiagnostics;
 
         DiagnosticMessageSink(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor, ConsoleColor displayColor)
         {
@@ -16,9 +17,7 @@ namespace Xunit.ConsoleClient
             this.assemblyDisplayName = assemblyDisplayName;
             this.noColor = noColor;
             this.displayColor = displayColor;
-
-            if (showDiagnostics)
-                Diagnostics.DiagnosticMessageEvent += HandleDiagnosticMessage;
+            this.showDiagnostics = showDiagnostics;
         }
 
         public static DiagnosticMessageSink ForDiagnostics(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor)
@@ -30,21 +29,26 @@ namespace Xunit.ConsoleClient
         public static DiagnosticMessageSink ForInternalDiagnostics(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor)
             => new DiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
 
-        void HandleDiagnosticMessage(MessageHandlerArgs<IDiagnosticMessage> args)
+        public bool OnMessage(IMessageSinkMessage message)
         {
-            lock (consoleLock)
+            if (showDiagnostics && message is IDiagnosticMessage diagnosticMessage)
             {
-                if (!noColor)
-                    ConsoleHelper.SetForegroundColor(displayColor);
+                lock (consoleLock)
+                {
+                    if (!noColor)
+                        ConsoleHelper.SetForegroundColor(displayColor);
 
-                if (assemblyDisplayName != null)
-                    Console.WriteLine($"   {assemblyDisplayName}: {args.Message.Message}");
-                else
-                    Console.WriteLine($"   {args.Message.Message}");
+                    if (assemblyDisplayName != null)
+                        Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
+                    else
+                        Console.WriteLine($"   {diagnosticMessage.Message}");
 
-                if (!noColor)
-                    ConsoleHelper.ResetColor();
+                    if (!noColor)
+                        ConsoleHelper.ResetColor();
+                }
             }
+
+            return true;
         }
     }
 }

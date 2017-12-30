@@ -158,8 +158,8 @@ namespace Xunit.Runner.MSBuild
 
             var originalWorkingFolder = Directory.GetCurrentDirectory();
             var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(Log, InternalDiagnosticMessages);
-
-            using (AssemblyHelper.SubscribeResolveForDirectory(internalDiagnosticsMessageSink))
+            
+            using (AssemblyHelper.SubscribeResolveForAssembly(typeof(xunit), internalDiagnosticsMessageSink))
             {
                 var reporter = GetReporter();
                 if (reporter == null)

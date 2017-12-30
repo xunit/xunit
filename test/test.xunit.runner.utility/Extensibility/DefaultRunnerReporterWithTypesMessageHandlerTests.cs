@@ -158,7 +158,7 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
             handler.OnMessageWithTypes(message, null);
 
             var msg = Assert.Single(handler.Messages);
-            Assert.Equal<object>(expectedResult, msg);
+            Assert.Equal(expectedResult, msg);
         }
     }
 

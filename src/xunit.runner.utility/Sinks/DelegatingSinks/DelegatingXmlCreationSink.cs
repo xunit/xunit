@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Xml.Linq;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Xunit
 {

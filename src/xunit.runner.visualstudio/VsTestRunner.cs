@@ -196,7 +196,7 @@ namespace Xunit.Runner.VisualStudio
 
                 var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, runSettings.InternalDiagnostics);
 
-                using (AssemblyHelper.SubscribeResolveForDirectory(MessageSinkAdapter.Wrap(internalDiagnosticsMessageSink)))
+                using (AssemblyHelper.SubscribeResolveForAssembly(typeof(VsTestRunner), MessageSinkAdapter.Wrap(internalDiagnosticsMessageSink)))
                 {
                     foreach (var assemblyFileNameCanBeWithoutAbsolutePath in sources)
                     {
@@ -398,7 +398,7 @@ namespace Xunit.Runner.VisualStudio
                                                                         .CreateMessageHandler(new VisualStudioRunnerLogger(logger)));
                 var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, runSettings.InternalDiagnostics);
 
-                using (AssemblyHelper.SubscribeResolveForDirectory(MessageSinkAdapter.Wrap(internalDiagnosticsMessageSink)))
+                using (AssemblyHelper.SubscribeResolveForAssembly(typeof(VsTestRunner), MessageSinkAdapter.Wrap(internalDiagnosticsMessageSink)))
                 {
                     if (parallelizeAssemblies)
                         runInfos

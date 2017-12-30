@@ -1,4 +1,4 @@
-#if NETCOREAPP1_0
+﻿#if NETCOREAPP1_0 || NETCOREAPP2_0
 
 using System;
 using System.IO;
@@ -10,19 +10,12 @@ using Xunit.Abstractions;
 namespace Xunit
 {
     /// <summary>
-    /// A class which encapsulates support for resolving dependencies for .NET core assemblies.
-    /// This includes support for using the .deps.json file that sits alongside the assembly
-    /// so that dependencies do not need to be copied locally. It also supports loading native
-    /// assembly assets.
+    /// This class provides assistance with assembly resolution for missing assemblies.
     /// </summary>
-    public class NetCoreAssemblyDependencyResolver : AssemblyLoadContext, IDisposable
+    class AssemblyHelper : AssemblyLoadContext, IDisposable
     {
         readonly DependencyContextAssemblyCache assemblyCache;
         readonly IMessageSink internalDiagnosticsMessageSink;
-
-        /// <summary/>
-        [Obsolete("Please call the constructor with the support for internal diagnostics messages")]
-        public NetCoreAssemblyDependencyResolver(string assemblyFilePath) : this(assemblyFilePath, null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NetCoreAssemblyDependencyResolver"/> class.
@@ -30,7 +23,7 @@ namespace Xunit
         /// <param name="assemblyFileName">The path to the assembly</param>
         /// <param name="internalDiagnosticsMessageSink">An optional message sink for use with internal diagnostics messages;
         /// may pass <c>null</c> for no internal diagnostics messages</param>
-        public NetCoreAssemblyDependencyResolver(string assemblyFileName, IMessageSink internalDiagnosticsMessageSink)
+        public AssemblyHelper(string assemblyFileName, IMessageSink internalDiagnosticsMessageSink)
         {
             this.internalDiagnosticsMessageSink = internalDiagnosticsMessageSink;
 
@@ -63,6 +56,24 @@ namespace Xunit
 
         Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
             => assemblyCache.LoadManagedDll(name.Name, path => LoadFromAssemblyPath(path));
+
+        /// <summary>
+        /// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
+        /// an assembly and any of its dependencies. Depending on the target platform, this may include the use
+        /// of the .deps.json file generated during the build process.
+        /// </summary>
+        /// <returns>An object which, when disposed, un-subscribes.</returns>
+        public static IDisposable SubscribeResolveForAssembly(string assemblyFileName, IMessageSink internalDiagnosticsMessageSink = null)
+            => new AssemblyHelper(assemblyFileName, internalDiagnosticsMessageSink);
+
+        /// <summary>
+        /// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
+        /// an assembly and any of its dependencies. Depending on the target platform, this may include the use
+        /// of the .deps.json file generated during the build process.
+        /// </summary>
+        /// <returns>An object which, when disposed, un-subscribes.</returns>
+        public static IDisposable SubscribeResolveForAssembly(Type typeInAssembly, IMessageSink internalDiagnosticsMessageSink = null)
+            => new AssemblyHelper(typeInAssembly.GetTypeInfo().Assembly.Location, internalDiagnosticsMessageSink);
     }
 }
 

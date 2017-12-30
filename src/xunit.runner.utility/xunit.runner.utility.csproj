@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net35' ">xunit.runner.utility.net35</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net452' ">xunit.runner.utility.net452</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.1' ">xunit.runner.utility.netstandard11</AssemblyName>
@@ -9,7 +8,6 @@
     <AssemblyName Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">xunit.runner.utility.netcoreapp10</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit</RootNamespace>
-    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">1.0.0</RuntimeFrameworkVersion>
     <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0</TargetFrameworks>
   </PropertyGroup>
 
@@ -33,10 +31,8 @@
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
-    <Compile Include="..\common\Microsoft.DotNet.PlatformAbstractions\**\*.cs" LinkBase="Common\Microsoft.DotNet.PlatformAbstractions" />
-    <None Include="..\common\Microsoft.DotNet.PlatformAbstractions\LICENSE" LinkBase="Common\Microsoft.DotNet.PlatformAbstractions" />
-    <Compile Include="..\common\Microsoft.Extensions.DependencyModel\**\*.cs" LinkBase="Common\Microsoft.Extensions.DependencyModel" />
-    <None Include="..\common\Microsoft.Extensions.DependencyModel\LICENSE" LinkBase="Common\Microsoft.Extensions.DependencyModel" />
+    <Compile Include="..\common\AssemblyResolution\AssemblyHelper_Desktop.cs" LinkBase="Common" />
+    <Compile Include="..\common\AssemblyResolution\_DiagnosticMessage.cs" LinkBase="Common" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
   </ItemGroup>
 

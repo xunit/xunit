@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
-public class SpyMessageBus : LongLivedMarshalByRefObject, IMessageBus
+public class SpyMessageBus : Xunit.LongLivedMarshalByRefObject, Xunit.Sdk.IMessageBus
 {
     readonly Func<IMessageSinkMessage, bool> cancellationThunk;
 

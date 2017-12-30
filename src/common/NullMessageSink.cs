@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk

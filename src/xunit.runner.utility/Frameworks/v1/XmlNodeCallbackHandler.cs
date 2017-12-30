@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Web.UI;
 using System.Xml;
+using Xunit.Sdk;
 
 namespace Xunit
 {

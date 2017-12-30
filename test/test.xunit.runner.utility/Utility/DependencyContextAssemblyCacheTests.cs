@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NETCOREAPP2_0
+
+using System;
 using System.IO;
 using Internal.Microsoft.DotNet.PlatformAbstractions;
 using NSubstitute;
@@ -13,42 +15,30 @@ public static class DependencyContextAssemblyCacheTests
                     "osx.10.10-x64",
                     "['osx.10.12-x64','osx.10.12','osx.10.11-x64','osx.10.11','osx.10.10-x64','osx.10.10','osx-x64','osx']",
                     "['osx.10.10-x64','osx.10.10','osx-x64','osx','unix-x64','unix','any','base','']",
-#if NETCOREAPP2_0
                     "['dependency1.dylib','libdependency2.dylib']"
-#else
-                    "[]"
-#endif
         )]
         [InlineData(Platform.Linux,
                     "ubuntu.16.04-x64",
                     "['ubuntu.16.04-x64','ubuntu.16.04','linux-x64','linux']",
                     "['ubuntu.16.04-x64','ubuntu.16.04','ubuntu-x64','ubuntu','linux-x64','linux','unix-x64','unix','any','base','']",
-#if NETCOREAPP2_0
                     "['dependency1.so','libdependency2.so']"
-#else
-                    "[]"
-#endif
         )]
         [InlineData(Platform.Windows,
                     "win10-x64",
                     "['win10-x64','win10']",
                     "['win10-x64','win10','win8-x64','win8','win7-x64','win7','win','any','base','']",
-#if NETCOREAPP2_0
                     "['dependency1.dll','dependency2.dll']"
-#else
-                    "[]"
-#endif
         )]
         internal void KnownRuntime(Platform platform, string runtime, string expectedRuntimeGraph, string expectedCompatibleRuntimes, string expectedUnmanagedMap)
         {
             var cache = TestableDependencyContextAssemblyCache.Create(platform, runtime);
 
             Assert.Collection(cache.GetAndClearDiagnosticMessages(),
-                message => Assert.Equal<object>($"[XunitPackageCompilationAssemblyResolver.GetDefaultProbeDirectories] returns: ['{NuGetHelper.PackageCachePath}']", message),
-                message => Assert.Equal<object>($"[DependencyContextAssemblyCache..ctor] Runtime graph: {expectedRuntimeGraph}", message),
-                message => Assert.Equal<object>($"[DependencyContextAssemblyCache..ctor] Compatible runtimes: {expectedCompatibleRuntimes}", message),
-                message => Assert.Equal<object>("[DependencyContextAssemblyCache..ctor] Managed assembly map: ['managed.ref1','managed.ref2']", message),
-                message => Assert.Equal<object>($"[DependencyContextAssemblyCache..ctor] Unmanaged assembly map: {expectedUnmanagedMap}", message)
+                message => Assert.StartsWith($"[XunitPackageCompilationAssemblyResolver.GetDefaultProbeDirectories] returns: [", message),
+                message => Assert.Equal($"[DependencyContextAssemblyCache..ctor] Runtime graph: {expectedRuntimeGraph}", message),
+                message => Assert.Equal($"[DependencyContextAssemblyCache..ctor] Compatible runtimes: {expectedCompatibleRuntimes}", message),
+                message => Assert.Equal("[DependencyContextAssemblyCache..ctor] Managed assembly map: ['managed.ref1','managed.ref2']", message),
+                message => Assert.Equal($"[DependencyContextAssemblyCache..ctor] Unmanaged assembly map: {expectedUnmanagedMap}", message)
             );
         }
 
@@ -229,8 +219,8 @@ public static class DependencyContextAssemblyCacheTests
 
                 Assert.Null(result);
                 Assert.Collection(cache.GetAndClearDiagnosticMessages(),
-                    message => Assert.Equal<object>("[DependencyContextAssemblyCache.ResolveManagedAssembly] Resolving 'managed.ref1', found in dependency map, but unable to resolve a path in ['runtime/any/managed.ref1.dll','runtime/any/managed.ref2.dll']", message),
-                    message => Assert.Equal<object>("[DependencyContextAssemblyCache.LoadManagedDll] Resolution for 'managed.ref1' failed, passed down to next resolver", message)
+                    message => Assert.Equal("[DependencyContextAssemblyCache.ResolveManagedAssembly] Resolving 'managed.ref1', found in dependency map, but unable to resolve a path in ['runtime/any/managed.ref1.dll','runtime/any/managed.ref2.dll']", message),
+                    message => Assert.Equal("[DependencyContextAssemblyCache.LoadManagedDll] Resolution for 'managed.ref1' failed, passed down to next resolver", message)
                 );
             }
 
@@ -289,7 +279,6 @@ public static class DependencyContextAssemblyCacheTests
         }
     }
 
-#if NETCOREAPP2_0
     public class UnmanagedLibrary
     {
         [Fact]
@@ -344,5 +333,6 @@ public static class DependencyContextAssemblyCacheTests
             Assert.Equal($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolved '{unmanagedLibraryName}' to '{expectedPath}'", message);
         }
     }
-#endif
 }
+
+#endif

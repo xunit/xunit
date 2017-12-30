@@ -16,11 +16,8 @@
     <Compile Include="..\..\src\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\XunitSerializationInfo.cs" LinkBase="Common" />
-    <Compile Include="..\..\src\common\Microsoft.DotNet.PlatformAbstractions\**\*.cs" LinkBase="Common\Microsoft.DotNet.PlatformAbstractions" />
-    <Compile Include="..\..\src\common\Microsoft.Extensions.DependencyModel\**\*.cs" LinkBase="Common\Microsoft.Extensions.DependencyModel" />
+    <Compile Include="..\..\src\common\AssemblyResolution\**\*.cs" LinkBase="Common\AssemblyResolution" />
     <Compile Include="..\..\src\xunit.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs" LinkBase="Common\RunnerUtility" />
-    <Compile Include="..\..\src\xunit.runner.utility\Utility\DependencyContextAssemblyCache.cs" LinkBase="Common\RunnerUtility" />
-    <Compile Include="..\..\src\xunit.runner.utility\Utility\DependencyModel\XunitPackageCompilationAssemblyResolver.cs" LinkBase="Common\RunnerUtility" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NETCOREAPP2_0
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -94,10 +96,8 @@ class TestableDependencyContextAssemblyCache : DependencyContextAssemblyCache
     public Assembly LoadManagedDll(string assemblyName)
         => LoadManagedDll(assemblyName, location => new DummyAssembly(location));
 
-#if NETCOREAPP2_0
     public IntPtr LoadUnmanagedLibrary(string unmanagedLibraryName)
         => LoadUnmanagedLibrary(unmanagedLibraryName, location => new IntPtr(42));
-#endif
 
     public void MockAllLibrariesPresentInNuGetCache()
     {
@@ -147,3 +147,5 @@ class TestableDependencyContextAssemblyCache : DependencyContextAssemblyCache
                                                       "unknown",
                                                       Substitute.For<IFileSystem>());
 }
+
+#endif

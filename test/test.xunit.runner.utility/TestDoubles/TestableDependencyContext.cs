@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if NETCOREAPP2_0
+
+using System.Collections.Generic;
 using System.Linq;
 using Internal.Microsoft.Extensions.DependencyModel;
 
@@ -17,3 +19,5 @@ class TestableDependencyContext : DependencyContext
         InnerRuntimeGraph = runtimeGraph;
     }
 }
+
+#endif

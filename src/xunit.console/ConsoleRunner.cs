@@ -21,14 +21,15 @@ namespace Xunit.ConsoleClient
         IRunnerLogger logger;
         IMessageSinkWithTypes reporterMessageHandler;
 
-        public ConsoleRunner(object consoleLock, CommandLine commandLine)
+        public ConsoleRunner(object consoleLock)
         {
             this.consoleLock = consoleLock;
-            this.commandLine = commandLine;
         }
 
         public int EntryPoint(string[] args)
         {
+            commandLine = CommandLine.Parse(args);
+
             try
             {
                 var reporters = GetAvailableRunnerReporters();
@@ -419,7 +420,7 @@ namespace Xunit.ConsoleClient
                         if (assemblyElement != null)
                             resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
                         if (longRunningSeconds > 0)
-                            resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
+                            resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), MessageSinkWithTypesAdapter.Wrap(diagnosticMessageSink));
                         if (failSkips)
                             resultsSink = new DelegatingFailSkipSink(resultsSink);
 

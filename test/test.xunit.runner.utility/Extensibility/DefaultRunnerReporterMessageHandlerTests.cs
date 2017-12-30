@@ -160,7 +160,7 @@ public class DefaultRunnerReporterMessageHandlerTests
             handler.OnMessage(message);
 
             var msg = Assert.Single(handler.Messages);
-            Assert.Equal<object>(expectedResult, msg);
+            Assert.Equal(expectedResult, msg);
         }
     }
 

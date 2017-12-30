@@ -1,6 +1,7 @@
 ﻿#if !NETSTANDARD1_1
 
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Xunit
 {

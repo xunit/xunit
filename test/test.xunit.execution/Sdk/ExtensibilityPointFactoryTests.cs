@@ -94,7 +94,7 @@ public class ExtensibilityPointFactoryTests
 
             Assert.IsType<CollectionPerClassTestCollectionFactory>(result);
             Assert.Collection(DiagnosticMessages,
-                msg => Assert.Equal<object>(expectedMessage, msg)
+                msg => Assert.Equal(expectedMessage, msg)
             );
         }
 

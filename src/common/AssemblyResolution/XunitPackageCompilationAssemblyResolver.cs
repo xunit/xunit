@@ -1,4 +1,4 @@
-﻿#if NET452 || NETCOREAPP1_0 || NETCOREAPP2_0
+﻿#if NETCOREAPP1_0 || NETCOREAPP2_0
 
 // Adapted from https://github.com/dotnet/core-setup/blob/652b680dff6b1afb9cd26cc3c2e883a664c209fd/src/managed/Microsoft.Extensions.DependencyModel/Resolution/PackageCompilationAssemblyResolver.cs
 
@@ -30,39 +30,36 @@ namespace Xunit
 
         static List<string> GetDefaultProbeDirectories(Platform osPlatform, IMessageSink internalDiagnosticsMessageSink)
         {
-            var results = new HashSet<string>();
+            var results = default(List<string>);
 
-#if NETCOREAPP1_0
-            // The fact that the original code would only use PROBING_DIRECTORIES was causing failures to load
-            // referenced packages, so instead we'll use PROBING_DIRECTORIES as a supplemental folder.
-            var probeDirectories = AppContext.GetData("PROBING_DIRECTORIES");
-            var listOfDirectories = probeDirectories as string;
-
-            if (!string.IsNullOrEmpty(listOfDirectories))
-                foreach (var directory in listOfDirectories.Split(new char[] { Path.PathSeparator }, StringSplitOptions.RemoveEmptyEntries))
-                    results.Add(directory);
-#endif
-
-            // Allow the user to override the default location of NuGet packages
-            var packageDirectory = Environment.GetEnvironmentVariable("NUGET_PACKAGES");
-            if (!string.IsNullOrEmpty(packageDirectory))
-                results.Add(packageDirectory);
+            var probeDirectories = AppContext.GetData("PROBING_DIRECTORIES") as string;
+            if (!string.IsNullOrEmpty(probeDirectories))
+                results = probeDirectories.Split(new char[] { Path.PathSeparator }, StringSplitOptions.RemoveEmptyEntries).ToList();
             else
             {
-                string basePath;
-                if (osPlatform == Platform.Windows)
-                    basePath = Environment.GetEnvironmentVariable("USERPROFILE");
-                else
-                    basePath = Environment.GetEnvironmentVariable("HOME");
+                results = new List<string>();
 
-                if (!string.IsNullOrEmpty(basePath))
-                    results.Add(Path.Combine(basePath, ".nuget", "packages"));
+                // Allow the user to override the default location of NuGet packages
+                var packageDirectory = Environment.GetEnvironmentVariable("NUGET_PACKAGES");
+                if (!string.IsNullOrEmpty(packageDirectory))
+                    results.Add(packageDirectory);
+                else
+                {
+                    string basePath;
+                    if (osPlatform == Platform.Windows)
+                        basePath = Environment.GetEnvironmentVariable("USERPROFILE");
+                    else
+                        basePath = Environment.GetEnvironmentVariable("HOME");
+
+                    if (!string.IsNullOrEmpty(basePath))
+                        results.Add(Path.Combine(basePath, ".nuget", "packages"));
+                }
             }
 
             if (internalDiagnosticsMessageSink != null)
-                internalDiagnosticsMessageSink.OnMessage(new DiagnosticMessage($"[XunitPackageCompilationAssemblyResolver.GetDefaultProbeDirectories] returns: [{string.Join(",", results.Select(x => $"'{x}'"))}]"));
+                internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[XunitPackageCompilationAssemblyResolver.GetDefaultProbeDirectories] returns: [{string.Join(",", results.Select(x => $"'{x}'"))}]"));
 
-            return results.ToList();
+            return results;
         }
 
         public bool TryResolveAssemblyPaths(CompilationLibrary library, List<string> assemblies)

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessageSink
 {

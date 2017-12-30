@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputType>Exe</OutputType>
     <RootNamespace>Xunit.ConsoleClient</RootNamespace>
     <TargetFrameworks>net452;netcoreapp1.0;netcoreapp2.0</TargetFrameworks>
@@ -12,6 +13,7 @@
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\Guard.cs" LinkBase="Common" />
     <Compile Include="..\common\Json.cs" LinkBase="Common" />
+    <Compile Include="..\common\AssemblyResolution\**\*.cs" LinkBase="Common\AssemblyResolution" />
   </ItemGroup>
 
   <ItemGroup>
