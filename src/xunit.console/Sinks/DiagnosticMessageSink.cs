@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
-    public class DiagnosticMessageSink : IMessageSink
+    public class DiagnosticMessageSink : MarshalByRefObject, IMessageSink
     {
         readonly string assemblyDisplayName;
         readonly object consoleLock;
@@ -50,5 +50,13 @@ namespace Xunit.ConsoleClient
 
             return true;
         }
+
+#if NET452
+        [System.Security.SecurityCritical]
+        public override sealed object InitializeLifetimeService()
+        {
+            return null;
+        }
+#endif
     }
 }
