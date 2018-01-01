@@ -35,7 +35,7 @@ namespace Xunit.Sdk
             }
             catch (Exception ex)
             {
-                return new KeyValuePair<string, ITestCase>(ex.ToString(), null);
+                return new KeyValuePair<string, ITestCase>($"Test case deserialization failure: {ex}", null);
             }
         }
     }

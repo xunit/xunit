@@ -286,6 +286,13 @@ public static class Mocks
         return result;
     }
 
+    public static ITestCase TestCase(ITestMethod testMethod)
+    {
+        var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
+        result.TestMethod.Returns(testMethod);
+        return result;
+    }
+
     public static ITestCase TestCase<TClassUnderTest>(string methodName, string displayName = null, string skipReason = null, string uniqueID = null)
     {
         return TestCase(typeof(TClassUnderTest), methodName, displayName, skipReason, uniqueID);

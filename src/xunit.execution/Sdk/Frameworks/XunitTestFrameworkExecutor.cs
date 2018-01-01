@@ -47,16 +47,40 @@ namespace Xunit.Sdk
             if (value.Length > 3 && value.StartsWith(":F:"))
             {
                 // Format from XunitTestFrameworkDiscoverer.Serialize: ":F:{typeName}:{methodName}:{defaultMethodDisplay}:{defaultMethodDisplayOptions}:{collectionId}"
-                var parts = value.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length > 4)
+                // Colons in values are double-escaped, so we can't use String.Split
+                var parts = new List<string>();
+                var idx = 3;
+                var idxEnd = 3;
+                while (idxEnd < value.Length)
                 {
-                    var typeInfo = discoverer.Value.AssemblyInfo.GetType(parts[1]);
-                    var testCollectionUniqueId = Guid.Parse(parts[5]);
+                    if (value[idxEnd] == ':')
+                    {
+                        if (idxEnd + 1 == value.Length || value[idxEnd + 1] != ':')
+                        {
+                            if (idx != idxEnd)
+                                parts.Add(value.Substring(idx, idxEnd - idx).Replace("::", ":"));
+
+                            idx = idxEnd + 1;
+                        }
+                        else if (value[idxEnd + 1] == ':')
+                            ++idxEnd;
+                    }
+
+                    ++idxEnd;
+                }
+
+                if (idx != idxEnd)
+                    parts.Add(value.Substring(idx, idxEnd - idx).Replace("::", ":"));
+
+                if (parts.Count > 4)
+                {
+                    var typeInfo = discoverer.Value.AssemblyInfo.GetType(parts[0]);
+                    var testCollectionUniqueId = Guid.Parse(parts[4]);
                     var testClass = discoverer.Value.CreateTestClass(typeInfo, testCollectionUniqueId);
-                    var methodInfo = testClass.Class.GetMethod(parts[2], true);
+                    var methodInfo = testClass.Class.GetMethod(parts[1], true);
                     var testMethod = new TestMethod(testClass, methodInfo);
-                    var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[3]);
-                    var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[4]);
+                    var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[2]);
+                    var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[3]);
                     return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
                 }
             }

@@ -23,12 +23,15 @@ public class TestCaseBulkDeserializerTests
         executor = new XunitTestFrameworkExecutor(assembly.GetName(), sourceInformationProvider, diagnosticMessageSink);
     }
 
-    [Fact]
-    public void CanDeserializeSpecialFactSerialization()
+    [Theory]
+    [InlineData(":F:TestCaseBulkDeserializerTests+TestClass:FactMethod:2:1:{0}")]         // Standard
+    [InlineData(":F:TestCaseBulkDeserializerTests+TestClass:FactMethod:2:1:{0}:")]        // Trailing colon
+    [InlineData(":F:TestCaseBulkDeserializerTests+TestClass:FactMethod:2:1:{0}:unused")]  // Extra data
+    public void CanDeserializeSpecialFactSerialization(string format)
     {
         var guid = Guid.NewGuid();
         var results = default(List<KeyValuePair<string, ITestCase>>);
-        var serializedTestCases = new List<string> { $":F:TestCaseBulkDeserializerTests+TestClass:FactMethod:2:1:{guid.ToString("N")}" };
+        var serializedTestCases = new List<string> { string.Format(format, guid.ToString("N")) };
         Action<List<KeyValuePair<string, ITestCase>>> callback = r => results = r;
 
         new TestCaseBulkDeserializer(discoverer, executor, serializedTestCases, callback);
@@ -38,6 +41,17 @@ public class TestCaseBulkDeserializerTests
         Assert.Equal("TestCaseBulkDeserializerTests+TestClass", kvp.Value.TestMethod.TestClass.Class.Name);
         Assert.Equal("FactMethod", kvp.Value.TestMethod.Method.Name);
         Assert.Equal(guid, kvp.Value.TestMethod.TestClass.TestCollection.UniqueID);
+    }
+
+    [Fact]
+    public void XunitFactWithColonsGetsEscaped()
+    {
+        var testMethod = Mocks.TestMethod("TESTS:TESTS", "a:b");
+        var testCase = new XunitTestCase(null, Xunit.Sdk.TestMethodDisplay.ClassAndMethod, Xunit.Sdk.TestMethodDisplayOptions.None, testMethod);
+
+        var serializedTestCase = discoverer.Serialize(testCase);
+
+        Assert.StartsWith(":F:TESTS::TESTS:a::b:1:0:", serializedTestCase);
     }
 
     [Fact]

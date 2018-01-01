@@ -164,7 +164,7 @@ namespace Xunit.Sdk
                 var className = testCase.TestMethod?.TestClass?.Class?.Name;
                 var methodName = testCase.TestMethod?.Method?.Name;
                 if (className != null && methodName != null && (xunitTestCase.TestMethodArguments == null || xunitTestCase.TestMethodArguments.Length == 0))
-                    return $":F:{className}:{methodName}:{(int)xunitTestCase.DefaultMethodDisplay}:{(int)xunitTestCase.DefaultMethodDisplayOptions}:{testCase.TestMethod.TestClass.TestCollection.UniqueID.ToString("N")}";
+                    return $":F:{className.Replace(":", "::")}:{methodName.Replace(":", "::")}:{(int)xunitTestCase.DefaultMethodDisplay}:{(int)xunitTestCase.DefaultMethodDisplayOptions}:{testCase.TestMethod.TestClass.TestCollection.UniqueID.ToString("N")}";
             }
 
             return base.Serialize(testCase);
