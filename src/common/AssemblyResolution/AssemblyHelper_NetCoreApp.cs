@@ -27,10 +27,15 @@ namespace Xunit
         {
             this.internalDiagnosticsMessageSink = internalDiagnosticsMessageSink;
 
-            var assembly = LoadFromAssemblyPath(assemblyFileName);
-            var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
-            var dependencyContext = DependencyContext.Load(assembly);
+            Guard.FileExists(nameof(assemblyFileName), assemblyFileName);
 
+            var assembly = LoadFromAssemblyPath(assemblyFileName);
+            Guard.ArgumentValid(nameof(assemblyFileName), $"Could not load assembly '{assemblyFileName}'", assembly != null);
+
+            var dependencyContext = DependencyContext.Load(assembly);
+            Guard.ArgumentValid(nameof(assemblyFileName), $"Could not create dependency context for assembly '{assemblyFileName}'", dependencyContext != null);
+
+            var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
             assemblyCache = new DependencyContextAssemblyCache(assemblyFolder, dependencyContext, internalDiagnosticsMessageSink);
 
             Default.Resolving += OnResolving;
