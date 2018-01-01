@@ -51,6 +51,19 @@ public class CollectionAssertsTests
             Assert.Equal(6, ex.Failures.Count);
             Assert.All(ex.Failures, x => Assert.IsType<EqualException>(x));
         }
+
+        [Fact]
+        public static void CollectionWithNullThrowsAllException()
+        {
+            object[] collection = new object[]
+            {
+                new object(),
+                null
+            };
+
+            var ex = Assert.Throws<AllException>(() => Assert.All(collection, Assert.NotNull));
+            Assert.Contains("[1]: Item: ", ex.Message);
+        }
     }
 
     public class Collection
