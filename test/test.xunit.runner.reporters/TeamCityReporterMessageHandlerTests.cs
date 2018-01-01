@@ -13,9 +13,9 @@ public class TeamCityReporterMessageHandlerTests
             where TMessageType : class, IFailureInformation
         {
             var result = Substitute.For<TMessageType, InterfaceProxy<TMessageType>>();
-            result.ExceptionTypes.Returns(new[] { "ExceptionType" });
-            result.Messages.Returns(new[] { "This is my message \t\r\n" });
-            result.StackTraces.Returns(new[] { "Line 1\r\nLine 2\r\nLine 3" });
+            result.ExceptionTypes.Returns(new[] { "\x2018ExceptionType\x2019" });
+            result.Messages.Returns(new[] { "This is my message \x2020\t\r\n" });
+            result.StackTraces.Returns(new[] { "Line 1 \x0d60\r\nLine 2 \x1f64\r\nLine 3 \x999f" });
             return result;
         }
 
@@ -73,7 +73,7 @@ public class TeamCityReporterMessageHandlerTests
             handler.OnMessageWithTypes(message, null);
 
             var msg = Assert.Single(handler.Messages);
-            Assert.Equal($"[Imp] => ##teamcity[message text='|[{messageType}|] ExceptionType: ExceptionType : This is my message \t|r|n' errorDetails='Line 1|r|nLine 2|r|nLine 3' status='ERROR']", msg);
+            Assert.Equal($"[Imp] => ##teamcity[message text='|[{messageType}|] |0x2018ExceptionType|0x2019: |0x2018ExceptionType|0x2019 : This is my message |0x2020\t|r|n' errorDetails='Line 1 |0x0d60|r|nLine 2 |0x1f64|r|nLine 3 |0x999f' status='ERROR']", msg);
         }
     }
 

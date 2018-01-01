@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -137,20 +138,47 @@ namespace Xunit.Runner.Reporters
             logger.LogImportantMessage($"##teamcity[testFinished name='{formattedName}' duration='{(int)(testResult.ExecutionTime * 1000M)}' flowId='{ToFlowId(testResult.TestCollection.DisplayName)}']");
         }
 
+        static bool IsAscii(char ch) => ch <= '\x007f';
+
         static string Escape(string value)
         {
-            if (value == null)
-                return string.Empty;
+            var sb = new StringBuilder(value.Length);
+            for (int i = 0; i < value.Length; i++)
+            {
+                var ch = value[i];
 
-            return value.Replace("|", "||")
-                        .Replace("'", "|'")
-                        .Replace("\r", "|r")
-                        .Replace("\n", "|n")
-                        .Replace("]", "|]")
-                        .Replace("[", "|[")
-                        .Replace("\u0085", "|x")
-                        .Replace("\u2028", "|l")
-                        .Replace("\u2029", "|p");
+                switch (ch)
+                {
+                    case '|':
+                        sb.Append("||");
+                        break;
+                    case '\'':
+                        sb.Append("|'");
+                        break;
+                    case '\n':
+                        sb.Append("|n");
+                        break;
+                    case '\r':
+                        sb.Append("|r");
+                        break;
+                    case '[':
+                        sb.Append("|[");
+                        break;
+                    case ']':
+                        sb.Append("|]");
+                        break;
+                    default:
+                        if (IsAscii(ch))
+                            sb.Append(ch);
+                        else
+                        {
+                            sb.Append("|0x");
+                            sb.Append(((int)ch).ToString("x4"));
+                        }
+                        break;
+                }
+            }
+            return sb.ToString();
         }
 
         string ToFlowId(string testCollectionName)
