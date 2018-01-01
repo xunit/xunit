@@ -27,13 +27,28 @@ namespace Xunit
         {
             this.internalDiagnosticsMessageSink = internalDiagnosticsMessageSink;
 
-            Guard.FileExists(nameof(assemblyFileName), assemblyFileName);
+            if (!File.Exists(assemblyFileName))
+            {
+                if (internalDiagnosticsMessageSink != null)
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_NetCoreApp..ctor] Assembly file not found: '{assemblyFileName}'"));
+                return;
+            }
 
             var assembly = LoadFromAssemblyPath(assemblyFileName);
-            Guard.ArgumentValid(nameof(assemblyFileName), $"Could not load assembly '{assemblyFileName}'", assembly != null);
+            if (assembly == null)
+            {
+                if (internalDiagnosticsMessageSink != null)
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_NetCoreApp..ctor] Assembly file could not be loaded: '{assemblyFileName}'"));
+                return;
+            }
 
             var dependencyContext = DependencyContext.Load(assembly);
-            Guard.ArgumentValid(nameof(assemblyFileName), $"Could not create dependency context for assembly '{assemblyFileName}'", dependencyContext != null);
+            if (dependencyContext == null)
+            {
+                if (internalDiagnosticsMessageSink != null)
+                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[AssemblyHelper_NetCoreApp..ctor] Assembly file does not contain dependency manifest: '{assemblyFileName}'"));
+                return;
+            }
 
             var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
             assemblyCache = new DependencyContextAssemblyCache(assemblyFolder, dependencyContext, internalDiagnosticsMessageSink);
@@ -43,7 +58,10 @@ namespace Xunit
 
         /// <inheritdoc/>
         public void Dispose()
-            => Default.Resolving -= OnResolving;
+        {
+            if (assemblyCache != null)
+                Default.Resolving -= OnResolving;
+        }
 
         /// <inheritdoc/>
         protected override Assembly Load(AssemblyName assemblyName)
@@ -52,7 +70,11 @@ namespace Xunit
         /// <inheritdoc/>
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
-            var result = assemblyCache.LoadUnmanagedLibrary(unmanagedDllName, path => LoadUnmanagedDllFromPath(path));
+            var result = default(IntPtr);
+
+            if (assemblyCache != null)
+                result = assemblyCache.LoadUnmanagedLibrary(unmanagedDllName, path => LoadUnmanagedDllFromPath(path));
+
             if (result == default)
                 result = base.LoadUnmanagedDll(unmanagedDllName);
 
@@ -60,7 +82,7 @@ namespace Xunit
         }
 
         Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
-            => assemblyCache.LoadManagedDll(name.Name, path => LoadFromAssemblyPath(path));
+            => assemblyCache?.LoadManagedDll(name.Name, path => LoadFromAssemblyPath(path));
 
         /// <summary>
         /// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
