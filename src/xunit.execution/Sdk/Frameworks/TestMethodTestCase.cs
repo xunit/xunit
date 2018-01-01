@@ -36,6 +36,18 @@ namespace Xunit.Sdk
         /// Initializes a new instance of the <see cref="TestMethodTestCase"/> class.
         /// </summary>
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
+        /// <param name="testMethod">The test method this test case belongs to.</param>
+        /// <param name="testMethodArguments">The arguments for the test method.</param>
+        [Obsolete("Please call the constructor which takes TestMethodDisplayOptions")]
+        protected TestMethodTestCase(TestMethodDisplay defaultMethodDisplay,
+                                     ITestMethod testMethod,
+                                     object[] testMethodArguments = null)
+            : this(defaultMethodDisplay, TestMethodDisplayOptions.None, testMethod, testMethodArguments) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestMethodTestCase"/> class.
+        /// </summary>
+        /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
         /// <param name="testMethod">The test method this test case belongs to.</param>
         /// <param name="testMethodArguments">The arguments for the test method.</param>
