@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -10,12 +11,9 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Xunit.Abstractions;
 
 #if NETCOREAPP1_0
-using System.Reflection;
 using System.Text;
 using Internal.Microsoft.DotNet.PlatformAbstractions;
 using Internal.Microsoft.Extensions.DependencyModel;
-#elif NET452
-using System.Reflection;
 #endif
 
 namespace Xunit.Runner.VisualStudio
@@ -28,6 +26,7 @@ namespace Xunit.Runner.VisualStudio
     public class VsTestRunner : ITestDiscoverer, ITestExecutor
     {
         static IRunnerReporter[] NoReporters = new IRunnerReporter[0];
+        static int PrintedHeader = 0;
         public static TestProperty SerializedTestCaseProperty = GetTestProperty();
 
 #if WINDOWS_UAP || NETCOREAPP1_0
@@ -70,6 +69,7 @@ namespace Xunit.Runner.VisualStudio
 
         void ITestDiscoverer.DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
         {
+
             Guard.ArgumentNotNull("sources", sources);
             Guard.ArgumentNotNull("logger", logger);
             Guard.ArgumentNotNull("discoverySink", discoverySink);
@@ -77,6 +77,8 @@ namespace Xunit.Runner.VisualStudio
 
             var stopwatch = Stopwatch.StartNew();
             var loggerHelper = new LoggerHelper(logger, stopwatch);
+
+            PrintHeader(loggerHelper);
 
             var runSettings = RunSettings.Parse(discoveryContext?.RunSettings?.SettingsXml);
             if (!runSettings.IsMatchingTargetFramework())
@@ -100,12 +102,34 @@ namespace Xunit.Runner.VisualStudio
             );
         }
 
+        static void PrintHeader(LoggerHelper loggerHelper)
+        {
+            if (Interlocked.Exchange(ref PrintedHeader, 1) == 0)
+            {
+#if NET452
+                var platform = $"Desktop .NET {Environment.Version}";
+#elif NETCOREAPP1_0
+                var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+#elif WINDOWS_UAP
+                var platform = "Universal Windows";
+#else
+#error Unknown target platform
+#endif
+
+                var versionAttribute = typeof(VsTestRunner).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+
+                loggerHelper.Log($"xUnit.net VSTest Adapter v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {platform})");
+            }
+        }
+
         void ITestExecutor.RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             Guard.ArgumentNotNull("sources", sources);
 
             var stopwatch = Stopwatch.StartNew();
             var logger = new LoggerHelper(frameworkHandle, stopwatch);
+
+            PrintHeader(logger);
 
             var runSettings = RunSettings.Parse(runContext?.RunSettings?.SettingsXml);
             if (!runSettings.IsMatchingTargetFramework())
@@ -160,6 +184,8 @@ namespace Xunit.Runner.VisualStudio
             var stopwatch = Stopwatch.StartNew();
             var logger = new LoggerHelper(frameworkHandle, stopwatch);
             var runSettings = RunSettings.Parse(runContext?.RunSettings?.SettingsXml);
+
+            PrintHeader(logger);
 
             // In the context of Run Specific tests, commandline runner doesn't require source information or
             // serialized xunit test case property

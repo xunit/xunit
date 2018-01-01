@@ -169,7 +169,10 @@ namespace Xunit.Runner.MSBuild
                 reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
                 if (!NoLogo)
-                    Log.LogMessage(MessageImportance.High, "xUnit.net MSBuild Runner ({0})", environment);
+                {
+                    var versionAttribute = typeof(xunit).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                    Log.LogMessage(MessageImportance.High, $"xUnit.net MSBuild Runner v{versionAttribute.InformationalVersion} ({environment})");
+                }
 
                 var project = new XunitProject();
                 foreach (var assembly in Assemblies)

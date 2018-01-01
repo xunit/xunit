@@ -197,8 +197,9 @@ namespace Xunit.ConsoleClient
 #else
 #error Unknown target platform
 #endif
+            var versionAttribute = typeof(ConsoleRunner).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
-            Console.WriteLine($"xUnit.net Console Runner ({IntPtr.Size * 8}-bit {platform})");
+            Console.WriteLine($"xUnit.net Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {platform})");
         }
 
         void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)

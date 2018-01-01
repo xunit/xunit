@@ -192,7 +192,9 @@ class Program
 
     static void PrintUsage()
     {
-        Console.WriteLine("xUnit.net .NET CLI Console Runner");
+        var versionAttribute = typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+
+        Console.WriteLine($"xUnit.net .NET CLI Console Runner v{versionAttribute.InformationalVersion}");
         Console.WriteLine("Copyright (C) .NET Foundation.");
         Console.WriteLine();
         Console.WriteLine("usage: dotnet xunit [configFile] [options] [reporter] [resultFormat filename [...]]");
