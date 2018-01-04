@@ -3,8 +3,4 @@
     AssemblyFile="$(MSBuildThisFileDirectory)..\net452\xunit.runner.msbuild.net452.dll"
     Condition=" '$(MSBuildRuntimeType)' != 'Core' "
     TaskName="Xunit.Runner.MSBuild.xunit"/>
-  <UsingTask
-    AssemblyFile="$(MSBuildThisFileDirectory)..\netcoreapp1.0\xunit.runner.msbuild.netcoreapp10.dll"
-    Condition=" '$(MSBuildRuntimeType)' == 'Core' "
-    TaskName="Xunit.Runner.MSBuild.xunit"/>
 </Project>
