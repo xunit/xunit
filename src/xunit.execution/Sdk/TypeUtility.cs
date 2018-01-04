@@ -137,24 +137,14 @@ namespace Xunit.Sdk
 
             // Implicit & explicit conversions to/from a type can be declared on either side of the relationship.
             // We need to check both possibilities.
-            object convertedArgumentValue;
-
-            // Check for conversions declared on the parameter's type
-            if (TryPerformDefinedConversions(argumentValue, parameterType, out convertedArgumentValue))
-                return convertedArgumentValue;
-
-            // Check for conversions declared on the argument's type
-            if (TryPerformDefinedConversions(argumentValue, argumentValueType, out convertedArgumentValue))
-                return convertedArgumentValue;
-
-            // Can't convert object. We don't need to throw anything here, since MethodInfo.Invoke does
-            return argumentValue;
+            return PerformDefinedConversions(argumentValue, parameterType)
+                ?? PerformDefinedConversions(argumentValue, argumentValueType)
+                ?? argumentValue;
         }
 
-        private static bool TryPerformDefinedConversions(
+        private static object PerformDefinedConversions(
             object argumentValue,
-            Type conversionDeclaringType,
-            out object convertedArgumentValue)
+            Type conversionDeclaringType)
         {
             // argumentValue is known to not be null when we're called from TryConvertObject.
             Type argumentValueType = argumentValue.GetType();
@@ -166,20 +156,17 @@ namespace Xunit.Sdk
             MethodInfo implicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Implicit", methodTypes);
             if (implicitMethod != null && implicitMethod.IsStatic)
             {
-                convertedArgumentValue = implicitMethod.Invoke(null, methodArguments);
-                return true;
+                return implicitMethod.Invoke(null, methodArguments);
             }
 
             // Check if we can explicitly convert the argument type to the parameter type
             MethodInfo explicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Explicit", methodTypes);
             if (explicitMethod != null && explicitMethod.IsStatic)
             {
-                convertedArgumentValue = explicitMethod.Invoke(null, methodArguments);
-                return true;
+                return explicitMethod.Invoke(null, methodArguments);
             }
 
-            convertedArgumentValue = null;
-            return false;
+            return null;
         }
 
         /// <summary>
