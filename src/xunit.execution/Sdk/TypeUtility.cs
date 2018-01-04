@@ -135,25 +135,51 @@ namespace Xunit.Sdk
                 return argumentValue;
             }
 
+            // Implicit & explicit conversions to/from a type can be declared on either side of the relationship.
+            // We need to check both possibilities.
+            object convertedArgumentValue;
+
+            // Check for conversions declared on the parameter's type
+            if (TryPerformDefinedConversions(argumentValue, parameterType, out convertedArgumentValue))
+                return convertedArgumentValue;
+
+            // Check for conversions declared on the argument's type
+            if (TryPerformDefinedConversions(argumentValue, argumentValueType, out convertedArgumentValue))
+                return convertedArgumentValue;
+
+            // Can't convert object. We don't need to throw anything here, since MethodInfo.Invoke does
+            return argumentValue;
+        }
+
+        private static bool TryPerformDefinedConversions(
+            object argumentValue,
+            Type conversionDeclaringType,
+            out object convertedArgumentValue)
+        {
+            // argumentValue is known to not be null when we're called from TryConvertObject.
+            Type argumentValueType = argumentValue.GetType();
+
             Type[] methodTypes = new Type[] { argumentValueType };
             object[] methodArguments = new object[] { argumentValue };
 
             // Check if we can implicitly convert the argument type to the parameter type
-            MethodInfo implicitMethod = parameterType.GetRuntimeMethod("op_Implicit", methodTypes);
+            MethodInfo implicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Implicit", methodTypes);
             if (implicitMethod != null && implicitMethod.IsStatic)
             {
-                return implicitMethod.Invoke(null, methodArguments);
+                convertedArgumentValue = implicitMethod.Invoke(null, methodArguments);
+                return true;
             }
 
             // Check if we can explicitly convert the argument type to the parameter type
-            MethodInfo explicitMethod = parameterType.GetRuntimeMethod("op_Explicit", methodTypes);
+            MethodInfo explicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Explicit", methodTypes);
             if (explicitMethod != null && explicitMethod.IsStatic)
             {
-                return explicitMethod.Invoke(null, methodArguments);
+                convertedArgumentValue = explicitMethod.Invoke(null, methodArguments);
+                return true;
             }
 
-            // Can't convert object. We don't need to throw anything here, since MethodInfo.Invoke does
-            return argumentValue;
+            convertedArgumentValue = null;
+            return false;
         }
 
         /// <summary>
