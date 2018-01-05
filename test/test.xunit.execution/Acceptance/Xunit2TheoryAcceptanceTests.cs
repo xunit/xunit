@@ -281,7 +281,7 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.Equal("abc", e.Value);
             }
 
-            // Explicit conversion defined on the parameter's type
+            // Implicit conversion defined on the parameter's type
             [Theory]
             [InlineData("abc")]
             public void ParameterDeclaredImplicitConversion(Implicit i)
