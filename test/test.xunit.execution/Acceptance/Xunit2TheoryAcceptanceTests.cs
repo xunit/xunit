@@ -262,27 +262,53 @@ public class Xunit2TheoryAcceptanceTests
             var results = Run<ITestResultMessage>(typeof(ClassWithOperatorConversions));
 
             Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ExplicitConversion(e: Explicit { Value = ""abc"" })", result.Test.DisplayName),
-                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ImplicitConversion(i: Implicit { Value = ""abc"" })", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredExplicitConversion(value: ""abc"")", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredImplicitConversion(value: ""abc"")", result.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.IntToLong(i: 1)", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredExplicitConversion(e: Explicit { Value = ""abc"" })", result.Test.DisplayName),
+                result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredImplicitConversion(i: Implicit { Value = ""abc"" })", result.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.UIntToULong(i: 1)", result.Test.DisplayName)
             );
         }
 
         public class ClassWithOperatorConversions
         {
+            // Explicit conversion defined on the parameter's type
             [Theory]
             [InlineData("abc")]
-            public void ExplicitConversion(Explicit e)
+            public void ParameterDeclaredExplicitConversion(Explicit e)
             {
                 Assert.Equal("abc", e.Value);
             }
 
+            // Explicit conversion defined on the parameter's type
             [Theory]
             [InlineData("abc")]
-            public void ImplicitConversion(Implicit i)
+            public void ParameterDeclaredImplicitConversion(Implicit i)
             {
                 Assert.Equal("abc", i.Value);
+            }
+
+            public static IEnumerable<object[]> ExplicitArgument =
+                new[] { new[] { new Explicit { Value = "abc" } } };
+
+            // Explicit conversion defined on the argument's type
+            [Theory]
+            [MemberData(nameof(ExplicitArgument))]
+            public void ArgumentDeclaredExplicitConversion(string value)
+            {
+                Assert.Equal("abc", value);
+            }
+
+            public static IEnumerable<object[]> ImplicitArgument =
+                new[] { new[] { new Implicit { Value = "abc" } } };
+
+            // Implicit conversion defined on the argument's type
+            [Theory]
+            [MemberData(nameof(ImplicitArgument))]
+            public void ArgumentDeclaredImplicitConversion(string value)
+            {
+                Assert.Equal("abc", value);
             }
 
             [Theory]
@@ -307,6 +333,11 @@ public class Xunit2TheoryAcceptanceTests
                 {
                     return new Explicit() { Value = value };
                 }
+
+                public static explicit operator string(Explicit e)
+                {
+                    return e.Value;
+                }
             }
 
             public class Implicit
@@ -316,6 +347,11 @@ public class Xunit2TheoryAcceptanceTests
                 public static implicit operator Implicit(string value)
                 {
                     return new Implicit() { Value = value };
+                }
+
+                public static implicit operator string(Implicit i)
+                {
+                    return i.Value;
                 }
             }
         }

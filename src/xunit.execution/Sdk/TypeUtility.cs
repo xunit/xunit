@@ -135,25 +135,38 @@ namespace Xunit.Sdk
                 return argumentValue;
             }
 
+            // Implicit & explicit conversions to/from a type can be declared on either side of the relationship.
+            // We need to check both possibilities.
+            return PerformDefinedConversions(argumentValue, parameterType)
+                ?? PerformDefinedConversions(argumentValue, argumentValueType)
+                ?? argumentValue;
+        }
+
+        private static object PerformDefinedConversions(
+            object argumentValue,
+            Type conversionDeclaringType)
+        {
+            // argumentValue is known to not be null when we're called from TryConvertObject.
+            Type argumentValueType = argumentValue.GetType();
+
             Type[] methodTypes = new Type[] { argumentValueType };
             object[] methodArguments = new object[] { argumentValue };
 
             // Check if we can implicitly convert the argument type to the parameter type
-            MethodInfo implicitMethod = parameterType.GetRuntimeMethod("op_Implicit", methodTypes);
+            MethodInfo implicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Implicit", methodTypes);
             if (implicitMethod != null && implicitMethod.IsStatic)
             {
                 return implicitMethod.Invoke(null, methodArguments);
             }
 
             // Check if we can explicitly convert the argument type to the parameter type
-            MethodInfo explicitMethod = parameterType.GetRuntimeMethod("op_Explicit", methodTypes);
+            MethodInfo explicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Explicit", methodTypes);
             if (explicitMethod != null && explicitMethod.IsStatic)
             {
                 return explicitMethod.Invoke(null, methodArguments);
             }
 
-            // Can't convert object. We don't need to throw anything here, since MethodInfo.Invoke does
-            return argumentValue;
+            return null;
         }
 
         /// <summary>
