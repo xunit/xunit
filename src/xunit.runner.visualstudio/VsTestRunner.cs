@@ -287,16 +287,22 @@ namespace Xunit.Runner.VisualStudio
 
                         using (var visitor = visitorFactory(assemblyFileName, framework, discoveryOptions))
                         {
+                            var totalTests = 0;
                             var usingAppDomains = framework.CanUseAppDomains && AppDomainDefaultBehavior != AppDomainSupport.Denied;
                             reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, usingAppDomains, shadowCopy, discoveryOptions));
 
-                            framework.Find(testPlatformContext.RequireSourceInformation, visitor, discoveryOptions);
+                            try
+                            {
+                                framework.Find(testPlatformContext.RequireSourceInformation, visitor, discoveryOptions);
 
-                            var totalTests = visitor.Finish();
+                                totalTests = visitor.Finish();
 
-                            visitComplete?.Invoke(assemblyFileName, framework, discoveryOptions, visitor);
-
-                            reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, totalTests, totalTests));
+                                visitComplete?.Invoke(assemblyFileName, framework, discoveryOptions, visitor);
+                            }
+                            finally
+                            {
+                                reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, totalTests, totalTests));
+                            }
                         }
                     }
                 }
