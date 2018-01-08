@@ -96,7 +96,15 @@ namespace Xunit.Sdk
                     // Parameters need adjusting into an array
                     var paramsArrayLength = arguments.Length - parameters.Length + 1;
                     var paramsArray = Array.CreateInstance(paramsElementType, paramsArrayLength);
-                    Array.Copy(arguments, parameters.Length - 1, paramsArray, 0, paramsArray.Length);
+                    try
+                    {
+                        Array.Copy(arguments, parameters.Length - 1, paramsArray, 0, paramsArray.Length);
+                    }
+                    catch (InvalidCastException)
+                    {
+                        throw new InvalidOperationException($"The arguments for this test method did not match the parameters: {ArgumentFormatter.Format(arguments)}");
+                    }
+
                     newArguments[newArguments.Length - 1] = paramsArray;
                     resolvedArgumentsCount = paramsArrayLength;
                 }
