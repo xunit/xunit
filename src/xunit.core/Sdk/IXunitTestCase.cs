@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
@@ -10,7 +11,13 @@ namespace Xunit.Sdk
     public interface IXunitTestCase : ITestCase
     {
         /// <summary>
-        /// Gets the method to be run. Differs from <see cref="ITestCase.TestMethod"/>.<see cref="ITestMethod.Method"/> in that
+        /// Gets the exception that happened during initialization. When this is set, then
+        /// the test execution should fail with this exception.
+        /// </summary>
+        Exception InitializationException { get; }
+
+        /// <summary>
+        /// Gets the method to be run. Differs from <see cref="ITestCase"/>.<see cref="ITestMethod.Method"/> in that
         /// any generic argument types will have been closed based on the arguments.
         /// </summary>
         IMethodInfo Method { get; }

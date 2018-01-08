@@ -50,15 +50,14 @@ namespace Xunit.Sdk
         /// <returns>The argument values</returns>
         public static object[] ResolveMethodArguments(this MethodBase testMethod, object[] arguments)
         {
-            ParameterInfo[] parameters = testMethod.GetParameters();
+            var parameters = testMethod.GetParameters();
             bool hasParamsParameter = false;
-            if (parameters.Length > 0)
-            {
-                // Params can only be added at the end of the parameter list
-                hasParamsParameter = parameters[parameters.Length - 1].GetCustomAttribute(typeof(ParamArrayAttribute)) != null;
-            }
 
-            int nonOptionalParameterCount = parameters.Count(p => !p.IsOptional);
+            // Params can only be added at the end of the parameter list
+            if (parameters.Length > 0)
+                hasParamsParameter = parameters[parameters.Length - 1].GetCustomAttribute(typeof(ParamArrayAttribute)) != null;
+
+            var nonOptionalParameterCount = parameters.Count(p => !p.IsOptional);
             if (hasParamsParameter)
                 nonOptionalParameterCount--;
 
@@ -70,17 +69,17 @@ namespace Xunit.Sdk
             if (!hasParamsParameter && arguments.Length > parameters.Length)
                 return arguments;
 
-            object[] newArguments = new object[parameters.Length];
-            int resolvedArgumentsCount = 0;
+            var newArguments = new object[parameters.Length];
+            var resolvedArgumentsCount = 0;
             if (hasParamsParameter)
             {
-                ParameterInfo paramsParameter = parameters[parameters.Length - 1];
-                Type paramsElementType = paramsParameter.ParameterType.GetElementType();
+                var paramsParameter = parameters[parameters.Length - 1];
+                var paramsElementType = paramsParameter.ParameterType.GetElementType();
 
                 if (arguments.Length < parameters.Length)
                 {
                     // Didn't include the params parameter
-                    Array emptyParamsArray = Array.CreateInstance(paramsElementType, 0);
+                    var emptyParamsArray = Array.CreateInstance(paramsElementType, 0);
                     newArguments[newArguments.Length - 1] = emptyParamsArray;
                 }
                 else if (arguments.Length == parameters.Length &&
@@ -95,8 +94,8 @@ namespace Xunit.Sdk
                 else
                 {
                     // Parameters need adjusting into an array
-                    int paramsArrayLength = arguments.Length - parameters.Length + 1;
-                    Array paramsArray = Array.CreateInstance(paramsElementType, paramsArrayLength);
+                    var paramsArrayLength = arguments.Length - parameters.Length + 1;
+                    var paramsArray = Array.CreateInstance(paramsElementType, paramsArrayLength);
                     Array.Copy(arguments, parameters.Length - 1, paramsArray, 0, paramsArray.Length);
                     newArguments[newArguments.Length - 1] = paramsArray;
                     resolvedArgumentsCount = paramsArrayLength;
@@ -104,14 +103,14 @@ namespace Xunit.Sdk
             }
 
             // If the argument has been provided, pass the argument value
-            for (int i = 0; i < arguments.Length - resolvedArgumentsCount; i++)
+            for (var i = 0; i < arguments.Length - resolvedArgumentsCount; i++)
                 newArguments[i] = TryConvertObject(arguments[i], parameters[i].ParameterType);
 
             // If the argument has not been provided, pass the default value
             int unresolvedParametersCount = hasParamsParameter ? parameters.Length - 1 : parameters.Length;
-            for (int i = arguments.Length; i < unresolvedParametersCount; i++)
+            for (var i = arguments.Length; i < unresolvedParametersCount; i++)
             {
-                ParameterInfo parameter = parameters[i];
+                var parameter = parameters[i];
                 if (parameter.HasDefaultValue)
                     newArguments[i] = parameter.DefaultValue;
                 else
@@ -123,48 +122,41 @@ namespace Xunit.Sdk
 
         private static object TryConvertObject(object argumentValue, Type parameterType)
         {
-            Type argumentValueType = argumentValue?.GetType();
-            if (argumentValueType == null)
-            {
-                // We don't need to check if we're passing null to a value type here, as MethodInfo.Invoke does this
-                return argumentValue;
-            }
-            else if (parameterType.IsAssignableFrom(argumentValueType))
-            {
-                // No need to perform conversion
-                return argumentValue;
-            }
+            var argumentValueType = argumentValue?.GetType();
 
-            // Implicit & explicit conversions to/from a type can be declared on either side of the relationship.
+            // We don't need to check if we're passing null to a value type here, as MethodInfo.Invoke does this
+            if (argumentValueType == null)
+                return argumentValue;
+
+            // No need to perform conversion
+            if (parameterType.IsAssignableFrom(argumentValueType))
+                return argumentValue;
+
+            // Implicit & explicit conversions to/from a type can be declared on either side of the relationship
             // We need to check both possibilities.
             return PerformDefinedConversions(argumentValue, parameterType)
                 ?? PerformDefinedConversions(argumentValue, argumentValueType)
                 ?? argumentValue;
         }
 
-        private static object PerformDefinedConversions(
-            object argumentValue,
-            Type conversionDeclaringType)
+        private static object PerformDefinedConversions(object argumentValue,
+                                                        Type conversionDeclaringType)
         {
-            // argumentValue is known to not be null when we're called from TryConvertObject.
-            Type argumentValueType = argumentValue.GetType();
+            // argumentValue is known to not be null when we're called from TryConvertObject
+            var argumentValueType = argumentValue.GetType();
 
-            Type[] methodTypes = new Type[] { argumentValueType };
-            object[] methodArguments = new object[] { argumentValue };
+            var methodTypes = new Type[] { argumentValueType };
+            var methodArguments = new object[] { argumentValue };
 
             // Check if we can implicitly convert the argument type to the parameter type
-            MethodInfo implicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Implicit", methodTypes);
+            var implicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Implicit", methodTypes);
             if (implicitMethod != null && implicitMethod.IsStatic)
-            {
                 return implicitMethod.Invoke(null, methodArguments);
-            }
 
             // Check if we can explicitly convert the argument type to the parameter type
-            MethodInfo explicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Explicit", methodTypes);
+            var explicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Explicit", methodTypes);
             if (explicitMethod != null && explicitMethod.IsStatic)
-            {
                 return explicitMethod.Invoke(null, methodArguments);
-            }
 
             return null;
         }
@@ -313,8 +305,7 @@ namespace Xunit.Sdk
         /// <returns>If type has an element type, underlying ElementType of a type, else the original type.</returns>
         private static ITypeInfo StripElementType(ITypeInfo type, ref bool isArray)
         {
-            var parameterReflectionType = type as IReflectionTypeInfo;
-            if (parameterReflectionType != null && parameterReflectionType.Type.HasElementType)
+            if (type is IReflectionTypeInfo parameterReflectionType && parameterReflectionType.Type.HasElementType)
             {
                 // We have a T[] or T&
                 isArray = parameterReflectionType.Type.IsArray;
@@ -414,9 +405,7 @@ namespace Xunit.Sdk
         internal static object GetDefaultValue(this TypeInfo typeInfo)
         {
             if (typeInfo.IsValueType)
-            {
                 return Activator.CreateInstance(typeInfo.AsType());
-            }
 
             return null;
         }

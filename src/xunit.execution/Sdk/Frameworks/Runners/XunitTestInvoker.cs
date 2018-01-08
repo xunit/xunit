@@ -98,5 +98,18 @@ namespace Xunit.Sdk
 
             return CommonTasks.Completed;
         }
+
+        /// <inheritdoc/>
+        protected override Task<decimal> InvokeTestMethodAsync(object testClassInstance)
+        {
+            if (TestCase.InitializationException != null)
+            {
+                var tcs = new TaskCompletionSource<decimal>();
+                tcs.SetException(TestCase.InitializationException);
+                return tcs.Task;
+            }
+
+            return base.InvokeTestMethodAsync(testClassInstance);
+        }
     }
 }

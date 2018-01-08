@@ -69,7 +69,7 @@ namespace Xunit.Sdk
         protected string BaseDisplayName
         {
             get
-            { 
+            {
                 if (DefaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
                     return formatter.Format($"{TestMethod.TestClass.Class.Name}.{TestMethod.Method.Name}");
 
@@ -101,6 +101,12 @@ namespace Xunit.Sdk
                 displayName = value;
             }
         }
+
+        /// <summary>
+        /// Gets or sets the exception that happened during initialization. When this is set, then
+        /// the test execution should fail with this exception.
+        /// </summary>
+        public Exception InitializationException { get; protected set; }
 
         /// <inheritdoc/>
         public IMethodInfo Method
@@ -276,20 +282,29 @@ namespace Xunit.Sdk
 
             if (TestMethodArguments != null)
             {
-                IReflectionMethodInfo reflectionMethod = Method as IReflectionMethodInfo;
-                if (reflectionMethod != null)
+                if (Method is IReflectionMethodInfo reflectionMethod)
                 {
-                    TestMethodArguments = reflectionMethod.MethodInfo.ResolveMethodArguments(TestMethodArguments);
-                }
-                if (method.IsGenericMethodDefinition)
-                {
-                    methodGenericTypes = Method.ResolveGenericTypes(TestMethodArguments);
-                    Method = Method.MakeGenericMethod(MethodGenericTypes);
+                    try
+                    {
+                        TestMethodArguments = reflectionMethod.MethodInfo.ResolveMethodArguments(TestMethodArguments);
+                    }
+                    catch (Exception ex)
+                    {
+                        InitializationException = ex;
+                        TestMethodArguments = null;
+                        displayName = $"{BaseDisplayName}(???)";
+                    }
                 }
             }
 
-            var baseDisplayName = BaseDisplayName;
-            displayName = Method.GetDisplayNameWithArguments(baseDisplayName, TestMethodArguments, MethodGenericTypes);
+            if (TestMethodArguments != null && method.IsGenericMethodDefinition)
+            {
+                methodGenericTypes = Method.ResolveGenericTypes(TestMethodArguments);
+                Method = Method.MakeGenericMethod(MethodGenericTypes);
+            }
+
+            if (displayName == null)
+                displayName = Method.GetDisplayNameWithArguments(BaseDisplayName, TestMethodArguments, MethodGenericTypes);
         }
 
         static void Write(Stream stream, string value)
