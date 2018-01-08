@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -27,18 +28,22 @@ namespace Xunit
                 var sourceInformation = testCase.SourceInformation;
                 var testMethod = testCase.TestMethod;
 
-                results.Add(new TestCaseDescriptor
+                try
                 {
-                    ClassName = testMethod.TestClass.Class.Name,
-                    DisplayName = testCase.DisplayName,
-                    MethodName = testMethod.Method.Name,
-                    Serialization = serialization,
-                    SkipReason = testCase.SkipReason,
-                    SourceFileName = sourceInformation?.FileName,
-                    SourceLineNumber = sourceInformation?.LineNumber,
-                    Traits = testCase.Traits ?? new Dictionary<string, List<string>>(),
-                    UniqueID = testCase.UniqueID
-                });
+                    results.Add(new TestCaseDescriptor
+                    {
+                        ClassName = testMethod.TestClass.Class.Name,
+                        DisplayName = testCase.DisplayName,
+                        MethodName = testMethod.Method.Name,
+                        Serialization = serialization,
+                        SkipReason = testCase.SkipReason,
+                        SourceFileName = sourceInformation?.FileName,
+                        SourceLineNumber = sourceInformation?.LineNumber,
+                        Traits = testCase.Traits ?? new Dictionary<string, List<string>>(),
+                        UniqueID = testCase.UniqueID
+                    });
+                }
+                catch (Exception) { }
             }
 
             return results;
