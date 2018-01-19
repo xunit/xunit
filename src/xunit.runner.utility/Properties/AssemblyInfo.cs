@@ -12,7 +12,7 @@ using System.Reflection;
 #elif NETCOREAPP1_0
 [assembly: AssemblyTitle("xUnit.net Runner Utility (.NET Core 1.0)")]
 #elif WINDOWS_UAP
-[assembly: AssemblyTitle("xUnit.net Runner for Visual Studio (Universal Windows 10.0)")]
+[assembly: AssemblyTitle("xUnit.net Runner Utility (Universal Windows 10.0)")]
 #else
 #error Unknown target platform
 #endif
