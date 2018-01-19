@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Discovery;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -14,6 +15,12 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.VisualStudio.TestPlatform.Common;
+using Microsoft.VisualStudio.TestPlatform.Common.Telemetry;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 
 namespace test.harness.uwp
 {
@@ -66,14 +73,36 @@ namespace test.harness.uwp
                 // Place the frame in the current Window
                 Window.Current.Content = rootFrame;
             }
-            
+
             Microsoft.VisualStudio.TestPlatform.TestExecutor.UnitTestClient.CreateDefaultUI();
 
             // Ensure the current window is active
             Window.Current.Activate();
 
-            Microsoft.VisualStudio.TestPlatform.TestExecutor.UnitTestClient.Run(e.Arguments);            
-            
+            //Microsoft.VisualStudio.TestPlatform.TestExecutor.UnitTestClient.Run(e.Arguments);
+            var dm = new DiscoveryManager(new RequestData()
+            {
+                IsTelemetryOptedIn = false,
+                ProtocolConfig = new ProtocolConfig
+                {
+                    Version = 2
+                },
+                MetricsCollection = new NoOpMetricsCollection()
+            });
+
+
+            // Adapter output location
+            var source = "entrypoint\\test.harness.uwp.exe";
+
+            var adapterPath = Path.Combine(Package.Current.InstalledLocation.Path, "xunit.runner.visualstudio.uwp.testadapter.dll");
+
+
+            var hander = new MockTestDiscoveryEventHandler();
+
+            var criteria = new DiscoveryCriteria(new[] { "" }, long.MaxValue, string.Empty); ;
+            criteria.AdapterSourceMap.Add(adapterPath, new[] { source });
+
+            dm.DiscoverTests(criteria, hander);
         }
 
         /// <summary>
