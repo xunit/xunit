@@ -28,8 +28,8 @@
 
     <file src="xunit.runner.visualstudio\bin\$Configuration$\uap10.0\xunit.runner.reporters.netstandard11.dll" target="build\uap10.0\" />
     <file src="xunit.runner.visualstudio\bin\$Configuration$\uap10.0\xunit.runner.utility.netstandard11.dll"   target="build\uap10.0\" />
-    <file src="xunit.runner.visualstudio\bin\$Configuration$\uap10.0\xunit.runner.visualstudio.uwp.dll"        target="build\uap10.0\" />
-    <file src="xunit.runner.visualstudio\bin\$Configuration$\uap10.0\xunit.runner.visualstudio.uwp.pri"        target="build\uap10.0\" />
+    <file src="xunit.runner.visualstudio\bin\$Configuration$\uap10.0\xunit.runner.visualstudio.uwp.testadapter.dll"        target="build\uap10.0\" />
+    <file src="xunit.runner.visualstudio\bin\$Configuration$\uap10.0\xunit.runner.visualstudio.uwp.testadapter.pri"        target="build\uap10.0\" />
     <file src="xunit.runner.visualstudio\build\xunit.runner.visualstudio.uwp.props"                            target="build\uap10.0\xunit.runner.visualstudio.props" />
     <file src="xunit.runner.visualstudio\build\xunit.runner.visualstudio.uwp.targets"                          target="build\uap10.0\xunit.runner.visualstudio.targets" />
 

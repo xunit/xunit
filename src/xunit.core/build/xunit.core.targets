@@ -21,7 +21,13 @@
   </PropertyGroup>
   <Choose>
     <When Condition="'$(UnitTestPlatformVersion)' &gt;= '15.5' ">
-      
+      <ItemGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
+        <None Include="$(MSBuildThisFileDirectory)xunit.execution.dotnet.dll">
+          <Link>xunit.execution.dotnet.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Visible>False</Visible>
+        </None>
+      </ItemGroup>
     </When>
     <Otherwise>
         <!-- UWP in TPv1 does discovery in desktop CLR, so needs desktop execution library (and full PDBs) -->
