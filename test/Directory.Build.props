@@ -24,8 +24,13 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(MSBuildProjectName)' != 'test.utility' AND '$(MSBuildProjectName)' != 'test.xunit1' ">
-    <ProjectReference Include="$(MSBuildThisFileDirectory)test.utility\test.utility.csproj" />
-  </ItemGroup>
+  <!-- Need this Choose/When for legacy projects (UWP) in the IDE -->
+  <Choose>
+    <When Condition=" '$(MSBuildProjectName)' != 'test.utility' AND '$(MSBuildProjectName)' != 'test.xunit1' and '$(MSBuildProjectName)' != 'test.harness.uwp'  ">
+      <ItemGroup >
+        <ProjectReference Include="$(MSBuildThisFileDirectory)test.utility\test.utility.csproj" />
+      </ItemGroup>
+    </When>
+  </Choose>
 
 </Project>
