@@ -1,4 +1,4 @@
-#if NETSTANDARD1_1 || NETSTANDARD1_5
+#if NETSTANDARD1_1 || NETSTANDARD1_5 || WINDOWS_UAP
 
 using System;
 using System.Threading;

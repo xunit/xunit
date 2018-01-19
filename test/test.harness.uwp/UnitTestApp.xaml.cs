@@ -19,8 +19,10 @@ using Microsoft.VisualStudio.TestPlatform.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Telemetry;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client;
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Execution;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol;
 
 namespace test.harness.uwp
 {
@@ -100,9 +102,50 @@ namespace test.harness.uwp
             var hander = new MockTestDiscoveryEventHandler();
 
             var criteria = new DiscoveryCriteria(new[] { "" }, long.MaxValue, string.Empty); ;
+            criteria.AdapterSourceMap.Clear();
             criteria.AdapterSourceMap.Add(adapterPath, new[] { source });
 
+            hander.OnDiscoveryCompleted += (sender, args) =>
+            {
+                // Run 
+                var em1 = new ExecutionManager(new RequestData()
+                {
+                    IsTelemetryOptedIn = false,
+                    ProtocolConfig = new ProtocolConfig
+                    {
+                        Version = 2
+                    },
+                    MetricsCollection = new NoOpMetricsCollection()
+                });
+
+                // Run Specific tests
+                em1.Initialize(new[] { adapterPath });
+                var tec1 = new TestExecutionContext();
+                em1.StartTestRun(hander.TestCases, "", "", tec1, new MockTestCaseEventsHandler(), new MockRunEventsHandler());
+            };
+
+
+
             dm.DiscoverTests(criteria, hander);
+
+
+            //Run All -- Not working yet
+
+            //var em = new ExecutionManager(new RequestData()
+            //{
+            //    IsTelemetryOptedIn = false,
+            //    ProtocolConfig = new ProtocolConfig
+            //    {
+            //        Version = 2
+            //    },
+            //    MetricsCollection = new NoOpMetricsCollection()
+            //});
+
+
+
+            // var tec = new TestExecutionContext();
+            // em.Initialize(new[] { adapterPath });
+            //em.StartTestRun(criteria.AdapterSourceMap, "", "", tec, new MockTestCaseEventsHandler(), new MockRunEventsHandler());
         }
 
         /// <summary>
