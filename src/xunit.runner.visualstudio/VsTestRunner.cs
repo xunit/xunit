@@ -361,13 +361,13 @@ namespace Xunit.Runner.VisualStudio
             return IsXunitPackageReferenced(assemblyFileName);
 #else
 #if WINDOWS_UAP
-            // The test assembly may be in entrypoint\theassembly.exe. We need to check the package path
-            var assemblyFolder = Windows.ApplicationModel.Package.Current.InstalledLocation.Path;
+            return true; // with .NET Native, all the dependencies are combined, so nothing we can detect
 #else
             var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
-#endif
+
             return File.Exists(Path.Combine(assemblyFolder, "xunit.dll"))
-                || Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0;
+                   || Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0;
+#endif
 #endif
 
         }
