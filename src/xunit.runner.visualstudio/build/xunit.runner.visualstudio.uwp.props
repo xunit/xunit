@@ -10,21 +10,23 @@
 
     </When>
     <Otherwise>
-      <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.visualstudio.testadapter.dll">
-        <Link>xunit.runner.visualstudio.testadapter.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Visible>False</Visible>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.reporters.net452.dll">
-        <Link>xunit.runner.reporters.net452.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Visible>False</Visible>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.utility.net452.dll">
-        <Link>xunit.runner.utility.net452.dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Visible>False</Visible>
-      </None>
+      <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.visualstudio.testadapter.dll">
+          <Link>xunit.runner.visualstudio.testadapter.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Visible>False</Visible>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.reporters.net452.dll">
+          <Link>xunit.runner.reporters.net452.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Visible>False</Visible>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.utility.net452.dll">
+          <Link>xunit.runner.utility.net452.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Visible>False</Visible>
+        </None>
+      </ItemGroup>
     </Otherwise>
   </Choose>
 </Project>
