@@ -94,7 +94,11 @@ namespace test.harness.uwp
 
 
             // Adapter output location
+#if DEBUG
             var source = "entrypoint\\test.harness.uwp.exe";
+#else
+            var source = "test.harness.uwp.exe";
+#endif
 
             var adapterPath = Path.Combine(Package.Current.InstalledLocation.Path, "xunit.runner.visualstudio.uwp.testadapter.dll");
 
