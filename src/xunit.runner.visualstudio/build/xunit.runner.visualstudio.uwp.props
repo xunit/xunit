@@ -1,15 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
 
+  <ItemGroup>
     <ProjectCapability Include="TestContainer" />
   </ItemGroup>
 
-  <Choose>
-    <When Condition="'$(UnitTestPlatformVersion)' &gt;= '15.5' ">
+  <PropertyGroup>
+    <UnitTestPlatformVersion Condition=" '$(UnitTestPlatformVersion)' == '' ">$(VisualStudioVersion)</UnitTestPlatformVersion>
+  </PropertyGroup>
 
-    </When>
-    <Otherwise>
+  <Choose>
+    <When Condition=" '$(UnitTestPlatformVersion)' &lt; '15.5' ">
       <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.visualstudio.testadapter.dll">
           <Link>xunit.runner.visualstudio.testadapter.dll</Link>
@@ -27,6 +28,7 @@
           <Visible>False</Visible>
         </None>
       </ItemGroup>
-    </Otherwise>
+    </When>
   </Choose>
+
 </Project>

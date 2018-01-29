@@ -366,7 +366,7 @@ namespace Xunit.Runner.VisualStudio
             var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
 
             return File.Exists(Path.Combine(assemblyFolder, "xunit.dll"))
-                   || Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0;
+                || Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0;
 #endif
 #endif
 

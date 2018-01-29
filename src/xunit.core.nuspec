@@ -14,7 +14,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
       <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />  
+      <dependency id="xunit.extensibility.execution" version="[99.99.99-dev]" />
     </dependencies>
   </metadata>
   <files>
@@ -22,7 +22,7 @@
     <file src="xunit.core\build\xunit.core.targets"                                           target="build\" />
     <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.dll"        target="build\" />
     <file src="xunit.execution\bin\$Configuration$\netstandard1.1\xunit.execution.dotnet.dll" target="build\" />
-    
+
     <file src="xunit.core\build\xunit.core.props"   target="buildMultiTargeting\" />
     <file src="xunit.core\build\xunit.core.targets" target="buildMultiTargeting\" />
   </files>
