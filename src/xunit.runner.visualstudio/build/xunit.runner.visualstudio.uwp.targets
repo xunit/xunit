@@ -3,10 +3,10 @@
   <Target Name="AddXunitTestAdapterLibs" AfterTargets="_ComputeAppxPackagePayload" BeforeTargets="_GenerateAppxManifest">
     <ItemGroup>
       <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.visualstudio.uwp.testadapter.dll">
-        <TargetPath>xunit.runner.visualstudio.testadapter.uwp.dll</TargetPath>
+        <TargetPath>xunit.runner.visualstudio.uwp.testadapter.dll</TargetPath>
       </xUnitVsLibs>
       <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.visualstudio.uwp.testadapter.pri">
-        <TargetPath>xunit.runner.visualstudio.testadapter.uwp.pri</TargetPath>
+        <TargetPath>xunit.runner.visualstudio.uwp.testadapter.pri</TargetPath>
       </xUnitVsLibs>
       <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.reporters.netstandard11.dll">
         <TargetPath>xunit.runner.reporters.netstandard11.dll</TargetPath>
