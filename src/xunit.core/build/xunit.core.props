@@ -7,7 +7,8 @@
 
   <PropertyGroup>
     <DebugSymbols>true</DebugSymbols>
-    <IsTestProject>true</IsTestProject>
+    <IsTestProject>true</IsTestProject>    
+    <IsPackable>true</IsPackable> <!-- Setting IsTestProject prevents consuming projects from being packed unless IsPackable is set.-->
   </PropertyGroup>
 
   <!-- Support for importing props via the runner -->
