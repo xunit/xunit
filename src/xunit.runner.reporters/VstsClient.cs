@@ -120,11 +120,13 @@ namespace Xunit.Runner.Reporters
             };
 
             var bodyString = requestMessage.ToJson();
+            var url = $"{baseUri}?api-version=1.0";
+            string respString = null;
             try
             {
                 var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
 
-                var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUri}?api-version=1.0")
+                var request = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = new ByteArrayContent(bodyBytes)
                 };
@@ -136,7 +138,7 @@ namespace Xunit.Runner.Reporters
                     var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
                     if (!response.IsSuccessStatusCode)
                     {
-                        logger.LogWarning($"When sending 'POST {baseUri}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        logger.LogWarning($"When sending 'POST {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
                         previousErrors = true;
                     }
 
@@ -144,15 +146,20 @@ namespace Xunit.Runner.Reporters
                     using (var reader = new StreamReader(await response.Content.ReadAsStreamAsync()
                                                                        .ConfigureAwait(false)))
                     {
-                        var resp = JsonDeserializer.Deserialize(reader) as JsonObject;
-                        var id = resp.ValueAsInt("id");
-                        return id;
+                        respString = await reader.ReadToEndAsync();
+                        using (var sr = new StringReader(respString))
+                        {
+
+                            var resp = JsonDeserializer.Deserialize(reader) as JsonObject;
+                            var id = resp.ValueAsInt("id");
+                            return id;
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError($"When sending 'POST {baseUri}' with body '{bodyString}', exception was thrown: {ex.Message}");
+                logger.LogError($"When sending 'POST {url}' with body '{bodyString}', exception was thrown: {ex.Message}, response string:\n{respString}");
                 throw;
             }
         }
