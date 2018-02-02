@@ -5,8 +5,10 @@ steps:
 - task: BatchScript@1
   inputs:
     filename: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\Tools\\VsDevCmd.bat"
-    arguments: "-no_logo"
-    modifyEnvironment: "true"
+    arguments: -no_logo
+    modifyEnvironment: true
+  displayName: Setup Environment Variables
+    
 
 - powershell: |
     .\build.ps1 -target ci    
@@ -16,18 +18,18 @@ steps:
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: "artifacts/build"
-    ArtifactName: "build"
-    ArtifactType: "Container"
+    PathtoPublish: artifacts/build
+    ArtifactName: build
+    ArtifactType: Container
     
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: "artifacts/packages"
-    ArtifactName: "packages"
-    ArtifactType: "Container"
+    PathtoPublish: artifacts/packages
+    ArtifactName: packages
+    ArtifactType: Container
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: "artifacts/test"
-    ArtifactName: "test"
-    ArtifactType: "Container"
+    PathtoPublish: artifacts/test
+    ArtifactName: test
+    ArtifactType: Container
