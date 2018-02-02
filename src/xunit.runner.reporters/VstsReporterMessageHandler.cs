@@ -75,7 +75,7 @@ namespace Xunit.Runner.Reporters
         {
             var assemblyName = assemblyNames[args.Message.TestAssembly.Assembly.Name];
 
-            VstsAddTest(args.Message.TestMethod.Method.Name, args.Message.Test.DisplayName, assemblyName, args.Message.TestCase.UniqueID, "InProgress");
+            VstsAddTest($"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}", args.Message.Test.DisplayName, assemblyName, args.Message.TestCase.UniqueID, "InProgress");
         }
 
         protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
