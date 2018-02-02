@@ -120,8 +120,13 @@ namespace Xunit.Runner.Reporters
             {
                 { "testCaseTitle", displayName },
                 { "automatedTestName", testName },
+                { "automatedTestType", "UnitTest" },
+                { "automatedTestTypeId", "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" }, // This is used in the sample response and also appears in web searches
+                { "automatedTestId", uniqueId },
                 { "automatedTestStorage", fileName },
-                { "state", "InProgress" }
+                { "state", "InProgress" },
+                { "startedDate", DateTime.UtcNow }
+
             };
 
             client.AddTest(body, uniqueId);
