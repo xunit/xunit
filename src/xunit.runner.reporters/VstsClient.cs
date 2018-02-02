@@ -17,18 +17,21 @@ namespace Xunit.Runner.Reporters
         readonly string baseUri;
         readonly int buildId;
         static readonly HttpMethod PatchHttpMethod = new HttpMethod("PATCH");
-        readonly AuthenticationHeaderValue authenticationHeader;
+        const string UNIQUEIDKEY = "UNIQUEIDKEY";
+
         public VstsClient(IRunnerLogger logger, string baseUri, string accessToken, int buildId)
         {
             this.logger = logger;
             this.baseUri = baseUri;
             this.buildId = buildId;
-            authenticationHeader = new AuthenticationHeaderValue("Bearer", accessToken); 
+            
+            client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             workTask = Task.Run(RunLoop);
         }
 
-        readonly HttpClient client = new HttpClient();
+        readonly HttpClient client;
         readonly MediaTypeWithQualityHeaderValue jsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
 
         readonly Task workTask;
@@ -39,8 +42,9 @@ namespace Xunit.Runner.Reporters
         volatile bool shouldExit;
 
         ConcurrentQueue<IDictionary<string, object>> addQueue = new ConcurrentQueue<IDictionary<string, object>>();
-
         ConcurrentQueue<IDictionary<string, object>> updateQueue = new ConcurrentQueue<IDictionary<string, object>>();
+
+        ConcurrentDictionary<string, int> unqiueIdToTestIdMap = new ConcurrentDictionary<string, int>();
 
         public void WaitOne(CancellationToken cancellationToken)
         {
@@ -72,8 +76,8 @@ namespace Xunit.Runner.Reporters
                         break;
 
                     // We have to do add's before update because we need the test id from the add to inject into the update
-                    await SendTestResults(HttpMethod.Post, runId.Value, aq.ToArray()).ConfigureAwait(false);
-               //     await SendTestResults(PatchHttpMethod, runId.Value, uq.ToArray()).ConfigureAwait(false);
+                    await SendTestResults(true, runId.Value, aq.ToArray()).ConfigureAwait(false);
+                    await SendTestResults(false, runId.Value, uq.ToArray()).ConfigureAwait(false);
                 }
             }
             catch { }
@@ -91,14 +95,16 @@ namespace Xunit.Runner.Reporters
         }
 
 
-        public void AddTest(IDictionary<string, object> request)
+        public void AddTest(IDictionary<string, object> request, string uniqueId)
         {
+            request.Add(UNIQUEIDKEY, uniqueId);
             addQueue.Enqueue(request);
             workEvent.Set();
         }
 
-        public void UpdateTest(IDictionary<string, object> request)
+        public void UpdateTest(IDictionary<string, object> request, string uniqueId)
         {
+            request.Add(UNIQUEIDKEY, uniqueId);
             updateQueue.Enqueue(request);
             workEvent.Set();
         }
@@ -131,7 +137,6 @@ namespace Xunit.Runner.Reporters
                 };
                 request.Content.Headers.ContentType = jsonMediaType;
                 request.Headers.Accept.Add(jsonMediaType);
-                request.Headers.Authorization = authenticationHeader;
 
                 using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                 {
@@ -150,7 +155,7 @@ namespace Xunit.Runner.Reporters
                         using (var sr = new StringReader(respString))
                         {
 
-                            var resp = JsonDeserializer.Deserialize(reader) as JsonObject;
+                            var resp = JsonDeserializer.Deserialize(sr) as JsonObject;
                             var id = resp.ValueAsInt("id");
                             return id;
                         }
@@ -159,7 +164,8 @@ namespace Xunit.Runner.Reporters
             }
             catch (Exception ex)
             {
-                logger.LogError($"When sending 'POST {url}' with body '{bodyString}'\nexception was thrown: {ex.Message}\naccess_token:\n{authenticationHeader.Parameter} \nresponse string:\n{respString}");
+                // TODO: Remove access token output
+                logger.LogError($"When sending 'POST {url}' with body '{bodyString}'\nexception was thrown: {ex.Message}\naccess_token:\n{client.DefaultRequestHeaders.Authorization.Parameter} \nresponse string:\n{respString}");
                 throw;
             }
         }
@@ -185,7 +191,6 @@ namespace Xunit.Runner.Reporters
                 };
                 request.Content.Headers.ContentType = jsonMediaType;
                 request.Headers.Accept.Add(jsonMediaType);
-                request.Headers.Authorization = authenticationHeader;
 
                 using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                 {
@@ -205,11 +210,43 @@ namespace Xunit.Runner.Reporters
         }
 
 
-        async Task SendTestResults(HttpMethod method, int runId, ICollection<IDictionary<string, object>> body)
+        async Task SendTestResults(bool isAdd, int runId, ICollection<IDictionary<string, object>> body)
         {
             if (body.Count == 0)
                 return;
 
+            // For adds, we need to remove the unique id's and correlate to the responses
+            // For update we need to look up the reponses
+
+            List<string> added = null;
+            if (isAdd)
+            {
+                added = new List<string>(body.Count);
+
+                // Add them to the list so we can ref by ordinal on the response
+                foreach (var item in body)
+                {
+                    var uniqueId = (string)item[UNIQUEIDKEY];
+                    item.Remove(UNIQUEIDKEY);
+
+                    added.Add(uniqueId);
+                }
+            }
+            else
+            {
+                // The values should be in the map
+                foreach (var item in body)
+                {
+                    var uniqueId = (string)item[UNIQUEIDKEY];
+                    item.Remove(UNIQUEIDKEY);
+
+                    // lookup and add
+                    var testId = unqiueIdToTestIdMap[uniqueId];
+                    item.Add("id", testId);
+                }
+            }
+
+            var method = isAdd ? HttpMethod.Post : PatchHttpMethod;
             var bodyString = ToJson(body);
 
             var url = $"{baseUri}/{runId}/results?api-version=3.0-preview";
@@ -223,7 +260,6 @@ namespace Xunit.Runner.Reporters
                 };
                 request.Content.Headers.ContentType = jsonMediaType;
                 request.Headers.Accept.Add(jsonMediaType);
-                request.Headers.Authorization = authenticationHeader;
 
                 using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                 {
@@ -232,6 +268,28 @@ namespace Xunit.Runner.Reporters
                     {
                         logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
                         previousErrors = true;
+                    }
+
+                    if (isAdd)
+                    {
+                        // We need to process the repsonse to extract the Id's and add them to the map 
+                        using (var reader = new StreamReader(await response.Content.ReadAsStreamAsync()
+                                                                           .ConfigureAwait(false)))
+                        {
+                            var resp = JsonDeserializer.Deserialize(reader) as JsonObject;
+
+                            var testCases = resp.Value("value") as JsonArray;
+                            for (var i = 0; i < testCases.Length; ++i)
+                            {
+                                var testCase = testCases[i] as JsonObject;
+                                var id = testCase.ValueAsInt("id");
+
+                                // Match the unique id by ordinal
+                                var uniqueId = added[i];
+                                unqiueIdToTestIdMap[uniqueId] = id;
+                            }
+                        }
+                            
                     }
                 }
             }

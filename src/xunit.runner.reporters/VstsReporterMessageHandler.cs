@@ -13,8 +13,8 @@ namespace Xunit.Runner.Reporters
     public class VstsReporterMessageHandler : DefaultRunnerReporterWithTypesMessageHandler
     {
         const int MaxLength = 4096;
-        
-        readonly ConcurrentDictionary<string, Tuple<string, Dictionary<string, int>>> assemblyNames = new ConcurrentDictionary<string, Tuple<string, Dictionary<string, int>>>();
+
+        readonly ConcurrentDictionary<string, string> assemblyNames = new ConcurrentDictionary<string, string>();
         readonly string baseUri;
         VstsClient client;
 
@@ -29,6 +29,7 @@ namespace Xunit.Runner.Reporters
             this.baseUri = baseUri;
             this.accessToken = accessToken;
             this.buildId = buildId;
+
             Execution.TestAssemblyStartingEvent += HandleTestAssemblyStarting;
             Execution.TestStartingEvent += HandleTestStarting;
             Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
@@ -63,7 +64,7 @@ namespace Xunit.Runner.Reporters
                 if (arg != null)
                     assemblyFileName = $"{assemblyFileName} ({arg})";
 
-                assemblyNames[args.Message.TestAssembly.Assembly.Name] = Tuple.Create(assemblyFileName, new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
+                assemblyNames[args.Message.TestAssembly.Assembly.Name] = assemblyFileName;
 
                 if (client == null)
                     client = new VstsClient(Logger, baseUri, accessToken, buildId);
@@ -72,22 +73,16 @@ namespace Xunit.Runner.Reporters
 
         void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
-            var testName = args.Message.Test.DisplayName;
+            var assemblyName = assemblyNames[args.Message.TestAssembly.Assembly.Name];
 
-            var dict = assemblyNames[args.Message.TestAssembly.Assembly.Name].Item2;
-            lock (dict)
-                if (dict.ContainsKey(testName))
-                    testName = $"{testName} {dict[testName]}";
-
-            VstsAddTest(testName, args.Message.Test.DisplayName, "InProgress", null, null);
+            VstsAddTest(args.Message.TestMethod.Method.Name, args.Message.Test.DisplayName, assemblyName, args.Message.TestCase.UniqueID, "InProgress");
         }
 
         protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
             var testPassed = args.Message;
-            var dict = assemblyNames[args.Message.TestAssembly.Assembly.Name].Item2;
 
-            AppVeyorUpdateTest(GetFinishedTestName(testPassed.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly.Assembly.Name].Item1, "Passed",
+            VstsUpdateTest(args.Message.TestCase.UniqueID, "Passed",
                                Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
 
             base.HandleTestPassed(args);
@@ -96,9 +91,9 @@ namespace Xunit.Runner.Reporters
         protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
             var testSkipped = args.Message;
-            var dict = assemblyNames[args.Message.TestAssembly.Assembly.Name].Item2;
 
-            AppVeyorUpdateTest(GetFinishedTestName(testSkipped.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly.Assembly.Name].Item1, "Skipped",
+
+            VstsUpdateTest(args.Message.TestCase.UniqueID, "NotExecuted",
                                Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
 
             base.HandleTestSkipped(args);
@@ -108,65 +103,39 @@ namespace Xunit.Runner.Reporters
         {
             var testFailed = args.Message;
 
-            var dict = assemblyNames[args.Message.TestAssembly.Assembly.Name].Item2;
-            AppVeyorUpdateTest(GetFinishedTestName(testFailed.Test.DisplayName, dict), "xUnit", assemblyNames[args.Message.TestAssembly.Assembly.Name].Item1, "Failed",
+            VstsUpdateTest(args.Message.TestCase.UniqueID, "Failed",
                                Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
                                ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
 
             base.HandleTestFailed(args);
         }
+        
 
-        // AppVeyor API helpers
-
-        static string GetFinishedTestName(string methodName, Dictionary<string, int> testMethods)
-        {
-            lock (testMethods)
-            {
-                var testName = methodName;
-                var number = 0;
-
-                if (testMethods.ContainsKey(methodName))
-                {
-                    number = testMethods[methodName];
-                    testName = $"{methodName} {number}";
-                }
-
-                testMethods[methodName] = number + 1;
-                return testName;
-            }
-        }
-
-        void VstsAddTest(string testName, string displayName, string state, long? durationMilliseconds,
-                             string errorMessage)
+        void VstsAddTest(string testName, string displayName, string fileName, string uniqueId, string state)
         {
             var body = new Dictionary<string, object>
             {
                 { "testCaseTitle", displayName },
                 { "automatedTestName", testName },
-                { "state", state },
-                { "durationInMs", durationMilliseconds },
-                { "errorMessage", errorMessage }
+                { "automatedTestStorage", fileName },
+                { "state", state }
             };
 
-            client.AddTest(body);
+            client.AddTest(body, uniqueId);
         }
 
-        void AppVeyorUpdateTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
+        void VstsUpdateTest(string uniqueId, string outcome, long? durationMilliseconds,
                                 string errorMessage, string errorStackTrace, string stdOut)
         {
             var body = new Dictionary<string, object>
             {
-                { "testName", testName },
-                { "testFramework", testFramework },
-                { "fileName", fileName },
                 { "outcome", outcome },
-                { "durationMilliseconds", durationMilliseconds },
-                { "ErrorMessage", errorMessage },
-                { "ErrorStackTrace", errorStackTrace },
-                { "StdOut", TrimStdOut(stdOut) },
+                { "durationInMs", durationMilliseconds },
+                { "errorMessage", $"{errorMessage}\n{errorStackTrace}\n{TrimStdOut(stdOut)}" },
+                { "completedDate", DateTime.UtcNow }
             };
 
-            client.UpdateTest(body);
+            client.UpdateTest(body, uniqueId);
         }
 
         static string TrimStdOut(string str)
