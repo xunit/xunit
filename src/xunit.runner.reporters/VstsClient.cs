@@ -173,11 +173,13 @@ namespace Xunit.Runner.Reporters
             };
 
             var bodyString = requestMessage.ToJson();
+            var url = $"{baseUri}/{testRunId}?api-version=1.0";
             try
             {
                 var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
+                
 
-                var request = new HttpRequestMessage(PatchHttpMethod, $"{baseUri}/{testRunId}?api-version=1.0")
+                var request = new HttpRequestMessage(PatchHttpMethod, url)
                 {
                     Content = new ByteArrayContent(bodyBytes)
                 };
@@ -189,14 +191,14 @@ namespace Xunit.Runner.Reporters
                     var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
                     if (!response.IsSuccessStatusCode)
                     {
-                        logger.LogWarning($"When sending 'PATCH {baseUri}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        logger.LogWarning($"When sending 'PATCH {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
                         previousErrors = true;
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError($"When sending 'PATCH {baseUri}' with body '{bodyString}', exception was thrown: {ex.Message}");
+                logger.LogError($"When sending 'PATCH {url}' with body '{bodyString}', exception was thrown: {ex.Message}");
                 throw;
             }
         }
@@ -209,11 +211,12 @@ namespace Xunit.Runner.Reporters
 
             var bodyString = ToJson(body);
 
+            var url = $"{baseUri}/{runId}/results?api-version=3.0-preview";
             try
             {
                 var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
 
-                var request = new HttpRequestMessage(method, $"{baseUri}/{runId}/results?api-version=3.0-preview")
+                var request = new HttpRequestMessage(method, url)
                 {
                     Content = new ByteArrayContent(bodyBytes)
                 };
@@ -225,14 +228,14 @@ namespace Xunit.Runner.Reporters
                     var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
                     if (!response.IsSuccessStatusCode)
                     {
-                        logger.LogWarning($"When sending '{method} {baseUri}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
                         previousErrors = true;
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError($"When sending '{method} {baseUri}' with body '{bodyString}', exception was thrown: {ex.Message}");
+                logger.LogError($"When sending '{method} {url}' with body '{bodyString}', exception was thrown: {ex.Message}");
                 throw;
             }
         }
