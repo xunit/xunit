@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -15,6 +16,7 @@ namespace Xunit.Runner.Reporters
         readonly IRunnerLogger logger;
         readonly string baseUri;
         readonly int buildId;
+        static readonly HttpMethod PatchHttpMethod = new HttpMethod("PATCH");
 
         public VstsClient(IRunnerLogger logger, string baseUri, string accessToken, int buildId)
         {
@@ -53,9 +55,10 @@ namespace Xunit.Runner.Reporters
 
         async Task RunLoop()
         {
+            int? runId = null;
             try
             {
-                var runId = await CreateTestRun();
+                runId = await CreateTestRun();
 
                 while (!shouldExit || !addQueue.IsEmpty || !updateQueue.IsEmpty)
                 {
@@ -69,15 +72,21 @@ namespace Xunit.Runner.Reporters
                     if (previousErrors)
                         break;
 
-                    await Task.WhenAll(
-                        SendRequest(HttpMethod.Post, aq.ToArray()),
-                        SendRequest(HttpMethod.Put, uq.ToArray())
-                    ).ConfigureAwait(false);
+                    // We have to do add's before update because we need the test id from the add to inject into the update
+                    await SendTestResults(HttpMethod.Post, runId.Value, aq.ToArray()).ConfigureAwait(false);
+               //     await SendTestResults(PatchHttpMethod, runId.Value, uq.ToArray()).ConfigureAwait(false);
                 }
             }
             catch { }
             finally
             {
+                try
+                {
+                    if (runId.HasValue)
+                        await FinishTestRun(runId.Value);
+                }
+                catch
+                {  }
                 finished.Set();
             }
         }
@@ -131,7 +140,14 @@ namespace Xunit.Runner.Reporters
                         previousErrors = true;
                     }
 
-                    return 0;
+
+                    using (var reader = new StreamReader(await response.Content.ReadAsStreamAsync()
+                                                                       .ConfigureAwait(false)))
+                    {
+                        var resp = JsonDeserializer.Deserialize(reader) as JsonObject;
+                        var id = resp.ValueAsInt("id");
+                        return id;
+                    }
                 }
             }
             catch (Exception ex)
@@ -141,8 +157,45 @@ namespace Xunit.Runner.Reporters
             }
         }
 
+        async Task FinishTestRun(int testRunId)
+        {
+            var requestMessage = new Dictionary<string, object>
+            {
+                { "completedDate", DateTime.UtcNow },
+                { "state", "Completed" }
+            };
 
-        async Task SendRequest(HttpMethod method, ICollection<IDictionary<string, object>> body)
+            var bodyString = requestMessage.ToJson();
+            try
+            {
+                var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
+
+                var request = new HttpRequestMessage(PatchHttpMethod, $"{baseUri}/{testRunId}?api-version=1.0")
+                {
+                    Content = new ByteArrayContent(bodyBytes)
+                };
+                request.Content.Headers.ContentType = jsonMediaType;
+                request.Headers.Accept.Add(jsonMediaType);
+
+                using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                {
+                    var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        logger.LogWarning($"When sending 'PATCH {baseUri}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        previousErrors = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"When sending 'PATCH {baseUri}' with body '{bodyString}', exception was thrown: {ex.Message}");
+                throw;
+            }
+        }
+
+
+        async Task SendTestResults(HttpMethod method, int runId, ICollection<IDictionary<string, object>> body)
         {
             if (body.Count == 0)
                 return;
@@ -153,7 +206,7 @@ namespace Xunit.Runner.Reporters
             {
                 var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
 
-                var request = new HttpRequestMessage(method, baseUri)
+                var request = new HttpRequestMessage(method, $"{baseUri}/{runId}/results?api-version=3.0-preview")
                 {
                     Content = new ByteArrayContent(bodyBytes)
                 };

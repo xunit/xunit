@@ -79,7 +79,7 @@ namespace Xunit.Runner.Reporters
                 if (dict.ContainsKey(testName))
                     testName = $"{testName} {dict[testName]}";
 
-            AppVeyorAddTest(testName, "xUnit", assemblyNames[args.Message.TestAssembly.Assembly.Name].Item1, "Running", null, null, null, null);
+            VstsAddTest(testName, args.Message.Test.DisplayName, "InProgress", null, null);
         }
 
         protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
@@ -136,19 +136,16 @@ namespace Xunit.Runner.Reporters
             }
         }
 
-        void AppVeyorAddTest(string testName, string testFramework, string fileName, string outcome, long? durationMilliseconds,
-                             string errorMessage, string errorStackTrace, string stdOut)
+        void VstsAddTest(string testName, string displayName, string state, long? durationMilliseconds,
+                             string errorMessage)
         {
             var body = new Dictionary<string, object>
             {
-                { "testName", testName },
-                { "testFramework", testFramework },
-                { "fileName", fileName },
-                { "outcome", outcome },
-                { "durationMilliseconds", durationMilliseconds },
-                { "ErrorMessage", errorMessage },
-                { "ErrorStackTrace", errorStackTrace },
-                { "StdOut", TrimStdOut(stdOut) },
+                { "testCaseTitle", displayName },
+                { "automatedTestName", testName },
+                { "state", state },
+                { "durationInMs", durationMilliseconds },
+                { "errorMessage", errorMessage }
             };
 
             client.AddTest(body);
