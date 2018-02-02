@@ -17,19 +17,18 @@ namespace Xunit.Runner.Reporters
         readonly string baseUri;
         readonly int buildId;
         static readonly HttpMethod PatchHttpMethod = new HttpMethod("PATCH");
-
+        readonly AuthenticationHeaderValue authenticationHeader;
         public VstsClient(IRunnerLogger logger, string baseUri, string accessToken, int buildId)
         {
             this.logger = logger;
             this.baseUri = baseUri;
             this.buildId = buildId;
-            client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken); 
+            authenticationHeader = new AuthenticationHeaderValue("Bearer", accessToken); 
 
             workTask = Task.Run(RunLoop);
         }
 
-        readonly HttpClient client;
+        readonly HttpClient client = new HttpClient();
         readonly MediaTypeWithQualityHeaderValue jsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
 
         readonly Task workTask;
@@ -132,6 +131,7 @@ namespace Xunit.Runner.Reporters
                 };
                 request.Content.Headers.ContentType = jsonMediaType;
                 request.Headers.Accept.Add(jsonMediaType);
+                request.Headers.Authorization = authenticationHeader;
 
                 using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                 {
@@ -185,6 +185,7 @@ namespace Xunit.Runner.Reporters
                 };
                 request.Content.Headers.ContentType = jsonMediaType;
                 request.Headers.Accept.Add(jsonMediaType);
+                request.Headers.Authorization = authenticationHeader;
 
                 using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                 {
@@ -222,6 +223,7 @@ namespace Xunit.Runner.Reporters
                 };
                 request.Content.Headers.ContentType = jsonMediaType;
                 request.Headers.Accept.Add(jsonMediaType);
+                request.Headers.Authorization = authenticationHeader;
 
                 using (var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
                 {
