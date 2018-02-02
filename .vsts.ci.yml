@@ -14,7 +14,7 @@ steps:
     .\build.ps1 -target ci    
   displayName: Build
   env:
-    TOKEN: $(System.AccessToken)
+    VSTS_ACCESS_TOKEN: $(System.AccessToken)
 
 - task: PublishBuildArtifacts@1
   inputs:
