@@ -17,10 +17,6 @@
       <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.utility.uwp10.pri">
         <TargetPath>xunit.runner.utility.uwp10.pri</TargetPath>
       </xUnitVsLibs>
-      <xUnitVsLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.visualstudio.testadapter.dll'"/>
-      <xUnitVsLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.reporters.net452.dll'"/>
-      <xUnitVsLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.utility.net452.dll'"/>
-      <AppxPackagePayload Remove="@(xUnitVsLibsToRemove)" />
       <AppxPackagePayload Include="@(xUnitVsLibs)" />
     </ItemGroup>
   </Target>

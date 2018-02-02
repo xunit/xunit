@@ -4,31 +4,12 @@
   <ItemGroup>
     <ProjectCapability Include="TestContainer" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <UnitTestPlatformVersion Condition=" '$(UnitTestPlatformVersion)' == '' ">$(VisualStudioVersion)</UnitTestPlatformVersion>
-  </PropertyGroup>
-
-  <Choose>
-    <When Condition=" '$(UnitTestPlatformVersion)' &lt; '15.5' ">
-      <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.visualstudio.testadapter.dll">
-          <Link>xunit.runner.visualstudio.testadapter.dll</Link>
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <Visible>False</Visible>
-        </None>
-        <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.reporters.net452.dll">
-          <Link>xunit.runner.reporters.net452.dll</Link>
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <Visible>False</Visible>
-        </None>
-        <None Include="$(MSBuildThisFileDirectory)..\_common\xunit.runner.utility.net452.dll">
-          <Link>xunit.runner.utility.net452.dll</Link>
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <Visible>False</Visible>
-        </None>
-      </ItemGroup>
-    </When>
-  </Choose>
-
+  
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)xunit.runner.visualstudio.uwp.testadapter.dll">
+      <Link>xunit.runner.visualstudio.uwp.testadapter.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </None>
+  </ItemGroup>
 </Project>
