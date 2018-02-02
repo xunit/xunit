@@ -159,7 +159,7 @@ namespace Xunit.Runner.Reporters
             }
             catch (Exception ex)
             {
-                logger.LogError($"When sending 'POST {url}' with body '{bodyString}', exception was thrown: {ex.Message}, response string:\n{respString}");
+                logger.LogError($"When sending 'POST {url}' with body '{bodyString}'\nexception was thrown: {ex.Message}\naccess_token:\n{authenticationHeader.Parameter} \nresponse string:\n{respString}");
                 throw;
             }
         }
