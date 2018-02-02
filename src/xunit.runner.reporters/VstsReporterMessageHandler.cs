@@ -75,7 +75,10 @@ namespace Xunit.Runner.Reporters
         {
             var assemblyName = assemblyNames[args.Message.TestAssembly.Assembly.Name];
 
-            VstsAddTest($"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}", args.Message.Test.DisplayName, assemblyName, args.Message.TestCase.UniqueID, "InProgress");
+            VstsAddTest($"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}", 
+                        args.Message.Test.DisplayName, 
+                        assemblyName, 
+                        args.Message.TestCase.UniqueID);
         }
 
         protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
@@ -111,14 +114,14 @@ namespace Xunit.Runner.Reporters
         }
         
 
-        void VstsAddTest(string testName, string displayName, string fileName, string uniqueId, string state)
+        void VstsAddTest(string testName, string displayName, string fileName, string uniqueId)
         {
             var body = new Dictionary<string, object>
             {
                 { "testCaseTitle", displayName },
                 { "automatedTestName", testName },
                 { "automatedTestStorage", fileName },
-                { "state", state }
+                { "state", "InProgress" }
             };
 
             client.AddTest(body, uniqueId);
@@ -132,6 +135,7 @@ namespace Xunit.Runner.Reporters
                 { "outcome", outcome },
                 { "durationInMs", durationMilliseconds },
                 { "errorMessage", $"{errorMessage}\n{errorStackTrace}\n{TrimStdOut(stdOut)}" },
+                { "state", "Completed" },
                 { "completedDate", DateTime.UtcNow }
             };
 
