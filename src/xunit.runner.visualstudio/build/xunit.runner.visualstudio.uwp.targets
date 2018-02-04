@@ -2,22 +2,21 @@
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Target Name="AddXunitTestAdapterLibs" AfterTargets="_ComputeAppxPackagePayload" BeforeTargets="_GenerateAppxManifest">
     <ItemGroup>
-      <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.visualstudio.uwp.dll">
-        <TargetPath>xunit.runner.visualstudio.uwp.dll</TargetPath>
+      <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.visualstudio.uwp.testadapter.dll">
+        <TargetPath>xunit.runner.visualstudio.uwp.testadapter.dll</TargetPath>
       </xUnitVsLibs>
-      <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.visualstudio.uwp.pri">
-        <TargetPath>xunit.runner.visualstudio.uwp.pri</TargetPath>
+      <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.visualstudio.uwp.testadapter.pri">
+        <TargetPath>xunit.runner.visualstudio.uwp.testadapter.pri</TargetPath>
       </xUnitVsLibs>
       <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.reporters.netstandard11.dll">
         <TargetPath>xunit.runner.reporters.netstandard11.dll</TargetPath>
       </xUnitVsLibs>
-      <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.utility.netstandard11.dll">
-        <TargetPath>xunit.runner.utility.netstandard11.dll</TargetPath>
+      <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.utility.uwp10.dll">
+        <TargetPath>xunit.runner.utility.uwp10.dll</TargetPath>
       </xUnitVsLibs>
-      <xUnitVsLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.visualstudio.testadapter.dll'"/>
-      <xUnitVsLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.reporters.net452.dll'"/>
-      <xUnitVsLibsToRemove Include="@(AppxPackagePayload)" Condition="'%(TargetPath)' == 'xunit.runner.utility.net452.dll'"/>
-      <AppxPackagePayload Remove="@(xUnitVsLibsToRemove)" />
+      <xUnitVsLibs Include="$(MSBuildThisFileDirectory)xunit.runner.utility.uwp10.pri">
+        <TargetPath>xunit.runner.utility.uwp10.pri</TargetPath>
+      </xUnitVsLibs>
       <AppxPackagePayload Include="@(xUnitVsLibs)" />
     </ItemGroup>
   </Target>

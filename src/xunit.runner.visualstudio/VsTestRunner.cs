@@ -360,10 +360,16 @@ namespace Xunit.Runner.VisualStudio
 #if NETCOREAPP1_0
             return IsXunitPackageReferenced(assemblyFileName);
 #else
+#if WINDOWS_UAP
+            return true; // with .NET Native, all the dependencies are combined, so nothing we can detect
+#else
             var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
+
             return File.Exists(Path.Combine(assemblyFolder, "xunit.dll"))
                 || Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0;
 #endif
+#endif
+
         }
 
 #if NETCOREAPP1_0

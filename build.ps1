@@ -89,7 +89,7 @@ function __target_register() {
 
 function __target_restore() {
     _build_step "Restoring NuGet packages"
-        _dotnet "restore xunit.vs2017.sln"
+       _msbuild "xunit.vs2017.sln" $configuration "restore"
 }
 
 function __target_test() {

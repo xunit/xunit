@@ -15,17 +15,34 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
-  <!-- UWP in TPv1 does discovery in desktop CLR, so needs desktop execution library (and full PDBs) -->
-  <PropertyGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
-    <DebugType Condition=" '$(DebugType)' == '' ">full</DebugType>
+  <PropertyGroup>
+    <UnitTestPlatformVersion Condition=" '$(UnitTestPlatformVersion)' == '' ">$(VisualStudioVersion)</UnitTestPlatformVersion>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
-    <None Include="$(MSBuildThisFileDirectory)xunit.execution.desktop.dll">
-      <Link>xunit.execution.desktop.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </None>
-  </ItemGroup>
+
+  <Choose>
+    <When Condition=" '$(UnitTestPlatformVersion)' &gt;= '15.5' ">
+      <ItemGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
+        <None Include="$(MSBuildThisFileDirectory)xunit.execution.dotnet.dll">
+          <Link>xunit.execution.dotnet.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Visible>False</Visible>
+        </None>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <!-- UWP in TPv1 does discovery in desktop CLR, so needs desktop execution library (and full PDBs) -->
+      <PropertyGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
+        <DebugType Condition=" '$(DebugType)' == '' ">full</DebugType>
+      </PropertyGroup>
+      <ItemGroup Condition=" '$(TargetPlatformIdentifier)' == 'UAP' ">
+        <None Include="$(MSBuildThisFileDirectory)xunit.execution.desktop.dll">
+          <Link>xunit.execution.desktop.dll</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Visible>False</Visible>
+        </None>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
   <!-- Support for importing targets via the runner -->
   <Import Condition=" '$(_Xunit_ImportTargetsFile)' != '' " Project="$(_Xunit_ImportTargetsFile)" />

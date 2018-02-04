@@ -4,7 +4,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net452' ">xunit.runner.visualstudio.testadapter</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">xunit.runner.visualstudio.dotnetcore.testadapter</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'uap10.0' ">xunit.runner.visualstudio.uwp</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'uap10.0' ">xunit.runner.visualstudio.uwp.testadapter</AssemblyName>
     <DefineConstants Condition=" '$(TargetFramework)' == 'uap10.0' ">$(DefineConstants);WINDOWS_UAP</DefineConstants>
     <RootNamespace>Xunit.Runner.VisualStudio</RootNamespace>
     <TargetFrameworks>net452;netcoreapp1.0;uap10.0</TargetFrameworks>
@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.0.6" PrivateAssets="All" />
+    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.2.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

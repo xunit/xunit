@@ -56,7 +56,15 @@ namespace Xunit
                         typeName = typeName.Substring(0, idx);
 
                     if (!wrappedSessions.ContainsKey(owningAssemblyFilename))
+                    {
+#if WINDOWS_UAP
+                        // Use overload with search path since pdb isn't next to the exe
+                        wrappedSessions[owningAssemblyFilename] = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename,
+                            Windows.ApplicationModel.Package.Current.InstalledLocation.Path);
+#else
                         wrappedSessions[owningAssemblyFilename] = (IDisposable)Activator.CreateInstance(typeDiaSession, owningAssemblyFilename);
+#endif
+                    }
 
                     var data = methodGetNavigationData.Invoke(wrappedSessions[owningAssemblyFilename], new[] { typeName, methodName });
                     if (data == null)
