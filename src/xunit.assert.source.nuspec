@@ -18,7 +18,6 @@
     </contentFiles>
   </metadata>
   <files>
-    <file src="xunit.assert\Asserts\**\*.cs" target="Content\Asserts" />
     <file src="xunit.assert\Asserts\**\*.cs" target="contentFiles\cs\netstandard1.1\Asserts" />
   </files>
 </package>
