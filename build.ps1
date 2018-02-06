@@ -1,5 +1,7 @@
 param(
-    [string]$target = "test",
+    [ValidateSet('AppVeyor','Build','CI','PackageRestore','Packages','Register','Restore','Test',
+                 '_Packages','_Publish','_PushMyGet','_Register','_SetVersion','_SignPackages','_Test32','_Test64','_TestCore')]
+    [string]$target = "Test",
     [string]$configuration = "Release",
     [string]$buildAssemblyVersion = "",
     [string]$buildSemanticVersion = ""
@@ -18,7 +20,7 @@ if ((test-path $buildModuleFile) -eq $false) {
 }
 
 Set-StrictMode -Version 2
-Import-Module $buildModuleFile -Scope Local -Force -ArgumentList "4.1.0"
+Import-Module $buildModuleFile -Scope Local -Force -ArgumentList "4.5.1"
 Set-Location $PSScriptRoot
 
 $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
