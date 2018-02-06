@@ -45,6 +45,7 @@ namespace Xunit.Runner.Reporters
                 {
                     // Drain the queue
                     client.WaitOne(CancellationToken.None);
+                    client.Dispose();
                     client = null;
                 }
             }

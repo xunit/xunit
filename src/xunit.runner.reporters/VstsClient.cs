@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Xunit.Runner.Reporters
 {
-    public class VstsClient
+    public class VstsClient : IDisposable
     {
         readonly IRunnerLogger logger;
         readonly string baseUri;
@@ -38,7 +38,7 @@ namespace Xunit.Runner.Reporters
         volatile bool previousErrors;
 
         readonly ManualResetEventSlim finished = new ManualResetEventSlim(false);
-        readonly ManualResetEventSlim workEvent = new ManualResetEventSlim(false);
+        readonly AutoResetEvent workEvent = new AutoResetEvent(false);
         volatile bool shouldExit;
 
         ConcurrentQueue<IDictionary<string, object>> addQueue = new ConcurrentQueue<IDictionary<string, object>>();
@@ -65,8 +65,7 @@ namespace Xunit.Runner.Reporters
 
                 while (!shouldExit || !addQueue.IsEmpty || !updateQueue.IsEmpty)
                 {
-                    workEvent.Wait();   // Wait for work
-                    workEvent.Reset();  // Reset first to ensure any subsequent modification sets
+                    workEvent.WaitOne(); // Wait for work
 
                     // Get local copies of the queues
                     var aq = Interlocked.Exchange(ref addQueue, new ConcurrentQueue<IDictionary<string, object>>());
@@ -76,11 +75,16 @@ namespace Xunit.Runner.Reporters
                         break;
 
                     // We have to do add's before update because we need the test id from the add to inject into the update
-                    await SendTestResults(true, runId.Value, aq.ToArray()).ConfigureAwait(false);
-                    await SendTestResults(false, runId.Value, uq.ToArray()).ConfigureAwait(false);
+                    await SendTestResults(true, runId.Value, aq.ToArray())
+                        .ConfigureAwait(false);
+                    await SendTestResults(false, runId.Value, uq.ToArray())
+                        .ConfigureAwait(false);
                 }
             }
-            catch { }
+            catch (Exception e)
+            {
+                logger.LogError($"VstsClient.RunLoop: Could not create test run. Message: {e.Message}");
+            }
             finally
             {
                 try
@@ -88,8 +92,10 @@ namespace Xunit.Runner.Reporters
                     if (runId.HasValue)
                         await FinishTestRun(runId.Value);
                 }
-                catch
-                {  }
+                catch (Exception e)
+                {
+                    logger.LogError($"VstsClient.RunLoop: Could not finish test run. Message: {e.Message}");
+                }
                 finished.Set();
             }
         }
@@ -305,6 +311,26 @@ namespace Xunit.Runner.Reporters
         {
             var results = string.Join(",", data.Select(x => x.ToJson()));
             return $"[{results}]";
+        }
+
+        bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    workEvent.Dispose();
+                }
+
+
+                disposedValue = true;
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
         }
     }
 }
