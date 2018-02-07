@@ -55,7 +55,7 @@ namespace Xunit
                             if (numberValue != null)
                             {
                                 int maxParallelThreads;
-                                if (int.TryParse(numberValue.Raw, out maxParallelThreads) && maxParallelThreads > 0)
+                                if (int.TryParse(numberValue.Raw, out maxParallelThreads) && maxParallelThreads >= -1)
                                     result.MaxParallelThreads = maxParallelThreads;
                             }
                         }

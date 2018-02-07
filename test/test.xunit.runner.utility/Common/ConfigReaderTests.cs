@@ -62,6 +62,14 @@ public class ConfigReaderTests
             Assert.True(result.ParallelizeTestCollectionsOrDefault);
             Assert.True(result.PreEnumerateTheoriesOrDefault);
         }
+
+        [Fact]
+        public static void ConfigurationFileWithNegativeThreadValue_ReturnsConfiguredValue()
+        {
+            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_NegativeThreads.json"));
+
+            Assert.Equal(-1, result.MaxParallelThreadsOrDefault);
+        }
     }
 
 #if NET452
@@ -112,6 +120,14 @@ public class ConfigReaderTests
             Assert.True(result.ParallelizeAssemblyOrDefault);
             Assert.True(result.ParallelizeTestCollectionsOrDefault);
             Assert.True(result.PreEnumerateTheoriesOrDefault);
+        }
+
+        [Fact]
+        public static void ConfigurationFileWithNegativeThreadValue_ReturnsConfiguredValue()
+        {
+            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_NegativeThreads.config"));
+
+            Assert.Equal(-1, result.MaxParallelThreadsOrDefault);
         }
     }
 #endif
