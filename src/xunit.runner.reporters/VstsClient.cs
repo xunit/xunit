@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
 {
@@ -44,7 +45,7 @@ namespace Xunit.Runner.Reporters
         ConcurrentQueue<IDictionary<string, object>> addQueue = new ConcurrentQueue<IDictionary<string, object>>();
         ConcurrentQueue<IDictionary<string, object>> updateQueue = new ConcurrentQueue<IDictionary<string, object>>();
 
-        ConcurrentDictionary<string, int> unqiueIdToTestIdMap = new ConcurrentDictionary<string, int>();
+        ConcurrentDictionary<ITest, int> unqiueIdToTestIdMap = new ConcurrentDictionary<ITest, int>();
 
         public void WaitOne(CancellationToken cancellationToken)
         {
@@ -105,14 +106,14 @@ namespace Xunit.Runner.Reporters
         }
 
 
-        public void AddTest(IDictionary<string, object> request, string uniqueId)
+        public void AddTest(IDictionary<string, object> request, ITest uniqueId)
         {
             request.Add(UNIQUEIDKEY, uniqueId);
             addQueue.Enqueue(request);
             workEvent.Set();
         }
 
-        public void UpdateTest(IDictionary<string, object> request, string uniqueId)
+        public void UpdateTest(IDictionary<string, object> request, ITest uniqueId)
         {
             request.Add(UNIQUEIDKEY, uniqueId);
             updateQueue.Enqueue(request);
@@ -228,17 +229,17 @@ namespace Xunit.Runner.Reporters
             // For adds, we need to remove the unique id's and correlate to the responses
             // For update we need to look up the reponses
 
-            var originalBody = ToJson(body);
+        //    var originalBody = ToJson(body);
 
-            List<string> added = null;
+            List<ITest> added = null;
             if (isAdd)
             {
-                added = new List<string>(body.Count);
+                added = new List<ITest>(body.Count);
 
                 // Add them to the list so we can ref by ordinal on the response
                 foreach (var item in body)
                 {
-                    var uniqueId = (string)item[UNIQUEIDKEY];
+                    var uniqueId = (ITest)item[UNIQUEIDKEY];
                     item.Remove(UNIQUEIDKEY);
 
                     added.Add(uniqueId);
@@ -249,7 +250,7 @@ namespace Xunit.Runner.Reporters
                 // The values should be in the map
                 foreach (var item in body)
                 {
-                    var uniqueId = (string)item[UNIQUEIDKEY];
+                    var uniqueId = (ITest)item[UNIQUEIDKEY];
                     item.Remove(UNIQUEIDKEY);
 
                     // lookup and add
@@ -279,7 +280,7 @@ namespace Xunit.Runner.Reporters
                     var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
                     if (!response.IsSuccessStatusCode)
                     {
-                        logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body:\n{bodyString}\nOriginal Message:\n{originalBody}");
+                        logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body:\n{bodyString}");
                         previousErrors = true;
                     }
 

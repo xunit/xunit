@@ -79,14 +79,14 @@ namespace Xunit.Runner.Reporters
             VstsAddTest($"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}", 
                         args.Message.Test.DisplayName, 
                         assemblyName, 
-                        args.Message.TestCase.UniqueID + args.Message.Test.DisplayName);
+                        args.Message.Test);
         }
 
         protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
             var testPassed = args.Message;
 
-            VstsUpdateTest(args.Message.TestCase.UniqueID + args.Message.Test.DisplayName, "Passed",
+            VstsUpdateTest(args.Message.Test, "Passed",
                                Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
 
             base.HandleTestPassed(args);
@@ -97,7 +97,7 @@ namespace Xunit.Runner.Reporters
             var testSkipped = args.Message;
 
 
-            VstsUpdateTest(args.Message.TestCase.UniqueID + args.Message.Test.DisplayName, "NotExecuted",
+            VstsUpdateTest(args.Message.Test, "NotExecuted",
                                Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
 
             base.HandleTestSkipped(args);
@@ -107,7 +107,7 @@ namespace Xunit.Runner.Reporters
         {
             var testFailed = args.Message;
 
-            VstsUpdateTest(args.Message.TestCase.UniqueID + args.Message.Test.DisplayName, "Failed",
+            VstsUpdateTest(args.Message.Test, "Failed",
                                Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
                                ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
 
@@ -115,7 +115,7 @@ namespace Xunit.Runner.Reporters
         }
         
 
-        void VstsAddTest(string testName, string displayName, string fileName, string uniqueId)
+        void VstsAddTest(string testName, string displayName, string fileName, ITest uniqueId)
         {
             var body = new Dictionary<string, object>
             {
@@ -133,7 +133,7 @@ namespace Xunit.Runner.Reporters
             client.AddTest(body, uniqueId);
         }
 
-        void VstsUpdateTest(string uniqueId, string outcome, long? durationMilliseconds,
+        void VstsUpdateTest(ITest uniqueId, string outcome, long? durationMilliseconds,
                                 string errorMessage, string errorStackTrace, string stdOut)
         {
             var body = new Dictionary<string, object>
