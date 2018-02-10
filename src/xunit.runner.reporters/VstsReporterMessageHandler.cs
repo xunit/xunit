@@ -140,10 +140,15 @@ namespace Xunit.Runner.Reporters
             {
                 { "outcome", outcome },
                 { "durationInMs", durationMilliseconds },
-                { "errorMessage", $"{errorMessage}\n{errorStackTrace}\n{TrimStdOut(stdOut)}" },
                 { "state", "Completed" },
                 { "completedDate", DateTime.UtcNow }
             };
+
+            var msg = $"{errorMessage}\n{errorStackTrace}\n{TrimStdOut(stdOut)}".Trim();
+            if (!string.IsNullOrWhiteSpace(msg))
+            {
+                body.Add("errorMessage", msg);
+            }
 
             client.UpdateTest(body, uniqueId);
         }

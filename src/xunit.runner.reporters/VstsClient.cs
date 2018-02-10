@@ -91,6 +91,10 @@ namespace Xunit.Runner.Reporters
                 {
                     if (runId.HasValue)
                         await FinishTestRun(runId.Value);
+                    else
+                    {
+                        logger.LogError("RunId is not set, cannot complete test run");
+                    }
                 }
                 catch (Exception e)
                 {
@@ -119,7 +123,7 @@ namespace Xunit.Runner.Reporters
         {
             var requestMessage = new Dictionary<string, object>
             {
-                { "name", "xUnit Runner Test Run"},
+                { "name", $"xUnit Runner Test Run on {DateTime.UtcNow.ToString("o")}"},
                 {
                     "build", 
                     new Dictionary<string, object>
@@ -158,6 +162,7 @@ namespace Xunit.Runner.Reporters
                                                                        .ConfigureAwait(false)))
                     {
                         respString = await reader.ReadToEndAsync();
+                        logger.LogMessage($"Rest Run created:\n{respString}");
                         using (var sr = new StringReader(respString))
                         {
 
@@ -278,23 +283,31 @@ namespace Xunit.Runner.Reporters
 
                     if (isAdd)
                     {
+                        string respString = null;
                         // We need to process the repsonse to extract the Id's and add them to the map 
                         using (var reader = new StreamReader(await response.Content.ReadAsStreamAsync()
                                                                            .ConfigureAwait(false)))
                         {
-                            var resp = JsonDeserializer.Deserialize(reader) as JsonObject;
-
-                            var testCases = resp.Value("value") as JsonArray;
-                            for (var i = 0; i < testCases.Length; ++i)
+                            respString = await reader.ReadToEndAsync();
+                            logger.LogMessage($"Tests created response:\n{respString}");
+                            using (var sr = new StringReader(respString))
                             {
-                                var testCase = testCases[i] as JsonObject;
-                                var id = testCase.ValueAsInt("id");
+                                var resp = JsonDeserializer.Deserialize(sr) as JsonObject;
 
-                                // Match the unique id by ordinal
-                                var uniqueId = added[i];
-                                unqiueIdToTestIdMap[uniqueId] = id;
+                                var testCases = resp.Value("value") as JsonArray;
+                                for (var i = 0; i < testCases.Length; ++i)
+                                {
+                                    var testCase = testCases[i] as JsonObject;
+                                    var id = testCase.ValueAsInt("id");
+
+                                    // Match the unique id by ordinal
+                                    var uniqueId = added[i];
+                                    unqiueIdToTestIdMap[uniqueId] = id;
+                                }
                             }
                         }
+
+                      
                             
                     }
                 }
