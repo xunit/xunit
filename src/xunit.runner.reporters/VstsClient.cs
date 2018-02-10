@@ -264,8 +264,8 @@ namespace Xunit.Runner.Reporters
 
             var url = $"{baseUri}/{runId}/results?api-version=3.0-preview";
 
-            logger.LogMessage($"Sending '{method} {url}' with {body.Count} items\n{bodyString}");
-            logger.LogMessage($"Original Body\n{originalBody}");
+            //logger.LogMessage($"Sending '{method} {url}' with {body.Count} items\n{bodyString}");
+            //logger.LogMessage($"Original Body\n{originalBody}");
             try
             {
                 var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
@@ -294,7 +294,7 @@ namespace Xunit.Runner.Reporters
                                                                            .ConfigureAwait(false)))
                         {
                             respString = await reader.ReadToEndAsync();
-                            logger.LogMessage($"Tests created response:\n{respString}");
+                           // logger.LogMessage($"Tests created response:\n{respString}");
                             using (var sr = new StringReader(respString))
                             {
                                 var resp = JsonDeserializer.Deserialize(sr) as JsonObject;
