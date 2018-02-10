@@ -79,14 +79,14 @@ namespace Xunit.Runner.Reporters
             VstsAddTest($"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}", 
                         args.Message.Test.DisplayName, 
                         assemblyName, 
-                        args.Message.TestCase.UniqueID);
+                        args.Message.TestCase.UniqueID + args.Message.Test.DisplayName);
         }
 
         protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
             var testPassed = args.Message;
 
-            VstsUpdateTest(args.Message.TestCase.UniqueID, "Passed",
+            VstsUpdateTest(args.Message.TestCase.UniqueID + args.Message.Test.DisplayName, "Passed",
                                Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
 
             base.HandleTestPassed(args);
@@ -97,7 +97,7 @@ namespace Xunit.Runner.Reporters
             var testSkipped = args.Message;
 
 
-            VstsUpdateTest(args.Message.TestCase.UniqueID, "NotExecuted",
+            VstsUpdateTest(args.Message.TestCase.UniqueID + args.Message.Test.DisplayName, "NotExecuted",
                                Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
 
             base.HandleTestSkipped(args);
@@ -107,7 +107,7 @@ namespace Xunit.Runner.Reporters
         {
             var testFailed = args.Message;
 
-            VstsUpdateTest(args.Message.TestCase.UniqueID, "Failed",
+            VstsUpdateTest(args.Message.TestCase.UniqueID + args.Message.Test.DisplayName, "Failed",
                                Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
                                ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
 
