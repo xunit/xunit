@@ -175,8 +175,7 @@ namespace Xunit.Runner.Reporters
             }
             catch (Exception ex)
             {
-                // TODO: Remove access token output
-                logger.LogError($"When sending 'POST {url}' with body '{bodyString}'\nexception was thrown: {ex.Message}\naccess_token:\n{client.DefaultRequestHeaders.Authorization.Parameter} \nresponse string:\n{respString}");
+                logger.LogError($"When sending 'POST {url}' with body '{bodyString}'\nexception was thrown: {ex.Message}\nresponse string:\n{respString}");
                 throw;
             }
         }
@@ -264,8 +263,6 @@ namespace Xunit.Runner.Reporters
 
             var url = $"{baseUri}/{runId}/results?api-version=3.0-preview";
 
-            //logger.LogMessage($"Sending '{method} {url}' with {body.Count} items\n{bodyString}");
-            //logger.LogMessage($"Original Body\n{originalBody}");
             try
             {
                 var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
@@ -282,7 +279,7 @@ namespace Xunit.Runner.Reporters
                     var response = await client.SendAsync(request, tcs.Token).ConfigureAwait(false);
                     if (!response.IsSuccessStatusCode)
                     {
-                        logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body: {bodyString}");
+                        logger.LogWarning($"When sending '{method} {url}', received status code '{response.StatusCode}'; request body:\n{bodyString}\nOriginal Message:\n{originalBody}");
                         previousErrors = true;
                     }
 
@@ -294,7 +291,7 @@ namespace Xunit.Runner.Reporters
                                                                            .ConfigureAwait(false)))
                         {
                             respString = await reader.ReadToEndAsync();
-                           // logger.LogMessage($"Tests created response:\n{respString}");
+
                             using (var sr = new StringReader(respString))
                             {
                                 var resp = JsonDeserializer.Deserialize(sr) as JsonObject;
