@@ -140,8 +140,7 @@ namespace Xunit.Runner.Reporters
             {
                 { "outcome", outcome },
                 { "durationInMs", durationMilliseconds },
-                { "state", "Completed" },
-                { "completedDate", DateTime.UtcNow }
+                { "state", "Completed" }
             };
 
             var msg = $"{errorMessage}\n{errorStackTrace}\n{TrimStdOut(stdOut)}".Trim();

@@ -45,7 +45,7 @@ namespace Xunit.Runner.Reporters
         ConcurrentQueue<IDictionary<string, object>> addQueue = new ConcurrentQueue<IDictionary<string, object>>();
         ConcurrentQueue<IDictionary<string, object>> updateQueue = new ConcurrentQueue<IDictionary<string, object>>();
 
-        ConcurrentDictionary<ITest, int> unqiueIdToTestIdMap = new ConcurrentDictionary<ITest, int>();
+        ConcurrentDictionary<ITest, int> testToTestIdMap = new ConcurrentDictionary<ITest, int>();
 
         public void WaitOne(CancellationToken cancellationToken)
         {
@@ -163,7 +163,6 @@ namespace Xunit.Runner.Reporters
                                                                        .ConfigureAwait(false)))
                     {
                         respString = await reader.ReadToEndAsync();
-                        //logger.LogMessage($"Rest Run created:\n{respString}");
                         using (var sr = new StringReader(respString))
                         {
 
@@ -228,9 +227,6 @@ namespace Xunit.Runner.Reporters
 
             // For adds, we need to remove the unique id's and correlate to the responses
             // For update we need to look up the reponses
-
-        //    var originalBody = ToJson(body);
-
             List<ITest> added = null;
             if (isAdd)
             {
@@ -250,11 +246,11 @@ namespace Xunit.Runner.Reporters
                 // The values should be in the map
                 foreach (var item in body)
                 {
-                    var uniqueId = (ITest)item[UNIQUEIDKEY];
+                    var test = (ITest)item[UNIQUEIDKEY];
                     item.Remove(UNIQUEIDKEY);
 
                     // lookup and add
-                    var testId = unqiueIdToTestIdMap[uniqueId];
+                    var testId = testToTestIdMap[test];
                     item.Add("id", testId);
                 }
             }
@@ -303,9 +299,9 @@ namespace Xunit.Runner.Reporters
                                     var testCase = testCases[i] as JsonObject;
                                     var id = testCase.ValueAsInt("id");
 
-                                    // Match the unique id by ordinal
-                                    var uniqueId = added[i];
-                                    unqiueIdToTestIdMap[uniqueId] = id;
+                                    // Match the test by ordinal
+                                    var test = added[i];
+                                    testToTestIdMap[test] = id;
                                 }
                             }
                         }
