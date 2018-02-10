@@ -162,7 +162,7 @@ namespace Xunit.Runner.Reporters
                                                                        .ConfigureAwait(false)))
                     {
                         respString = await reader.ReadToEndAsync();
-                        logger.LogMessage($"Rest Run created:\n{respString}");
+                        //logger.LogMessage($"Rest Run created:\n{respString}");
                         using (var sr = new StringReader(respString))
                         {
 
@@ -229,6 +229,8 @@ namespace Xunit.Runner.Reporters
             // For adds, we need to remove the unique id's and correlate to the responses
             // For update we need to look up the reponses
 
+            var originalBody = ToJson(body);
+
             List<string> added = null;
             if (isAdd)
             {
@@ -261,6 +263,9 @@ namespace Xunit.Runner.Reporters
             var bodyString = ToJson(body);
 
             var url = $"{baseUri}/{runId}/results?api-version=3.0-preview";
+
+            logger.LogMessage($"Sending '{method} {url}' with {body.Count} items\n{bodyString}");
+            logger.LogMessage($"Original Body\n{originalBody}");
             try
             {
                 var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
@@ -306,9 +311,6 @@ namespace Xunit.Runner.Reporters
                                 }
                             }
                         }
-
-                      
-                            
                     }
                 }
             }
