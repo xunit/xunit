@@ -87,6 +87,8 @@ namespace Xunit.Runner.VisualStudio
                     result.SetPropertyValue(VsTestRunner.SerializedTestCaseProperty, descriptor.Serialization);
 
                 result.Id = GuidFromString(uri + descriptor.UniqueID);
+                result.CodeFilePath = descriptor.SourceFileName;
+                result.LineNumber = descriptor.SourceLineNumber.GetValueOrDefault();
 
                 if (addTraitThunk != null)
                 {
@@ -95,12 +97,6 @@ namespace Xunit.Runner.VisualStudio
                     foreach (var key in traits.Keys)
                         foreach (var value in traits[key])
                             addTraitThunk(result, key, value);
-                }
-
-                if (testPlatformContext.RequireSourceInformation)
-                {
-                    result.CodeFilePath = descriptor.SourceFileName;
-                    result.LineNumber = descriptor.SourceLineNumber.GetValueOrDefault();
                 }
 
                 return result;
