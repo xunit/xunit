@@ -200,6 +200,64 @@ public class CollectionAssertsTests
             // the collection has the item, the assert should pass.
             Assert.Contains(new[] { 1, 2, 3, 4 }, collections);
         }
+
+        [Fact]
+        public static void KeyInDictionary()
+        {
+            var dictionary = (IDictionary<string, int>)new Dictionary<string, int>
+            {
+                ["forty-two"] = 42
+            };
+
+            var actual = Assert.Contains("forty-two", dictionary);
+            Assert.Equal(42, actual);
+        }
+
+        [Fact]
+        public static void KeyNotInDictionary()
+        {
+            var dictionary = (IDictionary<string, int>)new Dictionary<string, int>
+            {
+                ["eleventeen"] = 110
+            };
+
+            var actual = Record.Exception(() => Assert.Contains("forty-two", dictionary));
+
+            var ex = Assert.IsType<ContainsException>(actual);
+            Assert.Equal(
+                "Assert.Contains() Failure" + Environment.NewLine +
+                "Not found: forty-two" + Environment.NewLine +
+               @"In value:  KeyCollection<String, Int32> [""eleventeen""]", ex.Message);
+        }
+
+        [Fact]
+        public static void KeyInReadOnlyDictionary()
+        {
+            var dictionary = (IReadOnlyDictionary<string, int>)new Dictionary<string, int>
+            {
+                ["forty-two"] = 42
+            };
+
+            var actual = Assert.Contains("forty-two", dictionary);
+            Assert.Equal(42, actual);
+        }
+
+        [Fact]
+        public static void KeyNotInReadOnlyDictionary()
+        {
+            var dictionary = (IReadOnlyDictionary<string, int>)new Dictionary<string, int>
+            {
+                ["eleventeen"] = 110
+            };
+
+            var actual = Record.Exception(() => Assert.Contains("forty-two", dictionary));
+
+            var ex = Assert.IsType<ContainsException>(actual);
+            Assert.Equal(
+                "Assert.Contains() Failure" + Environment.NewLine +
+                "Not found: forty-two" + Environment.NewLine +
+               @"In value:  KeyCollection<String, Int32> [""eleventeen""]", ex.Message);
+        }
     }
 
     public class Contains_WithComparer
@@ -352,6 +410,66 @@ public class CollectionAssertsTests
             Assert.Equal("Assert.DoesNotContain() Failure" + Environment.NewLine +
                          "Found:    Int32[] [1, 2, 3, 4]" + Environment.NewLine +
                          "In value: Int32[][] [[1, 2, 3, 4]]", ex.Message);
+        }
+
+        [Fact]
+        public static void KeyNotInDictionary()
+        {
+            var dictionary = (IDictionary<string, int>)new Dictionary<string, int>
+            {
+                ["eleventeen"] = 110
+            };
+
+            var actual = Record.Exception(() => Assert.DoesNotContain("forty-two", dictionary));
+
+            Assert.Null(actual);
+        }
+
+        [Fact]
+        public static void KeyInDictionary()
+        {
+            var dictionary = (IDictionary<string, int>)new Dictionary<string, int>
+            {
+                ["forty-two"] = 42
+            };
+
+            var actual = Record.Exception(() => Assert.DoesNotContain("forty-two", dictionary));
+
+            var ex = Assert.IsType<DoesNotContainException>(actual);
+            Assert.Equal(
+                "Assert.DoesNotContain() Failure" + Environment.NewLine +
+                "Found:    forty-two" + Environment.NewLine +
+               @"In value: KeyCollection<String, Int32> [""forty-two""]", ex.Message);
+        }
+
+        [Fact]
+        public static void KeyNotInReadOnlyDictionary()
+        {
+            var dictionary = (IReadOnlyDictionary<string, int>)new Dictionary<string, int>
+            {
+                ["eleventeen"] = 110
+            };
+
+            var actual = Record.Exception(() => Assert.DoesNotContain("forty-two", dictionary));
+
+            Assert.Null(actual);
+        }
+
+        [Fact]
+        public static void KeyInReadOnlyDictionary()
+        {
+            var dictionary = (IReadOnlyDictionary<string, int>)new Dictionary<string, int>
+            {
+                ["forty-two"] = 42
+            };
+
+            var actual = Record.Exception(() => Assert.DoesNotContain("forty-two", dictionary));
+
+            var ex = Assert.IsType<DoesNotContainException>(actual);
+            Assert.Equal(
+                "Assert.DoesNotContain() Failure" + Environment.NewLine +
+                "Found:    forty-two" + Environment.NewLine +
+               @"In value: KeyCollection<String, Int32> [""forty-two""]", ex.Message);
         }
     }
 
