@@ -3,8 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Versioning;
 using System.Threading;
 using Xunit.Abstractions;
 
@@ -14,14 +12,13 @@ namespace Xunit.Runner.Reporters
     {
         const int MaxLength = 4096;
 
+        readonly string accessToken;
+        int assembliesInFlight;
         readonly ConcurrentDictionary<string, string> assemblyNames = new ConcurrentDictionary<string, string>();
         readonly string baseUri;
-        VstsClient client;
-
-        int assembliesInFlight; 
-        readonly object clientLock = new object();
-        readonly string accessToken;
         readonly int buildId;
+        VstsClient client;
+        readonly object clientLock = new object();
 
         public VstsReporterMessageHandler(IRunnerLogger logger, string baseUri, string accessToken, int buildId)
             : base(logger)
@@ -59,10 +56,8 @@ namespace Xunit.Runner.Reporters
 
                 // Look for the TFM attrib to disambiguate 
                 var attrib = args.Message.TestAssembly.Assembly.GetCustomAttributes("System.Runtime.Versioning.TargetFrameworkAttribute").FirstOrDefault();
-                var arg = attrib?.GetConstructorArguments().FirstOrDefault() as string;
-                
                 var assemblyFileName = Path.GetFileName(args.Message.TestAssembly.Assembly.AssemblyPath);
-                if (arg != null)
+                if (attrib?.GetConstructorArguments().FirstOrDefault() is string arg)
                     assemblyFileName = $"{assemblyFileName} ({arg})";
 
                 assemblyNames[args.Message.TestAssembly.Assembly.Name] = assemblyFileName;
@@ -76,9 +71,9 @@ namespace Xunit.Runner.Reporters
         {
             var assemblyName = assemblyNames[args.Message.TestAssembly.Assembly.Name];
 
-            VstsAddTest($"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}", 
-                        args.Message.Test.DisplayName, 
-                        assemblyName, 
+            VstsAddTest($"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}",
+                        args.Message.Test.DisplayName,
+                        assemblyName,
                         args.Message.Test);
         }
 
@@ -87,7 +82,7 @@ namespace Xunit.Runner.Reporters
             var testPassed = args.Message;
 
             VstsUpdateTest(args.Message.Test, "Passed",
-                               Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
+                           Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
 
             base.HandleTestPassed(args);
         }
@@ -96,9 +91,8 @@ namespace Xunit.Runner.Reporters
         {
             var testSkipped = args.Message;
 
-
             VstsUpdateTest(args.Message.Test, "NotExecuted",
-                               Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
+                           Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
 
             base.HandleTestSkipped(args);
         }
@@ -108,12 +102,11 @@ namespace Xunit.Runner.Reporters
             var testFailed = args.Message;
 
             VstsUpdateTest(args.Message.Test, "Failed",
-                               Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
-                               ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
+                           Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
+                           ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
 
             base.HandleTestFailed(args);
         }
-        
 
         void VstsAddTest(string testName, string displayName, string fileName, ITest uniqueId)
         {
@@ -127,14 +120,12 @@ namespace Xunit.Runner.Reporters
                 { "automatedTestStorage", fileName },
                 { "state", "InProgress" },
                 { "startedDate", DateTime.UtcNow }
-
             };
 
             client.AddTest(body, uniqueId);
         }
 
-        void VstsUpdateTest(ITest uniqueId, string outcome, long? durationMilliseconds,
-                                string errorMessage, string errorStackTrace, string stdOut)
+        void VstsUpdateTest(ITest uniqueId, string outcome, long? durationMilliseconds, string errorMessage, string errorStackTrace, string stdOut)
         {
             var body = new Dictionary<string, object>
             {
@@ -145,14 +136,12 @@ namespace Xunit.Runner.Reporters
 
             var msg = $"{errorMessage}\n{errorStackTrace}\n{TrimStdOut(stdOut)}".Trim();
             if (!string.IsNullOrWhiteSpace(msg))
-            {
                 body.Add("errorMessage", msg);
-            }
 
             client.UpdateTest(body, uniqueId);
         }
 
         static string TrimStdOut(string str)
-            => str != null && str.Length > MaxLength ? str.Substring(0, MaxLength) : str;
+            => str?.Length > MaxLength ? str.Substring(0, MaxLength) : str;
     }
 }
