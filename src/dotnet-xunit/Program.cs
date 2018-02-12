@@ -259,6 +259,7 @@ class Program
         Console.WriteLine("  -quiet                 : do not show progress messages");
         Console.WriteLine("  -teamcity              : forces TeamCity mode (normally auto-detected)");
         Console.WriteLine("  -verbose               : show verbose progress messages");
+        Console.WriteLine("  -vsts                  : forces VSTS CI mode (normally auto-detected)");
         Console.WriteLine();
 
         // TODO: Can't dynamically get the transform factory list, hardcoded for now...
