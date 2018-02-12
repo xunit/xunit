@@ -345,9 +345,7 @@ public class ArgumentFormatterTests
             public Looping Me;
 
             public Looping()
-            {
-                Me = this;
-            }
+                => Me = this;
         }
 
         [Fact]
@@ -359,9 +357,7 @@ public class ArgumentFormatterTests
         public class TypeWithToString
         {
             public override string ToString()
-            {
-                return "This is what you should show";
-            }
+                => "This is what you should show";
         }
     }
 
@@ -371,15 +367,13 @@ public class ArgumentFormatterTests
         [InlineData(typeof(int), "typeof(int)")]
         [InlineData(typeof(long), "typeof(long)")]
         [InlineData(typeof(string), "typeof(string)")]
-        [InlineData(typeof(String), "typeof(string)")]
-        [InlineData(typeof(int), "typeof(int)")]
         [InlineData(typeof(List<int>), "typeof(System.Collections.Generic.List<int>)")]
         [InlineData(typeof(Dictionary<int, string>), "typeof(System.Collections.Generic.Dictionary<int, string>)")]
         [InlineData(typeof(List<>), "typeof(System.Collections.Generic.List<>)")]
         [InlineData(typeof(Dictionary<,>), "typeof(System.Collections.Generic.Dictionary<,>)")]
         public void ArgumentFormatterFormatTypeNames(Type type, string expectedResult)
         {
-            Assert.Equal(ArgumentFormatter.Format(type), expectedResult);
+            Assert.Equal(expectedResult, ArgumentFormatter.Format(type));
         }
 
         [Fact]
@@ -389,7 +383,7 @@ public class ArgumentFormatterTests
             var genericTypeParameters = typeInfo.GenericTypeParameters;
             var parameterType = genericTypeParameters.First();
 
-            Assert.Equal(ArgumentFormatter.Format(parameterType), "typeof(T)");
+            Assert.Equal("typeof(T)", ArgumentFormatter.Format(parameterType));
         }
 
         [Fact]
@@ -399,11 +393,10 @@ public class ArgumentFormatterTests
             var genericTypeParameters = typeInfo.GenericTypeParameters;
             var parameterTKey = genericTypeParameters.First();
 
-            Assert.Equal(ArgumentFormatter.Format(parameterTKey), "typeof(TKey)");
+            Assert.Equal("typeof(TKey)", ArgumentFormatter.Format(parameterTKey));
 
             var parameterTValue = genericTypeParameters.Last();
-            Assert.Equal(ArgumentFormatter.Format(parameterTValue), "typeof(TValue)");
-
+            Assert.Equal("typeof(TValue)", ArgumentFormatter.Format(parameterTValue));
         }
     }
 }
