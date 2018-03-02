@@ -124,7 +124,7 @@ namespace Xunit
         {
 #if NET35 || NET452
             var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
-            if (Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0)
+            if (Directory.EnumerateFiles(assemblyFolder, "xunit.execution.*.dll").Any())
                 return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 
             var xunitPath = Path.Combine(assemblyFolder, "xunit.dll");
