@@ -61,7 +61,6 @@ namespace Xunit.Runner.VisualStudio
         {
             var result = new RunSettings();
 
-#if !WINDOWS_UAP
             if (!string.IsNullOrEmpty(runSettingsXml))
             {
                 try
@@ -99,7 +98,6 @@ namespace Xunit.Runner.VisualStudio
                 }
                 catch { }
             }
-#endif
 
             return result;
         }
@@ -107,9 +105,13 @@ namespace Xunit.Runner.VisualStudio
         public bool IsMatchingTargetFramework()
         {
 #if NETCOREAPP1_0
-            return TargetFrameworkVersion.StartsWith(".NETCore", StringComparison.OrdinalIgnoreCase) ||
-                   TargetFrameworkVersion.StartsWith("FrameworkCore", StringComparison.OrdinalIgnoreCase);
+            return TargetFrameworkVersion?.StartsWith(".NETCoreApp,", StringComparison.OrdinalIgnoreCase) == true;
+#elif WINDOWS_UAP
+            return TargetFrameworkVersion?.StartsWith(".NETCore,", StringComparison.OrdinalIgnoreCase) == true;
 #else
+            if (TargetFrameworkVersion?.StartsWith(".NETCore", StringComparison.OrdinalIgnoreCase) == true)
+                return false; // Either UWP or .NET Core App, bail out
+
             return true;
 #endif
         }
