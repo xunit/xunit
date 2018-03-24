@@ -107,14 +107,20 @@ namespace Xunit.Runner.VisualStudio
             // FrameworkVersion parameter
             // https://github.com/Microsoft/vstest/blob/00f170990b8687d95a13719faec6417e4b1daef5/src/Microsoft.TestPlatform.ObjectModel/FrameworkVersion.cs
             // https://github.com/Microsoft/vstest/blob/b0fc6c9212813abdbfb31e2fe4162a7751c33ca2/src/Microsoft.TestPlatform.ObjectModel/RunSettings/RunConfiguration.cs#L315
+
+            // Uap - not used this way, but could be written here:
+            // https://github.com/Microsoft/vstest/blob/b0fc6c9212813abdbfb31e2fe4162a7751c33ca2/src/Microsoft.TestPlatform.ObjectModel/Constants.cs#L201
+
 #if NETCOREAPP1_0
             return TargetFrameworkVersion?.StartsWith(".NETCoreApp,", StringComparison.OrdinalIgnoreCase) == true ||
                    TargetFrameworkVersion?.StartsWith("FrameworkCore10", StringComparison.OrdinalIgnoreCase) == true;
 #elif WINDOWS_UAP
             return TargetFrameworkVersion?.StartsWith(".NETCore,", StringComparison.OrdinalIgnoreCase) == true ||
+                   TargetFrameworkVersion?.StartsWith("Uap,", StringComparison.OrdinalIgnoreCase) == true ||
                    TargetFrameworkVersion?.StartsWith("FrameworkUap10", StringComparison.OrdinalIgnoreCase) == true;
 #else
             if (TargetFrameworkVersion?.StartsWith(".NETCore", StringComparison.OrdinalIgnoreCase) == true ||
+                TargetFrameworkVersion?.StartsWith("Uap,", StringComparison.OrdinalIgnoreCase) == true ||
                 TargetFrameworkVersion?.StartsWith("FrameworkCore10", StringComparison.OrdinalIgnoreCase) == true ||
                 TargetFrameworkVersion?.StartsWith("FrameworkUap10", StringComparison.OrdinalIgnoreCase) == true)
                 return false; // Either UWP or .NET Core App, bail out
