@@ -110,9 +110,9 @@ function __target__packages() {
 
 function __target__publish() {
     _build_step "Publishing projects for packaging"
-        _msbuild "publish src\xunit.console /p:Configuration $configuration /p:TargetFramework=netcoreapp1.0"
-        _msbuild "publish src\xunit.console /p:Configuration $configuration /p:TargetFramework=netcoreapp2.0"
-        _msbuild "publish src\xunit.runner.visualstudio /p:Configuration $configuration /p:TargetFramework=netcoreapp1.0"
+        _msbuild "publish src\xunit.console\xunit.console.csproj /p:Configuration $configuration /p:TargetFramework=netcoreapp1.0"
+        _msbuild "publish src\xunit.console\xunit.console.csproj /p:Configuration $configuration /p:TargetFramework=netcoreapp2.0"
+        _msbuild "publish src\xunit.runner.visualstudio\xunit.runner.visualstudio.csproj /p:Configuration $configuration /p:TargetFramework=netcoreapp1.0"
 }
 
 function __target__pushmyget() {
