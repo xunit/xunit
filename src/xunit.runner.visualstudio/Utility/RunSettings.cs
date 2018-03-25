@@ -112,17 +112,20 @@ namespace Xunit.Runner.VisualStudio
             // https://github.com/Microsoft/vstest/blob/b0fc6c9212813abdbfb31e2fe4162a7751c33ca2/src/Microsoft.TestPlatform.ObjectModel/Constants.cs#L201
 
 #if NETCOREAPP1_0
-            return TargetFrameworkVersion?.StartsWith(".NETCoreApp,", StringComparison.OrdinalIgnoreCase) == true ||
-                   TargetFrameworkVersion?.StartsWith("FrameworkCore10", StringComparison.OrdinalIgnoreCase) == true;
+            return string.IsNullOrWhiteSpace(TargetFrameworkVersion) ||// Short circuit on null since we don't have anything to detect, return true
+                   (TargetFrameworkVersion.StartsWith(".NETCoreApp,", StringComparison.OrdinalIgnoreCase) ||
+                   TargetFrameworkVersion.StartsWith("FrameworkCore10", StringComparison.OrdinalIgnoreCase));
 #elif WINDOWS_UAP
-            return TargetFrameworkVersion?.StartsWith(".NETCore,", StringComparison.OrdinalIgnoreCase) == true ||
-                   TargetFrameworkVersion?.StartsWith("Uap,", StringComparison.OrdinalIgnoreCase) == true ||
-                   TargetFrameworkVersion?.StartsWith("FrameworkUap10", StringComparison.OrdinalIgnoreCase) == true;
+            return string.IsNullOrWhiteSpace(TargetFrameworkVersion) || // Short circuit on null since we don't have anything to detect, return true
+                   (TargetFrameworkVersion.StartsWith(".NETCore,", StringComparison.OrdinalIgnoreCase) ||
+                   TargetFrameworkVersion.StartsWith("Uap,", StringComparison.OrdinalIgnoreCase) ||
+                   TargetFrameworkVersion.StartsWith("FrameworkUap10", StringComparison.OrdinalIgnoreCase));
 #else
-            if (TargetFrameworkVersion?.StartsWith(".NETCore", StringComparison.OrdinalIgnoreCase) == true ||
-                TargetFrameworkVersion?.StartsWith("Uap,", StringComparison.OrdinalIgnoreCase) == true ||
-                TargetFrameworkVersion?.StartsWith("FrameworkCore10", StringComparison.OrdinalIgnoreCase) == true ||
-                TargetFrameworkVersion?.StartsWith("FrameworkUap10", StringComparison.OrdinalIgnoreCase) == true)
+            if (!string.IsNullOrWhiteSpace(TargetFrameworkVersion) && 
+                (TargetFrameworkVersion.StartsWith(".NETCore", StringComparison.OrdinalIgnoreCase) ||
+                TargetFrameworkVersion.StartsWith("Uap,", StringComparison.OrdinalIgnoreCase) ||
+                TargetFrameworkVersion.StartsWith("FrameworkCore10", StringComparison.OrdinalIgnoreCase) ||
+                TargetFrameworkVersion.StartsWith("FrameworkUap10", StringComparison.OrdinalIgnoreCase)))
                 return false; // Either UWP or .NET Core App, bail out
 
             return true;
