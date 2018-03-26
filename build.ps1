@@ -110,9 +110,9 @@ function __target__packages() {
 
 function __target__publish() {
     _build_step "Publishing projects for packaging"
-        _dotnet "publish src\xunit.console --configuration $configuration --framework netcoreapp1.0"
-        _dotnet "publish src\xunit.console --configuration $configuration --framework netcoreapp2.0"
-        _dotnet "publish src\xunit.runner.visualstudio --configuration $configuration --framework netcoreapp1.0"
+        _msbuild "src\xunit.console\xunit.console.csproj /p:TargetFramework=netcoreapp1.0" $configuration "publish"
+        _msbuild "src\xunit.console\xunit.console.csproj /p:TargetFramework=netcoreapp2.0" $configuration "publish"
+        _msbuild "src\xunit.runner.visualstudio\xunit.runner.visualstudio.csproj /p:TargetFramework=netcoreapp1.0" $configuration "publish"
 }
 
 function __target__pushmyget() {
@@ -199,8 +199,8 @@ if ($targetFunction -eq $null) {
 _build_step "Performing pre-build verifications"
     _require dotnet "Could not find 'dotnet'. Please ensure .NET CLI Tooling is installed."
     _verify_dotnetsdk_version "2.0.0"
-    _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v15 is on the path."
-    _verify_msbuild_version "15.3.0"
+    _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v15.6 is on the path."
+    _verify_msbuild_version "15.6.0"
 
 _mkdir $packageOutputFolder
 _mkdir $testOutputFolder

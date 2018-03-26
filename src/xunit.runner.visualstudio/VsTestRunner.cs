@@ -660,11 +660,11 @@ namespace Xunit.Runner.VisualStudio
                 if (!string.IsNullOrEmpty(runSettings.ReporterSwitch))
                 {
                     reporter = availableReporters.Value.FirstOrDefault(r => string.Equals(r.RunnerSwitch, runSettings.ReporterSwitch, StringComparison.OrdinalIgnoreCase));
-                    if (reporter is default)
+                    if (reporter is null)
                         logger.LogWarning("Could not find requested reporter '{0}'", runSettings.ReporterSwitch);
                 }
 
-                if (reporter is default && !runSettings.NoAutoReporters)
+                if (reporter is null && !runSettings.NoAutoReporters)
                     reporter = availableReporters.Value.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
             }
             catch { }
