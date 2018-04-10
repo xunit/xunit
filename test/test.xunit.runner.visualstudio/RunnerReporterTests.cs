@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -77,5 +78,13 @@ public class RunnerReporterTests
 
         Assert.Equal(typeof(DefaultRunnerReporterWithTypes).AssemblyQualifiedName, runnerReporter.GetType().AssemblyQualifiedName);
         logger.Received(1).SendMessage(TestMessageLevel.Warning, "[xUnit.net 00:00:00] Could not find requested reporter 'thisnotavalidreporter'");
+    }
+
+    [Fact]
+    public void VSTestRunnerShouldHaveCategoryAttribute_WithValueManaged()
+    {
+        var attribute = typeof(VsTestRunner).GetCustomAttribute(typeof(CategoryAttribute));
+        Assert.NotNull(attribute);
+        Assert.Equal("managed", (attribute as CategoryAttribute)?.Category);
     }
 }
