@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -23,6 +24,9 @@ namespace Xunit.Runner.VisualStudio
     [FileExtension(".exe")]
     [DefaultExecutorUri(Constants.ExecutorUri)]
     [ExtensionUri(Constants.ExecutorUri)]
+#if !WINDOWS_UAP
+    [Category("managed")]
+#endif
     public class VsTestRunner : ITestDiscoverer, ITestExecutor
     {
         static IRunnerReporter[] NoReporters = new IRunnerReporter[0];
