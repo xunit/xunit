@@ -40,6 +40,12 @@ namespace Xunit.ConsoleClient
                 Description = "output results to NUnit v2.5 XML file",
                 OutputHandler = (xml, outputFileName) => Handler_XslTransform("nunit", "NUnitXml.xslt", xml, outputFileName)
             });
+            availableTransforms.Add("junit", new Transform
+            {
+                CommandLine = "junit",
+                Description = "output results to JUnit XML file",
+                OutputHandler = (xml, outputFileName) => Handler_XslTransform("junit", "JUnitXml.xslt", xml, outputFileName)
+            });
         }
 
         public static List<Transform> AvailableTransforms

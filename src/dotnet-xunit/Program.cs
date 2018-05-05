@@ -10,7 +10,7 @@ using Xunit;
 class Program
 {
     static HashSet<string> HelpArgs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "-?", "/?", "-h", "--help" };
-    static HashSet<string> OutputFileArgs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "-xml", "-xmlv1", "-nunit", "-html" };
+    static HashSet<string> OutputFileArgs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "-xml", "-xmlv1", "-nunit", "-html", "-junit" };
     static Version Version452 = new Version("4.5.2");
 
     string BuildStdProps;
@@ -268,6 +268,7 @@ class Program
         Console.WriteLine("  -xmlv1 <filename>      : output results to xUnit.net v1 XML file");
         Console.WriteLine("  -nunit <filename>      : output results to NUnit v2.5 XML file");
         Console.WriteLine("  -html <filename>       : output results to HTML file");
+        Console.WriteLine("  -junit <filename>      : output results to JUnit XML file");
     }
 
     int RunTargetFramework(string testProject, string targetFramework, bool amendOutputFileNames)
