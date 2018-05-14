@@ -38,6 +38,95 @@ public class XunitTestCollectionRunnerTests
         Assert.True(fixtureUnderTest.Disposed);
     }
 
+    [Fact]
+    public static async void MultiplePublicConstructorsOnCollectionFixture_ReturnsError()
+    {
+        var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionsWithMultiCtorCollectionFixture)), null);
+        var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
+        var runner = TestableXunitTestCollectionRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        var ex = Assert.IsType<TestClassException>(runner.RunTestClassAsync_AggregatorResult);
+        Assert.Equal("Collection fixture type 'XunitTestCollectionRunnerTests+CollectionFixtureWithMultipleConstructors' may only define a single public constructor.", ex.Message);
+    }
+
+    class CollectionFixtureWithMultipleConstructors
+    {
+        public CollectionFixtureWithMultipleConstructors() { }
+        public CollectionFixtureWithMultipleConstructors(int unused) { }
+    }
+
+    class CollectionsWithMultiCtorCollectionFixture : ICollectionFixture<CollectionFixtureWithMultipleConstructors> { }
+
+    [Fact]
+    public static async void UnresolvedConstructorParameterOnCollectionFixture_ReturnsError()
+    {
+        var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCollectionFixtureWithDependency)), null);
+        var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
+        var runner = TestableXunitTestCollectionRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        var ex = Assert.IsType<TestClassException>(runner.RunTestClassAsync_AggregatorResult);
+        Assert.Equal("Collection fixture type 'XunitTestCollectionRunnerTests+CollectionFixtureWithCollectionFixtureDependency' had one or more unresolved constructor arguments: DependentCollectionFixture collectionFixture", ex.Message);
+    }
+
+    class DependentCollectionFixture { }
+
+    class CollectionFixtureWithCollectionFixtureDependency
+    {
+        public DependentCollectionFixture CollectionFixture;
+
+        public CollectionFixtureWithCollectionFixtureDependency(DependentCollectionFixture collectionFixture)
+        {
+            CollectionFixture = collectionFixture;
+        }
+    }
+
+    class CollectionWithCollectionFixtureWithDependency : ICollectionFixture<CollectionFixtureWithCollectionFixtureDependency> { }
+
+    [Fact]
+    public static async void CanInjectMessageSinkIntoCollectionFixture()
+    {
+        var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCollectionFixtureWithMessageSinkDependency)), null);
+        var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
+        var runner = TestableXunitTestCollectionRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        Assert.Null(runner.RunTestClassAsync_AggregatorResult);
+        var classFixture = runner.CollectionFixtureMappings.Values.OfType<CollectionFixtureWithMessageSinkDependency>().Single();
+        Assert.NotNull(classFixture.MessageSink);
+        Assert.Same(runner.DiagnosticMessageSink, classFixture.MessageSink);
+    }
+
+    [Fact]
+    public static async void CanLogSinkMessageFromCollectionFixture()
+    {
+        var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionWithCollectionFixtureWithMessageSinkDependency)), null);
+        var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("CreatesFixtures", collection);
+        var runner = TestableXunitTestCollectionRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+        Assert.Equal("CollectionFixtureWithMessageSinkDependency constructor message", diagnosticMessage.Message);
+    }
+
+    class CollectionFixtureWithMessageSinkDependency
+    {
+        public IMessageSink MessageSink;
+
+        public CollectionFixtureWithMessageSinkDependency(IMessageSink messageSink)
+        {
+            MessageSink = messageSink;
+            MessageSink.OnMessage(new Xunit.Sdk.DiagnosticMessage("CollectionFixtureWithMessageSinkDependency constructor message"));
+        }
+    }
+
+    class CollectionWithCollectionFixtureWithMessageSinkDependency : ICollectionFixture<CollectionFixtureWithMessageSinkDependency> { }
+
     public class TestCaseOrderer
     {
         [Fact]
@@ -127,6 +216,7 @@ public class XunitTestCollectionRunnerTests
     class TestableXunitTestCollectionRunner : XunitTestCollectionRunner
     {
         public List<IMessageSinkMessage> DiagnosticMessages;
+        public Exception RunTestClassAsync_AggregatorResult;
 
         TestableXunitTestCollectionRunner(ITestCollection testCollection,
                                           IEnumerable<IXunitTestCase> testCases,
@@ -163,8 +253,15 @@ public class XunitTestCollectionRunnerTests
             get { return base.TestCaseOrderer; }
         }
 
+        public new IMessageSink DiagnosticMessageSink
+        {
+            get { return base.DiagnosticMessageSink; }
+        }
+
         protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
         {
+            RunTestClassAsync_AggregatorResult = Aggregator.ToException();
+
             return Task.FromResult(new RunSummary());
         }
     }

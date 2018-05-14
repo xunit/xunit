@@ -75,6 +75,9 @@ namespace Xunit.Sdk
             var ctorArgs = ctor.GetParameters().Select(p =>
             {
                 object arg;
+                if (p.ParameterType == typeof(IMessageSink))
+                    arg = DiagnosticMessageSink;
+                else 
                 if (!collectionFixtureMappings.TryGetValue(p.ParameterType, out arg))
                     missingParameters.Add(p);
                 return arg;
