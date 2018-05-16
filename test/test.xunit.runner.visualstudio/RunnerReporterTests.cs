@@ -77,7 +77,7 @@ public class RunnerReporterTests
         var runnerReporter = VsTestRunner.GetRunnerReporter(loggerHelper, settings, new[] { Assembly.GetExecutingAssembly().Location });
 
         Assert.Equal(typeof(DefaultRunnerReporterWithTypes).AssemblyQualifiedName, runnerReporter.GetType().AssemblyQualifiedName);
-        logger.Received(1).SendMessage(TestMessageLevel.Warning, "[xUnit.net 00:00:00] Could not find requested reporter 'thisnotavalidreporter'");
+        logger.Received(1).SendMessage(TestMessageLevel.Warning, "[xUnit.net 00:00:00.00] Could not find requested reporter 'thisnotavalidreporter'");
     }
 
     [Fact]
