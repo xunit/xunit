@@ -487,8 +487,7 @@ public class CollectionAssertsTests
         [Fact]
         public static void CanUseComparer()
         {
-            var list = new List<int>();
-            list.Add(42);
+            var list = new List<int> { 42 };
 
             Assert.DoesNotContain(42, list, new MyComparer());
         }
@@ -562,8 +561,7 @@ public class CollectionAssertsTests
         [Fact]
         public static void NonEmptyContainerThrows()
         {
-            var list = new List<int>();
-            list.Add(42);
+            var list = new List<int> { 42 };
 
             EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty(list));
 
@@ -746,7 +744,7 @@ public class CollectionAssertsTests
 
         class IntComparer : IEqualityComparer<int>
         {
-            bool answer;
+            readonly bool answer;
 
             public IntComparer(bool answer)
             {
@@ -839,7 +837,7 @@ public class CollectionAssertsTests
 
         class IntComparer : IEqualityComparer<int>
         {
-            bool answer;
+            readonly bool answer;
 
             public IntComparer(bool answer)
             {
