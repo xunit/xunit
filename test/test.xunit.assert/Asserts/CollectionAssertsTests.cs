@@ -874,7 +874,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 0 matching element(s) instead of 1.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
         }
 
         [Fact]
@@ -885,7 +885,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 2 matching element(s) instead of 1.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it contained more than one element.", ex.Message);
         }
 
         [Fact]
@@ -941,7 +941,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, "foo"));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 0 matching element(s) instead of 1.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
         }
 
         [Fact]
@@ -952,7 +952,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, "Hello"));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 2 matching element(s) instead of 1.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it contained more than one element.", ex.Message);
         }
     }
 
@@ -972,7 +972,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 0 matching element(s) instead of 1.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
         }
 
         [Fact]
@@ -983,7 +983,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 2 matching element(s) instead of 1.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it contained more than one element.", ex.Message);
         }
 
         [Fact]
@@ -1039,7 +1039,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, item => false));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 0 matching element(s) instead of 1.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
         }
 
         [Fact]
@@ -1050,7 +1050,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, item => true));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection contained 2 matching element(s) instead of 1.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it contained more than one element.", ex.Message);
         }
     }
 
