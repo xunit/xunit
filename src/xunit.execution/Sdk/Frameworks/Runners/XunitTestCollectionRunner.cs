@@ -13,8 +13,6 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestCollectionRunner : TestCollectionRunner<IXunitTestCase>
     {
-        readonly IMessageSink diagnosticMessageSink;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCollectionRunner"/> class.
         /// </summary>
@@ -34,13 +32,18 @@ namespace Xunit.Sdk
                                          CancellationTokenSource cancellationTokenSource)
             : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
-            this.diagnosticMessageSink = diagnosticMessageSink;
+            this.DiagnosticMessageSink = diagnosticMessageSink;
         }
 
         /// <summary>
         /// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStartingAsync"/>.
         /// </summary>
         protected Dictionary<Type, object> CollectionFixtureMappings { get; set; } = new Dictionary<Type, object>();
+
+        /// <summary>
+        /// Gets the message sink used to send diagnostic messages.
+        /// </summary>
+        protected IMessageSink DiagnosticMessageSink { get; private set; }
 
         /// <inheritdoc/>
         protected override async Task AfterTestCollectionStartingAsync()
@@ -67,7 +70,39 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="fixtureType">The type of the fixture to be created</param>
         protected virtual void CreateCollectionFixture(Type fixtureType)
-            => Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
+        {
+            var ctors = fixtureType.GetTypeInfo()
+                .DeclaredConstructors
+                .Where(ci => !ci.IsStatic && ci.IsPublic)
+                .ToList();
+
+            if (ctors.Count != 1)
+            {
+                Aggregator.Add(new TestClassException($"Collection fixture type '{fixtureType.FullName}' may only define a single public constructor."));
+                return;
+            }
+
+            var ctor = ctors[0];
+            var missingParameters = new List<ParameterInfo>();
+            var ctorArgs = ctor.GetParameters().Select(p =>
+            {
+                object arg = null;
+                if (p.ParameterType == typeof(IMessageSink))
+                    arg = DiagnosticMessageSink;
+                else
+                    missingParameters.Add(p);
+                return arg;
+            }).ToArray();
+
+            if (missingParameters.Count > 0)
+                Aggregator.Add(new TestClassException(
+                    $"Collection fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
+                ));
+            else
+            {
+                Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
+            }
+        }
 
         async Task CreateCollectionFixturesAsync()
         {
@@ -99,18 +134,18 @@ namespace Xunit.Sdk
                 {
                     try
                     {
-                        var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(diagnosticMessageSink, ordererAttribute);
+                        var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(DiagnosticMessageSink, ordererAttribute);
                         if (testCaseOrderer != null)
                             return testCaseOrderer;
 
                         var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for collection-level test case orderer on test collection '{TestCollection.DisplayName}'"));
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for collection-level test case orderer on test collection '{TestCollection.DisplayName}'"));
                     }
                     catch (Exception ex)
                     {
                         var innerEx = ex.Unwrap();
                         var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Collection-level test case orderer '{args[0]}' for test collection '{TestCollection.DisplayName}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Collection-level test case orderer '{args[0]}' for test collection '{TestCollection.DisplayName}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
                     }
                 }
             }
@@ -120,6 +155,6 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
-            => new XunitTestClassRunner(testClass, @class, testCases, diagnosticMessageSink, MessageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), CancellationTokenSource, CollectionFixtureMappings).RunAsync();
+            => new XunitTestClassRunner(testClass, @class, testCases, DiagnosticMessageSink, MessageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), CancellationTokenSource, CollectionFixtureMappings).RunAsync();
     }
 }

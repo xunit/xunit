@@ -184,6 +184,49 @@ public class XunitTestClassRunnerTests
         public void Passing() { }
     }
 
+    [Fact]
+    public static async void CanInjectMessageSinkIntoClassFixture()
+    {
+        var testCase = Mocks.XunitTestCase<TestClassWithClassFixtureWithMessageSinkDependency>("Passing");
+        var runner = TestableXunitTestClassRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        Assert.Null(runner.RunTestMethodAsync_AggregatorResult);
+        var classFixture = runner.ClassFixtureMappings.Values.OfType<ClassFixtureWithMessageSinkDependency>().Single();
+        Assert.NotNull(classFixture.MessageSink);
+        Assert.Same(runner.DiagnosticMessageSink, classFixture.MessageSink);
+    }
+
+    [Fact]
+    public static async void CanLogSinkMessageFromClassFixture()
+    {
+        var testCase = Mocks.XunitTestCase<TestClassWithClassFixtureWithMessageSinkDependency>("Passing");
+        var runner = TestableXunitTestClassRunner.Create(testCase);
+
+        await runner.RunAsync();
+
+        var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
+        Assert.Equal("ClassFixtureWithMessageSinkDependency constructor message", diagnosticMessage.Message);
+    }
+
+    class ClassFixtureWithMessageSinkDependency
+    {
+        public IMessageSink MessageSink;
+
+        public ClassFixtureWithMessageSinkDependency(IMessageSink messageSink)
+        {
+            MessageSink = messageSink;
+            MessageSink.OnMessage(new Xunit.Sdk.DiagnosticMessage("ClassFixtureWithMessageSinkDependency constructor message"));
+        }
+    }
+
+    class TestClassWithClassFixtureWithMessageSinkDependency : IClassFixture<ClassFixtureWithMessageSinkDependency>
+    {
+        [Fact]
+        public void Passing() { }
+    }
+
     public class TestCaseOrderer
     {
         [Fact]
@@ -319,6 +362,9 @@ public class XunitTestClassRunnerTests
 
         public new ITestCaseOrderer TestCaseOrderer
             => base.TestCaseOrderer;
+
+        public new IMessageSink DiagnosticMessageSink
+            => base.DiagnosticMessageSink;
 
         public static TestableXunitTestClassRunner Create(IXunitTestCase testCase, params object[] collectionFixtures)
             => new TestableXunitTestClassRunner(
