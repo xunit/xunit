@@ -345,8 +345,8 @@ class Program
 
             if (targetFrameworkIdentifier == ".NETCoreApp")
             {
-                if (new Version(runtimeFrameworkVersion).Build == -1)
-                    runtimeFrameworkVersion += ".0";
+                if (runtimeFrameworkVersion == "2.0")
+                    runtimeFrameworkVersion = "2.0.0";
 
                 var fxVersion = FxVersion ?? runtimeFrameworkVersion;
                 WriteLine($"Running .NET Core {fxVersion} tests for framework {targetFramework}...");
