@@ -2,7 +2,7 @@ image: Visual Studio 2017
 
 environment:
   MyGetApiKey:
-    secure: +jVb98hbYCifINyQDeQwpv69p+ZiPm6ArzYM4J+fMYUlDeNiB+UKK5a1XnUzEMpY
+    secure: KY/jquT/UjpGiG7tO6XSuGtlpvXYujJ4D9F19o0q+YRzuWkEBXPtyic8lhxoexTE
   SignClientSecret:
     secure: JuZIfeRY/XF5i/9oZFH5cbUIiIuliazF8TaNB5HvRKU=
   SignClientUser:
