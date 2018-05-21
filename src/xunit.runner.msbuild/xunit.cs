@@ -67,7 +67,7 @@ namespace Xunit.Runner.MSBuild
         public string MaxParallelThreads { get; set; }
 
         protected bool NeedsXml
-            => Xml != null || XmlV1 != null || Html != null || NUnit != null;
+            => Xml != null || XmlV1 != null || Html != null || NUnit != null || JUnit != null;
 
         public bool NoAutoReporters { get; set; }
 
@@ -93,6 +93,8 @@ namespace Xunit.Runner.MSBuild
         public ITaskItem Xml { get; set; }
 
         public ITaskItem XmlV1 { get; set; }
+
+        public ITaskItem JUnit { get; set; }
 
         public void Cancel()
         {
@@ -239,6 +241,9 @@ namespace Xunit.Runner.MSBuild
 
                 if (NUnit != null)
                     CrossPlatform.Transform(logger, "NUnit", "NUnitXml.xslt", assembliesElement, NUnit);
+
+                if (JUnit != null)
+                    CrossPlatform.Transform(logger, "JUnit", "JUnitXml.xslt", assembliesElement, NUnit);
             }
 
             // ExitCode is set to 1 for test failures and -1 for Exceptions.
