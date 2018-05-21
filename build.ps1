@@ -1,3 +1,5 @@
+#Requires -Version 5.1
+
 param(
     [ValidateSet('AppVeyor','Build','CI','PackageRestore','Packages','Register','Restore','Test',
                  '_Packages','_Publish','_PushMyGet','_Register','_SetVersion','_SignPackages','_Test32','_Test64','_TestCore')]
@@ -6,6 +8,9 @@ param(
     [string]$buildAssemblyVersion = "",
     [string]$buildSemanticVersion = ""
 )
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
 
 if ($PSScriptRoot -eq $null) {
     write-host "This build script requires PowerShell 3 or later." -ForegroundColor Red
@@ -27,7 +32,6 @@ $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
 $parallelFlags = "-parallel all -maxthreads 16"
 $nonparallelFlags = "-parallel collections -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
-$binlogOutputFolder = (join-path (Get-Location) "artifacts\build")
 $solutionFolder = Get-Location
 
 $signClientVersion = "0.9.0"
@@ -60,8 +64,8 @@ function __target_build() {
     __target_restore
 
     _build_step "Compiling binaries"
-        _msbuild "xunit.vs2017.sln" $configuration -binlogFile (join-path $binlogOutputFolder "build.binlog")
-        _msbuild "src\xunit.console\xunit.console.csproj" ($configuration + "_x86") -binlogFile (join-path $binlogOutputFolder "build_x86.binlog")
+        _msbuild "xunit.vs2017.sln" $configuration
+        _msbuild "src\xunit.console\xunit.console.csproj" ($configuration + "_x86")
 }
 
 function __target_ci() {
@@ -204,5 +208,4 @@ _build_step "Performing pre-build verifications"
 
 _mkdir $packageOutputFolder
 _mkdir $testOutputFolder
-_mkdir $binlogOutputFolder
 & $targetFunction
