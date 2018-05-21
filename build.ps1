@@ -34,7 +34,7 @@ $nonparallelFlags = "-parallel collections -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
 $solutionFolder = Get-Location
 
-$signClientVersion = "0.9.0"
+$signClientVersion = "0.9.1"
 $signClientFolder = (join-path (Get-Location) "packages\SignClient.$signClientVersion")
 $signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings.json")
 
@@ -165,7 +165,7 @@ function __target__signpackages() {
                 $appPath = (join-path $signClientFolder "tools\netcoreapp2.0\SignClient.dll")
                 $nupgks = Get-ChildItem (join-path $packageOutputFolder "*.nupkg") | ForEach-Object { $_.FullName }
                 foreach ($nupkg in $nupgks) {
-                    $cmd = '& dotnet "' + $appPath + '" sign -c "' + $signClientAppSettings + '" -r ' + $env:SignClientUser + ' -s ' + $env:SignClientSecret + ' -n "xUnit.net" -d "xUnit.net" -u "https://github.com/xunit/xunit" -i "' + $nupkg + '"'
+                    $cmd = '& dotnet "' + $appPath + '" sign -c "' + $signClientAppSettings + '" -r "' + $env:SignClientUser + '" -s "' + $env:SignClientSecret + '" -n "xUnit.net" -d "xUnit.net" -u "https://github.com/xunit/xunit" -i "' + $nupkg + '"'
                     $msg = $cmd.Replace($env:SignClientSecret, '[Redacted]')
                     $msg = $msg.Replace($env:SignClientUser, '[Redacted]')
                     _exec $cmd $msg
