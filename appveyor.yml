@@ -4,7 +4,7 @@ environment:
   MyGetApiKey:
     secure: KY/jquT/UjpGiG7tO6XSuGtlpvXYujJ4D9F19o0q+YRzuWkEBXPtyic8lhxoexTE
   SignClientSecret:
-    secure: JuZIfeRY/XF5i/9oZFH5cbUIiIuliazF8TaNB5HvRKU=
+    secure: g0OJ9dO4ocXS06UgDZ1Bnd3F0JSHMo9I41z2Zc07CKk=
   SignClientUser:
     secure: uyweGSwxexnLy4dBNleW8tYcXTA291faj34PQV0ePxOTFSa5Cvf50jyICVP9mLGS
     
