@@ -349,9 +349,12 @@ class Program
                 if (runtimeFrameworkVersion == "2.0")
                     runtimeFrameworkVersion = "2.0.0";
 
-                var fxVersion = FxVersion ?? runtimeFrameworkVersion;
-                WriteLine($"Running .NET Core {fxVersion} tests for framework {targetFramework}...");
-                return RunDotNetCoreProject(outputPath, assemblyName, targetFileName, extraArgs, fxVersion, $"netcoreapp{version.Major}.0");
+                if (runtimeFrameworkVersion == "2.1")
+                    runtimeFrameworkVersion = "2.1.0";
+
+                var displayFxVersion = FxVersion ?? runtimeFrameworkVersion;
+                WriteLine($"Running .NET Core {displayFxVersion} tests for framework {targetFramework}...");
+                return RunDotNetCoreProject(outputPath, assemblyName, targetFileName, extraArgs, FxVersion, $"netcoreapp{version.Major}.0");
             }
             if (targetFrameworkIdentifier == ".NETFramework" && version >= Version452)
             {
@@ -410,7 +413,7 @@ class Program
         return runTests.ExitCode;
     }
 
-    int RunDotNetCoreProject(string outputPath, string assemblyName, string targetFileName, string extraArgs, string fxVersion, string netCoreAppVersion)
+    int RunDotNetCoreProject(string outputPath, string assemblyName, string targetFileName, string extraArgs, string fxVersionOverride, string netCoreAppVersion)
     {
         var consoleFolder = Path.GetFullPath(Path.Combine(ThisAssemblyPath, "..", "..", "tools", netCoreAppVersion));
 
@@ -430,10 +433,13 @@ class Program
         var depsFile = targetFileNameWithoutExtension + ".deps.json";
         var runtimeConfigJson = targetFileNameWithoutExtension + ".runtimeconfig.json";
 
-        var args = $@"exec --fx-version {fxVersion} --depsfile ""{depsFile}"" ";
+        var args = $@"exec --depsfile ""{depsFile}"" ";
 
         if (File.Exists(Path.Combine(workingDirectory, runtimeConfigJson)))
             args += $@"--runtimeconfig ""{runtimeConfigJson}"" ";
+
+        if (!string.IsNullOrWhiteSpace(fxVersionOverride))
+            args += $"--fx-version {fxVersionOverride} ";
 
         args += $@"""{runner}"" ""{targetFileName}"" {extraArgs}";
 
