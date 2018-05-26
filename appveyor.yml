@@ -48,7 +48,6 @@ test: off
 deploy: off
 
 artifacts:
-- path: artifacts/build
 - path: artifacts/packages
 - path: artifacts/test
 
