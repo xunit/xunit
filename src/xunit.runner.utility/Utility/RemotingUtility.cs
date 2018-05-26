@@ -18,7 +18,7 @@
         /// </remarks>
         public static void CleanUpRegisteredChannels()
         {
-#if NET35 || NET452
+#if NETFRAMEWORK
             foreach (var channel in System.Runtime.Remoting.Channels.ChannelServices.RegisteredChannels)
                 System.Runtime.Remoting.Channels.ChannelServices.UnregisterChannel(channel);
 #endif

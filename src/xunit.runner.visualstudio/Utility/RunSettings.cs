@@ -111,7 +111,7 @@ namespace Xunit.Runner.VisualStudio
             // Uap - not used this way, but could be written here:
             // https://github.com/Microsoft/vstest/blob/b0fc6c9212813abdbfb31e2fe4162a7751c33ca2/src/Microsoft.TestPlatform.ObjectModel/Constants.cs#L201
 
-#if NETCOREAPP1_0
+#if NETCOREAPP
             return string.IsNullOrWhiteSpace(TargetFrameworkVersion) ||// Short circuit on null since we don't have anything to detect, return true
                    (TargetFrameworkVersion.StartsWith(".NETCoreApp,", StringComparison.OrdinalIgnoreCase) ||
                    TargetFrameworkVersion.StartsWith("FrameworkCore10", StringComparison.OrdinalIgnoreCase));

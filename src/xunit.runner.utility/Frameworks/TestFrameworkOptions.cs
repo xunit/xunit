@@ -10,7 +10,7 @@ namespace Xunit
     /// Represents options passed to a test framework for discovery or execution.
     /// </summary>
     [DebuggerDisplay("{ToDebuggerDisplay(),nq}")]
-#if NET35 || NET452
+#if NETFRAMEWORK
     [System.Serializable]
 #endif
     public class TestFrameworkOptions : ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions

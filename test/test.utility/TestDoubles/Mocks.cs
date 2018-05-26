@@ -203,7 +203,7 @@ public static class Mocks
 
     public static TestAssembly TestAssembly(Assembly assembly = null, string configFileName = null)
     {
-#if NET452
+#if NETFRAMEWORK
         if (configFileName == null)
             configFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif

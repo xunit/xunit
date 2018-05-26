@@ -14,7 +14,7 @@ namespace Xunit
 
         static ConsoleHelper()
         {
-#if NET35 || NET452
+#if NETFRAMEWORK
             ResetColor = ResetColorConsole;
             SetForegroundColor = SetForegroundColorConsole;
 #else

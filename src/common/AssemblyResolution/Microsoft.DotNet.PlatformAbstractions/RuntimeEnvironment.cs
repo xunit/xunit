@@ -1,7 +1,7 @@
 ﻿// Copyright(c) .NET Foundation and contributors.All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#if NET452 || NETSTANDARD1_5 || NETCOREAPP1_0 || NETCOREAPP2_0
+#if NETFRAMEWORK || NETCOREAPP
 
 using System;
 using Internal.Microsoft.DotNet.PlatformAbstractions.Native;
@@ -22,7 +22,7 @@ namespace Internal.Microsoft.DotNet.PlatformAbstractions
 
         private static string GetArch()
         {
-#if NET45
+#if NETFRAMEWORK
             return Environment.Is64BitProcess ? "x64" : "x86";
 #else
             return IntPtr.Size == 8 ? "x64" : "x86";

@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#if NET452 || NETCOREAPP1_0 || NETCOREAPP2_0
+#if NETFRAMEWORK || NETCOREAPP
 
 using System;
 using System.Collections.Generic;
@@ -34,10 +34,10 @@ namespace Internal.Microsoft.Extensions.DependencyModel
 
         private static DependencyContextPaths GetCurrent()
         {
-#if NETCOREAPP1_0 || NETCOREAPP2_0
+#if NETCOREAPP
             var deps = AppContext.GetData(DepsFilesProperty);
             var fxDeps = AppContext.GetData(FxDepsFileProperty);
-#elif NET452
+#else
             var deps = AppDomain.CurrentDomain.GetData(DepsFilesProperty);
             var fxDeps = AppDomain.CurrentDomain.GetData(FxDepsFileProperty);
 #endif

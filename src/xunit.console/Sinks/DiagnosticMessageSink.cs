@@ -51,7 +51,7 @@ namespace Xunit.ConsoleClient
             return true;
         }
 
-#if NET452
+#if NETFRAMEWORK
         [System.Security.SecurityCritical]
         public override sealed object InitializeLifetimeService()
         {

@@ -115,7 +115,7 @@ public class DefaultRunnerReporterMessageHandlerTests
     {
         [Theory]
         [InlineData(false, "[Imp] =>   Discovering: testAssembly")]
-#if NET452
+#if NETFRAMEWORK
         [InlineData(true, "[Imp] =>   Discovering: testAssembly (app domain = on [no shadow copy], method display = ClassAndMethod, method display options = None)")]
 #else
         [InlineData(true, "[Imp] =>   Discovering: testAssembly (method display = ClassAndMethod, method display options = None)")]

@@ -58,7 +58,7 @@ namespace TestUtility
 
         static CultureInfo CurrentCulture
         {
-#if NET452
+#if NETFRAMEWORK
             get => Thread.CurrentThread.CurrentCulture;
             set => Thread.CurrentThread.CurrentCulture = value;
 #else
@@ -69,7 +69,7 @@ namespace TestUtility
 
         static CultureInfo CurrentUICulture
         {
-#if NET452
+#if NETFRAMEWORK
             get => Thread.CurrentThread.CurrentUICulture;
             set => Thread.CurrentThread.CurrentUICulture = value;
 #else

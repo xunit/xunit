@@ -196,7 +196,7 @@ public class XunitSerializationInfoTests
             Assert.Equal("SomeValue", result);
         }
 
-#if NET452
+#if NETFRAMEWORK
         [Fact]
         public static void CannotSerializeEnumFromGAC()
         {
@@ -230,7 +230,7 @@ public class XunitSerializationInfoTests
             Assert.Equal("Xunit.Serialization.XunitSerializationInfo, test.xunit.execution", result);
         }
 
-#if NET452
+#if NETFRAMEWORK
         [Fact]
         public static void CannotSerializeTypeFromGAC()
         {

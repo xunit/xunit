@@ -59,7 +59,7 @@ public class TestAssemblyRunnerTests
                 msg =>
                 {
                     var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(msg);
-#if NET452
+#if NETFRAMEWORK
                     Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.TestAssembly.Assembly.AssemblyPath);
                     Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, starting.TestAssembly.ConfigFileName);
 #endif
@@ -135,7 +135,7 @@ public class TestAssemblyRunnerTests
             await runner.RunAsync();
 
             var cleanupFailure = Assert.Single(messages.OfType<ITestAssemblyCleanupFailure>());
-#if NET452
+#if NETFRAMEWORK
             Assert.Equal(thisAssembly.GetLocalCodeBase(), cleanupFailure.TestAssembly.Assembly.AssemblyPath);
             Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, cleanupFailure.TestAssembly.ConfigFileName);
 #endif

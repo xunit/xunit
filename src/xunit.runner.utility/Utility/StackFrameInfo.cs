@@ -89,7 +89,7 @@ namespace Xunit
             var wordAt = "at";
             var wordsInLine = "in {0}:line {1}";
 
-#if NET35 || NET452
+#if NETFRAMEWORK
             var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
             if (getResourceStringMethod != null)
             {

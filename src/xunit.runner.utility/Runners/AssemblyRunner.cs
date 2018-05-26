@@ -263,7 +263,7 @@ namespace Xunit.Runners
             });
         }
 
-#if NET35 || NET452
+#if NETFRAMEWORK
         /// <summary>
         /// Creates an assembly runner that discovers and run tests in a separate app domain.
         /// </summary>

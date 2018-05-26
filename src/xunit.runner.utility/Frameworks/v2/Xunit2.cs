@@ -40,7 +40,7 @@ namespace Xunit
                       bool verifyTestAssemblyExists = true)
             : base(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyTestAssemblyExists)
         {
-#if NET35 || NET452
+#if NETFRAMEWORK
             var assemblyName = AssemblyName.GetAssemblyName(assemblyFileName);
 #else
             var an = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName) }).GetName();

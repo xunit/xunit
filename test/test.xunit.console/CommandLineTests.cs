@@ -256,7 +256,7 @@ public class CommandLineTests
 
         [Theory]
         [InlineData("ifavailable", AppDomainSupport.IfAvailable)]
-#if NET452
+#if NETFRAMEWORK
         [InlineData("required", AppDomainSupport.Required)]
 #endif
         [InlineData("denied", AppDomainSupport.Denied)]

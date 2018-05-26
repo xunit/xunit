@@ -4,7 +4,7 @@ namespace Xunit
 namespace Xunit.Sdk
 #endif
 {
-#if NET35 || NET452
+#if NETFRAMEWORK
     using System;
     using System.Security;
 

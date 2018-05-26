@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#if NET452 || NETSTANDARD1_5 || NETCOREAPP1_0 || NETCOREAPP2_0
+#if NETFRAMEWORK || NETCOREAPP
 
 using System;
 using System.IO;
@@ -15,7 +15,7 @@ namespace Internal.Microsoft.DotNet.PlatformAbstractions
         private static string GetApplicationBasePath()
         {
             var basePath =
-#if NET452
+#if NETFRAMEWORK
                 (string)AppDomain.CurrentDomain.GetData("APP_CONTEXT_BASE_DIRECTORY") ??
                 AppDomain.CurrentDomain.BaseDirectory;
 #else

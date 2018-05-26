@@ -18,7 +18,7 @@ namespace Xunit
         {
             try
             {
-#if NET35 || NET452
+#if NETFRAMEWORK
                 var type = Assembly.Load(assemblyName).GetType(typeName, throwOnError: true);
 #else
                 var type = Type.GetType($"{typeName}, {assemblyName.FullName}", throwOnError: true);
@@ -32,7 +32,7 @@ namespace Xunit
             }
         }
 
-#if NET35 || NET452
+#if NETFRAMEWORK
         public TObject CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object[] args)
         {
             try

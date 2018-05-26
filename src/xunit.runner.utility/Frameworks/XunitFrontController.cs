@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit.Abstractions;
 
-#if NET452
+#if NETFRAMEWORK
 using System.Linq;
 #endif
 
@@ -126,7 +126,7 @@ namespace Xunit
         /// </summary>
         protected virtual IFrontController CreateInnerController()
         {
-#if NET35 || NET452
+#if NETFRAMEWORK
             var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
 #if NET35
             if (Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0)

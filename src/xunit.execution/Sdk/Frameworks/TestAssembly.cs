@@ -42,7 +42,7 @@ namespace Xunit.Sdk
             if (Version == null)
                 Version = new Version(0, 0, 0, 0);
 
-#if NET452
+#if NETFRAMEWORK
             if (ConfigFileName == null)
                 ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif

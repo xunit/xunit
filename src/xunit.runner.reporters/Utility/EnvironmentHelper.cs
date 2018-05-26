@@ -5,7 +5,7 @@ namespace Xunit
 {
     static class EnvironmentHelper
     {
-#if NET35 || NET452
+#if NETFRAMEWORK
         public static string GetEnvironmentVariable(string variable)
         {
             return Environment.GetEnvironmentVariable(variable);

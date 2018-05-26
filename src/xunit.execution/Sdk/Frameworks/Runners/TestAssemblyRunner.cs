@@ -103,7 +103,7 @@ namespace Xunit.Sdk
             var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
             if (attr != null)
                 return attr.FrameworkDisplayName;
-#if NET452
+#if NETFRAMEWORK
             return Environment.Version.ToString();
 #else
             return "Standard";
@@ -174,7 +174,7 @@ namespace Xunit.Sdk
         {
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
-#if NET452
+#if NETFRAMEWORK
             var currentDirectory = Directory.GetCurrentDirectory();
 #endif
             var testFrameworkEnvironment = GetTestFrameworkEnvironment();
@@ -182,7 +182,7 @@ namespace Xunit.Sdk
 
             using (var messageBus = CreateMessageBus())
             {
-#if NET452
+#if NETFRAMEWORK
                 Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
 #endif
 
@@ -206,7 +206,7 @@ namespace Xunit.Sdk
                     finally
                     {
                         messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
-#if NET452
+#if NETFRAMEWORK
                         Directory.SetCurrentDirectory(currentDirectory);
 #endif
                     }

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#if NET452 || NETSTANDARD1_5 || NETCOREAPP1_0 || NETCOREAPP2_0
+#if NETFRAMEWORK || NETCOREAPP
 
 using System;
 using System.IO;
@@ -143,7 +143,7 @@ namespace Internal.Microsoft.DotNet.PlatformAbstractions.Native
 
         // I could probably have just done one method signature and put the #if inside the body but the implementations
         // are just completely different so I wanted to make that clear by putting the whole thing inside the #if.
-#if NET452
+#if NETFRAMEWORK
         private static Platform DetermineOSPlatform()
         {
             var platform = (int)Environment.OSVersion.Platform;

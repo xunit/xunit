@@ -1,10 +1,32 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <PropertyGroup>
-        <XunitConsolePath>$(MSBuildThisFileDirectory)..\tools\net452\xunit.console.exe</XunitConsolePath>
-        <XunitConsolePathX86>$(MSBuildThisFileDirectory)..\tools\net452\xunit.console.x86.exe</XunitConsolePathX86>
-        <XunitConsoleNetCoreAppPath>$(MSBuildThisFileDirectory)..\tools\netcoreapp1.0\xunit.console.dll</XunitConsoleNetCoreAppPath>
-        <XunitConsoleNetCore2AppPath>$(MSBuildThisFileDirectory)..\tools\netcoreapp2.0\xunit.console.dll</XunitConsoleNetCore2AppPath>
-    </PropertyGroup>
+  <PropertyGroup>
+    <!-- Lowest supported version -->
+    <XunitConsolePath>$(MSBuildThisFileDirectory)..\tools\net452\xunit.console.exe</XunitConsolePath>
+    <XunitConsolePathX86>$(MSBuildThisFileDirectory)..\tools\net452\xunit.console.x86.exe</XunitConsolePathX86>
+
+    <!-- Version specific -->
+    <XunitConsole452Path>$(MSBuildThisFileDirectory)..\tools\net452\xunit.console.exe</XunitConsole452Path>
+    <XunitConsole452PathX86>$(MSBuildThisFileDirectory)..\tools\net452\xunit.console.x86.exe</XunitConsole452PathX86>
+    <XunitConsole46Path>$(MSBuildThisFileDirectory)..\tools\net46\xunit.console.exe</XunitConsole46Path>
+    <XunitConsole46PathX86>$(MSBuildThisFileDirectory)..\tools\net46\xunit.console.x86.exe</XunitConsole46PathX86>
+    <XunitConsole461Path>$(MSBuildThisFileDirectory)..\tools\net461\xunit.console.exe</XunitConsole461Path>
+    <XunitConsole461PathX86>$(MSBuildThisFileDirectory)..\tools\net461\xunit.console.x86.exe</XunitConsole461PathX86>
+    <XunitConsole462Path>$(MSBuildThisFileDirectory)..\tools\net462\xunit.console.exe</XunitConsole462Path>
+    <XunitConsole462PathX86>$(MSBuildThisFileDirectory)..\tools\net462\xunit.console.x86.exe</XunitConsole462PathX86>
+    <XunitConsole47Path>$(MSBuildThisFileDirectory)..\tools\net47\xunit.console.exe</XunitConsole47Path>
+    <XunitConsole47PathX86>$(MSBuildThisFileDirectory)..\tools\net47\xunit.console.x86.exe</XunitConsole47PathX86>
+    <XunitConsole471Path>$(MSBuildThisFileDirectory)..\tools\net471\xunit.console.exe</XunitConsole471Path>
+    <XunitConsole471PathX86>$(MSBuildThisFileDirectory)..\tools\net471\xunit.console.x86.exe</XunitConsole471PathX86>
+    <XunitConsole472Path>$(MSBuildThisFileDirectory)..\tools\net472\xunit.console.exe</XunitConsole472Path>
+    <XunitConsole472PathX86>$(MSBuildThisFileDirectory)..\tools\net472\xunit.console.x86.exe</XunitConsole472PathX86>
+
+    <!-- Lowest supported version -->
+    <XunitConsoleNetCoreAppPath>$(MSBuildThisFileDirectory)..\tools\netcoreapp1.0\xunit.console.dll</XunitConsoleNetCoreAppPath>
+
+    <!-- Version specific -->
+    <XunitConsoleNetCore1AppPath>$(MSBuildThisFileDirectory)..\tools\netcoreapp1.0\xunit.console.dll</XunitConsoleNetCore1AppPath>
+    <XunitConsoleNetCore2AppPath>$(MSBuildThisFileDirectory)..\tools\netcoreapp2.0\xunit.console.dll</XunitConsoleNetCore2AppPath>
+  </PropertyGroup>
 
 </Project>

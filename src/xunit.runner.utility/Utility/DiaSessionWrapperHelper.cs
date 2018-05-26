@@ -1,4 +1,4 @@
-#if NET35 || NET452
+#if NETFRAMEWORK
 
 using System;
 using System.Collections.Generic;

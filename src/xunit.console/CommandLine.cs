@@ -225,7 +225,7 @@ namespace Xunit.ConsoleClient
                             break;
 
                         case "required":
-#if NET452
+#if NETFRAMEWORK
                             // We don't want to throw here on .NET Core, because the user may be specifying a value
                             // via "dotnet xunit" that is only compatible with some target frameworks.
                             AppDomains = AppDomainSupport.Required;

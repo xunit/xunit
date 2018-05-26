@@ -37,7 +37,7 @@ namespace Xunit.Sdk
             var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
             string config = null;
-#if NET452
+#if NETFRAMEWORK
             config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
             var testAssembly = new TestAssembly(assemblyInfo, config);

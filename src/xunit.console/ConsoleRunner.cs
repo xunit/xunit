@@ -15,7 +15,7 @@ namespace Xunit.ConsoleClient
     {
         volatile bool cancel;
         CommandLine commandLine;
-        object consoleLock;
+        readonly object consoleLock;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
         bool failed;
         IRunnerLogger logger;
@@ -44,7 +44,7 @@ namespace Xunit.ConsoleClient
                 if (commandLine.Project.Assemblies.Count == 0)
                     throw new ArgumentException("must specify at least one assembly");
 
-#if NET452
+#if NETFRAMEWORK
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 #endif
 
@@ -136,7 +136,7 @@ namespace Xunit.ConsoleClient
 
                 try
                 {
-#if NET452
+#if NETFRAMEWORK
                     var assembly = Assembly.LoadFile(dllFile);
 #else
                     var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
@@ -174,12 +174,10 @@ namespace Xunit.ConsoleClient
             return result;
         }
 
-#if NET452
+#if NETFRAMEWORK
         void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            var ex = e.ExceptionObject as Exception;
-
-            if (ex != null)
+            if (e.ExceptionObject is Exception ex)
                 Console.WriteLine(ex.ToString());
             else
                 Console.WriteLine("Error of unknown type thrown in application domain");
@@ -191,8 +189,20 @@ namespace Xunit.ConsoleClient
         void PrintHeader()
         {
 #if NET452
-            var platform = $"Desktop .NET {Environment.Version}";
-#elif NETCOREAPP1_0 || NETCOREAPP2_0
+            var platform = $"Desktop .NET 4.5.2, runtime: {Environment.Version}";
+#elif NET46
+            var platform = $"Desktop .NET 4.6, runtime: {Environment.Version}";
+#elif NET461
+            var platform = $"Desktop .NET 4.6.1, runtime: {Environment.Version}";
+#elif NET462
+            var platform = $"Desktop .NET 4.6.2, runtime: {Environment.Version}";
+#elif NET47
+            var platform = $"Desktop .NET 4.7, runtime: {Environment.Version}";
+#elif NET471
+            var platform = $"Desktop .NET 4.7.1, runtime: {Environment.Version}";
+#elif NET472
+            var platform = $"Desktop .NET 4.7.2, runtime: {Environment.Version}";
+#elif NETCOREAPP
             var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #else
 #error Unknown target platform
@@ -204,7 +214,7 @@ namespace Xunit.ConsoleClient
 
         void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
         {
-#if NET452
+#if NETFRAMEWORK
             var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
 #else
             var executableName = "dotnet xunit";
@@ -214,7 +224,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine();
             Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
             Console.WriteLine();
-#if NET452
+#if NETFRAMEWORK
             Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
 #else
             Console.WriteLine("Note: Configuration files must end in .json (XML is not supported on .NET Core)");
@@ -234,7 +244,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
             Console.WriteLine("                         :   unlimited - run with unbounded thread count");
             Console.WriteLine("                         :   (number)  - limit task thread pool size to 'count'");
-#if NET452
+#if NETFRAMEWORK
             Console.WriteLine("  -appdomains mode       : choose an app domain mode");
             Console.WriteLine("                         :   ifavailable - choose based on library type");
             Console.WriteLine("                         :   required    - force app domains on");
@@ -264,7 +274,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
             Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
             Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
-#if NETCOREAPP1_0 || NETCOREAPP2_0
+#if NETCOREAPP
             Console.WriteLine("  -framework \"name\"      : set the target framework");
 #endif
             Console.WriteLine();

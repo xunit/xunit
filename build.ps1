@@ -41,11 +41,11 @@ $signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings
 # Helper functions
 
 function _xunit_x64([string]$command) {
-    _exec ("src\xunit.console\bin\" + $configuration + "\net452\win7-x86\xunit.console.exe " + $command)
+    _exec ("src\xunit.console\bin\" + $configuration + "\net452\xunit.console.exe " + $command)
 }
 
 function _xunit_x86([string]$command) {
-    _exec ("src\xunit.console\bin\" + $configuration + "_x86\net452\win7-x86\xunit.console.x86.exe " + $command)
+    _exec ("src\xunit.console\bin\" + $configuration + "_x86\net452\xunit.console.x86.exe " + $command)
 }
 
 function _xunit_netcore([string]$targetFramework, [string]$command) {

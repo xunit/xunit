@@ -12,7 +12,7 @@ using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
-#elif NETCOREAPP1_0
+#elif NETCOREAPP
 using System.Reflection;
 using System.Security.Cryptography;
 #else
@@ -136,7 +136,7 @@ namespace Xunit.Runner.VisualStudio
             {
                 var testCaseType = typeof(TestCase);
                 var stringType = typeof(string);
-#if WINDOWS_UAP || NETCOREAPP1_0
+#if WINDOWS_UAP || NETCOREAPP
                 var property = testCaseType.GetRuntimeProperty("Traits");
 #else
                 var property = testCaseType.GetProperty("Traits");
@@ -145,7 +145,7 @@ namespace Xunit.Runner.VisualStudio
                 if (property == null)
                     return null;
 
-#if WINDOWS_UAP || NETCOREAPP1_0
+#if WINDOWS_UAP || NETCOREAPP
                 var method = property.PropertyType.GetRuntimeMethod("Add", new[] { typeof(string), typeof(string) });
 #else
                 var method = property.PropertyType.GetMethod("Add", new[] { typeof(string), typeof(string) });

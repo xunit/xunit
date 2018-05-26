@@ -16,11 +16,11 @@ namespace Xunit
     /// </summary>
     public class Xunit2Discoverer : ITestFrameworkDiscoverer, ITestCaseDescriptorProvider
     {
-#if NET35 || NET452
+#if NETFRAMEWORK
         static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
         static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
         readonly AssemblyHelper assemblyHelper;
-#elif NETCOREAPP1_0 || NETSTANDARD1_5
+#elif NETCOREAPP || NETSTANDARD1_5
         static readonly string[] SupportedPlatforms = { "dotnet" };
 #else
         static readonly string[] SupportedPlatforms = { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
@@ -75,7 +75,7 @@ namespace Xunit
         {
             Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
 
-#if NET35 || NET452
+#if NETFRAMEWORK
             // Only safe to assume the execution reference is copied in a desktop project
             if (verifyAssembliesOnDisk)
                 Guard.FileExists("xunitExecutionAssemblyPath", xunitExecutionAssemblyPath);
@@ -90,7 +90,7 @@ namespace Xunit
             var appDomainAssembly = assemblyFileName ?? xunitExecutionAssemblyPath;
             AppDomain = AppDomainManagerFactory.Create(appDomainSupport != AppDomainSupport.Denied && CanUseAppDomains, appDomainAssembly, configFileName, shadowCopy, shadowCopyFolder);
 
-#if NET35 || NET452
+#if NETFRAMEWORK
             var runnerUtilityAssemblyLocation = Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase());
             assemblyHelper = AppDomain.CreateObjectFrom<AssemblyHelper>(typeof(AssemblyHelper).Assembly.Location, typeof(AssemblyHelper).FullName, runnerUtilityAssemblyLocation);
 #endif
@@ -157,7 +157,7 @@ namespace Xunit
         {
             RemoteDiscoverer.SafeDispose();
             Framework.SafeDispose();
-#if NET35 || NET452
+#if NETFRAMEWORK
             assemblyHelper.SafeDispose();
 #endif
             AppDomain.SafeDispose();
@@ -217,7 +217,7 @@ namespace Xunit
 
             foreach (var suffix in supportedPlatformSuffixes)
             {
-#if NET35 || NET452
+#if NETFRAMEWORK
                 var fileName = Path.Combine(basePath, $"xunit.execution.{suffix}.dll");
                 if (File.Exists(fileName))
                     return fileName;
@@ -237,7 +237,7 @@ namespace Xunit
 
         static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport)
         {
-#if NET35 || NET452
+#if NETFRAMEWORK
             return appDomainSupport == AppDomainSupport.Required ? SupportedPlatforms_ForcedAppDomains : SupportedPlatforms;
 #else
             return SupportedPlatforms;
@@ -246,9 +246,9 @@ namespace Xunit
 
         static AssemblyName GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
         {
-#if NET35 || NET452
+#if NETFRAMEWORK
             return AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
-#elif NETCOREAPP1_0
+#elif NETCOREAPP
             return new AssemblyName(Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath));
 #else
             // Make sure we only use the short form

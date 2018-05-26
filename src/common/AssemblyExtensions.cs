@@ -1,4 +1,4 @@
-#if NET35 || NET40 || NET452 || NETCOREAPP1_0 || NETCOREAPP2_0
+#if NETFRAMEWORK || NETCOREAPP
 
 using System;
 using System.IO;

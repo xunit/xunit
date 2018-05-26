@@ -1,4 +1,4 @@
-﻿#if NET35 || NET452 || NETCOREAPP1_0
+﻿#if NETFRAMEWORK || NETCOREAPP
 
 using System;
 

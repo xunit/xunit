@@ -7,7 +7,7 @@ namespace Xunit.Sdk
     /// means there were problems identifying the correct test class constructor, or problems
     /// creating the fixture data for the test class.
     /// </summary>
-#if NET452
+#if NETFRAMEWORK
     [Serializable]
 #endif
     public class TestClassException : Exception
@@ -20,7 +20,7 @@ namespace Xunit.Sdk
             : base(message)
         { }
 
-#if NET452
+#if NETFRAMEWORK
         /// <inheritdoc/>
         protected TestClassException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
             : base(info, context)

@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP1_0 || NETCOREAPP2_0
+﻿#if NETCOREAPP
 
 // Adapted from https://github.com/dotnet/core-setup/blob/652b680dff6b1afb9cd26cc3c2e883a664c209fd/src/managed/Microsoft.Extensions.DependencyModel/Resolution/PackageCompilationAssemblyResolver.cs
 

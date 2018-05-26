@@ -38,7 +38,7 @@ public class SerializationHelperTests
             Assert.Same(type, deserializedType);
         }
 
-#if NET452
+#if NETFRAMEWORK
         [Fact]
         public static void CannotRoundTripTypesFromTheGAC()
         {
@@ -56,7 +56,7 @@ public class SerializationHelperTests
         {
             Assert.True(SerializationHelper.IsSerializable(typeof(string)));               // Can serialization types from mscorlib
             Assert.True(SerializationHelper.IsSerializable(typeof(SerializationHelper)));  // Can serialize types from local libraries
-#if NET452
+#if NETFRAMEWORK
             Assert.False(SerializationHelper.IsSerializable(typeof(Uri)));                 // Can't serialize types from the GAC
 #endif
         }

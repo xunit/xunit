@@ -72,7 +72,7 @@ public class ConfigReaderTests
         }
     }
 
-#if NET452
+#if NETFRAMEWORK
     public class Load_WithXml
     {
         [Fact]
