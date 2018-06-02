@@ -12,11 +12,15 @@ namespace Xunit
     /// </summary>
     public class XunitFilters
     {
-        DateTimeOffset cacheDataDate;
+        DateTimeOffset includeCacheDataDate;
         ChangeTrackingHashSet<string> includedMethods;
-        List<Regex> methodRegexFilters;
-        HashSet<string> methodStandardFilters;
+        List<Regex> includeMethodRegexFilters;
+        HashSet<string> includeMethodStandardFilters;
 
+        DateTimeOffset excludeCacheDataDate;
+        ChangeTrackingHashSet<string> excludedMethods;
+        List<Regex> excludeMethodRegexFilters;
+        HashSet<string> excludeMethodStandardFilters;
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitFilters"/> class.
         /// </summary>
@@ -24,8 +28,11 @@ namespace Xunit
         {
             ExcludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             IncludedTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            ExcludedClasses = new HashSet<string>(StringComparer.OrdinalIgnoreCase); 
             IncludedClasses = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            excludedMethods = new ChangeTrackingHashSet<string>(StringComparer.OrdinalIgnoreCase);
             includedMethods = new ChangeTrackingHashSet<string>(StringComparer.OrdinalIgnoreCase);
+            ExcludedNameSpaces = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             IncludedNameSpaces = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -40,14 +47,29 @@ namespace Xunit
         public Dictionary<string, List<string>> IncludedTraits { get; }
 
         /// <summary>
-        /// Gets the set of method filters for test classes to include.
+        /// Gets the set of class filters for test classes to exclude.
+        /// </summary>
+        public HashSet<string> ExcludedClasses { get; }
+
+        /// <summary>
+        /// Gets the set of class filters for test classes to include.
         /// </summary>
         public HashSet<string> IncludedClasses { get; }
+
+        /// <summary>
+        /// Gets the set of method filters for tests to exclude.
+        /// </summary>
+        public ICollection<string> ExcludedMethods => excludedMethods;
 
         /// <summary>
         /// Gets the set of method filters for tests to include.
         /// </summary>
         public ICollection<string> IncludedMethods => includedMethods;
+
+        /// <summary>
+        /// Gets the set of assembly filters for tests to exclude.
+        /// </summary>
+        public HashSet<string> ExcludedNameSpaces { get; }
 
         /// <summary>
         /// Gets the set of assembly filters for tests to include.
@@ -65,13 +87,27 @@ namespace Xunit
 
             if (!FilterIncludedMethodsAndClasses(testCase))
                 return false;
+            if (!FilterExcludedMethodsAndClasses(testCase))
+                return false;
             if (!FilterIncludedTraits(testCase))
                 return false;
             if (!FilterExcludedTraits(testCase))
                 return false;
             if (!FilterIncludedNameSpaces(testCase))
                 return false;
+            if (!FilterExcludedNameSpaces(testCase))
+                return false;
+            return true;
+        }
 
+        bool FilterExcludedNameSpaces(ITestCase testCase)
+        {
+            // No assemblies in the filter == everything is okay
+            if (ExcludedNameSpaces.Count == 0)
+                return true;
+
+            if (ExcludedNameSpaces.Count != 0 && ExcludedNameSpaces.Any(a => testCase.TestMethod.TestClass.Class.Name.StartsWith($"{a}.", StringComparison.Ordinal)))
+                return false;
             return true;
         }
 
@@ -87,10 +123,32 @@ namespace Xunit
             return false;
         }
 
+        bool FilterExcludedMethodsAndClasses(ITestCase testCase)
+        {
+            // No methods or classes in the filter == everything is okay
+            if (excludeMethodStandardFilters.Count == 0 && excludeMethodRegexFilters.Count == 0 && ExcludedClasses.Count == 0)
+                return true;
+
+            if (ExcludedClasses.Count != 0 && ExcludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
+                return false;
+
+            var methodName = $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}";
+
+            if (excludeMethodStandardFilters.Count != 0 && excludeMethodStandardFilters.Contains(methodName))
+                return false;
+
+            if (excludeMethodRegexFilters.Count != 0)
+                foreach (var regex in excludeMethodRegexFilters)
+                    if (regex.IsMatch(methodName))
+                        return false;
+
+            return true;
+        }
+
         bool FilterIncludedMethodsAndClasses(ITestCase testCase)
         {
             // No methods or classes in the filter == everything is okay
-            if (methodStandardFilters.Count == 0 && methodRegexFilters.Count == 0 && IncludedClasses.Count == 0)
+            if (includeMethodStandardFilters.Count == 0 && includeMethodRegexFilters.Count == 0 && IncludedClasses.Count == 0)
                 return true;
 
             if (IncludedClasses.Count != 0 && IncludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
@@ -98,11 +156,11 @@ namespace Xunit
 
             var methodName = $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}";
 
-            if (methodStandardFilters.Count != 0 && methodStandardFilters.Contains(methodName))
+            if (includeMethodStandardFilters.Count != 0 && includeMethodStandardFilters.Contains(methodName))
                 return true;
 
-            if (methodRegexFilters.Count != 0)
-                foreach (var regex in methodRegexFilters)
+            if (includeMethodRegexFilters.Count != 0)
+                foreach (var regex in includeMethodRegexFilters)
                     if (regex.IsMatch(methodName))
                         return true;
 
@@ -115,7 +173,7 @@ namespace Xunit
             if (ExcludedTraits.Count == 0)
                 return true;
 
-            // No traits in the method == it's always safe from exclusion
+            // No traits in the method == it's never excluded
             if (testCase.Traits.Count == 0)
                 return true;
 
@@ -147,12 +205,18 @@ namespace Xunit
 
         void SplitMethodFilters()
         {
-            if (cacheDataDate >= includedMethods.LastMutation)
+            this.SplitIncludeMethodFilters();
+            this.SplitExcludeMethodFilters();
+        }
+
+        void SplitIncludeMethodFilters()
+        {
+            if (includeCacheDataDate >= includedMethods.LastMutation)
                 return;
 
             lock (includedMethods)
             {
-                if (cacheDataDate >= includedMethods.LastMutation)
+                if (includeCacheDataDate >= includedMethods.LastMutation)
                     return;
 
                 var standardFilters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -164,9 +228,34 @@ namespace Xunit
                     else
                         standardFilters.Add(filter);
 
-                methodStandardFilters = standardFilters;
-                methodRegexFilters = regexFilters;
-                cacheDataDate = includedMethods.LastMutation;
+                includeMethodStandardFilters = standardFilters;
+                includeMethodRegexFilters = regexFilters;
+                includeCacheDataDate = includedMethods.LastMutation;
+            }
+        }
+
+        void SplitExcludeMethodFilters()
+        {
+            if (excludeCacheDataDate >= excludedMethods.LastMutation)
+                return;
+
+            lock (excludedMethods)
+            {
+                if (excludeCacheDataDate >= excludedMethods.LastMutation)
+                    return;
+
+                var standardFilters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var regexFilters = new List<Regex>();
+
+                foreach (var filter in ExcludedMethods)
+                    if (filter.Contains("*") || filter.Contains("?"))
+                        regexFilters.Add(new Regex(WildcardToRegex(filter)));
+                    else
+                        standardFilters.Add(filter);
+
+                excludeMethodStandardFilters = standardFilters;
+                excludeMethodRegexFilters = regexFilters;
+                excludeCacheDataDate = excludedMethods.LastMutation;
             }
         }
 
