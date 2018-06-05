@@ -23,6 +23,11 @@ namespace Xunit.Sdk
         IMethodInfo Method { get; }
 
         /// <summary>
+        /// Gets the timeout of the test, in milliseconds; if zero or negative, means the test case has no timeout.
+        /// </summary>
+        int Timeout { get; }
+
+        /// <summary>
         /// Executes the test case, returning 0 or more result messages through the message sink.
         /// </summary>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages to.</param>

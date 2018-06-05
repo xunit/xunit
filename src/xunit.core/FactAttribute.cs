@@ -22,5 +22,13 @@ namespace Xunit
         /// Marks the test so that it will not be run, and gets or sets the skip reason
         /// </summary>
         public virtual string Skip { get; set; }
+
+        /// <summary>
+        /// Marks the test as having a timeout, and gets or sets the timeout (in milliseconds).
+        /// WARNING: Using this with parallelization turned on will result in undefined behavior.
+        /// Timeout is only supported when parallelization is disabled, either globally or with
+        /// a parallelization-disabled test collection.
+        /// </summary>
+        public virtual int Timeout { get; set; }
     }
 }

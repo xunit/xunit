@@ -96,12 +96,13 @@ public static class Mocks
         return new ExecutionErrorTestCase(diagnosticMessageSink ?? new Xunit.NullMessageSink(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod, message);
     }
 
-    public static IReflectionAttributeInfo FactAttribute(string displayName = null, string skip = null)
+    public static IReflectionAttributeInfo FactAttribute(string displayName = null, string skip = null, int timeout = 0)
     {
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
-        result.Attribute.Returns(new FactAttribute { DisplayName = displayName, Skip = skip });
+        result.Attribute.Returns(new FactAttribute { DisplayName = displayName, Skip = skip, Timeout = timeout });
         result.GetNamedArgument<string>("DisplayName").Returns(displayName);
         result.GetNamedArgument<string>("Skip").Returns(skip);
+        result.GetNamedArgument<int>("Timeout").Returns(timeout);
         return result;
     }
 
@@ -434,6 +435,7 @@ public static class Mocks
                                          string methodName = null,
                                          string displayName = null,
                                          string skip = null,
+                                         int timeout = 0,
                                          IEnumerable<IParameterInfo> parameters = null,
                                          IEnumerable<IReflectionAttributeInfo> classAttributes = null,
                                          IEnumerable<IReflectionAttributeInfo> methodAttributes = null)
@@ -448,7 +450,7 @@ public static class Mocks
         var factAttribute = methodAttributes.FirstOrDefault(attr => typeof(FactAttribute).IsAssignableFrom(attr.Attribute.GetType()));
         if (factAttribute == null)
         {
-            factAttribute = FactAttribute(displayName, skip);
+            factAttribute = FactAttribute(displayName, skip, timeout);
             methodAttributes = methodAttributes.Concat(new[] { factAttribute });
         }
 
@@ -541,12 +543,13 @@ public static class Mocks
         return result;
     }
 
-    public static IReflectionAttributeInfo TheoryAttribute(string displayName = null, string skip = null)
+    public static IReflectionAttributeInfo TheoryAttribute(string displayName = null, string skip = null, int timeout = 0)
     {
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(new TheoryAttribute { DisplayName = displayName, Skip = skip });
         result.GetNamedArgument<string>("DisplayName").Returns(displayName);
         result.GetNamedArgument<string>("Skip").Returns(skip);
+        result.GetNamedArgument<int>("Timeout").Returns(timeout);
         return result;
     }
 

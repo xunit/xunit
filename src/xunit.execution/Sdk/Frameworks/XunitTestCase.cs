@@ -20,6 +20,8 @@ namespace Xunit.Sdk
         static ConcurrentDictionary<string, IEnumerable<IAttributeInfo>> assemblyTraitAttributeCache = new ConcurrentDictionary<string, IEnumerable<IAttributeInfo>>(StringComparer.OrdinalIgnoreCase);
         static ConcurrentDictionary<string, IEnumerable<IAttributeInfo>> typeTraitAttributeCache = new ConcurrentDictionary<string, IEnumerable<IAttributeInfo>>(StringComparer.OrdinalIgnoreCase);
 
+        int timeout;
+
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
@@ -67,6 +69,21 @@ namespace Xunit.Sdk
         /// </summary>
         protected IMessageSink DiagnosticMessageSink { get; }
 
+        /// <inheritdoc/>
+        public int Timeout
+        {
+            get
+            {
+                EnsureInitialized();
+                return timeout;
+            }
+            protected set
+            {
+                EnsureInitialized();
+                timeout = value;
+            }
+        }
+
         /// <summary>
         /// Gets the display name for the test case. Calls <see cref="TypeUtility.GetDisplayNameWithArguments"/>
         /// with the given base display name (which is itself either derived from <see cref="FactAttribute.DisplayName"/>,
@@ -87,6 +104,15 @@ namespace Xunit.Sdk
         protected virtual string GetSkipReason(IAttributeInfo factAttribute)
             => factAttribute.GetNamedArgument<string>("Skip");
 
+        /// <summary>
+        /// Gets the timeout for the test case. By default, pulls the skip reason from the
+        /// <see cref="FactAttribute.Timeout"/> property.
+        /// </summary>
+        /// <param name="factAttribute">The fact attribute the decorated the test case.</param>
+        /// <returns>The timeout in milliseconds, if set; 0, if unset.</returns>
+        protected virtual int GetTimeout(IAttributeInfo factAttribute)
+            => factAttribute.GetNamedArgument<int>("Timeout");
+
         /// <inheritdoc/>
         protected override void Initialize()
         {
@@ -97,6 +123,7 @@ namespace Xunit.Sdk
 
             DisplayName = GetDisplayName(factAttribute, baseDisplayName);
             SkipReason = GetSkipReason(factAttribute);
+            Timeout = GetTimeout(factAttribute);
 
             foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
             {
@@ -133,5 +160,21 @@ namespace Xunit.Sdk
                                                  ExceptionAggregator aggregator,
                                                  CancellationTokenSource cancellationTokenSource)
             => new XunitTestCaseRunner(this, DisplayName, SkipReason, constructorArguments, TestMethodArguments, messageBus, aggregator, cancellationTokenSource).RunAsync();
+
+        /// <inheritdoc/>
+        public override void Serialize(IXunitSerializationInfo data)
+        {
+            base.Serialize(data);
+
+            data.AddValue("Timeout", Timeout);
+        }
+
+        /// <inheritdoc/>
+        public override void Deserialize(IXunitSerializationInfo data)
+        {
+            base.Deserialize(data);
+
+            Timeout = data.GetValue<int>("Timeout");
+        }
     }
 }

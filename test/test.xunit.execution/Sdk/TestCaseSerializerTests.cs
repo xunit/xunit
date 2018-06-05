@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using Xunit;
 using Xunit.Sdk;
 
@@ -7,7 +6,7 @@ public class TestCaseSerializerTests
 {
     class ClassUnderTest
     {
-        [Fact(Skip = "Skip me", DisplayName = "Hi there")]
+        [Fact(Skip = "Skip me", DisplayName = "Hi there", Timeout = 2112)]
         [Trait("name", "value")]
         public void FactMethod()
         {
@@ -42,13 +41,14 @@ public class TestCaseSerializerTests
             Assert.Equal(testCase.TestMethod.Method.Name, result.TestMethod.Method.Name);
             Assert.Equal(testCase.DisplayName, result.DisplayName);
             Assert.Equal(testCase.SkipReason, result.SkipReason);
+            Assert.Equal(testCase.Timeout, result.Timeout);
             Assert.Null(result.TestMethodArguments);
             Assert.Collection(result.Traits.Keys,
                 key =>
                 {
                     Assert.Equal("Assembly", key);
                     Assert.Equal("Trait", Assert.Single(result.Traits[key]));
-                }, 
+                },
                 key =>
                 {
                     Assert.Equal("name", key);
@@ -110,6 +110,7 @@ public class TestCaseSerializerTests
             Assert.Equal(testCase.TestMethod.Method.Name, result.TestMethod.Method.Name);
             Assert.Equal(testCase.DisplayName, result.DisplayName);
             Assert.Equal(testCase.SkipReason, result.SkipReason);
+            Assert.Equal(testCase.Timeout, result.Timeout);
             Assert.Null(result.TestMethodArguments);
             Assert.Collection(result.Traits.Keys,
                 key =>

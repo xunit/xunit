@@ -34,6 +34,16 @@ public class XunitTestCaseTests
         Assert.Equal("Skip Reason", testCase.SkipReason);
     }
 
+    [Fact]
+    public static void Timeout()
+    {
+        var testMethod = Mocks.TestMethod(timeout: 42);
+
+        var testCase = new XunitTestCase(SpyMessageSink.Create(), TestMethodDisplay.ClassAndMethod, TestMethodDisplayOptions.None, testMethod);
+
+        Assert.Equal(42, testCase.Timeout);
+    }
+
     public class Traits : AcceptanceTestV2
     {
         [Fact]

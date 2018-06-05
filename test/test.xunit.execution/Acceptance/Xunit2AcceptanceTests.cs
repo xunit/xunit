@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -145,6 +146,43 @@ public class Xunit2AcceptanceTests
 
             var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
             Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
+        }
+    }
+
+    [CollectionDefinition("Timeout Tests", DisableParallelization = true)]
+    public class TimeoutTestsCollection { }
+
+    [Collection("Timeout Tests")]
+    public class TimeoutTests : AcceptanceTestV2
+    {
+        // This test is a little sketchy, because it relies on the execution of the acceptance test to happen in less time
+        // than the timeout. The timeout is set arbitrarily high in order to give some padding to the timing, but even on
+        // a Core i7-7820HK, the execution time is ~ 400 milliseconds for what should be about 10 milliseconds of wait
+        // time. If this test becomes flaky, a higher value than 10000 could be considered.
+        [Fact]
+        public void TimedOutTest()
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var results = Run(typeof(ClassUnderTest));
+            stopwatch.Stop();
+
+            var passedMessage = Assert.Single(results.OfType<ITestPassed>());
+            Assert.Equal("Xunit2AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passedMessage.Test.DisplayName);
+
+            var failedMessage = Assert.Single(results.OfType<ITestFailed>());
+            Assert.Equal("Xunit2AcceptanceTests+TimeoutTests+ClassUnderTest.LongRunningTest", failedMessage.Test.DisplayName);
+            Assert.Equal("Test execution timed out after 10 milliseconds", failedMessage.Messages.Single());
+
+            Assert.True(stopwatch.ElapsedMilliseconds < 10000, "Elapsed time should be less than 10 seconds");
+        }
+
+        class ClassUnderTest
+        {
+            [Fact(Timeout = 10)]
+            public Task LongRunningTest() => Task.Delay(10000);
+
+            [Fact(Timeout = 10000)]
+            public void ShortRunningTest() => Task.Delay(10);
         }
     }
 
@@ -398,6 +436,7 @@ public class Xunit2AcceptanceTests
         {
             [Fact]
             public void IShouldBeLast2() { }
+
             [Fact]
             public void IShouldBeLast1() { }
         }

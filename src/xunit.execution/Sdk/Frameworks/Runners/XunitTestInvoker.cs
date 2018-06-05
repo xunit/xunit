@@ -109,7 +109,20 @@ namespace Xunit.Sdk
                 return tcs.Task;
             }
 
-            return base.InvokeTestMethodAsync(testClassInstance);
+            return TestCase.Timeout > 0
+                ? InvokeTimeoutTestMethodAsync(testClassInstance)
+                : base.InvokeTestMethodAsync(testClassInstance);
+        }
+
+        async Task<decimal> InvokeTimeoutTestMethodAsync(object testClassInstance)
+        {
+            var baseTask = base.InvokeTestMethodAsync(testClassInstance);
+            var resultTask = await Task.WhenAny(baseTask, Task.Delay(TestCase.Timeout));
+
+            if (resultTask != baseTask)
+                throw new TestTimeoutException(TestCase.Timeout);
+
+            return baseTask.Result;
         }
     }
 }
