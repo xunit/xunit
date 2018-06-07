@@ -240,9 +240,10 @@ class Program
         Console.WriteLine("                         : if specified more than once, acts as an AND operation");
         Console.WriteLine("  -namespace \"name\"      : run all methods in a given namespace (i.e.,");
         Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
+        Console.WriteLine("                         : if specified more than once, acts as an OR operation");        
         Console.WriteLine("  -nonamespace \"name\"    : do not run any methods in a given namespace (i.e.,");
         Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
-        Console.WriteLine("                         : if specified more than once, acts as an OR operation");
+        Console.WriteLine("                         : if specified more than once, acts as an AND operation");
         Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
         Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
         Console.WriteLine("  -usemsbuild            : build with msbuild instead of dotnet");
