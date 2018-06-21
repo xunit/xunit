@@ -361,14 +361,14 @@ namespace Xunit.ConsoleClient
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -namespace");
 
-                    project.Filters.IncludedNameSpaces.Add(option.Value);
+                    project.Filters.IncludedNamespaces.Add(option.Value);
                 }
                 else if (optionName == "nonamespace")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -nonamespace");
 
-                    project.Filters.ExcludedNameSpaces.Add(option.Value);
+                    project.Filters.ExcludedNamespaces.Add(option.Value);
                 }
                 else
                 {
