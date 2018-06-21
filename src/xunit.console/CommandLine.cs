@@ -335,6 +335,13 @@ namespace Xunit.ConsoleClient
 
                     project.Filters.IncludedClasses.Add(option.Value);
                 }
+                else if (optionName == "noclass")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -noclass");
+
+                    project.Filters.ExcludedClasses.Add(option.Value);
+                }
                 else if (optionName == "method")
                 {
                     if (option.Value == null)
@@ -342,12 +349,26 @@ namespace Xunit.ConsoleClient
 
                     project.Filters.IncludedMethods.Add(option.Value);
                 }
+                else if (optionName == "nomethod")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -nomethod");
+
+                    project.Filters.ExcludedMethods.Add(option.Value);
+                }
                 else if (optionName == "namespace")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -namespace");
 
                     project.Filters.IncludedNameSpaces.Add(option.Value);
+                }
+                else if (optionName == "nonamespace")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -nonamespace");
+
+                    project.Filters.ExcludedNameSpaces.Add(option.Value);
                 }
                 else
                 {
