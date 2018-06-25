@@ -57,10 +57,10 @@ namespace Xunit.Sdk
         {
             var disposeAsyncTasks = CollectionFixtureMappings.Values.OfType<IAsyncLifetime>().Select(fixture => Aggregator.RunAsync(fixture.DisposeAsync)).ToList();
 
+            await Task.WhenAll(disposeAsyncTasks);
+
             foreach (var fixture in CollectionFixtureMappings.Values.OfType<IDisposable>())
                 Aggregator.Run(fixture.Dispose);
-
-            await Task.WhenAll(disposeAsyncTasks);
         }
 
         /// <summary>
