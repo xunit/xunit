@@ -257,7 +257,12 @@ namespace Xunit.Sdk
                                 var result = CallTestMethod(testClassInstance);
                                 var task = GetTaskFromResult(result);
                                 if (task != null)
+                                {
+                                    if (task.Status == TaskStatus.Created)
+                                        throw new InvalidOperationException("Test method returned a non-started Task (tasks must be started before being returned)");
+
                                     await task;
+                                }
                                 else
                                 {
                                     var ex = await asyncSyncContext.WaitForCompletionAsync();

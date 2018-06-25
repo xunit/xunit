@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -183,6 +184,27 @@ public class Xunit2AcceptanceTests
 
             [Fact(Timeout = 10000)]
             public void ShortRunningTest() => Task.Delay(10);
+        }
+    }
+
+    public class NonStartedTasks : AcceptanceTestV2
+    {
+        [Fact]
+        public void TestWithUnstartedTaskThrows()
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var results = Run(typeof(ClassUnderTest));
+            stopwatch.Stop();
+
+            var failedMessage = Assert.Single(results.OfType<ITestFailed>());
+            Assert.Equal("Xunit2AcceptanceTests+NonStartedTasks+ClassUnderTest.NonStartedTask", failedMessage.Test.DisplayName);
+            Assert.Equal("Test method returned a non-started Task (tasks must be started before being returned)", failedMessage.Messages.Single());
+        }
+
+        class ClassUnderTest
+        {
+            [Fact]
+            public Task NonStartedTask() => new Task(() => { Thread.Sleep(1000); });
         }
     }
 
