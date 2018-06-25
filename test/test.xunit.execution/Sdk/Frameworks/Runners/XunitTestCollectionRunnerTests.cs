@@ -67,9 +67,9 @@ public class XunitTestCollectionRunnerTests
     {
         public bool Disposed;
 
-        public bool DisposeAsyncCalled { get; private set; }
+        public bool DisposeAsyncCalled;
 
-        public TaskCompletionSource<bool> DisposeAsyncSignaler { get; } = new TaskCompletionSource<bool>();
+        public TaskCompletionSource<bool> DisposeAsyncSignaler = new TaskCompletionSource<bool>();
 
         public void Dispose()
         {
