@@ -39,6 +39,58 @@ public class XunitTestCollectionRunnerTests
     }
 
     [Fact]
+    public static async void DisposeAndAsyncLifetimeShouldBeCalledInTheRightOrder()
+    {
+        var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionForFixtureAsyncLifetimeAndDisposableUnderTest)), null);
+        var testCase = Mocks.XunitTestCase<XunitTestCollectionRunnerTests>("DisposeAndAsyncLifetimeShouldBeCalledInTheRightOrder", collection);
+        var runner = TestableXunitTestCollectionRunner.Create(testCase);
+
+        var runnerSessionTask = runner.RunAsync();
+
+        await Task.Delay(500);
+
+        var fixtureUnderTest = runner.CollectionFixtureMappings.Values.OfType<FixtureAsyncLifetimeAndDisposableUnderTest>().Single();
+
+        Assert.True(fixtureUnderTest.DisposeAsyncCalled);
+        Assert.False(fixtureUnderTest.Disposed);
+
+        fixtureUnderTest.DisposeAsyncSignaler.SetResult(true);
+
+        await runnerSessionTask;
+
+        Assert.True(fixtureUnderTest.Disposed);
+    }
+
+    class CollectionForFixtureAsyncLifetimeAndDisposableUnderTest : ICollectionFixture<FixtureAsyncLifetimeAndDisposableUnderTest> { }
+
+    class FixtureAsyncLifetimeAndDisposableUnderTest : IAsyncLifetime, IDisposable
+    {
+        public bool Disposed;
+
+        public bool DisposeAsyncCalled;
+
+        public TaskCompletionSource<bool> DisposeAsyncSignaler = new TaskCompletionSource<bool>();
+
+        public void Dispose()
+        {
+            Disposed = true;
+        }
+
+        public Task InitializeAsync()
+        {
+            return Task.FromResult(true);
+        }
+
+        public async Task DisposeAsync()
+        {
+            DisposeAsyncCalled = true;
+
+            await DisposeAsyncSignaler.Task;
+        }
+    }
+
+
+    [Fact]
     public static async void MultiplePublicConstructorsOnCollectionFixture_ReturnsError()
     {
         var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionsWithMultiCtorCollectionFixture)), null);
