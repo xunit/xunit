@@ -37,6 +37,21 @@ public class ExceptionAssertsTests
         }
 
         [Fact]
+        public static void UnexpectedExceptionCapturedAsInnerException()
+        {
+            try
+            {
+                Action testCode = () => { throw new InvalidOperationException(); };
+
+                Assert.Throws<Exception>(testCode);
+            }
+            catch (XunitException exception)
+            {
+                Assert.IsType<InvalidOperationException>(exception.InnerException);
+            }
+        }
+
+        [Fact]
         public static void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
         {
             try
@@ -164,6 +179,21 @@ public class ExceptionAssertsTests
             catch (XunitException exception)
             {
                 Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
+            }
+        }
+
+        [Fact]
+        public static async void UnexpectedExceptionCapturedAsyncAsInnerException()
+        {
+            try
+            {
+                Func<Task> testCode = () => Task.Run(() => { throw new InvalidOperationException(); });
+
+                await Assert.ThrowsAsync<Exception>(testCode);
+            }
+            catch (XunitException exception)
+            {
+                Assert.IsType<InvalidOperationException>(exception.InnerException);
             }
         }
 
