@@ -11,7 +11,7 @@ namespace Xunit
         static string platformSuffix = "__unknown__";
 #if NETSTANDARD1_1
         static readonly string[] platformSuffixes = new[] { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
-#elif NETSTANDARD1_3 || NETSTANDARD1_5 || NETSTANDARD2_0
+#elif NETSTANDARD
         static readonly string[] platformSuffixes = new[] { "dotnet", "MonoAndroid", "iOS-Universal" };
 #endif
 
