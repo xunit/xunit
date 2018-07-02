@@ -9,6 +9,8 @@ using System.Reflection;
 [assembly: AssemblyTitle("xUnit.net Runner Utility (.NET Standard 1.1)")]
 #elif NETSTANDARD1_5
 [assembly: AssemblyTitle("xUnit.net Runner Utility (.NET Standard 1.5)")]
+#elif NETSTANDARD2_0
+[assembly: AssemblyTitle("xUnit.net Runner Utility (.NET Standard 2.0)")]
 #elif NETCOREAPP1_0
 [assembly: AssemblyTitle("xUnit.net Runner Utility (.NET Core 1.0)")]
 #elif WINDOWS_UAP

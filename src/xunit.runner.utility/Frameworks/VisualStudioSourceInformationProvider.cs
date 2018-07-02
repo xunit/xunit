@@ -1,4 +1,4 @@
-﻿#if !NETSTANDARD1_1
+﻿#if !NETSTANDARD
 
 using Xunit.Abstractions;
 using Xunit.Sdk;

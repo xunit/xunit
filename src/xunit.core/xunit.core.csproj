@@ -3,7 +3,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TargetFramework>netstandard1.1</TargetFramework>
+    <TargetFrameworks>netstandard1.1;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.abstractions" Version="2.0.1" />
+    <PackageReference Include="xunit.abstractions" Version="2.0.2-rc.1" />
   </ItemGroup>
 
 </Project>

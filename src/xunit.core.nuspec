@@ -18,8 +18,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.core\build\xunit.core.props"                                             target="build\" />
-    <file src="xunit.core\build\xunit.core.targets"                                           target="build\" />
+    <file src="xunit.core\build\xunit.core.props"   target="build\" />
+    <file src="xunit.core\build\xunit.core.targets" target="build\" />
     <file src="xunit.core\build\xunit.core.props"   target="buildMultiTargeting\" />
     <file src="xunit.core\build\xunit.core.targets" target="buildMultiTargeting\" />
   </files>
