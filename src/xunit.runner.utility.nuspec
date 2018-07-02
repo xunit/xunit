@@ -26,7 +26,6 @@
         <dependency id="xunit.abstractions" version="2.0.2-rc.1" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="System.Reflection.TypeExtensions" version="4.4.0" />
         <dependency id="xunit.abstractions" version="2.0.2-rc.1" />
       </group>
       <group targetFramework="netcoreapp1.0">
