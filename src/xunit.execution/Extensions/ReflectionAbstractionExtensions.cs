@@ -34,16 +34,18 @@ public static class ReflectionAbstractionExtensions
 
         if (!messageBus.QueueMessage(new TestClassConstructionStarting(test)))
             cancellationTokenSource.Cancel();
-
-        try
+        else
         {
-            if (!cancellationTokenSource.IsCancellationRequested)
-                timer.Aggregate(() => testClass = Activator.CreateInstance(testClassType, constructorArguments));
-        }
-        finally
-        {
-            if (!messageBus.QueueMessage(new TestClassConstructionFinished(test)))
-                cancellationTokenSource.Cancel();
+            try
+            {
+                if (!cancellationTokenSource.IsCancellationRequested)
+                    timer.Aggregate(() => testClass = Activator.CreateInstance(testClassType, constructorArguments));
+            }
+            finally
+            {
+                if (!messageBus.QueueMessage(new TestClassConstructionFinished(test)))
+                    cancellationTokenSource.Cancel();
+            }
         }
 
         return testClass;
@@ -70,15 +72,17 @@ public static class ReflectionAbstractionExtensions
 
         if (!messageBus.QueueMessage(new TestClassDisposeStarting(test)))
             cancellationTokenSource.Cancel();
-
-        try
+        else
         {
-            timer.Aggregate(disposable.Dispose);
-        }
-        finally
-        {
-            if (!messageBus.QueueMessage(new TestClassDisposeFinished(test)))
-                cancellationTokenSource.Cancel();
+            try
+            {
+                timer.Aggregate(disposable.Dispose);
+            }
+            finally
+            {
+                if (!messageBus.QueueMessage(new TestClassDisposeFinished(test)))
+                    cancellationTokenSource.Cancel();
+            }
         }
     }
 
