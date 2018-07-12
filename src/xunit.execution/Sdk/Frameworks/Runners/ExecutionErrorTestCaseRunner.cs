@@ -42,10 +42,10 @@ namespace Xunit.Sdk
 
                 if (!MessageBus.QueueMessage(testFailed))
                     CancellationTokenSource.Cancel();
-            }
 
-            if (!MessageBus.QueueMessage(new TestFinished(test, 0, null)))
-                CancellationTokenSource.Cancel();
+                if (!MessageBus.QueueMessage(new TestFinished(test, 0, null)))
+                    CancellationTokenSource.Cancel();
+            }
 
             return Task.FromResult(summary);
         }

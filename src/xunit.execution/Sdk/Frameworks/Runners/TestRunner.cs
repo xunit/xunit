@@ -176,10 +176,10 @@ namespace Xunit.Sdk
                 if (Aggregator.HasExceptions)
                     if (!MessageBus.QueueMessage(new TestCleanupFailure(Test, Aggregator.ToException())))
                         CancellationTokenSource.Cancel();
-            }
 
-            if (!MessageBus.QueueMessage(new TestFinished(Test, runSummary.Time, output)))
-                CancellationTokenSource.Cancel();
+                if (!MessageBus.QueueMessage(new TestFinished(Test, runSummary.Time, output)))
+                    CancellationTokenSource.Cancel();
+            }
 
             return runSummary;
         }
