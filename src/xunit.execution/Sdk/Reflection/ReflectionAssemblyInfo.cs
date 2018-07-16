@@ -27,7 +27,7 @@ namespace Xunit.Sdk
         /// <param name="assemblyFileName">The assembly to be wrapped.</param>
         public ReflectionAssemblyInfo(string assemblyFileName)
         {
-#if NETSTANDARD1_1
+#if NETSTANDARD
             Assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName), Version = new Version(0, 0, 0, 0) });
 #else
             Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
@@ -42,7 +42,7 @@ namespace Xunit.Sdk
         {
             get
             {
-#if NETSTANDARD1_1
+#if NETSTANDARD
                 return Assembly.GetName().Name + ".dll";  // Make sure we only use the short form
 #else
                 return Assembly.GetLocalCodeBase();
