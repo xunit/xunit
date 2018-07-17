@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.abstractions" Version="2.0.2-rc.1" />
+    <PackageReference Include="xunit.abstractions" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net35' OR '$(TargetFramework)' == 'net452' ">

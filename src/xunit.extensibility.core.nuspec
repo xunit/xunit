@@ -17,14 +17,14 @@
     </references>
     <dependencies>
       <group targetFramework="net452">
-        <dependency id="xunit.abstractions" version="2.0.2-rc.1" />
+        <dependency id="xunit.abstractions" version="2.0.2" />
       </group>
       <group targetFramework="netstandard1.1">
         <dependency id="NETStandard.Library" version="1.6.1" />
-        <dependency id="xunit.abstractions" version="2.0.2-rc.1" />
+        <dependency id="xunit.abstractions" version="2.0.2" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="xunit.abstractions" version="2.0.2-rc.1" />
+        <dependency id="xunit.abstractions" version="2.0.2" />
       </group>
     </dependencies>
   </metadata>
