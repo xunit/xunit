@@ -117,6 +117,60 @@ public class XunitTestClassRunnerTests
     }
 
     [Fact]
+    public static async void DisposeAndAsyncLifetimeShouldBeCalledInTheRightOrder()
+    {
+        var testCase = Mocks.XunitTestCase<TestClassForFixtureAsyncLifetimeAndDisposableUnderTest>("Passing");
+        var runner = TestableXunitTestClassRunner.Create(testCase);
+
+        var runnerSessionTask = runner.RunAsync();
+
+        await Task.Delay(500);
+
+        var fixtureUnderTest = runner.ClassFixtureMappings.Values.OfType<FixtureAsyncLifetimeAndDisposableUnderTest>().Single();
+
+        Assert.True(fixtureUnderTest.DisposeAsyncCalled);
+        Assert.False(fixtureUnderTest.Disposed);
+
+        fixtureUnderTest.DisposeAsyncSignaler.SetResult(true);
+
+        await runnerSessionTask;
+
+        Assert.True(fixtureUnderTest.Disposed);
+    }
+
+    class TestClassForFixtureAsyncLifetimeAndDisposableUnderTest : IClassFixture<FixtureAsyncLifetimeAndDisposableUnderTest>
+    {
+        [Fact]
+        public void Passing() { }
+    }
+
+    class FixtureAsyncLifetimeAndDisposableUnderTest : IAsyncLifetime, IDisposable
+    {
+        public bool Disposed;
+
+        public bool DisposeAsyncCalled;
+
+        public TaskCompletionSource<bool> DisposeAsyncSignaler = new TaskCompletionSource<bool>();
+
+        public void Dispose()
+        {
+            Disposed = true;
+        }
+
+        public Task InitializeAsync()
+        {
+            return Task.FromResult(true);
+        }
+
+        public async Task DisposeAsync()
+        {
+            DisposeAsyncCalled = true;
+
+            await DisposeAsyncSignaler.Task;
+        }
+    }
+
+    [Fact]
     public static async void MultiplePublicConstructorsOnClassFixture_ReturnsError()
     {
         var testCase = Mocks.XunitTestCase<TestClassWithMultiCtorClassFixture>("Passing");
