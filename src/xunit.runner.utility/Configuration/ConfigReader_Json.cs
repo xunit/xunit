@@ -138,6 +138,12 @@ namespace Xunit
         {
             try
             {
+#if !NETSTANDARD1_1
+                if(!File.Exists(configFileName))
+                {
+                    return null;
+                }
+#endif
                 using (var stream = File_OpenRead(configFileName))
                     return Load(stream);
             }
