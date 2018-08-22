@@ -23,6 +23,7 @@ clone_script:
 branches:
   only:
   - master
+  - v2
 
 skip_branch_with_pr: true
 
