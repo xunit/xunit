@@ -128,6 +128,7 @@
           <xsl:value-of select="@time"/>
         </xsl:attribute>
       </xsl:if>
+      <xsl:apply-templates select="traits"/>
       <xsl:if test="reason">
         <reason>
           <message>
@@ -135,7 +136,6 @@
           </message>
         </reason>
       </xsl:if>
-      <xsl:apply-templates select="traits"/>
       <xsl:apply-templates select="failure"/>
     </test-case>
   </xsl:template>
