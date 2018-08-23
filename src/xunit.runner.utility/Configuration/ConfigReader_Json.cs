@@ -138,6 +138,13 @@ namespace Xunit
         {
             try
             {
+                // Prevent a first-chance FileNotFoundException if the file doesn't exist.
+                // Happens twice when debugging a single test with first-chance exceptions on.
+#if !NETSTANDARD1_1
+                if (!File.Exists(configFileName))
+                    return null;
+#endif
+
                 using (var stream = File_OpenRead(configFileName))
                     return Load(stream);
             }
