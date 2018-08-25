@@ -202,7 +202,7 @@ if ($targetFunction -eq $null) {
 
 _build_step "Performing pre-build verifications"
     _require dotnet "Could not find 'dotnet'. Please ensure .NET CLI Tooling is installed."
-    _verify_dotnetsdk_version "2.1.400"
+    _verify_dotnetsdk_version "2.1.302"
     _require msbuild "Could not find 'msbuild'. Please ensure MSBUILD.EXE v15.7 is on the path."
     _verify_msbuild_version "15.7.0"
 
