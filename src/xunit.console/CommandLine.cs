@@ -55,7 +55,9 @@ namespace Xunit.ConsoleClient
 
         public bool Wait { get; protected set; }
 
-        public IRunnerReporter ChooseReporter(IReadOnlyList<IRunnerReporter> reporters)
+        public string Reporter { get; protected set; }
+
+        public IRunnerReporter ChooseReporter(IEnumerable<IRunnerReporter> reporters)
         {
             var result = default(IRunnerReporter);
 
@@ -180,6 +182,13 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     NoAutoReporters = true;
+                }
+                else if (optionName == "reporter")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -reporter");
+
+                    Reporter = option.Value;
                 }
 #if DEBUG
                 else if (optionName == "pause")

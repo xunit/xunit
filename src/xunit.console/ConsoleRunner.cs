@@ -32,7 +32,7 @@ namespace Xunit.ConsoleClient
 
             try
             {
-                var reporters = GetAvailableRunnerReporters();
+                var reporters = GetAvailableRunnerReporters(commandLine.Reporter);
 
                 if (args.Length == 0 || args[0] == "-?" || args[0] == "/?" || args[0] == "-h" || args[0] == "--help")
                 {
@@ -124,54 +124,71 @@ namespace Xunit.ConsoleClient
             }
         }
 
-        List<IRunnerReporter> GetAvailableRunnerReporters()
+        IEnumerable<IRunnerReporter> GetAvailableRunnerReporters(string reporter)
         {
             var result = new List<IRunnerReporter>();
-
             var runnerPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
+
+            // If a reporter is passed from the CLI we use that one instead of searching through
+            // all the files in the CWD.
+            if (!string.IsNullOrWhiteSpace(reporter))
+            {
+                string filePath = Path.Combine(runnerPath, reporter + ".dll");
+                if (!File.Exists(filePath))
+                {
+                    throw new FileNotFoundException("Passed in reporting assembly can't be found.", reporter + ".dll");
+                }
+
+                return LoadReporter(filePath);
+            }
 
             foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
             {
-                Type[] types = new Type[0];
-
-                try
-                {
-#if NETFRAMEWORK
-                    var assembly = Assembly.LoadFile(dllFile);
-#else
-                    var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
-#endif
-                    types = assembly.GetTypes();
-                }
-                catch (ReflectionTypeLoadException ex)
-                {
-                    types = ex.Types;
-                }
-                catch
-                {
-                    continue;
-                }
-
-                foreach (var type in types)
-                {
-#pragma warning disable CS0618
-                    if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-                        continue;
-#pragma warning restore CS0618
-                    var ctor = type.GetConstructor(new Type[0]);
-                    if (ctor == null)
-                    {
-                        ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-                        Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
-                        ConsoleHelper.ResetColor();
-                        continue;
-                    }
-
-                    result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
-                }
+                result.AddRange(LoadReporter(dllFile).ToArray());
             }
 
             return result;
+        }
+
+        private IEnumerable<IRunnerReporter> LoadReporter(string path)
+        {
+            Type[] types = new Type[0];
+
+            try
+            {
+#if NETFRAMEWORK
+                var assembly = Assembly.LoadFile(path);
+#else
+                    var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(path)));
+#endif
+                types = assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                types = ex.Types;
+            }
+            catch
+            {
+                yield break;
+            }
+
+            foreach (var type in types)
+            {
+#pragma warning disable CS0618
+                if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+                    continue;
+#pragma warning restore CS0618
+                var ctor = type.GetConstructor(new Type[0]);
+                if (ctor == null)
+                {
+                    ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+                    Console.WriteLine($"Type {type.FullName} in assembly {path} appears to be a runner reporter, but does not have an empty constructor.");
+                    ConsoleHelper.ResetColor();
+                    continue;
+                }
+
+                yield return (IRunnerReporter)ctor.Invoke(new object[0]);
+            }
         }
 
 #if NETFRAMEWORK
@@ -212,7 +229,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine($"xUnit.net Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {platform})");
         }
 
-        void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
+        void PrintUsage(IEnumerable<IRunnerReporter> reporters)
         {
 #if NETFRAMEWORK
             var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
