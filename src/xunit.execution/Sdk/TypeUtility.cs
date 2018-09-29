@@ -158,41 +158,26 @@ namespace Xunit.Sdk
 
             // Check if we can implicitly convert the argument type to the parameter type
             var implicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Implicit", methodTypes);
-#if FEATURE_REFLECTION
             if (implicitMethod != null && implicitMethod.IsStatic && !IsByRefLikeType(implicitMethod.ReturnType))
-#else
-            if (implicitMethod != null && implicitMethod.IsStatic)
-#endif
                 return implicitMethod.Invoke(null, methodArguments);
 
             // Check if we can explicitly convert the argument type to the parameter type
             var explicitMethod = conversionDeclaringType.GetRuntimeMethod("op_Explicit", methodTypes);
-#if FEATURE_REFLECTION
             if (explicitMethod != null && explicitMethod.IsStatic && !IsByRefLikeType(explicitMethod.ReturnType))
-#else
-            if (explicitMethod != null && explicitMethod.IsStatic)
-#endif
                 return explicitMethod.Invoke(null, methodArguments);
 
             return null;
         }
 
-#if FEATURE_REFLECTION
         private static bool IsByRefLikeType(Type type)
         {
-            object val = type.GetType()
-                .GetProperty("IsByRefLike", BindingFlags.Instance | BindingFlags.Public)
-                ?.GetValue(type);
-
+            object val = type.GetType().GetRuntimeProperty("IsByRefLike")?.GetValue(type);
             if (val is bool isByRefLike)
-            {
                 return isByRefLike;
-            }
 
             // The type can't be a byreflike type if the property doesn't exist.
             return false;
         }
-#endif
 
         /// <summary>
         /// Formulates the extended portion of the display name for a test method. For tests with no arguments, this will

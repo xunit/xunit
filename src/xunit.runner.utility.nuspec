@@ -25,9 +25,6 @@
         <dependency id="System.Reflection.TypeExtensions" version="4.3.0" />
         <dependency id="xunit.abstractions" version="2.0.3" />
       </group>
-      <group targetFramework="netstandard2.0">
-        <dependency id="xunit.abstractions" version="2.0.3" />
-      </group>
       <group targetFramework="netcoreapp1.0">
         <dependency id="NETStandard.Library" version="1.6.0" />
         <dependency id="System.Runtime.Loader" version="4.0.0" />
@@ -50,9 +47,6 @@
 
     <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.5\xunit.runner.utility.netstandard15.dll" target="lib\netstandard1.5\" />
     <file src="xunit.runner.utility\bin\$Configuration$\netstandard1.5\xunit.runner.utility.netstandard15.xml" target="lib\netstandard1.5\" />
-
-    <file src="xunit.runner.utility\bin\$Configuration$\netstandard2.0\xunit.runner.utility.netstandard20.dll" target="lib\netstandard2.0\" />
-    <file src="xunit.runner.utility\bin\$Configuration$\netstandard2.0\xunit.runner.utility.netstandard20.xml" target="lib\netstandard2.0\" />
 
     <file src="xunit.runner.utility\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll" target="lib\netcoreapp1.0\" />
     <file src="xunit.runner.utility\bin\$Configuration$\netcoreapp1.0\xunit.runner.utility.netcoreapp10.xml" target="lib\netcoreapp1.0\" />

@@ -17,14 +17,10 @@
       <group targetFramework="netstandard1.1">
         <dependency id="NETStandard.Library" version="1.6.1" />
       </group>
-      <group targetFramework="netstandard2.0" />
     </dependencies>
   </metadata>
   <files>
     <file src="xunit.assert\bin\$Configuration$\netstandard1.1\xunit.assert.dll" target="lib\netstandard1.1\" />
     <file src="xunit.assert\bin\$Configuration$\netstandard1.1\xunit.assert.xml" target="lib\netstandard1.1\" />
-
-    <file src="xunit.assert\bin\$Configuration$\netstandard2.0\xunit.assert.dll" target="lib\netstandard2.0\" />
-    <file src="xunit.assert\bin\$Configuration$\netstandard2.0\xunit.assert.xml" target="lib\netstandard2.0\" />
   </files>
 </package>

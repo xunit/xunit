@@ -23,9 +23,6 @@
         <dependency id="NETStandard.Library" version="1.6.1" />
         <dependency id="xunit.abstractions" version="2.0.3" />
       </group>
-      <group targetFramework="netstandard2.0">
-        <dependency id="xunit.abstractions" version="2.0.3" />
-      </group>
     </dependencies>
   </metadata>
   <files>
@@ -37,8 +34,5 @@
 
     <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.dll" target="lib\netstandard1.1\" />
     <file src="xunit.core\bin\$Configuration$\netstandard1.1\xunit.core.xml" target="lib\netstandard1.1\" />
-
-    <file src="xunit.core\bin\$Configuration$\netstandard2.0\xunit.core.dll" target="lib\netstandard2.0\" />
-    <file src="xunit.core\bin\$Configuration$\netstandard2.0\xunit.core.xml" target="lib\netstandard2.0\" />
   </files>
 </package>
