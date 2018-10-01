@@ -14,6 +14,8 @@ namespace Xunit.ConsoleClient
 
         readonly Dictionary<string, Transform> availableTransforms = new Dictionary<string, Transform>(StringComparer.OrdinalIgnoreCase);
 
+        public static bool NoErrorColoring = false;
+        
         protected TransformFactory()
         {
             availableTransforms.Add("xml", new Transform
@@ -65,9 +67,15 @@ namespace Xunit.ConsoleClient
         static void Handler_XslTransform(string key, string resourceName, XElement xml, string outputFileName)
         {
 #if NETCOREAPP1_0
-            ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+            if(!NoErrorColoring)
+            {
+                ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+            }
             Console.WriteLine($"Skipping -{key} because XSL-T is not supported on .NET Core 1.x");
-            ConsoleHelper.ResetColor();
+            if(!NoErrorColoring)
+            {
+                ConsoleHelper.ResetColor();
+            }
 #else
             var xmlTransform = new System.Xml.Xsl.XslCompiledTransform();
 
