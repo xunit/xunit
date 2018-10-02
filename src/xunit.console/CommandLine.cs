@@ -170,6 +170,7 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     NoColor = true;
+                    TransformFactory.NoErrorColoring = NoColor;
                 }
                 else if (optionName == "noappdomain")    // Here for historical reasons
                 {
