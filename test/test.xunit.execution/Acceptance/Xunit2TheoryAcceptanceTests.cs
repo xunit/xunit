@@ -374,8 +374,7 @@ public class Xunit2TheoryAcceptanceTests
             );
         }
 
-
-        public class ClassWithFuncMethod
+        internal class ClassWithFuncMethod
         {
             public static IEnumerable<object[]> TestData()
             {
