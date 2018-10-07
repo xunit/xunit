@@ -357,6 +357,46 @@ public class Xunit2TheoryAcceptanceTests
         }
 
         [Fact]
+        public void GenericParameter_Func_Valid()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithFuncMethod));
+
+            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.StartsWith("Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Double>(source: [4, 5, 6, 7], ", result.Test.DisplayName),
+                result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", result.Test.DisplayName),
+                result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", result.Test.DisplayName),
+                result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", result.Test.DisplayName),
+                result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", result.Test.DisplayName),
+                result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", result.Test.DisplayName),
+                result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", result.Test.DisplayName),
+                result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Int32>(source: [4, 5, 6, 7]", result.Test.DisplayName),
+                result => Assert.StartsWith(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Single>(source: [4, 5, 6, 7]", result.Test.DisplayName)
+            );
+        }
+
+        internal class ClassWithFuncMethod
+        {
+            public static IEnumerable<object[]> TestData()
+            {
+                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, float>(i => i + 0.5f) };
+                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, double>(i => i + 0.5d) };
+                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i * 2) };
+                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i + 1) };
+                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+            }
+
+            [Theory]
+            [MemberData(nameof(TestData))]
+            public void TestMethod<TResult>(IEnumerable<int> source, Func<int, TResult> selector)
+            {
+            }
+        }
+
+        [Fact]
         public void Skipped()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));

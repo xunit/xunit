@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -384,6 +385,28 @@ public class ResolveGenericMethodTests
             new object[] { new GenericClass3<GenericClass<bool>, GenericClass2<GenericClass3<ulong, long, int>, string>, uint>() },
             new Type[] { typeof(bool), typeof(ulong), typeof(long), typeof(object), typeof(uint) }
         };
+
+        // Func test
+        yield return new object[]
+        {
+            nameof(FuncTestMethod),
+            new object[] { new int[] { 4, 5, 6, 7 }, 0, 0, new Func<int, float>(i => i + 0.5f) },
+            new Type[] { typeof(float) }
+        };
+
+        yield return new object[]
+        {
+            nameof(FuncTestMethod),
+            new object[] { new int[] { 4, 5, 6, 7 }, 0, 1, new Func<int, double>(i => i + 0.5d) },
+            new Type[] { typeof(double) }
+        };
+
+        yield return new object[]
+        {
+            nameof(FuncTestMethod),
+            new object[] { new int[] { 4, 5, 6, 7 }, 0, 2, new Func<int, int>(i => i) },
+            new Type[] { typeof(int) }
+        };
     }
 
     public static IEnumerable<object[]> ResolveGenericType_MismatchedGenericTypeArguments_TestData()
@@ -499,6 +522,8 @@ public class ResolveGenericMethodTests
     public static void EmbeddedGeneric2_TwoGenericParameters_DifferentTypeTest4<T, U>(GenericClass2<string, T> t1, GenericClass2<ulong, U> t2) { }
 
     public static void CrazyGenericMethod<T, U, V, W, X>(GenericClass3<GenericClass<T>, GenericClass2<GenericClass3<U, V, int>, string>, X> gen) { }
+
+    public static void FuncTestMethod<TResult>(IEnumerable<int> source, int start, int length, Func<int, TResult> selector) { }
 
     public static void OneGenericParameter_GenericBaseClass<T>(GenericClass<T> x) { }
     public static void TwoGenericParameters_GenericBaseClass<T, U>(GenericClass2<T, U> x) { }
