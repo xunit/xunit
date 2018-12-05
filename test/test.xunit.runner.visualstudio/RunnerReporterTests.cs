@@ -39,9 +39,9 @@ public class RunnerReporterTests
     {
         var settings = new RunSettings { NoAutoReporters = true };
 
-        var runnerReporter = VsTestRunner.GetRunnerReporter(null, settings, new[] { Assembly.GetExecutingAssembly().Location });
+        var runnerReporters = VsTestRunner.GetRunnerReporters(null, settings, new[] { Assembly.GetExecutingAssembly().Location });
 
-        Assert.Equal(typeof(DefaultRunnerReporterWithTypes).AssemblyQualifiedName, runnerReporter.GetType().AssemblyQualifiedName);
+        Assert.Equal(typeof(DefaultRunnerReporterWithTypes).AssemblyQualifiedName, runnerReporters[0].GetType().AssemblyQualifiedName);
     }
 
     [Fact]
@@ -49,12 +49,12 @@ public class RunnerReporterTests
     {
         var settings = new RunSettings { NoAutoReporters = false };
 
-        var runnerReporter = VsTestRunner.GetRunnerReporter(null, settings, new[] { Assembly.GetExecutingAssembly().Location });
+        var runnerReporters = VsTestRunner.GetRunnerReporters(null, settings, new[] { Assembly.GetExecutingAssembly().Location });
 
         // We just make sure _an_ auto-reporter was chosen, but we can't rely on which one because this code
         // wil run when we're in CI, and therefore will choose the CI reporter sometimes. It's good enough
         // that we've provide an option above so that the default never gets chosen.
-        Assert.NotEqual(typeof(DefaultRunnerReporterWithTypes).AssemblyQualifiedName, runnerReporter.GetType().AssemblyQualifiedName);
+        Assert.NotEqual(typeof(DefaultRunnerReporterWithTypes).AssemblyQualifiedName, runnerReporters[0].GetType().AssemblyQualifiedName);
     }
 
     [Fact]
@@ -62,9 +62,9 @@ public class RunnerReporterTests
     {
         var settings = new RunSettings { NoAutoReporters = true, ReporterSwitch = "notautoenabled" };
 
-        var runnerReporter = VsTestRunner.GetRunnerReporter(null, settings, new[] { Assembly.GetExecutingAssembly().Location });
+        var runnerReporters = VsTestRunner.GetRunnerReporters(null, settings, new[] { Assembly.GetExecutingAssembly().Location });
 
-        Assert.Equal(typeof(TestRunnerReporterNotEnabled).AssemblyQualifiedName, runnerReporter.GetType().AssemblyQualifiedName);
+        Assert.Equal(typeof(TestRunnerReporterNotEnabled).AssemblyQualifiedName, runnerReporters[0].GetType().AssemblyQualifiedName);
     }
 
     [Fact]
@@ -74,9 +74,9 @@ public class RunnerReporterTests
         var logger = Substitute.For<IMessageLogger>();
         var loggerHelper = new LoggerHelper(logger, new Stopwatch());
 
-        var runnerReporter = VsTestRunner.GetRunnerReporter(loggerHelper, settings, new[] { Assembly.GetExecutingAssembly().Location });
+        var runnerReporters = VsTestRunner.GetRunnerReporters(loggerHelper, settings, new[] { Assembly.GetExecutingAssembly().Location });
 
-        Assert.Equal(typeof(DefaultRunnerReporterWithTypes).AssemblyQualifiedName, runnerReporter.GetType().AssemblyQualifiedName);
+        Assert.Equal(typeof(DefaultRunnerReporterWithTypes).AssemblyQualifiedName, runnerReporters[0].GetType().AssemblyQualifiedName);
         logger.Received(1).SendMessage(TestMessageLevel.Warning, "[xUnit.net 00:00:00.00] Could not find requested reporter 'thisnotavalidreporter'");
     }
 

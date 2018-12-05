@@ -15,18 +15,18 @@ namespace Xunit.Runner.VisualStudio
         readonly Func<bool> cancelledThunk;
         readonly ITestFrameworkExecutionOptions executionOptions;
         readonly LoggerHelper logger;
-        readonly IMessageSinkWithTypes innerSink;
+        readonly IEnumerable<IMessageSinkWithTypes> innerSinks;
         readonly ITestExecutionRecorder recorder;
         readonly Dictionary<string, TestCase> testCasesMap;
 
-        public VsExecutionSink(IMessageSinkWithTypes innerSink,
+        public VsExecutionSink(IEnumerable<IMessageSinkWithTypes> innerSinks,
                                ITestExecutionRecorder recorder,
                                LoggerHelper logger,
                                Dictionary<string, TestCase> testCasesMap,
                                ITestFrameworkExecutionOptions executionOptions,
                                Func<bool> cancelledThunk)
         {
-            this.innerSink = innerSink;
+            this.innerSinks = innerSinks;
             this.recorder = recorder;
             this.logger = logger;
             this.testCasesMap = testCasesMap;
@@ -299,7 +299,8 @@ namespace Xunit.Runner.VisualStudio
 
         public override bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
         {
-            var result = innerSink.OnMessageWithTypes(message, messageTypes);
+            var result = true;
+            innerSinks.ForEach(s => result = result && s.OnMessageWithTypes(message, messageTypes));
             return base.OnMessageWithTypes(message, messageTypes) && result;
         }
     }

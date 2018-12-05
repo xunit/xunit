@@ -266,7 +266,7 @@ namespace Xunit.Runner.VisualStudio
 
             try
             {
-                var reporterMessageHandler = GetRunnerReporter(logger, runSettings, new[] { assemblyFileName }).CreateMessageHandler(new VisualStudioRunnerLogger(logger));
+                var reporterMessageHandlers = GetRunnerReporters(logger, runSettings, new[] { assemblyFileName }).Select(r => r.CreateMessageHandler(new VisualStudioRunnerLogger(logger)));
                 var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFileName };
                 fileName = Path.GetFileNameWithoutExtension(assemblyFileName);
 
@@ -293,7 +293,7 @@ namespace Xunit.Runner.VisualStudio
                         {
                             var totalTests = 0;
                             var usingAppDomains = framework.CanUseAppDomains && AppDomainDefaultBehavior != AppDomainSupport.Denied;
-                            reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, usingAppDomains, shadowCopy, discoveryOptions));
+                            reporterMessageHandlers.ForEach(r => r.OnMessage(new TestAssemblyDiscoveryStarting(assembly, usingAppDomains, shadowCopy, discoveryOptions)));
 
                             try
                             {
@@ -305,7 +305,7 @@ namespace Xunit.Runner.VisualStudio
                             }
                             finally
                             {
-                                reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, totalTests, totalTests));
+                                reporterMessageHandlers.ForEach(r => r.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, totalTests, totalTests)));
                             }
                         }
                     }
@@ -436,20 +436,21 @@ namespace Xunit.Runner.VisualStudio
 
                 var runInfos = getRunInfos();
                 var parallelizeAssemblies = !runSettings.DisableParallelization && runInfos.All(runInfo => runInfo.Configuration.ParallelizeAssemblyOrDefault);
-                var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(GetRunnerReporter(logger, runSettings, runInfos.Select(ari => ari.AssemblyFileName))
-                                                                        .CreateMessageHandler(new VisualStudioRunnerLogger(logger)));
+
+                var reporterMessageHandlers = GetRunnerReporters(logger, runSettings, runInfos.Select(ari => ari.AssemblyFileName)).Select(r => MessageSinkWithTypesAdapter.Wrap(r.CreateMessageHandler(new VisualStudioRunnerLogger(logger))));
+
                 var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(logger, runSettings.InternalDiagnostics);
 
                 using (AssemblyHelper.SubscribeResolveForAssembly(typeof(VsTestRunner), MessageSinkAdapter.Wrap(internalDiagnosticsMessageSink)))
                 {
                     if (parallelizeAssemblies)
                         runInfos
-                            .Select(runInfo => RunTestsInAssemblyAsync(runContext, frameworkHandle, logger, testPlatformContext, runSettings, reporterMessageHandler, runInfo))
+                            .Select(runInfo => RunTestsInAssemblyAsync(runContext, frameworkHandle, logger, testPlatformContext, runSettings, reporterMessageHandlers, runInfo))
                             .ToList()
                             .ForEach(@event => @event.WaitOne());
                     else
                         runInfos
-                            .ForEach(runInfo => RunTestsInAssembly(runContext, frameworkHandle, logger, testPlatformContext, runSettings, reporterMessageHandler, runInfo));
+                            .ForEach(runInfo => RunTestsInAssembly(runContext, frameworkHandle, logger, testPlatformContext, runSettings, reporterMessageHandlers, runInfo));
                 }
             }
             catch (Exception ex)
@@ -463,7 +464,7 @@ namespace Xunit.Runner.VisualStudio
                                 LoggerHelper logger,
                                 TestPlatformContext testPlatformContext,
                                 RunSettings runSettings,
-                                IMessageSinkWithTypes reporterMessageHandler,
+                                IEnumerable<IMessageSinkWithTypes> reporterMessageHandlers,
                                 AssemblyRunInfo runInfo)
         {
             if (cancelled)
@@ -603,9 +604,9 @@ namespace Xunit.Runner.VisualStudio
                         executionOptions.SetDisableParallelization(true);
                     }
 
-                    reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
+                    reporterMessageHandlers.ForEach(r => r.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions)));
 
-                    using (var vsExecutionSink = new VsExecutionSink(reporterMessageHandler, frameworkHandle, logger, testCasesMap, executionOptions, () => cancelled))
+                    using (var vsExecutionSink = new VsExecutionSink(reporterMessageHandlers, frameworkHandle, logger, testCasesMap, executionOptions, () => cancelled))
                     {
                         IExecutionSink resultsSink = vsExecutionSink;
                         if (longRunningSeconds > 0)
@@ -614,7 +615,7 @@ namespace Xunit.Runner.VisualStudio
                         controller.RunTests(testCases, resultsSink, executionOptions);
                         resultsSink.Finished.WaitOne();
 
-                        reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
+                        reporterMessageHandlers.ForEach(r => r.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary)));
                     }
                 }
             }
@@ -629,7 +630,7 @@ namespace Xunit.Runner.VisualStudio
                                                  LoggerHelper logger,
                                                  TestPlatformContext testPlatformContext,
                                                  RunSettings runSettings,
-                                                 IMessageSinkWithTypes reporterMessageHandler,
+                                                 IEnumerable<IMessageSinkWithTypes> reporterMessageHandlers,
                                                  AssemblyRunInfo runInfo)
         {
             var @event = new ManualResetEvent(initialState: false);
@@ -637,7 +638,7 @@ namespace Xunit.Runner.VisualStudio
             {
                 try
                 {
-                    RunTestsInAssembly(runContext, frameworkHandle, logger, testPlatformContext, runSettings, reporterMessageHandler, runInfo);
+                    RunTestsInAssembly(runContext, frameworkHandle, logger, testPlatformContext, runSettings, reporterMessageHandlers, runInfo);
                 }
                 finally
                 {
@@ -654,26 +655,30 @@ namespace Xunit.Runner.VisualStudio
             return @event;
         }
 
-        public static IRunnerReporter GetRunnerReporter(LoggerHelper logger, RunSettings runSettings, IEnumerable<string> assemblyFileNames)
+        public static IReadOnlyList<IRunnerReporter> GetRunnerReporters(LoggerHelper logger, RunSettings runSettings, IEnumerable<string> assemblyFileNames)
         {
-            var reporter = default(IRunnerReporter);
+            var reporters = new List<IRunnerReporter> { };
             var availableReporters = new Lazy<IReadOnlyList<IRunnerReporter>>(() => GetAvailableRunnerReporters(assemblyFileNames));
 
             try
             {
                 if (!string.IsNullOrEmpty(runSettings.ReporterSwitch))
                 {
-                    reporter = availableReporters.Value.FirstOrDefault(r => string.Equals(r.RunnerSwitch, runSettings.ReporterSwitch, StringComparison.OrdinalIgnoreCase));
+                    var reporter = availableReporters.Value.FirstOrDefault(r => string.Equals(r.RunnerSwitch, runSettings.ReporterSwitch, StringComparison.OrdinalIgnoreCase));
                     if (reporter is null)
                         logger.LogWarning("Could not find requested reporter '{0}'", runSettings.ReporterSwitch);
+                    else
+                        reporters.Add(reporter);
                 }
-
-                if (reporter is null && !runSettings.NoAutoReporters)
-                    reporter = availableReporters.Value.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
+                else if (!runSettings.NoAutoReporters)
+                    reporters.AddRange(availableReporters.Value.Where(r => r.IsEnvironmentallyEnabled));
             }
             catch { }
 
-            return reporter ?? new DefaultRunnerReporterWithTypes();
+            if (reporters.Count == 0)
+                reporters.Add(new DefaultRunnerReporterWithTypes());
+
+            return reporters;
         }
 
         static IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters(IEnumerable<string> sources)
