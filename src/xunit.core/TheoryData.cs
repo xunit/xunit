@@ -40,12 +40,38 @@ namespace Xunit
     public class TheoryData<T> : TheoryData
     {
         /// <summary>
+        /// Creates a new theory data set.
+        /// </summary>
+        public TheoryData()
+        {
+        }
+
+        /// <summary>
+        /// Creates a new theory data set and adds an enumerable of data rows to it.
+        /// </summary>
+        /// <param name="ps">The enumerable of data rows.</param>
+        public TheoryData(IEnumerable<T> ps)
+        {
+            AddRange(ps);
+        }
+
+        /// <summary>
         /// Adds data to the theory data set.
         /// </summary>
         /// <param name="p">The data value.</param>
         public void Add(T p)
         {
             AddRow(p);
+        }
+
+        /// <summary>
+        /// Adds an enumerable of data rows to the theory data set.
+        /// </summary>
+        /// <param name="ps">The enumerable of data rows.</param>
+        public void AddRange(IEnumerable<T> ps)
+        {
+            foreach (var p in ps) 
+                Add(p);
         }
     }
 
