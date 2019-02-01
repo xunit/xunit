@@ -243,7 +243,7 @@ namespace Xunit.Runner.MSBuild
                     CrossPlatform.Transform(logger, "NUnit", "NUnitXml.xslt", assembliesElement, NUnit);
 
                 if (JUnit != null)
-                    CrossPlatform.Transform(logger, "JUnit", "JUnitXml.xslt", assembliesElement, NUnit);
+                    CrossPlatform.Transform(logger, "JUnit", "JUnitXml.xslt", assembliesElement, JUnit);
             }
 
             // ExitCode is set to 1 for test failures and -1 for Exceptions.
