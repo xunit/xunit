@@ -155,8 +155,7 @@ public class EqualExceptionTests
             new {Name = "John", IsFailure = false}
         };
 
-        var ex = Record.Exception(() =>
-            Assert.Equal(enumerableX, enumerableY));
+        var ex = Record.Exception(() => Assert.Equal(enumerableX, enumerableY));
 
         Assert.Equal(expectedMessage, ex.Message);
     }
@@ -183,8 +182,7 @@ public class EqualExceptionTests
             new {Name = "John", LastName = "Doe", Company = "ACME", Address = "123 Main Street, Unit 21", IsFailure = true}
         };
 
-        var ex = Record.Exception(() =>
-            Assert.Equal(enumerableX, enumerableY));
+        var ex = Record.Exception(() => Assert.Equal(enumerableX, enumerableY));
 
         Assert.Equal(expectedMessage, ex.Message);
     }
