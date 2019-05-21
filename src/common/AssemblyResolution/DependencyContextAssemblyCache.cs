@@ -167,9 +167,13 @@ namespace Xunit
                     if (internalDiagnosticsMessageSink != null)
                     {
                         if (result == null)
+                        {
                             internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolution for '{assemblyName}' failed, passed down to next resolver"));
+                        }
                         else
+                        {
                             internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolved '{assemblyName}' to '{resolvedAssemblyPath}'"));
+                        }
                     }
                 }
 
@@ -195,8 +199,11 @@ namespace Xunit
                     result = unmanagedAssemblyLoader(resolvedAssemblyPath);
 
                 if (needDiagnostics && internalDiagnosticsMessageSink != null)
+                {
                     if (result != default)
+                    {
                         internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolved '{unmanagedLibraryName}' to '{resolvedAssemblyPath}'"));
+                    }
                     else
                     {
                         if (resolvedAssemblyPath != null)
@@ -204,6 +211,7 @@ namespace Xunit
 
                         internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolution for '{unmanagedLibraryName}' failed, passed down to next resolver"));
                     }
+                }
 
                 return result;
             }
