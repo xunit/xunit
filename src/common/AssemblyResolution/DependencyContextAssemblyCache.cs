@@ -155,23 +155,26 @@ namespace Xunit
 
         public Assembly LoadManagedDll(string assemblyName, Func<string, Assembly> managedAssemblyLoader)
         {
-            if (!managedAssemblyCache.TryGetValue(assemblyName, out var result))
+            lock (managedAssemblyCache)
             {
-                var tupleResult = ResolveManagedAssembly(assemblyName, managedAssemblyLoader);
-                var resolvedAssemblyPath = tupleResult.Item1;
-                result = tupleResult.Item2;
-                managedAssemblyCache[assemblyName] = result;
-
-                if (internalDiagnosticsMessageSink != null)
+                if (!managedAssemblyCache.TryGetValue(assemblyName, out var result))
                 {
-                    if (result == null)
-                        internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolution for '{assemblyName}' failed, passed down to next resolver"));
-                    else
-                        internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolved '{assemblyName}' to '{resolvedAssemblyPath}'"));
-                }
-            }
+                    var tupleResult = ResolveManagedAssembly(assemblyName, managedAssemblyLoader);
+                    var resolvedAssemblyPath = tupleResult.Item1;
+                    result = tupleResult.Item2;
+                    managedAssemblyCache[assemblyName] = result;
 
-            return result;
+                    if (internalDiagnosticsMessageSink != null)
+                    {
+                        if (result == null)
+                            internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolution for '{assemblyName}' failed, passed down to next resolver"));
+                        else
+                            internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadManagedDll] Resolved '{assemblyName}' to '{resolvedAssemblyPath}'"));
+                    }
+                }
+
+                return result;
+            }
         }
 
         public IntPtr LoadUnmanagedLibrary(string unmanagedLibraryName, Func<string, IntPtr> unmanagedAssemblyLoader)
@@ -179,28 +182,31 @@ namespace Xunit
             var result = default(IntPtr);
             var needDiagnostics = false;
 
-            if (!unmanagedAssemblyCache.TryGetValue(unmanagedLibraryName, out var resolvedAssemblyPath))
+            lock (unmanagedAssemblyCache)
             {
-                resolvedAssemblyPath = ResolveUnmanagedLibrary(unmanagedLibraryName);
-                unmanagedAssemblyCache[unmanagedLibraryName] = resolvedAssemblyPath;
-                needDiagnostics = true;
-            }
-
-            if (resolvedAssemblyPath != null)
-                result = unmanagedAssemblyLoader(resolvedAssemblyPath);
-
-            if (needDiagnostics && internalDiagnosticsMessageSink != null)
-                if (result != default)
-                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolved '{unmanagedLibraryName}' to '{resolvedAssemblyPath}'"));
-                else
+                if (!unmanagedAssemblyCache.TryGetValue(unmanagedLibraryName, out var resolvedAssemblyPath))
                 {
-                    if (resolvedAssemblyPath != null)
-                        internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolving '{unmanagedLibraryName}', found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
-
-                    internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolution for '{unmanagedLibraryName}' failed, passed down to next resolver"));
+                    resolvedAssemblyPath = ResolveUnmanagedLibrary(unmanagedLibraryName);
+                    unmanagedAssemblyCache[unmanagedLibraryName] = resolvedAssemblyPath;
+                    needDiagnostics = true;
                 }
 
-            return result;
+                if (resolvedAssemblyPath != null)
+                    result = unmanagedAssemblyLoader(resolvedAssemblyPath);
+
+                if (needDiagnostics && internalDiagnosticsMessageSink != null)
+                    if (result != default)
+                        internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolved '{unmanagedLibraryName}' to '{resolvedAssemblyPath}'"));
+                    else
+                    {
+                        if (resolvedAssemblyPath != null)
+                            internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolving '{unmanagedLibraryName}', found assembly path '{resolvedAssemblyPath}' but the assembly would not load"));
+
+                        internalDiagnosticsMessageSink.OnMessage(new _DiagnosticMessage($"[DependencyContextAssemblyCache.LoadUnmanagedLibrary] Resolution for '{unmanagedLibraryName}' failed, passed down to next resolver"));
+                    }
+
+                return result;
+            }
         }
 
         Tuple<string, Assembly> ResolveManagedAssembly(string assemblyName, Func<string, Assembly> managedAssemblyLoader)
