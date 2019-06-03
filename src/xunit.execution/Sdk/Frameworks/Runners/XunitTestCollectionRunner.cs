@@ -104,20 +104,22 @@ namespace Xunit.Sdk
             }
         }
 
-        async Task CreateCollectionFixturesAsync()
+        Task CreateCollectionFixturesAsync()
         {
-            if (TestCollection.CollectionDefinition != null)
+            if (TestCollection.CollectionDefinition == null)
             {
-                var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
-                foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
-                {
-                    var fixtureType = interfaceType.GenericTypeArguments.Single();
-                    CreateCollectionFixture(fixtureType);
-                }
-
-                var initializeAsyncTasks = CollectionFixtureMappings.Values.OfType<IAsyncLifetime>().Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync)).ToList();
-                await Task.WhenAll(initializeAsyncTasks);
+                return Task.FromResult(0);
             }
+
+            var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
+            foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
+            {
+                var fixtureType = interfaceType.GenericTypeArguments.Single();
+                CreateCollectionFixture(fixtureType);
+            }
+
+            var initializeAsyncTasks = CollectionFixtureMappings.Values.OfType<IAsyncLifetime>().Select(fixture => Aggregator.RunAsync(fixture.InitializeAsync)).ToList();
+            return Task.WhenAll(initializeAsyncTasks);
         }
 
         /// <summary>
