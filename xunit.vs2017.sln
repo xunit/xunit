@@ -37,7 +37,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "v1", "v1", "{C86F3A8E-8D96-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{52472A94-ACC4-4C12-B9AA-0B6B12E12A48}"
 	ProjectSection(SolutionItems) = preProject
-		src\dotnet-xunit.nuspec = src\dotnet-xunit.nuspec
 		NuGet.Config = NuGet.Config
 		src\xunit.assert.nuspec = src\xunit.assert.nuspec
 		src\xunit.assert.source.nuspec = src\xunit.assert.source.nuspec
