@@ -39,8 +39,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public override void Dispose()
         {
-            var disposable = syncContext as IDisposable;
-            if (disposable != null)
+            if (syncContext is IDisposable disposable)
                 disposable.Dispose();
         }
 

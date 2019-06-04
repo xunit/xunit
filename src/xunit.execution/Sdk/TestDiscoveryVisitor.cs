@@ -26,8 +26,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public bool OnMessage(IMessageSinkMessage message)
         {
-            var discoveryMessage = message as ITestCaseDiscoveryMessage;
-            if (discoveryMessage != null)
+            if (message is ITestCaseDiscoveryMessage discoveryMessage)
                 TestCases.Add(discoveryMessage.TestCase);
 
             if (message is IDiscoveryCompleteMessage)

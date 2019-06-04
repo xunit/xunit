@@ -39,8 +39,7 @@ namespace Xunit.Sdk
 
                 // Collections are recursively IEnumerable<CustomAttributeTypedArgument> rather than
                 // being the exact matching type, so the inner values must be converted.
-                var valueAsEnumerable = value as IEnumerable<CustomAttributeTypedArgument>;
-                if (valueAsEnumerable != null)
+                if (value is IEnumerable<CustomAttributeTypedArgument> valueAsEnumerable)
                     value = Convert(valueAsEnumerable).ToArray();
                 else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsEnum)
                     value = Enum.Parse(argument.ArgumentType, value.ToString());
@@ -161,9 +160,7 @@ namespace Xunit.Sdk
 
         object GetTypedValue(CustomAttributeTypedArgument arg)
         {
-            var collect = arg.Value as IReadOnlyCollection<CustomAttributeTypedArgument>;
-
-            if (collect == null)
+            if (!(arg.Value is IReadOnlyCollection<CustomAttributeTypedArgument> collect))
                 return arg.Value;
 
             var argType = arg.ArgumentType.GetElementType();

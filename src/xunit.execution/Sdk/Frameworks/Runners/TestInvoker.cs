@@ -160,8 +160,7 @@ namespace Xunit.Sdk
             if (obj == null)
                 return null;
 
-            var task = obj as Task;
-            if (task != null)
+            if (obj is Task task)
                 return task;
 
             var type = obj.GetType();

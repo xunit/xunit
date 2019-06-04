@@ -66,8 +66,7 @@ public static class ReflectionAbstractionExtensions
                                         ExecutionTimer timer,
                                         CancellationTokenSource cancellationTokenSource)
     {
-        var disposable = testClass as IDisposable;
-        if (disposable == null)
+        if (!(testClass is IDisposable disposable))
             return;
 
         if (!messageBus.QueueMessage(new TestClassDisposeStarting(test)))
@@ -166,8 +165,7 @@ public static class ReflectionAbstractionExtensions
     /// <returns>The runtime method, if available; <c>null</c>, otherwise</returns>
     public static MethodInfo ToRuntimeMethod(this IMethodInfo methodInfo)
     {
-        var reflectionMethodInfo = methodInfo as IReflectionMethodInfo;
-        if (reflectionMethodInfo != null)
+        if (methodInfo is IReflectionMethodInfo reflectionMethodInfo)
             return reflectionMethodInfo.MethodInfo;
 
         return methodInfo.Type.ToRuntimeType().GetMethodInfoFromIMethodInfo(methodInfo);
@@ -181,8 +179,7 @@ public static class ReflectionAbstractionExtensions
     /// <returns>The runtime type, if available, <c>null</c>, otherwise</returns>
     public static Type ToRuntimeType(this ITypeInfo typeInfo)
     {
-        var reflectionTypeInfo = typeInfo as IReflectionTypeInfo;
-        if (reflectionTypeInfo != null)
+        if (typeInfo is IReflectionTypeInfo reflectionTypeInfo)
             return reflectionTypeInfo.Type;
 
         return SerializationHelper.GetType(typeInfo.Assembly.Name, typeInfo.Name);

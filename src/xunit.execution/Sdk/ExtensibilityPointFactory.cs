@@ -37,8 +37,7 @@ namespace Xunit.Sdk
                 }
             }
 
-            var disposable = result as IDisposable;
-            if (disposable != null)
+            if (result is IDisposable disposable)
                 disposalTracker.Add(disposable);
 
             return result;

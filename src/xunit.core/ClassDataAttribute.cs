@@ -30,8 +30,7 @@ namespace Xunit
         /// <inheritdoc/>
         public override IEnumerable<object[]> GetData(MethodInfo testMethod)
         {
-            IEnumerable<object[]> data = Activator.CreateInstance(Class) as IEnumerable<object[]>;
-            if (data == null)
+            if (!(Activator.CreateInstance(Class) is IEnumerable<object[]> data))
                 throw new ArgumentException($"{Class.FullName} must implement IEnumerable<object[]> to be used as ClassData for the test method named '{testMethod.Name}' on {testMethod.DeclaringType.FullName}");
 
             return data;

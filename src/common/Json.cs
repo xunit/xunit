@@ -752,8 +752,7 @@ namespace Xunit
 
         public int ValueAsInt(string key)
         {
-            var number = Value(key) as JsonNumber;
-            if (number == null)
+            if (!(Value(key) is JsonNumber number))
             {
                 throw new FormatException();
             }
@@ -762,8 +761,7 @@ namespace Xunit
 
         public bool ValueAsBoolean(string key, bool defaultValue = false)
         {
-            var boolVal = Value(key) as JsonBoolean;
-            if (boolVal != null)
+            if (Value(key) is JsonBoolean boolVal)
             {
                 return boolVal.Value;
             }
@@ -773,8 +771,7 @@ namespace Xunit
 
         public bool? ValueAsNullableBoolean(string key)
         {
-            var boolVal = Value(key) as JsonBoolean;
-            if (boolVal != null)
+            if (Value(key) is JsonBoolean boolVal)
             {
                 return boolVal.Value;
             }
@@ -784,8 +781,7 @@ namespace Xunit
 
         public string[] ValueAsStringArray(string key)
         {
-            var list = Value(key) as JsonArray;
-            if (list == null)
+            if (!(Value(key) is JsonArray list))
             {
                 return null;
             }
