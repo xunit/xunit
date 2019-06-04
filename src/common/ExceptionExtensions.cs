@@ -37,8 +37,7 @@ static class ExceptionExtensions
     {
         while (true)
         {
-            var tiex = ex as TargetInvocationException;
-            if (tiex == null)
+            if (!(ex is TargetInvocationException tiex))
                 return ex;
 
             ex = tiex.InnerException;

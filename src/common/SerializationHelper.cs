@@ -38,8 +38,7 @@ namespace Xunit.Sdk
                 throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(serializedValue));
 
             var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
-            var arraySerializer = obj as XunitSerializationInfo.ArraySerializer;
-            if (arraySerializer != null)
+            if (obj is XunitSerializationInfo.ArraySerializer arraySerializer)
                 obj = arraySerializer.ArrayData;
 
             return (T)obj;
@@ -55,12 +54,10 @@ namespace Xunit.Sdk
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var array = value as object[];
-            if (array != null)
+            if (value is object[] array)
                 value = new XunitSerializationInfo.ArraySerializer(array);
 
-            var serializable = value as IXunitSerializable;
-            if (serializable == null)
+            if (!(value is IXunitSerializable serializable))
                 throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(value));
 
             var serializationInfo = new XunitSerializationInfo(serializable);

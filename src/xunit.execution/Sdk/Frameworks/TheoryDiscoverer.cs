@@ -149,9 +149,7 @@ namespace Xunit.Sdk
                         }
                         catch (InvalidCastException)
                         {
-                            var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
-
-                            if (reflectionAttribute != null)
+                            if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
                                 results.Add(
                                     new ExecutionErrorTestCase(
                                         DiagnosticMessageSink,
@@ -177,9 +175,7 @@ namespace Xunit.Sdk
 
                         if (discoverer == null)
                         {
-                            var reflectionAttribute = dataAttribute as IReflectionAttributeInfo;
-
-                            if (reflectionAttribute != null)
+                            if (dataAttribute is IReflectionAttributeInfo reflectionAttribute)
                                 results.Add(
                                     new ExecutionErrorTestCase(
                                         DiagnosticMessageSink,

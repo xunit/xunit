@@ -224,8 +224,7 @@ namespace Xunit.Serialization
             if (value == null)
                 return null;
 
-            var serializable = value as IXunitSerializable;
-            if (serializable != null)
+            if (value is IXunitSerializable serializable)
             {
                 var info = new XunitSerializationInfo();
                 serializable.Serialize(info);
@@ -236,8 +235,7 @@ namespace Xunit.Serialization
             if (charData != null)
                 return ((ushort)charData.GetValueOrDefault()).ToString(CultureInfo.InvariantCulture);
 
-            var stringData = value as string;
-            if (stringData != null)
+            if (value is string stringData)
                 return ToBase64(stringData);
 
             var byteData = value as byte?;
@@ -318,8 +316,7 @@ namespace Xunit.Serialization
                 return value.ToString();
             }
 
-            var arrayData = value as Array;
-            if (arrayData != null)
+            if (value is Array arrayData)
             {
                 var info = new XunitSerializationInfo();
                 var arraySer = new ArraySerializer(arrayData);
@@ -359,8 +356,7 @@ namespace Xunit.Serialization
 
             if (valueType.IsArray)
             {
-                var vector = value as object[];
-                if (vector != null)
+                if (value is object[] vector)
                 {
                     // Avoid enumerator allocation and bounds lookups that comes from enumerating a System.Array
                     foreach (object obj in vector)

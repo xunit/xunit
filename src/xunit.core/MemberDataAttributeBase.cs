@@ -67,8 +67,7 @@ namespace Xunit
             if (obj == null)
                 return null;
 
-            var dataItems = obj as IEnumerable;
-            if (dataItems == null)
+            if (!(obj is IEnumerable dataItems))
                 throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable");
 
             return dataItems.Cast<object>().Select(item => ConvertDataItem(testMethod, item));

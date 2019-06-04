@@ -53,8 +53,7 @@ namespace Internal.Microsoft.Extensions.DependencyModel
             //     "runtimes": {...}
             // }
 
-            var root = JsonDeserializer.Deserialize(reader) as JsonObject;
-            if (root == null)
+            if (!(JsonDeserializer.Deserialize(reader) is JsonObject root))
                 return null;
 
             var runtime = string.Empty;

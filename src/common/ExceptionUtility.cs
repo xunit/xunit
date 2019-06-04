@@ -176,8 +176,7 @@ namespace Xunit
             indices.Add(parentIndex);
 
 #if XUNIT_FRAMEWORK
-            var aggEx = ex as AggregateException;
-            if (aggEx != null)
+            if (ex is AggregateException aggEx)
                 foreach (var innerException in aggEx.InnerExceptions)
                     ConvertExceptionToFailureInformation(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
             else

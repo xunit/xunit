@@ -35,7 +35,7 @@ namespace Internal.Microsoft.Extensions.DependencyModel
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is Dependency && Equals((Dependency) obj);
+            return obj is Dependency dependency && Equals(dependency);
         }
 
         public override int GetHashCode()

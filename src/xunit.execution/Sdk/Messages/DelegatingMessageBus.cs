@@ -73,8 +73,7 @@ namespace Xunit.Sdk
         {
             var result = base.QueueMessage(message);
 
-            var finalMessage = message as TFinalMessage;
-            if (finalMessage != null)
+            if (message is TFinalMessage finalMessage)
             {
                 FinalMessage = finalMessage;
                 Finished.Set();
