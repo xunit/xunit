@@ -22,8 +22,7 @@ namespace Xunit
         protected static bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TMessage, bool> callback)
             where TMessage : class, IMessageSinkMessage
         {
-            var castMessage = message as TMessage;
-            if (castMessage != null)
+            if (message is TMessage castMessage)
                 return callback(castMessage);
 
             return true;
@@ -40,8 +39,7 @@ namespace Xunit
         bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TestMessageVisitor, TMessage, bool> callback)
             where TMessage : class, IMessageSinkMessage
         {
-            var castMessage = message as TMessage;
-            if (castMessage != null)
+            if (message is TMessage castMessage)
                 return callback(this, castMessage);
 
             return true;

@@ -122,8 +122,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
                 .Do(callInfo =>
                 {
                     var message = callInfo.Arg<IMessageSinkMessage>();
-                    var diagnosticMessage = message as IDiagnosticMessage;
-                    if (diagnosticMessage != null)
+                    if (message is IDiagnosticMessage diagnosticMessage)
                         events.Add(diagnosticMessage);
                 });
 
@@ -152,8 +151,7 @@ public class DelegatingLongRunningTestDetectionSinkTests
                 .Do(callInfo =>
                 {
                     var message = callInfo.Arg<IMessageSinkMessage>();
-                    var diagnosticMessage = message as IDiagnosticMessage;
-                    if (diagnosticMessage != null)
+                    if (message is IDiagnosticMessage diagnosticMessage)
                         events.Add(diagnosticMessage);
                 });
 

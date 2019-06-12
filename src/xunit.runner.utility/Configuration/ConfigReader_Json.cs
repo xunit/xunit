@@ -30,9 +30,8 @@ namespace Xunit
                     foreach (var propertyName in config.Keys)
                     {
                         var propertyValue = config.Value(propertyName);
-                        var booleanValue = propertyValue as JsonBoolean;
 
-                        if (booleanValue != null)
+                        if (propertyValue is JsonBoolean booleanValue)
                         {
                             if (string.Equals(propertyName, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
                                 result.DiagnosticMessages = booleanValue;
@@ -51,8 +50,7 @@ namespace Xunit
                         }
                         else if (string.Equals(propertyName, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
                         {
-                            var numberValue = propertyValue as JsonNumber;
-                            if (numberValue != null)
+                            if (propertyValue is JsonNumber numberValue)
                             {
                                 int maxParallelThreads;
                                 if (int.TryParse(numberValue.Raw, out maxParallelThreads) && maxParallelThreads >= -1)
@@ -61,8 +59,7 @@ namespace Xunit
                         }
                         else if (string.Equals(propertyName, Configuration.LongRunningTestSeconds, StringComparison.OrdinalIgnoreCase))
                         {
-                            var numberValue = propertyValue as JsonNumber;
-                            if (numberValue != null)
+                            if (propertyValue is JsonNumber numberValue)
                             {
                                 int seconds;
                                 if (int.TryParse(numberValue.Raw, out seconds) && seconds > 0)
@@ -71,8 +68,7 @@ namespace Xunit
                         }
                         else if (string.Equals(propertyName, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
                         {
-                            var stringValue = propertyValue as JsonString;
-                            if (stringValue != null)
+                            if (propertyValue is JsonString stringValue)
                             {
                                 try
                                 {
@@ -84,8 +80,7 @@ namespace Xunit
                         }
                         else if (string.Equals(propertyName, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
                         {
-                            var stringValue = propertyValue as JsonString;
-                            if (stringValue != null)
+                            if (propertyValue is JsonString stringValue)
                             {
                                 try
                                 {
@@ -97,8 +92,7 @@ namespace Xunit
                         }
                         else if (string.Equals(propertyName, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
                         {
-                            var stringValue = propertyValue as JsonString;
-                            if (stringValue != null)
+                            if (propertyValue is JsonString stringValue)
                             {
                                 try
                                 {

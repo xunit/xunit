@@ -231,81 +231,65 @@ namespace Xunit.Serialization
                 return info.ToSerializedString();
             }
 
-            var charData = value as char?;
-            if (charData != null)
-                return ((ushort)charData.GetValueOrDefault()).ToString(CultureInfo.InvariantCulture);
+            if (value is char charData)
+                return ((ushort)((char?) charData).GetValueOrDefault()).ToString(CultureInfo.InvariantCulture);
 
             if (value is string stringData)
                 return ToBase64(stringData);
 
-            var byteData = value as byte?;
-            if (byteData != null)
-                return byteData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            if (value is byte byteData)
+                return ((byte?) byteData).GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
-            var sbyteData = value as sbyte?;
-            if (sbyteData != null)
-                return sbyteData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            if (value is sbyte sbyteData)
+                return ((sbyte?) sbyteData).GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
-            var ushortData = value as ushort?;
-            if (ushortData != null)
-                return ushortData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            if (value is ushort ushortData)
+                return ((ushort?) ushortData).GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
-            var shortData = value as short?;
-            if (shortData != null)
-                return shortData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            if (value is short shortData)
+                return ((short?) shortData).GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
-            var uintData = value as uint?;
-            if (uintData != null)
-                return uintData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            if (value is uint uintData)
+                return ((uint?) uintData).GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
-            var intData = value as int?;
-            if (intData != null)
-                return intData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            if (value is int intData)
+                return ((int?) intData).GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
-            var ulongData = value as ulong?;
-            if (ulongData != null)
-                return ulongData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            if (value is ulong ulongData)
+                return ((ulong?) ulongData).GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
-            var longData = value as long?;
-            if (longData != null)
-                return longData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            if (value is long longData)
+                return ((long?) longData).GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
-            var floatData = value as float?;
-            if (floatData != null)
+            if (value is float floatData)
             {
                 var info = new XunitSerializationInfo();
-                var arraySer = new ArraySerializer(BitConverter.GetBytes(floatData.GetValueOrDefault()));
+                var arraySer = new ArraySerializer(BitConverter.GetBytes(((float?) floatData).GetValueOrDefault()));
                 arraySer.Serialize(info);
                 return info.ToSerializedString();
             }
 
-            var doubleData = value as double?;
-            if (doubleData != null)
+            if (value is double doubleData)
             {
                 var info = new XunitSerializationInfo();
-                var arraySer = new ArraySerializer(BitConverter.GetBytes(doubleData.GetValueOrDefault()));
+                var arraySer = new ArraySerializer(BitConverter.GetBytes(((double?) doubleData).GetValueOrDefault()));
                 arraySer.Serialize(info);
                 return info.ToSerializedString();
             }
 
-            var decimalData = value as decimal?;
-            if (decimalData != null)
-                return decimalData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+            if (value is decimal decimalData)
+                return ((decimal?) decimalData).GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
 
-            var booleanData = value as bool?;
-            if (booleanData != null)
-                return booleanData.GetValueOrDefault().ToString();
+            if (value is bool booleanData)
+                return ((bool?) booleanData).GetValueOrDefault().ToString();
 
-            var datetimeData = value as DateTime?;
-            if (datetimeData != null)
-                return datetimeData.GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
+            if (value is DateTime datetimeData)
+                return ((DateTime?) datetimeData).GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
 
-            var datetimeoffsetData = value as DateTimeOffset?;
-            if (datetimeoffsetData != null)
-                return datetimeoffsetData.GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
+            if (value is DateTimeOffset datetimeoffsetData)
+                return ((DateTimeOffset?) datetimeoffsetData).GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
 
-            var typeData = value as Type;
-            if (typeData != null)
+            if (value is Type typeData)
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
 
             var valueType = value.GetType();
@@ -454,7 +438,7 @@ namespace Xunit.Serialization
                 }
 
                 array = Array.CreateInstance(arrType, lengths, lowerBounds);
-                    
+
                 int[] indices = new int[rank];
                 for (int i = 0; i < indices.Length; i++)
                 {
