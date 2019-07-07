@@ -78,7 +78,7 @@ public class TestCaseBulkDeserializerTests
         Assert.Equal("TestCaseBulkDeserializerTests+TestClass.TheoryMethod(x: 42)", kvp.Value.DisplayName);
     }
 
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public static void DeserializedFactsAndTheoriesFromTheSameClassStillShareFixtures()
     {
         var code = @"

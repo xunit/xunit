@@ -9,9 +9,7 @@ namespace Xunit
     {
         static readonly string executionAssemblyNamePrefix = "xunit.execution.";
         static string platformSuffix = "__unknown__";
-#if NETSTANDARD1_1
-        static readonly string[] platformSuffixes = new[] { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
-#elif NETSTANDARD
+#if NETSTANDARD
         static readonly string[] platformSuffixes = new[] { "dotnet", "MonoAndroid", "iOS-Universal" };
 #endif
 

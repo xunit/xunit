@@ -1,8 +1,6 @@
 // This code was adapted from https://github.com/Microsoft/msbuild/blob/ab090d1255caa87e742cbdbc6d7fe904ecebd975/src/Build/Logging/BaseConsoleLogger.cs#L361-L401
 // Under the MIT license https://github.com/Microsoft/msbuild/blob/ab090d1255caa87e742cbdbc6d7fe904ecebd975/LICENSE
 
-#if !NETSTANDARD1_1
-
 using System;
 
 namespace Xunit
@@ -71,5 +69,3 @@ namespace Xunit
             => Console.ResetColor();
     }
 }
-
-#endif

@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssemblyName>xunit.runner.msbuild.net452</AssemblyName>
+    <AssemblyName>xunit.runner.msbuild.net472</AssemblyName>
     <RootNamespace>Xunit.Runner.MSBuild</RootNamespace>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,8 +23,17 @@
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <Reference Include="netstandard" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\xunit.runner.reporters\xunit.runner.reporters.csproj" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net472' ">
+    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2/1.0.0/lib/net472/</FrameworkPathOverride>
+    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
 
 </Project>

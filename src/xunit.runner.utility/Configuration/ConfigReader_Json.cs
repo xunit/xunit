@@ -1,10 +1,6 @@
 using System;
 using System.IO;
 
-#if NETSTANDARD1_1
-using System.Reflection;
-#endif
-
 namespace Xunit
 {
     /// <summary>
@@ -138,12 +134,9 @@ namespace Xunit
         {
             try
             {
-#if !NETSTANDARD1_1
-                if(!File.Exists(configFileName))
-                {
+                if (!File.Exists(configFileName))
                     return null;
-                }
-#endif
+
                 using (var stream = File_OpenRead(configFileName))
                     return Load(stream);
             }
@@ -152,32 +145,10 @@ namespace Xunit
             return null;
         }
 
-#if NETSTANDARD1_1
-        static Lazy<MethodInfo> fileOpenReadMethod = new Lazy<MethodInfo>(GetFileOpenReadMethod);
-
-        static MethodInfo GetFileOpenReadMethod()
-        {
-            var fileType = Type.GetType("System.IO.File");
-            if (fileType == null)
-                throw new InvalidOperationException("Could not load type: System.IO.File");
-
-            var fileOpenReadMethod = fileType.GetRuntimeMethod("OpenRead", new[] { typeof(string) });
-            if (fileOpenReadMethod == null)
-                throw new InvalidOperationException("Could not find method: System.IO.File.OpenRead");
-
-            return fileOpenReadMethod;
-        }
-
-        static Stream File_OpenRead(string path)
-        {
-            return (Stream)fileOpenReadMethod.Value.Invoke(null, new object[] { path });
-        }
-#else
         static Stream File_OpenRead(string path)
         {
             return File.OpenRead(path);
         }
-#endif
 
         static class Configuration
         {

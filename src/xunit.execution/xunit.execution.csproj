@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'net452' ">xunit.execution.desktop</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.1' ">xunit.execution.dotnet</AssemblyName>
+    <AssemblyName>xunit.execution.dotnet</AssemblyName>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit.Sdk</RootNamespace>
-    <TargetFrameworks>net452;netstandard1.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

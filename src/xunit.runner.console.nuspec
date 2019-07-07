@@ -17,36 +17,8 @@
   <files>
     <file src="xunit.console\build\xunit.runner.console.props" target="build\" />
 
-    <file src="xunit.console\bin\$Configuration$\net452\*.dll"               target="tools\net452\" />
-    <file src="xunit.console\bin\$Configuration$\net452\xunit.console.*"     target="tools\net452\" />
-    <file src="xunit.console\bin\$Configuration$_x86\net452\xunit.console.*" target="tools\net452\" />
-
-    <file src="xunit.console\bin\$Configuration$\net46\*.dll"                target="tools\net46\" />
-    <file src="xunit.console\bin\$Configuration$\net46\xunit.console.*"      target="tools\net46\" />
-    <file src="xunit.console\bin\$Configuration$_x86\net46\xunit.console.*"  target="tools\net46\" />
-
-    <file src="xunit.console\bin\$Configuration$\net461\*.dll"               target="tools\net461\" />
-    <file src="xunit.console\bin\$Configuration$\net461\xunit.console.*"     target="tools\net461\" />
-    <file src="xunit.console\bin\$Configuration$_x86\net461\xunit.console.*" target="tools\net461\" />
-
-    <file src="xunit.console\bin\$Configuration$\net462\*.dll"               target="tools\net462\" />
-    <file src="xunit.console\bin\$Configuration$\net462\xunit.console.*"     target="tools\net462\" />
-    <file src="xunit.console\bin\$Configuration$_x86\net462\xunit.console.*" target="tools\net462\" />
-
-    <file src="xunit.console\bin\$Configuration$\net47\*.dll"                target="tools\net47\" />
-    <file src="xunit.console\bin\$Configuration$\net47\xunit.console.*"      target="tools\net47\" />
-    <file src="xunit.console\bin\$Configuration$_x86\net47\xunit.console.*"  target="tools\net47\" />
-
-    <file src="xunit.console\bin\$Configuration$\net471\*.dll"               target="tools\net471\" />
-    <file src="xunit.console\bin\$Configuration$\net471\xunit.console.*"     target="tools\net471\" />
-    <file src="xunit.console\bin\$Configuration$_x86\net471\xunit.console.*" target="tools\net471\" />
-
     <file src="xunit.console\bin\$Configuration$\net472\*.dll"               target="tools\net472\" />
     <file src="xunit.console\bin\$Configuration$\net472\xunit.console.*"     target="tools\net472\" />
     <file src="xunit.console\bin\$Configuration$_x86\net472\xunit.console.*" target="tools\net472\" />
-
-    <file src="xunit.console\bin\$Configuration$\netcoreapp1.0\publish\*.*" target="tools\netcoreapp1.0\" />
-
-    <file src="xunit.console\bin\$Configuration$\netcoreapp2.0\publish\*.*" target="tools\netcoreapp2.0\" />
   </files>
 </package>

@@ -1,6 +1,4 @@
-﻿#if !NETSTANDARD1_1
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -88,5 +86,3 @@ namespace Xunit
         }
     }
 }
-
-#endif

@@ -1,5 +1,3 @@
-#if NETFRAMEWORK || NETCOREAPP || NETSTANDARD2_0
-
 using System;
 using System.IO;
 using System.Reflection;
@@ -45,5 +43,3 @@ static class AssemblyExtensions
         throw new ArgumentException($"Unknown directory separator '{directorySeparator}'; must be one of '/' or '\\'.", nameof(directorySeparator));
     }
 }
-
-#endif

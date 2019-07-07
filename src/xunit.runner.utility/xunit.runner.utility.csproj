@@ -1,16 +1,11 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'net35' ">xunit.runner.utility.net35</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'net452' ">xunit.runner.utility.net452</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.1' ">xunit.runner.utility.netstandard11</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard1.5' ">xunit.runner.utility.netstandard15</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">xunit.runner.utility.netcoreapp10</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'uap10.0' ">xunit.runner.utility.uwp10</AssemblyName>
-    <DefineConstants Condition=" '$(TargetFramework)' == 'uap10.0' ">$(DefineConstants);WINDOWS_UAP</DefineConstants>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.runner.utility.net472</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard2.0' ">xunit.runner.utility.netstandard20</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit</RootNamespace>
-    <TargetFrameworks>net35;net452;netstandard1.1;netstandard1.5;netcoreapp1.0;uap10.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,32 +31,22 @@
     <Compile Include="..\common\AssemblyResolution\AssemblyHelper_Desktop.cs" LinkBase="Common" />
     <Compile Include="..\common\AssemblyResolution\_DiagnosticMessage.cs" LinkBase="Common" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
+    <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard20.rd.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net35' OR '$(TargetFramework)' == 'net452' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+    <Reference Include="netstandard" Condition=" '$(OS)' != 'Windows_NT' " />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-    <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard11.rd.xml" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
-    <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard15.rd.xml" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
-    <EmbeddedResource Include="Resources\xunit.runner.utility.uwp10.rd.xml" />
-  </ItemGroup>
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net472' ">
+    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2/1.0.0/lib/net472/</FrameworkPathOverride>
+    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
 
 </Project>

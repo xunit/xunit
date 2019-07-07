@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PUSHED=0
+
+cleanup () {
+    if [[ $PUSHED == 1 ]]; then
+        popd >/dev/null
+        PUSHED=0
+    fi
+}
+
+trap cleanup EXIT ERR INT TERM
+
+if which dotnet > /dev/null; then
+    if which mono > /dev/null; then
+        pushd $( cd "$(dirname "$0")" ; pwd -P ) >/dev/null
+        PUSHED=1
+
+        dotnet run --project tools/builder --no-launch-profile -- "$@"
+    else
+        echo "error(1): Could not find 'mono'; please install Mono" 2>&1
+        exit 1
+    fi
+else
+    echo "error(1): Could not find 'dotnet'; please install the .NET Core SDK" 2>&1
+    exit 1
+fi

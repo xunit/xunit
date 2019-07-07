@@ -15,7 +15,9 @@ public class xunitTests
         [Fact, PreserveWorkingDirectory]
         public static void ChangesCurrentDirectoryWhenWorkingFolderIsNotNull()
         {
-            var tempFolder = Environment.GetEnvironmentVariable("TEMP");
+            var tempFolder = Environment.GetEnvironmentVariable("TEMP")
+                          ?? Environment.GetEnvironmentVariable("TMP")
+                          ?? "/tmp";
             tempFolder = Path.GetFullPath(tempFolder); // Ensure that the 8.3 path is not used
             var xunit = new Testable_xunit { WorkingFolder = tempFolder };
 

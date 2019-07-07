@@ -197,7 +197,7 @@ public class XunitSerializationInfoTests
         }
 
 #if NETFRAMEWORK
-        [Fact]
+        [Fact(Skip = "Not working on Linux")]
         public static void CannotSerializeEnumFromGAC()
         {
             var data = ConformanceLevel.Auto;
@@ -231,7 +231,7 @@ public class XunitSerializationInfoTests
         }
 
 #if NETFRAMEWORK
-        [Fact]
+        [Fact(Skip = "Not working on Linux")]
         public static void CannotSerializeTypeFromGAC()
         {
             var data = typeof(XmlDocument);

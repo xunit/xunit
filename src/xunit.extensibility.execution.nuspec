@@ -13,20 +13,12 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <group targetFramework="net452">
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="netstandard1.1">
-        <dependency id="NETStandard.Library" version="1.6.1" />
-        <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
-      </group>
+      <dependency id="NETStandard.Library" version="2.0.3" />
+      <dependency id="xunit.extensibility.core" version="[99.99.99-dev]" />
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.dll" target="lib\net452\" />
-    <file src="xunit.execution\bin\$Configuration$\net452\xunit.execution.desktop.xml" target="lib\net452\" />
-
-    <file src="xunit.execution\bin\$Configuration$\netstandard1.1\xunit.execution.dotnet.dll" target="lib\netstandard1.1\" />
-    <file src="xunit.execution\bin\$Configuration$\netstandard1.1\xunit.execution.dotnet.xml" target="lib\netstandard1.1\" />
+    <file src="xunit.execution\bin\$Configuration$\netstandard2.0\xunit.execution.dotnet.dll" target="lib\netstandard2.0\" />
+    <file src="xunit.execution\bin\$Configuration$\netstandard2.0\xunit.execution.dotnet.xml" target="lib\netstandard2.0\" />
   </files>
 </package>

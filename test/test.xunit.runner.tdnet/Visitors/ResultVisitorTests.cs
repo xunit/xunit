@@ -176,13 +176,13 @@ public class ResultVisitorTests
             listener.WhenAny(l => l.TestFinished(null))
                     .Do<TestResult>(result => testResult = result);
             var visitor = new ResultSink(listener, 42);
-            var message = Mocks.TestPassed(typeof(string), "Contains", "Display Name", executionTime: 123.45M);
+            var message = Mocks.TestPassed(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M);
 
             visitor.OnMessageWithTypes(message, null);
 
             Assert.NotNull(testResult);
-            Assert.Same(typeof(string), testResult.FixtureType);
-            Assert.Equal("Contains", testResult.Method.Name);
+            Assert.Same(typeof(object), testResult.FixtureType);
+            Assert.Equal(nameof(object.GetHashCode), testResult.Method.Name);
             Assert.Equal("Display Name", testResult.Name);
             Assert.Equal(TestState.Passed, testResult.State);
             Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
@@ -208,13 +208,13 @@ public class ResultVisitorTests
             listener.WhenAny(l => l.TestFinished(null))
                     .Do<TestResult>(result => testResult = result);
             var visitor = new ResultSink(listener, 42);
-            var message = Mocks.TestFailed(typeof(string), "Contains", "Display Name", executionTime: 123.45M, ex: ex);
+            var message = Mocks.TestFailed(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M, ex: ex);
 
             visitor.OnMessageWithTypes(message, null);
 
             Assert.NotNull(testResult);
-            Assert.Same(typeof(string), testResult.FixtureType);
-            Assert.Equal("Contains", testResult.Method.Name);
+            Assert.Same(typeof(object), testResult.FixtureType);
+            Assert.Equal(nameof(object.GetHashCode), testResult.Method.Name);
             Assert.Equal("Display Name", testResult.Name);
             Assert.Equal(TestState.Failed, testResult.State);
             Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);
@@ -231,13 +231,13 @@ public class ResultVisitorTests
             listener.WhenAny(l => l.TestFinished(null))
                     .Do<TestResult>(result => testResult = result);
             var visitor = new ResultSink(listener, 42);
-            var message = Mocks.TestSkipped(typeof(string), "Contains", "Display Name", executionTime: 123.45M, skipReason: "I forgot how to run");
+            var message = Mocks.TestSkipped(typeof(object), nameof(object.GetHashCode), "Display Name", executionTime: 123.45M, skipReason: "I forgot how to run");
 
             visitor.OnMessageWithTypes(message, null);
 
             Assert.NotNull(testResult);
-            Assert.Same(typeof(string), testResult.FixtureType);
-            Assert.Equal("Contains", testResult.Method.Name);
+            Assert.Same(typeof(object), testResult.FixtureType);
+            Assert.Equal(nameof(object.GetHashCode), testResult.Method.Name);
             Assert.Equal("Display Name", testResult.Name);
             Assert.Equal(TestState.Ignored, testResult.State);
             Assert.Equal(123.45, testResult.TimeSpan.TotalMilliseconds);

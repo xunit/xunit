@@ -13,7 +13,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
 {
     readonly ITestFrameworkDiscoveryOptions discoveryOptions = TestFrameworkOptions.ForDiscovery();
 
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void NoDataAttributes()
     {
         var failures = Run<ITestFailed>(typeof(NoDataAttributesClass));
@@ -29,7 +29,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void TheoryMethod(int x) { }
     }
 
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void NullMemberData_ThrowsInvalidOperationException()
     {
         var results = Run<ITestFailed>(typeof(NullDataClass));
@@ -56,7 +56,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void NullMemberData(string str1, string str2) { }
     }
 
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void EmptyTheoryData()
     {
         var failures = Run<ITestFailed>(typeof(EmptyTheoryDataClass));
@@ -225,7 +225,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void TheoryMethod(object a) { }
     }
 
-    [Fact]
+    [Fact(Skip = "Not working on Linux")]
     public void TheoryWithNonSerializableEnumYieldsSingleTheoryTestCase()
     {
         var discoverer = TestableTheoryDiscoverer.Create();
@@ -247,7 +247,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void TheTest(object x) { }
     }
 
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
     {
         var results = Run<ITestFailed>(typeof(NoSuchDataDiscovererClass));
@@ -273,7 +273,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         }
     }
 
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void NotADataDiscoverer_ThrowsInvalidOperationException()
     {
         var results = Run<ITestFailed>(typeof(NotADataDiscovererClass));
@@ -349,7 +349,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public static void TheoryMethod(int x) { }
     }
 
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void SkippedTheoryWithNoData()
     {
         var skips = Run<ITestSkipped>(typeof(SkippedWithNoData));
@@ -365,7 +365,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void TestMethod(int value) { }
     }
 
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void SkippedTheoryWithData()
     {
         var skips = Run<ITestSkipped>(typeof(SkippedWithData));

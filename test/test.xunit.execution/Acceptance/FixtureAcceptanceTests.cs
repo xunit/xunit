@@ -12,7 +12,7 @@ public class FixtureAcceptanceTests
 {
     public class Constructors : AcceptanceTestV2
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassMustHaveSinglePublicConstructor()
         {
             var messages = Run(typeof(ClassWithTooManyConstructors));
@@ -71,7 +71,7 @@ public class FixtureAcceptanceTests
 
     public class ClassFixture : AcceptanceTestV2
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithExtraArgumentToConstructorResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithExtraCtorArg));
@@ -89,7 +89,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithMissingArgumentToConstructorIsAcceptable()
         {
             var messages = Run<ITestPassed>(typeof(ClassWithMissingCtorArg));
@@ -105,7 +105,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithThrowingFixtureConstructorResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
@@ -120,7 +120,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithThrowingFixtureDisposeResultsInFailedTest()
         {
             var messages = Run<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
@@ -135,7 +135,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void FixtureDataIsPassedToConstructor()
         {
             var messages = Run<ITestPassed>(typeof(FixtureSpy));
@@ -154,7 +154,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithDefaultParameter()
         {
             var messages = Run<ITestPassed>(typeof(ClassWithDefaultCtorArg));
@@ -175,7 +175,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithOptionalParameter()
         {
             var messages = Run<ITestPassed>(typeof(ClassWithOptionalCtorArg));
@@ -197,7 +197,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithParamsParameter()
         {
             var messages = Run<ITestPassed>(typeof(ClassWithParamsArg));
@@ -221,7 +221,7 @@ public class FixtureAcceptanceTests
 
     public class AsyncClassFixture : AcceptanceTestV2
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void FixtureDataShouldHaveBeenSetup()
         {
             var messages = Run<ITestPassed>(typeof(FixtureSpy));
@@ -264,7 +264,7 @@ public class FixtureAcceptanceTests
             public int SetupCalls = 0;
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void ThrowingAsyncSetupShouldResultInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureSetup));
@@ -294,7 +294,7 @@ public class FixtureAcceptanceTests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithThrowingFixtureAsyncDisposeResultsInFailedTest()
         {
             var messages = Run<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
@@ -327,7 +327,7 @@ public class FixtureAcceptanceTests
 
     public class CollectionFixture : AcceptanceTestV2
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassCannotBeDecoratedWithICollectionFixture()
         {
             var messages = Run<ITestFailed>(typeof(TestClassWithCollectionFixture));
@@ -343,7 +343,7 @@ public class FixtureAcceptanceTests
             public void TestMethod() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithExtraArgumentToConstructorResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithExtraCtorArg));
@@ -367,7 +367,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithMissingArgumentToConstructorIsAcceptable()
         {
             var messages = Run<ITestPassed>(typeof(ClassWithMissingCtorArg));
@@ -384,7 +384,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithThrowingFixtureConstructorResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
@@ -405,7 +405,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
         {
             var messages = Run<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
@@ -426,7 +426,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void FixtureDataIsPassedToConstructor()
         {
             var messages = Run<ITestPassed>(typeof(FixtureSpy));
@@ -446,7 +446,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void FixtureDataIsSameInstanceAcrossClasses()
         {
             Run<ITestPassed>(new[] { typeof(FixtureSaver1), typeof(FixtureSaver2) });
@@ -480,7 +480,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void ClassFixtureOnCollectionDecorationWorks()
         {
             var messages = Run<ITestPassed>(typeof(FixtureSpy_ClassFixture));
@@ -503,7 +503,7 @@ public class FixtureAcceptanceTests
             public void TheTest() { }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void ClassFixtureOnTestClassTakesPrecedenceOverClassFixtureOnCollection()
         {
             var messages = Run<ITestPassed>(typeof(ClassWithCountedFixture));
@@ -530,7 +530,7 @@ public class FixtureAcceptanceTests
 
     public class AsyncCollectionFixture : AcceptanceTestV2
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithThrowingCollectionFixtureSetupAsyncResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureSetupAsync));
@@ -562,7 +562,7 @@ public class FixtureAcceptanceTests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest()
         {
             var messages = Run<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureAsyncDispose));
@@ -594,7 +594,7 @@ public class FixtureAcceptanceTests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void CollectionFixtureAsyncSetupShouldOnlyRunOnce()
         {
             var results = Run<ITestPassed>(new[] { typeof(Fixture1), typeof(Fixture2) });

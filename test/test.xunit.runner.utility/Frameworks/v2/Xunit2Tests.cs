@@ -8,7 +8,7 @@ public class Xunit2Tests
 {
     public class EnumerateTests
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void NoTestMethods()
         {
             using (var assm = CSharpAcceptanceTestV2Assembly.Create(code: ""))
@@ -24,7 +24,7 @@ public class Xunit2Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void SingleTestMethod()
         {
             string code = @"
@@ -53,7 +53,7 @@ public class Foo
 
     public class CSharp
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void FactAcceptanceTest()
         {
             string code = @"
@@ -114,7 +114,7 @@ namespace Namespace2
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TheoryWithInlineData()
         {
             string code = @"
@@ -151,7 +151,7 @@ public class TestClass
 
     public class FSharp
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void FactAcceptanceTest()
         {
             string code = @"
@@ -203,7 +203,7 @@ let CustomName() =
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void TheoryWithInlineData()
         {
             string code = @"
@@ -235,7 +235,7 @@ let TestMethod (x:int) =
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void SupportsAsyncReturningMethods()
         {
             string code = @"

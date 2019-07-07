@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build xUnit.net",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceRoot}",
+                "--no-launch-profile"
+            ],
+            "group": "build",
+            "presentation": {
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

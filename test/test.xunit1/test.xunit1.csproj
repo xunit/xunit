@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net40</TargetFramework>
+    <TargetFramework>net45</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,8 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.XML" />
     <Reference Include="System.Web" />
     <Reference Include="$(NuGetPackageRoot)xunit\1.9.2\lib\net20\xunit.runner.utility.dll" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net45' ">
+    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.5/1.0.1/lib/net45/</FrameworkPathOverride>
+    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
 
 </Project>

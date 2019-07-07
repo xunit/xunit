@@ -690,8 +690,7 @@ public class Xunit1Tests
                 var exception = GetNestedExceptions();
                 xunit1.Executor.TestFrameworkDisplayName.Returns("Test framework display name");
                 xunit1.Executor
-                      .When(x => x.RunTests("failingtype", Arg.Any<List<string>>(),
-                        Arg.Any<ICallbackEventHandler>()))
+                      .When(x => x.RunTests("failingtype", Arg.Any<List<string>>(), Arg.Any<ICallbackEventHandler>()))
                       .Do(callInfo =>
                       {
                           var callback = callInfo.Arg<ICallbackEventHandler>();
@@ -798,7 +797,7 @@ public class Xunit1Tests
 
     public class AcceptanceTests
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void AmbiguouslyNamedTestMethods_StillReturnAllMessages()
         {
             var code = @"

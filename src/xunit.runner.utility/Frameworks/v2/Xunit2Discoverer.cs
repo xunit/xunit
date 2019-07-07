@@ -20,10 +20,8 @@ namespace Xunit
         static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
         static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
         readonly AssemblyHelper assemblyHelper;
-#elif NETCOREAPP || NETSTANDARD1_5
-        static readonly string[] SupportedPlatforms = { "dotnet" };
 #else
-        static readonly string[] SupportedPlatforms = { "dotnet", "MonoAndroid", "MonoTouch", "iOS-Universal", "universal", "win8", "wp8" };
+        static readonly string[] SupportedPlatforms = { "dotnet" };
 #endif
 
         ITestCaseDescriptorProvider defaultTestCaseDescriptorProvider;
@@ -248,8 +246,6 @@ namespace Xunit
         {
 #if NETFRAMEWORK
             return AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
-#elif NETCOREAPP
-            return new AssemblyName(Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath));
 #else
             // Make sure we only use the short form
             return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();

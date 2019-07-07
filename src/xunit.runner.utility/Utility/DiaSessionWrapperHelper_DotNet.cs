@@ -1,4 +1,4 @@
-#if NETSTANDARD1_5 || NETCOREAPP || WINDOWS_UAP
+#if NETSTANDARD
 
 using System;
 using System.Collections.Generic;

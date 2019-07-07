@@ -72,7 +72,7 @@ public class XunitTestCaseTests
             Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
         }
 
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void CustomTrait()
         {
             var passingTests = Run<ITestPassed>(typeof(ClassWithCustomTraitTest));

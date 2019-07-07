@@ -3,11 +3,16 @@
   <PropertyGroup>
     <AssemblyName>test.xunit.assert</AssemblyName>
     <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
-    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\..\src\xunit.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Asserts\Sdk" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net472' ">
+    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2/1.0.0/lib/net472/</FrameworkPathOverride>
+    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
 
 </Project>

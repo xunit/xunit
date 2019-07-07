@@ -1,0 +1,11 @@
+<Project>
+
+  <ItemGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net45' ">
+    <PackageReference Include="Microsoft.TargetingPack.NETFramework.v4.5" Version="1.0.1" ExcludeAssets="All" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="Microsoft.TargetingPack.NETFramework.v4.7.2" Version="1.0.0" ExcludeAssets="All" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

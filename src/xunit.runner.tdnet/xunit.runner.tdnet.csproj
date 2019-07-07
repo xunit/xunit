@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <RootNamespace>Xunit.Runner.TdNet</RootNamespace>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,8 +13,17 @@
     <ProjectReference Include="..\xunit.runner.utility\xunit.runner.utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <Reference Include="netstandard" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="TestDriven.Framework" Version="2.0.0" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net472' ">
+    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2/1.0.0/lib/net472/</FrameworkPathOverride>
+    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
 
 </Project>

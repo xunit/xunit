@@ -10,8 +10,8 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
     static void SetupFailureInformation(IFailureInformation failureInfo)
     {
         failureInfo.ExceptionTypes.Returns(new[] { "ExceptionType" });
-        failureInfo.Messages.Returns(new[] { "This is my message \t\r\nMessage Line 2" });
-        failureInfo.StackTraces.Returns(new[] { "Line 1\r\nat SomeClass.SomeMethod() in SomeFolder\\SomeClass.cs:line 18\r\nLine 3" });
+        failureInfo.Messages.Returns(new[] { $"This is my message \t{Environment.NewLine}Message Line 2" });
+        failureInfo.StackTraces.Returns(new[] { $"Line 1{Environment.NewLine}at SomeClass.SomeMethod() in SomeFolder\\SomeClass.cs:line 18{Environment.NewLine}Line 3" });
     }
 
     public class FailureMessages
@@ -214,7 +214,7 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
         [Fact]
         public void LogsTestNameWithExceptionAndStackTraceAndOutput()
         {
-            var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, output: "This is\t" + Environment.NewLine + "output");
+            var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, output: $"This is\t{Environment.NewLine}output");
             SetupFailureInformation(message);
             var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 

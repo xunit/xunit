@@ -188,24 +188,10 @@ namespace Xunit.ConsoleClient
 
         void PrintHeader()
         {
-#if NET452
-            var platform = $"Desktop .NET 4.5.2, runtime: {Environment.Version}";
-#elif NET46
-            var platform = $"Desktop .NET 4.6, runtime: {Environment.Version}";
-#elif NET461
-            var platform = $"Desktop .NET 4.6.1, runtime: {Environment.Version}";
-#elif NET462
-            var platform = $"Desktop .NET 4.6.2, runtime: {Environment.Version}";
-#elif NET47
-            var platform = $"Desktop .NET 4.7, runtime: {Environment.Version}";
-#elif NET471
-            var platform = $"Desktop .NET 4.7.1, runtime: {Environment.Version}";
-#elif NET472
+#if NET472
             var platform = $"Desktop .NET 4.7.2, runtime: {Environment.Version}";
 #elif NETCOREAPP
             var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
-#else
-#error Unknown target platform
 #endif
             var versionAttribute = typeof(ConsoleRunner).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
@@ -277,15 +263,12 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         : if specified more than once, acts as an AND operation");
             Console.WriteLine("  -namespace \"name\"      : run all methods in a given namespace (i.e.,");
             Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
-            Console.WriteLine("                         : if specified more than once, acts as an OR operation");            
+            Console.WriteLine("                         : if specified more than once, acts as an OR operation");
             Console.WriteLine("  -nonamespace \"name\"    : do not run any methods in a given namespace (i.e.,");
             Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
             Console.WriteLine("                         : if specified more than once, acts as an AND operation");
             Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
             Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
-#if NETCOREAPP
-            Console.WriteLine("  -framework \"name\"      : set the target framework");
-#endif
             Console.WriteLine();
 
             var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();

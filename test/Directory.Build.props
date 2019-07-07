@@ -1,6 +1,6 @@
 <Project>
 
-  <Import Condition=" '$(MSBuildProjectName)' != 'test.utility' and '$(MSBuildProjectName)' != 'test.harness.uwp' " Project="..\src\xunit.core\build\xunit.core.props" />
+  <Import Condition=" '$(MSBuildProjectName)' != 'test.utility' " Project="..\src\xunit.core\build\xunit.core.props" />
 
   <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
 
@@ -24,13 +24,16 @@
     </Content>
   </ItemGroup>
 
-  <!-- Need this Choose/When for legacy projects (UWP) in the IDE -->
-  <Choose>
-    <When Condition=" '$(MSBuildProjectName)' != 'test.utility' AND '$(MSBuildProjectName)' != 'test.xunit1' and '$(MSBuildProjectName)' != 'test.harness.uwp'  ">
-      <ItemGroup>
-        <ProjectReference Include="$(MSBuildThisFileDirectory)test.utility\test.utility.csproj" />
-      </ItemGroup>
-    </When>
-  </Choose>
+  <ItemGroup Condition=" '$(MSBuildProjectName)' != 'test.utility' AND '$(MSBuildProjectName)' != 'test.xunit1' ">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)test.utility\test.utility.csproj" />
+  </ItemGroup>
+
+  <!-- Support for building net472 assemblies on non-Windows machines -->
+  <ItemGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="Microsoft.TargetingPack.NETFramework.v4.7.2" Version="1.0.0" ExcludeAssets="All" PrivateAssets="All" />
+    <Reference Include="netstandard" />
+    <Reference Include="System.Collections" />
+    <Reference Include="System.Runtime" />
+  </ItemGroup>
 
 </Project>

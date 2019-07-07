@@ -45,7 +45,7 @@ public class XunitTheoryTestCaseRunnerTests
         Assert.Equal("Display Name", failed.Test.DisplayName);
         Assert.Equal("System.DivideByZeroException", failed.ExceptionTypes.Single());
         Assert.Equal("Attempted to divide by zero.", failed.Messages.Single());
-        Assert.Contains("XunitTheoryTestCaseRunnerTests.ClassUnderTest.get_ThrowingData()", failed.StackTraces.Single());
+        Assert.Contains("ClassUnderTest.get_ThrowingData", failed.StackTraces.Single());
     }
 
     [Fact]

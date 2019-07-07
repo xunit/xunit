@@ -30,8 +30,8 @@ public class Xunit1ExceptionUtilityTests
                 msg => Assert.Equal("Attempted to divide by zero.", msg)
             );
             Assert.Collection(failureInfo.StackTraces,
-                stack => Assert.Contains("Xunit1ExceptionUtilityTests.CanParseEmbeddedExceptions()", stack),
-                stack => Assert.Contains("Xunit1ExceptionUtilityTests.CanParseEmbeddedExceptions()", stack)
+                stack => Assert.Contains("Xunit1ExceptionUtilityTests.CanParseEmbeddedExceptions", stack),
+                stack => Assert.Contains("Xunit1ExceptionUtilityTests.CanParseEmbeddedExceptions", stack)
             );
             Assert.Collection(failureInfo.ExceptionParentIndices,
                 index => Assert.Equal(-1, index),

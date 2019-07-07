@@ -1,6 +1,4 @@
-﻿#if NETFRAMEWORK || NETCOREAPP
-
-using System;
+﻿using System;
 
 namespace Xunit
 {
@@ -80,5 +78,3 @@ namespace Xunit
         }
     }
 }
-
-#endif

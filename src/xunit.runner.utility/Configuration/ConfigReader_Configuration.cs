@@ -2,6 +2,7 @@
 
 using System;
 using System.Configuration;
+using System.Linq;
 
 namespace Xunit
 {
@@ -93,11 +94,11 @@ namespace Xunit
 
         static T GetValue<T>(KeyValueConfigurationCollection settings, string key, Func<string, T> converter)
         {
-            var setting = settings[key];
-            if (setting == null)
+            var settingsKey = settings.AllKeys.FirstOrDefault(k => k.Equals(key, StringComparison.OrdinalIgnoreCase));
+            if (settingsKey == null)
                 return default(T);
 
-            return converter(setting.Value);
+            return converter(settings[settingsKey].Value);
         }
 
         static class Configuration

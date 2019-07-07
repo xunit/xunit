@@ -1,3 +1,89 @@
 {
-    "version": "2.0.0"
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "tools/builder",
+                "--no-launch-profile",
+                "--",
+                "Build"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": "build",
+            "presentation": {
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Unit Tests",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "tools/builder",
+                "--no-launch-profile",
+                "--",
+                "Test"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": "build",
+            "presentation": {
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Unit Tests (.NET Core)",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "tools/builder",
+                "--no-launch-profile",
+                "--",
+                "TestCore"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": "build",
+            "presentation": {
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Unit Tests (.NET Framework)",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "tools/builder",
+                "--no-launch-profile",
+                "--",
+                "TestFx"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": "build",
+            "presentation": {
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
 }

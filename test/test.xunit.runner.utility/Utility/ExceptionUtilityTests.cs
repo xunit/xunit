@@ -170,7 +170,7 @@ public class ExceptionUtilityTests
 
             Assert.DoesNotContain(typeof(Record).FullName, result);
             Assert.DoesNotContain(typeof(XunitException).FullName, result);
-            Assert.Contains("at ExceptionUtilityTests.CombineStackTraces", result);
+            Assert.Contains("XunitException", result);
         }
 
         [Fact]
@@ -186,7 +186,7 @@ public class ExceptionUtilityTests
 
             Assert.DoesNotContain(typeof(Record).FullName, result);
             Assert.DoesNotContain(typeof(XunitException).FullName, result);
-            Assert.Contains("at ExceptionUtilityTests.CombineStackTraces", result);
+            Assert.Contains("NonXunitException", result);
         }
 
         [Fact]
@@ -203,14 +203,14 @@ public class ExceptionUtilityTests
             var result = ExceptionUtility.CombineStackTraces(failureInfo);
 
             Assert.Collection(result.Split(new[] { Environment.NewLine }, StringSplitOptions.None),
-                line => Assert.Contains("at ExceptionUtilityTests.CombineStackTraces", line),
+                line => Assert.Contains("NonXunitExceptionWithInnerExceptions", line),
                 line => Assert.Equal("----- Inner Stack Trace -----", line),
-                line => Assert.Contains("at ExceptionUtilityTests.CombineStackTraces", line)
+                line => Assert.Contains("NonXunitExceptionWithInnerExceptions", line)
             );
         }
 
         [Fact]
-        public void AggregateException()
+        public void HandlesAggregateException()
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
@@ -227,13 +227,13 @@ public class ExceptionUtilityTests
             var result = ExceptionUtility.CombineStackTraces(failureInfo);
 
             Assert.Collection(result.Split(new[] { Environment.NewLine }, StringSplitOptions.None),
-                line => Assert.Contains("at ExceptionUtilityTests.CombineStackTraces", line),
+                line => Assert.Contains("HandlesAggregateException", line),
                 line => Assert.Equal("----- Inner Stack Trace #1 (System.DivideByZeroException) -----", line),
-                line => Assert.Contains("at ExceptionUtilityTests.CombineStackTraces", line),
+                line => Assert.Contains("HandlesAggregateException", line),
                 line => Assert.Equal("----- Inner Stack Trace #2 (System.NotImplementedException) -----", line),
-                line => Assert.Contains("at ExceptionUtilityTests.CombineStackTraces", line),
+                line => Assert.Contains("HandlesAggregateException", line),
                 line => Assert.Equal("----- Inner Stack Trace #3 (Xunit.Sdk.XunitException) -----", line),
-                line => Assert.Contains("at ExceptionUtilityTests.CombineStackTraces", line)
+                line => Assert.Contains("HandlesAggregateException", line)
             );
         }
 

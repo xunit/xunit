@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 public class CollectionAcceptanceTests : AcceptanceTestV2
 {
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void TwoClasses_OneInExplicitCollection_OneInDefaultCollection()
     {
         var results = Run(new[] { typeof(ClassInExplicitCollection), typeof(ClassInDefaultCollection) });

@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 public class AsyncAcceptanceTests : AcceptanceTestV2
 {
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void AsyncTaskTestsRunCorrectly()
     {
         var results = Run<ITestResultMessage>(typeof(ClassWithAsyncTask));
@@ -17,7 +17,7 @@ public class AsyncAcceptanceTests : AcceptanceTestV2
         Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionTypes.Single());
     }
 
-    [Fact]
+    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
     public void AsyncVoidTestsRunCorrectly()
     {
         var results = Run<ITestResultMessage>(typeof(ClassWithAsyncVoid));

@@ -86,8 +86,8 @@ namespace Xunit
             // Stack trace lines look like this:
             // "   at BooleanAssertsTests.False.AssertFalse() in c:\Dev\xunit\xunit\test\test.xunit.assert\Asserts\BooleanAssertsTests.cs:line 22"
 
-            var wordAt = "at";
-            var wordsInLine = "in {0}:line {1}";
+            var wordAt = default(string);
+            var wordsInLine = default(string);
 
 #if NETFRAMEWORK
             var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
@@ -98,6 +98,11 @@ namespace Xunit
             }
 #endif
 
+            if (wordAt == default || wordAt == "Word_At")
+                wordAt = "at";
+            if (wordsInLine == default || wordsInLine == "StackTrace_InFileLineNumber")
+                wordsInLine = "in {0}:line {1}";
+                
             wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");
 
             return new Regex($"{wordAt} .* {wordsInLine}");

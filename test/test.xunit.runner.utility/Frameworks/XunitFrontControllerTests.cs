@@ -10,7 +10,7 @@ public class XunitFrontControllerTests
 {
     public class DescriptorsAndBulkDeserialization
     {
-        [Fact]
+        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
         public void RoundTrip()
         {
             string code = @"

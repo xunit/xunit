@@ -49,26 +49,6 @@ namespace Xunit1
             }
 
             [Fact]
-            public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
-            {
-                try
-                {
-                    Assert.Throws<InvalidCastException>(() => ThrowingMethod());
-                }
-                catch (AssertActualExpectedException exception)
-                {
-                    Assert.Contains("ThrowsGenericNoReturnValue.ThrowingMethod", exception.StackTrace);
-                    Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
-                }
-            }
-
-            [MethodImpl(MethodImplOptions.NoInlining)]
-            static void ThrowingMethod()
-            {
-                throw new ArgumentException();
-            }
-
-            [Fact]
             public void GotExpectedException()
             {
                 ArgumentException ex =
@@ -107,22 +87,6 @@ namespace Xunit1
                 catch (AssertException exception)
                 {
                     Assert.Equal("Assert.Throws() Failure", exception.UserMessage);
-                }
-            }
-
-            [Fact]
-            public void StackTraceForThrowsIsOriginalThrowNotAssertThrows()
-            {
-                StubAccessor accessor = new StubAccessor();
-
-                try
-                {
-                    Assert.Throws<InvalidCastException>(() => accessor.FailingProperty);
-                }
-                catch (AssertActualExpectedException exception)
-                {
-                    Assert.Contains("StubAccessor.get_FailingProperty", exception.StackTrace);
-                    Assert.DoesNotContain("Xunit.Assert", exception.StackTrace);
                 }
             }
 

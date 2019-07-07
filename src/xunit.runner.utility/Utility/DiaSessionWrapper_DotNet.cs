@@ -1,10 +1,10 @@
-﻿#if NETSTANDARD1_5 || NETCOREAPP || WINDOWS_UAP
+﻿#if NETSTANDARD
 
 using System;
 
 namespace Xunit
 {
-    // This class wraps DiaSession, and uses DiaSessionWrapperHelper  discover when a test is an async test 
+    // This class wraps DiaSession, and uses DiaSessionWrapperHelper  discover when a test is an async test
     // (since that requires special handling by DIA).
     class DiaSessionWrapper : IDisposable
     {

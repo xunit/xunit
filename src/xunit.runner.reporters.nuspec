@@ -13,30 +13,18 @@
     <licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <group targetFramework="net452">
+      <group targetFramework="net472">
         <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
       </group>
-      <group targetFramework="netstandard1.1">
-        <dependency id="NETStandard.Library" version="1.6.1" />
-        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="netstandard1.5">
-        <dependency id="NETStandard.Library" version="1.6.1" />
-        <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
-      </group>
-      <group targetFramework="netcoreapp1.0">
-        <dependency id="NETStandard.Library" version="1.6.0" />
+      <group targetFramework="netstandard2.0">
+        <dependency id="NETStandard.Library" version="2.0.3" />
         <dependency id="xunit.runner.utility" version="[99.99.99-dev]" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="xunit.runner.reporters\bin\$Configuration$\net452\xunit.runner.reporters.net452.dll" target="lib\net452\" />
+    <file src="xunit.runner.reporters\bin\$Configuration$\net472\xunit.runner.reporters.net472.dll" target="lib\net472\" />
 
-    <file src="xunit.runner.reporters\bin\$Configuration$\netstandard1.1\xunit.runner.reporters.netstandard11.dll" target="lib\netstandard1.1\" />
-
-    <file src="xunit.runner.reporters\bin\$Configuration$\netstandard1.5\xunit.runner.reporters.netstandard15.dll" target="lib\netstandard1.5\" />
-
-    <file src="xunit.runner.reporters\bin\$Configuration$\netcoreapp1.0\xunit.runner.reporters.netcoreapp10.dll" target="lib\netcoreapp1.0\" />
+    <file src="xunit.runner.reporters\bin\$Configuration$\netstandard2.0\xunit.runner.reporters.netstandard20.dll" target="lib\netstandard2.0\" />
   </files>
 </package>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>$(DefineConstants);UNIT_TEST</DefineConstants>
-    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,12 +30,17 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <Target Condition=" '$(TargetFramework)' == 'net452' " Name="CopyXunitV1" AfterTargets="Build">
+  <Target Condition=" '$(TargetFramework)' == 'net472' " Name="CopyXunitV1" AfterTargets="Build">
     <ItemGroup>
       <XunitV1Binaries Include="$(NuGetPackageRoot)xunit\1.9.2\lib\net20\xunit.dll" />
       <XunitV1Binaries Include="$(NuGetPackageRoot)xunit.extensions\1.9.2\lib\net20\xunit.extensions.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(XunitV1Binaries)" DestinationFolder="$(OutputPath)" />
   </Target>
+
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net472' ">
+    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2/1.0.0/lib/net472/</FrameworkPathOverride>
+    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
 
 </Project>
