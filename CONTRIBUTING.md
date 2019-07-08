@@ -19,4 +19,4 @@ Please note that this project is released with a [Contributor Code of Conduct](h
 
 # Looking for something to work on?
 
-Documentation is always in need of help. Look at our ["help wanted" issues for the documentation site](https://github.com/xunit/xunit/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) to find something to contribute!
+Documentation is always in need of help. Look at our ["help wanted" issues for the documentation site](https://github.com/xunit/xunit/issues?q=is%3Aopen+label%3A%22help+wanted%22+label%3A%22area%3A+xunit.github.io%22) to find something to contribute!
