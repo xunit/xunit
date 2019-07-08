@@ -320,7 +320,7 @@ namespace Xunit
                             }
                             else
                             {
-                                _codePointBuffer[i] = (char)next;
+                                _codePointBuffer.Append((char)next);
                             }
                         }
 
