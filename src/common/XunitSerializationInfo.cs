@@ -454,7 +454,7 @@ namespace Xunit.Serialization
                 }
 
                 array = Array.CreateInstance(arrType, lengths, lowerBounds);
-                    
+
                 int[] indices = new int[rank];
                 for (int i = 0; i < indices.Length; i++)
                 {

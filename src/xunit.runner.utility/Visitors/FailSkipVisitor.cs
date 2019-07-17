@@ -31,8 +31,7 @@ namespace Xunit
         /// <inheritdoc/>
         public override bool OnMessage(IMessageSinkMessage message)
         {
-            var testSkipped = message as ITestSkipped;
-            if (testSkipped != null)
+            if (message is ITestSkipped testSkipped)
             {
                 SkipCount++;
                 var testFailed = new TestFailed(testSkipped.Test, 0M, "",
@@ -43,8 +42,7 @@ namespace Xunit
                 return Visitor.OnMessage(testFailed);
             }
 
-            var testCollectionFinished = message as ITestCollectionFinished;
-            if (testCollectionFinished != null)
+            if (message is ITestCollectionFinished testCollectionFinished)
             {
                 testCollectionFinished = new TestCollectionFinished(testCollectionFinished.TestCases,
                                                                     testCollectionFinished.TestCollection,
@@ -55,8 +53,7 @@ namespace Xunit
                 return Visitor.OnMessage(testCollectionFinished);
             }
 
-            var assemblyFinished = message as ITestAssemblyFinished;
-            if (assemblyFinished != null)
+            if (message is ITestAssemblyFinished assemblyFinished)
             {
                 assemblyFinished = new TestAssemblyFinished(assemblyFinished.TestCases,
                                                             assemblyFinished.TestAssembly,
