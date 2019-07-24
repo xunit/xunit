@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -140,11 +142,29 @@ namespace Xunit.Sdk
             if (parameterType.IsAssignableFrom(argumentValueType))
                 return argumentValue;
 
+            // Try convert using TypeConverter defined at parameter type
+            object resultArgumentValue = TryConvertObjectWithTypeConverter(argumentValue, parameterType);
+            if (resultArgumentValue != null)
+                return resultArgumentValue;
+
             // Implicit & explicit conversions to/from a type can be declared on either side of the relationship
             // We need to check both possibilities.
             return PerformDefinedConversions(argumentValue, parameterType)
                 ?? PerformDefinedConversions(argumentValue, argumentValueType)
                 ?? argumentValue;
+        }
+
+        private static object TryConvertObjectWithTypeConverter(object argumentValue, Type parameterType)
+        {
+            if (argumentValue == null || parameterType == null)
+                return null;
+
+            Type argumentValueType = argumentValue.GetType();
+            TypeConverter converter = TypeDescriptor.GetConverter(parameterType);
+            if (converter != null && converter.CanConvertFrom(argumentValueType))
+                return converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
+
+            return null;
         }
 
         private static object PerformDefinedConversions(object argumentValue,

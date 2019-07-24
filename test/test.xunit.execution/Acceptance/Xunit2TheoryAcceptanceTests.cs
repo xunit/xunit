@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -269,6 +270,46 @@ public class Xunit2TheoryAcceptanceTests
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredImplicitConversion(i: Implicit { Value = ""abc"" })", result.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.UIntToULong(i: 1)", result.Test.DisplayName)
             );
+        }
+
+        public class ClassWithTypeConverterAttribute
+        {
+            [CulturedTheory("en-EN", "ru-RU", "fr-FR")]
+            [InlineData("1.5")]
+            public void OneParameter_ShouldConvertUsingInvariantCulture(Foo obj)
+            {
+                Assert.Equal(1.5m, obj.Value);
+            }
+
+            [CulturedTheory("en-EN", "ru-RU", "fr-FR")]
+            [InlineData("1.5", "-2.0")]
+            public void TwoParameters_ShouldConvertUsingInvariantCulture(Foo arg1, Foo arg2)
+            {
+                Assert.Equal(1.5m, arg1.Value);
+                Assert.Equal(-2.0m, arg2.Value);
+            }
+
+            [TypeConverter(typeof(CustomTypeConverter))]
+            public class Foo
+            {
+                public decimal Value { get; set; }
+            }
+
+            public class CustomTypeConverter : TypeConverter
+            {
+                public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+                {
+                    return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+                }
+
+                public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+                {
+                    if (value is string str)
+                        return new Foo() { Value = decimal.Parse(str, culture) };
+                    else
+                        return base.ConvertFrom(context, culture, value);
+                }
+            }
         }
 
         public class ClassWithOperatorConversions
