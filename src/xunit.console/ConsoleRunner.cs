@@ -267,6 +267,10 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -nonamespace \"name\"    : do not run any methods in a given namespace (i.e.,");
             Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
             Console.WriteLine("                         : if specified more than once, acts as an AND operation");
+            Console.WriteLine("  -inclusionfile \"path\"  : include/exclude tests specified as options in the given file, one per line;");
+            Console.WriteLine("                         : each line is blank, a comment beginning with '#' or \"//\", or an option");
+            Console.WriteLine("                         : \"-[no]trait\", \"-[no]method\", \"-[no]class\", or \"-[no]namespace\" followed");
+            Console.WriteLine("                         : by the trait \"name=value\", or the method, class, or namespace name, as above.");
             Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
             Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
             Console.WriteLine();

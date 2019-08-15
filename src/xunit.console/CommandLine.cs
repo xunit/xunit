@@ -308,26 +308,20 @@ namespace Xunit.ConsoleClient
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -trait");
 
-                    var pieces = option.Value.Split('=');
-                    if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
+                    if (!Trait.TryParse(option.Value, out Trait trait))
                         throw new ArgumentException("incorrect argument format for -trait (should be \"name=value\")");
 
-                    var name = pieces[0];
-                    var value = pieces[1];
-                    project.Filters.IncludedTraits.Add(name, value);
+                    project.Filters.IncludedTraits.Add(trait.Name, trait.Value);
                 }
                 else if (optionName == "notrait")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -notrait");
 
-                    var pieces = option.Value.Split('=');
-                    if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
+                    if (!Trait.TryParse(option.Value, out Trait notrait))
                         throw new ArgumentException("incorrect argument format for -notrait (should be \"name=value\")");
 
-                    var name = pieces[0];
-                    var value = pieces[1];
-                    project.Filters.ExcludedTraits.Add(name, value);
+                    project.Filters.ExcludedTraits.Add(notrait.Name, notrait.Value);
                 }
                 else if (optionName == "class")
                 {
@@ -371,6 +365,13 @@ namespace Xunit.ConsoleClient
 
                     project.Filters.ExcludedNamespaces.Add(option.Value);
                 }
+                else if (optionName == "inclusionfile")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -inclusionfile");
+
+                    IncludeFromFile(project, option.Value);
+                }
                 else
                 {
                     // Might be a result output file...
@@ -395,6 +396,71 @@ namespace Xunit.ConsoleClient
             return project;
         }
 
+        static void IncludeFromFile(XunitProject project, String path)
+        {
+            using (var input = File.OpenText(path))
+            {
+                string line;
+                int linenum = 0;
+                var spaceOrTab = " \t".ToCharArray();
+                while ((line = input.ReadLine()?.Trim()) != null)
+                {
+                    ++linenum;
+                    // Skip blank lines and comment lines.
+                    if (line.Length == 0 || line[0] == '#' || line.StartsWith("//"))
+                        continue;
+
+                    var spaceIndex = line.IndexOfAny(spaceOrTab);               // Look for a space or tab after the option.
+                    var optionValue = line.Substring(spaceIndex + 1).Trim();    // If not found, this safely results in entire line, which will be ignored.
+                    var optionName = spaceIndex < 2 || line[0] != '-'  ? "invalid" : line.Substring(1, spaceIndex - 1).ToLowerInvariant();
+
+                    switch (optionName)
+                    {
+                        case "trait":
+                            if (!Trait.TryParse(optionValue, out Trait trait))
+                                throw new ArgumentException($"Invalid line {linenum} in -inclusionfile; (trait should be \"name=value\")");
+
+                            project.Filters.IncludedTraits.Add(trait.Name, trait.Value);
+                            break;
+
+                        case "notrait":
+                            if (!Trait.TryParse(optionValue, out Trait notrait))
+                                throw new ArgumentException($"Invalid line {linenum} in -inclusionfile; (trait should be \"name=value\")");
+
+                            project.Filters.ExcludedTraits.Add(notrait.Name, notrait.Value);
+                            break;
+
+                        case "method":
+                            project.Filters.IncludedMethods.Add(optionValue);
+                            break;
+
+                        case "nomethod":
+                            project.Filters.ExcludedMethods.Add(optionValue);
+                            break;
+
+                        case "class":
+                            project.Filters.IncludedClasses.Add(optionValue);
+                            break;
+
+                        case "noclass":
+                            project.Filters.ExcludedClasses.Add(optionValue);
+                            break;
+
+                        case "namespace":
+                            project.Filters.IncludedNamespaces.Add(optionValue);
+                            break;
+
+                        case "nonamespace":
+                            project.Filters.ExcludedNamespaces.Add(optionValue);
+                            break;
+
+                        default:
+                            throw new ArgumentException($"Invalid line {linenum} in -inclusionfile");
+                    }
+                }
+            }
+        }
+
         static KeyValuePair<string, string> PopOption(Stack<string> arguments)
         {
             var option = arguments.Pop();
@@ -414,6 +480,26 @@ namespace Xunit.ConsoleClient
                 return;
 
             Directory.CreateDirectory(directory);
+        }
+
+        private class Trait
+        {
+            public Trait(string name, string value) { Name = name; Value = value; }
+            public string Name { get; }
+            public string Value { get; }
+
+            public static bool TryParse(string traitValue, out Trait nameValuePair)
+            {
+                var pieces = traitValue.Split('=');
+                if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
+                {
+                    nameValuePair = null;
+                    return false;
+                }
+
+                nameValuePair = new Trait(pieces[0], pieces[1]);
+                return true;
+            }
         }
     }
 }
