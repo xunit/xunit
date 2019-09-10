@@ -6,9 +6,9 @@ xUnit.net is a free, open source, community-focused unit testing tool for the .N
 
 For project documentation, please visit the [xUnit.net project home](https://xunit.github.io/).
 
-* _New to xUnit.net? Get started with [desktop](https://xunit.github.io/docs/getting-started-desktop.html), [.NET Core](https://xunit.github.io/docs/getting-started-dotnet-core.html), and [devices](https://xunit.github.io/docs/getting-started-devices.html)._
+* _New to xUnit.net? Get started with [desktop](https://xunit.net/docs/getting-started/netfx/visual-studio), [.NET Core](https://xunit.net/docs/getting-started/netcore/cmdline), and [devices](https://xunit.net/docs/getting-started/uwp/devices-runner)._
 * _Need some help building the source? See [BUILDING.md](BUILDING.md)._
-* _Want to contribute to the project? [https://github.com/xunit/xunit/blob/master/CONTRIBUTING.md](https://github.com/xunit/xunit/blob/master/CONTRIBUTING.md)_
+* _Want to contribute to the project? See [CONTRIBUTING.md](CONTRIBUTING.md)._
 
 [<img src="https://raw.github.com/xunit/media/master/powered-by-ndepend-transparent.png" title="Powered by NDepend" width="142" />](http://www.ndepend.com/)
 
