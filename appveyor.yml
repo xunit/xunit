@@ -7,7 +7,7 @@ environment:
     secure: g0OJ9dO4ocXS06UgDZ1Bnd3F0JSHMo9I41z2Zc07CKk=
   SignClientUser:
     secure: uyweGSwxexnLy4dBNleW8tYcXTA291faj34PQV0ePxOTFSa5Cvf50jyICVP9mLGS
-    
+
 clone_script:
 - ps: >-
     if (-not $env:appveyor_pull_request_number) {
@@ -33,7 +33,7 @@ skip_commits:
   - BUILDING.md
   - CONTRIBUTING.md
   - ISSUE_TEMPLATE.md
-  - license.txt
+  - LICENSE
   - README.md
   - tools/xUnitSummary.xsl
 
@@ -42,7 +42,7 @@ nuget:
 
 build_script:
 - ps: .\build.ps1 CI --buildAssemblyVersion ($env:BuildVersion + $env:APPVEYOR_BUILD_NUMBER) --buildSemanticVersion ($env:BuildSemanticVersion + $env:APPVEYOR_BUILD_NUMBER)
-  
+
 test: off
 
 deploy: off
