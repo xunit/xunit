@@ -77,6 +77,9 @@
       <xsl:attribute name="name">
         <xsl:value-of select="@name"/>
       </xsl:attribute>
+      <xsl:attribute name="classname">
+        <xsl:value-of select="@type"/>
+      </xsl:attribute>
       <xsl:if test="@time">
         <xsl:attribute name="time">
           <xsl:value-of select="@time"/>
