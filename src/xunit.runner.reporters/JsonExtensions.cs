@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.Runner.Reporters
 {
-    public static class JsonExtentions
+    public static class JsonExtensions
     {
         public static string ToJson(this IDictionary<string, object> data)
         {
@@ -67,13 +67,13 @@ namespace Xunit.Runner.Reporters
 
         static AddFields AddFieldsForITestCollectionMessage = (obj, dict) =>
         {
-            var testCollectionMesage = obj as ITestCollectionMessage;
-            if (testCollectionMesage == null)
+            var testCollectionMessage = obj as ITestCollectionMessage;
+            if (testCollectionMessage == null)
                 return;
 
-            dict["assembly"] = testCollectionMesage.TestAssembly.Assembly.Name;
-            dict["collectionName"] = testCollectionMesage.TestCollection.DisplayName;
-            dict["collectionId"] = testCollectionMesage.TestCollection.UniqueID;
+            dict["assembly"] = testCollectionMessage.TestAssembly.Assembly.Name;
+            dict["collectionName"] = testCollectionMessage.TestCollection.DisplayName;
+            dict["collectionId"] = testCollectionMessage.TestCollection.UniqueID;
         };
 
         static AddFields AddFieldsForIFinishedMessage = (obj, dict) =>

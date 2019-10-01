@@ -332,7 +332,7 @@ public class XmlTestExecutionVisitorTests
         }
 
         [Fact]
-        public void TestElementTraisArePlacedInXmlWhenPresent()
+        public void TestElementTraitsArePlacedInXmlWhenPresent()
         {
             var traits = new Dictionary<string, List<string>>
             {

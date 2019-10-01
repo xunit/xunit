@@ -8,7 +8,7 @@ namespace Xunit1
     public class TestCommandFactoryTests
     {
         [Fact]
-        public void CallsTestClassCommandToGetTestCommandsAndWrapsTheminTimedCommands()
+        public void CallsTestClassCommandToGetTestCommandsAndWrapsTheMinTimedCommands()
         {
             MethodInfo method = typeof(TestCommandFactoryTests).GetMethod("PublicTestMethod");
             List<ITestCommand> testCommands = new List<ITestCommand>();
@@ -49,7 +49,7 @@ namespace Xunit1
         }
 
         [Fact]
-        public void IncludesTimeoutCommandWhenTestCommandSaysTheresATimeout()
+        public void IncludesTimeoutCommandWhenTestCommandSaysThereIsATimeout()
         {
             MethodInfo method = typeof(TestCommandFactoryTests).GetMethod("PublicTestMethod");
             List<ITestCommand> testCommands = new List<ITestCommand>();

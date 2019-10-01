@@ -497,7 +497,7 @@ namespace Xunit1
             }
 
             [Fact]
-            public void SingleNumberNotEqualPositiiveInfinity()
+            public void SingleNumberNotEqualPositiveInfinity()
             {
                 Assert.Throws<EqualException>(() => Assert.Equal(1.23f, float.PositiveInfinity));
             }

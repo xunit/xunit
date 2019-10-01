@@ -8,7 +8,7 @@ namespace Xunit1
     public class TimeoutCommandTests
     {
         [Fact]
-        public void TestFinshedOnTimePassedResult()
+        public void TestFinishedOnTimePassedResult()
         {
             Mock<ITestCommand> testCommand = new Mock<ITestCommand>();
             testCommand.Setup(tc => tc.Execute(null))

@@ -300,9 +300,9 @@ namespace Xunit.Serialization
             if (datetimeData != null)
                 return datetimeData.GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
 
-            var datetimeoffsetData = value as DateTimeOffset?;
-            if (datetimeoffsetData != null)
-                return datetimeoffsetData.GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
+            var datetimeOffsetData = value as DateTimeOffset?;
+            if (datetimeOffsetData != null)
+                return datetimeOffsetData.GetValueOrDefault().ToString("o", CultureInfo.InvariantCulture);  // Round-trippable format
 
             var typeData = value as Type;
             if (typeData != null)

@@ -51,11 +51,11 @@ namespace Xunit1
             }
 
             [Fact]
-            public void NonExistantMethodReturnsNull()
+            public void NonExistentMethodReturnsNull()
             {
                 ITypeInfo typeInfo = Reflector.Wrap(typeof(TestClass));
 
-                IMethodInfo result = typeInfo.GetMethod("NonExistantMethod");
+                IMethodInfo result = typeInfo.GetMethod("NonExistentMethod");
 
                 Assert.Null(result);
             }

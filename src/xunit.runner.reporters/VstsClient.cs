@@ -71,7 +71,7 @@ namespace Xunit.Runner.Reporters
                     if (previousErrors)
                         break;
 
-                    // We have to do add's before update because we need the test id from the add to inject into the update
+                    // We have to do adds before update because we need the test id from the add to inject into the update
                     await SendTestResults(true, runId.Value, aq.ToArray()).ConfigureAwait(false);
                     await SendTestResults(false, runId.Value, uq.ToArray()).ConfigureAwait(false);
                 }
@@ -204,7 +204,7 @@ namespace Xunit.Runner.Reporters
                 return;
 
             // For adds, we need to remove the unique id's and correlate to the responses
-            // For update we need to look up the reponses
+            // For update we need to look up the responses
             List<ITest> added = null;
             if (isAdd)
             {
