@@ -30,6 +30,7 @@
           .indent { margin: 0.25em 0 0.5em 2em; }
           .clickable { cursor: pointer; }
           .testcount { font-size: 85%; }
+          .label { font-weight: bold; }
         </style>
         <script language="javascript">
           function ToggleClass(id) {
@@ -167,6 +168,11 @@
       </xsl:if>
       &#160;<xsl:value-of select="@name"/>
       <br clear="all" />
+      <xsl:if test="reason">
+        <div>
+          <span class="label">Skip message: </span><xsl:value-of select="reason"/>
+        </div>
+      </xsl:if>
       <xsl:if test="child::node()/message">
         <pre><xsl:value-of select="child::node()/message"/></pre>
       </xsl:if>
