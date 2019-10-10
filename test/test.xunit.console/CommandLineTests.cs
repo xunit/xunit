@@ -844,6 +844,53 @@ public class CommandLineTests
         }
     }
 
+    public class OptionsFileOption
+    {
+        [Fact]
+        public static void AfterAssembliesThrows()
+        {
+            var arguments = new[] { "assemblyName.dll", "-optionsfile" };
+
+            var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
+
+            Assert.IsType<ArgumentException>(exception);
+            Assert.Equal("unknown option: -optionsfile", exception.Message);
+        }
+
+        [Fact]
+        public static void NoFilename_And_NotFollowedByAssembly_Throws()
+        {
+            var arguments = new[] { "-optionsfile" };
+
+            var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
+
+            Assert.IsType<ArgumentException>(exception);
+            Assert.Equal("missing argument for -optionsfile", exception.Message);
+        }
+
+        [Fact]
+        public static void NoFilename_And_FollowedByAssembly_Throws()
+        {
+            var arguments = new[] { "-optionsfile" , "assemblyName.dll" };
+
+            var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
+
+            Assert.IsType<ArgumentException>(exception);
+            Assert.Equal("expecting options file name, got assembly: assemblyName.dll", exception.Message);
+        }
+
+        [Fact]
+        public static void NonExistingFileThrows()
+        {
+            var arguments = new[] { "-optionsfile", "nonexistentfile.txt" };
+
+            var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
+
+            Assert.IsType<ArgumentException>(exception);
+            Assert.Equal("file not found: nonexistentfile.txt", exception.Message);
+        }
+    }
+
     class TestableCommandLine : CommandLine
     {
         public readonly IRunnerReporter Reporter;
