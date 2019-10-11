@@ -882,12 +882,12 @@ public class CommandLineTests
         [Fact]
         public static void NonExistingFileThrows()
         {
-            var arguments = new[] { "-optionsfile", "nonexistentfile.txt" };
+            var arguments = new[] { "-optionsfile", "fileName" };
 
             var exception = Record.Exception(() => TestableCommandLine.Parse(arguments));
 
             Assert.IsType<ArgumentException>(exception);
-            Assert.Equal("file not found: nonexistentfile.txt", exception.Message);
+            Assert.Equal("file not found: fileName", exception.Message);
         }
     }
 

@@ -113,6 +113,24 @@ namespace Xunit.ConsoleClient
         {
             var assemblies = new List<Tuple<string, string>>();
 
+            if (arguments.Peek().Equals("-optionsfile", StringComparison.Ordinal))
+            {
+                var option = PopOption(arguments);
+
+                if (option.Value == null)
+                    throw new ArgumentException($"missing argument for -optionsfile");
+
+                var optionsFileName = option.Value;
+
+                if (optionsFileName.ToLowerInvariant().EndsWith(".dll", StringComparison.Ordinal))
+                    throw new ArgumentException($"expecting options file name, got assembly: {optionsFileName}");
+
+                if (!fileExists(optionsFileName))
+                    throw new ArgumentException($"file not found: {optionsFileName}");
+                
+                ReadCommandLineOptionsFromFile(optionsFileName);
+            }
+
             while (arguments.Count > 0)
             {
                 if (arguments.Peek().StartsWith("-", StringComparison.Ordinal))
@@ -393,6 +411,15 @@ namespace Xunit.ConsoleClient
             }
 
             return project;
+        }
+
+        private static void ReadCommandLineOptionsFromFile(string optionsFile)
+        {
+            using (StreamReader sr = new StreamReader(optionsFile))
+            {
+                String line = sr.ReadToEnd();
+                Console.WriteLine(line);
+            }            
         }
 
         static KeyValuePair<string, string> PopOption(Stack<string> arguments)
