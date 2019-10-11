@@ -128,8 +128,12 @@ namespace Xunit.ConsoleClient
 
                 if (!fileExists(optionsFileName))
                     throw new ArgumentException($"file not found: {optionsFileName}");
-                
-                ReadCommandLineOptionsFromFile(optionsFileName, arguments);
+
+                var optionsFile = CommandLineOptionsFile.Read(optionsFileName);
+                while (optionsFile.Options.Count > 0)
+                {
+                    arguments.Push(optionsFile.Options.Pop());
+                }
             }
 
             while (arguments.Count > 0)
@@ -412,64 +416,6 @@ namespace Xunit.ConsoleClient
             }
 
             return project;
-        }
-
-        private static void ReadCommandLineOptionsFromFile(string optionsFile, Stack<string> arguments)
-        {
-            var argumentsFromFile = new Stack<string>();
-
-            var lookForClosingSingleQuote = false;
-            var lookForClosingDoubleQuotes = false;
-            var lookingForOptionEnd = false;
-
-            var currentOption = new StringBuilder();
-            using (StreamReader sr = new StreamReader(optionsFile))
-            {
-                while (sr.Peek() >= 0)
-                {
-                    char nextCharacter = (char)sr.Read();
-
-                    switch (nextCharacter)
-                    {
-                        case '"':
-                            lookForClosingDoubleQuotes = !lookForClosingDoubleQuotes;
-                            break;
-                        case '\'':
-                            lookForClosingSingleQuote = !lookForClosingSingleQuote;
-                            break;
-                        case ' ':
-                        case '\n':
-                        case '\r':
-                            if (lookForClosingSingleQuote || lookForClosingDoubleQuotes)
-                            {
-                                lookingForOptionEnd = true;
-                                currentOption.Append(nextCharacter);
-                            }
-                            else
-                            {
-                                if (lookingForOptionEnd)
-                                {
-                                    if (currentOption.Length > 0)
-                                    {
-                                        argumentsFromFile.Push(currentOption.ToString());
-                                        currentOption.Clear();
-                                    }
-                                    lookingForOptionEnd = false;
-                                }
-                            }
-                            break;
-                        default:
-                            lookingForOptionEnd = true;
-                            currentOption.Append(nextCharacter);
-                            break;
-                    }
-                }
-            }
-
-            while (argumentsFromFile.Count > 0)
-            {
-                arguments.Push(argumentsFromFile.Pop());
-            }
         }
 
         static KeyValuePair<string, string> PopOption(Stack<string> arguments)
