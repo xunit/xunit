@@ -59,7 +59,7 @@ public class CommandLineOptionsFileReaderTests
     //        expectedOtptions.Push(@"all");
     //        expectedOtptions.Push(@"-maxthreads");
     //        expectedOtptions.Push(@"16");
-            
+
     //        int expectedPops = expectedOtptions.Count;
 
     //        var commandLineOptions = TestableCommandLineOptionsFile.Read("fileName", fileContents).Options;
@@ -77,15 +77,15 @@ public class CommandLineOptionsFileReaderTests
     //    }
     //}
 
-    //class TestableCommandLineOptionsFile : CommandLineOptionsFile
-    //{
-    //    private TestableCommandLineOptionsFile(string optionsFileName, StreamReader streamReader)
-    //        : base(optionsFileName, streamReader, filename => !filename.StartsWith("notExistingFile")) { }
+    class TestableCommandLineOptionsFile : CommandLineOptionsFile
+    {
+        private TestableCommandLineOptionsFile(string optionsFileName, StreamReader streamReader)
+            : base(optionsFileName, streamReader, filename => !filename.StartsWith("notExistingFile")) { }
 
-    //    public static new TestableCommandLineOptionsFile Read(string optionsFile)
-    //        => new TestableCommandLineOptionsFile(optionsFile, new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(string.Empty))));
+        public static new TestableCommandLineOptionsFile Read(string optionsFile)
+            => new TestableCommandLineOptionsFile(optionsFile, new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(string.Empty))));
 
-    //    public static new TestableCommandLineOptionsFile Read(string optionsFile, string fileContents)
-    //        => new TestableCommandLineOptionsFile(optionsFile, new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(fileContents ?? string.Empty))));
-    //}
+        public static new TestableCommandLineOptionsFile Read(string optionsFile, string fileContents)
+            => new TestableCommandLineOptionsFile(optionsFile, new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(fileContents ?? string.Empty))));
+    }
 }
