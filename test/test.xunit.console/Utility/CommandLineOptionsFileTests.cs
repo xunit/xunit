@@ -18,13 +18,13 @@ public class CommandLineOptionsFileReaderTests
             Assert.Equal("missing options file name", exception.Message);
         }
 
-        //    [Fact]
-        //    public static void OptionsFileNamePresentDoesNotThrow()
-        //    {
-        //        var fileName = "someFileName";
+        [Fact]
+        public static void OptionsFileNamePresentDoesNotThrow()
+        {
+            var fileName = "someFileName";
 
-        //        TestableCommandLineOptionsFile.Read(fileName);  // Should not throw
-        //    }
+            TestableCommandLineOptionsFile.Read(fileName);  // Should not throw
+        }
 
         //    [Fact]
         //    public static void OptionsFileDoesNotExist()
