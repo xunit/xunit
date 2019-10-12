@@ -7,51 +7,44 @@ namespace Xunit.ConsoleClient
 {
     public class CommandLineOptionsFile
     {
-
+        static string optionsFileName;
 
         protected CommandLineOptionsFile(string optionsFile, StreamReader streamReader = null, Predicate<string> fileExists = null)
         {
             if (fileExists == null)
                 fileExists = File.Exists;
 
-
-        }
-
-        public static CommandLineOptionsFile Read(string optionsFile)
-            => new CommandLineOptionsFile(optionsFile);
-
-        public Stack<string> Options { get; protected set; }
-
-        public static Stack<string> Read(string optionsFile, StreamReader streamReader = null, Predicate<string> fileExists = null)
-        {
-            if (fileExists == null)
-                fileExists = File.Exists;
-
-            if (optionsFile == null)
-                throw new ArgumentException($"missing options file name");
-
-            if (!fileExists(optionsFile))
-                throw new ArgumentException($"file not found: {optionsFile}");
-
-            var argumentsFromFile = new Stack<string>();
+            optionsFileName = optionsFile;
 
             if (streamReader == null)
             {
                 using (streamReader = new StreamReader(optionsFile))
                 {
-                    argumentsFromFile = ReadInternal(streamReader);
+                    Options = Read(streamReader, fileExists);
                 }
             }
             else
             {
-                argumentsFromFile = ReadInternal(streamReader);
+                Options = Read(streamReader, fileExists);
             }
-
-            return argumentsFromFile;
+            
         }
 
-        private static Stack<string> ReadInternal(StreamReader streamReader)
+        public static CommandLineOptionsFile Read(string optionsFile)
+            => new CommandLineOptionsFile(optionsFile);
+
+        
+        public Stack<string> Options { get; protected set; }
+
+
+        protected static Stack<string> Read(StreamReader streamReader, Predicate<string> fileExists)
         {
+            if (optionsFileName == null)
+                throw new ArgumentException($"missing options file name");
+
+            if (!fileExists(optionsFileName))
+                throw new ArgumentException($"file not found: {optionsFileName}");
+
             var readFromFile = new Stack<string>();
 
             var lookForClosingSingleQuote = false;
@@ -72,8 +65,8 @@ namespace Xunit.ConsoleClient
                         lookForClosingSingleQuote = !lookForClosingSingleQuote;
                         break;
                     case ' ':
-                    case '\n':
-                    case '\r':
+                    case (char) 10:
+                    case (char) 13:
                         if (lookForClosingSingleQuote || lookForClosingDoubleQuotes)
                         {
                             lookingForOptionEnd = true;
@@ -98,6 +91,8 @@ namespace Xunit.ConsoleClient
                         break;
                 }
             }
+
+            readFromFile.Push(currentOption.ToString());
 
             return readFromFile;
         }
