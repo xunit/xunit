@@ -11,6 +11,10 @@ namespace Xunit.ConsoleClient
 
         protected CommandLineOptionsFile(string optionsFile, StreamReader streamReader = null, Predicate<string> fileExists = null)
         {
+            Console.WriteLine("optionsFile: " + optionsFile);
+            Console.WriteLine("streamReader " + (streamReader == null ? "is" : "is not") + " null");
+            Console.WriteLine("fileExists " + (fileExists == null ? "is" : "is not") + " null");
+
             if (fileExists == null)
                 fileExists = File.Exists;
 
@@ -18,13 +22,16 @@ namespace Xunit.ConsoleClient
 
             if (streamReader == null)
             {
+                Console.WriteLine("streamReader = new StreamReader(optionsFile)");
                 using (streamReader = new StreamReader(optionsFile))
                 {
+                    Console.WriteLine("calling Read(streamReader, fileExists)");
                     Options = Read(streamReader, fileExists);
                 }
             }
             else
             {
+                Console.WriteLine("calling Read(streamReader, fileExists)");
                 Options = Read(streamReader, fileExists);
             }
             
@@ -39,9 +46,11 @@ namespace Xunit.ConsoleClient
 
         protected static Stack<string> Read(StreamReader streamReader, Predicate<string> fileExists)
         {
+            Console.WriteLine("in protected static Stack<string> Read(StreamReader streamReader, Predicate<string> fileExists)");
             if (optionsFileName == null)
                 throw new ArgumentException($"missing options file name");
 
+            Console.WriteLine("in protected static Stack<string> Read(StreamReader streamReader, Predicate<string> fileExists)");
             if (!fileExists(optionsFileName))
                 throw new ArgumentException($"file not found: {optionsFileName}");
 
@@ -52,6 +61,8 @@ namespace Xunit.ConsoleClient
             var lookingForOptionEnd = false;
 
             var currentOption = new StringBuilder();
+
+            Console.WriteLine("before while (streamReader.Peek() >= 0)");
             while (streamReader.Peek() >= 0)
             {
                 char nextCharacter = (char)streamReader.Read();
