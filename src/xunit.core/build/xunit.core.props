@@ -10,7 +10,4 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
-  <!-- Support for importing props via the runner -->
-  <Import Condition=" '$(_Xunit_ImportPropsFile)' != '' " Project="$(_Xunit_ImportPropsFile)" />
-
 </Project>

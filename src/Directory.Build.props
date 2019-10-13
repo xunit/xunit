@@ -1,28 +1,28 @@
 <Project>
 
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>../signing.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
+    <Authors>jnewkirk;bradwilson</Authors>
+    <Company>.NET Foundation</Company>
+    <Copyright>Copyright (C) .NET Foundation</Copyright>
     <DebugType>embedded</DebugType>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>latest</LangVersion>
-    <OutputPath Condition=" '$(Platform)' != 'x86' ">bin\$(Configuration)</OutputPath>
-    <OutputPath Condition=" '$(Platform)' == 'x86' ">bin\$(Configuration)_x86</OutputPath>
+    <!-- <OutputPath Condition=" '$(Platform)' != 'x86' ">bin\$(Configuration)</OutputPath> -->
+    <!-- <OutputPath Condition=" '$(Platform)' == 'x86' ">bin\$(Configuration)_x86</OutputPath> -->
+    <PackageIcon>content/logo-128-transparent.png</PackageIcon>
     <PackageId>$(MSBuildProjectName)</PackageId>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Product>xUnit.net Testing Framework</Product>
+    <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
     <RootNamespace>Xunit</RootNamespace>
     <SignAssembly>true</SignAssembly>
-    <VersionPrefix>99.99.99-dev</VersionPrefix>
-    <WarningsAsErrors>true</WarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <VersionPrefix>0.0.0-pre</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)common\GlobalAssemblyInfo.cs" LinkBase="Properties" />
+    <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Pack="true" PackagePath="content" />
   </ItemGroup>
 
   <ItemGroup>
