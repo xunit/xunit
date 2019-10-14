@@ -72,6 +72,7 @@ public class TestInvokerTests
                 Assert.Same(invoker.TestCase.TestMethod.TestClass.TestCollection, finished.TestCollection);
                 Assert.Same(invoker.TestCase, finished.TestCase);
                 Assert.Equal("Display Name", finished.Test.DisplayName);
+                Assert.True(DisposableClass.Disposed);
             }
         );
     }
@@ -159,7 +160,11 @@ public class TestInvokerTests
 
     class DisposableClass : IDisposable
     {
-        public void Dispose() { }
+        public void Dispose()
+        {
+            Disposed = true;
+        }
+        public static bool Disposed { get; set; }
 
         [Fact]
         public void Passing() { }
