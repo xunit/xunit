@@ -230,7 +230,7 @@ namespace Xunit
 #endif
             }
 
-            throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => $"xunit.execution.{suffix}.dll").ToArray()));
+            throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => $"xunit.execution.{suffix}.dll").ToArray()) + "; please reference xunit.extensibility.execution");
         }
 
         static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport)
