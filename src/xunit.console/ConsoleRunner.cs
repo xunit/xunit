@@ -64,14 +64,12 @@ namespace Xunit.ConsoleClient
 
                 var reporter = commandLine.ChooseReporter(reporters);
 
-#if DEBUG
                 if (commandLine.Pause)
                 {
                     Console.Write("Press any key to start execution...");
                     Console.ReadKey(true);
                     Console.WriteLine();
                 }
-#endif
 
                 if (commandLine.Debug)
                     Debugger.Launch();
@@ -240,9 +238,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -wait                  : wait for input after completion");
             Console.WriteLine("  -diagnostics           : enable diagnostics messages for all test assemblies");
             Console.WriteLine("  -internaldiagnostics   : enable internal diagnostics messages for all test assemblies");
-#if DEBUG
             Console.WriteLine("  -pause                 : pause before doing any work, to help attach a debugger");
-#endif
             Console.WriteLine("  -debug                 : launch the debugger to debug the tests");
             Console.WriteLine("  -serialize             : serialize all test cases (for diagnostic purposes only)");
             Console.WriteLine("  -trait \"name=value\"    : only run tests with matching name/value traits");
