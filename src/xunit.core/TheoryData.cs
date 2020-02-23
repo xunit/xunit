@@ -138,7 +138,7 @@ namespace Xunit
     }
 
     /// <summary>
-    /// Represents a set of data for a theory with 5 parameters. Data can
+    /// Represents a set of data for a theory with 6 parameters. Data can
     /// be added to the data set using the collection initializer syntax.
     /// </summary>
     /// <typeparam name="T1">The first parameter type.</typeparam>
@@ -165,7 +165,7 @@ namespace Xunit
     }
 
     /// <summary>
-    /// Represents a set of data for a theory with 5 parameters. Data can
+    /// Represents a set of data for a theory with 7 parameters. Data can
     /// be added to the data set using the collection initializer syntax.
     /// </summary>
     /// <typeparam name="T1">The first parameter type.</typeparam>
@@ -194,7 +194,7 @@ namespace Xunit
     }
 
     /// <summary>
-    /// Represents a set of data for a theory with 5 parameters. Data can
+    /// Represents a set of data for a theory with 8 parameters. Data can
     /// be added to the data set using the collection initializer syntax.
     /// </summary>
     /// <typeparam name="T1">The first parameter type.</typeparam>
@@ -225,7 +225,7 @@ namespace Xunit
     }
 
     /// <summary>
-    /// Represents a set of data for a theory with 5 parameters. Data can
+    /// Represents a set of data for a theory with 9 parameters. Data can
     /// be added to the data set using the collection initializer syntax.
     /// </summary>
     /// <typeparam name="T1">The first parameter type.</typeparam>
@@ -258,7 +258,7 @@ namespace Xunit
     }
 
     /// <summary>
-    /// Represents a set of data for a theory with 5 parameters. Data can
+    /// Represents a set of data for a theory with 10 parameters. Data can
     /// be added to the data set using the collection initializer syntax.
     /// </summary>
     /// <typeparam name="T1">The first parameter type.</typeparam>
