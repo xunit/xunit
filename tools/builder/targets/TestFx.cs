@@ -3,14 +3,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-[Target(nameof(TestFx),
-        nameof(Build))]
+[Target(BuildTarget.TestFx,
+        BuildTarget.Build)]
 public static class TestFx
 {
-    public static async Task OnExecute(BuildContext context)
+    public static Task OnExecute(BuildContext context)
     {
         context.BuildStep("Running .NET Framework tests");
 
+#if false
         var net472Subpath = Path.Combine("bin", context.ConfigurationText, "net472");
         var testV1Dll = Path.Combine("test", "test.xunit1", "bin", context.ConfigurationText, "net45", "test.xunit1.dll");
         var testDlls = Directory.GetFiles(context.BaseFolder, "test.xunit.*.dll", SearchOption.AllDirectories)
@@ -23,5 +24,11 @@ public static class TestFx
         await context.Exec(xunitConsoleExe, $"{string.Join(" ", testDlls)} -xml artifacts/test/v2.xml -html artifacts/test/v2.html -appdomains denied -serialize {context.TestFlagsParallel}");
 
         Console.WriteLine();
+#else
+        context.WriteLineColor(ConsoleColor.Yellow, ".NET Framework tests are not running yet.");
+
+        Console.WriteLine();
+        return Task.CompletedTask;
+#endif
     }
 }

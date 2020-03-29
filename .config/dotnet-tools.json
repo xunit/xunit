@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "nbgv": {
+      "version": "3.1.13-beta",
+      "commands": [
+        "nbgv"
+      ]
+    },
+    "signclient": {
+      "version": "1.2.33",
+      "commands": [
+        "SignClient"
+      ]
+    }
+  }
+}

@@ -12,12 +12,6 @@ using SimpleExec;
 [HelpOption("-?|-h|--help")]
 public class BuildContext
 {
-    // Versions of downloaded dependent software
-
-    public string NuGetVersion => "5.0.2";
-
-    public string SignClientVersion => "0.9.1";
-
     // Calculated properties
 
     public string BaseFolder { get; private set; }
@@ -25,10 +19,6 @@ public class BuildContext
     public string ConfigurationText => Configuration.ToString();
 
     public bool NeedMono { get; private set; }
-
-    public string NuGetExe { get; private set; }
-
-    public string NuGetUrl { get; private set; }
 
     public string PackageOutputFolder { get; private set; }
 
@@ -39,12 +29,6 @@ public class BuildContext
     public string TestOutputFolder { get; private set; }
 
     // User-controllable command-line options
-
-    [Option("--buildAssemblyVersion", Description = "Set the build assembly version (default: '99.99.99.0')")]
-    public string BuildAssemblyVersion { get; }
-
-    [Option("--buildSemanticVersion", Description = "Set the build semantic version (default: '99.99.99-dev')")]
-    public string BuildSemanticVersion { get; }
 
     [Option("-c|--configuration", Description = "The target configuration (values: 'Debug', 'Release'; default: 'Release')")]
     public Configuration Configuration { get; } = Configuration.Release;
@@ -116,16 +100,6 @@ public class BuildContext
 
             TestOutputFolder = Path.Combine(BaseFolder, "artifacts", "test");
             Directory.CreateDirectory(TestOutputFolder);
-
-            var homeFolder = NeedMono
-                ? Environment.GetEnvironmentVariable("HOME")
-                : Environment.GetEnvironmentVariable("USERPROFILE");
-
-            var nuGetCliFolder = Path.Combine(homeFolder, ".nuget", "cli", NuGetVersion);
-            Directory.CreateDirectory(nuGetCliFolder);
-
-            NuGetExe = Path.Combine(nuGetCliFolder, "nuget.exe");
-            NuGetUrl = $"https://dist.nuget.org/win-x86-commandline/v{NuGetVersion}/nuget.exe";
 
             // Parse the targets and Bullseye-specific arguments
             var bullseyeArguments = Targets.Select(x => x.ToString());

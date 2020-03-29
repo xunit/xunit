@@ -1,11 +1,28 @@
 <Project>
 
-  <Import Project="netfx.targets" />
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
+  </ItemGroup>
 
-  <PropertyGroup>
+  <!-- Supplement NBGV versions with height -->
+  <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyVersionInfo" DependsOnTargets="GetBuildVersion">
+    <PropertyGroup>
+      <AssemblyInformationalVersion Condition=" '$(PrereleaseVersion)' == '' ">$(BuildVersionSimple)</AssemblyInformationalVersion>
+      <AssemblyInformationalVersion Condition=" '$(PrereleaseVersion)' != '' ">$(BuildVersionSimple)$(PrereleaseVersion).$(GitVersionHeight)+$(GitCommitIdShort)</AssemblyInformationalVersion>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="UpdateNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+    <PropertyGroup>
+      <PackageVersion Condition=" '$(PrereleaseVersion)' == '' ">$(BuildVersionSimple)</PackageVersion>
+      <PackageVersion Condition=" '$(PrereleaseVersion)' != '' ">$(BuildVersionSimple)$(PrereleaseVersion).$(GitVersionHeight)+$(GitCommitIdShort)</PackageVersion>
+    </PropertyGroup>
+  </Target>
+
+  <!-- <PropertyGroup>
     <DefineConstants Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">$(DefineConstants);NETFRAMEWORK</DefineConstants>
     <DefineConstants Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">$(DefineConstants);NETCOREAPP</DefineConstants>
     <DefineConstants Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">$(DefineConstants);NETSTANDARD</DefineConstants>
-  </PropertyGroup>
+  </PropertyGroup> -->
 
 </Project>

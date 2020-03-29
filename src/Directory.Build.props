@@ -1,32 +1,73 @@
 <Project>
 
+  <!-- ============================== -->
+  <!-- Universal properties and items -->
+
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>../signing.snk</AssemblyOriginatorKeyFile>
-    <DebugType>embedded</DebugType>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
+    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
+    <DefineConstants>XUNIT_NULLABLE</DefineConstants>
     <LangVersion>latest</LangVersion>
-    <OutputPath Condition=" '$(Platform)' != 'x86' ">bin\$(Configuration)</OutputPath>
-    <OutputPath Condition=" '$(Platform)' == 'x86' ">bin\$(Configuration)_x86</OutputPath>
-    <PackageId>$(MSBuildProjectName)</PackageId>
+    <NoWarn>$(NoWarn);NU5105</NoWarn>
+    <!-- <Nullable>enable</Nullable> -->
+    <!-- <OutputPath Condition=" '$(Platform)' != 'x86' ">bin\$(Configuration)</OutputPath> -->
+    <!-- <OutputPath Condition=" '$(Platform)' == 'x86' ">bin\$(Configuration)_x86</OutputPath> -->
     <RootNamespace>Xunit</RootNamespace>
-    <SignAssembly>true</SignAssembly>
-    <VersionPrefix>99.99.99-dev</VersionPrefix>
-    <WarningsAsErrors>true</WarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)common\GlobalAssemblyInfo.cs" LinkBase="Properties" />
+  <!-- ======================================== -->
+  <!-- Production-specific properties and items -->
+
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
+    <Authors>jnewkirk;bradwilson</Authors>
+    <Company>.NET Foundation</Company>
+    <Copyright>Copyright (C) .NET Foundation</Copyright>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageIcon>content/logo-128-transparent.png</PackageIcon>
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Product>xUnit.net Testing Framework</Product>
+    <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
+    <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Pack="true" PackagePath="content" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.50" PrivateAssets="all" />
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- ================================== -->
+  <!-- Test-specific properties and items -->
+
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
+    <!-- <OutputType>Exe</OutputType> -->
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
+    <Compile Include="..\common.tests\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
+    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.0\lib\net45\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.0\lib\net45\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+
+    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.0\lib\netstandard2.0\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
+    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.0\lib\netstandard2.0\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
+
+    <Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
+    <PackageReference Include="FSharp.Compiler.Service" Version="33.0.1" />
+    <PackageReference Include="FSharp.Core" Version="4.7.0" />
+    <PackageReference Include="NSubstitute" Version="4.2.1" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

@@ -1,12 +1,16 @@
 using System.Threading.Tasks;
 
-[Target(nameof(Restore))]
+[Target(BuildTarget.Restore)]
 public static class Restore
 {
-    public static Task OnExecute(BuildContext context)
+    public static async Task OnExecute(BuildContext context)
     {
         context.BuildStep("Restoring NuGet packages");
 
-        return context.Exec("dotnet", "restore");
+        await context.Exec("dotnet", "restore");
+
+        context.BuildStep("Restoring .NET Core command-line tools");
+
+        await context.Exec("dotnet", "tool restore");
     }
 }
