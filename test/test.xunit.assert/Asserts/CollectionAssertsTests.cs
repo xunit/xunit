@@ -19,7 +19,8 @@ public class CollectionAssertsTests
         [Fact]
         public static void NullActionThrows()
         {
-            Assert.Throws<ArgumentNullException>(() => Assert.All<object>(new object[0], null));
+            Assert.Throws<ArgumentNullException>(() => Assert.All(new object[0], (Action<object>)null));
+            Assert.Throws<ArgumentNullException>(() => Assert.All(new object[0], (Action<object, int>)null));
         }
 
         [Fact]
@@ -38,7 +39,9 @@ public class CollectionAssertsTests
         {
             var items = new[] { 1, 1, 1, 1, 1, 1 };
 
-            Assert.All(items, x => Assert.Equal(1, x));
+            var ex = Record.Exception(() => Assert.All(items, x => Assert.Equal(1, x)));
+
+            Assert.Null(ex);
         }
 
         [Fact]
@@ -53,9 +56,20 @@ public class CollectionAssertsTests
         }
 
         [Fact]
+        public static void ActionCanReceiveIndex()
+        {
+            var items = new[] { 1, 1, 2, 2, 1, 1 };
+            var indices = new List<int>();
+
+            Assert.All(items, (x, idx) => indices.Add(idx));
+
+            Assert.Equal(new[] { 0, 1, 2, 3, 4, 5 }, indices);
+        }
+
+        [Fact]
         public static void CollectionWithNullThrowsAllException()
         {
-            object[] collection = new object[]
+            var collection = new object[]
             {
                 new object(),
                 null
@@ -565,7 +579,7 @@ public class CollectionAssertsTests
 
             EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty(list));
 
-            Assert.Equal($"Assert.Empty() Failure{Environment.NewLine}Collection: [42]", ex.Message);
+            Assert.Equal($"Assert.Empty() Failure{Environment.NewLine}Expected: <empty>{Environment.NewLine}Actual:   [42]", ex.Message);
         }
 
         [Fact]
@@ -589,7 +603,7 @@ public class CollectionAssertsTests
         {
             EmptyException ex = Assert.Throws<EmptyException>(() => Assert.Empty("Foo"));
 
-            Assert.Equal($"Assert.Empty() Failure{Environment.NewLine}Collection: \"Foo\"", ex.Message);
+            Assert.Equal($"Assert.Empty() Failure{Environment.NewLine}Expected: <empty>{Environment.NewLine}Actual:   \"Foo\"", ex.Message);
         }
     }
 
@@ -883,7 +897,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection was expected to contain a single element, but it contained more than one element.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it contained 2 elements.", ex.Message);
         }
 
         [Fact]
@@ -939,7 +953,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, "foo"));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element matching \"foo\", but it contained no matching elements.", ex.Message);
         }
 
         [Fact]
@@ -950,7 +964,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, "Hello"));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection was expected to contain a single element, but it contained more than one element.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element matching \"Hello\", but it contained 2 matching elements.", ex.Message);
         }
     }
 
@@ -981,7 +995,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection was expected to contain a single element, but it contained more than one element.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element, but it contained 2 elements.", ex.Message);
         }
 
         [Fact]
@@ -1037,7 +1051,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, item => false));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection was expected to contain a single element, but it was empty.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element matching (filter expression), but it contained no matching elements.", ex.Message);
         }
 
         [Fact]
@@ -1048,7 +1062,7 @@ public class CollectionAssertsTests
             Exception ex = Record.Exception(() => Assert.Single(collection, item => true));
 
             Assert.IsType<SingleException>(ex);
-            Assert.Equal("The collection was expected to contain a single element, but it contained more than one element.", ex.Message);
+            Assert.Equal("The collection was expected to contain a single element matching (filter expression), but it contained 2 matching elements.", ex.Message);
         }
     }
 
