@@ -2,6 +2,22 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Build builder",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": "build",
+            "presentation": {
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "Build xUnit.net",
             "type": "process",
             "command": "dotnet",
