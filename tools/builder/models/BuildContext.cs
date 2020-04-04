@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Bullseye;
 using Bullseye.Internal;
 using McMaster.Extensions.CommandLineUtils;
 using SimpleExec;
@@ -127,7 +128,7 @@ public class BuildContext
             }
 
             // Let Bullseye run the target(s)
-            await targetCollection.RunAsync(bullseyeArguments, new NullConsole());
+            await targetCollection.RunAsync(bullseyeArguments.ToList(), SkipDependencies, false, false, new NullLogger(), null);
             return 0;
         }
         catch (Exception ex)

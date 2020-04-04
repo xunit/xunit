@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Bullseye cannot be upgraded past 2.3.0 because we are leveraging an internal interface that's been removed -->
-    <PackageReference Include="Bullseye" Version="2.3.0" />
+    <!-- We may not be able to upgrade Bullseye easily because we are leveraging internal APIs -->
+    <PackageReference Include="Bullseye" Version="3.3.0" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="SimpleExec" Version="6.2.0" />
