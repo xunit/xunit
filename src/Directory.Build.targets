@@ -4,6 +4,14 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
   </ItemGroup>
 
+  <!-- Fix up generated assembly path (via https://github.com/clairernovotny/DeterministicBuilds) -->
+  <PropertyGroup>
+    <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(IntermediateOutputPath)','$(TargetFrameworkMoniker).AssemblyAttributes$(DefaultLanguageSourceExtension)'))</TargetFrameworkMonikerAssemblyAttributesPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedFiles Include="$(GeneratedAssemblyInfoFile)"/>
+  </ItemGroup>
+
   <!-- Supplement NBGV versions with height -->
   <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyVersionInfo" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
