@@ -1,6 +1,4 @@
-﻿#if false
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -21,5 +19,3 @@ namespace Xunit.Sdk
         IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase;
     }
 }
-
-#endif

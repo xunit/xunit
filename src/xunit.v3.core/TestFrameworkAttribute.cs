@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -22,5 +20,3 @@ namespace Xunit
         public TestFrameworkAttribute(string typeName, string assemblyName) { }
     }
 }
-
-#endif

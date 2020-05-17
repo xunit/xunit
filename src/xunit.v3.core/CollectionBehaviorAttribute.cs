@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 
 namespace Xunit
 {
@@ -41,5 +39,3 @@ namespace Xunit
         public int MaxParallelThreads { get; set; }
     }
 }
-
-#endif

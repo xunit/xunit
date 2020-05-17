@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Xunit.Sdk;
@@ -39,5 +37,3 @@ namespace Xunit
         }
     }
 }
-
-#endif

@@ -1,6 +1,4 @@
-﻿#if false
-
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -26,5 +24,3 @@ namespace Xunit.Sdk
         ITestCollection Get(ITypeInfo testClass);
     }
 }
-
-#endif

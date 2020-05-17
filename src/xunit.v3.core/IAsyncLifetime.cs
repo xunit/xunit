@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Xunit
@@ -25,5 +23,3 @@ namespace Xunit
         Task DisposeAsync();
     }
 }
-
-#endif

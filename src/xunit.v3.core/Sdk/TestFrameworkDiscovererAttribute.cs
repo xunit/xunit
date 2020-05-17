@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -22,5 +20,3 @@ namespace Xunit.Sdk
         public TestFrameworkDiscovererAttribute(string typeName, string assemblyName) { }
     }
 }
-
-#endif

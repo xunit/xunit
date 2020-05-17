@@ -1,6 +1,4 @@
-﻿#if false
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -19,5 +17,3 @@ namespace Xunit.Sdk
         IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute);
     }
 }
-
-#endif

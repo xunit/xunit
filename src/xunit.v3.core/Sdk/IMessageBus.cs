@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -23,5 +21,3 @@ namespace Xunit.Sdk
         bool QueueMessage(IMessageSinkMessage message);
     }
 }
-
-#endif

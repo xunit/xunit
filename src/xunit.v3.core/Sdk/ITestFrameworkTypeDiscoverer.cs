@@ -1,5 +1,3 @@
-#if false
-
 using System;
 using Xunit.Abstractions;
 
@@ -19,5 +17,3 @@ namespace Xunit.Sdk
         Type GetTestFrameworkType(IAttributeInfo attribute);
     }
 }
-
-#endif

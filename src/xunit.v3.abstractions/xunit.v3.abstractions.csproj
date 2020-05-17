@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Includes the common abstractions for xUnit.net (xunit.v3.abstractions.dll). Supports .NET Standard 2.0.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Xunit.Abstractions</RootNamespace>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>xUnit.net Abstractions Library</Title>
+  </PropertyGroup>
+
+</Project>

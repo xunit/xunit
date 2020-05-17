@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 
 namespace Xunit
 {
@@ -25,5 +23,3 @@ namespace Xunit
         public bool DisableParallelization { get; set; }
     }
 }
-
-#endif

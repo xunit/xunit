@@ -1,5 +1,3 @@
-#if false
-
 namespace Xunit
 {
     /// <summary>
@@ -21,5 +19,3 @@ namespace Xunit
         CollectionPerClass
     }
 }
-
-#endif

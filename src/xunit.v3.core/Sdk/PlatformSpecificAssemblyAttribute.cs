@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 
 namespace Xunit.Sdk
 {
@@ -35,5 +33,3 @@ namespace Xunit.Sdk
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
     public sealed class PlatformSpecificAssemblyAttribute : Attribute { }
 }
-
-#endif

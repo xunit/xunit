@@ -1,5 +1,3 @@
-#if false
-
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
@@ -42,5 +40,3 @@ namespace Xunit.Sdk
         bool SupportsDiscoveryEnumeration(IAttributeInfo dataAttribute, IMethodInfo testMethod);
     }
 }
-
-#endif

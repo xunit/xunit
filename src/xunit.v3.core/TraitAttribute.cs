@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using Xunit.Sdk;
 
 namespace Xunit
@@ -20,5 +18,3 @@ namespace Xunit
         public TraitAttribute(string name, string value) { }
     }
 }
-
-#endif

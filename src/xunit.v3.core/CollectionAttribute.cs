@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 
 namespace Xunit
 {
@@ -17,5 +15,3 @@ namespace Xunit
         public CollectionAttribute(string name) { }
     }
 }
-
-#endif

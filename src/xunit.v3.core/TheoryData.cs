@@ -1,6 +1,4 @@
-﻿#if false
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace Xunit
@@ -294,5 +292,3 @@ namespace Xunit
         }
     }
 }
-
-#endif

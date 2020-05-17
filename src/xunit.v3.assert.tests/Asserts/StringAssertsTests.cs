@@ -283,7 +283,7 @@ public class StringAssertsTests
             Assert.Throws<MatchesException>(() => Assert.Matches(new Regex(@"\w+"), (string)null));
         }
     }
-    
+
     public class DoesNotMatch_WithString
     {
         [Fact]

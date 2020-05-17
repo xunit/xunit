@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
@@ -48,5 +46,3 @@ namespace Xunit.Sdk
         }
     }
 }
-
-#endif

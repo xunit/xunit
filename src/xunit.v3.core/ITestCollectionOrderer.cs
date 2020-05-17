@@ -1,6 +1,4 @@
-﻿#if false
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace Xunit
@@ -21,5 +19,3 @@ namespace Xunit
         IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections);
     }
 }
-
-#endif

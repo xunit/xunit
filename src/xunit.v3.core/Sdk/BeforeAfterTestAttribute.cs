@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using System.Reflection;
 
 namespace Xunit.Sdk
@@ -25,5 +23,3 @@ namespace Xunit.Sdk
         public virtual void Before(MethodInfo methodUnderTest) { }
     }
 }
-
-#endif

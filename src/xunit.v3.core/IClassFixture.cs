@@ -1,6 +1,4 @@
-﻿#if false
-
-namespace Xunit
+﻿namespace Xunit
 {
     /// <summary>
     /// Used to decorate xUnit.net test classes and collections to indicate a test which has
@@ -19,5 +17,3 @@ namespace Xunit
     /// </remarks>
     public interface IClassFixture<TFixture> where TFixture : class { }
 }
-
-#endif

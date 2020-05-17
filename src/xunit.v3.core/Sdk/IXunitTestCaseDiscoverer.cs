@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-// using Xunit.Abstractions;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -9,7 +9,6 @@ namespace Xunit.Sdk
     /// </summary>
     public interface IXunitTestCaseDiscoverer
     {
-#if false
         /// <summary>
         /// Discover test cases from a test method.
         /// </summary>
@@ -18,6 +17,5 @@ namespace Xunit.Sdk
         /// <param name="factAttribute">The fact attribute attached to the test method.</param>
         /// <returns>Returns zero or more test cases represented by the test method.</returns>
         IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute);
-#endif
     }
 }

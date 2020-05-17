@@ -1,6 +1,4 @@
-﻿#if false
-
-namespace Xunit.Sdk
+﻿namespace Xunit.Sdk
 {
     /// <summary>
     /// Marker interface that must be implemented by test framework attributes, so
@@ -8,5 +6,3 @@ namespace Xunit.Sdk
     /// </summary>
     public interface ITestFrameworkAttribute { }
 }
-
-#endif

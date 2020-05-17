@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 
 namespace Xunit
 {
@@ -19,5 +17,3 @@ namespace Xunit
         public TestCaseOrdererAttribute(string ordererTypeName, string ordererAssemblyName) { }
     }
 }
-
-#endif

@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -41,5 +39,3 @@ namespace Xunit.Sdk
         Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink, IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource);
     }
 }
-
-#endif
