@@ -5,7 +5,7 @@
     <Description>Includes the core library for writing tests using xUnit.net (xunit.v3.core.dll). Supports .NET Standard 2.0.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Title>xUnit.net Assertion Library</Title>
+    <Title>xUnit.net [Core Unit Testing Framework]</Title>
   </PropertyGroup>
 
   <ItemGroup>

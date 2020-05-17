@@ -4,7 +4,7 @@
     <Description>Includes the assertion library from xUnit.net (xunit.v3.assert.dll). Supports .NET Standard 2.0.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Title>xUnit.net Assertion Library</Title>
+    <Title>xUnit.net [Assertion Library]</Title>
   </PropertyGroup>
 
 </Project>

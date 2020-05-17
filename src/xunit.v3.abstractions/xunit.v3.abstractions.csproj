@@ -5,7 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit.Abstractions</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Title>xUnit.net Abstractions Library</Title>
+    <Title>xUnit.net [Abstractions]</Title>
   </PropertyGroup>
 
 </Project>

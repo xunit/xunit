@@ -4,6 +4,7 @@
         "nuget",
         "nupkg",
         "parallelization",
+        "randomizer",
         "veyor"
     ],
     "files.exclude": {
