@@ -1,4 +1,16 @@
 {
     "version": "0.2.0",
-    "configurations": []
+    "configurations": [
+        {
+            "name": "xunit.v3.assert.tests",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build",
+            "program": "bin/Debug/netcoreapp2.1/xunit.v3.assert.tests.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/xunit.v3.assert.tests",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        }
+    ]
 }

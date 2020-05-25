@@ -7,28 +7,24 @@ using System.Threading.Tasks;
         BuildTarget.Build)]
 public static class TestFx
 {
-    public static Task OnExecute(BuildContext context)
+    public static async Task OnExecute(BuildContext context)
     {
         context.BuildStep("Running .NET Framework tests");
 
-#if false
-        var net472Subpath = Path.Combine("bin", context.ConfigurationText, "net472");
-        var testV1Dll = Path.Combine("test", "test.xunit1", "bin", context.ConfigurationText, "net45", "test.xunit1.dll");
-        var testDlls = Directory.GetFiles(context.BaseFolder, "test.xunit.*.dll", SearchOption.AllDirectories)
-                                .Where(x => x.Contains(net472Subpath))
+        var netFxSubpath = Path.Combine("bin", context.ConfigurationText, "net4");
+        // TODO: Need to re-enable v1 tests, and port over some v2 tests
+        var testDlls = Directory.GetFiles(context.BaseFolder, "xunit.v3.*.tests.exe", SearchOption.AllDirectories)
+                                .Where(x => x.Contains(netFxSubpath))
+                                .OrderBy(x => x)
                                 .Select(x => x.Substring(context.BaseFolder.Length + 1));
 
-        var xunitConsoleExe = Path.Combine("src", "xunit.console", "bin", context.ConfigurationText, "net472", "xunit.console.exe");
+        foreach (var testDll in testDlls)
+        {
+            var fileName = Path.GetFileName(testDll);
+            var folder = Path.GetDirectoryName(testDll);
 
-        await context.Exec(xunitConsoleExe, $"{testV1Dll} -xml artifacts/test/v1.xml -html artifacts/test/v1.html -appdomains denied {context.TestFlagsNonParallel}");
-        await context.Exec(xunitConsoleExe, $"{string.Join(" ", testDlls)} -xml artifacts/test/v2.xml -html artifacts/test/v2.html -appdomains denied -serialize {context.TestFlagsParallel}");
-
-        Console.WriteLine();
-#else
-        context.WriteLineColor(ConsoleColor.Yellow, ".NET Framework tests are not running yet.");
-
-        Console.WriteLine();
-        return Task.CompletedTask;
-#endif
+            // TODO: XML output?
+            await context.Exec(fileName, "", workingDirectory: folder);
+        }
     }
 }
