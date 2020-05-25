@@ -42,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.1.74" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.17-beta-gceb8927950" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
   </ItemGroup>
 
@@ -58,18 +58,18 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.1\lib\net45\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.1\lib\net45\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
 
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.1\lib\netstandard2.0\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.1\lib\netstandard2.0\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
+    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
+    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
 
     <Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
-    <PackageReference Include="FSharp.Compiler.Service" Version="34.1.1" />
-    <PackageReference Include="FSharp.Core" Version="4.7.1" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="35.0.0" />
+    <PackageReference Include="FSharp.Core" Version="4.7.2" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
   </ItemGroup>
