@@ -102,7 +102,7 @@ namespace Xunit
                 wordAt = "at";
             if (wordsInLine == default || wordsInLine == "StackTrace_InFileLineNumber")
                 wordsInLine = "in {0}:line {1}";
-                
+
             wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");
 
             return new Regex($"{wordAt} .* {wordsInLine}");

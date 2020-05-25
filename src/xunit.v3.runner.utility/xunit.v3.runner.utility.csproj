@@ -1,11 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.runner.utility.net472</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard2.0' ">xunit.runner.utility.netstandard20</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.runner.utility.net472</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard2.0' ">xunit.v3.runner.utility.netstandard20</AssemblyName>
+    <Description>Includes the version-independent runner for xUnit.net to run all of v1.9.2, v2.x, and v3.x tests (xunit.v3.runner.utility.dll). Supports .NET 4.7.2 or later and .NET Standard 2.0 or later.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit</RootNamespace>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
+    <Title>xUnit.net [Runner Utility]</Title>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,14 +41,8 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <Reference Include="netstandard" Condition=" '$(OS)' != 'Windows_NT' " />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net472' ">
-    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2/1.0.0/lib/net472/</FrameworkPathOverride>
-    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
-  </PropertyGroup>
 
 </Project>

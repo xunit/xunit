@@ -53,7 +53,7 @@ namespace Xunit
 
         public bool Value { get; private set; }
 
-        public static implicit operator bool (JsonBoolean jsonBoolean)
+        public static implicit operator bool(JsonBoolean jsonBoolean)
         {
             return jsonBoolean.Value;
         }
@@ -823,7 +823,7 @@ namespace Xunit
             return _value;
         }
 
-        public static implicit operator string (JsonString instance)
+        public static implicit operator string(JsonString instance)
         {
             if (instance == null)
             {
