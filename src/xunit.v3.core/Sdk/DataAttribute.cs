@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// to return the data for the theory.
     /// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
     /// </summary>
-    [DataDiscoverer("Xunit.Sdk.DataDiscoverer", "xunit.core")]  // TODO: Use type
+    [DataDiscoverer("Xunit.Sdk.DataDiscoverer", "xunit.v3.core")]  // TODO: Use type
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public abstract class DataAttribute : Attribute
     {

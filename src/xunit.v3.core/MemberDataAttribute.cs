@@ -13,7 +13,7 @@ namespace Xunit
     /// The member must return something compatible with IEnumerable&lt;object[]&gt; with the test data.
     /// Caution: the property is completely enumerated by .ToList() before any test is run. Hence it should return independent object sets.
     /// </summary>
-    [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.core")]  // TODO: Use type
+    [DataDiscoverer("Xunit.Sdk.MemberDataDiscoverer", "xunit.v3.core")]  // TODO: Use type
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public sealed class MemberDataAttribute : MemberDataAttributeBase
     {

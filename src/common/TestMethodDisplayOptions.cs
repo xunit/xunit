@@ -1,11 +1,11 @@
+using System;
+
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
 #else
 namespace Xunit
 #endif
 {
-    using System;
-
     /// <summary>
     /// Indicates the method display options for test methods.
     /// </summary>

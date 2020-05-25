@@ -979,14 +979,14 @@ public class EqualityAssertsTests
         [Fact]
         public void Success()
         {
-            Assert.NotEqual("TestString", "testString", StringComparer.CurrentCulture);
+            Assert.NotEqual("TestString", "testString", StringComparer.InvariantCulture);
         }
 
         [Fact]
         public void NotEqualWithCustomComparer()
         {
             var ex = Record.Exception(
-                () => Assert.NotEqual("TestString", "testString", StringComparer.CurrentCultureIgnoreCase));
+                () => Assert.NotEqual("TestString", "testString", StringComparer.InvariantCultureIgnoreCase));
 
             Assert.IsType<NotEqualException>(ex);
             Assert.Equal(@"Assert.NotEqual() Failure" + Environment.NewLine +

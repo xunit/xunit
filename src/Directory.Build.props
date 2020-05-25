@@ -38,7 +38,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
-    <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Pack="true" PackagePath="content" />
+    <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Visible="false" Pack="true" PackagePath="content" />
   </ItemGroup>
 
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">

@@ -6,7 +6,7 @@ namespace Xunit
     /// <summary>
     /// Attribute used to decorate an assembly with arbitrary name/value pairs ("traits").
     /// </summary>
-    [TraitDiscoverer("Xunit.Sdk.AssemblyTraitDiscoverer", "xunit.core")]
+    [TraitDiscoverer("Xunit.Sdk.AssemblyTraitDiscoverer", "xunit.v3.core")]  // TODO: Use type
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public sealed class AssemblyTraitAttribute : Attribute, ITraitAttribute
     {
