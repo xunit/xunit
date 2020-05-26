@@ -1,18 +1,20 @@
-﻿#if XUNIT_FRAMEWORK
+﻿#if NETFRAMEWORK
+using System;
+using System.Security;
+
+#if XUNIT_FRAMEWORK
+using System.Collections.Concurrent;
+using System.Runtime.Remoting;
+#endif
+#endif
+
+#if XUNIT_FRAMEWORK
 namespace Xunit
 #else
 namespace Xunit.Sdk
 #endif
 {
 #if NETFRAMEWORK
-    using System;
-    using System.Security;
-
-#if XUNIT_FRAMEWORK
-    using System.Collections.Concurrent;
-    using System.Runtime.Remoting;
-#endif
-
     /// <summary>
     /// Base class for all long-lived objects that may cross over an AppDomain.
     /// </summary>
