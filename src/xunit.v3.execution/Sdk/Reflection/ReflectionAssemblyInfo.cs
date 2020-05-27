@@ -25,33 +25,20 @@ namespace Xunit.Sdk
         /// Initializes a new instance of the <see cref="ReflectionAssemblyInfo"/> class.
         /// </summary>
         /// <param name="assemblyFileName">The assembly to be wrapped.</param>
+        [Obsolete("This is gone now.", error: true)]
         public ReflectionAssemblyInfo(string assemblyFileName)
         {
-#if NETSTANDARD
-            Assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName), Version = new Version(0, 0, 0, 0) });
-#else
-            Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
-#endif
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc/>
         public Assembly Assembly { get; private set; }
 
         /// <inheritdoc/>
-        public string AssemblyPath
-        {
-            get
-            {
-#if NETSTANDARD
-                return Assembly.GetName().Name + ".dll";  // Make sure we only use the short form
-#else
-                return Assembly.GetLocalCodeBase();
-#endif
-            }
-        }
+        public string AssemblyPath => Assembly.GetLocalCodeBase();
 
         /// <inheritdoc/>
-        public string Name { get { return Assembly.FullName; } }
+        public string Name => Assembly.FullName;
 
         /// <inheritdoc/>
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)

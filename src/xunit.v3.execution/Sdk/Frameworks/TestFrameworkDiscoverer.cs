@@ -197,25 +197,23 @@ namespace Xunit.Sdk
 
         class PreserveWorkingFolder : IDisposable
         {
-#if NETFRAMEWORK
             readonly string originalWorkingFolder;
-#endif
 
             public PreserveWorkingFolder(IAssemblyInfo assemblyInfo)
             {
-#if NETFRAMEWORK
                 originalWorkingFolder = Directory.GetCurrentDirectory();
 
                 if (!string.IsNullOrEmpty(assemblyInfo.AssemblyPath))
                     Directory.SetCurrentDirectory(Path.GetDirectoryName(assemblyInfo.AssemblyPath));
-#endif
             }
 
             public void Dispose()
             {
-#if NETFRAMEWORK
-                Directory.SetCurrentDirectory(originalWorkingFolder);
-#endif
+                try
+                {
+                    Directory.SetCurrentDirectory(originalWorkingFolder);
+                }
+                catch { }
             }
         }
     }

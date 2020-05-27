@@ -352,7 +352,7 @@ namespace Xunit.ConsoleClient
                 var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, internalDiagnosticMessages, noColor);
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-                using var testFramework = new XunitTestFramework(diagnosticMessageSink);
+                using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName);
                 var assemblyInfo = new ReflectionAssemblyInfo(assembly.Assembly);
                 var discoverySink = new DiscoveryMessageSink(() => cancel);
 

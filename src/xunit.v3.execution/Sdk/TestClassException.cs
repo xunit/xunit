@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace Xunit.Sdk
 {
@@ -7,9 +8,7 @@ namespace Xunit.Sdk
     /// means there were problems identifying the correct test class constructor, or problems
     /// creating the fixture data for the test class.
     /// </summary>
-#if NETFRAMEWORK
     [Serializable]
-#endif
     public class TestClassException : Exception
     {
         /// <summary>
@@ -20,11 +19,9 @@ namespace Xunit.Sdk
             : base(message)
         { }
 
-#if NETFRAMEWORK
         /// <inheritdoc/>
-        protected TestClassException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
+        protected TestClassException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
-#endif
     }
 }

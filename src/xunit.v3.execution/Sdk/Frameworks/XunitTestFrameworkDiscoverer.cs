@@ -13,7 +13,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer
     {
-        static Type XunitTestCaseType = typeof(XunitTestCase);
+        static readonly Type XunitTestCaseType = typeof(XunitTestCase);
 
         /// <summary>
         /// Gets the display name of the xUnit.net v2 test framework.
@@ -24,10 +24,12 @@ namespace Xunit.Sdk
         /// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
         /// </summary>
         /// <param name="assemblyInfo">The test assembly.</param>
+        /// <param name="configFileName">The test configuration file.</param>
         /// <param name="sourceProvider">The source information provider.</param>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="collectionFactory">The test collection factory used to look up test collections.</param>
         public XunitTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo,
+                                            string configFileName,
                                             ISourceInformationProvider sourceProvider,
                                             IMessageSink diagnosticMessageSink,
                                             IXunitTestCollectionFactory collectionFactory = null)
@@ -36,11 +38,7 @@ namespace Xunit.Sdk
             var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
             var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
-            string config = null;
-#if NETFRAMEWORK
-            config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-#endif
-            var testAssembly = new TestAssembly(assemblyInfo, config);
+            var testAssembly = new TestAssembly(assemblyInfo, configFileName);
 
             TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(diagnosticMessageSink, collectionBehaviorAttribute, testAssembly);
             TestFrameworkDisplayName = $"{DisplayName} [{TestCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}]";

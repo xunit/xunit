@@ -22,8 +22,7 @@ namespace Xunit.Sdk
         /// Initializes a new instance of the <see cref="TestAssembly"/> class.
         /// </summary>
         /// <param name="assembly">The test assembly.</param>
-        /// <param name="configFileName">The optional configuration filename (defaults to the
-        /// configuration file of the current app domain if not provided)</param>
+        /// <param name="configFileName">The optional configuration filename</param>
         /// <param name="version">The version number of the assembly (defaults to "0.0.0.0")</param>
         public TestAssembly(IAssemblyInfo assembly, string configFileName = null, Version version = null)
         {
@@ -41,11 +40,6 @@ namespace Xunit.Sdk
 
             if (Version == null)
                 Version = new Version(0, 0, 0, 0);
-
-#if NETFRAMEWORK
-            if (ConfigFileName == null)
-                ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-#endif
         }
 
         /// <inheritdoc/>

@@ -57,7 +57,7 @@ namespace Xunit.Sdk
             catch (Exception ex)
             {
                 diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Exception thrown during test framework construction: {ex.Unwrap()}"));
-                return new XunitTestFramework(diagnosticMessageSink);
+                return new XunitTestFramework(diagnosticMessageSink, null);
             }
         }
 

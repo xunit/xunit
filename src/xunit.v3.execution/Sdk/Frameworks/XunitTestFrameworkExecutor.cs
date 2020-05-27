@@ -17,19 +17,17 @@ namespace Xunit.Sdk
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
         /// </summary>
         /// <param name="assemblyName">Name of the test assembly.</param>
+        /// <param name="configFileName">The test configuration file.</param>
         /// <param name="sourceInformationProvider">The source line number information provider.</param>
         /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
         public XunitTestFrameworkExecutor(AssemblyName assemblyName,
+                                          string configFileName,
                                           ISourceInformationProvider sourceInformationProvider,
                                           IMessageSink diagnosticMessageSink)
             : base(assemblyName, sourceInformationProvider, diagnosticMessageSink)
         {
-            string config = null;
-#if NETFRAMEWORK
-            config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-#endif
-            TestAssembly = new TestAssembly(AssemblyInfo, config, assemblyName.Version);
-            discoverer = new Lazy<XunitTestFrameworkDiscoverer>(() => new XunitTestFrameworkDiscoverer(AssemblyInfo, SourceInformationProvider, DiagnosticMessageSink));
+            TestAssembly = new TestAssembly(AssemblyInfo, configFileName, assemblyName.Version);
+            discoverer = new Lazy<XunitTestFrameworkDiscoverer>(() => new XunitTestFrameworkDiscoverer(AssemblyInfo, configFileName, SourceInformationProvider, DiagnosticMessageSink));
         }
 
         /// <summary>

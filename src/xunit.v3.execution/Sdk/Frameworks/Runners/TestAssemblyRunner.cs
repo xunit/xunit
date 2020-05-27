@@ -96,19 +96,7 @@ namespace Xunit.Sdk
         /// placed into <see cref="ITestAssemblyStarting.TestEnvironment"/>.
         /// </summary>
         protected virtual string GetTestFrameworkEnvironment()
-            => $"{IntPtr.Size * 8}-bit .NET {GetVersion()}";
-
-        static string GetVersion()
-        {
-            var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
-            if (attr != null)
-                return attr.FrameworkDisplayName;
-#if NETFRAMEWORK
-            return Environment.Version.ToString();
-#else
-            return "Standard";
-#endif
-        }
+            => $"{IntPtr.Size * 8}-bit .NET Standard";
 
         /// <summary>
         /// This method is called just after <see cref="ITestAssemblyStarting"/> is sent, but before any test collections are run.
@@ -174,17 +162,17 @@ namespace Xunit.Sdk
         {
             var cancellationTokenSource = new CancellationTokenSource();
             var totalSummary = new RunSummary();
-#if NETFRAMEWORK
             var currentDirectory = Directory.GetCurrentDirectory();
-#endif
             var testFrameworkEnvironment = GetTestFrameworkEnvironment();
             var testFrameworkDisplayName = GetTestFrameworkDisplayName();
 
             using (var messageBus = CreateMessageBus())
             {
-#if NETFRAMEWORK
-                Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
-#endif
+                try
+                {
+                    Directory.SetCurrentDirectory(Path.GetDirectoryName(TestAssembly.Assembly.AssemblyPath));
+                }
+                catch { }
 
                 if (messageBus.QueueMessage(new TestAssemblyStarting(TestCases.Cast<ITestCase>(), TestAssembly, DateTime.Now, testFrameworkEnvironment, testFrameworkDisplayName)))
                 {
@@ -206,9 +194,12 @@ namespace Xunit.Sdk
                     finally
                     {
                         messageBus.QueueMessage(new TestAssemblyFinished(TestCases.Cast<ITestCase>(), TestAssembly, totalSummary.Time, totalSummary.Total, totalSummary.Failed, totalSummary.Skipped));
-#if NETFRAMEWORK
-                        Directory.SetCurrentDirectory(currentDirectory);
-#endif
+
+                        try
+                        {
+                            Directory.SetCurrentDirectory(currentDirectory);
+                        }
+                        catch { }
                     }
                 }
             }
