@@ -12,8 +12,9 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFramework"/> class.
         /// </summary>
-        /// <param name="messageSink">The message sink used to send diagnostic messages</param>
-        public XunitTestFramework(IMessageSink messageSink) : base(messageSink) { }
+        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
+        public XunitTestFramework(IMessageSink diagnosticMessageSink)
+            : base(diagnosticMessageSink) { }
 
         /// <inheritdoc/>
         protected override ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assemblyInfo)

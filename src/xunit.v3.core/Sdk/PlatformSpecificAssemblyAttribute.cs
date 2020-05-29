@@ -31,5 +31,6 @@ namespace Xunit.Sdk
     /// that you use the suffixes here with the exact case shown.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
+    [Obsolete("This does not work anymore. Bye!", error: true)]
     public sealed class PlatformSpecificAssemblyAttribute : Attribute { }
 }

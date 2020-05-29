@@ -7,7 +7,9 @@ namespace Xunit.ConsoleClient
         [STAThread]
         public static int Main(string[] args)
         {
-            return 0;
+            var consoleLock = new object();
+
+            return new ConsoleRunner(consoleLock).EntryPoint(args);
         }
     }
 }
