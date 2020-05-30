@@ -1,11 +1,19 @@
 {
     "cSpell.words": [
         "app",
+        "noautoreporters",
+        "noclass",
+        "nocolor",
+        "nologo",
+        "nomethod",
+        "notrait",
         "nuget",
         "nupkg",
         "parallelization",
         "randomizer",
-        "veyor"
+        "stoponfail",
+        "veyor",
+        "vsts"
     ],
     "files.exclude": {
         "**/.git": true,

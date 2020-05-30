@@ -50,7 +50,8 @@
   <!-- Test-specific properties and items -->
 
   <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
-    <!-- <OutputType>Exe</OutputType> -->
+    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">

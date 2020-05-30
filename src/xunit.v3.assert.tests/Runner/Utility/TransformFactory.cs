@@ -53,29 +53,27 @@ namespace Xunit.ConsoleClient
         public static List<Transform> AvailableTransforms
             => instance.availableTransforms.Values.ToList();
 
-        //public static List<Action<XElement>> GetXmlTransformers(XunitProject project)
-        //    => project.Output
-        //              .Select(output => new Action<XElement>(xml => instance.availableTransforms[output.Key].OutputHandler(xml, output.Value)))
-        //              .ToList();
+        public static List<Action<XElement>> GetXmlTransformers(XunitProject project)
+           => project.Output
+                     .Select(output => new Action<XElement>(xml => instance.availableTransforms[output.Key].OutputHandler(xml, output.Value)))
+                     .ToList();
 
         static void Handler_DirectWrite(XElement xml, string outputFileName)
         {
-            using (var stream = File.Create(outputFileName))
-                xml.Save(stream);
+            using var stream = File.Create(outputFileName);
+            xml.Save(stream);
         }
 
         static void Handler_XslTransform(string key, string resourceName, XElement xml, string outputFileName)
         {
             var xmlTransform = new System.Xml.Xsl.XslCompiledTransform();
 
-            using (var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true }))
-            using (var xsltStream = typeof(TransformFactory).GetTypeInfo().Assembly.GetManifestResourceStream($"Xunit.ConsoleClient.{resourceName}"))
-            using (var xsltReader = XmlReader.Create(xsltStream))
-            using (var xmlReader = xml.CreateReader())
-            {
-                xmlTransform.Load(xsltReader);
-                xmlTransform.Transform(xmlReader, writer);
-            }
+            using var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true });
+            using var xsltStream = typeof(TransformFactory).GetTypeInfo().Assembly.GetManifestResourceStream($"Xunit.Runner.Transforms.{resourceName}");
+            using var xsltReader = XmlReader.Create(xsltStream);
+            using var xmlReader = xml.CreateReader();
+            xmlTransform.Load(xsltReader);
+            xmlTransform.Transform(xmlReader, writer);
         }
     }
 }

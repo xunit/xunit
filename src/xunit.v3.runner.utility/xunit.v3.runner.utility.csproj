@@ -3,9 +3,8 @@
   <PropertyGroup>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.runner.utility.net472</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard2.0' ">xunit.v3.runner.utility.netstandard20</AssemblyName>
-    <Description>Includes the version-independent runner for xUnit.net to run all of v1.9.2, v2.x, and v3.x tests (xunit.v3.runner.utility.dll). Supports .NET 4.7.2 or later and .NET Standard 2.0 or later.</Description>
+    <Description>Includes the version-independent runner for xUnit.net to run all of v1.9.2, v2.x, and v3.x tests (xunit.v3.runner.utility.*.dll). Supports .NET 4.7.2 or later and .NET Standard 2.0 or later.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <RootNamespace>Xunit</RootNamespace>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <Title>xUnit.net [Runner Utility]</Title>
   </PropertyGroup>
@@ -14,30 +13,30 @@
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\CommonTasks.cs" LinkBase="Common" />
     <Compile Include="..\common\ConcurrentDictionary.cs" LinkBase="Common" />
-    <Compile Include="..\common\ConsoleHelper.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\DisposableExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\ExceptionUtility.cs" LinkBase="Common" />
     <Compile Include="..\common\Guard.cs" LinkBase="Common" />
-    <Compile Include="..\common\Json.cs" LinkBase="Common" />
-    <Compile Include="..\common\LongLivedMarshalByRefObject.cs" LinkBase="Common" />
     <Compile Include="..\common\NewReflectionExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\NullMessageSink.cs" LinkBase="Common" />
     <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\common\SourceInformation.cs" LinkBase="Common" />
-    <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
-    <Compile Include="..\common\TestMethodDisplayOptions.cs" LinkBase="Common" />
-    <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
     <Compile Include="..\common\AssemblyResolution\AssemblyHelper_Desktop.cs" LinkBase="Common" />
     <Compile Include="..\common\AssemblyResolution\_DiagnosticMessage.cs" LinkBase="Common" />
-    <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
-    <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard20.rd.xml" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <EmbeddedResource Include="Resources\*.rd.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.v3.runner.common\xunit.v3.runner.common.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">

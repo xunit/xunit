@@ -28,8 +28,12 @@
     <EmbeddedResource Include="Resources\xunit.v3.core.rd.xml" />
   </ItemGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <ProjectReference Include="..\xunit.v3.abstractions\xunit.v3.abstractions.csproj" />
+  </ItemGroup> -->
+
+  <ItemGroup>
+    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 
 </Project>

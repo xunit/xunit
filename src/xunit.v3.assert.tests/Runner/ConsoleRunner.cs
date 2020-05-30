@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace Xunit.ConsoleClient
@@ -19,7 +18,7 @@ namespace Xunit.ConsoleClient
         ExecutionSummary executionSummary;
         bool failed;
         IRunnerLogger logger;
-        IMessageSink reporterMessageHandler;
+        IMessageSinkWithTypes reporterMessageHandler;
 
         public ConsoleRunner(object consoleLock)
         {
@@ -28,7 +27,8 @@ namespace Xunit.ConsoleClient
 
         public int EntryPoint(string[] args)
         {
-            commandLine = CommandLine.Parse(args);
+            var assemblyUnderTest = Assembly.GetEntryAssembly();
+            commandLine = CommandLine.Parse(assemblyUnderTest.GetLocalCodeBase(), args);
 
             try
             {
@@ -73,13 +73,13 @@ namespace Xunit.ConsoleClient
                     Debugger.Launch();
 
                 logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-                reporterMessageHandler = reporter.CreateMessageHandler(logger);
+                reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
                 if (!commandLine.NoLogo)
                     PrintHeader();
 
                 // TODO: Will need more things here, like filters and output transform, when they're back
-                var failCount = RunProject(commandLine.ConfigFileName,
+                var failCount = RunProject(commandLine.Project,
                                            commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
                                            commandLine.DiagnosticMessages, commandLine.NoColor,
                                            commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages);
@@ -125,48 +125,46 @@ namespace Xunit.ConsoleClient
         {
             var result = new List<IRunnerReporter>();
 
-            //            var runnerPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
+            var runnerPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
 
-            //            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
-            //            {
-            //                var types = new Type[0];
+            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
+            {
+                var types = new Type[0];
 
-            //                try
-            //                {
-            //#if NETFRAMEWORK
-            //                    var assembly = Assembly.LoadFile(dllFile);
-            //#else
-            //                    var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
-            //#endif
-            //                    types = assembly.GetTypes();
-            //                }
-            //                catch (ReflectionTypeLoadException ex)
-            //                {
-            //                    types = ex.Types;
-            //                }
-            //                catch
-            //                {
-            //                    continue;
-            //                }
+                try
+                {
+#if NETFRAMEWORK
+                    var assembly = Assembly.LoadFile(dllFile);
+#else
+                   var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
+#endif
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types;
+                }
+                catch
+                {
+                    continue;
+                }
 
-            //                foreach (var type in types)
-            //                {
-            //#pragma warning disable CS0618
-            //                    if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
-            //                        continue;
-            //#pragma warning restore CS0618
-            //                    var ctor = type.GetConstructor(new Type[0]);
-            //                    if (ctor == null)
-            //                    {
-            //                        ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-            //                        Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
-            //                        ConsoleHelper.ResetColor();
-            //                        continue;
-            //                    }
+                foreach (var type in types)
+                {
+                    if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+                        continue;
+                    var ctor = type.GetConstructor(new Type[0]);
+                    if (ctor == null)
+                    {
+                        ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+                        Console.WriteLine($"Type {type.FullName} in assembly {dllFile} appears to be a runner reporter, but does not have an empty constructor.");
+                        ConsoleHelper.ResetColor();
+                        continue;
+                    }
 
-            //                    result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
-            //                }
-            //            }
+                    result.Add((IRunnerReporter)ctor.Invoke(new object[0]));
+                }
+            }
 
             return result;
         }
@@ -199,71 +197,83 @@ namespace Xunit.ConsoleClient
         {
             Console.WriteLine("Copyright (C) .NET Foundation.");
             Console.WriteLine();
-            Console.WriteLine($"usage: [confileFile] [options] [reporter] [resultFormat filename [...]]");
+            Console.WriteLine($"usage: [path/to/configFile.json] [options] [filters] [reporter] [resultFormat filename [...]]");
             Console.WriteLine();
-            Console.WriteLine("Note: Configuration files must end in .json");
+            Console.WriteLine("Options");
             Console.WriteLine();
-            Console.WriteLine("Valid options:");
-            Console.WriteLine("  -nologo                : do not show the copyright message");
-            Console.WriteLine("  -nocolor               : do not output results with colors");
-            Console.WriteLine("  -failskips             : convert skipped tests into failures");
-            Console.WriteLine("  -stoponfail            : stop on first test failure");
-            Console.WriteLine("  -parallel option       : set parallelization based on option");
-            Console.WriteLine("                         :   none        - turn off all parallelization");
-            Console.WriteLine("                         :   collections - only parallelize collections");
-            Console.WriteLine("  -maxthreads count      : maximum thread count for collection parallelization");
-            Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
-            Console.WriteLine("                         :   unlimited - run with unbounded thread count");
-            Console.WriteLine("                         :   (number)  - limit task thread pool size to 'count'");
-            Console.WriteLine("  -wait                  : wait for input after completion");
-            Console.WriteLine("  -diagnostics           : enable diagnostics messages for all test assemblies");
-            Console.WriteLine("  -internaldiagnostics   : enable internal diagnostics messages for all test assemblies");
-            Console.WriteLine("  -pause                 : pause before doing any work, to help attach a debugger");
-            Console.WriteLine("  -debug                 : launch the debugger to debug the tests");
-            Console.WriteLine("  -trait \"name=value\"    : only run tests with matching name/value traits");
-            Console.WriteLine("                         : if specified more than once, acts as an OR operation");
-            Console.WriteLine("  -notrait \"name=value\"  : do not run tests with matching name/value traits");
-            Console.WriteLine("                         : if specified more than once, acts as an AND operation");
-            Console.WriteLine("  -method \"name\"         : run a given test method (can be fully specified or use a wildcard;");
-            Console.WriteLine("                         : i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')");
-            Console.WriteLine("                         : if specified more than once, acts as an OR operation");
-            Console.WriteLine("  -nomethod \"name\"       : do not run a given test method (can be fully specified or use a wildcard;");
-            Console.WriteLine("                         : i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')");
-            Console.WriteLine("                         : if specified more than once, acts as an AND operation");
-            Console.WriteLine("  -class \"name\"          : run all methods in a given test class (should be fully");
-            Console.WriteLine("                         : specified; i.e., 'MyNamespace.MyClass')");
-            Console.WriteLine("                         : if specified more than once, acts as an OR operation");
-            Console.WriteLine("  -noclass \"name\"        : do not run any methods in a given test class (should be fully");
-            Console.WriteLine("                         : specified; i.e., 'MyNamespace.MyClass')");
-            Console.WriteLine("                         : if specified more than once, acts as an AND operation");
-            Console.WriteLine("  -namespace \"name\"      : run all methods in a given namespace (i.e.,");
-            Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
-            Console.WriteLine("                         : if specified more than once, acts as an OR operation");
-            Console.WriteLine("  -nonamespace \"name\"    : do not run any methods in a given namespace (i.e.,");
-            Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
-            Console.WriteLine("                         : if specified more than once, acts as an AND operation");
-            Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
-            Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
+            Console.WriteLine("  -nologo              : do not show the copyright message");
+            Console.WriteLine("  -nocolor             : do not output results with colors");
+            Console.WriteLine("  -failskips           : convert skipped tests into failures");
+            Console.WriteLine("  -stoponfail          : stop on first test failure");
+            Console.WriteLine("  -parallel option     : set parallelization based on option");
+            Console.WriteLine("                       :   none        - turn off all parallelization");
+            Console.WriteLine("                       :   collections - only parallelize collections");
+            Console.WriteLine("  -maxthreads count    : maximum thread count for collection parallelization");
+            Console.WriteLine("                       :   default   - run with default (1 thread per CPU thread)");
+            Console.WriteLine("                       :   unlimited - run with unbounded thread count");
+            Console.WriteLine("                       :   (number)  - limit task thread pool size to 'count'");
+            Console.WriteLine("  -wait                : wait for input after completion");
+            Console.WriteLine("  -diagnostics         : enable diagnostics messages for all test assemblies");
+            Console.WriteLine("  -internaldiagnostics : enable internal diagnostics messages for all test assemblies");
+            Console.WriteLine("  -pause               : pause before doing any work, to help attach a debugger");
+            Console.WriteLine("  -debug               : launch the debugger to debug the tests");
+            Console.WriteLine("  -noautoreporters     : do not allow reporters to be auto-enabled by environment");
+            Console.WriteLine("                       : (for example, auto-detecting TeamCity or AppVeyor)");
+            Console.WriteLine();
+            // TODO: Should we offer a more flexible (but harder to use?) generalized filtering system?
+            Console.WriteLine("Filtering (optional, choose one or more)");
+            Console.WriteLine("If more than one filter type is specified, cross-filter type filters act as an AND operation");
+            Console.WriteLine();
+            Console.WriteLine("  -trait \"name=value\"   : only run tests with matching name/value traits");
+            Console.WriteLine("                        : if specified more than once, acts as an OR operation");
+            Console.WriteLine("  -notrait \"name=value\" : do not run tests with matching name/value traits");
+            Console.WriteLine("                        : if specified more than once, acts as an AND operation");
+            Console.WriteLine("  -method \"name\"        : run a given test method (can be fully specified or use a wildcard;");
+            Console.WriteLine("                        : i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')");
+            Console.WriteLine("                        : if specified more than once, acts as an OR operation");
+            Console.WriteLine("  -nomethod \"name\"      : do not run a given test method (can be fully specified or use a wildcard;");
+            Console.WriteLine("                        : i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')");
+            Console.WriteLine("                        : if specified more than once, acts as an AND operation");
+            Console.WriteLine("  -class \"name\"         : run all methods in a given test class (should be fully");
+            Console.WriteLine("                        : specified; i.e., 'MyNamespace.MyClass')");
+            Console.WriteLine("                        : if specified more than once, acts as an OR operation");
+            Console.WriteLine("  -noclass \"name\"       : do not run any methods in a given test class (should be fully");
+            Console.WriteLine("                        : specified; i.e., 'MyNamespace.MyClass')");
+            Console.WriteLine("                        : if specified more than once, acts as an AND operation");
+            Console.WriteLine("  -namespace \"name\"     : run all methods in a given namespace (i.e.,");
+            Console.WriteLine("                        : 'MyNamespace.MySubNamespace')");
+            Console.WriteLine("                        : if specified more than once, acts as an OR operation");
+            Console.WriteLine("  -nonamespace \"name\"   : do not run any methods in a given namespace (i.e.,");
+            Console.WriteLine("                        : 'MyNamespace.MySubNamespace')");
+            Console.WriteLine("                        : if specified more than once, acts as an AND operation");
             Console.WriteLine();
 
-            var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();
-            if (switchableReporters.Count > 0)
+            if (reporters.Count > 0)
             {
-                Console.WriteLine("Reporters: (optional, choose only one)");
+                Console.WriteLine("Reporters (optional, choose only one)");
+                Console.WriteLine();
 
-                foreach (var reporter in switchableReporters.OrderBy(r => r.RunnerSwitch))
-                    Console.WriteLine($"  -{reporter.RunnerSwitch.ToLowerInvariant(),-21} : {reporter.Description}");
+                var longestSwitch = reporters.Max(r => r.RunnerSwitch?.Length ?? 0);
+
+                foreach (var switchableReporter in reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
+                    Console.WriteLine($"  -{switchableReporter.RunnerSwitch.ToLowerInvariant().PadRight(longestSwitch)} : {switchableReporter.Description}");
+
+                foreach (var environmentalReporter in reporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
+                    Console.WriteLine($"   {"".PadRight(longestSwitch)} : {environmentalReporter.Description} [auto-enabled only]");
 
                 Console.WriteLine();
             }
 
-            Console.WriteLine("Result formats: (optional, choose one or more)");
+            Console.WriteLine("Result formats (optional, choose one or more)");
+            Console.WriteLine();
+
+            var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.CommandLine.Length);
             TransformFactory.AvailableTransforms.ForEach(
-                transform => Console.WriteLine($"  -{$"{transform.CommandLine} <filename>".PadRight(21).Substring(0, 21)} : {transform.Description}")
+                transform => Console.WriteLine($"  -{$"{transform.CommandLine} <filename>".PadRight(longestTransform + 11)} : {transform.Description}")
             );
         }
 
-        int RunProject(string configFileName,
+        int RunProject(XunitProject project,
                        bool? parallelizeTestCollections,
                        int? maxThreadCount,
                        bool diagnosticMessages,
@@ -272,23 +282,18 @@ namespace Xunit.ConsoleClient
                        bool stopOnFail,
                        bool internalDiagnosticMessages)
         {
-            var assembly = new XunitProjectAssembly
-            {
-                Assembly = Assembly.GetEntryAssembly(),
-                ConfigFilename = configFileName != null ? Path.GetFullPath(configFileName) : null,
-            };
-
             XElement assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
-            //var xmlTransformers = TransformFactory.GetXmlTransformers(project);
-            //var needsXml = xmlTransformers.Count > 0;
+            var xmlTransformers = TransformFactory.GetXmlTransformers(project);
+            var needsXml = xmlTransformers.Count > 0;
 
-            //if (needsXml)
-            //    assembliesElement = new XElement("assemblies");
+            if (needsXml)
+                assembliesElement = new XElement("assemblies");
 
             var originalWorkingFolder = Directory.GetCurrentDirectory();
 
-            var assemblyElement = ExecuteAssembly(consoleLock, assembly, configFileName, false /*needsXml*/, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, failSkips, stopOnFail, /*project.Filters, */internalDiagnosticMessages);
+            var assembly = project.Assemblies.Single();
+            var assemblyElement = ExecuteAssembly(consoleLock, assembly, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages);
             if (assemblyElement != null)
                 assembliesElement.Add(assemblyElement);
 
@@ -304,15 +309,13 @@ namespace Xunit.ConsoleClient
 
             Directory.SetCurrentDirectory(originalWorkingFolder);
 
-            //xmlTransformers.ForEach(transformer => transformer(assembliesElement));
+            xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
             return failed ? 1 : executionSummary.Failed;
         }
 
         XElement ExecuteAssembly(object consoleLock,
                                  XunitProjectAssembly assembly,
-                                 string configFileName,
-                                 //bool serialize,
                                  bool needsXml,
                                  bool? parallelizeTestCollections,
                                  int? maxThreadCount,
@@ -320,7 +323,7 @@ namespace Xunit.ConsoleClient
                                  bool noColor,
                                  bool failSkips,
                                  bool stopOnFail,
-                                 //XunitFilters filters,
+                                 XunitFilters filters,
                                  bool internalDiagnosticMessages)
         {
             if (cancel)
@@ -330,7 +333,7 @@ namespace Xunit.ConsoleClient
 
             try
             {
-                if (!ValidateFileExists(consoleLock, configFileName))
+                if (!ValidateFileExists(consoleLock, assembly.ConfigFilename))
                     return null;
 
                 // Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
@@ -339,8 +342,8 @@ namespace Xunit.ConsoleClient
                 assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
 
                 // Setup discovery and execution options with command-line overrides
-                var discoveryOptions = TestFrameworkOptions.ForDiscovery(/*assembly.Configuration*/);
-                var executionOptions = TestFrameworkOptions.ForExecution(/*assembly.Configuration*/);
+                var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+                var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
                 executionOptions.SetStopOnTestFail(stopOnFail);
                 if (maxThreadCount.HasValue)
                     executionOptions.SetMaxParallelThreads(maxThreadCount);
@@ -352,22 +355,22 @@ namespace Xunit.ConsoleClient
                 var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, internalDiagnosticMessages, noColor);
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-                using var testFramework = new XunitTestFramework(diagnosticMessageSink, configFileName);
-                var assemblyInfo = new ReflectionAssemblyInfo(assembly.Assembly);
-                var discoverySink = new DiscoveryMessageSink(() => cancel);
+                using var testFramework = new XunitTestFramework(diagnosticMessageSink, assembly.ConfigFilename);
+                var entryAssembly = Assembly.GetEntryAssembly();
+                var assemblyInfo = new ReflectionAssemblyInfo(entryAssembly);
+                var discoverySink = new TestDiscoverySink(() => cancel);
 
                 using (var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo))
                 {
                     // Discover & filter the tests
-                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, discoveryOptions));
+                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, appDomain: false, shadowCopy: false, discoveryOptions));
 
                     testDiscoverer.Find(includeSourceInformation: false, discoverySink, discoveryOptions);
                     discoverySink.Finished.WaitOne();
                 }
 
                 var testCasesDiscovered = discoverySink.TestCases.Count;
-                //var filteredTestCases = discoverySink.TestCases.Where(filters.Filter).ToList();
-                var filteredTestCases = discoverySink.TestCases.ToList();
+                var filteredTestCases = discoverySink.TestCases.Where(filters.Filter).ToList();
                 var testCasesToRun = filteredTestCases.Count;
 
                 reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
@@ -379,15 +382,15 @@ namespace Xunit.ConsoleClient
                 {
                     reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 
-                    var resultsSink = new ExecutionMessageSink(reporterMessageHandler, () => cancel);
-                    //if (assemblyElement != null)
-                    //    resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-                    //if (longRunningSeconds > 0)
-                    //    resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), MessageSinkWithTypesAdapter.Wrap(diagnosticMessageSink));
-                    //if (failSkips)
-                    //    resultsSink = new DelegatingFailSkipSink(resultsSink);
+                    IExecutionSink resultsSink = new DelegatingExecutionSummarySink(reporterMessageHandler, () => cancel);
+                    if (assemblyElement != null)
+                        resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
+                    if (longRunningSeconds > 0)
+                        resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), MessageSinkWithTypesAdapter.Wrap(diagnosticMessageSink));
+                    if (failSkips)
+                        resultsSink = new DelegatingFailSkipSink(resultsSink);
 
-                    using var executor = testFramework.GetExecutor(assembly.Assembly.GetName());
+                    using var executor = testFramework.GetExecutor(entryAssembly.GetName());
                     executor.RunTests(filteredTestCases, resultsSink, executionOptions);
                     resultsSink.Finished.WaitOne();
 

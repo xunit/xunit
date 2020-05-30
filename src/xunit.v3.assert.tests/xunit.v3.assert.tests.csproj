@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
-    <OutputType>Exe</OutputType>
     <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
 
@@ -27,8 +25,10 @@
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\common\Runners\**\*.cs" LinkBase="Common\Runners" />
 
-    <ProjectReference Include="..\xunit.v3.abstractions\xunit.v3.abstractions.csproj" />
+    <EmbeddedResource Include="Runner\Transforms\*.xslt" />
+
     <ProjectReference Include="..\xunit.v3.execution\xunit.v3.execution.csproj" />
+    <ProjectReference Include="..\xunit.v3.runner.common\xunit.v3.runner.common.csproj" />
   </ItemGroup>
 
 </Project>
