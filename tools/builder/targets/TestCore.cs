@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,9 +20,9 @@ public static class TestCore
         {
             var fileName = Path.GetFileName(testDll);
             var folder = Path.GetDirectoryName(testDll);
+            var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(testDll) + "-" + Path.GetFileName(folder));
 
-            // TODO: XML output?
-            await context.Exec("dotnet", $"exec {fileName}", workingDirectory: folder);
+            await context.Exec("dotnet", $"exec {fileName} {context.TestFlagsParallel} -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
         }
     }
 }

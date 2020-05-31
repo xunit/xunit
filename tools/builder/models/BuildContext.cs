@@ -73,7 +73,7 @@ public class BuildContext
         Console.WriteLine();
     }
 
-    async Task<int> OnExecuteAsync()
+    public async Task<int> OnExecuteAsync()
     {
         Exception error = default;
 
@@ -81,7 +81,8 @@ public class BuildContext
         {
             NeedMono = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             TestFlagsNonParallel = "-parallel none -maxthreads 1";
-            TestFlagsParallel = "-parallel all -maxthreads 16";
+            // TestFlagsParallel = "-parallel all -maxthreads 16";
+            TestFlagsParallel = "-parallel collections -maxthreads 16";
 
             // Find the folder with the solution file
             BaseFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
