@@ -31,7 +31,7 @@ static class JsonExtentions
             sb.AppendFormat(@"""{0}"":{1}", name, value.ToString().ToLower());
         else if (value is DateTime dt)
             sb.AppendFormat(@"""{0}"":""{1}""", name, dt.ToString("o", CultureInfo.InvariantCulture));
-        else if(value is IDictionary<string, object> dict)
+        else if (value is IDictionary<string, object> dict)
             sb.AppendFormat(@"""{0}"":{1}", name, dict.ToJson()); // sub-object
         else
             sb.AppendFormat(@"""{0}"":""{1}""", name, JsonEscape(value.ToString()));

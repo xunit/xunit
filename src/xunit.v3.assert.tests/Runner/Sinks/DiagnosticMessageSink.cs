@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
-    public class DiagnosticMessageSink: IMessageSink
+    public class DiagnosticMessageSink : IMessageSink
     {
         readonly string assemblyDisplayName;
         readonly object consoleLock;
