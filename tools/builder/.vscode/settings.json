@@ -1,6 +1,8 @@
 {
     "cSpell.words": [
-        "nuget"
+        "nologo",
+        "nuget",
+        "parallelization"
     ],
     "files.exclude": {
         "**/.git": true,
