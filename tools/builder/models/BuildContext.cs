@@ -102,10 +102,8 @@ public class BuildContext
             TestOutputFolder = Path.Combine(BaseFolder, "artifacts", "test");
             Directory.CreateDirectory(TestOutputFolder);
 
-            // Parse the targets and Bullseye-specific arguments
-            var bullseyeArguments = Targets.Select(x => x.ToString());
-            if (SkipDependencies)
-                bullseyeArguments = bullseyeArguments.Append("--skip-dependencies");
+            // Parse the targets
+            var targetNames = Targets.Select(x => x.ToString()).ToList();
 
             // Turn off test parallelization in CI, for more repeatable test timing
             if (Targets.Contains(BuildTarget.CI))
@@ -128,7 +126,7 @@ public class BuildContext
             }
 
             // Let Bullseye run the target(s)
-            await targetCollection.RunAsync(bullseyeArguments.ToList(), SkipDependencies, false, false, new NullLogger(), _ => false);
+            await targetCollection.RunAsync(targetNames, SkipDependencies, dryRun: false, parallel: false, new NullLogger(), _ => false);
             return 0;
         }
         catch (Exception ex)
