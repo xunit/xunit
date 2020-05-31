@@ -27,7 +27,6 @@
 
     <EmbeddedResource Include="Runner\Transforms\*.xslt" />
 
-    <ProjectReference Include="..\xunit.v3.execution\xunit.v3.execution.csproj" />
     <ProjectReference Include="..\xunit.v3.runner.common\xunit.v3.runner.common.csproj" />
   </ItemGroup>
 

@@ -6,7 +6,7 @@ namespace Xunit
     /// <summary>
     /// Used to decorate an assembly to allow the use of a custom <see cref="T:Xunit.Sdk.ITestFramework"/>.
     /// </summary>
-    [TestFrameworkDiscoverer("Xunit.Sdk.TestFrameworkTypeDiscoverer", "xunit.v3.execution")]  // TODO: Use type
+    [TestFrameworkDiscoverer("Xunit.Sdk.TestFrameworkTypeDiscoverer", "xunit.v3.core")]  // TODO: Use type
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
     public sealed class TestFrameworkAttribute : Attribute, ITestFrameworkAttribute
     {
