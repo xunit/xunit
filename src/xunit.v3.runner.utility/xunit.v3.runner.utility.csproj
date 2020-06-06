@@ -26,7 +26,7 @@
     <Compile Include="..\common\AssemblyResolution\_DiagnosticMessage.cs" LinkBase="Common" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
     <EmbeddedResource Include="Resources\*.rd.xml" />
   </ItemGroup>
 
@@ -38,7 +38,7 @@
     <ProjectReference Include="..\xunit.v3.runner.common\xunit.v3.runner.common.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
   </ItemGroup>

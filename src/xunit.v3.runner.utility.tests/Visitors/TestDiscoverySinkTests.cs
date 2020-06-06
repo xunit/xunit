@@ -3,7 +3,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
-public class TestDiscoveryVisitorTests
+public class TestDiscoverySinkTests
 {
     [Fact]
     public void CollectsTestCases()

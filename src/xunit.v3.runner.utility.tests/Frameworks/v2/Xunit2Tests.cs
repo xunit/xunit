@@ -1,4 +1,6 @@
-﻿#if NETFRAMEWORK
+﻿#if false
+
+#if NETFRAMEWORK
 
 using System.Linq;
 using Xunit;
@@ -274,5 +276,7 @@ let AsyncFailing() =
         }
     }
 }
+
+#endif
 
 #endif

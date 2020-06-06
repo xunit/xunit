@@ -1,4 +1,6 @@
-﻿#if NETFRAMEWORK
+﻿#if false
+
+#if NETFRAMEWORK
 
 using System;
 using System.Collections.Generic;
@@ -73,5 +75,7 @@ namespace Namespace1
         }
     }
 }
+
+#endif
 
 #endif

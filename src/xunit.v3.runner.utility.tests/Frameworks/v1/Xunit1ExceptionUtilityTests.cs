@@ -1,4 +1,6 @@
-﻿#if NETFRAMEWORK
+﻿#if false
+
+#if NETFRAMEWORK
 
 using System;
 using System.Globalization;
@@ -40,5 +42,7 @@ public class Xunit1ExceptionUtilityTests
         }
     }
 }
+
+#endif
 
 #endif

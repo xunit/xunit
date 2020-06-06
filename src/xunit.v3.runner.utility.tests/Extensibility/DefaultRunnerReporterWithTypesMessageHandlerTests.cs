@@ -1,13 +1,11 @@
-﻿#pragma warning disable CS0618
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
-public class DefaultRunnerReporterMessageHandlerTests
+public class DefaultRunnerReporterWithTypesMessageHandlerTests
 {
     static void SetupFailureInformation(IFailureInformation failureInfo)
     {
@@ -75,9 +73,9 @@ public class DefaultRunnerReporterMessageHandlerTests
         [MemberData("Messages")]
         public void LogsMessage(IMessageSinkMessage message, string messageType)
         {
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             Assert.Collection(handler.Messages,
                 msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>     [" + messageType + "] ExceptionType", msg),
@@ -102,9 +100,9 @@ public class DefaultRunnerReporterMessageHandlerTests
         public static void LogsMessage(bool diagnosticMessages, int toRun, int discovered, string expectedResult)
         {
             var message = Mocks.TestAssemblyDiscoveryFinished(diagnosticMessages, toRun, discovered);
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             var msg = Assert.Single(handler.Messages);
             Assert.Equal(expectedResult, msg);
@@ -123,9 +121,9 @@ public class DefaultRunnerReporterMessageHandlerTests
         public static void LogsMessage(bool diagnosticMessages, string expectedResult)
         {
             var message = Mocks.TestAssemblyDiscoveryStarting(diagnosticMessages: diagnosticMessages, appDomain: true);
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             var msg = Assert.Single(handler.Messages);
             Assert.Equal(expectedResult, msg);
@@ -138,9 +136,9 @@ public class DefaultRunnerReporterMessageHandlerTests
         public static void LogsMessage()
         {
             var message = Mocks.TestAssemblyExecutionFinished();
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             var msg = Assert.Single(handler.Messages);
             Assert.Equal("[Imp] =>   Finished:    testAssembly", msg);
@@ -155,9 +153,9 @@ public class DefaultRunnerReporterMessageHandlerTests
         public static void LogsMessage(bool diagnosticMessages, string expectedResult)
         {
             var message = Mocks.TestAssemblyExecutionStarting(diagnosticMessages: diagnosticMessages);
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             var msg = Assert.Single(handler.Messages);
             Assert.Equal(expectedResult, msg);
@@ -172,9 +170,9 @@ public class DefaultRunnerReporterMessageHandlerTests
             var clockTime = TimeSpan.FromSeconds(12.3456);
             var assembly = new ExecutionSummary { Total = 2112, Errors = 6, Failed = 42, Skipped = 8, Time = 1.2345M };
             var message = new TestExecutionSummary(clockTime, new List<KeyValuePair<string, ExecutionSummary>> { new KeyValuePair<string, ExecutionSummary>("assembly", assembly) });
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             Assert.Collection(handler.Messages,
                 msg => Assert.Equal("[Imp] => === TEST EXECUTION SUMMARY ===", msg),
@@ -196,9 +194,9 @@ public class DefaultRunnerReporterMessageHandlerTests
                 new KeyValuePair<string, ExecutionSummary>("nothing", nothing),
                 new KeyValuePair<string, ExecutionSummary>("longerName", longerName),
             });
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             Assert.Collection(handler.Messages,
                 msg => Assert.Equal("[Imp] => === TEST EXECUTION SUMMARY ===", msg),
@@ -211,16 +209,16 @@ public class DefaultRunnerReporterMessageHandlerTests
         }
     }
 
-    public class OnMessage_ITestFailed : DefaultRunnerReporterMessageHandlerTests
+    public class OnMessage_ITestFailed : DefaultRunnerReporterWithTypesMessageHandlerTests
     {
         [Fact]
         public void LogsTestNameWithExceptionAndStackTraceAndOutput()
         {
-            var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, output: "This is\t" + Environment.NewLine + "output");
+            var message = Mocks.TestFailed("This is my display name \t\r\n", 1.2345M, output: $"This is\t{Environment.NewLine}output");
             SetupFailureInformation(message);
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             Assert.Collection(handler.Messages,
                 msg => Assert.Equal("[Err @ SomeFolder\\SomeClass.cs:18] =>     This is my display name \\t\\r\\n [FAIL]", msg),
@@ -243,9 +241,9 @@ public class DefaultRunnerReporterMessageHandlerTests
         public void DoesNotLogOutputByDefault()
         {
             var message = Mocks.TestPassed("This is my display name \t\r\n", output: "This is\t" + Environment.NewLine + "output");
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             Assert.Empty(handler.Messages);
         }
@@ -254,11 +252,11 @@ public class DefaultRunnerReporterMessageHandlerTests
         public void LogsOutputWhenDiagnosticsAreEnabled()
         {
             var message = Mocks.TestPassed("This is my display name \t\r\n", output: "This is\t" + Environment.NewLine + "output");
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
-            handler.OnMessage(Mocks.TestAssemblyExecutionStarting(diagnosticMessages: true, assemblyFilename: message.TestAssembly.Assembly.AssemblyPath));
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
+            handler.OnMessageWithTypes(Mocks.TestAssemblyExecutionStarting(diagnosticMessages: true, assemblyFilename: message.TestAssembly.Assembly.AssemblyPath), null);
             handler.Messages.Clear();  // Ignore any output from the "assembly execution starting" message
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             Assert.Collection(handler.Messages,
                 msg => Assert.Equal("[Imp] =>     This is my display name \\t\\r\\n [PASS]", msg),
@@ -275,9 +273,9 @@ public class DefaultRunnerReporterMessageHandlerTests
         public static void LogsTestNameAsWarning()
         {
             var message = Mocks.TestSkipped("This is my display name \t\r\n", "This is my skip reason \t\r\n");
-            var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
-            handler.OnMessage(message);
+            handler.OnMessageWithTypes(message, null);
 
             Assert.Collection(handler.Messages,
                 msg => Assert.Equal("[Wrn] =>     This is my display name \\t\\r\\n [SKIP]", msg),
@@ -286,21 +284,21 @@ public class DefaultRunnerReporterMessageHandlerTests
         }
     }
 
-
     // Helpers
-    class TestableDefaultRunnerReporterMessageHandler : DefaultRunnerReporterMessageHandler
+
+    class TestableDefaultRunnerReporterWithTypesMessageHandler : DefaultRunnerReporterWithTypesMessageHandler
     {
         public List<string> Messages;
 
-        TestableDefaultRunnerReporterMessageHandler(SpyRunnerLogger logger)
+        TestableDefaultRunnerReporterWithTypesMessageHandler(SpyRunnerLogger logger)
             : base(logger)
         {
             Messages = logger.Messages;
         }
 
-        public static TestableDefaultRunnerReporterMessageHandler Create()
+        public static TestableDefaultRunnerReporterWithTypesMessageHandler Create()
         {
-            return new TestableDefaultRunnerReporterMessageHandler(new SpyRunnerLogger());
+            return new TestableDefaultRunnerReporterWithTypesMessageHandler(new SpyRunnerLogger());
         }
     }
 }

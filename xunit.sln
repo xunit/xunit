@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.inproc.cons
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.utility", "src\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj", "{83174840-DD7B-4F11-A1AC-08EBD2F50354}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.utility.tests", "src\xunit.v3.runner.utility.tests\xunit.v3.runner.utility.tests.csproj", "{42626F10-47E8-472C-9927-733D3EF9042E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,10 @@ Global
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42626F10-47E8-472C-9927-733D3EF9042E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42626F10-47E8-472C-9927-733D3EF9042E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42626F10-47E8-472C-9927-733D3EF9042E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42626F10-47E8-472C-9927-733D3EF9042E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0755DC0E-DBCD-45A9-BC85-C6418B6012AD} = {DD6C7641-EDB5-445C-8563-15068910979E}
@@ -72,5 +78,6 @@ Global
 		{A8A0E1D4-C64D-4795-92D6-4F4423493428} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{B760593A-6B4F-46A3-B7A1-0B791ED37AFF} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354} = {DD6C7641-EDB5-445C-8563-15068910979E}
+		{42626F10-47E8-472C-9927-733D3EF9042E} = {DD6C7641-EDB5-445C-8563-15068910979E}
 	EndGlobalSection
 EndGlobal

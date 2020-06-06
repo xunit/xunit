@@ -1,4 +1,6 @@
-﻿#if NETFRAMEWORK
+﻿#if false
+
+#if NETFRAMEWORK
 
 using System;
 using System.Collections.Generic;
@@ -867,5 +869,7 @@ public class AmbiguouslyNamedTestMethods
             => Executor;
     }
 }
+
+#endif
 
 #endif

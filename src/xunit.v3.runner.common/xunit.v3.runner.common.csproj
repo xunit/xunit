@@ -25,7 +25,7 @@
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
     <EmbeddedResource Include="Resources\*.rd.xml" />
   </ItemGroup>
 
@@ -34,7 +34,7 @@
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <Reference Include="System.Configuration" />
   </ItemGroup>
 

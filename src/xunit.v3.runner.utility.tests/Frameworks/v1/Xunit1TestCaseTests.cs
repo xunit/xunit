@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if false
+
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -31,3 +33,5 @@ public class Xunit1TestCaseTests
         return new Xunit1TestCase(assemblyFileName, null, typeUnderTest.FullName, methodName, null, traits);
     }
 }
+
+#endif

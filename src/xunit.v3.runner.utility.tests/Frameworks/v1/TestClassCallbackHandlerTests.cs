@@ -1,4 +1,6 @@
-﻿#if NETFRAMEWORK
+﻿#if false
+
+#if NETFRAMEWORK
 
 using System;
 using System.Globalization;
@@ -138,5 +140,7 @@ public class TestClassCallbackHandlerTests
         }
     }
 }
+
+#endif
 
 #endif
