@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\common\NewReflectionExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
+    <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
+  </ItemGroup>
+
+</Project>
