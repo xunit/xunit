@@ -157,9 +157,9 @@ namespace Xunit.Runners
                 disposed = true;
             }
 
-            controller.SafeDispose();
-            discoveryCompleteEvent.SafeDispose();
-            executionCompleteEvent.SafeDispose();
+            controller?.Dispose();
+            discoveryCompleteEvent?.Dispose();
+            executionCompleteEvent?.Dispose();
         }
 
         ITestFrameworkDiscoveryOptions GetDiscoveryOptions(bool? diagnosticMessages, TestMethodDisplay? methodDisplay, TestMethodDisplayOptions? methodDisplayOptions, bool? preEnumerateTheories, bool? internalDiagnosticMessages)

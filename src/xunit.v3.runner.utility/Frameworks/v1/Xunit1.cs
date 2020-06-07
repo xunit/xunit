@@ -93,7 +93,7 @@ namespace Xunit
             foreach (var disposable in toDispose)
                 disposable.Dispose();
 
-            executor.SafeDispose();
+            executor?.Dispose();
         }
 
         void EnsureInitialized()

@@ -21,7 +21,7 @@ namespace Xunit
             lock (AggregatedSinks)
             {
                 foreach (var sink in AggregatedSinks)
-                    sink.SafeDispose();
+                    sink?.Dispose();
 
                 AggregatedSinks.Clear();
             }

@@ -153,12 +153,12 @@ namespace Xunit
         /// <inheritdoc/>
         public virtual void Dispose()
         {
-            RemoteDiscoverer.SafeDispose();
-            Framework.SafeDispose();
+            RemoteDiscoverer?.Dispose();
+            Framework?.Dispose();
 #if NETFRAMEWORK
-            assemblyHelper.SafeDispose();
+            assemblyHelper?.Dispose();
 #endif
-            AppDomain.SafeDispose();
+            AppDomain?.Dispose();
         }
 
         /// <summary>

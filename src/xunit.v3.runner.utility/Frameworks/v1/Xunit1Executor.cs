@@ -53,7 +53,7 @@ namespace Xunit
         /// <inheritdoc/>
         public void Dispose()
         {
-            appDomain.SafeDispose();
+            appDomain?.Dispose();
         }
 
         /// <inheritdoc/>

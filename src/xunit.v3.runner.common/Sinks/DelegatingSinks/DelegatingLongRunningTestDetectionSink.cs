@@ -87,7 +87,7 @@ namespace Xunit
         /// <inheritdoc/>
         public virtual void Dispose()
         {
-            ((IDisposable)stopEvent).SafeDispose();
+            ((IDisposable)stopEvent)?.Dispose();
             innerSink.Dispose();
         }
 

@@ -83,7 +83,7 @@ namespace Xunit
         /// <inheritdoc/>
         public override sealed void Dispose()
         {
-            remoteExecutor.SafeDispose();
+            remoteExecutor?.Dispose();
 
             base.Dispose();
         }
