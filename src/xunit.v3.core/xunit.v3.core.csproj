@@ -39,7 +39,7 @@
   </ItemGroup> -->
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\xunit.v3.core.rd.xml" />
+    <EmbeddedResource Include="Resources\*.rd.xml" />
   </ItemGroup>
 
   <ItemGroup>

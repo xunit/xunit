@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Xunit.ConsoleClient
+namespace Xunit
 {
     public class TransformFactory
     {
@@ -69,7 +69,7 @@ namespace Xunit.ConsoleClient
             var xmlTransform = new System.Xml.Xsl.XslCompiledTransform();
 
             using var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true });
-            using var xsltStream = typeof(TransformFactory).GetTypeInfo().Assembly.GetManifestResourceStream($"Xunit.Runner.Transforms.{resourceName}");
+            using var xsltStream = typeof(TransformFactory).GetTypeInfo().Assembly.GetManifestResourceStream($"Xunit.Transforms.{resourceName}");
             using var xsltReader = XmlReader.Create(xsltStream);
             using var xmlReader = xml.CreateReader();
             xmlTransform.Load(xsltReader);

@@ -10,69 +10,91 @@
     <LangVersion>latest</LangVersion>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
     <!-- <Nullable>enable</Nullable> -->
-    <!-- <OutputPath Condition=" '$(Platform)' != 'x86' ">bin\$(Configuration)</OutputPath> -->
-    <!-- <OutputPath Condition=" '$(Platform)' == 'x86' ">bin\$(Configuration)_x86</OutputPath> -->
     <RootNamespace>Xunit</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(GITHUB_ACTIONS)' == 'true' ">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
+  </ItemGroup>
 
   <!-- ======================================== -->
   <!-- Production-specific properties and items -->
 
-  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
-    <Authors>jnewkirk;bradwilson</Authors>
-    <Company>.NET Foundation</Company>
-    <Copyright>Copyright (C) .NET Foundation</Copyright>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageIcon>content/logo-128-transparent.png</PackageIcon>
-    <PackageId>$(MSBuildProjectName)</PackageId>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Product>xUnit.net Testing Framework</Product>
-    <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
+  <Choose>
+    <When Condition=" !$(MSBuildProjectName.EndsWith('.tests')) ">
+      <PropertyGroup>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
+        <Authors>jnewkirk;bradwilson</Authors>
+        <Company>.NET Foundation</Company>
+        <Copyright>Copyright (C) .NET Foundation</Copyright>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PackageIcon>content/logo-128-transparent.png</PackageIcon>
+        <PackageId>$(MSBuildProjectName)</PackageId>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <Product>xUnit.net Testing Framework</Product>
+        <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
+        <SignAssembly>true</SignAssembly>
+      </PropertyGroup>
 
-  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
-    <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Visible="false" Pack="true" PackagePath="content" />
-  </ItemGroup>
+      <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Visible="false" Pack="true" PackagePath="content" />
+      </ItemGroup>
 
-  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.17-beta-gceb8927950" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
-  </ItemGroup>
+      <ItemGroup>
+        <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.17-beta-gceb8927950" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
+      </ItemGroup>
+    </When>
+  </Choose>
 
   <!-- ================================== -->
   <!-- Test-specific properties and items -->
 
-  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
-    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
-    <OutputType>Exe</OutputType>
-  </PropertyGroup>
+  <!-- All test projects -->
+  <Choose>
+    <When Condition=" $(MSBuildProjectName.EndsWith('.tests')) ">
+      <ItemGroup>
+        <Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+      </ItemGroup>
+    </When>
+  </Choose>
 
-  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
-    <Compile Include="..\common.tests\**\*.cs" />
-  </ItemGroup>
+  <!-- V3-specific test projects -->
+  <Choose>
+    <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
+        <OutputType>Exe</OutputType>
+      </PropertyGroup>
 
-  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+      <ItemGroup>
+        <Compile Include="..\common.tests\**\*.cs" />
+      </ItemGroup>
 
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
+      <ItemGroup>
+        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
 
-    <Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
+        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
+        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
 
-  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
-    <PackageReference Include="FSharp.Compiler.Service" Version="35.0.0" />
-    <PackageReference Include="FSharp.Core" Version="4.7.2" />
-    <PackageReference Include="NSubstitute" Version="4.2.1" />
-    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
-  </ItemGroup>
+        <Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+      </ItemGroup>
+
+      <ItemGroup>
+        <PackageReference Include="FSharp.Compiler.Service" Version="35.0.0" />
+        <PackageReference Include="FSharp.Core" Version="4.7.2" />
+        <PackageReference Include="NSubstitute" Version="4.2.1" />
+        <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+      </ItemGroup>
+
+      <ItemGroup>
+        <ProjectReference Include="..\xunit.v3.assert\xunit.v3.assert.csproj" />
+        <ProjectReference Include="..\xunit.v3.core\xunit.v3.core.csproj" />
+        <ProjectReference Include="..\xunit.v3.runner.inproc.console\xunit.v3.runner.inproc.console.csproj" />
+      </ItemGroup>
+    </When>
+  </Choose>
 
 </Project>

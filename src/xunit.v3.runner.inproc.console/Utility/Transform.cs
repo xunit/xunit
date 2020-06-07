@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Linq;
 
-namespace Xunit.ConsoleClient
+namespace Xunit
 {
     public class Transform
     {

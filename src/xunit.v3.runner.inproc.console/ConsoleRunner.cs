@@ -8,9 +8,9 @@ using System.Reflection;
 using System.Xml.Linq;
 using Xunit.Sdk;
 
-namespace Xunit.ConsoleClient
+namespace Xunit
 {
-    class ConsoleRunner
+    public class ConsoleRunner
     {
         volatile bool cancel;
         CommandLine commandLine;
@@ -20,10 +20,13 @@ namespace Xunit.ConsoleClient
         IRunnerLogger logger;
         IMessageSinkWithTypes reporterMessageHandler;
 
-        public ConsoleRunner(object consoleLock)
+        public ConsoleRunner(object consoleLock = null)
         {
-            this.consoleLock = consoleLock;
+            this.consoleLock = consoleLock ?? new object();
         }
+
+        public static int Run(string[] args)
+            => new ConsoleRunner().EntryPoint(args);
 
         public int EntryPoint(string[] args)
         {
@@ -125,7 +128,7 @@ namespace Xunit.ConsoleClient
         {
             var result = new List<IRunnerReporter>();
 
-            var runnerPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
+            var runnerPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
             foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
             {

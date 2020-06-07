@@ -1,11 +1,8 @@
 <Project>
 
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
-  </ItemGroup>
-
-  <!-- Fix up generated assembly path (via https://github.com/clairernovotny/DeterministicBuilds) -->
+  <!-- Support deterministic builds (via https://github.com/clairernovotny/DeterministicBuilds) -->
   <PropertyGroup>
+    <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
     <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(IntermediateOutputPath)','$(TargetFrameworkMoniker).AssemblyAttributes$(DefaultLanguageSourceExtension)'))</TargetFrameworkMonikerAssemblyAttributesPath>
   </PropertyGroup>
   <ItemGroup>
@@ -27,11 +24,5 @@
       <NuspecProperties>PackageVersion=$(PackageVersion);GitCommitId=$(GitCommitId)</NuspecProperties>
     </PropertyGroup>
   </Target>
-
-  <!-- <PropertyGroup>
-    <DefineConstants Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">$(DefineConstants);NETFRAMEWORK</DefineConstants>
-    <DefineConstants Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">$(DefineConstants);NETCOREAPP</DefineConstants>
-    <DefineConstants Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">$(DefineConstants);NETSTANDARD</DefineConstants>
-  </PropertyGroup> -->
 
 </Project>
