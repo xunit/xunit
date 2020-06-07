@@ -14,16 +14,14 @@ public static class TestFx
         // TODO: Need to re-enable v1 tests, and port over some v2 tests
         var testDlls = Directory.GetFiles(context.BaseFolder, "xunit.v3.*.tests.exe", SearchOption.AllDirectories)
                                 .Where(x => x.Contains(netFxSubpath))
-                                .OrderBy(x => x)
-                                .Select(x => x.Substring(context.BaseFolder.Length + 1));
+                                .OrderBy(x => x);
 
         foreach (var testDll in testDlls)
         {
-            var fileName = Path.GetFileName(testDll);
             var folder = Path.GetDirectoryName(testDll);
             var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(testDll) + "-" + Path.GetFileName(folder));
 
-            await context.Exec(fileName, $"{context.TestFlagsParallel} -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
+            await context.Exec(testDll, $"{context.TestFlagsParallel} -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
         }
     }
 }

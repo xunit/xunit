@@ -255,11 +255,11 @@ public class Xunit2AcceptanceTests
 
             var msg = Assert.Single(messages);
             var combinedMessage = Xunit.ExceptionUtility.CombineMessages(msg);
-            Assert.Equal("System.AggregateException : One or more errors occurred. (Assert.Equal() Failure\nExpected: 2\nActual:   3) (Attempted to divide by zero.)" + Environment.NewLine +
-                         "---- Assert.Equal() Failure" + Environment.NewLine +
-                         "Expected: 2" + Environment.NewLine +
-                         "Actual:   3" + Environment.NewLine +
-                         "---- System.DivideByZeroException : Attempted to divide by zero.", combinedMessage);
+            Assert.StartsWith("System.AggregateException : One or more errors occurred.", combinedMessage);
+            Assert.EndsWith("---- Assert.Equal() Failure" + Environment.NewLine +
+                            "Expected: 2" + Environment.NewLine +
+                            "Actual:   3" + Environment.NewLine +
+                            "---- System.DivideByZeroException : Attempted to divide by zero.", combinedMessage);
         }
 
         class ClassUnderTest_CtorFailure
