@@ -42,14 +42,14 @@ namespace Xunit
                 case ConsoleColor.DarkMagenta: colorString += "35"; break;
                 case ConsoleColor.DarkYellow: colorString += "33"; break;
                 case ConsoleColor.Gray: colorString += "37"; break;
-                case ConsoleColor.DarkGray: colorString += "30;1"; break;
-                case ConsoleColor.Blue: colorString += "34;1"; break;
-                case ConsoleColor.Green: colorString += "32;1"; break;
-                case ConsoleColor.Cyan: colorString += "36;1"; break;
-                case ConsoleColor.Red: colorString += "31;1"; break;
-                case ConsoleColor.Magenta: colorString += "35;1"; break;
-                case ConsoleColor.Yellow: colorString += "33;1"; break;
-                case ConsoleColor.White: colorString += "37;1"; break;
+                case ConsoleColor.DarkGray: colorString += "90"; break;
+                case ConsoleColor.Blue: colorString += "94"; break;
+                case ConsoleColor.Green: colorString += "92"; break;
+                case ConsoleColor.Cyan: colorString += "96"; break;
+                case ConsoleColor.Red: colorString += "91"; break;
+                case ConsoleColor.Magenta: colorString += "95"; break;
+                case ConsoleColor.Yellow: colorString += "93"; break;
+                case ConsoleColor.White: colorString += "97"; break;
                 default: colorString = ""; break;
             }
             if ("" != colorString)
