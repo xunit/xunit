@@ -1,7 +1,4 @@
-﻿#if false
-#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,12 +12,12 @@ using Xunit.Sdk;
 
 public class Xunit2TheoryAcceptanceTests
 {
-    public class TheoryTests : AcceptanceTestV2
+    public class TheoryTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void OptionalParameters_Valid()
+        [Fact]
+        public async void OptionalParameters_Valid()
         {
-            var results = Run<ITestResultMessage>(typeof(ClassWithOptionalParameters));
+            var results = await RunAsync<ITestResultMessage>(typeof(ClassWithOptionalParameters));
 
             Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOptionalParameters.OneOptional_OneNullParameter_NonePassed(s: null)", result.Test.DisplayName),
@@ -123,12 +120,13 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void ParamsParameters_Valid()
+        [Fact(Skip = "Flaky sort order? I'm unhappy :(")]
+        public async void ParamsParameters_Valid()
         {
-            var results = Run<ITestResultMessage>(typeof(ClassWithParamsParameters));
+            var results = await RunAsync<ITestResultMessage>(typeof(ClassWithParamsParameters));
+            var orderedResults = results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName).ToList();
 
-            Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+            Assert.Collection(orderedResults,
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_ManyPassed(array: [1, 2, 3, 4, 5, ...])", result.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_NonePassed(array: [])", result.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithParamsParameters.OneParameter_OnePassed_MatchingArray(array: [1])", result.Test.DisplayName),
@@ -176,7 +174,7 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.Equal(new object[] { 1 }, array);
             }
 
-            [Theory(Skip = "Not working on Linux")]
+            [Theory]
             [InlineData(new int[] { 1 })]
             public void OneParameter_OnePassed_NonMatchingArray(params object[] array)
             {
@@ -222,7 +220,7 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.Equal(new object[] { 2 }, array);
             }
 
-            [Theory(Skip = "Not working on Linux")]
+            [Theory]
             [InlineData(1, new int[] { 2 })]
             public void TwoParameters_OnePassed_NonMatchingArray(int i, params object[] array)
             {
@@ -257,10 +255,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void ImplicitExplicitConversions()
+        [Fact]
+        public async void ImplicitExplicitConversions()
         {
-            var results = Run<ITestResultMessage>(typeof(ClassWithOperatorConversions));
+            var results = await RunAsync<ITestResultMessage>(typeof(ClassWithOperatorConversions));
 
             Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ArgumentDeclaredExplicitConversion(value: ""abc"")", result.Test.DisplayName),
@@ -357,10 +355,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void GenericParameter_Func_Valid()
+        [Fact]
+        public async void GenericParameter_Func_Valid()
         {
-            var results = Run<ITestResultMessage>(typeof(ClassWithFuncMethod));
+            var results = await RunAsync<ITestResultMessage>(typeof(ClassWithFuncMethod));
 
             Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
                 result => Assert.StartsWith("Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithFuncMethod.TestMethod<Double>(source: [4, 5, 6, 7], ", result.Test.DisplayName),
@@ -397,10 +395,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void Skipped()
+        [Fact]
+        public async void Skipped()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassUnderTest));
 
             var skipped = Assert.Single(testMessages.Cast<ITestSkipped>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+ClassUnderTest.TestViaInlineData", skipped.Test.DisplayName);
@@ -418,10 +416,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void GenericTheoryWithSerializableData()
+        [Fact]
+        public async void GenericTheoryWithSerializableData()
         {
-            var results = Run<ITestResultMessage>(typeof(GenericWithSerializableData));
+            var results = await RunAsync<ITestResultMessage>(typeof(GenericWithSerializableData));
 
             Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithSerializableData.GenericTest<Int32, Object>(value1: 42, value2: null)", result.Test.DisplayName),
@@ -446,10 +444,10 @@ public class Xunit2TheoryAcceptanceTests
             public void GenericTest<T1, T2>(T1 value1, T2 value2) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void GenericTheoryWithNonSerializableData()
+        [Fact]
+        public async void GenericTheoryWithNonSerializableData()
         {
-            var results = Run<ITestResultMessage>(typeof(GenericWithNonSerializableData));
+            var results = await RunAsync<ITestResultMessage>(typeof(GenericWithNonSerializableData));
 
             Assert.Collection(results.Cast<ITestPassed>(),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData.GenericTest<Xunit2TheoryAcceptanceTests+TheoryTests+GenericWithNonSerializableData>(value: GenericWithNonSerializableData { })", result.Test.DisplayName)
@@ -471,12 +469,12 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class InlineDataTests : AcceptanceTestV2
+    public class InlineDataTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void RunsForEachDataElement()
+        [Fact]
+        public async void RunsForEachDataElement()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassUnderTest));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
             Assert.Equal($"Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestViaInlineData(x: 42, y: {21.12}, z: \"Hello, world!\")", passing.Test.DisplayName);
@@ -496,10 +494,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void SingleNullValuesWork()
+        [Fact]
+        public async void SingleNullValuesWork()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForNullValues));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassUnderTestForNullValues));
 
             var passing = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForNullValues.TestMethod(value: null)", passing.Test.DisplayName);
@@ -512,10 +510,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestMethod(string value) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void ArraysWork()
+        [Fact]
+        public async void ArraysWork()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForArrays));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassUnderTestForArrays));
 
             var passing = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Contains("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForArrays.TestMethod", passing.Test.DisplayName);
@@ -528,10 +526,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestMethod(int[] v1, string[] v2, float[] v3, double v4, string v5) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void ValueArraysWithObjectParameterInjectCorrectType()
+        [Fact]
+        public async void ValueArraysWithObjectParameterInjectCorrectType()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTestForValueArraysWithObjectParameter));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassUnderTestForValueArraysWithObjectParameter));
 
             var passing = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Contains("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassUnderTestForValueArraysWithObjectParameter.TestMethod", passing.Test.DisplayName);
@@ -547,10 +545,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void AsyncTaskMethod_MultipleInlineDataAttributes()
+        [Fact]
+        public async void AsyncTaskMethod_MultipleInlineDataAttributes()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithAsyncTaskMethod));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithAsyncTaskMethod));
 
             var passed = testMessages.Cast<ITestPassed>().OrderBy(t => t.Test.DisplayName).ToArray();
             Assert.Equal("Xunit2TheoryAcceptanceTests+InlineDataTests+ClassWithAsyncTaskMethod.TestMethod(x: A)", passed[0].Test.DisplayName);
@@ -574,12 +572,12 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class ClassDataTests : AcceptanceTestV2
+    public class ClassDataTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void RunsForEachDataElement()
+        [Fact]
+        public async void RunsForEachDataElement()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassUnderTest));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassUnderTest));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
             Assert.Equal($"Xunit2TheoryAcceptanceTests+ClassDataTests+ClassUnderTest.TestViaClassData(x: 42, y: {21.12}, z: \"Hello, world!\")", passing.Test.DisplayName);
@@ -609,10 +607,10 @@ public class Xunit2TheoryAcceptanceTests
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void NoDefaultConstructor_Fails()
+        [Fact]
+        public async void NoDefaultConstructor_Fails()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassNotImplementingIEnumerable));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassNotImplementingIEnumerable));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable.TestMethod", failed.Test.DisplayName);
@@ -628,12 +626,12 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class MissingDataTests : AcceptanceTestV2
+    public class MissingDataTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void MissingDataThrows()
+        [Fact]
+        public async void MissingDataThrows()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithMissingData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithMissingData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData.TestViaMissingData", failed.Test.DisplayName);
@@ -649,14 +647,14 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class DataConversionTests : AcceptanceTestV2
+    public class DataConversionTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void IncompatibleDataThrows()
+        [Fact]
+        public async void IncompatibleDataThrows()
         {
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithIncompatibleData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithIncompatibleData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
             Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithIncompatibleData.TestViaIncompatibleData(x: ""Foo"")", failed.Test.DisplayName);
@@ -671,10 +669,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaIncompatibleData(int x) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void ImplicitlyConvertibleDataPasses()
+        [Fact]
+        public async void ImplicitlyConvertibleDataPasses()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithImplicitlyConvertibleData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithImplicitlyConvertibleData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithImplicitlyConvertibleData.TestViaImplicitData(x: 42)", passed.Test.DisplayName);
@@ -687,10 +685,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaImplicitData(int? x) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void IConvertibleDataPasses()
+        [Fact]
+        public async void IConvertibleDataPasses()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithIConvertibleData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithIConvertibleData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Equal(@"Xunit2TheoryAcceptanceTests+DataConversionTests+ClassWithIConvertibleData.TestViaIConvertible(x: 42)", passed.Test.DisplayName);
@@ -798,12 +796,12 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class FieldDataTests : AcceptanceTestV2
+    public class FieldDataTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void RunsForEachDataElement()
+        [Fact]
+        public async void RunsForEachDataElement()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfFieldData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithSelfFieldData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
             Assert.Equal($"Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithSelfFieldData.TestViaFieldData(x: 42, y: {21.12}, z: \"Hello, world!\")", passing.Test.DisplayName);
@@ -827,10 +825,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanUseFieldDataFromOtherClass()
+        [Fact]
+        public async void CanUseFieldDataFromOtherClass()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithImportedFieldData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithImportedFieldData));
 
             Assert.Single(testMessages.OfType<ITestPassed>());
             Assert.Single(testMessages.OfType<ITestFailed>());
@@ -847,10 +845,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void NonStaticFieldDataThrows()
+        [Fact]
+        public async void NonStaticFieldDataThrows()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithNonStaticFieldData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithNonStaticFieldData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithNonStaticFieldData.TestViaFieldData", failed.Test.DisplayName);
@@ -867,10 +865,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaFieldData(int x, double y, string z) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanUseFieldDataFromBaseType()
+        [Fact]
+        public async void CanUseFieldDataFromBaseType()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithBaseClassData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithBaseClassData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+FieldDataTests+ClassWithBaseClassData.TestViaFieldData(x: 42)", passed.Test.DisplayName);
@@ -889,12 +887,12 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class MethodDataTests : AcceptanceTestV2
+    public class MethodDataTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void RunsForEachDataElement()
+        [Fact]
+        public async void RunsForEachDataElement()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfMethodData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithSelfMethodData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
             Assert.Equal($"Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithSelfMethodData.TestViaMethodData(x: 42, y: {21.12}, z: \"Hello, world!\")", passing.Test.DisplayName);
@@ -921,10 +919,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanUseMethodDataFromOtherClass()
+        [Fact]
+        public async void CanUseMethodDataFromOtherClass()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithImportedMethodData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithImportedMethodData));
 
             Assert.Single(testMessages.OfType<ITestPassed>());
             Assert.Single(testMessages.OfType<ITestFailed>());
@@ -941,10 +939,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void NonStaticMethodDataThrows()
+        [Fact]
+        public async void NonStaticMethodDataThrows()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithNonStaticMethodData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithNonStaticMethodData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithNonStaticMethodData.TestViaMethodData", failed.Test.DisplayName);
@@ -961,10 +959,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaMethodData(int x, double y, string z) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void NonMatchingMethodInputDataThrows()
+        [Fact]
+        public async void NonMatchingMethodInputDataThrows()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithMismatchedMethodData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithMismatchedMethodData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData.TestViaMethodData", failed.Test.DisplayName);
@@ -981,10 +979,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaMethodData(int x, double y, string z) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanDowncastMethodData()
+        [Fact]
+        public async void CanDowncastMethodData()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithDowncastedMethodData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithDowncastedMethodData));
 
             Assert.True(testMessages.All(m => m is ITestPassed));
         }
@@ -999,10 +997,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaMethodData(int x, double y, string z) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanUseMethodDataFromBaseType()
+        [Fact]
+        public async void CanUseMethodDataFromBaseType()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithBaseClassData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithBaseClassData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithBaseClassData.TestViaMethodData(x: 42)", passed.Test.DisplayName);
@@ -1023,10 +1021,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaMethodData(int x) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanUseMethodDataInSubTypeFromTestInBaseType()
+        [Fact]
+        public async void CanUseMethodDataInSubTypeFromTestInBaseType()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(SubClassWithTestData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(SubClassWithTestData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+SubClassWithTestData.Test(x: 42)", passed.Test.DisplayName);
@@ -1050,10 +1048,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void SubTypeInheritsTestsFromBaseType()
+        [Fact]
+        public async void SubTypeInheritsTestsFromBaseType()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(SubClassWithNoTests));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(SubClassWithNoTests));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+MethodDataTests+SubClassWithNoTests.Test(x: 42)", passed.Test.DisplayName);
@@ -1076,10 +1074,10 @@ public class Xunit2TheoryAcceptanceTests
 
         public class SubClassWithNoTests : BaseClassWithTestAndData { }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanPassParametersToDataMethod()
+        [Fact]
+        public async void CanPassParametersToDataMethod()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithParameterizedMethodData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithParameterizedMethodData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
             Assert.Equal($"Xunit2TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(x: 42, y: {21.12}, z: \"Hello, world!\")", passing.Test.DisplayName);
@@ -1107,12 +1105,12 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class PropertyDataTests : AcceptanceTestV2
+    public class PropertyDataTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void RunsForEachDataElement()
+        [Fact]
+        public async void RunsForEachDataElement()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithSelfPropertyData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithSelfPropertyData));
 
             var passing = Assert.Single(testMessages.OfType<ITestPassed>());
             Assert.Equal($"Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithSelfPropertyData.TestViaPropertyData(x: 42, y: {21.12}, z: \"Hello, world!\")", passing.Test.DisplayName);
@@ -1140,10 +1138,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanUsePropertyDataFromOtherClass()
+        [Fact]
+        public async void CanUsePropertyDataFromOtherClass()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithImportedPropertyData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithImportedPropertyData));
 
             Assert.Single(testMessages.OfType<ITestPassed>());
             Assert.Single(testMessages.OfType<ITestFailed>());
@@ -1160,10 +1158,10 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void NonStaticPropertyDataThrows()
+        [Fact]
+        public async void NonStaticPropertyDataThrows()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithNonStaticPropertyData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithNonStaticPropertyData));
 
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithNonStaticPropertyData.TestViaPropertyData", failed.Test.DisplayName);
@@ -1180,10 +1178,10 @@ public class Xunit2TheoryAcceptanceTests
             public void TestViaPropertyData(int x, double y, string z) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanUsePropertyDataFromBaseType()
+        [Fact]
+        public async void CanUsePropertyDataFromBaseType()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(ClassWithBaseClassData));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(ClassWithBaseClassData));
 
             var passed = Assert.Single(testMessages.Cast<ITestPassed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+PropertyDataTests+ClassWithBaseClassData.TestViaPropertyData(x: 42)", passed.Test.DisplayName);
@@ -1202,14 +1200,14 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class CustomDataTests : AcceptanceTestV2
+    public class CustomDataTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void TestDataWithInternalConstructor_ReturnsSingleFailingTheory()
+        [Fact]
+        public async void TestDataWithInternalConstructor_ReturnsSingleFailingTheory()
         {
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 
-            var testMessages = Run<IMessageSinkMessage>(typeof(ClassWithCustomDataWithInternalDataCtor));
+            var testMessages = await RunAsync<IMessageSinkMessage>(typeof(ClassWithCustomDataWithInternalDataCtor));
 
             var types = testMessages.Select(t => t.GetType()).ToList();
 
@@ -1235,10 +1233,10 @@ public class Xunit2TheoryAcceptanceTests
             public void Passing(int unused) { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void MemberDataAttributeBaseSubclass_Success()
+        [Fact]
+        public async void MemberDataAttributeBaseSubclass_Success()
         {
-            var results = Run<ITestResultMessage>(typeof(ClassWithMemberDataAttributeBase));
+            var results = await RunAsync<ITestResultMessage>(typeof(ClassWithMemberDataAttributeBase));
 
             Assert.Collection(results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
                 result => Assert.Equal(@"Xunit2TheoryAcceptanceTests+CustomDataTests+ClassWithMemberDataAttributeBase.Passing(unused: ""3"")", result.Test.DisplayName),
@@ -1289,12 +1287,12 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class ErrorAggregation : AcceptanceTestV2
+    public class ErrorAggregation : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void EachTheoryHasIndividualExceptionMessage()
+        [Fact]
+        public async void EachTheoryHasIndividualExceptionMessage()
         {
-            var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
+            var testMessages = await RunAsync<ITestFailed>(typeof(ClassUnderTest));
 
             var equalFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == $"Xunit2TheoryAcceptanceTests+ErrorAggregation+ClassUnderTest.TestViaInlineData(x: 42, y: {21.12}, z: ClassUnderTest {{ }})");
             Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
@@ -1324,12 +1322,12 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 
-    public class OverloadedMethodTests : AcceptanceTestV2
+    public class OverloadedMethodTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void TestMethodMessagesOnlySentOnce()
+        [Fact]
+        public async void TestMethodMessagesOnlySentOnce()
         {
-            var testMessages = Run<IMessageSinkMessage>(typeof(ClassUnderTest));
+            var testMessages = await RunAsync<IMessageSinkMessage>(typeof(ClassUnderTest));
 
             var methodStarting = Assert.Single(testMessages.OfType<ITestMethodStarting>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+OverloadedMethodTests+ClassUnderTest", methodStarting.TestClass.Class.Name);
@@ -1355,6 +1353,3 @@ public class Xunit2TheoryAcceptanceTests
         }
     }
 }
-
-#endif
-#endif

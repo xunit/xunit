@@ -1,17 +1,14 @@
-﻿#if false
-#if NETFRAMEWORK
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-public class CollectionAcceptanceTests : AcceptanceTestV2
+public class CollectionAcceptanceTests : AcceptanceTestV3
 {
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void TwoClasses_OneInExplicitCollection_OneInDefaultCollection()
+    [Fact]
+    public async void TwoClasses_OneInExplicitCollection_OneInDefaultCollection()
     {
-        var results = Run(new[] { typeof(ClassInExplicitCollection), typeof(ClassInDefaultCollection) });
+        var results = await RunAsync(new[] { typeof(ClassInExplicitCollection), typeof(ClassInDefaultCollection) });
 
         var defaultResults = results.OfType<ITestCollectionMessage>().Where(message => message.TestCollection.DisplayName.StartsWith("Test collection for "));
         AssertMessageSequence(defaultResults, "CollectionAcceptanceTests+ClassInDefaultCollection.Passing");
@@ -56,6 +53,3 @@ public class CollectionAcceptanceTests : AcceptanceTestV2
         public void Passing() { }
     }
 }
-
-#endif
-#endif

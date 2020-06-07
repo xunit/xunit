@@ -1,7 +1,4 @@
-﻿#if false
-#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,14 +7,14 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-public class TheoryDiscovererTests : AcceptanceTestV2
+public class TheoryDiscovererTests : AcceptanceTestV3
 {
     readonly ITestFrameworkDiscoveryOptions discoveryOptions = TestFrameworkOptions.ForDiscovery();
 
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void NoDataAttributes()
+    [Fact]
+    public async void NoDataAttributes()
     {
-        var failures = Run<ITestFailed>(typeof(NoDataAttributesClass));
+        var failures = await RunAsync<ITestFailed>(typeof(NoDataAttributesClass));
 
         var failure = Assert.Single(failures);
         Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
@@ -30,10 +27,10 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void TheoryMethod(int x) { }
     }
 
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void NullMemberData_ThrowsInvalidOperationException()
+    [Fact]
+    public async void NullMemberData_ThrowsInvalidOperationException()
     {
-        var results = Run<ITestFailed>(typeof(NullDataClass));
+        var results = await RunAsync<ITestFailed>(typeof(NullDataClass));
 
         var failure = Assert.Single(results);
         Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
@@ -57,10 +54,10 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void NullMemberData(string str1, string str2) { }
     }
 
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void EmptyTheoryData()
+    [Fact]
+    public async void EmptyTheoryData()
     {
-        var failures = Run<ITestFailed>(typeof(EmptyTheoryDataClass));
+        var failures = await RunAsync<ITestFailed>(typeof(EmptyTheoryDataClass));
 
         var failure = Assert.Single(failures);
         Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
@@ -248,10 +245,10 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void TheTest(object x) { }
     }
 
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
+    [Fact]
+    public async void NoSuchDataDiscoverer_ThrowsInvalidOperationException()
     {
-        var results = Run<ITestFailed>(typeof(NoSuchDataDiscovererClass));
+        var results = await RunAsync<ITestFailed>(typeof(NoSuchDataDiscovererClass));
 
         var failure = Assert.Single(results);
         Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
@@ -274,10 +271,10 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         }
     }
 
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void NotADataDiscoverer_ThrowsInvalidOperationException()
+    [Fact]
+    public async void NotADataDiscoverer_ThrowsInvalidOperationException()
     {
-        var results = Run<ITestFailed>(typeof(NotADataDiscovererClass));
+        var results = await RunAsync<ITestFailed>(typeof(NotADataDiscovererClass));
 
         var failure = Assert.Single(results);
         Assert.Equal("System.InvalidOperationException", failure.ExceptionTypes.Single());
@@ -350,10 +347,10 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public static void TheoryMethod(int x) { }
     }
 
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void SkippedTheoryWithNoData()
+    [Fact]
+    public async void SkippedTheoryWithNoData()
     {
-        var skips = Run<ITestSkipped>(typeof(SkippedWithNoData));
+        var skips = await RunAsync<ITestSkipped>(typeof(SkippedWithNoData));
 
         var skip = Assert.Single(skips);
         Assert.Equal("TheoryDiscovererTests+SkippedWithNoData.TestMethod", skip.Test.DisplayName);
@@ -366,10 +363,10 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         public void TestMethod(int value) { }
     }
 
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void SkippedTheoryWithData()
+    [Fact]
+    public async void SkippedTheoryWithData()
     {
-        var skips = Run<ITestSkipped>(typeof(SkippedWithData));
+        var skips = await RunAsync<ITestSkipped>(typeof(SkippedWithData));
 
         var skip = Assert.Single(skips);
         Assert.Equal("TheoryDiscovererTests+SkippedWithData.TestMethod", skip.Test.DisplayName);
@@ -401,6 +398,3 @@ public class TheoryDiscovererTests : AcceptanceTestV2
         }
     }
 }
-
-#endif
-#endif

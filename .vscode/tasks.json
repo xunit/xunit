@@ -11,6 +11,8 @@
                 "tools/builder",
                 "--no-launch-profile",
                 "--",
+                "--configuration",
+                "Debug",
                 "Build"
             ],
             "options": {
@@ -32,6 +34,8 @@
                 "tools/builder",
                 "--no-launch-profile",
                 "--",
+                "--configuration",
+                "Debug",
                 "Test"
             ],
             "options": {
@@ -53,6 +57,8 @@
                 "tools/builder",
                 "--no-launch-profile",
                 "--",
+                "--configuration",
+                "Debug",
                 "TestCore"
             ],
             "options": {
@@ -74,6 +80,8 @@
                 "tools/builder",
                 "--no-launch-profile",
                 "--",
+                "--configuration",
+                "Debug",
                 "TestFx"
             ],
             "options": {

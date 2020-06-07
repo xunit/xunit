@@ -1,27 +1,24 @@
-﻿#if false
-#if NETFRAMEWORK
-
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-public class AsyncAcceptanceTests : AcceptanceTestV2
+public class AsyncAcceptanceTests : AcceptanceTestV3
 {
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void AsyncTaskTestsRunCorrectly()
+    [Fact]
+    public async void AsyncTaskTestsRunCorrectly()
     {
-        var results = Run<ITestResultMessage>(typeof(ClassWithAsyncTask));
+        var results = await RunAsync<ITestResultMessage>(typeof(ClassWithAsyncTask));
 
         var result = Assert.Single(results);
         var failed = Assert.IsAssignableFrom<ITestFailed>(result);
         Assert.Equal("Xunit.Sdk.EqualException", failed.ExceptionTypes.Single());
     }
 
-    [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-    public void AsyncVoidTestsRunCorrectly()
+    [Fact]
+    public async void AsyncVoidTestsRunCorrectly()
     {
-        var results = Run<ITestResultMessage>(typeof(ClassWithAsyncVoid));
+        var results = await RunAsync<ITestResultMessage>(typeof(ClassWithAsyncVoid));
 
         var result = Assert.Single(results);
         var failed = Assert.IsAssignableFrom<ITestFailed>(result);
@@ -50,6 +47,3 @@ public class AsyncAcceptanceTests : AcceptanceTestV2
         }
     }
 }
-
-#endif
-#endif

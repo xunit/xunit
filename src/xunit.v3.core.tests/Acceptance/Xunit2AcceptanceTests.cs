@@ -1,7 +1,4 @@
-﻿#if false
-#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -14,12 +11,12 @@ using Xunit.Sdk;
 
 public class Xunit2AcceptanceTests
 {
-    public class EndToEndMessageInspection : AcceptanceTestV2
+    public class EndToEndMessageInspection : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void NoTests()
+        [Fact]
+        public async void NoTests()
         {
-            List<IMessageSinkMessage> results = Run(typeof(NoTestsClass));
+            var results = await RunAsync(typeof(NoTestsClass));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -33,10 +30,10 @@ public class Xunit2AcceptanceTests
             );
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void SinglePassingTest()
+        [Fact]
+        public async void SinglePassingTest()
         {
-            List<IMessageSinkMessage> results = Run(typeof(SinglePassingTestClass));
+            var results = await RunAsync(typeof(SinglePassingTestClass));
 
             Assert.Collection(results,
                 message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
@@ -132,12 +129,12 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class SkippedTests : AcceptanceTestV2
+    public class SkippedTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void SingleSkippedTest()
+        [Fact]
+        public async void SingleSkippedTest()
         {
-            List<IMessageSinkMessage> results = Run(typeof(SingleSkippedTestClass));
+            var results = await RunAsync(typeof(SingleSkippedTestClass));
 
             var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
             Assert.Equal("Xunit2AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedMessage.Test.DisplayName);
@@ -155,17 +152,17 @@ public class Xunit2AcceptanceTests
     public class TimeoutTestsCollection { }
 
     [Collection("Timeout Tests")]
-    public class TimeoutTests : AcceptanceTestV2
+    public class TimeoutTests : AcceptanceTestV3
     {
         // This test is a little sketchy, because it relies on the execution of the acceptance test to happen in less time
         // than the timeout. The timeout is set arbitrarily high in order to give some padding to the timing, but even on
         // a Core i7-7820HK, the execution time is ~ 400 milliseconds for what should be about 10 milliseconds of wait
         // time. If this test becomes flaky, a higher value than 10000 could be considered.
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void TimedOutTest()
+        [Fact]
+        public async void TimedOutTest()
         {
             var stopwatch = Stopwatch.StartNew();
-            var results = Run(typeof(ClassUnderTest));
+            var results = await RunAsync(typeof(ClassUnderTest));
             stopwatch.Stop();
 
             var passedMessage = Assert.Single(results.OfType<ITestPassed>());
@@ -188,13 +185,13 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class NonStartedTasks : AcceptanceTestV2
+    public class NonStartedTasks : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void TestWithUnstartedTaskThrows()
+        [Fact]
+        public async void TestWithUnstartedTaskThrows()
         {
             var stopwatch = Stopwatch.StartNew();
-            var results = Run(typeof(ClassUnderTest));
+            var results = await RunAsync(typeof(ClassUnderTest));
             stopwatch.Stop();
 
             var failedMessage = Assert.Single(results.OfType<ITestFailed>());
@@ -209,12 +206,12 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class FailingTests : AcceptanceTestV2
+    public class FailingTests : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void SingleFailingTest()
+        [Fact]
+        public async void SingleFailingTest()
         {
-            List<IMessageSinkMessage> results = Run(typeof(SingleFailingTestClass));
+            var results = await RunAsync(typeof(SingleFailingTestClass));
 
             var failedMessage = Assert.Single(results.OfType<ITestFailed>());
             Assert.Equal(typeof(TrueException).FullName, failedMessage.ExceptionTypes.Single());
@@ -227,41 +224,42 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class ClassFailures : AcceptanceTestV2
+    public class ClassFailures : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void TestFailureResultsFromThrowingCtorInTestClass()
+        [Fact]
+        public async void TestFailureResultsFromThrowingCtorInTestClass()
         {
-            var messages = Run<ITestFailed>(typeof(ClassUnderTest_CtorFailure));
+            var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_CtorFailure));
 
             Assert.Collection(messages,
                 msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
             );
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void TestFailureResultsFromThrowingDisposeInTestClass()
+        [Fact]
+        public async void TestFailureResultsFromThrowingDisposeInTestClass()
         {
-            var messages = Run<ITestFailed>(typeof(ClassUnderTest_DisposeFailure));
+            var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_DisposeFailure));
 
             Assert.Collection(messages,
                 msg => Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single())
             );
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CompositeTestFailureResultsFromFailingTestsPlusThrowingDisposeInTestClass()
+        [Fact]
+        public async void CompositeTestFailureResultsFromFailingTestsPlusThrowingDisposeInTestClass()
         {
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 
-            var messages = Run<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
+            var messages = await RunAsync<ITestFailed>(typeof(ClassUnderTest_FailingTestAndDisposeFailure));
 
             var msg = Assert.Single(messages);
-            Assert.Equal("System.AggregateException : One or more errors occurred." + Environment.NewLine +
+            var combinedMessage = Xunit.ExceptionUtility.CombineMessages(msg);
+            Assert.Equal("System.AggregateException : One or more errors occurred. (Assert.Equal() Failure\nExpected: 2\nActual:   3) (Attempted to divide by zero.)" + Environment.NewLine +
                          "---- Assert.Equal() Failure" + Environment.NewLine +
                          "Expected: 2" + Environment.NewLine +
                          "Actual:   3" + Environment.NewLine +
-                         "---- System.DivideByZeroException : Attempted to divide by zero.", Xunit.ExceptionUtility.CombineMessages(msg));
+                         "---- System.DivideByZeroException : Attempted to divide by zero.", combinedMessage);
         }
 
         class ClassUnderTest_CtorFailure
@@ -301,12 +299,12 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class StaticClassSupport : AcceptanceTestV2
+    public class StaticClassSupport : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void TestsCanBeInStaticClasses()
+        [Fact]
+        public async void TestsCanBeInStaticClasses()
         {
-            var testMessages = Run<ITestResultMessage>(typeof(StaticClassUnderTest));
+            var testMessages = await RunAsync<ITestResultMessage>(typeof(StaticClassUnderTest));
 
             var testMessage = Assert.Single(testMessages);
             Assert.Equal("Xunit2AcceptanceTests+StaticClassSupport+StaticClassUnderTest.Passing", testMessage.Test.DisplayName);
@@ -320,12 +318,12 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class ErrorAggregation : AcceptanceTestV2
+    public class ErrorAggregation : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void EachTestMethodHasIndividualExceptionMessage()
+        [Fact]
+        public async void EachTestMethodHasIndividualExceptionMessage()
         {
-            var testMessages = Run<ITestFailed>(typeof(ClassUnderTest));
+            var testMessages = await RunAsync<ITestFailed>(typeof(ClassUnderTest));
 
             var equalFailure = Assert.Single(testMessages, msg => msg.Test.DisplayName == "Xunit2AcceptanceTests+ErrorAggregation+ClassUnderTest.EqualFailure");
             Assert.Contains("Assert.Equal() Failure", equalFailure.Messages.Single());
@@ -350,12 +348,12 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class TestOrdering : AcceptanceTestV2
+    public class TestOrdering : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void OverrideOfOrderingAtCollectionLevel()
+        [Fact]
+        public async void OverrideOfOrderingAtCollectionLevel()
         {
-            var testMessages = Run<ITestPassed>(typeof(TestClassUsingCollection));
+            var testMessages = await RunAsync<ITestPassed>(typeof(TestClassUsingCollection));
 
             Assert.Collection(testMessages,
                 message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
@@ -381,10 +379,10 @@ public class Xunit2AcceptanceTests
             public void Test2() { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void OverrideOfOrderingAtClassLevel()
+        [Fact]
+        public async void OverrideOfOrderingAtClassLevel()
         {
-            var testMessages = Run<ITestPassed>(typeof(TestClassWithoutCollection));
+            var testMessages = await RunAsync<ITestPassed>(typeof(TestClassWithoutCollection));
 
             Assert.Collection(testMessages,
                 message => Assert.Equal("Test1", message.TestCase.TestMethod.Method.Name),
@@ -418,12 +416,12 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class TestNonParallelOrdering : AcceptanceTestV2
+    public class TestNonParallelOrdering : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void NonParallelCollectionsRunLast()
+        [Fact]
+        public async void NonParallelCollectionsRunLast()
         {
-            var testMessages = Run<ITestPassed>(new[] {
+            var testMessages = await RunAsync<ITestPassed>(new[] {
                 typeof(TestClassNonParallelCollection),
                 typeof(TestClassParallelCollection)
             });
@@ -465,12 +463,12 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class CustomFacts : AcceptanceTestV2
+    public class CustomFacts : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanUseCustomFactAttribute()
+        [Fact]
+        public async void CanUseCustomFactAttribute()
         {
-            var msgs = Run<ITestPassed>(typeof(ClassWithCustomFact));
+            var msgs = await RunAsync<ITestPassed>(typeof(ClassWithCustomFact));
 
             Assert.Collection(msgs,
                 msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", msg.Test.DisplayName)
@@ -485,10 +483,10 @@ public class Xunit2AcceptanceTests
             public void Passing() { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CanUseCustomFactWithArrayParameters()
+        [Fact]
+        public async void CanUseCustomFactWithArrayParameters()
         {
-            var msgs = Run<ITestPassed>(typeof(ClassWithCustomArrayFact));
+            var msgs = await RunAsync<ITestPassed>(typeof(ClassWithCustomArrayFact));
 
             Assert.Collection(msgs,
                 msg => Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", msg.Test.DisplayName)
@@ -506,10 +504,10 @@ public class Xunit2AcceptanceTests
             public void Passing() { }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CannotMixMultipleFactDerivedAttributes()
+        [Fact]
+        public async void CannotMixMultipleFactDerivedAttributes()
         {
-            var msgs = Run<ITestFailed>(typeof(ClassWithMultipleFacts)).ToList();
+            var msgs = (await RunAsync<ITestFailed>(typeof(ClassWithMultipleFacts))).ToList();
 
             Assert.Collection(msgs,
                 msg =>
@@ -529,12 +527,12 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class TestOutput : AcceptanceTestV2
+    public class TestOutput : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void SendOutputMessages()
+        [Fact]
+        public async void SendOutputMessages()
         {
-            var msgs = Run(typeof(ClassUnderTest));
+            var msgs = await RunAsync(typeof(ClassUnderTest));
 
             var idxOfTestPassed = msgs.FindIndex(msg => msg is ITestPassed);
             Assert.True(idxOfTestPassed >= 0, "Test should have passed");
@@ -587,12 +585,12 @@ public class Xunit2AcceptanceTests
         }
     }
 
-    public class AsyncLifetime : AcceptanceTestV2
+    public class AsyncLifetime : AcceptanceTestV3
     {
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void AsyncLifetimeAcceptanceTest()
+        [Fact]
+        public async void AsyncLifetimeAcceptanceTest()
         {
-            var messages = Run<ITestPassed>(typeof(ClassWithAsyncLifetime));
+            var messages = await RunAsync<ITestPassed>(typeof(ClassWithAsyncLifetime));
 
             var message = Assert.Single(messages);
             AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
@@ -633,10 +631,10 @@ public class Xunit2AcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void ThrowingConstructor()
+        [Fact]
+        public async void ThrowingConstructor()
         {
-            var messages = Run<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingCtor));
+            var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingCtor));
 
             var message = Assert.Single(messages);
             AssertOperations(message, "Constructor");
@@ -651,10 +649,10 @@ public class Xunit2AcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void ThrowingInitializeAsync()
+        [Fact]
+        public async void ThrowingInitializeAsync()
         {
-            var messages = Run<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingInitializeAsync));
+            var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingInitializeAsync));
 
             var message = Assert.Single(messages);
             AssertOperations(message, "Constructor", "InitializeAsync", "Dispose");
@@ -672,10 +670,10 @@ public class Xunit2AcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void ThrowingDisposeAsync()
+        [Fact]
+        public async void ThrowingDisposeAsync()
         {
-            var messages = Run<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingDisposeAsync));
+            var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncLifetime_ThrowingDisposeAsync));
 
             var message = Assert.Single(messages);
             AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
@@ -693,10 +691,10 @@ public class Xunit2AcceptanceTests
             }
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void FailingTest()
+        [Fact]
+        public async void FailingTest()
         {
-            var messages = Run<ITestFailed>(typeof(ClassWithAsyncLifetime_FailingTest));
+            var messages = await RunAsync<ITestFailed>(typeof(ClassWithAsyncLifetime_FailingTest));
 
             var message = Assert.Single(messages);
             AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
@@ -749,6 +747,3 @@ public class Xunit2AcceptanceTests
         }
     }
 }
-
-#endif
-#endif

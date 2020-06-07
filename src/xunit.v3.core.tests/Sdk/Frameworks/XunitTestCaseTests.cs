@@ -1,6 +1,4 @@
-﻿#if NETFRAMEWORK
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -44,8 +42,7 @@ public class XunitTestCaseTests
         Assert.Equal(42, testCase.Timeout);
     }
 
-#if false
-    public class Traits : AcceptanceTestV2
+    public class Traits : AcceptanceTestV3
     {
         [Fact]
         public static void TraitsOnTestMethod()
@@ -73,10 +70,10 @@ public class XunitTestCaseTests
             Assert.Equal("Value2", Assert.Single(testCase.Traits["Trait2"]));
         }
 
-        [Fact(Skip = "Compiled acceptance tests are currently broken with Mono")]
-        public void CustomTrait()
+        [Fact]
+        public async void CustomTrait()
         {
-            var passingTests = Run<ITestPassed>(typeof(ClassWithCustomTraitTest));
+            var passingTests = await RunAsync<ITestPassed>(typeof(ClassWithCustomTraitTest));
 
             Assert.Collection(passingTests,
                 passingTest => Assert.Collection(passingTest.TestCase.Traits.OrderBy(x => x.Key),
@@ -140,7 +137,6 @@ public class XunitTestCaseTests
             public BugAttribute(int id) { }
         }
     }
-#endif
 
     public class DisplayName
     {
@@ -169,5 +165,3 @@ public class XunitTestCaseTests
         }
     }
 }
-
-#endif

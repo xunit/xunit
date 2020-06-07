@@ -10,4 +10,8 @@
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.v3.runner.common\xunit.v3.runner.common.csproj" />
+  </ItemGroup>
+
 </Project>
