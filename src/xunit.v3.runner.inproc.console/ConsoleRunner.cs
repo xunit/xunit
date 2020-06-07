@@ -354,7 +354,7 @@ namespace Xunit
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
-                var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, diagnosticMessages, noColor);
+                var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
                 var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, internalDiagnosticMessages, noColor);
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
