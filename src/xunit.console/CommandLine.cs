@@ -111,6 +111,28 @@ namespace Xunit.ConsoleClient
         {
             var assemblies = new List<Tuple<string, string>>();
 
+            if (arguments.Peek().Equals("-optionsfile", StringComparison.Ordinal))
+            {
+                var option = PopOption(arguments);
+
+                if (option.Value == null)
+                    throw new ArgumentException($"missing argument for -optionsfile");
+
+                var optionsFileName = option.Value;
+
+                if (optionsFileName.ToLowerInvariant().EndsWith(".dll", StringComparison.Ordinal))
+                    throw new ArgumentException($"expecting options file name, got assembly: {optionsFileName}");
+
+                if (!fileExists(optionsFileName))
+                    throw new ArgumentException($"file not found: {optionsFileName}");
+
+                var optionsFile = CommandLineOptionsFile.Read(optionsFileName);
+                while (optionsFile.Options.Count > 0)
+                {
+                    arguments.Push(optionsFile.Options.Pop());
+                }
+            }
+
             while (arguments.Count > 0)
             {
                 if (arguments.Peek().StartsWith("-", StringComparison.Ordinal))

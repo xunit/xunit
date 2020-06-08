@@ -206,7 +206,7 @@ namespace Xunit.ConsoleClient
 
             Console.WriteLine("Copyright (C) .NET Foundation.");
             Console.WriteLine();
-            Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
+            Console.WriteLine($"usage: {executableName} [-optionsfile optionsfile] <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
             Console.WriteLine();
 #if NETFRAMEWORK
             Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
@@ -265,6 +265,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         : if specified more than once, acts as an AND operation");
             Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
             Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
+            Console.WriteLine("  -optionsfile \"name\"  : read command line options from the provided file");
             Console.WriteLine();
 
             var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();
