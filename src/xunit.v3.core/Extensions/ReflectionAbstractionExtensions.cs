@@ -71,17 +71,16 @@ public static class ReflectionAbstractionExtensions
 
         if (!messageBus.QueueMessage(new TestClassDisposeStarting(test)))
             cancellationTokenSource.Cancel();
-        else
+
+        // Let test class disposal run even if cancellation has been requested
+        try
         {
-            try
-            {
-                timer.Aggregate(disposable.Dispose);
-            }
-            finally
-            {
-                if (!messageBus.QueueMessage(new TestClassDisposeFinished(test)))
-                    cancellationTokenSource.Cancel();
-            }
+            timer.Aggregate(disposable.Dispose);
+        }
+        finally
+        {
+            if (!messageBus.QueueMessage(new TestClassDisposeFinished(test)))
+                cancellationTokenSource.Cancel();
         }
     }
 
