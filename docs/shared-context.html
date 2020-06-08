@@ -1,0 +1,364 @@
+---
+layout: default
+title: Shared Context between Tests
+breadcrumb: Documentation
+---
+
+<h1>Shared Context between Tests</h1>
+
+<p>
+  It is common for unit test classes to share setup and cleanup code (often called
+  "test context"). xUnit.net offers several methods for sharing this setup and
+  cleanup code, depending on the scope of things to be shared, as well as the
+  expense associated with the setup and cleanup code.
+</p>
+
+<ul>
+  <li>
+    <a href="#constructor">Constructor and Dispose</a> (shared setup/cleanup
+    code without sharing object instances)
+  </li>
+  <li>
+    <a href="#class-fixture">Class Fixtures</a> (shared object instance across
+    tests in a single class)
+  </li>
+  <li>
+    <a href="#collection-fixture">Collection Fixtures</a> (shared object
+    instances across multiple test classes)
+  </li>
+</ul>
+
+<h2 id="constructor">Constructor and Dispose</h2>
+
+<p><em>
+  <strong>When to use:</strong> when you want a clean test context for every test
+  (sharing the setup and cleanup code, without sharing the object instance).
+</em></p>
+
+<p>
+  xUnit.net creates a new instance of the test class for every test that is run,
+  so any code which is placed into the constructor of the test class will be
+  run for every single test. This makes the constructor a convenient place to
+  put reusable context setup code where you want to share the code without
+  sharing object instances (meaning, you get a clean copy of the context
+  object(s) for every test that is run).
+</p>
+
+<p>
+  For context cleanup, add the <code>IDisposable</code> interface to your test
+  class, and put the cleanup code in the <code>Dispose()</code> method.
+</p>
+
+<p>Here is a simple example:</p>
+
+{% highlight C# %}
+public class StackTests : IDisposable
+{
+    Stack<int> stack;
+
+    public StackTests()
+    {
+        stack = new Stack<int>();
+    }
+
+    public void Dispose()
+    {
+        stack.Dispose();
+    }
+
+    [Fact]
+    public void WithNoItems_CountShouldReturnZero()
+    {
+        var count = stack.Count;
+
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public void AfterPushingItem_CountShouldReturnOne()
+    {
+        stack.Push(42);
+
+        var count = stack.Count;
+
+        Assert.Equal(1, count);
+    }
+}
+{% endhighlight %}
+
+<p>
+  This structure is sometimes called the "test class as context" pattern,
+  since the test class itself is a self-contained definition of the context
+  setup and cleanup code. You can even name the test classes after the setup
+  context so that it's easier to remember what your starting point is:
+</p>
+
+{% highlight C# %}
+public class StackTests
+{
+    public class EmptyStack
+    {
+        Stack<int> stack;
+
+        public EmptyStack()
+        {
+            stack = new Stack<int>();
+        }
+
+        // ... tests for an empty stack ...
+    }
+
+    public class SingleItemStack
+    {
+        Stack<int> stack;
+
+        public SingleItemStack()
+        {
+            stack = new Stack<int>();
+            stack.Push(42);
+        }
+
+        // ... tests for a single-item stack ...
+    }
+}
+{% endhighlight %}
+
+<p>
+  At a high level, we're writing tests for the <code>Stack</code> class, and each
+  context is a <code>Stack</code> in a given state. To reflect this, we've wrapped
+  all the testcontext classes in a parent class named <code>StackTests</code>.
+</p>
+
+<h2 id="class-fixture">Class Fixtures</h2>
+
+<p><em>
+  <strong>When to use:</strong> when you want to create a single test context
+  and share it among all the tests in the class, and have it cleaned up after
+  all the tests in the class have finished.
+</em></p>
+
+<p>
+  Sometimes test context creation and cleanup can be very expensive. If you were
+  to run the creation and cleanup code during every test, it might make the tests
+  slower than you want. You can use the <em>class fixture</em> feature of
+  xUnit.net to share a single object instance among all tests in a test class.
+</p>
+
+<p>
+  We already know that xUnit.net creates a new instance of the test class for
+  every test. When using a class fixture, xUnit.net will ensure that the
+  fixture instance will be created before any of the tests have run, and once
+  all the tests have finished, it will clean up the fixture object by calling
+  <code>Dispose</code>, if present.
+</p>
+
+<p>To use class fixtures, you need to take the following steps:</p>
+
+<ul>
+  <li>
+    Create the fixture class, and put the startup code in the fixture
+    class constructor.
+  </li>
+  <li>
+    If the fixture class needs to perform cleanup, implement <code>IDisposable</code>
+    on the fixture class, and put the cleanup code in the <code>Dispose()</code>
+    method.
+  </li>
+  <li>
+    Add <code>IClassFixture&lt;&gt;</code> to the test class.
+  </li>
+  <li>
+    If the test class needs access to the fixture instance, add it as a
+    constructor argument, and it will be provided automatically.
+  </li>
+</ul>
+
+<p>Here is a simple example:</p>
+
+{% highlight C# %}
+public class DatabaseFixture : IDisposable
+{
+    public DatabaseFixture()
+    {
+        Db = new SqlConnection("MyConnectionString");
+
+        // ... initialize data in the test database ...
+    }
+
+    public void Dispose()
+    {
+        // ... clean up test data from the database ...
+    }
+
+    public SqlConnection Db { get; private set; }
+}
+
+public class MyDatabaseTests : IClassFixture<DatabaseFixture>
+{
+    DatabaseFixture fixture;
+
+    public MyDatabaseTests(DatabaseFixture fixture)
+    {
+        this.fixture = fixture;
+    }
+
+    // ... write tests, using fixture.Db to get access to the SQL Server ...
+}
+{% endhighlight %}
+
+<p>
+  Just before the first tests in <code>MyDatabaseTests</code> is run, xUnit.net
+  will create an instance of <code>DatabaseFixture</code>. For each test, it
+  will create a new instance of <code>MyDatabaseTests</code>, and pass the shared
+  instance of <code>DatabaseFixture</code> to the constructor.
+</p>
+
+<p><em>
+  <strong>Important note:</strong> xUnit.net uses the presence of the interface
+  <code>IClassFixture&lt;&gt;</code> to know that you want a class fixture to
+  be created and cleaned up. It will do this whether you take the instance of
+  the class as a constructor argument or not. Similarly, if you add the constructor
+  argument but forget to add the interface, xUnit.net will let you know that it
+  does not know how to satisfy the constructor argument.
+</em></p>
+
+<p>
+  If you need multiple fixture objects, you can implement the interface as many
+  times as you want, and add constructor arguments for whichever of the fixture
+  object instances you need access to. The order of the constructor arguments
+  is unimportant.
+</p>
+
+<p>
+  Note that you cannot control the order that fixture objects are created, and
+  fixtures cannot take dependencies on other fixtures. If you have need to
+  control creation order and/or have dependencies between fixtures, you should
+  create a class which encapsulates the other two fixtures, so that it can
+  do the object creation itself.
+</p>
+
+<h2 id="collection-fixture">Collection Fixtures</h2>
+
+<p><em>
+  <strong>When to use:</strong> when you want to create a single test context
+  and share it among tests in several test classes, and have it cleaned up
+  after all the tests in the test classes have finished.
+</em></p>
+
+<p>
+  Sometimes you will want to share a fixture object among multiple test classes.
+  The database example used for class fixtures is a great example: you may want
+  to initialize a database with a set of test data, and then leave that test
+  data in place for use by multiple test classes. You can use the <em>collection
+  fixture</em> feature of xUnit.net to share a single object instance among
+  tests in several test class.
+</p>
+
+<p>To use collection fixtures, you need to take the following steps:</p>
+
+<ul>
+  <li>
+    Create the fixture class, and put the startup code in the fixture
+    class constructor.
+  </li>
+  <li>
+    If the fixture class needs to perform cleanup, implement <code>IDisposable</code>
+    on the fixture class, and put the cleanup code in the <code>Dispose()</code>
+    method.
+  </li>
+  <li>
+    Create the collection definition class, decorating it with the
+    <code>[CollectionDefinition]</code> attribute, giving it a unique name
+    that will identify the test collection.
+  </li>
+  <li>
+    Add <code>ICollectionFixture&lt;&gt;</code> to the collection definition
+    class.
+  </li>
+  <li>
+    Add the <code>[Collection]</code> attribute to all the test classes that
+    will be part of the collection, using the unique name you provided to the
+    test collection definition class's <code>[CollectionDefinition]</code>
+    attribute.
+  </li>
+  <li>
+    If the test classes need access to the fixture instance, add it as a
+    constructor argument, and it will be provided automatically.
+  </li>
+</ul>
+
+<p>Here is a simple example:</p>
+
+{% highlight C# %}
+public class DatabaseFixture : IDisposable
+{
+    public DatabaseFixture()
+    {
+        Db = new SqlConnection("MyConnectionString");
+
+        // ... initialize data in the test database ...
+    }
+
+    public void Dispose()
+    {
+        // ... clean up test data from the database ...
+    }
+
+    public SqlConnection Db { get; private set; }
+}
+
+[CollectionDefinition("Database collection")]
+public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
+{
+    // This class has no code, and is never created. Its purpose is simply
+    // to be the place to apply [CollectionDefinition] and all the
+    // ICollectionFixture<> interfaces.
+}
+
+[Collection("Database collection")]
+public class DatabaseTestClass1
+{
+    DatabaseFixture fixture;
+
+    public DatabaseTestClass1(DatabaseFixture fixture)
+    {
+        this.fixture = fixture;
+    }
+}
+
+[Collection("Database collection")]
+public class DatabaseTestClass2
+{
+    // ...
+}
+{% endhighlight %}
+
+<p>
+  xUnit.net treats collection fixtures in much the same way as class fixtures,
+  except that the lifetime of a collection fixture object is longer: it is
+  created before any tests are run in any of the test classes in the collection,
+  and will not be cleaned up until all test classes in the collection have
+  finished running.
+</p>
+
+<p>
+  Test collections can also be decorated with <code>IClassFixture&lt;&gt;</code>.
+  xUnit.net treats this as though each individual test class in the test collection
+  were decorated with the class fixture.
+</p>
+
+<p>
+  Test collections also influence the way xUnit.net runs tests when running them
+  in parallel. For more information, see <a href="running-tests-in-parallel.html">Running
+  Tests in Parallel</a>.
+</p>
+
+<p><em>
+  <strong>Important note:</strong> Fixtures can be shared across assemblies, but collection definitions <strong>must</strong> be in the
+  same assembly as the test that uses them.
+</em></p>
+
+<section class="related-topics">Related topics:</section>
+<ul>
+  <li><a href="running-tests-in-parallel.html">Running Tests in Parallel</a></li>
+</ul>

@@ -1,0 +1,74 @@
+---
+layout: default
+title: Release Notes for May 28, 2018
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: May 28, 2018</h1>
+
+<h2>xUnit.net 2.4 Beta 2</h2>
+
+<p class="note">
+  We have made the difficult decision to stop shipping the <code>dotnet xunit</code> runner. Though we
+  have invested significant effort into the runner, it remains a source of bugs that stem fundamentally
+  from the fact that it's trying to do things which are outside the bounds of the normal execution rules
+  for .NET Core.<br />
+  <br />
+  Users should revert back to using <code>dotnet test</code> for the time being. For more information, see
+  <a href="../docs/getting-started-dotnet-core">Getting started with xUnit.net (.NET Core / ASP.NET Core)</a>.
+</p>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Fixture objects (class & collection fixtures) can now accept <code>IMessageSink</code> as a constructor
+    argument. This message sink only accepts diagnostic messages (that is, <see>IDiagnosticMessage</see>).
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    Added overloads to <code>Assert.Contains</code> and <code>Assert.DoesNotContain</code> for dictionaries.
+    The expected value for these assertions is the dictionary key. <code>Assert.Contains</code> returns the
+    value for the given key, when the key is present.
+  </li>
+  <li>
+    Added overload to <code>Assert.Equal</code> for <code>DateTime</code> comparison, which accepts a
+    <code>TimeSpan</code> precision argument.
+  </li>
+  <li>Performance improvement for <code>Assert.Single</code> to prevent enumerating the whole container.</li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    The console runner is now compiled for all Desktop CLR versions, from 4.5.2 through 4.7.2. The
+    <code>xunit.runner.console</code> NuGet package includes binaries inside the <code>tools</code>
+    folder. In addition there are new MSBuild properties that are available for projects which
+    reference this package, which point to the new executables:
+    <ul>
+      <li><code>XunitConsole452Path</code> (.NET 4.5.2 AnyCpu)</li>
+      <li><code>XunitConsole452PathX86</code> (.NET 4.5.2 32-bit)</li>
+      <li><code>XunitConsole46Path</code> (.NET 4.6 AnyCpu)</li>
+      <li><code>XunitConsole46PathX86</code> (.NET 4.6 32-bit)</li>
+      <li><code>XunitConsole461Path</code> (.NET 4.6.1 AnyCpu)</li>
+      <li><code>XunitConsole461PathX86</code> (.NET 4.6.1 32-bit)</li>
+      <li><code>XunitConsole462Path</code> (.NET 4.6.2 AnyCpu)</li>
+      <li><code>XunitConsole462PathX86</code> (.NET 4.6.2 32-bit)</li>
+      <li><code>XunitConsole47Path</code> (.NET 4.7 AnyCpu)</li>
+      <li><code>XunitConsole47PathX86</code> (.NET 4.7 32-bit)</li>
+      <li><code>XunitConsole471Path</code> (.NET 4.7.1 AnyCpu)</li>
+      <li><code>XunitConsole471PathX86</code> (.NET 4.7.1 32-bit)</li>
+      <li><code>XunitConsole472Path</code> (.NET 4.7.2 AnyCpu)</li>
+      <li><code>XunitConsole472PathX86</code> (.NET 4.7.2 32-bit)</li>
+    </ul>
+  </li>
+  <li>A new reporter (<code>-junit</code>) was added to emit results in the JUnit XML format.</li>
+  <li>Fixed a compatibility issue with .NET 4.7.2 to allow portable PDBs.</li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>A new reporter (<code>JUnit</code>) was added to emit results in the JUnit XML format.</li>
+</ul>

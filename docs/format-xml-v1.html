@@ -1,0 +1,401 @@
+---
+layout: default
+title: xUnit.net v1 XML Format
+breadcrumb: Documentation
+---
+
+<h1>xUnit.net v1 XML Format</h1>
+
+<p class="note">
+  This documentation for the v1 XML format is provided for historical purposes only.
+  New transformations should use the <a href="format-xml-v2">V2 XML Format</a>.
+</p>
+
+<p>xUnit.net v1 exposed XML in several ways:</p>
+
+<ul>
+  <li>As the native xUnit.net XML output;</li>
+  <li>As the XML document used for output transformations;</li>
+  <li>As the callback from Executor for version-resilient test runner authors.</li>
+</ul>
+
+<p>
+  The top level element of the document during transformation is the
+  <a href="#assembly">assembly</a> element, and represents a single test assembly.
+  During execution, the top level element will be the element currently being
+  reported on.
+</p>
+
+<h3>Elements</h3>
+<ul>
+  <li><a href="#assembly">assembly</a></li>
+  <li><a href="#class">class</a></li>
+  <li><a href="#failure">failure</a></li>
+  <li><a href="#reason">reason</a></li>
+  <li><a href="#start">start</a></li>
+  <li><a href="#test">test</a></li>
+  <li><a href="#trait">trait</a></li>
+  <li><a href="#traits">traits</a></li>
+</ul>
+
+<h2 class="banner" id="assembly"><code>&lt;assembly&gt;</code> Element</h2>
+
+<p>
+  The <code>assembly</code> node contains information about the run of a test
+  assembly. Transformations are handed a single assembly node as their XML document
+  to transform against.
+</p>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Child</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="#class"><code>&lt;class&gt;</code></a></td>
+      <td>0..*</td>
+      <td class="wrapped-wide">The classes run within this assembly</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>name</code></th>
+      <td class="wrapped-wide">The fully qualified pathname of the assembly</td>
+    </tr>
+    <tr>
+      <th><code>run-date</code></th>
+      <td class="wrapped-wide">The date the test run began</td>
+    </tr>
+    <tr>
+      <th><code>run-time</code></th>
+      <td class="wrapped-wide">The time the test run began</td>
+    </tr>
+    <tr>
+      <th><code>time</code></th>
+      <td class="wrapped-wide">The time, in fractional seconds, spent running tests</td>
+    </tr>
+    <tr>
+      <th><code>total</code></th>
+      <td class="wrapped-wide">The number of tests run</td>
+    </tr>
+    <tr>
+      <th><code>passed</code></th>
+      <td class="wrapped-wide">The number of tests that passed</td>
+    </tr>
+    <tr>
+      <th><code>failed</code></th>
+      <td class="wrapped-wide">The number of tests that failed</td>
+    </tr>
+    <tr>
+      <th><code>skipped</code></th>
+      <td class="wrapped-wide">The number of tests that were skipped</td>
+    </tr>
+    <tr>
+      <th><code>environment</code></th>
+      <td class="wrapped-wide">The environment the tests were run in (32- vs. 64-bit and .NET version)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 class="banner" id="class"><code>&lt;class&gt;</code> Element</h2>
+
+<p>
+  The <code>class</code> node contains information about the tests run in a single test
+  class. It also contains information about failures related to the class itself (i.e.,
+  during the creation or disposable of fixture data associated with
+  <code>IUseFixture&lt;T&gt;</code>).
+</p>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Child</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><a href="#test"><code>&lt;test&gt;</code></a></th>
+      <td>0..*</td>
+      <td class="wrapped-wide">Contains the tests run within this class</td>
+    </tr>
+    <tr>
+      <th><a href="#failure"><code>&lt;failure&gt;</code></a></th>
+      <td>0..1</td>
+      <td class="wrapped-wide">Contains fixture related failure info</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>name</code></th>
+      <td class="wrapped-wide">The full type name of the class</td>
+    </tr>
+    <tr>
+      <th><code>time</code></th>
+      <td class="wrapped-wide">The time, in fractional seconds, spent running tests</td>
+    </tr>
+    <tr>
+      <th><code>total</code></th>
+      <td class="wrapped-wide">The number of tests run</td>
+    </tr>
+    <tr>
+      <th><code>passed</code></th>
+      <td class="wrapped-wide">The number of tests that passed</td>
+    </tr>
+    <tr>
+      <th><code>failed</code></th>
+      <td class="wrapped-wide">The number of tests that failed</td>
+    </tr>
+    <tr>
+      <th><code>skipped</code></th>
+      <td class="wrapped-wide">The number of tests that were skipped</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h2 class="banner" id="failure"><code>&lt;failure&gt;</code> Element</h2>
+
+<p>
+  A <code>failure</code> node describes a failure of a <a href="#class"><code>class</code></a>
+  or <a href="#test"><code>test</code></a>.
+</p>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Child</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>&lt;message&gt;</code></th>
+      <td>1</td>
+      <td class="wrapped-wide">The exception message</td>
+    </tr>
+    <tr>
+      <th><code>&lt;stack-trace&gt;</code></th>
+      <td>0..1</td>
+      <td class="wrapped-wide">The stack trace of the exception</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>exception-type</code></th>
+      <td class="wrapped-wide">The full type name of the exception that was thrown</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h2 class="banner" id="reason"><code>&lt;reason&gt;</code> Element</h2>
+
+<p>A reason node contains information about why a test was skipped.</p>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Child</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>&lt;message&gt;</code></th>
+      <td>1</td>
+      <td class="wrapped-wide">The reason the text was skipped</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h2 class="banner" id="start"><code>&lt;start&gt;</code> Element</h2>
+
+<p>
+  The start node is only available via Executor, not for Transformations. It
+  indicates that a test is about to start running, and can be used to update
+  runner status to indicate such.
+</p>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>name</code></th>
+      <td class="wrapped-wide">The display name of the test</td>
+    </tr>
+    <tr>
+      <th><code>type</code></th>
+      <td class="wrapped-wide">The full type name of the class</td>
+    </tr>
+    <tr>
+      <th><code>method</code></th>
+      <td class="wrapped-wide">The name of the method</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h2 class="banner" id="test"><code>&lt;test&gt;</code> Element</h2>
+
+<p>The test node contains information about a single test execution.</p>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Child</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="#failure"><code>&lt;failure&gt;</code></a></td>
+      <td>0..1</td>
+      <td class="wrapped-wide">Present if the test result is <code>Fail</code></td>
+    </tr>
+    <tr>
+      <td><a href="#reason"><code>&lt;reason&gt;</code></a></td>
+      <td>0..1</td>
+      <td class="wrapped-wide">Present if the test result is <code>Skip</code></td>
+    </tr>
+    <tr>
+      <td><a href="#traits"><code>&lt;traits&gt;</code></a></td>
+      <td>0..1</td>
+      <td class="wrapped-wide">Present if the test has any trait metadata</td>
+    </tr>
+    <tr>
+      <th><code>&lt;output&gt;</code></th>
+      <td>0..1</td>
+      <td class="wrapped-wide">Contains any text written to <code>Console.Out</code> or <code>Console.Error</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Attributes</h3>
+
+<!--
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+</table>
+-->
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Attribute</th>
+      <th style="text-align: center">Introduced</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>name</code></th>
+      <td>1.0</td>
+      <td class="wrapped-wide">The display name of the test</td>
+    </tr>
+    <tr>
+      <th><code>type</code></th>
+      <td>1.0</td>
+      <td class="wrapped-wide">The full type name of the class</td>
+    </tr>
+    <tr>
+      <th><code>method</code></th>
+      <td>1.0</td>
+      <td class="wrapped-wide">The name of the method</td>
+    </tr>
+    <tr>
+      <th><code>result</code></th>
+      <td>1.0</td>
+      <td class="wrapped-wide">One of <code>Pass</code>, <code>Fail</code>, or <code>Skip</code></td>
+    </tr>
+    <tr>
+      <th><code>time</code></th>
+      <td>1.0</td>
+      <td class="wrapped-wide">
+        The time, in fractional seconds, spent running the test (not present for
+        <code>Skip</code> results)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h2 class="banner" id="trait"><code>&lt;trait&gt;</code> Element</h2>
+
+<p>
+  The trait node contains information about a single name/value pair of metadata
+  about a <a href="#test"><code>test</code></a>.
+</p>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>name</code></th>
+      <td class="wrapped-wide">The name of the trait</td>
+    </tr>
+    <tr>
+      <th><code>value</code></th>
+      <td class="wrapped-wide">The value of the trait</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h2 class="banner" id="traits"><code>&lt;traits&gt;</code> Element</h2>
+
+<p>
+  The traits node contains zero or more <a href="#trait"><code>trait</code></a> nodes which
+  contain the metadata about a <a href="#test"><code>test</code></a>.
+</p>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Child</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="#trait"><code>&lt;trait&gt;</code></a></td>
+      <td>0..*</td>
+      <td class="wrapped-wide">
+        Nodes representing the traits of the <a href="#test">test</a>
+      </td>
+    </tr>
+  </tbody>
+</table>

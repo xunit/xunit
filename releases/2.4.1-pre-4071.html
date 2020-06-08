@@ -1,0 +1,31 @@
+---
+layout: default
+title: Release Notes for October 6, 2018
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 6, 2018</h1>
+
+<h2>xUnit.net 2.4.1 Pre-Release (build 4071)</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue caused in 2.4 by introducing new <code>netstandard2.0</code> libraries.
+    Developers who were using desktop versions older than 4.7.2 could encounter assembly loading issues.
+    We rolled this change back, which should resolve the issue for those users. For more information on this
+    issue, see <a href="https://github.com/dotnet/standard/issues/481">this Github issue</a>.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where generic test methods weren't correctly resolved when passing
+    a <code>Func&lt;T&gt;</code>.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where <code>-nocolor</code> was not honored (when trying to get any
+    reports other than XML v2 from the .NET Core 1.x runner).
+  </li>
+</ul>

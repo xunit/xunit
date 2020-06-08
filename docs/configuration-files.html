@@ -1,0 +1,284 @@
+---
+layout: default
+title: Configuration Files
+breadcrumb: Documentation
+redirect_from:
+- /docs/configuring-with-json
+- /docs/configuring-with-json.html
+---
+
+<h1>Configuration Files</h1>
+
+<p>
+  Configuration files can be used to configure xUnit.net on a per test-assembly basis.
+</p>
+<ul>
+  <li><a href="#file">Adding the configuration file</a></li>
+  <li><a href="#items">Supported configuration items</a></li>
+  <ul>
+    <li><a href="#appDomain"><code>appDomain</code></a></li>
+    <li><a href="#diagnosticMessages"><code>diagnosticMessages</code></a></li>
+    <li><a href="#longRunningTestSeconds"><code>longRunningTestSeconds</code></a></li>
+    <li><a href="#maxParallelThreads"><code>maxParallelThreads</code></a></li>
+    <li><a href="#methodDisplay"><code>methodDisplay</code></a></li>
+    <li><a href="#methodDisplayOptions"><code>methodDisplayOptions</code></a></li>
+    <li><a href="#parallelizeAssembly"><code>parallelizeAssembly</code></a></li>
+    <li><a href="#parallelizeTestCollections"><code>parallelizeTestCollections</code></a></li>
+    <li><a href="#preEnumerateTheories"><code>preEnumerateTheories</code></a></li>
+    <li><a href="#shadowCopy"><code>shadowCopy</code></a></li>
+  </ul>
+</ul>
+
+<p class="note">
+  In these examples, we tell you to use the file name <code>xunit.runner.json</code>.
+  You can also use <code>&lt;AssemblyName&gt;.xunit.runner.json</code> (where
+  <code>&lt;AssemblyName&gt;</code> is the name of your unit test assembly,
+  without the file extension like <code>.dll</code> or <code>.exe</code>).
+  You should only need to use this longer name format if your unit tests DLLs will
+  all be placed into the same output folder, and you need to disambiguate the
+  various configuration files.<br />
+  <br />
+  The assembly-specific filename takes precedence over the non-specific filename;
+  there is <strong>no merging</strong> of values between files.
+</p>
+
+<h2 id="file">Adding the configuration file</h2>
+
+<ol>
+  <li>
+    <p>
+      Add a new JSON file to the root of your test project. Name the file <code>xunit.runner.json</code>.
+      Start with a schema reference so that text editors (like Visual Studio & Visual Studio Code) can
+      provide auto-complete behavior while editing the file:
+    </p>
+{% highlight json %}
+{
+  "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json"
+}
+{% endhighlight %}
+  </li>
+  <li>
+    <p>
+      Tell the build system to copy the file into the build output directory. Edit your <code>.csproj</code>
+      file and add the following:
+    </p>
+{% highlight xml %}
+<ItemGroup>
+  <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+</ItemGroup>
+{% endhighlight %}
+  </li>
+</ol>
+
+<h2 id="items">Supported configuration items</h2>
+
+<p>
+  The schema is online at
+  <a href="https://xunit.net/schema/current/xunit.runner.schema.json">https://xunit.net/schema/current/xunit.runner.schema.json</a>,
+  which can be set in the JSON file to aid with intellisense from development IDEs like
+  <a href="https://visualstudio.microsoft.com/">Visual Studio</a> and
+  <a href="https://code.visualstudio.com/">Visual Studio Code</a>.
+</p>
+<p>Configuration elements are placed inside a top-level object:</p>
+
+{% highlight json %}
+{
+  "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
+  "enum-or-string-key": "value1",
+  "boolean-key": true,
+  "integer-key": 42
+}
+{% endhighlight %}
+
+<table class="table">
+  <tr>
+    <th>Key</th>
+    <th>Supported Values</th>
+  </tr>
+  <tr>
+    <th id="appDomain"><code>appDomain</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to determine whether App Domains are used. By default, they
+        will be used when available (the <code>ifAvailable</code> value). If you
+        set this to <code>required</code>, it will require that app domains are
+        available; if you set this to <code>denied</code>, it will not use app domains.
+        <em>Note that App Domains are only supported with .NET Framework tests, and
+        only with tests linked against xUnit.net framework v1.x or v2.x.</em>
+      </p>
+      <p>
+        <em>JSON schema type: <strong>enum</strong><br />
+        Valid values: <code>required</code>, <code>ifAvailable</code>, <code>denied</code><br />
+        Default value: <code>ifAvailable</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="diagnosticMessages"><code>diagnosticMessages</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to <code>true</code> to include diagnostic information during test
+        discovery and execution. Each runner has a unique method of presenting diagnostic
+        messages.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong><br />
+        Default value: <code>false</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="longRunningTestSeconds"><code>longRunningTestSeconds</code><br />[Runners v2.2+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to enable long-running (hung) test detection. When the runner is
+        idle waiting for tests to finished, it will report that fact once the timeout
+        has passed. Use a value of <code>0</code> to disable the feature, or a positive
+        integer value to enable the feature (time in seconds).
+      </p>
+      <p>
+        <strong>NOTE:</strong> Long running test messages are diagnostic messages. You
+        must enable diagnostic messages in order to see the long running test warnings.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>integer</strong><br />
+        Default value: <code>0</code> (disabled)</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="maxParallelThreads"><code>maxParallelThreads</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to override the maximum number of threads to be used when parallelizing
+        tests within this assembly. Use a value of <code>0</code> to indicate that you would
+        like the default behavior; use a value of <code>-1</code> to indicate that you do not
+        wish to limit the number of threads used for parallelization.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>integer</strong><br />
+        Default value: the number of logical processors in your PC</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="methodDisplay"><code>methodDisplay</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to override the default display name for test cases. If you set this
+        to <code>method</code>, the display name will be just the method (without the
+        class name); if this set this value to <code>classAndMethod</code>, the
+        default display name will be the fully qualified class name and method name.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>enum</strong><br />
+        Valid values: <code>method</code>, <code>classAndMethod</code><br />
+        Default value: <code>classAndMethod</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="methodDisplayOptions"><code>methodDisplayOptions</code><br />[Runners v2.4+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to automatically perform transforms on default test names. This value
+        can either be <code>all</code>, <code>none</code>, or a comma-separated
+        combination of one or more of the following values:
+      </p>
+      <ul>
+        <li><code>replaceUnderscoreWithSpace</code> Replaces all underscores with spaces</li>
+        <li>
+          <code>useOperatorMonikers</code> Replaces operator names with matching symbols
+          <ul>
+            <li><code>eq</code> becomes <code>=</code></li>
+            <li><code>ne</code> becomes <code>!=</code></li>
+            <li><code>lt</code> becomes <code>&lt;</code></li>
+            <li><code>le</code> becomes <code>&lt;=</code></li>
+            <li><code>gt</code> becomes <code>&gt;</code></li>
+            <li><code>ge</code> becomes <code>&gt;=</code></li>
+          </ul>
+        </li>
+        <li>
+          <code>useEscapeSequences</code> Replaces escape sequences in the format <code>Xnn</code>
+          or <code>Unnnn</code> with their ASCII or Unicode character equivalents. Examples:
+          <ul>
+            <li><code>X2C</code> becomes <code>,</code></li>
+            <li><code>U1D0C</code> becomes <code>&#x1d0c;</code></li>
+          </ul>
+        </li>
+        <li>
+          <code>replacePeriodWithComma</code> Replaced periods with a comma and a space. This
+          option is typically only useful if <code>methodDisplay</code> is <code>classAndMethod</code>.
+        </li>
+      </ul>
+      <p>
+        <em>JSON schema type: <strong>string</strong> (comma separated flags)<br />
+        Valid values: <code>all</code>, <code>none</code>, or comma separated flags<br />
+        Default value: <code>none</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="parallelizeAssembly"><code>parallelizeAssembly</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> if this assembly is willing to participate in
+        parallelization with other assemblies. Test runners can use this information to
+        automatically enable parallelization across assemblies if all the assemblies
+        agree to it.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong><br />
+        Default value: <code>false</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="parallelizeTestCollections"><code>parallelizeTestCollections</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> if the assembly is willing to run tests inside
+        this assembly in parallel against each other. Tests in the same test collection
+        will be run sequentially against each other, but tests in different test
+        collections will be run in parallel against each other. Set this to
+        <code>false</code> to disable all parallelization within this test assembly.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong><br />
+        Default value: <code>true</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="preEnumerateTheories"><code>preEnumerateTheories</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to pre-enumerate theories so that there is an
+        individual test case for each theory data row. Set this to <code>false</code>
+        to return a single test case for each theory without pre-enumerating the
+        data ahead of time (this is how xUnit.net v1.x used to behave). This is
+        most useful for developers running tests inside Visual Studio, who wish to
+        have the Code Lens test runner icons on their theory methods, since Code
+        Lens does not support multiple tests from a single method.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong><br />
+        Default value: <code>true</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="shadowCopy"><code>shadowCopy</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to use shadow copying when running tests in
+        separate App Domains; set to <code>false</code> to run tests without shadow
+        copying. When running tests without App Domains, this value is ignored.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong><br />
+        Default value: <code>true</code></em>
+      </p>
+    </td>
+  </tr>
+</table>

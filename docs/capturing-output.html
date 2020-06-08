@@ -1,0 +1,167 @@
+---
+layout: default
+title: Capturing Output
+breadcrumb: Documentation
+---
+
+<h1>Capturing Output</h1>
+
+<p>
+  In order to assist in debugging failing test (especially when running them on
+  remote machines without access to a debugger), it can often be helpful to add
+  diagnostic output that is separate from passing or failing test results.
+  xUnit.net offers two such methods for adding output, depending on what kind
+  of code you're trying to diagnose.
+</p>
+
+<ul>
+  <li><a href="#output-in-tests">Capturing output in unit tests</a></li>
+  <li><a href="#output-in-extensions">Capturing output in extensibility classes</a></li>
+</ul>
+
+<p class="note">
+  If you used xUnit.net 1.x, you may have previously been writing output to
+  <code>Console</code>, <code>Debug</code>, or <code>Trace</code>. When xUnit.net
+  v2 shipped with parallelization turned on by default, this output capture
+  mechanism was no longer appropriate; it is impossible to know which of the
+  many tests that could be running in parallel were responsible for writing
+  to those shared resources. Users who are porting code from v1.x to v2.x
+  should use one of the two new methods instead.
+</p>
+
+<h2 id="output-in-tests">Capturing output in unit tests</h2>
+
+<p>
+  Unit tests have access to a special interface which replaces previous usage of
+  <code>Console</code> and similar mechanisms: <code>ITestOutputHelper</code>.
+  In order to take advantage of this, just add a constructor argument for this
+  interface, and stash it so you can use it in the unit test.
+</p>
+
+{% highlight csharp %}
+using Xunit;
+using Xunit.Abstractions;
+
+public class MyTestClass
+{
+    private readonly ITestOutputHelper output;
+
+    public MyTestClass(ITestOutputHelper output)
+    {
+        this.output = output;
+    }
+
+    [Fact]
+    public void MyTest()
+    {
+        var temp = "my class!";
+        output.WriteLine("This is output from {0}", temp);
+    }
+}
+{% endhighlight %}
+
+<p>
+  As you can see in the example above, the <code>WriteLine</code> function on
+  <code>ITestOutputHelper</code> supports formatting arguments, just as you
+  were used to with <code>Console</code>.
+</p>
+
+<p>
+  In addition to being able to write to the output system during the unit
+  test, you can also write to it during the constructor (and during your
+  implementation of <code>IDisposable.Dispose</code>, if you choose to have
+  one). This test output will be wrapped up into the XML output, and most
+  test runners will surface the output for you as well.
+</p>
+
+<p><img class="border" src="../images/capturing-output/vs-runner-output.png" width="775" /></p>
+
+<h2 id="output-in-extensions">Capturing output in extensibility classes</h2>
+
+<p>
+  Output for unit tests are grouped and displayed with the specific unit test.
+  Output from extensibility classes, on the other hand, is considered diagnostic
+  information. Most runners require you to enable diagnostic output either explicitly
+  with a command line option, or implicitly on an assembly-by-assembly basis
+  by using <a href="configuration-files">configuration files</a>.
+</p>
+
+<p>
+  Each extensibility class has its own individual constructor requirements.
+  In addition, they can take <em>as their last constructor parameter</em> an
+  instance of <code>IMessageSink</code> that is designated solely for sending
+  diagnostic messages. Diagnostic messages implement <code>IDiagnosticMessage</code>
+  from <code>xunit.abstractions</code>. If you're linked against
+  <code>xunit.execution</code>, there is a <code>DiagnosticMessage</code>
+  class in the <code>Xunit.Sdk</code> namespace available for your use.
+</p>
+
+<p>
+  The extensibility interfaces which currently support this functionality are:
+</p>
+
+<ul>
+  <li><code>IDataDiscoverer</code></li>
+  <li><code>ITestCaseOrderer</code></li>
+  <li><code>ITestCollectionOrderer</code></li>
+  <li><code>ITestFrameworkTypeDiscoverer</code></li>
+  <li><code>ITraitDiscoverer</code></li>
+  <li><code>IXunitTestCaseDiscoverer</code></li>
+  <li><code>IXunitTestCollectionFactory</code></li>
+</ul>
+
+<p>
+  Here is an example of using it in a test case orderer:
+</p>
+
+{% highlight csharp %}
+using System.Collections.Generic;
+using System.Linq;
+using Xunit.Abstractions;
+using Xunit.Sdk;
+
+public class MyTestCaseOrderer : ITestCaseOrderer
+{
+    private readonly IMessageSink diagnosticMessageSink;
+
+    public MyTestCaseOrderer(IMessageSink diagnosticMessageSink)
+    {
+        this.diagnosticMessageSink = diagnosticMessageSink;
+    }
+
+    public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
+        where TTestCase : ITestCase
+    {
+        var result = testCases.ToList();  // Run them in discovery order
+        var message = new DiagnosticMessage("Ordered {0} test cases", result.Count);
+        diagnosticMessageSink.OnMessage(message);
+        return result;
+    }
+}
+{% endhighlight %}
+
+<p>Then after enabling diagnostic messages in <code>App.config</code>:</p>
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <appSettings>
+    <add key="xunit.diagnosticMessages" value="true"/>
+  </appSettings>
+</configuration>
+{% endhighlight %}
+
+<p>
+  When run, Visual Studio's output window contains a Tests tab which contains
+  the information from running the tests, including the diagnostic message:
+</p>
+
+{% highlight text %}
+------ Run test started ------
+[xUnit.net 00:00:00.1131667] Discovery starting: OutputExample (name display = ClassAndMethod)
+[xUnit.net 00:00:00.1600619] Discovery finished: OutputExample (1 tests)
+[xUnit.net 00:00:00.1739819] Execution starting: OutputExample (method display = ClassAndMethod, parallel test collections = True, max threads = 8)
+OutputExample: Ordered 1 test cases
+[xUnit.net 00:00:00.1739819] Execution finished: OutputExample
+========== Run test finished: 1 run (0:00:00.4369286) ==========
+{% endhighlight %}

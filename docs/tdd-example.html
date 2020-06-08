@@ -1,0 +1,351 @@
+---
+layout: default
+title: Test-First Programming - By Example
+breadcrumb: Documentation
+---
+
+<h1>Test-First Programming - By Example</h1>
+
+<p>
+  In this section I'll demonstrate how to implement a <i>Stack</i> using the
+  test-first programming practice. The best way that I have seen to understand
+  test-first is to see it practiced and follow along step-by-step. The following
+  are the steps that I used to build a Stack.
+</p>
+
+<h2>The Task</h2>
+
+<p>
+  Let's imagine for a moment that you were just hired to work on a new class
+  library. Your first task in the library will be to implement an <i>Unbounded Stack</i>.
+  An <i>Unbounded Stack</i> is a data structure in which access is restricted
+  to the most recently inserted item.
+</p>
+
+<blockquote>
+  <b>Note</b>
+  <p>
+    An <i>Unbounded Stack</i> does not have to be pre-sized and you can insert
+    an unlimited number of items into it.
+  </p>
+</blockquote>
+
+<p>
+  The operations include <i>Push</i>, <i>Pop</i>, <i>Peek</i>, <i>Contains</i>,
+  and <i>Count</i>. The <i>Push</i> operation inserts an element onto the top
+  of the <i>Stack</i> (Figure 1). The <i>Pop</i> operation removes the topmost
+  element and returns it to the caller (Figure 2). The <i>Peek</i> operation
+  returns the topmost element but does not remove it from the <i>Stack</i>
+  (Figure 3). The <i>Contains</i> operation determines whether or not the items
+  is on the <i>Stack</i>. Last but not least the <i>Count</i> operation returns
+  the number of elements that are currently on the <i>Stack.</i>
+</p>
+
+<h2>Test List</h2>
+
+<p>
+  The first step is to brainstorm a list of tests for the task. The goal of
+  this step is to create a candidate list of tests that describe the requirements
+  and in turn define the completion requirements for the task. This list is fluid
+  throughout the process of implementing each test. As you implement each test,
+  you might have to revisit the list to <i>add</i> or <i>delete</i> tests. Here
+  is a candidate test list for the <i>Unbounded Stack</i>:
+</p>
+
+<p>Tests:</p>
+
+<ul>
+  <li><a href="#step-1">Create a <i>Stack</i> and verify that <i>Count</i> returns zero.</a></li>
+  <li><a href="#step-2">Create a <i>Stack</i>, <i>Push</i> a single element on the <i>Stack</i> and verify that <i>Count</i> is one.</a></li>
+  <li><a href="#step-3">Create a <i>Stack</i>, <i>Push</i> N elements on the <i>Stack</i> and verify that <i>Count</i> is equal to N.</a></li>
+  <li><a href="#step-4">Create a <i>Stack</i>, <i>Push</i> a single element, call <i>Pop</i> on the <i>Stack</i> and verify that <i>Count</i> is zero.</a></li>
+  <li><a href="#step-5">Create a <i>Stack</i>, <i>Push</i> a single element, call <i>Peek</i> on the <i>Stack</i> and verify that <i>Count</i> is one.</a></li>
+  <li><a href="#step-6">Create a <i>Stack</i>, <i>Push</i> a single element remembering what it is, call <i>Pop</i> on the <i>Stack</i> and verify that the two objects are equal.</a></li>
+  <li><a href="#step-7">Create a <i>Stack</i>, <i>Push</i> three elements remembering what they are, call <i>Pop</i> on the <i>Stack</i> repeatedly and verify that the elements are removed in the correct order, Last In First Out (LIFO).</a></li>     <li><a href="#step-8">Create a <i>Stack</i>, call <i>Pop</i> on the <i>Stack</i> and verify that an <i>InvalidOperationException</i> is thrown.</a></li>
+  <li><a href="#step-9">Create a <i>Stack</i>, call <i>Peek</i> on the <i>Stack</i> and verify that an <i>InvalidOperationException</i> is thrown.</a></li>
+  <li><a href="#step-10">Create a <i>Stack</i>, <i>Push</i> a single element remembering what it is, call <i>Peek</i> on the <i>Stack</i> and verify that the two objects are equal.</a></li>
+  <li><a href="#step-11">Create a <i>Stack</i>,call <i>Contains</i> on the <i>Stack</i> and verify that it returns <i>false</i>.</a></li>
+  <li><a href="#step-12">Create a <i>Stack</i>, <i>Push</i> three elements remembering what they are, call <i>Contains</i> with one of the elements and verify that it returns <i>true</i>.</a></li>
+  <li><a href="#step-13">Create a <i>Stack</i> with a <i>parameterized</i> type, <i>Push</i> an element, call <i>Pop</i> and verify that it is equal to the element that was pushed.</a></li>
+</ul>
+
+<h2>Choosing the First Test</h2>
+
+<p>
+  There are differing opinions about which test to choose first. One opinion
+  says that you should choose the simplest test that gets you started. Another
+  says that you should choose a test that describes the essence of the problem
+  you are trying to solve. For example, looking at the test list in the previous
+  section, the simplest test is probably the first test: Create a <i>Stack</i>
+  and verify the <i>Count</i> is zero. If you think about the implementation for
+  a moment its dirt simple to implement. The downside is that the implementation
+  does not provide a great deal of feedback for furthering the design and
+  implementation of the <i>Stack</i>.
+</p>
+
+<p>
+  If we were to pursue a test that describes the essence of the problem you
+  could implement this test from the list: Create a <i>Stack</i>, <i>Push</i>
+  three elements remembering what they are; <i>Pop</i> each one, and verify that
+  they are removed in the correct Last In First Out Order (LIFO). A potential
+  downside to choosing this approach is that it can take too much time to
+  implement. If you believe it will take too long or require a number of
+  decisions you should choose a simpler test to get started. The advice I give
+  to people just starting out is to choose the simple test approach and gradually
+  find a balance between too simple and too complex.
+</p>
+
+<p>
+  For the purposes of this example I'll use the simplest test to implement first.
+  The first test is "Create a <i>Stack</i> and verify the <i>Count</i> is zero."
+</p>
+
+<h2>Red/Green/Refactor</h2>
+
+<p>Finally we can start writing some code.</p>
+
+<h4 id="step-1">Test #1 - Create a Stack and verify that Count returns zero</h4>
+
+<p>
+  This test requires creating a <i>Stack</i> object and calling the <i>Count</i>
+  property. The <i>Count</i> property should return zero because we have not
+  inserted any elements into the <i>Stack</i>. Let's begin by creating a new
+  file called "StackTests.cs". This class will contain all of the tests of the
+  <i>Stack</i> class.
+</p>
+
+{% highlight C# %}
+using Xunit;
+
+public class StackTests
+{
+}
+{% endhighlight %}
+
+<p>
+  The line <code>using Xunit;</code> is needed to reference the xUnit.net
+  assembly. Unlike NUnit and similar frameworks xUnit.net does not need to have
+  any class level attributes to indicate that the class contains tests.
+</p>
+
+<p>The next thing to do is write the test.</p>
+
+{% highlight C# linenos %}
+[Fact]
+public void EmptyStackCountMustBeZero()
+{
+    Stack stack = new Stack();
+
+    int count = stack.Count;
+
+    Assert.Equal(0, count);
+}
+{% endhighlight %}
+
+<p>
+  The method is marked with the <code>[Fact]</code> attribute. This is the
+  indicator to the xUnit.net framework that this method is a fact and should be
+  run. The name of the method is very important. It should be a statement of
+  fact. In this case we are verifying that a <i>Stack</i> without elements
+  should have a count of zero, hence "EmptyStackCountMustBeZero". Now, lets turn
+  our attention to the test itself. The first thing that is done to is to create
+  a <i>Stack</i> object. Once the object is created we then access the
+  <code>Count</code> property and save the result into a local variable named
+  <code>count</code>. Once we have the <code>count</code> result we verify that
+  it is equal to zero using <code>Assert.Equal</code>. You could argue that the
+  test is overly verbose because the last two statements could be combined into
+  <code>Assert.Equal(0, stack.Count)</code>, which is true. However, the test
+  as written conforms to the 3A pattern (Arrange, Act, Assert) which is the
+  preferred style even though we have to create a temporary variable to separate
+  the <i>Act</i> from the <i>Assert</i>.
+</p>
+
+<p>
+  Although the class used in the test, <i>Stack</i> and the property
+  <i>Count</i> do not exist, the code is written as if they do. When you are
+  writing the test code you think about how the class and its methods are used
+  instead of how they are implemented. This is one of the reasons that people
+  refer to test-first as much a design technique as a testing technique. Many
+  times, class library designers implement a library and then figure out how
+  to use it, which can lead to libraries that require large amounts of
+  initialization code, complex method interactions, and increased dependencies,
+  in short - <b>hard to use</b>. Thinking about how to use the library prior to
+  implementation places a larger emphasis on usage, which often leads to better
+  design.
+</p>
+
+<p>
+  If we were to try and compile the test code at this point you would find that
+  does not compile. This is not surprising because it has been implemented as
+  of yet. That should be relatively easy to fix. Before jumping in to write the
+  code ask yourself the following question, "What is the smallest amount of work
+  that needs to be done in order to get the code to compile?". Here is what I
+  came up with:
+</p>
+
+{% highlight C# linenos %}
+public class Stack
+{
+    public int Count { get; private set; }
+}
+{% endhighlight %}
+
+<p>
+  The implementation is certainly minimalistic; in fact it might seem surprising.
+  As I stated previously the goal is to do the smallest amount of work possible.
+  The two questions you have to answer once you have written the test are,
+  <em>Does the code compile?</em> and in turn, <em>Does the test pass?</em>
+  In this case the answer to both of those questions is yes. This test is now
+  complete and can be marked off the test list.
+</p>
+
+<p>
+  Clearly there is a balance to achieve between anticipating future tests and
+  implementation and being totally ignorant of the next test. In the beginning
+  as you are learning you should focus on the test you are writing and its
+  resulting implementation. As you become more familiar with the technique and
+  the task, you can increase the granularity if the steps. However, if you should
+  run into trouble the first thing I would recommend is to fall back to smaller
+  steps to get back into a rhythm. One of the clear signals of thinking too far
+  ahead with regards to implementation is when you write a test and it succeeds
+  without changing the implementation.
+</p>
+
+<p>
+  An example of thinking too far ahead on this step would be to think about the
+  elements are going to be stored as part of this step. It is clear from the
+  Test List that the Stack will have to store multiple elements. Is this the
+  right time to implement that requirement? The answer is no. The current test
+  does not require the <i>Stack</i> to store any elements. Let's defer that
+  decision to later when the tests specify the requirement.
+</p>
+
+<p>
+  Now that this test is complete which test should we choose next? I want to
+  stay focused on the <code>Count</code> property because it is probably the
+  smallest increment over what we have already implemented. Let's write Create
+  a <i>Stack</i>, <i>Push</i> a single element on the <i>Stack</i> and verify
+  that <i>Count</i> is one.
+</p>
+
+<h4 id="step-2">
+  Test #2 - Create a <i>Stack</i>, <i>Push</i> a single element on the
+  <i>Stack</i> and verify that <i>Count</i> is one.
+</h4>
+
+<p>Let's call this test <code>PushOneCountMustBeOne</code></p>
+
+{% highlight C# %}
+[Fact]
+public void PushOneCountMustBeOne()
+{
+    Stack stack = new Stack();
+    stack.Push(42);
+
+    int count = stack.Count;
+
+    Assert.Equal(1, count);
+}
+{% endhighlight %}
+
+<p>
+  The test creates a <i>Stack</i> object and then calls <i>Push</i> to insert an
+  element onto the <i>Stack</i>. Once the object is created and the an element
+  is Pushed onto the <i>Stack> </i>we then access the <code>Count</code>
+  property and save the result into a local variable named <code>count</code>.
+  Once we have the <code>count</code> result we verify that it is equal to one
+  using <code>Assert.Equal</code>.
+</p>
+
+<p>
+  If I was to try and compile this code it would fail because I have not
+  implemented the <i>Push</i> method. Once again, what is the smallest amount
+  of work needed to get the code to compile?
+</p>
+
+{% highlight C# %}
+public void Push(int element) { }
+{% endhighlight %}
+
+<p>
+  That is as small as possible. Now that it compiles we can then move forward
+  and run the tests. Its important to note here that I said tests, run all of
+  them not just the new one. Here are the results:
+</p>
+
+{% highlight C# %}
+------ Test started: Assembly: stack.dll ------
+
+Test 'StackTests.PushOneCountMustBeOne' failed: Assert.Equal() Failure
+Expected: 1
+Actual:   0
+	StackTests.cs(23,0): at StackTests.PushOneCountMustBeOne()
+
+1 passed, 1 failed, 0 skipped, took 0.62 seconds.
+{% endhighlight %}
+
+<p>
+  The test failed because it was expecting the <i>Count</i> property of the
+  <i>Stack</i> to return one and it returned zero. Since there is a failing
+  test we can go forward and implement <i>Push</i> appropriately. The easiest
+  thing to do is to just increment the <i>Count</i> property when <i>Push</i>
+  is called. You might be jumping out of your seat right now saying that
+  <i>Push</i> also needs to store the element that was pushed. I agree with
+  that sentiment but the tests we have so far do not require the storage of
+  the elements. Here's the updated <i>Push</i> method.
+</p>
+
+{% highlight C# %}
+public void Push(int element)
+{
+    Count++;
+}
+{% endhighlight %}
+
+<p>
+  When I implement this the code compiles and when both tests are run they both
+  pass. It's time to move onto the next test. I want to stay focused on the
+  <i>Count</i> property so "Create a <i>Stack</i>, <i>Push</i> N elements on
+  the <i>Stack</i> and verify that <i>Count</i> is equal to N" is next on the
+  list.
+</p>
+
+<h4 id="step-3">
+  Test #3 - Create a <i>Stack</i>, <i>Push</i> N elements on the <i>Stack</i>
+  and verify that <i>Count</i> is equal to N.
+</h4>
+
+<p>We'll call this method PushNCountMustBeN</p>
+
+{% highlight C# %}
+[Fact]
+public void PushNCountMustBeN()
+{
+    Stack stack = new Stack();
+    stack.Push(42);
+    stack.Push(21);
+    stack.Push(12);
+
+    int count = stack.Count;
+
+    Assert.Equal(3, count);
+}
+{% endhighlight %}
+
+<p>
+  Interestingly enough when I compile and run this test it already passes with
+  the existing implementation of <i>Stack</i>. You could ask yourself a few
+  questions at this point. First , was I thinking about this test when I wrote
+  the code in the previous test? Its possible but I don't see many other
+  implementations of <i>Push></i> that would make both tests pass. Second,
+  is this test redundant? I don't think it is but lets leave it in for now
+  and decide later. Since the test passes there is nothing left to do but move
+  onto the next test. Let's stay focused on the <i>Count</i> property and write
+  "Create a <i>Stack</i>, <i>Push</i> a single element, call <i>Pop</i> on the
+  <i>Stack</i> and verify that <i>Count</i> is zero.
+</p>
+
+<h4 id="step-4">
+  Test #4 - Create a <i>Stack</i>, <i>Push</i> a single element, call <i>Pop</i>
+  on the <i>Stack</i> and verify that <i>Count</i> is zero.
+</h4>

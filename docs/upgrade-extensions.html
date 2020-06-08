@@ -1,0 +1,123 @@
+---
+layout: default
+title: Upgrading xunit.extensions
+breadcrumb: Documentation
+---
+
+<h1>Upgrading xunit.extensions</h1>
+
+<p>
+  The <code>xunit.extensions</code> package has been deprecated from xUnit.net
+  v2. This page will help you find classes that you may now be missing.
+</p>
+
+<h2>Classes moved into core xUnit.net</h2>
+
+<p>
+  The classes here are part of the core unit testing framework now, and you
+  will be able to get references to them by importing the <code>xunit</code>
+  or <code>xunit.core</code> NuGet packages.
+</p>
+
+<table class="table">
+  <tr>
+    <th>Class</th>
+    <th>New Location</th>
+  </tr>
+  <tr>
+    <th><code>DataAttribute</code></th>
+    <td class="wrapped-wide">Moved to <code>Xunit.Sdk</code> namespace.</td>
+  </tr>
+  <tr>
+    <th><code>InlineDataAttribute</code></th>
+    <td class="wrapped-wide">Moved to <code>Xunit</code> namespace.</td>
+  </tr>
+  <tr>
+    <th><code>PropertyData</code></th>
+    <td class="wrapped-wide">
+      Renamed to <code>Xunit.MemberData</code>, and enhanced to support theory
+      data from properties, fields, and methods.
+    </td>
+  </tr>
+  <tr>
+    <th><code>TheoryAttribute</code></th>
+    <td class="wrapped-wide">Moved to <code>Xunit</code> namespace.</td>
+  </tr>
+</table>
+
+<h2>Classes moved to samples</h2>
+
+<p>
+  The classes here have been moved into <a href="https://github.com/xunit/samples.xunit">sample projects</a>. You can copy the code
+  from the sample to your own project.
+</p>
+
+<table class="table">
+  <tr>
+    <th>Class</th>
+    <th>Sample</th>
+  </tr>
+  <tr>
+    <th><code>AssumeIdentityAttribute</code></th>
+    <td class="wrapped-wide">
+      See the
+      <a href="https://github.com/xunit/samples.xunit/tree/master/AssumeIdentity">AssumeIdentity</a>
+      sample.
+    </td>
+  </tr>
+  <tr>
+    <th><code>AutoRollbackAttribute</code></th>
+    <td class="wrapped-wide">A sample will be forthcoming soon.</td>
+  </tr>
+  <tr>
+    <th>
+      <code>Clock</code><br />
+      <code>FreezeClockAttribute</code>
+    </th>
+    <td class="wrapped-wide">A sample will be forthcoming soon.</td>
+  </tr>
+  <tr>
+    <th>
+      <code>DataAdapterDataAttribute</code><br />
+      <code>ExcelDataAttribute</code><br />
+      <code>OleDbDataAttribute</code><br />
+      <code>SqlServerDataAttribute</code><br />
+      <code>OleDbDataAttribute</code>
+    </th>
+    <td class="wrapped-wide">
+      See the
+      <a href="https://github.com/xunit/samples.xunit/tree/master/SqlDataExample">SqlData</a>
+      sample. (This sample only covers how to do SQL Server data, but the technique
+      can adapted to many types of database-based data sources.)
+    </td>
+  </tr>
+  <tr>
+    <th><code>TraceAttribute</code></th>
+    <td class="wrapped-wide">
+      See the
+      <a href="https://github.com/xunit/samples.xunit/tree/master/TestOutputExample">TestOutputExample</a>
+      sample.
+    </td>
+  </tr>
+</table>
+
+<h2>Classes deprecated</h2>
+
+<p>These classes have been removed from xUnit.net v2.</p>
+
+<table class="table">
+  <tr>
+    <th>Class</th>
+    <th>Reason</th>
+  </tr>
+  <tr>
+    <th><code>Assertions</code><br /><code>TestClass</code></th>
+    <td class="wrapped-wide">
+      These classes were removed because they used inheritance (from TestClass)
+      to provide a way to write assertion extensions. In xUnit.net v2, the
+      <code>Assert</code> class is available in source form in the
+      <code>xunit.assert.source</code> NuGet package, and is a partial class
+      so that you can write your own methods that belong to it.
+    </td>
+  </tr>
+</table>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{page.title}} &gt; {% endif %}xUnit.net</title>
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:400,400italic,600' rel='stylesheet' type='text/css'>
+  <link href='//fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/pygments.css" rel="stylesheet">
+  <link href="/css/site.css" rel="stylesheet">
+  <link rel="shortcut icon" href="https://raw.github.com/xunit/media/master/logo-128-transparent.png">
+</head>
+
+<body>
+  <div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <span class="navbar-brand">
+          <span class="slack-float"><script async defer src="https://xunit-slackin.herokuapp.com/slackin.js"></script></span>
+          <a href="/"><img src="/images/full-logo.svg" onerror="this.src='https://raw.github.com/xunit/media/master/full-logo.png'" title="xUnit.net" width="141" height="29" /></a>{% if page.breadcrumb %} &raquo; {{page.breadcrumb}}{% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    {{ content }}
+
+    <h6>
+      Copyright &copy; <span id="year"></span> .NET Foundation. Contributions welcomed at
+      <a href="https://github.com/xunit/xunit.github.io">https://github.com/xunit/xunit.github.io</a>.
+    </h6>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+  <script>
+     var currentYear = new Date().getFullYear();
+     document.getElementById("year").innerHTML = currentYear;
+  </script>
+</body>
+
+</html>

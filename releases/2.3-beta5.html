@@ -1,0 +1,61 @@
+---
+layout: default
+title: Release Notes for September 1, 2017
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: September 1, 2017</h1>
+
+<h2>xUnit.net 2.3 Beta 5</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>Update to <code>xunit.analyzers</code> version 0.7.0.</li>
+  <li>
+    Added the ability to disable cross-collection parallelization for individual
+    test collections, via the test collection definition (by setting
+    <code>[CollectionDefinition(DisableParallelization = true)]</code>). Parallel-capable
+    test collections will be run first (in parallel), followed by parallel-disabled
+    test collections (run sequentially).
+  </li>
+  <li>
+    <b>BUG:</b> Fixed an issue when running .NET Core 1.x tests would fail
+    if the .NET 2.0 SDK was being used.
+  </li>
+</ul>
+
+<h3>dotnet xunit runner</h3>
+<ul>
+  <li>
+    <b>BUG:</b> Fixed an issue when running .NET Core 1.x tests would fail
+    if the .NET 2.0 SDK was being used.
+  </li>
+  <li>
+    <b>BUG:</b> Fixed an issue where bright colors would not show up on
+    Linux or OS X consoles that reported only 8-color support. This would cause some
+    text to become illegible.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    <b>BUG:</b> Fixed an issue where bright colors would not show up on
+    Linux or OS X consoles that reported only 8-color support. This would cause some
+    text to become illegible.
+  </li>
+</ul>
+
+<h3>Visual Studio runner</h3>
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="../docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+<ul>
+  <li>Ongoing performance improvements.</li>
+  <li>
+    <b>BUG:</b> Fixed an issue when running .NET Core 1.x tests would fail
+    if the .NET 2.0 SDK was being used.
+  </li>
+</ul>

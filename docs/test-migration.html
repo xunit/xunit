@@ -1,0 +1,149 @@
+---
+layout: default
+title: Migrating unit tests from v1 to v2
+breadcrumb: Documentation
+---
+
+<h1>Migrating unit tests from v1 to v2</h1>
+
+<p>
+  The xUnit.net team tried to ensure that migration of unit tests from v1 to v2
+  would be as painless as possible. Most of the migration tasks should be fairly
+  straightforward and mechanical (replacing NuGet packages, doing simple search
+  &amp; replace, etc.).
+</p>
+
+<p>Steps:</p>
+
+<ul>
+  <li><a href="#update-binaries">Update the xUnit.net binaries</a></li>
+  <li><a href="#update-tests">Update the unit tests</a></li>
+</ul>
+
+<h2 id="update-binaries">Update the xUnit.net binaries</h2>
+
+<p>
+  Binaries for xUnit.net are now distributed exclusively through NuGet. Updating
+  the binaries differs based on whether you originally used CodePlex or NuGet to
+  acquire them. Please choose from one of the two options below.
+</p>
+
+<h3>If you installed xUnit.net v1 via CodePlex:</h3>
+
+<ol>
+  <li>
+    <p>
+      You will need to manually remove any references to <code>xunit.dll</code>
+      and/or <code>xunit.extensions.dll</code>.
+    </p>
+  </li>
+  <li>
+    <p>
+      Then, add the new <code>xunit</code> NuGet package. Start by right clicking
+      on the project in Solution Explorer, and then choosing the
+      <code>Manage NuGet Packages...</code> menu item:
+    </p>
+    <p><img class="border" src="/images/manage-nuget-packages.png" width="357" /></p>
+  </li>
+  <li>
+    <p>
+      Click on <code>Browse</code> in the upper left corner. In the search box on the upper
+      right, type <code>xunit</code>. The search should yield results like this:
+    </p>
+    <p><img class="border" src="/images/add-xunit.png" width="845" /></p>
+  </li>
+  <li>
+    <p>Locate the xUnit.net entry, and click <code>Install</code>.</p>
+  </li>
+</ol>
+
+<h3>If you installed xUnit.net v1 via NuGet:</h3>
+
+<ol>
+  <li>
+    <p>
+      Right click on the project in Solution Explorer, and then choose the
+      <code>Manage NuGet Packages...</code> menu item:
+    </p>
+    <p><img class="border" src="/images/manage-nuget-packages.png" width="357" /></p>
+  </li>
+  <li>
+    <p>
+      Click on <code>Installed</code> along the top. If you see
+      <code>xUnit.net: Extensions</code> installed, please click the
+      <code>Uninstall</code> button. (If NuGet offers to uninstall the
+      <code>xunit</code> package for you, you should decline. You're going to
+      upgrade that package in the next step.)
+    </p>
+    <p><img class="border" src="/images/test-migration/uninstall-extensions.png" width="982" /></p>
+  </li>
+  <li>
+    <p>
+      Click on <code>Updates</code> along the top. Locate <code>xUnit.net</code>
+      in the list of packages, and click <code>Update</code>:
+    </p>
+    <p><img class="border" src="/images/test-migration/update-xunit.png" width="981" /></p>
+  </li>
+</ol>
+
+<h2 id="update-tests">Update the unit tests</h2>
+
+<p>Build your solution. If everything compiles, then you're done!</p>
+
+<p>If it doesn't compile, here are some of the things that may need to upgraded by hand:</p>
+
+<ul>
+  <li>
+    <p>
+      <strong>Compiler error:</strong><br />
+      <code>'Xunit.Extensions.PropertyDataAttribute' is obsolete: 'Please replace [PropertyData] with [MemberData]'</code>
+    </p>
+    <p>
+      If you get this compiler error, change all instances of <code>[PropertyData]</code>
+      to <code>[MemberData]</code>. The new <code>MemberDataAttribute</code>
+      class can read data from static properties (just like <code>PropertyDataAttribute</code>),
+      but now also supports data from static fields and static methods. You can
+      even provide parameter values to static methods!
+    </p>
+  </li>
+  <li>
+    <p>
+      <strong>Compiler error:</strong><br />
+      <code>'Xunit.FactAttribute' does not contain a definition for 'Timeout'</code>
+    </p>
+    <p>
+      The support for tests that automatically time out has been removed from
+      xUnit.net v2, and there is no direct replacement for this feature. The
+      reason it was removed was that v2 is designed from the ground up to be
+      async and parallel, and accurately timing tests in such a design is
+      effectively impossible.
+    </p>
+  </li>
+  <li>
+    <p>
+      <strong>Compiler error:</strong><br />
+      <code>The type or namespace name 'IUseFixture&lt;T&gt;' could not be found (are you missing a using directive or an assembly reference?)</code>
+    </p>
+    <p>
+      The interface has been renamed, and its behavior is slightly different now.
+    </p>
+    <p>
+      <ol>
+        <li>Change from <code>IUseFixture</code> to <code>IClassFixture</code>.</li>
+        <li>Remove the <code>SetFixture</code> method. If you need access to your fixture object, you can accept it as a constructor argument instead.</li>
+      </ol>
+    </p>
+    <p>
+      See <a href="shared-context.html">Sharing Context between Tests</a> for more information about <code>IClassFixture</code>.
+    </p>
+  </li>
+  <li>
+    <p><strong>Missing classes from xunit.extensions</strong></p>
+    <p>
+      Please see
+      <a href="upgrade-extensions.html">Migrating extensions from v1 to v2</a>
+      for information on migrating code that used <code>xunit.extensions</code>
+      to xUnit.net v2.
+    </p>
+  </li>
+</ul>

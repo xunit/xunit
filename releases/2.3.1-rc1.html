@@ -1,0 +1,76 @@
+---
+layout: default
+title: Release Notes for October 19, 2017
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: October 19, 2017</h1>
+
+<h2>xUnit.net 2.3.1 RC 1</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    Removed external dependencies. This primarily caused issues with developers who wanted to use a newer
+    version of JSON.NET than we were linked against (9.0.1), but also affected uses of
+    <code>Microsoft.DotNet.InternalAbstractions</code> and
+    <code>Microsoft.Extensions.DependencyModel</code>.
+  </li>
+</ul>
+
+<h3>dotnet xunit runner</h3>
+<ul>
+  <li>Optimized assembly resolution lookup performance.</li>
+  <li>
+    <strong>BUG:</strong> Assembly resolution sometimes failed on case-sensitive file systems (this
+    primarily affected Linux users, as Windows and OS X by default use case-preserving but
+    case-insensitive file systems).
+  </li>
+  <li>
+    <strong>BUG:</strong> Unmanaged library lookup would sometimes fail because of names which didn't
+    match the filename (for example, asking for 'foo' but the library is really 'libfoo'). This primarily
+    affected Linux and OS X users where dynamic libraries tend to have prefixes like 'lib'.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where the XML results file was being over-written without
+    erasing the old contents, the end result of which could be corrupted XML files.
+  </li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where MSBuild runner reporters were not working. This was
+    most obviously affecting TeamCity and AppVeyor users who lost their test reporting.
+  </li>
+  <li>
+    <strong>BUG:</strong> The XML results output file was being left open longer than intended. Now
+    it should be closed by the time the <code>&lt;xunit&gt;</code> task has completed.
+  </li>
+</ul>
+
+<h3>Visual Studio runner</h3>
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="../docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed issues with the performance-optimized serialization that were
+    causing <code>[Fact]</code> tests to be broken with Live Unit Testing.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where test classes with mixed facts and theories
+    and class/collection fixtures ended up with two fixtures being created (one for the
+    facts and one for the theories).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where sometimes source file mappings were broken,
+    especially with projects whose name started with 'n'. (Yes, really.)
+  </li>
+</ul>

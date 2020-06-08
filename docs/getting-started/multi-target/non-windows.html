@@ -1,0 +1,253 @@
+---
+layout: default
+title: "Getting started: Multi-targeting with non-Windows OSes"
+breadcrumb: Documentation
+---
+
+<h1>Getting Started with xUnit.net</h1>
+<h2>Multi-targeting with non-Windows OSes</h2>
+
+<p>
+  This article describes the process that is necessary to enable multi-platform, multi-target
+  builds; specifically, it's designed for users who are attempting to enable multi-targeting
+  of .NET Framework when running on Linux or macOS. It leverages the .NET SDK command line
+  tool (<code>dotnet</code>) to do builds and test execution.
+</p>
+
+<ul>
+  <li><a href="#prereq">Pre-Requisites</a></li>
+  <li><a href="#findpackage">Find .NET Framework Reference Package</a></li>
+  <li><a href="#updatecsproj">Updating Your .csproj File</a></li>
+  <li><a href="#runningtests">Running Tests</a></li>
+</ul>
+
+<p><em>
+  This documentation will include links and version numbers that were valid at the time it
+  was created. Newer package versions and links may become available in the future, so your
+  results may be slightly different.
+</em></p>
+
+<h2 id="prereq">Pre-Requisites</h2>
+
+<p>
+  The requirements to support multi-targeting on Windows and non-Windows OSes are different.
+  For Windows OSes, it is assumed that the (one and only one version) of .NET Framework will
+  be installed as part of your Windows installation, so the only required step is to enable
+  it. The build system for the .NET SDK already understands how to build .NET Framework
+  applications on Windows, and <code>dotnet test</code> already understands how to run them.
+</p>
+
+<p>
+  On non-Windows OSes, you're missing two key components: the libraries that are required to
+  compile your applications, and the .NET Framework runtime. The former are added (in a somewhat
+  convoluted way) through NuGet packages, and the latter comes from Mono: an open source
+  implementation of the .NET Framework that's available for Linux and macOS (the other two
+  officially supported platforms for the .NET SDK).
+</p>
+
+<p>
+  So, in addition to installing the <a href="https://dotnet.microsoft.com/download">.NET SDK</a>,
+  you will also need to install
+  <a href="https://www.mono-project.com/docs/getting-started/install/">Mono</a>.
+</p>
+
+<h2 id="findpackage">Find .NET Framework Reference Package</h2>
+
+<p>
+  Unlike most NuGet packages, the process of enabling .NET Framework support for your multi-targeted
+  projects is not just a matter of adding a single package. Instead, the process is split up into
+  two steps: identifying the package with your libraries, and updating the <code>.csproj</code> file
+  to include the directives to allow the C# compiler to find the .NET Framework reference libraries
+  when building your executable.
+</p>
+
+<p>
+  As of the writing of this article, these libraries (created by the .NET team at Microsoft) are housed
+  on MyGet, rather than the more traditional NuGet repository. In order to find the package you want,
+  you need to visit the <a href="https://dotnet.myget.org/gallery/dotnet-core">.NET Core Gallery</a>
+  on MyGet and find your framework's package version.
+</p>
+
+<p>
+  On the gallery page, go to the Search box and type <code>microsoft.targetingpack.netframework</code>.
+  This will limit the package list to those packages that provide the reference libraries for the
+  .NET Framework. Find the one that matches the version of the .NET Framework that you're targeting,
+  and note it's version number. (For our example, we'll be using package
+  <code>Microsoft.TargetingPack.NETFramework.v4.5.2</code> which is currently version
+  <code>1.0.1</code>.)
+</p>
+
+<h2 id="updatecsproj">Updating Your .csproj File</h2>
+
+<p>
+  There are three (or four) changes to make to your <code>.csproj</code> file to enable multi-targeting,
+  supporting both Windows and non-Windows machines.
+</p>
+
+<h3>Setting TargetFrameworks</h3>
+
+<p>
+  Make sure you've updated your <code>&lt;TargetFrameworks&gt;</code> element to include the .NET
+  Framework version you're planning to target. Note that if your project was previously single-targeting
+  .NET Core, you will need to change <code>&lt;TargetFramework&gt;</code> (singular) to
+  <code>&lt;TargetFrameworks&gt;</code> (plural). In our example, we're adding <code>net452</code> to
+  our existing <code>netcoreapp2.1</code> test project:
+</p>
+
+{% highlight xml %}
+<PropertyGroup>
+  <TargetFrameworks>net452;netcoreapp2.1</TargetFrameworks>
+</PropertyGroup>
+{% endhighlight %}
+
+<h3>Adding NuGet package reference</h3>
+
+<p>
+  You will need a NuGet package reference for the .NET Framework reference libraries. You will add
+  this to a conditional <code>&lt;ItemGroup&gt;</code> inside your <code>.csproj</code> file. For
+  our example, the item group looks like this:
+</p>
+
+{% highlight xml %}
+<ItemGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net452' ">
+  <PackageReference
+      Include="Microsoft.TargetingPack.NETFramework.v4.5.2"
+      Version="1.0.1"
+      ExcludeAssets="All"
+      PrivateAssets="All" />
+</ItemGroup>
+{% endhighlight %}
+
+<p>
+  You will replace the exact package name and version with the one you found in the step above.
+  Since the condition is gated on both non-Windows OSes as well as the specific target framework,
+  you can add more of these as needed for each .NET Framework target your project includes.
+</p>
+
+<h3>Adding compiler settings to find the reference libraries</h3>
+
+<p>
+  Once we have the package downloaded, we need to inform the C# compiler where the framework
+  reference assemblies live. We also need to let NuGet know where the NuGet package lives, since
+  it's currently only available on MyGet. For our sample, this means adding a new
+  <code>&lt;PropertyGroup&gt;</code> element with these two values:
+</p>
+
+{% highlight xml %}
+<PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net452' ">
+  <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.5.2/1.0.1/lib/net452/</FrameworkPathOverride>
+  <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
+</PropertyGroup>
+{% endhighlight %}
+
+<p>
+  Once again, you will replace your package name and version number as needed. Note that the NuGet package
+  cache always stores package names in lowercase, and since non-Windows OS file systems can be case-sensitive,
+  you too must use fully lowercased names.
+</p>
+
+<h3>Adding references to system libraries (as needed)</h3>
+
+<p>
+  Normally there is a batch of system libraries that automatically get referenced when building .NET
+  Framework applications. You may find as you build on non-Windows OSes that you're missing some of these
+  references that might otherwise have been included automatically on Windows. In our example, we were
+  missing one reference:
+</p>
+
+<pre>
+$ <span style="background-color: #ff0">dotnet build</span>
+Microsoft (R) Build Engine version 15.9.20+g88f5fadfbe for .NET Core
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+  Restore completed in 30.82 ms for ~/src/MyFirstUnitTests/MyFirstUnitTests.csproj.
+  MyFirstUnitTests -> ~/src/MyFirstUnitTests/bin/Debug/netcoreapp2.1/MyFirstUnitTests.dll
+<span style="color: #e03030">Class1.cs(7,10): error CS0012: The type 'Attribute' is defined in an assembly that is not referenced.
+You must add a reference to assembly 'System.Runtime, Version=4.0.0.0, Culture=neutral,
+PublicKeyToken=b03f5f7f11d50a3a'. [~/src/MyFirstUnitTests/MyFirstUnitTests.csproj]</span>
+</pre>
+
+<p>
+  You can add them as <code>&lt;Reference&gt;</code> elements in the <code>&lt;ItemGroup&gt;</code>
+  you created when adding your NuGet packages, since it already contains the conditional statement. To fix our
+  error above, we needed to add one reference:
+</p>
+
+{% highlight xml %}
+<ItemGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net452' ">
+  <PackageReference
+      Include="Microsoft.TargetingPack.NETFramework.v4.5.2"
+      Version="1.0.1"
+      ExcludeAssets="All"
+      PrivateAssets="All" />
+  <Reference Include="System.Runtime" />
+</ItemGroup>
+{% endhighlight %}
+
+<p>
+  Note that non-Windows OSes, file systems are often case sensitive, so when adding references, make sure the
+  names <em>exactly</em> match the casing of the files on your file system (without the <code>.dll</code> extension).
+  You can find those files in your NuGet cache folder. For our example, we found the files here:
+</p>
+
+<pre>
+$ <span style="background-color: #ff0">ls ~/.nuget/packages/microsoft.targetingpack.netframework.v4.5.2/1.0.1/lib/net452</span>
+Accessibility.dll				    System.Net.NetworkInformation.dll
+CustomMarshalers.dll				    System.Net.Primitives.dll
+ISymWrapper.dll					    System.Net.Requests.dll
+...
+System.Net.dll					    WindowsBase.dll
+System.Net.Http.dll				    WindowsFormsIntegration.dll
+System.Net.Http.WebRequest.dll			    XamlBuildTask.dll
+</pre>
+
+<p><em>
+  One file that constantly causes trouble is System.Xml. The automatically generated reference is
+  for <code>System.Xml</code>, but the file on disk is named <code>System.XML.dll</code>. When you add your
+  <code>&lt;Reference&gt;</code>, make sure you use the properly cased name. This is one reason why verifying
+  the filename on disk is critical when adding any references. It's also valuable to make sure you've tried
+  your build on a case-sensitive file system (for example, using the default ext4 on Linux).
+</em></p>
+
+<h2 id="runningtests">Running Tests</h2>
+
+<p>
+  If all of these steps have been performed successfully, then your normal command line tools should all
+  run successfully: <code>dotnet restore</code>, <code>dotnet build</code>, and <code>dotnet test</code>.
+  Give them a try! Here are a few tips:
+</p>
+
+<ul>
+  <li>
+    If you run into restore errors, please make sure you've added the PropertyGroup
+    and ItemGroup correctly.
+  </li>
+  <li>If your build fails, check the messages, as you may need to add references.</li>
+  <li>
+    Your tests may also fail when running on a non-Windows OS because of environmental changes, so be
+    on the lookout for things related to file paths (<code>\</code> vs. <code>/</code>) and line ending
+    differences (CRLF on Windows vs. LF on Linux and macOS). Make sure to use the <code>Path</code> class
+    when creating and manipulating file paths, and use <code>Environment.NewLine</code> to know which
+    line endings are in use. You can also pass a flag to <code>Assert.Equal</code> when comparing strings
+    to tell it to ignore line ending differences
+    (<code>Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);</code>).
+  </li>
+</ul>
+
+<p>
+  As previously mentioned, when running on non-Windows OSes, <code>dotnet test</code> knows how to launch
+  your .NET Framework tests with Mono. If all goes to plan, when you run your tests, you should be able to
+  successfully run your .NET Framework tests. You may even see signs of Mono in your stack traces:
+</p>
+
+<pre>
+Assert.Equal() Failure
+Expected: 5
+Actual:   4
+Stack Trace:
+  at MyFirstUnitTests.Class1.FailingTest () [0x0000a] in &lt;ea38f081094e407290795149a3e20d66&gt;:0
+  at (wrapper managed-to-native) System.Reflection.MonoMethod.InternalInvoke(System.Reflection.MonoMethod,object,object[],System.Exception&)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0003b] in &lt;7b0d87324cab49bf96eac679025e77d1&gt;:0
+</pre>
+
+<p>Happy testing!</p>

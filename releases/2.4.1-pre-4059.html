@@ -1,0 +1,40 @@
+---
+layout: default
+title: Release Notes for August 26, 2018
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: August 26, 2018</h1>
+
+<h2>xUnit.net 2.4.1 Pre-Release (build 4059)</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with xunit.abstractions not correctly installing
+    with older versions of Visual Studio (pre-2017).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue with ByRef types with .NET Core 2.1.
+  </li>
+  <li>
+    <strong>BUG:</strong> Removed an unnecessary first chance exception related to
+    attempting to load configuration files.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where synchronous and asynchronous disposal
+    of test classes were running in parallel. The documented behavior is that asynchronous
+    disposal (via <code>IAsyncLifetime</code>) runs to completion before synchronous disposal
+    (via <code>IDisposable</code>).
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li><strong>BUG:</strong> Fixed an issue with XML element order with the NUnit report.</li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li><strong>BUG:</strong> Fixed an issue with XML element order with the NUnit report.</li>
+</ul>

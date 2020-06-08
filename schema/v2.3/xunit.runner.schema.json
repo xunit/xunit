@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "https://xunit.net/schema/v2.3/xunit.runner.schema.json",
+  "title": "xUnit.net Runner Configuration",
+  "description": "Configuration file for unit test projects using xUnit.net",
+  "type": "object",
+  "properties": {
+    "appDomain": {
+      "description": "Determines whether the runner will use an app domain to discover and run tests. If you choose 'required', app domains will be required (only desktop tests can be run); if you choose 'denied', then tests will not use app domains; if you choose 'ifAvailable', then app domains use is left to the discretion of the runner. Defaults to 'ifAvailable'. Note that not all runners support app domains, so the 'required' value may not always be valid.",
+      "default": "ifAvailable",
+      "enum": [ "required", "ifAvailable", "denied" ]
+    },
+    "diagnosticMessages": {
+      "description": "Enables or disables diagnostic information during test discovery and execution.",
+      "default": false,
+      "type": "boolean"
+    },
+    "internalDiagnosticMessages": {
+      "description": "Enables or disables internal diagnostic information during test discovery and execution.",
+      "default": false,
+      "type": "boolean"
+    },
+    "longRunningTestSeconds": {
+      "description": "Enables reporting of tests which take longer than the configured time to complete (set to 0 to disable).",
+      "type": "integer",
+      "minimum": 0
+    },
+    "maxParallelThreads": {
+      "description": "Configures the maximum number of threads to be used when parallelizing tests within this assembly.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "methodDisplay": {
+      "description": "Configures the default display name for test cases. If you choose 'method', the display name will be just the method (without the class name); if you choose 'classAndMethod', the default display name will be the fully qualified class name and method name.",
+      "default": "classAndMethod",
+      "enum": [ "method", "classAndMethod" ]
+    },
+    "parallelizeAssembly": {
+      "description": "Instructs the test runner that this assembly is willing to run in parallel with other assemblies.",
+      "default": false,
+      "type": "boolean"
+    },
+    "parallelizeTestCollections": {
+      "description": "Enables or disables tests inside this assembly from running in parallel against each other. Tests in the same test collection will be run sequentially against each other, but tests in different test collections will be run in parallel against each other.",
+      "default": true,
+      "type": "boolean"
+    },
+    "preEnumerateTheories": {
+      "description": "Enables or disables pre-enumerate of theories so that there is an individual test case for each theory data row. Set this to 'false' to return a single test case for each theory without pre-enumerating the data ahead of time.",
+      "default": true,
+      "type": "boolean"
+    },
+    "shadowCopy": {
+      "description": "Enables or disables use of shadow copying when using app domains. Has no effect if app domains are not used.",
+      "default": true,
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}

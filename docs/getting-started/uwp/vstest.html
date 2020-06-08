@@ -1,0 +1,222 @@
+---
+layout: default
+title: "Getting Started: UWP with Visual Studio Test Explorer"
+breadcrumb: Documentation
+redirect_from:
+  - /docs/getting-started-uwp
+  - /docs/getting-started-uwp.html
+---
+
+<h1>Getting Started with xUnit.net</h1>
+<h2>Universal Windows Apps (UWP) with Visual Studio Test Explorer</h2>
+
+<p>
+  In this article, we will demonstrate getting started with xUnit.net, showing
+  you how to write and run your first set of unit tests for your Universal
+  Windows applications.
+</p>
+
+<ul>
+  <li><a href="#create-project">Create a unit test project</a></li>
+  <li><a href="#add-xunit-ref">Add a reference to xUnit.net</a></li>
+  <li><a href="#write-first-tests">Write your first tests</a></li>
+  <li><a href="#run-tests-visualstudio">Run tests with Visual Studio</a></li>
+  <li><a href="#write-first-theory">Write your first theory</a></li>
+</ul>
+
+<p><em>
+  Note: The examples were done with xUnit.net v2.1. The version numbers
+  and paths may differ for you, depending on which version you're using.
+</em></p>
+
+<h2 id="create-project">Create a unit test project</h2>
+
+<p>
+  Before we get started, make sure you're using Visual Studio 2015 or later,
+  and that you have the Universal Windows Application tooling installed
+  (as shown here):
+</p>
+
+<p><img class="border" src="../../../images/getting-started-uwp/uwp-tooling.png" width="406" /></p>
+
+<p>
+  Let's start by creating a Windows Universal Unit Test library, targeting .NET 4.6 (or later).
+  Open Visual Studio, and choose <code>File &gt; New &gt; Project</code>:
+</p>
+
+<p><img class="border" src="../../../images/getting-started-uwp/new-project.png" width="812" /></p>
+
+<p>
+  This creates a unit test project with a reference to MSTest, which we can remove
+  by deleting the reference to <code>MSTestFramework.Universal</code>:
+</p>
+
+<p><img class="border" src="../../../images/getting-started-uwp/remove-mstest.png" width="280" /></p>
+
+<h2 id="add-xunit-ref">Add a reference to xUnit.net</h2>
+
+<p>
+  In Solution Explorer, find and open the <code>project.json</code> file. Add dependencies on
+  the <code>xunit</code> and <code>xunit.runner.visualstudio</code> packages (as shown below):
+</p>
+
+{% highlight json %}
+{
+  "dependencies": {
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.0.0",
+    "xunit": "2.1.0",
+    "xunit.runner.visualstudio": "2.1.0"
+  },
+  "frameworks": {
+    "uap10.0": { }
+  },
+  "runtimes": {
+    "win10-arm": { },
+    "win10-arm-aot": { },
+    "win10-x86": { },
+    "win10-x86-aot": { },
+    "win10-x64": { },
+    "win10-x64-aot": { }
+  }
+}
+{% endhighlight %}
+
+<h2 id="write-first-tests">Write your first tests</h2>
+
+<p>
+  When you created the project, Visual Studio automatically created a file
+  named <code>UnitTest.cs</code> and opened it for you. Replace the contents
+  of that file with the following code:
+</p>
+
+{% highlight C# %}
+using Xunit;
+
+namespace MyFirstUWPTests
+{
+    public class UnitTest
+    {
+        [Fact]
+        public void PassingTest()
+        {
+            Assert.Equal(4, Add(2, 2));
+        }
+
+        [Fact]
+        public void FailingTest()
+        {
+            Assert.Equal(5, Add(2, 2));
+        }
+
+        int Add(int x, int y)
+        {
+            return x + y;
+        }
+    }
+}
+{% endhighlight %}
+
+<p>Build the solution to ensure that the code compiles.</p>
+
+<h2 id="run-tests-visualstudio">Running tests with Visual Studio</h2>
+
+<p>
+  The <code>xunit.runner.visualstudio</code> package that you added earlier
+  allows you to run the tests inside of Visual Studio. To see the tests,
+  make sure your code has been compiled, and then show the Test Explorer
+  via <code>Test > Windows > Test Explorer</code>:
+</p>
+
+<p><img class="border" src="../../../images/getting-started-uwp/test-explorer.png" width="334" /></p>
+
+<p>
+  Before you run the tests, you need to tell Visual Studio where you want to
+  run them. Since Universal Windows covers Windows 10 as well as Windows Mobile
+  10, you can use the drop down in the Standard toolbar to pick the runtime
+  environment:
+</p>
+
+<p><img class="border" src="../../../images/getting-started-uwp/runtime-environment.png" width="369" /></p>
+
+<p>Some notes about your runtime environment choices:</p>
+
+<ul>
+  <li><code>Local Machine</code> is only available if you're running Windows 10.</li>
+  <li>
+    The <code>Mobile Emulator</code> options are virtual machines that run Windows Mobile 10, and
+    they require that you have Hyper-V installed and running. The first time you launch tests on
+    one of these emulators, it will take the system a few minutes to install and configure the VM.
+    Subsequent runs should be shorter (and will be nearly instant if you leave the VM running
+    between test runs).
+  </li>
+</ul>
+
+<p>
+  Once you have selected your runtime environment, then you can click <code>Run All</code> to run
+  all your tests. Depending on which runtime environment you select, you may see the unit test
+  application launch on your local (or remote) machine, or you may see the Windows Mobile 10
+  UI pop up, to show your running test. Once the tests have finished running, their results
+  will show in the Test Explorer UI.
+</p>
+
+<p>
+  Now that we've gotten your first unit tests to run, let's introduce one more
+  way to write tests: using theories.
+</p>
+
+<h2 id="write-first-theory">Write your first theory</h2>
+
+<p>
+  You may have wondered why your first unit tests use an attribute named
+  <code>[Fact]</code> rather than one with a more traditional name like Test.
+  xUnit.net includes support for two different major types of unit tests:
+  facts and theories. When describing the difference between facts and theories,
+  we like to say:
+</p>
+
+<blockquote>
+  <p><em><strong>Facts</strong> are tests which are always true. They test invariant conditions.</em></p>
+  <p><em><strong>Theories</strong> are tests which are only true for a particular set of data.</em></p>
+</blockquote>
+
+<p>
+  A good example of this testing numeric algorithms. Let's say you want to
+  test an algorithm which determines whether a number is odd or not. If you're
+  writing the positive-side tests (odd numbers), then feeding even numbers
+  into the test would cause it fail, and not because the test or algorithm
+  is wrong.
+</p>
+
+<p>
+  Let's add a theory to our existing facts (including a bit of bad data, so we
+  can see it fail):
+</p>
+
+{% highlight C# %}
+[Theory]
+[InlineData(3)]
+[InlineData(5)]
+[InlineData(6)]
+public void MyFirstTheory(int value)
+{
+    Assert.True(IsOdd(value));
+}
+
+bool IsOdd(int value)
+{
+    return value % 2 == 1;
+}
+{% endhighlight %}
+
+<p>
+  This time when we compile and run our tests, we see a second failure, for our
+  theory that was given 6 (since 6 is not an odd number):
+</p>
+
+<p><img class="border" src="../../../images/getting-started-uwp/failing-theory.png" width="347" /></p>
+
+<p>
+  Although we've only written 3 test methods, the runner actually shows 5 test
+  cases, because the theory test has been split out into individually runnable
+  test cases.
+</p>

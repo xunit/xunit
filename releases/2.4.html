@@ -1,0 +1,61 @@
+---
+layout: default
+title: Release Notes for July 16, 2018
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: July 16, 2018</h1>
+
+<h2>Hello, 2.4!</h2>
+
+<p>
+  Today, we're shipping xUnit.net 2.4; this includes RTM builds of the core framework
+  and the Visual Studio runner.
+</p>
+
+<p>
+  It's been 9 months since the release of <a href="2.3">2.3 RTM</a> and the
+  <a href="2.3.1">2.3.1</a> bug fix. The length of time is an indicator of
+  the relative stability of the 2.3 release train; most of the features
+  shipped in 2.4 are usability-related. This includes features like improved test
+  method display name formatting, support for reporting results to VSTS, and
+  additional command line options for the console runner.
+</p>
+
+<p>
+  Unfortunately, this release also removes the <code>dotnet xunit</code> runner,
+  as the stability of the runner was never perfect, and it suffered from many
+  assembly-loading related issues. Users from .NET Core can continue to use VSTest
+  (either inside Visual Studio, or via <code>dotnet test</code>).
+</p>
+
+<p>
+  xUnit.net version 1.x was really about perfecting the experience of writing unit
+  tests for the desktop CLR. Version 2.x expanded support for many platforms, including
+  .NET Core, Xamarin (iOS and Android), UWP, and others along the way. Now that we've
+  reached the edges with the current platforms, it's time for us to focus on 3.0.
+  The <a href="https://github.com/xunit/xunit/issues?q=is%3Aopen+is%3Aissue+label%3A%22target%3A+3.0%22">3.0
+  issues list</a> is where you can track our work towards the next major version.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success
+  of xUnit.net through usage, feedback, and code contributions. We had too many
+  contributors this time around to thank individually, so know that every bug
+  reported, every line of code PR'd, every conversation contributed to on Slack,
+  were all appreciated!
+</p>
+
+<h2>Release Notes</h2>
+
+<p>
+  These release notes just include the highlights of what's new. You can review the
+  individual release notes which contributed to 2.4:
+</p>
+
+<p>
+  <a href="2.4-rc2" class="prerelease">RC 2</a>
+  <a href="2.4-rc1" class="prerelease">RC 1</a>
+  <a href="2.4-beta2" class="prerelease">Beta 2</a>
+  <a href="2.4-beta1" class="prerelease">Beta 1</a>
+</p>

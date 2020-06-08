@@ -1,0 +1,411 @@
+---
+layout: default
+title: xUnit.net v2 XML Format
+breadcrumb: Documentation
+---
+
+<h1>xUnit.net v2 XML Format</h1>
+
+<p>
+  Several runners&mdash;including the console, MSBuild, and DNX runners&mdash;are
+  capable of generating XML reports after tests have been run. Some of those
+  runners also support running XSL-T transformations against that XML (some
+  built-in examples include transformations to HTML and NUnit format). This page
+  documents the format of the XML emitted from v2 runners.
+</p>
+
+<p>
+  The top level element of the document is the <a href="#assemblies">assemblies</a>
+  element.
+</p>
+
+<h3>Elements</h3>
+<ul>
+  <li><a href="#assemblies">assemblies</a></li>
+  <li><a href="#assembly">assembly</a></li>
+  <li><a href="#collection">collection</a></li>
+  <li><a href="#error">error</a></li>
+  <li><a href="#errors">errors</a></li>
+  <li><a href="#failure">failure</a></li>
+  <li><a href="#test">test</a></li>
+  <li><a href="#trait">trait</a></li>
+  <li><a href="#traits">traits</a></li>
+</ul>
+
+<p><em>
+  Note: The XML format changed from v1 to v2. If you are looking for documentation
+  on the old v1 format, the <a href="format-xml-v1">xUnit v1 format page</a> contains that documentation.
+</em></p>
+
+
+
+<h2 class="banner" id="assemblies"><code>&lt;assemblies&gt;</code> Element</h2>
+
+<p>The <code>assemblies</code> element is the top-level element of the document.</p>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Element</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><a href="#assembly"><code>&lt;assembly&gt;</code></a></th>
+      <td>0..*</td>
+      <td class="wrapped-wide">One child element for each test assembly</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<h2 class="banner" id="assembly"><code>&lt;assembly&gt;</code> Element</h2>
+
+<p>
+  The <code>assembly</code> element contains information about the run of a single
+  test assembly. This includes environmental information.
+</p>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>name</code></th>
+      <td class="wrapped-wide">The fully qualified path name of the test assembly.</td>
+    </tr>
+    <tr>
+      <th><code>config-file</code></th>
+      <td class="wrapped-wide">The fully qualified path name of the test assembly configuration file.</td>
+    </tr>
+    <tr>
+      <th><code>test-framework</code></th>
+      <td class="wrapped-wide">The display name of the test framework that ran the tests.</td>
+    </tr>
+    <tr>
+      <th><code>environment</code></th>
+      <td class="wrapped-wide">The runtime environment in which the tests were run.</td>
+    </tr>
+    <tr>
+      <th><code>run-date</code></th>
+      <td class="wrapped-wide">The date when the test run started, in <code>yyyy-mm-dd</code> format.</td>
+    </tr>
+    <tr>
+      <th><code>run-time</code></th>
+      <td class="wrapped-wide">The time when the test run started, in 24-hour <code>hh:mm:ss</code> format.</td>
+    </tr>
+    <tr>
+      <th><code>time</code></th>
+      <td class="wrapped-wide">The number of seconds the assembly run took, in decimal format.</td>
+    </tr>
+    <tr>
+      <th><code>total</code></th>
+      <td class="wrapped-wide">The total number of test cases run in the assembly.</td>
+    </tr>
+    <tr>
+      <th><code>passed</code></th>
+      <td class="wrapped-wide">The total number of test cases in the assembly which passed.</td>
+    </tr>
+    <tr>
+      <th><code>failed</code></th>
+      <td class="wrapped-wide">The total number of test cases in the assembly which failed.</td>
+    </tr>
+    <tr>
+      <th><code>skipped</code></th>
+      <td class="wrapped-wide">The total number of test cases in the assembly that were skipped.</td>
+    </tr>
+    <tr>
+      <th><code>errors</code></th>
+      <td class="wrapped-wide">The total number of environmental errors experienced in the assembly.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Element</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><a href="#errors"><code>&lt;errors&gt;</code></a></th>
+      <td>0..1</td>
+      <td class="wrapped-wide">Container for the environmental errors experienced in the test assembly.</td>
+    </tr>
+    <tr>
+      <th><a href="#collection"><code>&lt;collection&gt;</code></a></th>
+      <td>0..*</td>
+      <td class="wrapped-wide">One collection element for every test collection in the test assembly.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<h2 class="banner" id="collection"><code>&lt;collection&gt;</code> Element</h2>
+
+<p>The <code>collection</code> element contains information about the run of a single test collection.</p>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>name</code></th>
+      <td class="wrapped-wide">The name of the test collection.</td>
+    </tr>
+    <tr>
+      <th><code>time</code></th>
+      <td class="wrapped-wide">The number of seconds the test collection run took, in decimal format.</td>
+    </tr>
+    <tr>
+      <th><code>total</code></th>
+      <td class="wrapped-wide">The total number of test cases run in the test collection.</td>
+    </tr>
+    <tr>
+      <th><code>passed</code></th>
+      <td class="wrapped-wide">The total number of test cases in the test collection which passed.</td>
+    </tr>
+    <tr>
+      <th><code>failed</code></th>
+      <td class="wrapped-wide">The total number of test cases in the test collection which failed.</td>
+    </tr>
+    <tr>
+      <th><code>skipped</code></th>
+      <td class="wrapped-wide">The total number of test cases in the test collection that were skipped.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Element</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><a href="#test"><code>&lt;test&gt;</code></a></th>
+      <td>1..*</td>
+      <td class="wrapped-wide">One test element for every test in the test collection.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<h2 class="banner" id="error"><code>&lt;error&gt;</code> Element</h2>
+
+<p>
+  The <code>error</code> element contains information about an environment failure that
+  happened outside the scope of running a single unit test (for example, an exception
+  thrown while disposing of a fixture object).
+</p>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>type</code></th>
+      <td class="wrapped-wide">A code which indicates what kind of failure it is.</td>
+    </tr>
+    <tr>
+      <th><code>name</code></th>
+      <td class="wrapped-wide">The name of the item that caused the failure.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Element</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><a href="#failure"><code>&lt;failure&gt;</code></a></th>
+      <td>1</td>
+      <td class="wrapped-wide">Contains information about the failure.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<h2 class="banner" id="errors"><code>&lt;errors&gt;</code> Element</h2>
+
+<p>The <code>errors</code> element is a container for 0 or more <a href="#error"><code>error</code></a> elements.</p>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Element</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><a href="#error"><code>&lt;error&gt;</code></a></th>
+      <td>0..*</td>
+      <td class="wrapped-wide">One error element for every environmental error that occurred.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<h2 class="banner" id="failure"><code>&lt;failure&gt;</code> Element</h2>
+
+<p>The <code>failure</code> element contains information a test failure.</p>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>exception-type</code></th>
+      <td class="wrapped-wide">The fully qualified type name of the exception that caused the failure.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Element</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>&lt;message&gt;</code></th>
+      <td>0..1</td>
+      <td class="wrapped-wide">The failure message as a CDATA block.</td>
+    </tr>
+    <tr>
+      <th><code>&lt;stack-trace&gt;</code></th>
+      <td>0..1</td>
+      <td class="wrapped-wide">The stack trace as a CDATA block.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<h2 class="banner" id="test"><code>&lt;test&gt;</code> Element</h2>
+
+<p>The <code>test</code> element contains information about the run of a single test.</p>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>name</code></th>
+      <td class="wrapped-wide">The display name of the test.</td>
+    </tr>
+    <tr>
+      <th><code>type</code></th>
+      <td class="wrapped-wide">The fully qualified type name of the class that contained the test.</td>
+    </tr>
+    <tr>
+      <th><code>method</code></th>
+      <td class="wrapped-wide">The name of the method that contained the test.</td>
+    </tr>
+    <tr>
+      <th><code>time</code></th>
+      <td class="wrapped-wide">The number of seconds the test run took, in decimal format.</td>
+    </tr>
+    <tr>
+      <th><code>result</code></th>
+      <td class="wrapped-wide">The result of the test. Valid values include <code>Pass</code>, <code>Fail</code>, and <code>Skip</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Element</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><a href="#traits"><code>&lt;traits&gt;</code></a></th>
+      <td>0..1</td>
+      <td class="wrapped-wide">Container for 1 or more <a href="#trait"><code>trait</code></a> elements.</td>
+    </tr>
+    <tr>
+      <th><a href="#failure"><code>&lt;failure&gt;</code></a></th>
+      <td>0..1</td>
+      <td class="wrapped-wide">For failing tests, contains information about the failure.</td>
+    </tr>
+    <tr>
+      <th><code>&lt;reason&gt;</code></th>
+      <td>0..1</td>
+      <td class="wrapped-wide">For a skipped test, contains the reason text as a CDATA block.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<h2 class="banner" id="trait"><code>&lt;trait&gt;</code> Element</h2>
+
+<p>The <code>trait</code> element contains a single trait name/value pair.</p>
+
+<h3>Attributes</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>name</code></th>
+      <td class="wrapped-wide">The name of the trait</td>
+    </tr>
+    <tr>
+      <th><code>value</code></th>
+      <td class="wrapped-wide">The value of the trait</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<h2 class="banner" id="traits"><code>&lt;traits&gt;</code> Element</h2>
+
+<p>The <code>traits</code> element is a container for 1 or more <a href="#trait"><code>trait</code></a> elements.</p>
+
+<h3>Child Elements</h3>
+
+<table class="table">
+  <thead>
+    <tr><th>Element</th><th>Cardinality</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><a href="#trait"><code>&lt;trait&gt;</code></a></th>
+      <td>1..*</td>
+      <td class="wrapped-wide">One trait element for every trait name/value pair associated with the test.</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,213 @@
+---
+layout: default
+title: "DEPRECATED: Configuration Files (XML)"
+breadcrumb: Documentation
+---
+
+<h1>Configuration Files (XML)</h1>
+
+<p class="important">
+  <strong><u>DEPRECATION WARNING</u>:</strong><br />
+  Configuration via <code>App.config</code> file is <strong>officially deprecated</strong>
+  and will not be supported in v3. The documentation page exists for historical purposes.
+  You should convert to <a href="configuration-files">JSON-based configuration</a> at your
+  earliest convenience.
+</p>
+
+<p>
+  Below is a list of supported keys and values (the version column is the version of
+  <code>xunit.runner.utility</code> where the configuration element support was
+  added). The configuration items should be added to the <code>&lt;appSettings&gt;</code>
+  section of your <code>App.config</code> file.
+</p>
+
+<table class="table">
+  <tr>
+    <th>Key</th>
+    <th>Supported Values</th>
+  </tr>
+  <tr>
+    <tr>
+      <th><code>xunit.appDomain</code><br />[Runners v2.1+]</th>
+      <td class="wrapped-wide">
+        <p>
+          Set this value to determine whether app domains are used. By default, they
+          will be used when available (the <code>ifAvailable</code> value). If you
+          set this to <code>required</code>, it will require that app domains are
+          available; if you set this to <code>denied</code>, it will not use app domains.
+          Note that only desktop runners (and desktop unit tests) can use app domains,
+          so this value will be ignored when used with non-desktop runners or with
+          unit tests that are not targeting the desktop CLR.
+        </p>
+        <p>
+          <em>Default value: <code>ifAvailable</code><br />
+          Supported by: xUnit.net v1 and v2</em>
+        </p>
+      </td>
+    </tr>
+    <th><code>xunit.diagnosticMessages</code><br />[Runners v2.0+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to <code>true</code> to include diagnostic information during test
+        discovery and execution. Each runner has a unique method of presenting diagnostic
+        messages.
+      </p>
+      <p>
+        <em>Default value: <code>false</code><br />[Runners v2.0+]<br />
+        Supported by: xUnit.net v2</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th><code>xunit.longRunningTestSeconds</code><br />[Runners v2.2+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to enable long-running (hung) test detection. When the runner is
+        idle waiting for tests to finished, it will report that fact once the timeout
+        has passed. Use a value of <code>0</code> to disable the feature, or a positive
+        integer value to enable the feature (time in seconds).
+      </p>
+      <p>
+        <strong>NOTE:</strong> Long running test messages are diagnostic messages. You
+        must enable diagnostic messages in order to see the long running test warnings.
+      </p>
+      <p>
+        <em>Default value: <code>0</code> (disabled)<br />
+        Supported by: xUnit.net v1 and v2</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th><code>xunit.maxParallelThreads</code><br />[Runners v2.0+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to override the maximum number of threads to be used when parallelizing
+        tests within this assembly. Use a value of <code>0</code> to indicate that you would
+        like the default behavior; use a value of <code>-1</code> to indicate that you do not
+        wish to limit the number of threads used for parallelization.
+      </p>
+      <p>
+        <em>Default value: the number of logical processors in your PC<br />
+        Supported by: xUnit.net v2</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th><code>xunit.methodDisplay</code><br />[Runners v2.0+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to override the default display name for test cases. If you set this
+        to <code>method</code>, the display name will be just the method (without the
+        class name); if this set this value to <code>classAndMethod</code>, the
+        default display name will be the fully qualified class name and method name.
+      </p>
+      <p>
+        <em>Default value: <code>classAndMethod</code><br />
+        Supported by: xUnit.net v2</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th><code>xunit.methodDisplayOptions</code><br />[Runners v2.4+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to automatically perform transforms on default test names. This value
+        can either be <code>all</code>, <code>none</code>, or a comma-separated
+        combination of one or more of the following values:
+      </p>
+      <ul>
+        <li><code>replaceUnderscoreWithSpace</code> Replaces all underscores with spaces</li>
+        <li>
+          <code>useOperatorMonikers</code> Replaces operator names with matching symbols
+          <ul>
+            <li><code>eq</code> becomes <code>=</code></li>
+            <li><code>ne</code> becomes <code>!=</code></li>
+            <li><code>lt</code> becomes <code>&lt;</code></li>
+            <li><code>le</code> becomes <code>&lt;=</code></li>
+            <li><code>gt</code> becomes <code>&gt;</code></li>
+            <li><code>ge</code> becomes <code>&gt;=</code></li>
+          </ul>
+        </li>
+        <li>
+          <code>useEscapeSequences</code> Replaces escape sequences in the format <code>Xnn</code>
+          or <code>Unnnn</code> with their ASCII or Unicode character equivalents. Examples:
+          <ul>
+            <li><code>X2C</code> becomes <code>,</code></li>
+            <li><code>U1D0C</code> becomes <code>&#x1d0c;</code></li>
+          </ul>
+        </li>
+        <li>
+          <code>replacePeriodWithComma</code> Replaced periods with a comma and a space. This
+          option is typically only useful if <code>methodDisplay</code> is <code>classAndMethod</code>.
+        </li>
+      </ul>
+      <p>
+        <em>Default value: <code>none</code><br />
+        Supported by: xUnit.net v2.4 beta 1 or later</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th><code>xunit.parallelizeAssembly</code><br />[Runners v2.0+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> if this assembly is willing to participate in
+        parallelization with other assemblies. Test runners can use this information to
+        automatically enable parallelization across assemblies if all the assemblies
+        agree to it.
+      </p>
+      <p>
+        <em>Default value: <code>false</code><br />
+        Supported by: xUnit.net v1 and v2</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th><code>xunit.parallelizeTestCollections</code><br />[Runners v2.0+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> if the assembly is willing to run tests inside
+        this assembly in parallel against each other. Tests in the same test collection
+        will be run sequentially against each other, but tests in different test
+        collections will be run in parallel against each other. Set this to
+        <code>false</code> to disable all parallelization within this test assembly.
+      </p>
+      <p>
+        <em>Default value: <code>true</code><br />
+        Supported by: xUnit.net v2</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th><code>xunit.preEnumerateTheories</code><br />[Runners v2.0+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to pre-enumerate theories so that there is an
+        individual test case for each theory data row. Set this to <code>false</code>
+        to return a single test case for each theory without pre-enumerating the
+        data ahead of time (this is how xUnit.net v1.x used to behave). This is
+        most useful for developers running tests inside Visual Studio, who wish to
+        have the Code Lens test runner icons on their theory methods, since Code
+        Lens does not support multiple tests from a single method.
+      </p>
+      <p>
+        <em>Default value: <code>true</code><br />
+        Supported by: xUnit.net v2</em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th><code>xunit.shadowCopy</code><br />[Runners v2.1+]</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to use shadow copying when running tests in
+        separate app domains; set to <code>false</code> to run tests without shadow
+        copying. When running tests without app domains, this value is ignored.
+      </p>
+      <p>
+        <em>Default value: <code>true</code><br />
+        Supported by: xUnit.net v1 and v2</em>
+      </p>
+    </td>
+  </tr>
+</table>

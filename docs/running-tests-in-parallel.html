@@ -1,0 +1,403 @@
+---
+layout: default
+title: Running Tests in Parallel
+breadcrumb: Documentation
+---
+
+<h1>Running Tests in Parallel</h1>
+
+<ul>
+  <li><a href="#background">Background</a></li>
+  <li><a href="#runners-and-test-frameworks">Runners and Test Frameworks</a></li>
+  <li><a href="#parallelism-in-test-frameworks">Parallelism in Test Frameworks</a></li>
+  <li><a href="#parallelism-in-runners">Parallelism in Runners</a></li>
+  <li><a href="#parallelism-via-configuration">Parallelism via Configuration</a></li>
+</ul>
+
+<h2 id="background">Background</h2>
+
+<p>
+  Running unit tests in parallel is a new feature in xUnit.net version 2. There
+  are two essential motivations that drove us to not only enable parallelization,
+  but also for it to be a feature that's enabled by default:
+</p>
+
+<ol>
+  <li>
+    As unit testing has become more prevalent, so too have the number of unit
+    tests. It is not unusual for a project to have thousands&#x2014;or tens of
+    thousands&#x2014;of unit tests. Developers want the safety of being able to
+    quickly run all these tests before committing their code.
+  </li>
+  <li>
+    A typical developer machine in 2006 (when we first started working on
+    xUnit.net) had a single or dual core CPU, and perhaps 2 GB of RAM. Today's
+    modern developer machine is likely to have a CPU with 8 virtual cores and
+    between 8 and 16GB of RAM (or more). These CPUs go to waste when only one
+    of them at a time can be assigned to a given task.
+  </li>
+</ol>
+
+<p>
+  There are really two ways to take advantage of all these extra resources:
+  write tests which themselves use parallelization (so that when the system is
+  only running a single test, it still takes advantage of all the resources);
+  or, let the unit test framework run many tests at the same time, to help
+  take advantage of the available resource.
+</p>
+
+<p>
+  The typical structure of a unit test is to test a single thing in relative
+  isolation. This doesn't give much opportunity for the test itself to become
+  parallelized, unless the code under test is itself parallelized. Therefore,
+  the best way to ensure that unit tests can run at the full speed of the host
+  computer is to run many of them at the same time.
+</p>
+
+<h2 id="runners-and-test-frameworks">Runners and Test Frameworks</h2>
+
+<p>
+  For the purposes of this section, it's important to separate the two actors
+  that participate in running your unit tests.
+</p>
+
+<p>
+  The first is the <em>runner</em>, which is the program (or third party plugin
+  to a program) that is responsible for looking for one or more test assemblies,
+  and then activating the test frameworks that it finds therein. It generally
+  contains very little knowledge about how the test frameworks work, and instead
+  relies on <code>xunit.runner.utility</code> to do most of the heavy lifting.
+  Through the runner utility library, it can discover <em>test cases</em> and
+  then ask for them to be run. It does not itself understand how this discovery
+  or execution works, but instead relies on the runner utility library to
+  understand those details.
+</p>
+
+<p>
+  The second is the <em>test framework</em>, which is the code that has the
+  detailed knowledge of how to discover and run unit tests. These libraries are
+  the ones that the unit tests themselves link against, and so those DLLs live
+  along side the unit test code itself. For xUnit.net v1, that is
+  <code>xunit.dll</code>; for v2, it's <code>xunit.core.dll</code> (and,
+  indirectly, <code>xunit.execution.dll</code>).
+</p>
+
+<p>
+  There is a third player here that does not have any code, but rather contains
+  the abstractions that allow runners and test frameworks to communicate:
+  <code>xunit.abstractions.dll</code>.
+</p>
+
+<h2 id="parallelism-in-test-frameworks">Parallelism in Test Frameworks</h2>
+
+<p>
+  When we say "Parallelism in Test Frameworks", what we mean specifically is
+  how a test framework may choose to support running tests <em>within a single
+  assembly</em> in parallel with one another. The next section, "Parallelism
+  in Runners", we mean how a test runner may choose to support running <em>test
+  assemblies</em> in parallel against each other.
+</p>
+
+<p>
+  As mentioned above, parallelism in the test framework is a feature that's
+  new for version 2. Tests written in xUnit.net version 1 cannot be run in
+  parallel against each other in the same assembly, though multiple test
+  assemblies linked against v1 are still able to participate in the runner
+  parallelism feature described in the next sub-section.
+</p>
+
+<p>
+  The residual of this section describes features only available for test
+  assemblies linked against xUnit.net v2.
+</p>
+
+<h3>Test Collections</h3>
+
+<p>
+  How does xUnit.net decide which tests can run against each other in parallel?
+  It uses a concept called <em>test collections</em> to make that decision.
+</p>
+
+<p>
+  By default, each test class is a unique test collection. Tests within the
+  same test class will not run in parallel against each other. Let's examine
+  a very simple test assembly, one with a single test class:
+</p>
+
+{% highlight csharp %}
+public class TestClass1
+{
+    [Fact]
+    public void Test1()
+    {
+        Thread.Sleep(3000);
+    }
+
+    [Fact]
+    public void Test2()
+    {
+        Thread.Sleep(5000);
+    }
+}
+{% endhighlight %}
+
+<p>
+  When we run this test assembly, we see that the total time spent
+  running the tests is approximately 8 seconds. These two tests are in the
+  same test class, which means that they are in the same test collection,
+  so they cannot be run in parallel against one another.
+</p>
+
+<p>
+  If we were to put these two tests into separate test classes, like this:
+</p>
+
+{% highlight csharp %}
+public class TestClass1
+{
+    [Fact]
+    public void Test1()
+    {
+        Thread.Sleep(3000);
+    }
+}
+
+public class TestClass2
+{
+    [Fact]
+    public void Test2()
+    {
+        Thread.Sleep(5000);
+    }
+}
+{% endhighlight %}
+
+<p>
+  Now when we run this test assembly, we see that the total time spent
+  running the tests is approximately 5 seconds. That's because <code>Test1</code>
+  and <code>Test2</code> are in different test collections, so they are able
+  to run in parallel against one another.
+</p>
+
+<h3>Custom Test Collections</h3>
+
+<p>
+  If we need to indicate that multiple test classes should not be run in
+  parallel against one another, then we place them into the same test collection.
+  This is simply a matter of decorating each test class with an attribute
+  that places them into the same uniquely named test collection:
+</p>
+
+{% highlight csharp %}
+[Collection("Our Test Collection #1")]
+public class TestClass1
+{
+    [Fact]
+    public void Test1()
+    {
+        Thread.Sleep(3000);
+    }
+}
+
+[Collection("Our Test Collection #1")]
+public class TestClass2
+{
+    [Fact]
+    public void Test2()
+    {
+        Thread.Sleep(5000);
+    }
+}
+{% endhighlight %}
+
+<p>
+  This instructs xUnit.net not run these two classes against each other in
+  parallel. Our total run time now goes back to approximately 8 seconds, which
+  indicates that the tests did indeed run one after another.
+</p>
+
+<p><em>
+  For more information on test collections, including the ability to use them
+  to share text context, see <a href="shared-context.html">Shared Context</a>.
+</em></p>
+
+<h3>Changing Default Behavior</h3>
+
+<p>
+  There are several default pieces of behavior that be configured by the
+  developer as relates to running tests in parallel. These are all changed
+  by applying an assembly level attribute:
+</p>
+
+<ul>
+  <li>
+    Put all test classes into a single test collection by default:<br />
+    &nbsp; <code>[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]</code><br />
+    <em>Default: CollectionBehavior.CollectionPerClass</em>
+  </li>
+  <li>
+    Set the maximum number of threads to use when running test in parallel:<br />
+    &nbsp; <code>[assembly: CollectionBehavior(MaxParallelThreads = <em>n</em>)]</code><br />
+    <em>Default: number of virtual CPUs in the PC</em>
+  </li>
+  <li>
+    Turn off parallelism inside the assembly:<br/>
+    &nbsp; <code>[assembly: CollectionBehavior(DisableTestParallelization = true)]</code><br />
+    <em>Default: false</em>
+  </li>
+  <li>
+    Turn off parallelism for specific Test Collection<br />
+    &nbsp; <code>[collection: CollectionDefinition(DisableParallelization = true)]</code><br />
+    <em>Default: false</em><br />
+    Parallel-capable test collections will be run first (in parallel), followed by parallel-disabled test collections (run sequentially).
+  </li>
+</ul>
+
+<p>
+  You can only have one of these attributes per assembly; if you want to
+  combine multiple behaviors, do it with a single attribute. Also be aware that
+  these values affect only this assembly; if multiple assemblies are running
+  in parallel against one another, they have their own independent values.
+</p>
+
+<h2 id="parallelism-in-runners">Parallelism in Runners</h2>
+
+<p>
+  When we say "Parallelism in Runners", what we mean specifically is how a runner
+  may choose to run multiple test assemblies in parallel against each other.
+  The decision to do this is independent of whether or not any individual test
+  assembly is running tests within itself in parallel. Runners are also allowed
+  to override some of the behavior within a test framework (like number of
+  threads, whether an assembly should run tests within itself in parallel, etc.);
+  when they do so, it overrides whatever behavior has been otherwise specified
+  (via code or configuration).
+</p>
+
+<p>
+  There are many runners, and just as many ways to configure parallelism values.
+  This section will cover how to specify parallelism values for the built-in
+  console and MSBuild runners; you should look at the documentation for any
+  third party runners to learn how to configure them.
+</p>
+
+<h3>Console Runner</h3>
+
+<p>
+  The console runner in xUnit.net v2 is capable of running unit tests from both
+  xUnit.net v1 and v2. It can run multiple assemblies at the same time, and
+  command line options can be used to configuration the parallelism options
+  used when running the tests.
+</p>
+
+<p>
+  The following command line options can be used to influence parallelism:
+</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Option</th><th>Affect</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>-parallel <em>option</em></code></th>
+      <td class="wrapped">
+        Allows the user to specify which kinds of parallelization should be
+        allowed for the test run. The valid option values are:<br />
+        <table>
+          <tr>
+            <td><code>none</code></td>
+            <td>Turns off all parallelization</td>
+          </tr>
+          <tr>
+            <td><code>collections</code></td>
+            <td>Parallelizes collections, not assemblies</td>
+          </tr>
+          <tr>
+            <td><code>assemblies</code></td>
+            <td>Parallelizes assemblies, not collections</td>
+          </tr>
+          <tr>
+            <td><code>all</code></td>
+            <td>Parallelizes both collections and assemblies</td>
+          </tr>
+        </table>
+        The default value is <code>collections</code>.<br />
+        <em><strong>Applies to:</strong> xUnit.net v1, v2</em>
+      </td>
+    </tr>
+    <tr>
+      <th><code>-maxthreads <em>n</em></code></th>
+      <td class="wrapped">
+        Overrides the maximum number of threads used <em>per assembly.</em> The
+        default value is determined by the test framework (for xUnit.net v2, it
+        is the number of virtual CPUs in the PC).<br />
+        <em><strong>Applies to:</strong> xUnit.net v2</em>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>MSBuild Runner</h3>
+
+<p>
+  The MSBuild runner in xUnit.net v2 is capable of running unit tests from both
+  xUnit.net v1 and v2. It can run multiple assemblies at the same time, and
+  build file options can be used to configuration the parallelism options
+  used when running the tests.
+</p>
+
+<p>
+  The following <code>Xunit</code> task properties can be used to influence
+  parallelism:
+</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Property</th><th>Affect</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th><code>ParallelizeAssemblies</code></th>
+      <td class="wrapped">
+        Set to <code>true</code> to run the test assemblies in parallel against
+        one other; set to <code>false</code> to run them sequentially.
+        The default value is <code>false</code>.<br />
+        <em><strong>Applies to:</strong> xUnit.net v1, v2</em>
+      </td>
+    </tr>
+      <th><code>ParallelizeTestCollections</code></th>
+      <td class="wrapped">
+        Set to <code>true</code> to run the test collections in parallel against
+        one other; set to <code>false</code> to run them sequentially.
+        The default value is <code>true</code>.<br />
+        <em><strong>Applies to:</strong> xUnit.net v2</em>
+      </td>
+    </tr>
+    <tr>
+      <th><code>MaxParallelThreads</code></th>
+      <td class="wrapped">
+        Overrides the maximum number of threads used <em>per assembly.</em> The
+        default value is determined by the test framework (for xUnit.net v2, it
+        is the number of virtual CPUs in the PC).<br />
+        <em><strong>Applies to:</strong> xUnit.net v2</em>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="parallelism-via-configuration">Parallelism via Configuration</h2>
+
+<p>
+  There are several configuration elements that can influence parallelism. Please
+  see <a href="configuration-files">Configuring xUnit.net</a> for more information
+  on how to set up configuration files and change parallelism settings.
+</p>
+
+<section class="related-topics">Related topics:</section>
+<ul>
+  <li><a href="shared-context.html">Shared Context between Tests</a></li>
+</ul>

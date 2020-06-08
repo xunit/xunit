@@ -1,0 +1,195 @@
+---
+layout: default
+title: "Getting Started: .NET Framework with JetBrains Rider"
+breadcrumb: Documentation
+---
+
+<h1>Getting Started with xUnit.net</h1>
+<h2>Using .NET Framework with JetBrains Rider</h2>
+
+<p>
+  In this article, we will demonstrate getting started with xUnit.net using JetBrains Rider.
+  These instructions apply to all JetBrains Rider supported platforms (macOS, Linux, and Windows).
+</p>
+
+<ul>
+  <li><a href="#create-test-project">Create a test project</a></li>
+  <li><a href="#write-first-tests">Write your first tests</a></li>
+  <li><a href="#write-first-theory">Write your first theory</a></li>
+  <li><a href="#next-steps">Next steps</a></li>
+</ul>
+
+<p><em>
+  Note: The examples were done with xUnit.net v2.4 and JetBrains Rider 2018.3 on macOS.
+  The version numbers, paths, and JetBrains Rider UI may differ for you, depending on which
+  version you're using.
+</em></p>
+
+<h2 id="create-test-project">Create a test project</h2>
+
+<p>
+  In our example, we have a solution with a single project called Sandbox,
+  which has a class that implements a primitive calculator.
+</p>
+
+{% highlight C# %}
+namespace Sandbox
+{
+   public class Calculator
+   {
+       public static int Add(int x, int y) => x + y;
+       public static int Subtract(int x, int y) => x - y;
+   }
+}
+{% endhighlight %}
+
+<p>
+  To test our calculator, let's start by creating a project for our xUnit.net tests.
+  In the Solution Explorer, right-click the solution and choose <code>Add &gt; New Project...</code>:
+</p>
+
+<p><img class="border" src="../../../images/getting-started-rider-macos/rider-new-project.png" width="700"
+        alt="Creating a new xUnit.net test project"/></p>
+<p>
+  Choose the Unit Test Project template targeting .NET 4.5.2 or later,
+  select <code>xUnit</code> as the project type,
+  and provide some telling name for it, e.g. <code>Tests</code>.
+</p>
+
+<p><img class="border" src="../../../images/getting-started-rider-macos/rider-new-project2.png" width="700"
+        alt="Creating a new xUnit.net test project. Project properties"/></p>
+
+<p>
+  When you click <code>Create</code>,
+  the new test project with all necessary configurations and references will be added to our solution.
+</p>
+
+<h2 id="write-first-tests">Write your first tests</h2>
+
+<p>
+  When you created the test project, JetBrains Rider automatically created a file named <code>Tests.cs</code>
+  with a stub for our first test and opened it for you.
+  Let's edit the test stub to target our calculator class:
+</p>
+
+{% highlight C# %}
+using Sandbox;
+using Xunit;
+
+namespace Tests
+{
+   public class Tests
+   {
+       [Fact]
+       public void PassingTest()
+       {
+           Assert.Equal(4, Calculator.Add(2, 2));
+       }
+
+       [Fact]
+       public void FailingTest()
+       {
+           Assert.Equal(5, Calculator.Add(2, 2));
+       }
+   }
+}
+
+{% endhighlight %}
+
+<p><em>
+  Note: If you copy-pasted the above code to the <code>Tests.cs</code> file, the <code>Calculator</code>
+  usage will be highlighted as unresolved because the
+  <code>Sandbox</code> project is not referenced in our test project. You can press
+  <code>Alt+Enter</code> on the highlighted usage to add the missing project reference.
+</em></p>
+
+<p>
+  Build the solution to ensure that the code compiles. Now that you've written
+  the first tests, let's run them.
+  You can click the unit test icon next to the test class and choose
+  <code>Run All</code> to run all tests in that class.
+</p>
+
+<p><img class="border" src="../../../images/getting-started-rider-macos/rider-run-tests.png" width="700"
+        alt="Running xUnit.net tests in Rider"/></p>
+
+<p>
+  Rider will start the tests and bring up the Unit Tests window where you can see test status and results.
+</p>
+
+<p><img class="border" src="../../../images/getting-started-rider-macos/rider-test-results.png" width="700"
+        alt="Analyzing xUnit.net test results in Rider"/></p>
+
+<p>
+  As expected, the <code>PassingTest</code> has passed and the <code>FailingTest</code> has failed.
+</p>
+
+<h2 id="write-first-theory">Write your first theory</h2>
+
+<p>
+  You may have wondered why your first unit tests use an attribute named
+  <code>[Fact]</code> rather than one with a more traditional name like Test.
+  xUnit.net includes support for two different major types of unit tests:
+  facts and theories. When describing the difference between facts and theories,
+  we like to say:
+</p>
+
+<blockquote>
+  <p><em><strong>Facts</strong> are tests which are always true. They test invariant conditions.</em></p>
+  <p><em><strong>Theories</strong> are tests which are only true for a particular set of data.</em></p>
+</blockquote>
+
+<p>
+  So you will need a theory to write a data-driven test &mdash; a test that can work with multiple data sets.
+  For example, we can test our calculator with different input values and expected sums.
+  Note that feeding an incorrect sum value into such test would cause it fail,
+  and not because the calculator or test is wrong.
+</p>
+
+<p>
+  Let's add a theory to our existing facts (including a bit of bad data, so we
+  can see it fail):
+</p>
+
+{% highlight C# %}
+[Theory]
+[InlineData(2, 2, 4)]
+[InlineData(3, 3, 6)]
+[InlineData(2, 2, 5)]
+public void MyTheory(int x, int y, int sum)
+{
+   Assert.Equal(sum, Calculator.Add(x, y));
+}
+
+{% endhighlight %}
+
+<p>
+  This time when we run our tests, we see a failure for our theory when it was given a sum of 5 for 2 and 2:
+</p>
+
+<p><img class="border" src="../../../images/getting-started-rider-macos/rider-test-results-theory.png" width="700"
+        alt="Analyzing test results for xUnit.net theory in Rider"/></p>
+<p>
+  Although we've only written 3 test methods, the test runner actually ran 5 tests;
+  that's because each theory with its data set is a separate test.
+  Note also that the runner tells you exactly which set of data failed, because it displays the argument values.
+</p>
+
+<h2 id="next-steps">Next steps</h2>
+
+<p>
+  As you write more tests, you may end up having a lot of files or directories in your test project,
+  or you can even have multiple test projects in your solution.
+  In such situation, using editor controls (as demonstrated above)
+  will not be the most convenient way to run multiple tests.
+  Instead, you can locate a solution, project, or any node containing unit tests in the Solution Explorer,
+  right-click on it and choose
+  <code>Run Unit Tests</code>.
+  Or alternatively, you can browse all tests in the solution on the Explorer tab of the Unit Tests window
+  and run tests from there.
+</p>
+
+<p><img class="border" src="../../../images/getting-started-rider-macos/rider-test-explorer.png" width="700"
+        alt="Exploring xUnit.net tests in Rider"/></p>
+
+

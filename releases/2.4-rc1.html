@@ -1,0 +1,46 @@
+---
+layout: default
+title: Release Notes for July 1, 2018
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: July 1, 2018</h1>
+
+<h2>xUnit.net 2.4 RC 1</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    The <code>[Fact]</code> attribute has regained <code>Timeout</code>. If you attempt to use it
+    while any parallelization is turned on, the behavior is undefined.
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where synchronous and asynchronous disposal were running
+    in parallel. The documented behavior is that asynchronous disposal (via <code>IAsyncLifetime</code>)
+    runs to completion before synchronous disposal (via <code>IDisposable</code>).
+  </li>
+  <li>
+    <strong>BUG:</strong> Fixed an issue where a test which returned a non-started <code>Task</code> object would
+    run forever. Now the runner will flag this as an immediate failure.
+  </li>
+</ul>
+
+<h3>Assertion library</h3>
+<ul>
+  <li>
+    <code>ThrowsException</code> now exposes the caught exception as <code>InnerException</code>.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>Using <code>-verbose</code> now shows test starting & finished messages.</li>
+  <li>New option <code>-nonamespace</code> can be used to exclude the given namespace.</li>
+  <li>New option <code>-noclass</code> can be used to exclude the given class.</li>
+  <li>New option <code>-nomethod</code> can be used to exclude the given method.</li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>Using <code>Reporter='verbose'</code> now shows test starting & finished messages.</li>
+</ul>

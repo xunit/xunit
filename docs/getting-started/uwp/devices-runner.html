@@ -1,0 +1,87 @@
+---
+layout: default
+title: "Getting Started: UWP with the Devices Runner"
+breadcrumb: Documentation
+redirect_from:
+  - /docs/getting-started-devices-uwp
+  - /docs/getting-started-devices-uwp.html
+---
+
+<h1>Getting Started with xUnit.net</h1>
+<h2>Universal Windows Apps (UWP) with the Devices Runner</h2>
+
+<p>
+  In this article, we will demonstrate getting started with xUnit.net for UWP, showing
+  you how to write and run your first set of unit tests.
+</p>
+
+<ol>
+    <li><code>File -> New</code> Project and create a Blank UWP project:
+        <br />
+        <img src="../../../images/getting-started-devices-uwp/CreateProject.png" width="944" height="590" class="border" />
+        <br />&nbsp;
+    </li>
+    <li>Add the <code>xunit.runner.devices</code> package. If you want unit tests in this project, also add <code>xunit</code>:
+        <br />
+        <img src="../../../images/getting-started-devices-uwp/AddPackages.png" width="527" height="350" class="border" />
+        <br />&nbsp;
+    </li>
+    <li>Replace <code>App.xaml</code> and <code>App.xaml.cs</code> with the following (using your namespace in <code>x:Class</code>):
+        <br />
+        <ul>
+            <li><strong>App.xaml</strong>
+            <br />&nbsp;
+{% highlight xml %}
+<ui:RunnerApplication
+    x:Class="UwpTestRunner.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="using:Xunit.Runners.UI"
+    RequestedTheme="Light">
+</ui:RunnerApplication>
+{% endhighlight %}
+                <br />
+                <img src="../../../images/getting-started-devices-uwp/App.xaml.png" width="601" height="171" class="border" />
+                <br />&nbsp;
+            </li>
+            <li><strong>App.xaml.cs</strong>
+                <br />&nbsp;
+{% highlight C# %}
+using System.Reflection;
+using Xunit.Runners.UI;
+namespace UwpTestRunner
+{
+    sealed partial class App : RunnerApplication
+    {
+        protected override void OnInitializeRunner()
+        {
+            // tests can be inside the main assembly
+            AddTestAssembly(GetType().GetTypeInfo().Assembly);
+            // otherwise you need to ensure that the test assemblies will
+            // become part of the app bundle
+            // AddTestAssembly(typeof(PortableTests).GetTypeInfo().Assembly);
+        }
+    }
+}
+{% endhighlight %}
+                <br />
+                <img src="../../../images/getting-started-devices-uwp/App.xaml.cs.png" width="670" height="354" class="border" />
+                <br />&nbsp;
+            </li>
+        </ul>
+    </li>
+    <li>Delete <code>MainPage.xaml</code> and <code>MainPage.xaml.cs</code>:
+        <br />
+        <img src="../../../images/getting-started-devices-uwp/DeleteMainPage.png" width="308" height="269" class="border" />
+        <br />&nbsp;
+    </li>
+    <li>Add your unit tests:
+        <br />
+        <img src="../../../images/getting-started-devices-uwp/AddTests.png" width="543" height="439" class="border" />
+        <br />&nbsp;
+    </li>
+    <li>(optional) If your tests are in other assemblies, add a project reference and modify the <code>App.xaml.cs</code> to include the assembly containing your tests
+    </li>
+    <li>(optional) Add a <code>xunit.runner.json</code> file as <code>Content</code> to specify runner <a href="../../configuration-files">configuration</a>
+    </li>
+</ol>

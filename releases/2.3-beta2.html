@@ -1,0 +1,126 @@
+---
+layout: default
+title: Release Notes for May 8, 2017
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: May 8, 2017</h1>
+
+<p class="note">
+  Support for UWP projects in Visual Studio is currently broken in 2.3 beta 2. There was
+  insufficient time to resolve this issue. UWP users are advised to continue to use 2.3 beta 1
+  or earlier. You can <a href="https://github.com/xunit/xunit/issues/1267">track the issue here</a>.
+</p>
+
+<h2>xUnit.net 2.3 Beta 2</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>
+    The new <code>xunit.analyzers</code> project is automatically included when you add a
+    reference to the <code>xunit</code> NuGet package. If you would prefer not to include
+    the analyzers, please reference the <code>xunit.core</code> NuGet package instead (and
+    <code>xunit.assert</code> if you use the built-in assertions).
+  </li>
+</ul>
+
+<h3>dotnet xunit</h3>
+<ul>
+  <li>
+    <strong>BREAKING CHANGE:</strong> In order to support the new <code>-nobuild</code> switch,
+    the minimum version of the <code>xunit</code> (and <code>xunit.core</code>) NuGet packages
+    is 2.3 beta 2.
+  </li>
+  <li>
+    The <code>-nobuild</code> switch was added, which allows tests to run without being re-built.
+    This should improve compatibility with projects which cannot be built with <code>dotnet msbuild</code>,
+    as well as improving startup performance when the project has already been built.
+  </li>
+  <li>
+    The <code>-usemsbuild</code> switch was added, which allows all interaction with the project
+    to be done via <code>msbuild.exe</code> instead of <code>dotnet msbuild</code>. Most users should
+    not need this switch. It is assumed that <code>msbuild.exe</code> v15 is available on the
+    <code>PATH</code>.
+  </li>
+  <li>
+    Standard parameter names <code>--framework/-f</code>, <code>--configuration/-c</code>,
+    <code>--fx-version</code>, and <code>--no-build</code> are now supported for feature
+    parity with <code>dotnet test</code>. The preferred names (<code>-framework</code>,
+    <code>-configuration</code>, <code>-fxversion</code>, and <code>-nobuild</code>) are
+    the only ones documented in <code>dotnet xunit -?</code>.
+  </li>
+  <li>
+    <strong>BUG FIX:</strong> Running desktop CLR tests on Mono should now correctly
+    invoke <code>mono</code> (or <code>mono64</code>) as appropriate on Linux or
+    OS X. It is assumed that Mono is available via the <code>PATH</code>.
+  </li>
+  <li>
+    <strong>BUG FIX:</strong> Fixed an issue where command line parameters (like
+    <code>-namespace</code>) could not be specified more than once.
+  </li>
+</ul>
+
+<h3>Console runner</h3>
+<ul>
+  <li>
+    <strong>BREAKING CHANGE:</strong> The <code>xunit.runner.console</code> NuGet package
+    has been changed; notably, the path to the <code>net452</code> executables has moved from
+    <code>tools\</code> to <code>tools\net452\</code>. You will need to update any paths which
+    previously hard-coded this path.
+  </li>
+  <li>
+    The .NET Core console runner is now included in the <code>xunit.runner.console</code>
+    NuGet package. Since this has to be invoked via the undocumented <code>dotnet exec</code>,
+    this is here for advanced scenarios only. Most users should continue to rely on
+    <code>dotnet xunit</code> to invoke the console runner, as described in our
+    <a href="../docs/getting-started-dotnet-core.html">Getting Started</a> page
+    for .NET Core.
+  </li>
+</ul>
+
+<h3>MSBuild runner</h3>
+<ul>
+  <li>
+    <strong>BREAKING CHANGE:</strong> The <code>xunit.runner.msbuild</code> NuGet package
+    has been changed; notably, the names of the MSBuild runner DLLs now include the
+    target platform. This means if you had a hard-coded path to <code>xunit.runner.msbuild.dll</code>,
+    this will need to be replaced with <code>xunit.runner.msbuild.net452.dll</code>.
+  </li>
+  <li>
+    This build includes a new .NET Core version of the MSBuild runner. It is used in the same
+    manner as the existing desktop CLR MSBuild runner, and the NuGet package has been updated
+    to automatically import the correct runner based on whether you're using <code>msbuild</code>
+    vs. <code>dotnet msbuild</code>. Note: unlike <code>dotnet xunit</code>, the desktop CLR runner
+    can only run desktop CLR test projects, and the .NET Core runner can only run .NET Core
+    test projects.
+  </li>
+</ul>
+
+<h3>Extensibility</h3>
+<ul>
+  <li>
+    <code>XunitTestCaseRunner</code> has several new override methods that make it easier to
+    extend specific parts of the pipeline (creating tests, the test runner, and supplementing
+    the before/after attributes for a test).
+  </li>
+  <li>
+    <code>XunitTestFrameworkDiscoverer</code> has exposed the mapping between <code>Fact</code>-derived
+    attributes and the discoverer that is used to find them, allowing the user easier access to
+    the cache (as well as allowing them to pre-seed the cache).
+  </li>
+</ul>
+
+<h2>Visual Studio Runner 2.3 Beta 2</h2>
+
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="../docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+
+<ul>
+  <li>
+    A new <code>NoAutoReporters</code> switch can be set in the <code>RunSettings</code> file
+    to disable environmental reporters (like TeamCity and AppVeyor).
+  </li>
+</ul>

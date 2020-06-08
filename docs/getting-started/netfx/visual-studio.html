@@ -1,0 +1,382 @@
+---
+layout: default
+title: "Getting Started: .NET Framework with Visual Studio"
+breadcrumb: Documentation
+redirect_from:
+  - /docs/getting-started.html
+  - /docs/getting-started-desktop
+  - /docs/getting-started-desktop.html
+  - /docs/running-v1-tests-in-vs.html
+  - /docs/running-tests-in-vs.html
+---
+
+<h1>Getting Started with xUnit.net</h1>
+<h2>Using .NET Framework with Visual Studio</h2>
+
+<p>
+  In this article, we will demonstrate getting started with xUnit.net, showing
+  you how to write and run your first set of unit tests.
+</p>
+
+<ul>
+  <li><a href="#create-class-library">Create a class library project</a></li>
+  <li><a href="#add-xunit-ref">Add a reference to xUnit.net</a></li>
+  <li><a href="#write-first-tests">Write your first tests</a></li>
+  <li><a href="#add-xunit-runner-ref">Add a reference to xUnit.net console runner</a></li>
+  <li><a href="#run-tests">Run tests with the xUnit.net console runner</a></li>
+  <li><a href="#write-first-theory">Write your first theory</a></li>
+  <li><a href="#run-tests-visualstudio">Run tests with Visual Studio</a></li>
+  <li><a href="#console-return-codes">Console runner return codes</a></li>
+</ul>
+
+<p><em>
+  Note: The examples were done with xUnit.net v2.2 and Visual Studio 2017. The version
+  numbers, paths, and Visual Studio UI may differ for you, depending on which
+  version you're using.
+</em></p>
+
+<h2 id="create-class-library">Create a class library project</h2>
+
+<p>
+  Let's start by creating a class library project, targeting .NET 4.5.2 (or later).
+  Open Visual Studio, and choose <code>File &gt; New &gt; Project</code>:
+</p>
+
+<p><img class="border" src="../../../images/getting-started/new-project.png" width="835" /></p>
+
+<h2 id="add-xunit-ref">Add a reference to xUnit.net</h2>
+
+<p>
+  In Solution Explorer, right click the new project, and choose
+  <code>Manage NuGet Packages</code>:
+</p>
+
+<p><img class="border" src="../../../images/manage-nuget-packages.png" width="357" /></p>
+
+<p>Now in the NuGet package manager window, take the following steps:</p>
+
+<ol>
+  <li>Along the top edge, make sure <code>Browse</code> is selected.</li>
+  <li>On the upper right side, ensure <code>nuget.org</code> is selected under <code>Package source</code></li>
+  <li>In the search box, type <code>xunit</code></li>
+  <li>Select the <code>xUnit.net</code> package, and click <code>Install</code></li>
+</ol>
+
+<p><img class="border" src="../../../images/add-xunit.png" width="845" /></p>
+
+<p>
+  This package (<code>xunit</code>) is what's called a <em>meta-package</em>;
+  that is, it's a package that exists just so you can get references to several
+  other packages. In particular, it brings packages that include the core unit
+  testing framework and the assertion framework. If you open
+  <code>packages.config</code>, you'll see all the packages that get
+  referenced:
+</p>
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8"?>
+<packages>
+  <package id="xunit" version="2.2.0" targetFramework="net452" />
+  <package id="xunit.abstractions" version="2.0.1" targetFramework="net452" />
+  <package id="xunit.assert" version="2.2.0" targetFramework="net452" />
+  <package id="xunit.core" version="2.2.0" targetFramework="net452" />
+  <package id="xunit.extensibility.core" version="2.2.0" targetFramework="net452" />
+  <package id="xunit.extensibility.execution" version="2.2.0" targetFramework="net452" />
+</packages>
+{% endhighlight %}
+
+<p class="note">
+  When creating a new project with Visual Studio 2017, you may not end up with a <code>packages.config</code>
+  file. That's okay: newer versions of Visual Studio place the NuGet package references directly into your
+  <code>.csproj</code> file as <code>&lt;PackageReference&gt;</code> elements like you see here in our
+  <a href="https://github.com/xunit/xunit.integration/blob/d6897d6dfe9c4123c9d24f56ca21cba9d664461c/console/v2x_net452/v2x_net452.csproj#L32-L33">xunit.integration</a>
+  project. The advantage is that you not only have one fewer file, but you also only have packages
+  listed for which you've taken direct references. That makes it easier to differentiate between the
+  packages you've chosen to install and the dependencies they bring with them.
+</p>
+
+<h2 id="write-first-tests">Write your first tests</h2>
+
+<p>
+  When you created the project, Visual Studio automatically created a file
+  named <code>Class1.cs</code> and opened it for you. Inside this class, add a
+  couple tests:
+</p>
+
+{% highlight C# %}
+using Xunit;
+
+namespace MyFirstUnitTests
+{
+    public class Class1
+    {
+        [Fact]
+        public void PassingTest()
+        {
+            Assert.Equal(4, Add(2, 2));
+        }
+
+        [Fact]
+        public void FailingTest()
+        {
+            Assert.Equal(5, Add(2, 2));
+        }
+
+        int Add(int x, int y)
+        {
+            return x + y;
+        }
+    }
+}
+{% endhighlight %}
+
+<p>
+  Build the solution to ensure that the code compiles. Now that you've written
+  the first test, we need a way to run it. Let's install the NuGet package with
+  the console runner.
+</p>
+
+<h2 id="add-xunit-runner-ref">Add a reference to xUnit.net console runner</h2>
+
+<p>
+  Once again, right click on the project in Solution Explorer and choose
+  <code>Manage NuGet Packages</code>. This time, you're going to search for
+  (and install) a package named <code>xunit.runner.console</code>:
+</p>
+
+<p><img class="border" src="../../../images/getting-started/add-xunit-runner-console.png" width="845" /></p>
+
+<p>
+  Unlike the previous package (which added references to the unit testing
+  framework), this package is what's known as a <em>solution-level package</em>.
+  Instead of having assemblies to reference, it adds some tools in your solution
+  folder. We will use one of these tools&mdash;the console runner&mdash;to run
+  your unit tests.
+</p>
+
+<h2 id="run-tests">Run tests with the xUnit.net console runner</h2>
+
+<p>
+  Open a command prompt or PowerShell command window. In the window, navigate
+  to the root folder of your solution.
+</p>
+
+<p>
+  To run the console runner, use a command like the one highlighted below. You
+  should see output similar to this:
+</p>
+
+<pre>
+&gt; <span style="background-color: #ff0">packages\xunit.runner.console.2.2.0\tools\xunit.console MyFirstUnitTests\bin\Debug\MyFirstUnitTests.dll</span>
+xUnit.net Console Runner (64-bit .NET 4.0.30319.42000)
+  Discovering: MyFirstUnitTests
+  Discovered:  MyFirstUnitTests
+  Starting:    MyFirstUnitTests
+    <span style="color: #e03030">MyFirstUnitTests.Class1.FailingTest [FAIL]</span>
+      Assert.Equal() Failure
+      Expected: 5
+      Actual:   4
+      <span style="color: #a8a8a8">Stack Trace:</span>
+        MyFirstUnitTests\Class1.cs(16,0): at MyFirstUnitTests.Class1.FailingTest()
+  Finished:    MyFirstUnitTests
+=== TEST EXECUTION SUMMARY ===
+   MyFirstUnitTests  Total: 2, Errors: 0, Failed: 1, Skipped: 0, Time: 0.159s
+</pre>
+
+<p><em>
+  Note: your path names my vary, depending on what name you chose for your
+  project and which version of xUnit.net you installed.
+</em></p>
+
+<p><em>
+  The console runner has several command line options, which include options
+  for parallelization, test filtering, and result reporting. To learn more
+  about the console runner options, run the console runner with no command
+  line options.
+</em></p>
+
+<p>
+  Now that we've gotten your first unit tests to run, let's introduce one more
+  way to write tests: using theories.
+</p>
+
+<h2 id="write-first-theory">Write your first theory</h2>
+
+<p>
+  You may have wondered why your first unit tests use an attribute named
+  <code>[Fact]</code> rather than one with a more traditional name like Test.
+  xUnit.net includes support for two different major types of unit tests:
+  facts and theories. When describing the difference between facts and theories,
+  we like to say:
+</p>
+
+<blockquote>
+  <p><em><strong>Facts</strong> are tests which are always true. They test invariant conditions.</em></p>
+  <p><em><strong>Theories</strong> are tests which are only true for a particular set of data.</em></p>
+</blockquote>
+
+<p>
+  A good example of this testing numeric algorithms. Let's say you want to
+  test an algorithm which determines whether a number is odd or not. If you're
+  writing the positive-side tests (odd numbers), then feeding even numbers
+  into the test would cause it fail, and not because the test or algorithm
+  is wrong.
+</p>
+
+<p>
+  Let's add a theory to our existing facts (including a bit of bad data, so we
+  can see it fail):
+</p>
+
+{% highlight C# %}
+[Theory]
+[InlineData(3)]
+[InlineData(5)]
+[InlineData(6)]
+public void MyFirstTheory(int value)
+{
+    Assert.True(IsOdd(value));
+}
+
+bool IsOdd(int value)
+{
+    return value % 2 == 1;
+}
+{% endhighlight %}
+
+<p>
+  This time when we compile and run our tests, we see a second failure, for our
+  theory that was given 6:
+</p>
+
+<pre>
+xUnit.net Console Runner (64-bit .NET 4.0.30319.42000)
+  Discovering: MyFirstUnitTests
+  Discovered:  MyFirstUnitTests
+  Starting:    MyFirstUnitTests
+    <span style="color: #e03030">MyFirstUnitTests.Class1.MyFirstTheory(value: 6) [FAIL]</span>
+      Assert.True() Failure
+      Expected: True
+      Actual:   False
+      <span style="color: #a8a8a8">Stack Trace:</span>
+        MyFirstUnitTests\Class1.cs(30,0): at MyFirstUnitTests.Class1.MyFirstTheory(Int32 value)
+    <span style="color: #e03030">MyFirstUnitTests.Class1.FailingTest [FAIL]</span>
+      Assert.Equal() Failure
+      Expected: 5
+      Actual:   4
+      <span style="color: #a8a8a8">Stack Trace:</span>
+        MyFirstUnitTests\Class1.cs(16,0): at MyFirstUnitTests.Class1.FailingTest()
+  Finished:    MyFirstUnitTests
+=== TEST EXECUTION SUMMARY ===
+   MyFirstUnitTests  Total: 5, Errors: 0, Failed: 2, Skipped: 0, Time: 0.171s
+</pre>
+
+<p>
+  Although we've only written 3 test methods, the console runner actually ran
+  5 tests; that's because each theory with its data set is a separate test.
+  Note also that the runner tells you exactly which set of data failed, because
+  it includes the parameter values in the name of the test.
+</p>
+
+<h2 id="run-tests-visualstudio">Running tests with Visual Studio</h2>
+
+<p class="important">
+  <strong>Important note</strong>: If you've previously installed the xUnit.net Visual Studio
+  Runner VSIX (Extension), you must uninstall it first. The Visual Studio runner is only distributed
+  via NuGet now. To remove it, to go <code>Tools</code> &gt; <code>Extensions and Updates</code>.
+  Scroll to the bottom of the list, and if xUnit.net is installed, uninstall it. This will force
+  you to restart Visual Studio.
+</p>
+
+<p class="important">
+  <strong>If you're having problems discovering or running tests,</strong> you may be a victim
+  of a corrupted runner cache inside Visual Studio. To clear this cache, shut down all instances
+  of Visual Studio, then delete the folder <code>%TEMP%\VisualStudioTestExplorerExtensions</code>.
+  Also make sure your solution is only linked against a single version of the Visual Studio runner
+  NuGet package (<code>xunit.runner.visualstudio</code>).
+</p>
+
+<p>
+  If you have Visual Studio Community (or a paid-for version of Visual Studio), you can run your
+  xUnit.net tests within Visual Studio's built-in test runner (named Test Explorer). Unfortunately,
+  this does not include Express editions of Visual Studio (you should upgrade to the free
+  <a href="http://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx">Community
+  Edition</a> instead).
+</p>
+
+<p>
+  Right click on the project in Solution Explorer and choose <code>Manage NuGet Packages</code>.
+  Search for (and install) a package named <code>xunit.runner.visualstudio</code>:
+</p>
+
+<p><img class="border" src="../../../images/running-tests-in-vs/add-xunit-runner-visualstudio.png" width="981" /></p>
+
+<p>
+  Make sure Test Explorer is visible (go to <code>Test &gt; Windows &gt; Test Explorer</code>). Every
+  time you build your project, the runner will discover unit tests in your project. After a moment of
+  discovery, you should see the list of discovered tests:
+</p>
+
+<p><img class="border" src="../../../images/running-tests-in-vs/test-explorer.png" width="314" /></p>
+
+<p>
+  Click the <code>Run All</code> link in the Test Explorer window, and you should see the results update
+  in the Test Explorer window as the tests are run:
+</p>
+
+<p><img class="border" src="../../../images/running-tests-in-vs/test-explorer-post-run.png" width="347" /></p>
+
+<p>
+  You can click on a failed test to see the failure message, and the stack trace. You can click on the
+  stack trace lines to take you directly to the failing line of code.
+</p>
+
+<p><em>
+  Note: Only xUnit.net v2 supports pre-enumeration of theories; when discovering theories with v1,
+  it will only show a single test method for the theory.
+</em></p>
+
+<h2 id="console-return-codes">Console runner return codes</h2>
+
+<p>Starting with version 2.2, the following return codes are used by the console runner:</p>
+
+<table class="table">
+  <tr>
+    <th>Return code</th>
+    <th>Meaning</th>
+  </tr>
+  <tr>
+    <td><code>0</code></td>
+    <td class="wrapped-wide">The tests ran successfully.</td>
+  </tr>
+  <tr>
+    <td><code>1</code></td>
+    <td class="wrapped-wide">One or more of the tests failed.</td>
+  </tr>
+  <tr>
+    <td><code>2</code></td>
+    <td class="wrapped-wide">
+      The help page was shown, either because it was requested, or because the user did not provide any
+      command line arguments.
+    </td>
+  </tr>
+  <tr>
+    <td><code>3</code></td>
+    <td class="wrapped-wide">
+      There was a problem with one of the command line options passed to the runner.
+    </td>
+  </tr>
+  <tr>
+    <td><code>4</code></td>
+    <td class="wrapped-wide">
+      There was a problem loading one or more of the test assemblies (for example, if a 64-bit only assembly
+      is run with the 32-bit test runner).
+    </td>
+  </tr>
+  <tr>
+    <td><code>0xC000013A (-1073741510)</code></td>
+    <td class="wrapped-wide">
+      The user canceled the test execution by pressing Ctrl+C.
+    </td>
+  </tr>
+</table>

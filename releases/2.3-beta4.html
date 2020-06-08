@@ -1,0 +1,39 @@
+---
+layout: default
+title: Release Notes for August 14, 2017
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: August 14, 2017</h1>
+
+<h2>xUnit.net 2.3 Beta 4</h2>
+
+<h3>Core framework</h3>
+<ul>
+  <li>Update to <code>xunit.analyzers</code> version 0.6.0.</li>
+  <li>
+    Added support for .NET Core 2.0. Both <code>dotnet-xunit</code> and <code>xunit.console</code>
+    now ship with .NET Core 1.0 and 2.0 builds, due to limitations in the way that the .NET
+    SDK will not promote 1.0 to 2.0 via <code>prefercliruntime</code>. Other runners did not
+    require 2.0-specific builds.
+  </li>
+  <li>Ensured that all .NET Core 1.0 projects were built against 1.0.0 instead of 1.0.5.</li>
+  <li>
+    <b>BUG:</b> Fixed an issue where grandparent and higher classes were not being correctly
+    traversed to find test method info.
+  </li>
+</ul>
+
+<h3>Visual Studio runner</h3>
+<p><em>
+  For information on using xUnit.net from within Visual Studio, see
+  <a href="../docs/getting-started-desktop.html#run-tests-visualstudio">Running
+  tests with Visual Studio</a> in the Getting Started documentation.
+</em></p>
+<ul>
+  <li>Ongoing performance improvements.</li>
+  <li>
+    <b>BUG:</b> Fixed an issue where .NET Core tests were not correctly running on machines
+    with desktop .NET 4.7 installed.
+  </li>
+</ul>
