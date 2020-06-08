@@ -16,7 +16,6 @@ breadcrumb: Documentation
 
 <ul>
   <li><a href="#prereq">Pre-Requisites</a></li>
-  <li><a href="#findpackage">Find .NET Framework Reference Package</a></li>
   <li><a href="#updatecsproj">Updating Your .csproj File</a></li>
   <li><a href="#runningtests">Running Tests</a></li>
 </ul>
@@ -39,10 +38,10 @@ breadcrumb: Documentation
 
 <p>
   On non-Windows OSes, you're missing two key components: the libraries that are required to
-  compile your applications, and the .NET Framework runtime. The former are added (in a somewhat
-  convoluted way) through NuGet packages, and the latter comes from Mono: an open source
-  implementation of the .NET Framework that's available for Linux and macOS (the other two
-  officially supported platforms for the .NET SDK).
+  compile your applications, and the .NET Framework runtime. The former are added through NuGet
+  packages, and the latter comes from Mono: an open source implementation of the .NET Framework
+  that's available for Linux and macOS (the other two officially supported platforms for the
+  .NET SDK).
 </p>
 
 <p>
@@ -51,36 +50,10 @@ breadcrumb: Documentation
   <a href="https://www.mono-project.com/docs/getting-started/install/">Mono</a>.
 </p>
 
-<h2 id="findpackage">Find .NET Framework Reference Package</h2>
-
-<p>
-  Unlike most NuGet packages, the process of enabling .NET Framework support for your multi-targeted
-  projects is not just a matter of adding a single package. Instead, the process is split up into
-  two steps: identifying the package with your libraries, and updating the <code>.csproj</code> file
-  to include the directives to allow the C# compiler to find the .NET Framework reference libraries
-  when building your executable.
-</p>
-
-<p>
-  As of the writing of this article, these libraries (created by the .NET team at Microsoft) are housed
-  on MyGet, rather than the more traditional NuGet repository. In order to find the package you want,
-  you need to visit the <a href="https://dotnet.myget.org/gallery/dotnet-core">.NET Core Gallery</a>
-  on MyGet and find your framework's package version.
-</p>
-
-<p>
-  On the gallery page, go to the Search box and type <code>microsoft.targetingpack.netframework</code>.
-  This will limit the package list to those packages that provide the reference libraries for the
-  .NET Framework. Find the one that matches the version of the .NET Framework that you're targeting,
-  and note it's version number. (For our example, we'll be using package
-  <code>Microsoft.TargetingPack.NETFramework.v4.5.2</code> which is currently version
-  <code>1.0.1</code>.)
-</p>
-
 <h2 id="updatecsproj">Updating Your .csproj File</h2>
 
 <p>
-  There are three (or four) changes to make to your <code>.csproj</code> file to enable multi-targeting,
+  There are two (or three) changes to make to your <code>.csproj</code> file to enable multi-targeting,
   supporting both Windows and non-Windows machines.
 </p>
 
@@ -104,47 +77,14 @@ breadcrumb: Documentation
 
 <p>
   You will need a NuGet package reference for the .NET Framework reference libraries. You will add
-  this to a conditional <code>&lt;ItemGroup&gt;</code> inside your <code>.csproj</code> file. For
-  our example, the item group looks like this:
+  this to a conditional <code>&lt;ItemGroup&gt;</code> inside your <code>.csproj</code> file:
 </p>
 
 {% highlight xml %}
-<ItemGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net452' ">
-  <PackageReference
-      Include="Microsoft.TargetingPack.NETFramework.v4.5.2"
-      Version="1.0.1"
-      ExcludeAssets="All"
-      PrivateAssets="All" />
+<ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+  <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
 </ItemGroup>
 {% endhighlight %}
-
-<p>
-  You will replace the exact package name and version with the one you found in the step above.
-  Since the condition is gated on both non-Windows OSes as well as the specific target framework,
-  you can add more of these as needed for each .NET Framework target your project includes.
-</p>
-
-<h3>Adding compiler settings to find the reference libraries</h3>
-
-<p>
-  Once we have the package downloaded, we need to inform the C# compiler where the framework
-  reference assemblies live. We also need to let NuGet know where the NuGet package lives, since
-  it's currently only available on MyGet. For our sample, this means adding a new
-  <code>&lt;PropertyGroup&gt;</code> element with these two values:
-</p>
-
-{% highlight xml %}
-<PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net452' ">
-  <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.5.2/1.0.1/lib/net452/</FrameworkPathOverride>
-  <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
-</PropertyGroup>
-{% endhighlight %}
-
-<p>
-  Once again, you will replace your package name and version number as needed. Note that the NuGet package
-  cache always stores package names in lowercase, and since non-Windows OS file systems can be case-sensitive,
-  you too must use fully lowercased names.
-</p>
 
 <h3>Adding references to system libraries (as needed)</h3>
 
@@ -174,12 +114,8 @@ PublicKeyToken=b03f5f7f11d50a3a'. [~/src/MyFirstUnitTests/MyFirstUnitTests.cspro
 </p>
 
 {% highlight xml %}
-<ItemGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net452' ">
-  <PackageReference
-      Include="Microsoft.TargetingPack.NETFramework.v4.5.2"
-      Version="1.0.1"
-      ExcludeAssets="All"
-      PrivateAssets="All" />
+<ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+  <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
   <Reference Include="System.Runtime" />
 </ItemGroup>
 {% endhighlight %}
@@ -187,11 +123,13 @@ PublicKeyToken=b03f5f7f11d50a3a'. [~/src/MyFirstUnitTests/MyFirstUnitTests.cspro
 <p>
   Note that non-Windows OSes, file systems are often case sensitive, so when adding references, make sure the
   names <em>exactly</em> match the casing of the files on your file system (without the <code>.dll</code> extension).
-  You can find those files in your NuGet cache folder. For our example, we found the files here:
+  You can find those files in your NuGet cache folder. The <code>Microsoft.NETFramework.ReferenceAssemblies</code>
+  package will automatically bring in a reference to the version-specific package that contains your reference
+  assemblies. For our example, we found the files here (your versions/paths may differ slightly):
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">ls ~/.nuget/packages/microsoft.targetingpack.netframework.v4.5.2/1.0.1/lib/net452</span>
+$ <span style="background-color: #ff0">ls ~/.nuget/packages/microsoft.netframework.referenceassemblies.net452/1.0.0/build/.NETFramework/v4.5.2</span>
 Accessibility.dll				    System.Net.NetworkInformation.dll
 CustomMarshalers.dll				    System.Net.Primitives.dll
 ISymWrapper.dll					    System.Net.Requests.dll
@@ -200,14 +138,6 @@ System.Net.dll					    WindowsBase.dll
 System.Net.Http.dll				    WindowsFormsIntegration.dll
 System.Net.Http.WebRequest.dll			    XamlBuildTask.dll
 </pre>
-
-<p><em>
-  One file that constantly causes trouble is System.Xml. The automatically generated reference is
-  for <code>System.Xml</code>, but the file on disk is named <code>System.XML.dll</code>. When you add your
-  <code>&lt;Reference&gt;</code>, make sure you use the properly cased name. This is one reason why verifying
-  the filename on disk is critical when adding any references. It's also valuable to make sure you've tried
-  your build on a case-sensitive file system (for example, using the default ext4 on Linux).
-</em></p>
 
 <h2 id="runningtests">Running Tests</h2>
 
