@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Xunit.ConsoleClient
+namespace Xunit.Runner.SystemConsole
 {
     public class ConsoleLogger
     {

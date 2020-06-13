@@ -1,6 +1,6 @@
 using System;
 
-namespace Xunit
+namespace Xunit.Runner.InProc.SystemConsole
 {
     public class Program
     {

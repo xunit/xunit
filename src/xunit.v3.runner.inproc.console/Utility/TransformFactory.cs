@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Xunit
+namespace Xunit.Runner.InProc.SystemConsole
 {
     public class TransformFactory
     {

@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Xml.Linq;
 using Xunit.Sdk;
 
-namespace Xunit
+namespace Xunit.Runner.InProc.SystemConsole
 {
     public class ConsoleRunner
     {

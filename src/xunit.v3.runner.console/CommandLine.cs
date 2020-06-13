@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Xunit.ConsoleClient
+namespace Xunit.Runner.SystemConsole
 {
     public class CommandLine
     {

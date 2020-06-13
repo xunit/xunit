@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace Xunit.ConsoleClient
+namespace Xunit.Runner.SystemConsole
 {
     public class Program
     {

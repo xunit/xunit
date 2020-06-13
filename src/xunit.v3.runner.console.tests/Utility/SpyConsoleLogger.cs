@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Xunit.ConsoleClient;
+using Xunit.Runner.SystemConsole;
 
 public class SpyConsoleLogger : ConsoleLogger
 {

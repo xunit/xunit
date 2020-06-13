@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.InProc.SystemConsole
 {
     public class DiagnosticMessageSink : IMessageSink
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using Xunit.ConsoleClient;
+using Xunit.Runner.SystemConsole;
 
 public class CommandLineTests
 {
@@ -66,13 +66,13 @@ public class CommandLineTests
                 {
                     Assert.Equal("/full/path/assemblyName.dll", a.AssemblyFilename);
                     Assert.Null(a.ConfigFilename);
-                    Assert.True(a.ShadowCopy);
+                    Assert.True(a.Configuration.ShadowCopyOrDefault);
                 },
                 a =>
                 {
                     Assert.Equal("/full/path/assemblyName2.dll", a.AssemblyFilename);
                     Assert.Null(a.ConfigFilename);
-                    Assert.True(a.ShadowCopy);
+                    Assert.True(a.Configuration.ShadowCopyOrDefault);
                 }
             );
         }
@@ -91,13 +91,13 @@ public class CommandLineTests
                 {
                     Assert.Equal("/full/path/assemblyName.dll", a.AssemblyFilename);
                     Assert.Null(a.ConfigFilename);
-                    Assert.True(a.ShadowCopy);
+                    Assert.True(a.Configuration.ShadowCopyOrDefault);
                 },
                 a =>
                 {
                     Assert.Equal("/full/path/assemblyName2.dll", a.AssemblyFilename);
                     Assert.Equal($"/full/path/{configFile}", a.ConfigFilename);
-                    Assert.True(a.ShadowCopy);
+                    Assert.True(a.Configuration.ShadowCopyOrDefault);
                 }
             );
         }
@@ -302,7 +302,7 @@ public class CommandLineTests
             var commandLine = TestableCommandLine.Parse(arguments);
 
             var assembly = Assert.Single(commandLine.Project.Assemblies);
-            Assert.True(assembly.ShadowCopy);
+            Assert.True(assembly.Configuration.ShadowCopyOrDefault);
         }
 
         [Fact]
@@ -313,7 +313,7 @@ public class CommandLineTests
             var commandLine = TestableCommandLine.Parse(arguments);
 
             var assembly = Assert.Single(commandLine.Project.Assemblies);
-            Assert.False(assembly.ShadowCopy);
+            Assert.False(assembly.Configuration.ShadowCopyOrDefault);
         }
     }
 #pragma warning restore CS0618
