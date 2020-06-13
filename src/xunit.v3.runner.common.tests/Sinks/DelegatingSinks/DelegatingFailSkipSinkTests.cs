@@ -3,12 +3,12 @@ using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 
-public class FailSkipSinkTests
+public class DelegatingFailSkipSinkTests
 {
     IExecutionSink innerSink;
     DelegatingFailSkipSink sink;
 
-    public FailSkipSinkTests()
+    public DelegatingFailSkipSinkTests()
     {
         innerSink = Substitute.For<IExecutionSink>();
         sink = new DelegatingFailSkipSink(innerSink);

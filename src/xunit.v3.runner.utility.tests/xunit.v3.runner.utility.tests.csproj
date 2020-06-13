@@ -11,12 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="ConfigReader_*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="System.Web" />
   </ItemGroup>
 
