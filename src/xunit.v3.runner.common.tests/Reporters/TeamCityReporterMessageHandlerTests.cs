@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Runner.Reporters;
 
 public class TeamCityReporterMessageHandlerTests
 {
