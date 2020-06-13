@@ -152,10 +152,8 @@ namespace Xunit.ConsoleClient
 
                 foreach (var type in types)
                 {
-#pragma warning disable CS0618
-                    if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporter) || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
+                    if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
                         continue;
-#pragma warning restore CS0618
                     var ctor = type.GetConstructor(new Type[0]);
                     if (ctor == null)
                     {
@@ -198,23 +196,17 @@ namespace Xunit.ConsoleClient
 
         void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
         {
-#if NETFRAMEWORK
             var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
-#else
-            var executableName = "dotnet xunit";
-#endif
 
             Console.WriteLine("Copyright (C) .NET Foundation.");
             Console.WriteLine();
             Console.WriteLine($"usage: {executableName} <assemblyFile> [configFile] [assemblyFile [configFile]...] [options] [reporter] [resultFormat filename [...]]");
             Console.WriteLine();
-#if NETFRAMEWORK
             Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
-#else
-            Console.WriteLine("Note: Configuration files must end in .json (XML is not supported on .NET Core)");
-#endif
+            Console.WriteLine("      XML is supported for v1 and v2 on .NET Framework only. For v3, only JSON is supported.");
             Console.WriteLine();
-            Console.WriteLine("Valid options:");
+            Console.WriteLine("Options");
+            Console.WriteLine();
             Console.WriteLine("  -nologo                : do not show the copyright message");
             Console.WriteLine("  -nocolor               : do not output results with colors");
             Console.WriteLine("  -failskips             : convert skipped tests into failures");
@@ -228,19 +220,24 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         :   default   - run with default (1 thread per CPU thread)");
             Console.WriteLine("                         :   unlimited - run with unbounded thread count");
             Console.WriteLine("                         :   (number)  - limit task thread pool size to 'count'");
-#if NETFRAMEWORK
-            Console.WriteLine("  -appdomains mode       : choose an app domain mode");
+            Console.WriteLine("  -appdomains mode       : choose an app domain mode (.NET Framework projects only)");
             Console.WriteLine("                         :   ifavailable - choose based on library type");
             Console.WriteLine("                         :   required    - force app domains on");
             Console.WriteLine("                         :   denied      - force app domains off");
-            Console.WriteLine("  -noshadow              : do not shadow copy assemblies");
-#endif
+            Console.WriteLine("  -noshadow              : do not shadow copy assemblies (.NET Framework projects only)");
             Console.WriteLine("  -wait                  : wait for input after completion");
             Console.WriteLine("  -diagnostics           : enable diagnostics messages for all test assemblies");
             Console.WriteLine("  -internaldiagnostics   : enable internal diagnostics messages for all test assemblies");
             Console.WriteLine("  -pause                 : pause before doing any work, to help attach a debugger");
             Console.WriteLine("  -debug                 : launch the debugger to debug the tests");
+            Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
+            Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
             Console.WriteLine("  -serialize             : serialize all test cases (for diagnostic purposes only)");
+            Console.WriteLine();
+            // TODO: Should we offer a more flexible (but harder to use?) generalized filtering system?
+            Console.WriteLine("Filtering (optional, choose one or more)");
+            Console.WriteLine("If more than one filter type is specified, cross-filter type filters act as an AND operation");
+            Console.WriteLine();
             Console.WriteLine("  -trait \"name=value\"    : only run tests with matching name/value traits");
             Console.WriteLine("                         : if specified more than once, acts as an OR operation");
             Console.WriteLine("  -notrait \"name=value\"  : do not run tests with matching name/value traits");
@@ -263,22 +260,26 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -nonamespace \"name\"    : do not run any methods in a given namespace (i.e.,");
             Console.WriteLine("                         : 'MyNamespace.MySubNamespace')");
             Console.WriteLine("                         : if specified more than once, acts as an AND operation");
-            Console.WriteLine("  -noautoreporters       : do not allow reporters to be auto-enabled by environment");
-            Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
             Console.WriteLine();
 
-            var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();
-            if (switchableReporters.Count > 0)
+            if (reporters.Count > 0)
             {
-                Console.WriteLine("Reporters: (optional, choose only one)");
+                Console.WriteLine("Reporters (optional, choose only one)");
+                Console.WriteLine();
 
-                foreach (var reporter in switchableReporters.OrderBy(r => r.RunnerSwitch))
-                    Console.WriteLine($"  -{reporter.RunnerSwitch.ToLowerInvariant().PadRight(21)} : {reporter.Description}");
+                var longestSwitch = reporters.Max(r => r.RunnerSwitch?.Length ?? 0);
+
+                foreach (var switchableReporter in reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
+                    Console.WriteLine($"  -{switchableReporter.RunnerSwitch.ToLowerInvariant().PadRight(longestSwitch)} : {switchableReporter.Description}");
+
+                foreach (var environmentalReporter in reporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
+                    Console.WriteLine($"   {"".PadRight(longestSwitch)} : {environmentalReporter.Description} [auto-enabled only]");
 
                 Console.WriteLine();
             }
 
-            Console.WriteLine("Result formats: (optional, choose one or more)");
+            Console.WriteLine("Result formats (optional, choose one or more)");
+            Console.WriteLine();
             TransformFactory.AvailableTransforms.ForEach(
                 transform => Console.WriteLine($"  -{$"{transform.CommandLine} <filename>".PadRight(21).Substring(0, 21)} : {transform.Description}")
             );

@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\ConsoleHelper.cs" LinkBase="Common" />
+    <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\Guard.cs" LinkBase="Common" />
+    <Compile Include="..\common\Json.cs" LinkBase="Common" />
+    <Compile Include="..\common\AssemblyResolution\**\*.cs" LinkBase="Common\AssemblyResolution" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\xunit.v3.runner.inproc.console\Transforms\HTML.xslt" />
+    <EmbeddedResource Include="..\xunit.v3.runner.inproc.console\Transforms\NUnitXml.xslt" />
+    <EmbeddedResource Include="..\xunit.v3.runner.inproc.console\Transforms\xUnit1.xslt" />
+    <EmbeddedResource Include="..\xunit.v3.runner.inproc.console\Transforms\JUnitXml.xslt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />
+  </ItemGroup>
+
+</Project>
