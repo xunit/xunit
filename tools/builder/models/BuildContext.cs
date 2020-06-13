@@ -19,6 +19,8 @@ public class BuildContext
 
     public string ConfigurationText => Configuration.ToString();
 
+    public string ConsoleRunnerExe { get; private set; }
+
     public bool NeedMono { get; private set; }
 
     public string PackageOutputFolder { get; private set; }
@@ -95,6 +97,8 @@ public class BuildContext
                 if (BaseFolder == null)
                     throw new InvalidOperationException("Could not locate a solution file in the directory hierarchy");
             }
+
+            ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "xunit.v3.runner.console.exe");
 
             // Dependent folders
             PackageOutputFolder = Path.Combine(BaseFolder, "artifacts", "packages");

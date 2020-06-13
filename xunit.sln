@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DD6C7641-EDB5-445C-8563-15068910979E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v1.tests", "src\xunit.v1.tests\xunit.v1.tests.csproj", "{2836B5D6-28DC-4617-B4D5-A0F2B38A4686}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.abstractions", "src\xunit.v3.abstractions\xunit.v3.abstractions.csproj", "{0755DC0E-DBCD-45A9-BC85-C6418B6012AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.assert", "src\xunit.v3.assert\xunit.v3.assert.csproj", "{151947F7-DB4A-408B-A42A-F66A7D7F5DFB}"
@@ -34,6 +36,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2836B5D6-28DC-4617-B4D5-A0F2B38A4686}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2836B5D6-28DC-4617-B4D5-A0F2B38A4686}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2836B5D6-28DC-4617-B4D5-A0F2B38A4686}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2836B5D6-28DC-4617-B4D5-A0F2B38A4686}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0755DC0E-DBCD-45A9-BC85-C6418B6012AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0755DC0E-DBCD-45A9-BC85-C6418B6012AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0755DC0E-DBCD-45A9-BC85-C6418B6012AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -76,6 +82,7 @@ Global
 		{42626F10-47E8-472C-9927-733D3EF9042E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{2836B5D6-28DC-4617-B4D5-A0F2B38A4686} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{0755DC0E-DBCD-45A9-BC85-C6418B6012AD} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{151947F7-DB4A-408B-A42A-F66A7D7F5DFB} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B} = {DD6C7641-EDB5-445C-8563-15068910979E}
