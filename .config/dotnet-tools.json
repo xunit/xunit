@@ -8,12 +8,6 @@
         "dotnet-format"
       ]
     },
-    "nbgv": {
-      "version": "3.2.17-beta-gceb8927950",
-      "commands": [
-        "nbgv"
-      ]
-    },
     "signclient": {
       "version": "1.2.33",
       "commands": [
