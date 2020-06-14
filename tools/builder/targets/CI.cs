@@ -1,3 +1,5 @@
-[Target(BuildTarget.CI,
-        BuildTarget.Test, BuildTarget.Packages, BuildTarget.SignPackages, BuildTarget.PublishPackages)]
+[Target(
+    BuildTarget.CI,
+    BuildTarget.PR, BuildTarget.Packages, BuildTarget.SignPackages, BuildTarget.PublishPackages
+)]
 public class CI { }

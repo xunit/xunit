@@ -2,6 +2,12 @@
   "version": 1,
   "isRoot": true,
   "tools": {
+    "dotnet-format": {
+      "version": "4.0.130203",
+      "commands": [
+        "dotnet-format"
+      ]
+    },
     "nbgv": {
       "version": "3.2.17-beta-gceb8927950",
       "commands": [

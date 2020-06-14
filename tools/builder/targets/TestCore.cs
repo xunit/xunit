@@ -3,8 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-[Target(BuildTarget.TestCore,
-        BuildTarget.Build)]
+[Target(
+    BuildTarget.TestCore,
+    BuildTarget.Build
+)]
 public static class TestCore
 {
     public static async Task OnExecute(BuildContext context)
@@ -13,11 +15,11 @@ public static class TestCore
 
         var netCoreSubpath = Path.Combine("bin", context.ConfigurationText, "netcoreapp");
 
-        IEnumerable<string> FindTests(string pattern)
-            => Directory.GetFiles(context.BaseFolder, pattern, SearchOption.AllDirectories)
-                        .Where(x => x.Contains(netCoreSubpath))
-                        .OrderBy(x => x)
-                        .Select(x => x.Substring(context.BaseFolder.Length + 1));
+        IEnumerable<string> FindTests(string pattern) =>
+            Directory.GetFiles(context.BaseFolder, pattern, SearchOption.AllDirectories)
+                .Where(x => x.Contains(netCoreSubpath))
+                .OrderBy(x => x)
+                .Select(x => x.Substring(context.BaseFolder.Length + 1));
 
         await context.Exec("dotnet", $"test --no-build --nologo --configuration {context.ConfigurationText} --framework netcoreapp2.1 --verbosity quiet", workingDirectory: Path.Combine(context.BaseFolder, "src", "xunit.v2.tests"));
 

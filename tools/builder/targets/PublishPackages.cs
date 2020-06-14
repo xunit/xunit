@@ -3,8 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-[Target(BuildTarget.PublishPackages,
-        BuildTarget.Packages)]
+[Target(
+    BuildTarget.PublishPackages,
+    BuildTarget.Packages
+)]
 public static class PublishPackages
 {
     public static async Task OnExecute(BuildContext context)
@@ -18,9 +20,10 @@ public static class PublishPackages
             return;
         }
 
-        var packageFiles = Directory.GetFiles(context.PackageOutputFolder, "*.nupkg", SearchOption.AllDirectories)
-                                    .OrderBy(x => x)
-                                    .Select(x => x.Substring(context.BaseFolder.Length + 1));
+        var packageFiles =
+            Directory.GetFiles(context.PackageOutputFolder, "*.nupkg", SearchOption.AllDirectories)
+                .OrderBy(x => x)
+                .Select(x => x.Substring(context.BaseFolder.Length + 1));
 
         foreach (var packageFile in packageFiles)
         {

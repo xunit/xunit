@@ -1,8 +1,10 @@
 using System.IO;
 using System.Threading.Tasks;
 
-[Target(BuildTarget.Build,
-        BuildTarget.Restore)]
+[Target(
+    BuildTarget.Build,
+    BuildTarget.Restore
+)]
 public static class Build
 {
     public static async Task OnExecute(BuildContext context)
@@ -14,7 +16,7 @@ public static class Build
         if (assertFiles.Length == 0 || mediaFiles.Length == 0)
             await context.Exec("git", "submodule update --init");
 
-        await context.Exec("dotnet", $"msbuild -p:Configuration={context.ConfigurationText}");
+        await context.Exec("dotnet", $"build --no-restore --configuration {context.ConfigurationText} --verbosity {context.Verbosity}");
         // await context.Exec("dotnet", $"msbuild src/xunit.console/xunit.console.csproj -p:Configuration={context.ConfigurationText} -p:Platform=x86");
     }
 }

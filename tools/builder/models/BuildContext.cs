@@ -33,7 +33,7 @@ public class BuildContext
 
     // User-controllable command-line options
 
-    [Option("-c|--configuration", Description = "The target configuration (values: 'Debug', 'Release'; default: 'Release')")]
+    [Option("-c|--configuration", Description = "The target configuration (default: 'Release'; values: 'Debug', 'Release')")]
     public Configuration Configuration { get; } = Configuration.Release;
 
     [Option("-N|--no-color", Description = "Disable colored output")]
@@ -42,11 +42,11 @@ public class BuildContext
     [Option("-s|--skip-dependencies", Description = "Do not run targets' dependencies")]
     public bool SkipDependencies { get; }
 
-    [Argument(0, "targets", Description = "The target(s) to run (common values: 'Build', 'Restore', 'Test', 'TestCore', 'TestFx'; default: 'Test')")]
-    public BuildTarget[] Targets { get; } = new[] { BuildTarget.Test };
+    [Argument(0, "targets", Description = "The target(s) to run (default: 'PR'; values: 'Build', 'CI', 'Packages', 'PR', 'Restore', 'Test', 'TestCore', 'TestFx')")]
+    public BuildTarget[] Targets { get; } = new[] { BuildTarget.PR };
 
-    [Option("-v|--verbose", Description = "Enable verbose output")]
-    public bool Verbose { get; }
+    [Option("-v|--verbosity", Description = "Set verbosity level (default: 'minimal'; values: 'q[uiet]', 'm[inimal]', 'n[ormal]', 'd[etailed]', and 'diag[nostic]'")]
+    public BuildVerbosity Verbosity { get; } = BuildVerbosity.minimal;
 
     // Helper methods for build target consumption
 
@@ -116,11 +116,13 @@ public class BuildContext
 
             // Find target classes
             var targetCollection = new TargetCollection();
+            var targets
+                = Assembly.GetExecutingAssembly()
+                    .ExportedTypes
+                    .Select(x => new { type = x, attr = x.GetCustomAttribute<TargetAttribute>() })
+                    .Where(x => x.attr != null);
 
-            foreach (var target in Assembly.GetExecutingAssembly()
-                                           .ExportedTypes
-                                           .Select(x => new { type = x, attr = x.GetCustomAttribute<TargetAttribute>() })
-                                           .Where(x => x.attr != null))
+            foreach (var target in targets)
             {
                 var method = target.type.GetRuntimeMethod("OnExecute", new[] { typeof(BuildContext) });
 
@@ -132,6 +134,7 @@ public class BuildContext
 
             // Let Bullseye run the target(s)
             await targetCollection.RunAsync(targetNames, SkipDependencies, dryRun: false, parallel: false, new NullLogger(), _ => false);
+
             return 0;
         }
         catch (Exception ex)
