@@ -115,7 +115,7 @@ public class Xunit2TheoryAcceptanceTests
 
             [Theory]
             [InlineData()]
-            public void TwoOptionalAttributes_NonePassed([Optional]object x, [Optional]int y)
+            public void TwoOptionalAttributes_NonePassed([Optional] object x, [Optional] int y)
             {
                 Assert.Null(x);
                 Assert.Equal(0, y);

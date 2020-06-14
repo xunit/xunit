@@ -184,7 +184,7 @@ public class FixtureAcceptanceTests
 
         class ClassWithOptionalCtorArg : IClassFixture<EmptyFixtureData>
         {
-            public ClassWithOptionalCtorArg(EmptyFixtureData fixture, [Optional]int x, [Optional]object y)
+            public ClassWithOptionalCtorArg(EmptyFixtureData fixture, [Optional] int x, [Optional] object y)
             {
                 Assert.NotNull(fixture);
                 Assert.Equal(0, x);
