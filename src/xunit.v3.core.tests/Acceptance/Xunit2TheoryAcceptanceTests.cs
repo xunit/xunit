@@ -706,7 +706,7 @@ public class Xunit2TheoryAcceptanceTests
                 return 42;
             }
 
-#region Noise
+            #region Noise
 
             public bool ToBoolean(IFormatProvider provider)
             {
@@ -783,7 +783,7 @@ public class Xunit2TheoryAcceptanceTests
                 throw new InvalidCastException();
             }
 
-#endregion
+            #endregion
         }
 
         class ClassWithIConvertibleData

@@ -49,7 +49,7 @@ public class AcceptanceTestV3 : IDisposable
 
                 tcs.TrySetResult(runSink.Messages.ToList());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 tcs.TrySetException(ex);
             }
