@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,29 +13,28 @@ public static class TestFx
 
         var netFxSubpath = Path.Combine("bin", context.ConfigurationText, "net4");
 
-        // Validate that we can run v1 tests
+        IEnumerable<string> FindTests(string pattern)
+            => Directory.GetFiles(context.BaseFolder, pattern, SearchOption.AllDirectories)
+                        .Where(x => x.Contains(netFxSubpath))
+                        .OrderBy(x => x);
 
-        var v1TestDlls = Directory.GetFiles(context.BaseFolder, "xunit.v1.tests.dll", SearchOption.AllDirectories)
-                                  .Where(x => x.Contains(netFxSubpath))
-                                  .OrderBy(x => x);
-
-        foreach (var v1TestDll in v1TestDlls)
+        foreach (var v1TestDll in FindTests("xunit.v1.tests.dll"))
         {
             var folder = Path.GetDirectoryName(v1TestDll);
             var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v1TestDll));
 
-            await context.Exec(context.ConsoleRunnerExe, $"\"{v1TestDll}\" {context.TestFlagsNonParallel} -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
+            await context.Exec(context.ConsoleRunnerExe, $"\"{v1TestDll}\" -appdomains denied {context.TestFlagsNonParallel} -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
         }
 
-        // TODO: Need to port over some v2 tests
+        foreach (var v2TestDll in FindTests("xunit.v2.tests.dll"))
+        {
+            var folder = Path.GetDirectoryName(v2TestDll);
+            var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v2TestDll));
 
-        // Run v3 tests
+            await context.Exec(context.ConsoleRunnerExe, $"\"{v2TestDll}\" -appdomains denied {context.TestFlagsParallel} -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
+        }
 
-        var v3TestExes = Directory.GetFiles(context.BaseFolder, "xunit.v3.*.tests.exe", SearchOption.AllDirectories)
-                                  .Where(x => x.Contains(netFxSubpath))
-                                  .OrderBy(x => x);
-
-        foreach (var v3TestExe in v3TestExes)
+        foreach (var v3TestExe in FindTests("xunit.v3.*.tests.exe"))
         {
             var folder = Path.GetDirectoryName(v3TestExe);
             var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3TestExe) + "-" + Path.GetFileName(folder));
