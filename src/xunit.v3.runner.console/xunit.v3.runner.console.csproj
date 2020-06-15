@@ -2,7 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;net48</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(BuildX86)' == 'true' ">
+    <AssemblyName>xunit.v3.runner.console.x86</AssemblyName>
+    <Configuration>$(Configuration)_x86</Configuration>
+    <IntermediateOutputPath>obj\$(Configuration)_x86</IntermediateOutputPath>
+    <OutputPath>bin\$(Configuration)_x86</OutputPath>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

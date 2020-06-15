@@ -2,6 +2,7 @@ public enum BuildTarget
 {
     AnalyzeSource,
     Build,
+    Build32,
     CI,
     Packages,
     PR,
@@ -11,4 +12,5 @@ public enum BuildTarget
     Test,
     TestCore,
     TestFx,
+    TestFx32,
 }

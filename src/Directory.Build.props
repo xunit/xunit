@@ -4,6 +4,8 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
+    <AssemblyName Condition=" '$(AssemblyName)' == '' ">$(MSBuildProjectName)</AssemblyName>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>XUNIT_NULLABLE</DefineConstants>
@@ -66,6 +68,13 @@
       <PropertyGroup>
         <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
         <OutputType>Exe</OutputType>
+      </PropertyGroup>
+
+      <PropertyGroup Condition=" '$(BuildX86)' == 'true' ">
+        <Configuration>$(Configuration)_x86</Configuration>
+        <IntermediateOutputPath>obj\$(Configuration)_x86</IntermediateOutputPath>
+        <OutputPath>bin\$(Configuration)_x86</OutputPath>
+        <PlatformTarget>x86</PlatformTarget>
       </PropertyGroup>
 
       <ItemGroup>

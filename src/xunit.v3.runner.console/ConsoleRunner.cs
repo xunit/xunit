@@ -186,13 +186,17 @@ namespace Xunit.Runner.SystemConsole
         void PrintHeader()
         {
 #if NET472
-            var platform = $"Desktop .NET 4.7.2, runtime: {Environment.Version}";
+            var platform = $".NET Framework 4.7.2, runtime: {Environment.Version}";
+#elif NET48
+            var platform = $".NET Framework 4.8, runtime: {Environment.Version}";
 #elif NETCOREAPP
             var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+#else
+#error Unknown target framework
 #endif
             var versionAttribute = typeof(ConsoleRunner).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
-            Console.WriteLine($"xUnit.net Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {platform})");
+            Console.WriteLine($"xUnit.net v3 Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {platform})");
         }
 
         void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)

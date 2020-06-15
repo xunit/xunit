@@ -21,6 +21,8 @@ public class BuildContext
 
     public string ConsoleRunnerExe { get; private set; }
 
+    public string ConsoleRunner32Exe { get; private set; }
+
     public bool NeedMono { get; private set; }
 
     public string PackageOutputFolder { get; private set; }
@@ -99,6 +101,7 @@ public class BuildContext
             }
 
             ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "xunit.v3.runner.console.exe");
+            ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText + "_x86", "net472", "xunit.v3.runner.console.x86.exe");
 
             // Dependent folders
             PackageOutputFolder = Path.Combine(BaseFolder, "artifacts", "packages");

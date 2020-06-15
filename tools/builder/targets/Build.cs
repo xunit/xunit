@@ -10,7 +10,6 @@ public static class Build
     {
         context.BuildStep("Compiling binaries");
 
-        await context.Exec("dotnet", $"build --no-restore --configuration {context.ConfigurationText} --verbosity {context.Verbosity}");
-        // await context.Exec("dotnet", $"msbuild src/xunit.console/xunit.console.csproj -p:Configuration={context.ConfigurationText} -p:Platform=x86");
+        await context.Exec("dotnet", $"msbuild -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}");
     }
 }
