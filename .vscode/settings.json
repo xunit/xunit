@@ -1,22 +1,28 @@
 {
     "cSpell.words": [
         "app",
+        "ifavailable",
         "inproc",
         "intrinsics",
+        "junit",
         "mscorlib",
+        "noappdomain",
         "noautoreporters",
         "noclass",
         "nocolor",
         "nologo",
         "nomethod",
+        "noshadow",
         "notrait",
         "nuget",
+        "nunit",
         "nupkg",
         "parallelization",
         "randomizer",
         "stoponfail",
         "veyor",
-        "vsts"
+        "vsts",
+        "xmlv"
     ],
     "files.exclude": {
         "**/.git": true,

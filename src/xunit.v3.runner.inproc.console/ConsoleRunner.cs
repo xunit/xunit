@@ -271,10 +271,9 @@ namespace Xunit.Runner.InProc.SystemConsole
             Console.WriteLine("Result formats (optional, choose one or more)");
             Console.WriteLine();
 
-            var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.CommandLine.Length);
-            TransformFactory.AvailableTransforms.ForEach(
-                transform => Console.WriteLine($"  -{$"{transform.CommandLine} <filename>".PadRight(longestTransform + 11)} : {transform.Description}")
-            );
+            var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
+            foreach (var transform in TransformFactory.AvailableTransforms)
+                Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
         }
 
         int RunProject(XunitProject project,
@@ -355,8 +354,8 @@ namespace Xunit.Runner.InProc.SystemConsole
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
-                var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
-                var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, internalDiagnosticMessages, noColor);
+                var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
+                var internalDiagnosticsMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, internalDiagnosticMessages, noColor);
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
                 using var testFramework = new XunitTestFramework(diagnosticMessageSink, assembly.ConfigFilename);

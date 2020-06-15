@@ -5,6 +5,7 @@
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard2.0' ">xunit.v3.runner.common.netstandard20</AssemblyName>
     <Description>Includes common runner code (xunit.v3.runner.common.*.dll). Supports .NET 4.7.2 or later and .NET Standard 2.0 or later.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Xunit.Runner.Common</RootNamespace>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <Title>xUnit.net [Runner Common Libraries]</Title>
   </PropertyGroup>
@@ -22,6 +23,10 @@
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Transforms\templates\*.xslt" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">

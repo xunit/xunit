@@ -15,13 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\xunit.v3.runner.inproc.console\Transforms\HTML.xslt" />
-    <EmbeddedResource Include="..\xunit.v3.runner.inproc.console\Transforms\NUnitXml.xslt" />
-    <EmbeddedResource Include="..\xunit.v3.runner.inproc.console\Transforms\xUnit1.xslt" />
-    <EmbeddedResource Include="..\xunit.v3.runner.inproc.console\Transforms\JUnitXml.xslt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />
   </ItemGroup>
 

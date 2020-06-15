@@ -169,7 +169,6 @@ namespace Xunit.Runner.SystemConsole
                 {
                     GuardNoOptionValue(option);
                     NoColor = true;
-                    TransformFactory.NoErrorColoring = NoColor;
                 }
                 else if (optionName == "noappdomain")    // Here for historical reasons
                 {
@@ -371,7 +370,7 @@ namespace Xunit.Runner.SystemConsole
                 else
                 {
                     // Might be a result output file...
-                    if (TransformFactory.AvailableTransforms.Any(t => t.CommandLine.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
+                    if (TransformFactory.AvailableTransforms.Any(t => t.ID.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
                     {
                         if (option.Value == null)
                             throw new ArgumentException($"missing filename for {option.Key}");

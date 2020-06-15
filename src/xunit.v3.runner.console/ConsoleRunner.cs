@@ -131,7 +131,7 @@ namespace Xunit.Runner.SystemConsole
 
             foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
             {
-                Type[] types = new Type[0];
+                var types = new Type[0];
 
                 try
                 {
@@ -281,9 +281,10 @@ namespace Xunit.Runner.SystemConsole
 
             Console.WriteLine("Result formats (optional, choose one or more)");
             Console.WriteLine();
-            TransformFactory.AvailableTransforms.ForEach(
-                transform => Console.WriteLine($"  -{$"{transform.CommandLine} <filename>".PadRight(21).Substring(0, 21)} : {transform.Description}")
-            );
+
+            var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
+            foreach (var transform in TransformFactory.AvailableTransforms)
+                Console.WriteLine($"  -{$"{transform.ID} <filename>".PadRight(longestTransform + 11)} : {transform.Description}");
         }
 
         int RunProject(XunitProject project,
@@ -385,8 +386,8 @@ namespace Xunit.Runner.SystemConsole
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
                 var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
-                var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
-                var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
+                var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
+                var internalDiagnosticsMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
