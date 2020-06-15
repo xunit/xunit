@@ -17,6 +17,7 @@ public static class TestFx32
         if (context.NeedMono)
         {
             context.WriteLineColor(ConsoleColor.Yellow, $"Skipping 32-bit tests on non-Windows machines.");
+            Console.WriteLine();
             return;
         }
 
