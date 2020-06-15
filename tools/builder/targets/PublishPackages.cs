@@ -27,7 +27,7 @@ public static class PublishPackages
 
         foreach (var packageFile in packageFiles)
         {
-            var args = $"nuget push --source https://www.myget.org/F/xunit/api/v2/package --apiKey {publishToken} --skip-duplicate {packageFile}";
+            var args = $"nuget push --source https://www.myget.org/F/xunit/api/v2/package --api-key {publishToken} {packageFile}";
             var redactedArgs = args.Replace(publishToken, "[redacted]");
             await context.Exec("dotnet", args, redactedArgs);
         }
