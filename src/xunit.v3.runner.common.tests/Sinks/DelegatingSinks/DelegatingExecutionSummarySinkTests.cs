@@ -1,6 +1,7 @@
 ﻿using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 
 public class DelegatingExecutionSummarySinkTests
 {

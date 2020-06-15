@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Represents information about long running tests from <see cref="DelegatingLongRunningTestDetectionSink"/>.

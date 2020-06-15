@@ -4,7 +4,7 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// An implementation of <see cref="IMessageSinkWithTypes"/> designed for test discovery for a

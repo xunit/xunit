@@ -1,6 +1,6 @@
 ﻿using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// The default implementation of <see cref="IRunnerReporter"/>, used

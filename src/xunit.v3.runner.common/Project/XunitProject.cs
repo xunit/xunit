@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// FOR INTERNAL USE ONLY.

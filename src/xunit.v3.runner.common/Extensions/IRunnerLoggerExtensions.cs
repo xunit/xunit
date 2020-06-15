@@ -1,4 +1,4 @@
-using Xunit;
+using Xunit.Runner.Common;
 
 /// <summary>
 /// Extensions methods for <see cref="IRunnerLogger"/>.

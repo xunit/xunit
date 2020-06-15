@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 
 /// <summary>
 /// Extension methods for <see cref="ITestFrameworkDiscoverer"/> and <see cref="ITestFrameworkExecutor"/>.

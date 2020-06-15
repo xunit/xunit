@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Xunit.Runner.Common;
 using Xunit.Runner.SystemConsole;
 
 public class CommandLineTests

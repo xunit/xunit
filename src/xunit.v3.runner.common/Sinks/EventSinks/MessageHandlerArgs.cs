@@ -1,6 +1,6 @@
 ﻿using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Allows cancellation during message handling.

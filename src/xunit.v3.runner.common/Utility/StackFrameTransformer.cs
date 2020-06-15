@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Transforms stack frames and stack traces into compiler-like output

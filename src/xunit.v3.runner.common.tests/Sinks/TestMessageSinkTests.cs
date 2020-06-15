@@ -4,6 +4,7 @@ using System.Reflection;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 
 public class TestMessageSinkTests
 {

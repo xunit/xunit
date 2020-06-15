@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Runner.Common;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     class AppVeyorClient
     {

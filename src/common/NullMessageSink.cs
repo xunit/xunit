@@ -14,7 +14,7 @@ namespace Xunit
     /// </summary>
     public class NullMessageSink : LongLivedMarshalByRefObject, IMessageSink
 #if !XUNIT_FRAMEWORK
-        , IMessageSinkWithTypes
+        , Xunit.Runner.Common.IMessageSinkWithTypes
 #endif
     {
         /// <inheritdoc/>

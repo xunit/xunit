@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Represents options passed to a test framework for discovery or execution.

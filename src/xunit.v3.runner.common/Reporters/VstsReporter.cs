@@ -1,7 +1,7 @@
 using System;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// An implementation of <see cref="IRunnerReporter" /> that reports results to Azure DevOps/VSTS.

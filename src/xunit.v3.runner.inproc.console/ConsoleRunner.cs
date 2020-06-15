@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.InProc.SystemConsole

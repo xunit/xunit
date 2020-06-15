@@ -1,6 +1,6 @@
 ﻿using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Represents a handler for a specific <see cref="IMessageSinkMessage"/>.

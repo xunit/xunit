@@ -14,7 +14,7 @@ namespace Xunit
     /// </summary>
     public class DiagnosticMessage : LongLivedMarshalByRefObject, IDiagnosticMessage
 #if !XUNIT_FRAMEWORK
-        , IMessageSinkMessageWithTypes
+        , Xunit.Runner.Common.IMessageSinkMessageWithTypes
 #endif
     {
         static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(DiagnosticMessage).GetInterfaces().Select(x => x.FullName));

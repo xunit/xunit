@@ -1,6 +1,6 @@
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// This interface represents a reporter which is invoked by a test runner

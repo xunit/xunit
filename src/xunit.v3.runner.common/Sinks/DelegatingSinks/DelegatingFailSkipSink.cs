@@ -3,7 +3,7 @@ using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// A delegating implementation of <see cref="IExecutionSink"/> which converts all

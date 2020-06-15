@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Identifies a message that can return its own type information.

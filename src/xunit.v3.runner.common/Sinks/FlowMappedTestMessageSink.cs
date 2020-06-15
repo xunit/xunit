@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// A test message sink which supports mapping test collection names to flow IDs.

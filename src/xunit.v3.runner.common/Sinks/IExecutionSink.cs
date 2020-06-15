@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Represents an <see cref="IMessageSinkWithTypes"/> that collection execution information and

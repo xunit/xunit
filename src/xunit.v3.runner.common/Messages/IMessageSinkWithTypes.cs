@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Represents an endpoint for the reception of test messages. This endpoint can have the list of types

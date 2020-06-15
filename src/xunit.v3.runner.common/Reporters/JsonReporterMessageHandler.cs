@@ -2,7 +2,7 @@ using System;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// An implementation of <see cref="IMessageSink" /> and <see cref="IMessageSinkWithTypes" /> that

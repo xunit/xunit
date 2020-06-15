@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Xunit;
+using Xunit.Runner.Common;
 
 public class SpyRunnerLogger : IRunnerLogger
 {

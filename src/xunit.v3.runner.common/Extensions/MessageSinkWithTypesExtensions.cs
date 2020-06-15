@@ -1,5 +1,5 @@
-﻿using Xunit;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
+using Xunit.Runner.Common;
 
 /// <summary>
 /// Extension methods for <see cref="IMessageSinkWithTypes"/>.

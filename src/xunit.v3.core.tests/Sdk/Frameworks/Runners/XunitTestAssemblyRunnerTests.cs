@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 public class XunitTestAssemblyRunnerTests

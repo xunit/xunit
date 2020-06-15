@@ -1,4 +1,4 @@
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Indicates the level of app domain support that the runner is requesting.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// An implementation of <see cref="IRunnerLogger"/> which logs messages

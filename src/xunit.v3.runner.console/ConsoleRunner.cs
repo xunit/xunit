@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Xunit.Runner.Common;
 
 namespace Xunit.Runner.SystemConsole
 {

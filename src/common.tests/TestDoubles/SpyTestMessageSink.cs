@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Xunit;
+using Xunit.Runner.Common;
 
 public class SpyTestMessageSink : TestMessageSink
 {

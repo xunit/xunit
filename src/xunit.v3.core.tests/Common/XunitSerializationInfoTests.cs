@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 using Xunit.Serialization;
 
 public class XunitSerializationInfoTests

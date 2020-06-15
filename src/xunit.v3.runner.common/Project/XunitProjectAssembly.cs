@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Represents an assembly in an <see cref="XunitProject"/>.

@@ -2,7 +2,7 @@
 using System.Threading;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// A class which can generate display names for test collections and tests.

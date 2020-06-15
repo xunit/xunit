@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 public class TheoryDiscovererTests : AcceptanceTestV3

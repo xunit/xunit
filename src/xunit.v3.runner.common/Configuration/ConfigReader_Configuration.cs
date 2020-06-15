@@ -4,7 +4,7 @@ using System;
 using System.Configuration;
 using System.Linq;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// This class is used to read configuration information for a test assembly.

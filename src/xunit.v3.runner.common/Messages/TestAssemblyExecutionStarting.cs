@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Default implementation of <see cref="ITestAssemblyExecutionStarting"/>.

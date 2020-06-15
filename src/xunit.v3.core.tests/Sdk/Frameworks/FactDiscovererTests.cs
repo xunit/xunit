@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 public class FactDiscovererTests

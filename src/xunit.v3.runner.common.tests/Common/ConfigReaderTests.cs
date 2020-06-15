@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using Xunit;
+using Xunit.Runner.Common;
 
 public class ConfigReaderTests
 {

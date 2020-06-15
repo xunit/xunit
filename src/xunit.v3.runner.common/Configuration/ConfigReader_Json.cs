@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// This class is used to read configuration information for a test assembly.

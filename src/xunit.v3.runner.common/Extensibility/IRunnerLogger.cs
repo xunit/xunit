@@ -1,4 +1,4 @@
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Interface implemented by runners, passed to <see cref="IRunnerReporter"/>, so that the

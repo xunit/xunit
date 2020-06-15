@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     static class EnvironmentHelper
     {

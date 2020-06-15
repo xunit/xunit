@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     class VstsClient : IDisposable
     {

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 namespace Xunit

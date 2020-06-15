@@ -4,7 +4,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Adapts an implementation of <see cref="IMessageSinkWithTypes"/> to provide an implementation

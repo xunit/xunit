@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// A message sent to implementations of <see cref="IRunnerReporter"/> when

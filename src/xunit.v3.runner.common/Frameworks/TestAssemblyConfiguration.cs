@@ -1,6 +1,6 @@
 using System;
 
-namespace Xunit
+namespace Xunit.Runner.Common
 {
     /// <summary>
     /// Represents the configuration items set in the App.config file of a test assembly.

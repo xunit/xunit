@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 
 #if NETFRAMEWORK
 using System.Linq;

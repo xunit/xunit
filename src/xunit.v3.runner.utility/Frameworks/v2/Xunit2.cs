@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 namespace Xunit
