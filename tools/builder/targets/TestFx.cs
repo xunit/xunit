@@ -37,12 +37,20 @@ public static class TestFx
             }
         }
 
-        foreach (var v2TestDll in FindTests("xunit.v2.tests.dll"))
+        if (context.NeedMono)
         {
-            var folder = Path.GetDirectoryName(v2TestDll);
-            var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v2TestDll));
+            context.WriteLineColor(ConsoleColor.Yellow, $"Skipping xUnit.net v2 tests on non-Windows machines.");
+            Console.WriteLine();
+        }
+        else
+        {
+            foreach (var v2TestDll in FindTests("xunit.v2.tests.dll"))
+            {
+                var folder = Path.GetDirectoryName(v2TestDll);
+                var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v2TestDll));
 
-            await context.Exec(context.ConsoleRunnerExe, $"\"{v2TestDll}\" -appdomains denied {context.TestFlagsParallel} -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
+                await context.Exec(context.ConsoleRunnerExe, $"\"{v2TestDll}\" -appdomains denied {context.TestFlagsParallel} -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\"", workingDirectory: folder);
+            }
         }
 
         foreach (var v3TestExe in FindTests("xunit.v3.*.tests.exe"))
