@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Runner.Common;
@@ -186,17 +187,15 @@ namespace Xunit.Runner.SystemConsole
         void PrintHeader()
         {
 #if NET472
-            var platform = $".NET Framework 4.7.2, runtime: {Environment.Version}";
+            var platformSuffix = $"net472";
 #elif NET48
-            var platform = $".NET Framework 4.8, runtime: {Environment.Version}";
-#elif NETCOREAPP
-            var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+            var platformSuffix = $"net48";
 #else
 #error Unknown target framework
 #endif
             var versionAttribute = typeof(ConsoleRunner).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
-            Console.WriteLine($"xUnit.net v3 Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {platform})");
+            Console.WriteLine($"xUnit.net v3 Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription} [{platformSuffix}])");
         }
 
         void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)

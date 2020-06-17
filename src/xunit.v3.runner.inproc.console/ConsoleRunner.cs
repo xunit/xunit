@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -187,16 +188,9 @@ namespace Xunit.Runner.InProc.SystemConsole
 
         void PrintHeader()
         {
-#if NETFRAMEWORK
-            var platform = $".NET Framework, runtime: {Environment.Version}";
-#elif NETCOREAPP
-            var platform = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
-#else
-#error Unknown target framework
-#endif
             var versionAttribute = typeof(ConsoleRunner).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
-            Console.WriteLine($"xUnit.net v3 Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {platform})");
+            Console.WriteLine($"xUnit.net v3 In-Process Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
         }
 
         void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
