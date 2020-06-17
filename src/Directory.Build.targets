@@ -21,7 +21,7 @@
     <PropertyGroup>
       <PackageVersion Condition=" '$(PrereleaseVersion)' == '' ">$(BuildVersionSimple)</PackageVersion>
       <PackageVersion Condition=" '$(PrereleaseVersion)' != '' ">$(BuildVersionSimple)$(PrereleaseVersion).$(GitVersionHeight)+$(GitCommitIdShort)</PackageVersion>
-      <NuspecProperties>PackageVersion=$(PackageVersion);GitCommitId=$(GitCommitId)</NuspecProperties>
+      <NuspecProperties>PackageVersion=$(PackageVersion);GitCommitId=$(GitCommitId);Configuration=$(Configuration)</NuspecProperties>
     </PropertyGroup>
   </Target>
 

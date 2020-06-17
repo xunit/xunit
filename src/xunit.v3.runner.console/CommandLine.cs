@@ -215,28 +215,13 @@ namespace Xunit.Runner.SystemConsole
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -appdomains");
 
-                    switch (option.Value)
+                    AppDomains = option.Value switch
                     {
-                        case "ifavailable":
-                            AppDomains = AppDomainSupport.IfAvailable;
-                            break;
-
-                        case "required":
-#if NETFRAMEWORK
-                            // We don't want to throw here on .NET Core, because the user may be specifying a value
-                            // via "dotnet xunit" that is only compatible with some target frameworks.
-                            AppDomains = AppDomainSupport.Required;
-#endif
-                            break;
-
-                        case "denied":
-                            AppDomains = AppDomainSupport.Denied;
-                            break;
-
-                        default:
-                            throw new ArgumentException("incorrect argument value for -appdomains (must be 'ifavailable', 'required', or 'denied')");
-
-                    }
+                        "ifavailable" => AppDomainSupport.IfAvailable,
+                        "required" => AppDomainSupport.Required,
+                        "denied" => AppDomainSupport.Denied,
+                        _ => throw new ArgumentException("incorrect argument value for -appdomains (must be 'ifavailable', 'required', or 'denied')"),
+                    };
                 }
                 else if (optionName == "maxthreads")
                 {

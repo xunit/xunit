@@ -46,9 +46,7 @@ namespace Xunit.Runner.SystemConsole
                 if (commandLine.Project.Assemblies.Count == 0)
                     throw new ArgumentException("must specify at least one assembly");
 
-#if NETFRAMEWORK
                 AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-#endif
 
                 Console.CancelKeyPress += (sender, e) =>
                 {
@@ -136,11 +134,7 @@ namespace Xunit.Runner.SystemConsole
 
                 try
                 {
-#if NETFRAMEWORK
                     var assembly = Assembly.LoadFile(dllFile);
-#else
-                    var assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
-#endif
                     types = assembly.GetTypes();
                 }
                 catch (ReflectionTypeLoadException ex)
@@ -172,7 +166,6 @@ namespace Xunit.Runner.SystemConsole
             return result;
         }
 
-#if NETFRAMEWORK
         void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             if (e.ExceptionObject is Exception ex)
@@ -182,7 +175,6 @@ namespace Xunit.Runner.SystemConsole
 
             Environment.Exit(1);
         }
-#endif
 
         void PrintHeader()
         {

@@ -22,16 +22,16 @@ public static class Packages
         foreach (var projectFolder in projectFolders)
         {
             var packArgs = $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} {projectFolder}";
-
-            // Pack the project
-            await context.Exec("dotnet", packArgs);
-
-            // Pack any .nuspec files that might be here as well
             var nuspecFiles =
                 Directory.GetFiles(projectFolder, "*.nuspec")
                     .OrderBy(x => x)
                     .Select(x => Path.GetFileName(x));
 
+            // Only pack the .csproj if there's not an exact matching .nuspec file
+            if (!nuspecFiles.Any(f => File.Exists(Path.Combine(projectFolder, Path.GetFileNameWithoutExtension(f) + ".csproj"))))
+                await context.Exec("dotnet", packArgs);
+
+            // Pack the .nuspec file(s)
             foreach (var nuspecFile in nuspecFiles)
                 await context.Exec("dotnet", $"{packArgs} -p:NuspecFile={nuspecFile}");
         }

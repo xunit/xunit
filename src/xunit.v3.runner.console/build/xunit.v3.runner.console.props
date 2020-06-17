@@ -1,0 +1,15 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <!-- Lowest supported version -->
+    <XunitConsolePath>$(MSBuildThisFileDirectory)..\tools\net472\xunit.v3.runner.console.exe</XunitConsolePath>
+    <XunitConsolePathX86>$(MSBuildThisFileDirectory)..\tools\net472\xunit.v3.runner.console.x86.exe</XunitConsolePathX86>
+
+    <!-- Version specific -->
+    <XunitConsole472Path>$(MSBuildThisFileDirectory)..\tools\net472\xunit.v3.runner.console.exe</XunitConsole472Path>
+    <XunitConsole472PathX86>$(MSBuildThisFileDirectory)..\tools\net472\xunit.v3.runner.console.x86.exe</XunitConsole472PathX86>
+    <XunitConsole48Path>$(MSBuildThisFileDirectory)..\tools\net48\xunit.v3.runner.console.exe</XunitConsole472Path>
+    <XunitConsole48PathX86>$(MSBuildThisFileDirectory)..\tools\net48\xunit.v3.runner.console.x86.exe</XunitConsole472PathX86>
+  </PropertyGroup>
+
+</Project>
