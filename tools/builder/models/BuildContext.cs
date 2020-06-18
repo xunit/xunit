@@ -92,7 +92,7 @@ public class BuildContext
             BaseFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             while (true)
             {
-                if (Directory.GetFiles(BaseFolder, "*.sln").Count() != 0)
+                if (Directory.Exists(Path.Combine(BaseFolder, ".git")))
                     break;
 
                 BaseFolder = Path.GetDirectoryName(BaseFolder);
