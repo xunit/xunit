@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\common\Annotations.cs" LinkBase="Common" />
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\CommonTasks.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />

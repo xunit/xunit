@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -15,7 +17,7 @@ namespace Xunit
         /// </summary>
         /// <param name="testCode">The code which may throw an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        public static Exception Exception(Action testCode)
+        public static Exception? Exception(Action testCode)
         {
             Guard.ArgumentNotNull(nameof(testCode), testCode);
 
@@ -36,10 +38,10 @@ namespace Xunit
         /// </summary>
         /// <param name="testCode">The code which may throw an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        public static Exception Exception(Func<object> testCode)
+        public static Exception? Exception(Func<object> testCode)
         {
             Guard.ArgumentNotNull(nameof(testCode), testCode);
-            Task task;
+            Task? task;
 
             try
             {
@@ -58,6 +60,7 @@ namespace Xunit
 
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        [DoesNotReturn]
         [Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
         public static Exception Exception(Func<Task> testCode) { throw new NotImplementedException(); }
 
@@ -66,7 +69,7 @@ namespace Xunit
         /// </summary>
         /// <param name="testCode">The task which may throw an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        public static async Task<Exception> ExceptionAsync(Func<Task> testCode)
+        public static async Task<Exception?> ExceptionAsync(Func<Task> testCode)
         {
             Guard.ArgumentNotNull(nameof(testCode), testCode);
 
