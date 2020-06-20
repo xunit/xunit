@@ -1,11 +1,11 @@
 ﻿{
-    "diagnosticMessages": true,
-    "internalDiagnosticMessages": true,
-    "maxParallelThreads": 2112,
-    "methodDisplay": "method",
-    "methodDisplayOptions": "all",
-    "parallelizeAssembly": true,
-    "parallelizetestcollections": false,
-    "preEnumerateTheories": false,
-    "longRunningTestSeconds": 5
+  "diagnosticMessages": true,
+  "internalDiagnosticMessages": true,
+  "maxParallelThreads": 2112,
+  "methodDisplay": "method",
+  "methodDisplayOptions": "all",
+  "parallelizeAssembly": true,
+  "parallelizetestcollections": false,
+  "preEnumerateTheories": false,
+  "longRunningTestSeconds": 5
 }

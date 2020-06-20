@@ -1,84 +1,84 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Build (builder)",
-            "type": "process",
-            "command": "dotnet",
-            "args": [
-                "build"
-            ],
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "group": "build",
-            "presentation": {
-                "focus": true
-            },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "Build (xUnit)",
-            "type": "process",
-            "command": "dotnet",
-            "args": [
-                "run",
-                "--project",
-                "${workspaceRoot}",
-                "--no-launch-profile",
-                "--",
-                "Build"
-            ],
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "group": "build",
-            "presentation": {
-                "focus": true
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Unit test (xUnit, .NET Core)",
-            "type": "process",
-            "command": "dotnet",
-            "args": [
-                "run",
-                "--project",
-                "${workspaceRoot}",
-                "--no-launch-profile",
-                "--",
-                "TestCore"
-            ],
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "group": "build",
-            "presentation": {
-                "focus": true
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Unit test (xunit, .NET Framework)",
-            "type": "process",
-            "command": "dotnet",
-            "args": [
-                "run",
-                "--project",
-                "${workspaceRoot}",
-                "--no-launch-profile",
-                "--",
-                "TestFx"
-            ],
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "group": "build",
-            "presentation": {
-                "focus": true
-            },
-            "problemMatcher": []
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build (builder)",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": "build",
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build (xUnit)",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceRoot}",
+        "--no-launch-profile",
+        "--",
+        "Build"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": "build",
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Unit test (xUnit, .NET Core)",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceRoot}",
+        "--no-launch-profile",
+        "--",
+        "TestCore"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": "build",
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Unit test (xunit, .NET Framework)",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceRoot}",
+        "--no-launch-profile",
+        "--",
+        "TestFx"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": "build",
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": []
+    }
+  ]
 }

@@ -1,35 +1,35 @@
 {
-    "cSpell.words": [
-        "app",
-        "ifavailable",
-        "inproc",
-        "intrinsics",
-        "junit",
-        "mscorlib",
-        "noappdomain",
-        "noautoreporters",
-        "noclass",
-        "nocolor",
-        "nologo",
-        "nomethod",
-        "noshadow",
-        "notrait",
-        "nuget",
-        "nunit",
-        "nupkg",
-        "parallelization",
-        "randomizer",
-        "stoponfail",
-        "veyor",
-        "vsts",
-        "xmlv"
-    ],
-    "files.exclude": {
-        "**/.git": true,
-        "**/.DS_Store": true,
-        "**/bin": true,
-        "**/obj": true,
-        "artifacts": true,
-        "packages": true
-    }
+  "cSpell.words": [
+    "app",
+    "ifavailable",
+    "inproc",
+    "intrinsics",
+    "junit",
+    "mscorlib",
+    "noappdomain",
+    "noautoreporters",
+    "noclass",
+    "nocolor",
+    "nologo",
+    "nomethod",
+    "noshadow",
+    "notrait",
+    "nuget",
+    "nunit",
+    "nupkg",
+    "parallelization",
+    "randomizer",
+    "stoponfail",
+    "veyor",
+    "vsts",
+    "xmlv"
+  ],
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/bin": true,
+    "**/obj": true,
+    "artifacts": true,
+    "packages": true
+  }
 }
