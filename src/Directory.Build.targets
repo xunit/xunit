@@ -9,18 +9,23 @@
     <EmbeddedFiles Include="$(GeneratedAssemblyInfoFile)"/>
   </ItemGroup>
 
-  <!-- Supplement NBGV versions with height -->
+  <!-- Supplement Nerdbank.GitVersioning version calculations -->
   <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyVersionInfo" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
-      <AssemblyInformationalVersion Condition=" '$(PrereleaseVersion)' == '' ">$(BuildVersionSimple)</AssemblyInformationalVersion>
-      <AssemblyInformationalVersion Condition=" '$(PrereleaseVersion)' != '' ">$(BuildVersionSimple)$(PrereleaseVersion).$(GitVersionHeight)+$(GitCommitIdShort)</AssemblyInformationalVersion>
+      <!-- Pre-release builds should be x.y.z.height; non-pre-release builds should be x.y.z.0 -->
+      <AssemblyVersion Condition=" '$(PrereleaseVersion)' != '' ">$(BuildVersionSimple).$(GitVersionHeight)</AssemblyVersion>
+      <!-- Never put height into the assembly file version, even if our version doesn't have height in it -->
+      <AssemblyFileVersion>$(BuildVersionSimple)</AssemblyFileVersion>
+      <!-- Always put the Git hash in the informational version, even for non-pre-release versions -->
+      <AssemblyInformationalVersion>$(BuildVersionSimple)$(PrereleaseVersion)+$(GitCommitIdShort)</AssemblyInformationalVersion>
     </PropertyGroup>
   </Target>
 
   <Target Name="UpdateNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
-      <PackageVersion Condition=" '$(PrereleaseVersion)' == '' ">$(BuildVersionSimple)</PackageVersion>
-      <PackageVersion Condition=" '$(PrereleaseVersion)' != '' ">$(BuildVersionSimple)$(PrereleaseVersion).$(GitVersionHeight)+$(GitCommitIdShort)</PackageVersion>
+      <!-- Never put the Git hash in the package version -->
+      <PackageVersion>$(BuildVersionSimple)$(PrereleaseVersion)</PackageVersion>
+      <!-- Pass through values we don't know ahead of time for any hand-crafted .nuspec files -->
       <NuspecProperties>PackageVersion=$(PackageVersion);GitCommitId=$(GitCommitId);Configuration=$(Configuration)</NuspecProperties>
     </PropertyGroup>
   </Target>
