@@ -185,9 +185,8 @@ namespace Xunit.Runner.SystemConsole
 #else
 #error Unknown target framework
 #endif
-            var versionAttribute = typeof(ConsoleRunner).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
-            Console.WriteLine($"xUnit.net v3 Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription} [{platformSuffix}])");
+            Console.WriteLine($"xUnit.net v3 Console Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription} [{platformSuffix}])");
         }
 
         void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)

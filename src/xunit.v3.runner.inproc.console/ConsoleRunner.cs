@@ -187,11 +187,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 #endif
 
         void PrintHeader()
-        {
-            var versionAttribute = typeof(ConsoleRunner).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-
-            Console.WriteLine($"xUnit.net v3 In-Process Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
-        }
+            => Console.WriteLine($"xUnit.net v3 In-Process Runner v{ThisAssembly.AssemblyInformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})");
 
         void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
         {
