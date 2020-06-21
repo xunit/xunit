@@ -27,13 +27,13 @@ public static class Packages
                     .OrderBy(x => x)
                     .Select(x => Path.GetFileName(x));
 
-            // Only pack the .csproj if there's not an exact matching .nuspec file
-            if (!nuspecFiles.Any(f => File.Exists(Path.Combine(projectFolder, Path.GetFileNameWithoutExtension(f) + ".csproj"))))
-                await context.Exec("dotnet", packArgs);
-
             // Pack the .nuspec file(s)
             foreach (var nuspecFile in nuspecFiles)
                 await context.Exec("dotnet", $"{packArgs} -p:NuspecFile={nuspecFile}");
+
+            // Only pack the .csproj if there's not an exact matching .nuspec file
+            if (!nuspecFiles.Any(f => File.Exists(Path.Combine(projectFolder, Path.GetFileNameWithoutExtension(f) + ".csproj"))))
+                await context.Exec("dotnet", packArgs);
         }
     }
 }
