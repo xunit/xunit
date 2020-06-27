@@ -6,8 +6,14 @@
     public class ErrorMessageInfo
     {
         /// <summary/>
-        public ErrorMessageInfo(ErrorMessageType messageType, string exceptionType, string exceptionMessage, string exceptionStackTrace)
+        public ErrorMessageInfo(
+            ErrorMessageType messageType,
+            string? exceptionType,
+            string exceptionMessage,
+            string? exceptionStackTrace)
         {
+            Guard.ArgumentNotNull(nameof(exceptionMessage), exceptionMessage);
+
             MesssageType = messageType;
             ExceptionType = exceptionType;
             ExceptionMessage = exceptionMessage;
@@ -22,7 +28,7 @@
         /// <summary>
         /// The exception that caused the test failure.
         /// </summary>
-        public string ExceptionType { get; }
+        public string? ExceptionType { get; }
 
         /// <summary>
         /// The message from the exception that caused the test failure.
@@ -32,6 +38,6 @@
         /// <summary>
         /// The stack trace from the exception that caused the test failure.
         /// </summary>
-        public string ExceptionStackTrace { get; }
+        public string? ExceptionStackTrace { get; }
     }
 }

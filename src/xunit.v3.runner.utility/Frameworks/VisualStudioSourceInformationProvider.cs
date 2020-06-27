@@ -21,13 +21,19 @@ namespace Xunit
         /// <param name="assemblyFileName">The assembly file name.</param>
         public VisualStudioSourceInformationProvider(string assemblyFileName)
         {
+            Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
+
             session = new DiaSessionWrapper(assemblyFileName);
         }
 
         /// <inheritdoc/>
-        public ISourceInformation GetSourceInformation(ITestCase testCase)
+        public ISourceInformation GetSourceInformation(ITestCase? testCase)
         {
-            var navData = session.GetNavigationData(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
+            var navData = default(DiaNavigationData?);
+
+            if (testCase != null)
+                navData = session.GetNavigationData(testCase.TestMethod.TestClass.Class.Name, testCase.TestMethod.Method.Name);
+
             if (navData == null)
                 return EmptySourceInformation;
 

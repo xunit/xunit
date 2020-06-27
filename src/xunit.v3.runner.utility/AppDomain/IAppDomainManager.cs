@@ -7,9 +7,12 @@ namespace Xunit
     {
         bool HasAppDomain { get; }
 
-        TObject CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object[] args);
+        TObject? CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object?[]? args)
+            where TObject : class;
+
 #if NETFRAMEWORK
-        TObject CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object[] args);
+        TObject? CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object?[]? args)
+            where TObject : class;
 #endif
     }
 }

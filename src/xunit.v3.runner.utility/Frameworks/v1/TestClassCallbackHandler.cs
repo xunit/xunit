@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Web.UI.WebControls;
 using System.Xml;
 using Xunit.Abstractions;
 
@@ -20,8 +21,8 @@ namespace Xunit
         readonly Xunit1RunSummary testCaseResults = new Xunit1RunSummary();
         readonly Xunit1RunSummary testMethodResults = new Xunit1RunSummary();
 
-        ITest currentTest;
-        ITestCase lastTestCase;
+        ITest? currentTest;
+        ITestCase? lastTestCase;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestClassCallbackHandler" /> class.
@@ -31,10 +32,17 @@ namespace Xunit
         public TestClassCallbackHandler(IList<ITestCase> testCases, IMessageSink messageSink)
             : base(lastNodeName: "class")
         {
+            Guard.ArgumentNotNull(nameof(testCases), testCases);
+            Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+
             this.messageSink = messageSink;
             this.testCases = testCases;
 
-            handlers = new Dictionary<string, Predicate<XmlNode>> { { "class", OnClass }, { "start", OnStart }, { "test", OnTest } };
+            handlers = new Dictionary<string, Predicate<XmlNode>> {
+                { "class", OnClass },
+                { "start", OnStart },
+                { "test", OnTest }
+            };
 
             TestClassResults = new Xunit1RunSummary();
         }
@@ -90,7 +98,7 @@ namespace Xunit
             var time = timeAttribute == null ? 0M : decimal.Parse(timeAttribute.Value, CultureInfo.InvariantCulture);
             var outputElement = xml.SelectSingleNode("output");
             var output = outputElement == null ? string.Empty : outputElement.InnerText;
-            ITestCaseMessage resultMessage = null;
+            ITestCaseMessage? resultMessage = null;
 
             if (currentTest == null)  // There is no <start> node for skipped tests, or with xUnit prior to v1.1
                 currentTest = new Xunit1Test(testCase, xml.Attributes["name"].Value);
@@ -143,11 +151,11 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public override bool OnXmlNode(XmlNode node)
+        public override bool OnXmlNode(XmlNode? node)
         {
-            Predicate<XmlNode> handler;
-            if (handlers.TryGetValue(node.Name, out handler))
-                TestClassResults.Continue = handler(node) && TestClassResults.Continue;
+            if (node != null)
+                if (handlers.TryGetValue(node.Name, out var handler))
+                    TestClassResults.Continue = handler(node) && TestClassResults.Continue;
 
             return TestClassResults.Continue;
         }
@@ -159,7 +167,7 @@ namespace Xunit
                             .ToList();
         }
 
-        void SendTestCaseMessagesWhenAppropriate(ITestCase current)
+        void SendTestCaseMessagesWhenAppropriate(ITestCase? current)
         {
             var results = TestClassResults;
 

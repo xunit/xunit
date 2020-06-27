@@ -9,13 +9,19 @@ namespace Xunit
 
         public AppDomainManager_NoAppDomain(string assemblyFileName)
         {
+            Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
+
             this.assemblyFileName = assemblyFileName;
         }
 
         public bool HasAppDomain => false;
 
-        public TObject CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object[] args)
+        public TObject? CreateObject<TObject>(AssemblyName assemblyName, string typeName, params object?[]? args)
+            where TObject : class
         {
+            Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
+            Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
+
             try
             {
 #if NETFRAMEWORK
@@ -23,30 +29,41 @@ namespace Xunit
 #else
                 var type = Type.GetType($"{typeName}, {assemblyName.FullName}", throwOnError: true);
 #endif
-                return (TObject)Activator.CreateInstance(type, args);
+                if (type == null)
+                    return default;
+
+                return (TObject?)Activator.CreateInstance(type, args);
             }
             catch (TargetInvocationException ex)
             {
                 ex.InnerException.RethrowWithNoStackTraceLoss();
-                return default(TObject);
+                return default;
             }
         }
 
 #if NETFRAMEWORK
-        public TObject CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object[] args)
+        public TObject? CreateObjectFrom<TObject>(string assemblyLocation, string typeName, params object?[]? args)
+            where TObject : class
         {
+            Guard.ArgumentNotNullOrEmpty(nameof(assemblyLocation), assemblyLocation);
+            Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
+
             try
             {
                 var type = Assembly.LoadFrom(assemblyLocation).GetType(typeName, throwOnError: true);
-                return (TObject)Activator.CreateInstance(type, args);
+                if (type == null)
+                    return default;
+
+                return (TObject?)Activator.CreateInstance(type, args);
             }
             catch (TargetInvocationException ex)
             {
                 ex.InnerException.RethrowWithNoStackTraceLoss();
-                return default(TObject);
+                return default;
             }
         }
 #endif
+
         public void Dispose() { }
     }
 }

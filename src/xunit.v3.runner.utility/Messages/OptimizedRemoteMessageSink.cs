@@ -16,13 +16,15 @@ namespace Xunit
 
         public OptimizedRemoteMessageSink(IMessageSinkWithTypes runnerSink)
         {
+            Guard.ArgumentNotNull(nameof(runnerSink), runnerSink);
+
             this.runnerSink = runnerSink;
         }
 
         HashSet<string> GetMessageTypes(IMessageSinkMessage message)
         {
             var messageType = message.GetType();
-            HashSet<string> result;
+            HashSet<string>? result;
 
             cacheLock.TryEnterReadLock(-1);
 
@@ -41,7 +43,7 @@ namespace Xunit
 
                 try
                 {
-                    result = new HashSet<string>(messageType.GetInterfaces().Select(x => x.FullName));
+                    result = new HashSet<string>(messageType.GetInterfaces().Select(x => x.FullName!));
                     interfaceCache[messageType] = result;
                 }
                 finally
@@ -53,7 +55,12 @@ namespace Xunit
             return result;
         }
 
-        public bool OnMessage(IMessageSinkMessage message)
-            => runnerSink.OnMessageWithTypes(message, GetMessageTypes(message));
+        public bool OnMessage(IMessageSinkMessage? message)
+        {
+            if (message != null)
+                return runnerSink.OnMessageWithTypes(message, GetMessageTypes(message));
+
+            return true;
+        }
     }
 }

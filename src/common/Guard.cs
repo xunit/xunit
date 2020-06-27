@@ -1,5 +1,8 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 /// <summary>
@@ -8,14 +11,14 @@ using System.IO;
 static class Guard
 {
     /// <summary/>
-    public static void ArgumentNotNull(string argName, object argValue)
+    public static void ArgumentNotNull(string argName, [NotNull] object? argValue)
     {
         if (argValue == null)
             throw new ArgumentNullException(argName);
     }
 
     /// <summary/>
-    public static void ArgumentNotNullOrEmpty(string argName, IEnumerable argValue)
+    public static void ArgumentNotNullOrEmpty(string argName, [NotNull] IEnumerable? argValue)
     {
         ArgumentNotNull(argName, argValue);
 
@@ -32,7 +35,7 @@ static class Guard
 
 #if !XUNIT_FRAMEWORK
     /// <summary/>
-    public static void FileExists(string argName, string fileName)
+    public static void FileExists(string argName, [NotNull] string? fileName)
     {
         ArgumentNotNullOrEmpty(argName, fileName);
 #if !NETSTANDARD
@@ -40,4 +43,14 @@ static class Guard
 #endif
     }
 #endif
+
+    /// <summary/>
+    public static T NotNull<T>(string message, [NotNull] T? value)
+        where T : class
+    {
+        if (value == null)
+            throw new InvalidOperationException(message);
+
+        return value;
+    }
 }

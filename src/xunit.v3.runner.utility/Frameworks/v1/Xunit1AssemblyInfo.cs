@@ -16,6 +16,8 @@ namespace Xunit
         /// <param name="assemblyFileName">The filename of the test assembly.</param>
         public Xunit1AssemblyInfo(string assemblyFileName)
         {
+            Guard.ArgumentNotNull(nameof(assemblyFileName), assemblyFileName);
+
             AssemblyFileName = assemblyFileName;
         }
 
@@ -24,29 +26,16 @@ namespace Xunit
         /// </summary>
         public string AssemblyFileName { get; private set; }
 
-        string IAssemblyInfo.AssemblyPath
-        {
-            get { return AssemblyFileName; }
-        }
+        string IAssemblyInfo.AssemblyPath => AssemblyFileName;
 
-        string IAssemblyInfo.Name
-        {
-            get { return Path.GetFileNameWithoutExtension(AssemblyFileName); }
-        }
+        string IAssemblyInfo.Name => Path.GetFileNameWithoutExtension(AssemblyFileName);
 
-        IEnumerable<IAttributeInfo> IAssemblyInfo.GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
-        {
-            return Enumerable.Empty<IAttributeInfo>();
-        }
+        IEnumerable<IAttributeInfo> IAssemblyInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) =>
+            Enumerable.Empty<IAttributeInfo>();
 
-        ITypeInfo IAssemblyInfo.GetType(string typeName)
-        {
-            return null;
-        }
+        ITypeInfo? IAssemblyInfo.GetType(string? typeName) => null;
 
-        IEnumerable<ITypeInfo> IAssemblyInfo.GetTypes(bool includePrivateTypes)
-        {
-            return Enumerable.Empty<ITypeInfo>();
-        }
+        IEnumerable<ITypeInfo> IAssemblyInfo.GetTypes(bool includePrivateTypes) =>
+            Enumerable.Empty<ITypeInfo>();
     }
 }

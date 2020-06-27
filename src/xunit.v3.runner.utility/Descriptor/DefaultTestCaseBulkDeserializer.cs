@@ -14,6 +14,8 @@ namespace Xunit
         /// <summary/>
         public DefaultTestCaseBulkDeserializer(ITestFrameworkExecutor executor)
         {
+            Guard.ArgumentNotNull(nameof(executor), executor);
+
             this.executor = executor;
         }
 

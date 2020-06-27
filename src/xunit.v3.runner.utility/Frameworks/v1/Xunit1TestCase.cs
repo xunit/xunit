@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -14,7 +15,7 @@ namespace Xunit
     {
         static readonly Dictionary<string, List<string>> EmptyTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
-        Xunit1ReflectionWrapper reflectionWrapper;
+        Xunit1ReflectionWrapper? reflectionWrapper;
 
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -32,13 +33,17 @@ namespace Xunit
         /// <param name="traits">The traits of the unit test.</param>
         /// <param name="skipReason">The skip reason, if the test is skipped.</param>
         public Xunit1TestCase(string assemblyFileName,
-                              string configFileName,
+                              string? configFileName,
                               string typeName,
                               string methodName,
-                              string displayName,
-                              Dictionary<string, List<string>> traits = null,
-                              string skipReason = null)
+                              string? displayName,
+                              Dictionary<string, List<string>>? traits = null,
+                              string? skipReason = null)
         {
+            Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
+            Guard.ArgumentNotNullOrEmpty(nameof(typeName), typeName);
+            Guard.ArgumentNotNullOrEmpty(nameof(methodName), methodName);
+
             reflectionWrapper = new Xunit1ReflectionWrapper(assemblyFileName, typeName, methodName);
 
             ConfigFileName = configFileName;
@@ -48,25 +53,31 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public string DisplayName { get; set; }
+        public string? ConfigFileName { get; set; }
 
         /// <inheritdoc/>
-        public string SkipReason { get; set; }
+        public string? DisplayName { get; set; }
+
+        Xunit1ReflectionWrapper ReflectionWrapper =>
+            Guard.NotNull("Tried to use an initialized Xunit1TestCase", reflectionWrapper);
 
         /// <inheritdoc/>
-        public ISourceInformation SourceInformation { get; set; }
+        public string? SkipReason { get; set; }
+
+        /// <inheritdoc/>
+        public ISourceInformation? SourceInformation { get; set; }
 
         /// <inheritdoc/>
         public ITestMethod TestMethod => this;
 
         /// <inheritdoc/>
-        public object[] TestMethodArguments { get; set; }
+        public object[]? TestMethodArguments { get; set; }
 
         /// <inheritdoc/>
-        public Dictionary<string, List<string>> Traits { get; set; }
+        public Dictionary<string, List<string>>? Traits { get; set; }
 
         /// <inheritdoc/>
-        public string UniqueID => reflectionWrapper.UniqueID;
+        public string UniqueID => ReflectionWrapper.UniqueID;
 
         /// <inheritdoc/>
         public void Dispose() { }
@@ -74,6 +85,8 @@ namespace Xunit
         /// <inheritdoc/>
         public void Deserialize(IXunitSerializationInfo data)
         {
+            Guard.ArgumentNotNull(nameof(data), data);
+
             reflectionWrapper = new Xunit1ReflectionWrapper(
                 data.GetValue<string>("AssemblyFileName"),
                 data.GetValue<string>("TypeName"),
@@ -94,29 +107,36 @@ namespace Xunit
         /// <inheritdoc/>
         public void Serialize(IXunitSerializationInfo data)
         {
-            data.AddValue("AssemblyFileName", reflectionWrapper.AssemblyFileName);
+            Guard.ArgumentNotNull(nameof(data), data);
+
+            data.AddValue("AssemblyFileName", ReflectionWrapper.AssemblyFileName);
             data.AddValue("ConfigFileName", ConfigFileName);
-            data.AddValue("MethodName", reflectionWrapper.MethodName);
-            data.AddValue("TypeName", reflectionWrapper.TypeName);
+            data.AddValue("MethodName", ReflectionWrapper.MethodName);
+            data.AddValue("TypeName", ReflectionWrapper.TypeName);
             data.AddValue("DisplayName", DisplayName);
             data.AddValue("SkipReason", SkipReason);
             data.AddValue("SourceInformation", SourceInformation);
-            data.AddValue("Traits.Keys", Traits.Keys.ToArray());
-            foreach (var key in Traits.Keys)
-                data.AddValue($"Traits[{key}]", Traits[key].ToArray());
+
+            if (Traits == null)
+            {
+                data.AddValue("Traits.Keys", new string[0]);
+            }
+            else
+            {
+                data.AddValue("Traits.Keys", Traits.Keys.ToArray());
+                foreach (var key in Traits.Keys)
+                    data.AddValue($"Traits[{key}]", Traits[key].ToArray());
+            }
         }
 
         /// <inheritdoc/>
-        IAssemblyInfo ITestAssembly.Assembly => reflectionWrapper;
+        IAssemblyInfo ITestAssembly.Assembly => ReflectionWrapper;
 
         /// <inheritdoc/>
-        public string ConfigFileName { get; set; }
+        ITypeInfo? ITestCollection.CollectionDefinition => null;
 
         /// <inheritdoc/>
-        ITypeInfo ITestCollection.CollectionDefinition => null;
-
-        /// <inheritdoc/>
-        string ITestCollection.DisplayName => $"xUnit.net v1 Tests for {reflectionWrapper.AssemblyFileName}";
+        string ITestCollection.DisplayName => $"xUnit.net v1 Tests for {ReflectionWrapper.AssemblyFileName}";
 
         /// <inheritdoc/>
         ITestAssembly ITestCollection.TestAssembly => this;
@@ -125,13 +145,13 @@ namespace Xunit
         Guid ITestCollection.UniqueID => Guid.Empty;
 
         /// <inheritdoc/>
-        ITypeInfo ITestClass.Class => reflectionWrapper;
+        ITypeInfo ITestClass.Class => ReflectionWrapper;
 
         /// <inheritdoc/>
         ITestCollection ITestClass.TestCollection => this;
 
         /// <inheritdoc/>
-        IMethodInfo ITestMethod.Method => reflectionWrapper;
+        IMethodInfo ITestMethod.Method => ReflectionWrapper;
 
         /// <inheritdoc/>
         ITestClass ITestMethod.TestClass => this;

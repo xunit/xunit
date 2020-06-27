@@ -10,11 +10,11 @@ namespace Xunit.Runners
         /// <summary/>
         public TestFinishedInfo(string typeName,
                                 string methodName,
-                                Dictionary<string, List<string>> traits,
+                                Dictionary<string, List<string>>? traits,
                                 string testDisplayName,
                                 string testCollectionDisplayName,
                                 decimal executionTime,
-                                string output)
+                                string? output)
             : base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName, executionTime, output)
         { }
     }

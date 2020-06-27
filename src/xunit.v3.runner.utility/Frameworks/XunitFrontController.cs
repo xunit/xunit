@@ -18,20 +18,24 @@ namespace Xunit
     {
         readonly AppDomainSupport appDomainSupport;
         readonly string assemblyFileName;
-        ITestCaseBulkDeserializer bulkDeserializer;
-        readonly string configFileName;
-        ITestCaseDescriptorProvider descriptorProvider;
-        readonly IMessageSink diagnosticMessageSink;
-        IFrontController innerController;
+        ITestCaseBulkDeserializer? bulkDeserializer;
+        readonly string? configFileName;
+        ITestCaseDescriptorProvider? descriptorProvider;
+        readonly IMessageSink? diagnosticMessageSink;
+        IFrontController? innerController;
         readonly bool shadowCopy;
-        readonly string shadowCopyFolder;
+        readonly string? shadowCopyFolder;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 
         /// <summary>
         /// This constructor is for unit testing purposes only.
         /// </summary>
-        protected XunitFrontController() { }
+        protected XunitFrontController()
+        {
+            assemblyFileName = "<test value>";
+            sourceInformationProvider = new NullSourceInformationProvider();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitFrontController"/> class.
@@ -47,52 +51,58 @@ namespace Xunit
         /// <param name="diagnosticMessageSink">The message sink which received <see cref="IDiagnosticMessage"/> messages.</param>
         public XunitFrontController(AppDomainSupport appDomainSupport,
                                     string assemblyFileName,
-                                    string configFileName = null,
+                                    string? configFileName = null,
                                     bool shadowCopy = true,
-                                    string shadowCopyFolder = null,
-                                    ISourceInformationProvider sourceInformationProvider = null,
-                                    IMessageSink diagnosticMessageSink = null)
+                                    string? shadowCopyFolder = null,
+                                    ISourceInformationProvider? sourceInformationProvider = null,
+                                    IMessageSink? diagnosticMessageSink = null)
         {
             this.appDomainSupport = appDomainSupport;
             this.assemblyFileName = assemblyFileName;
             this.configFileName = configFileName;
             this.shadowCopy = shadowCopy;
             this.shadowCopyFolder = shadowCopyFolder;
-            this.sourceInformationProvider = sourceInformationProvider;
             this.diagnosticMessageSink = diagnosticMessageSink ?? new NullMessageSink();
 
             Guard.FileExists("assemblyFileName", assemblyFileName);
 
-            if (this.sourceInformationProvider == null)
+            if (sourceInformationProvider == null)
             {
 #if NETSTANDARD
                 this.sourceInformationProvider = new NullSourceInformationProvider();
 #else
                 this.sourceInformationProvider = new VisualStudioSourceInformationProvider(assemblyFileName);
-#endif
                 toDispose.Push(this.sourceInformationProvider);
+#endif
             }
-
+            else
+            {
+                this.sourceInformationProvider = sourceInformationProvider;
+            }
         }
 
         ITestCaseBulkDeserializer BulkDeserializer
         {
             get
             {
-                EnsureInitialized();
+                if (bulkDeserializer == null)
+                    bulkDeserializer = (InnerController as ITestCaseBulkDeserializer) ?? new DefaultTestCaseBulkDeserializer(InnerController);
+
                 return bulkDeserializer;
             }
         }
 
         /// <inheritdoc/>
-        public bool CanUseAppDomains
-            => InnerController.CanUseAppDomains;
+        public bool CanUseAppDomains =>
+            InnerController.CanUseAppDomains;
 
         ITestCaseDescriptorProvider DescriptorProvider
         {
             get
             {
-                EnsureInitialized();
+                if (descriptorProvider == null)
+                    descriptorProvider = (InnerController as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(InnerController);
+
                 return descriptorProvider;
             }
         }
@@ -101,26 +111,27 @@ namespace Xunit
         {
             get
             {
-                EnsureInitialized();
+                if (innerController == null)
+                {
+                    innerController = CreateInnerController();
+                    toDispose.Push(innerController);
+                }
+
                 return innerController;
             }
         }
 
         /// <inheritdoc/>
-        public string TargetFramework
-        {
-            get { return InnerController.TargetFramework; }
-        }
+        public string TargetFramework =>
+            InnerController.TargetFramework;
 
         /// <inheritdoc/>
-        public string TestFrameworkDisplayName
-        {
-            get { return InnerController.TestFrameworkDisplayName; }
-        }
+        public string TestFrameworkDisplayName =>
+            InnerController.TestFrameworkDisplayName;
 
         /// <inheritdoc/>
-        public List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations)
-            => BulkDeserializer.BulkDeserialize(serializations);
+        public List<KeyValuePair<string, ITestCase>> BulkDeserialize(List<string> serializations) =>
+            BulkDeserializer.BulkDeserialize(serializations);
 
         /// <summary>
         /// FOR INTERNAL USE ONLY.
@@ -128,12 +139,8 @@ namespace Xunit
         protected virtual IFrontController CreateInnerController()
         {
 #if NETFRAMEWORK
-            var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
-#if NET35
-            if (Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0)
-#else
+            var assemblyFolder = Path.GetDirectoryName(assemblyFileName)!;
             if (Directory.EnumerateFiles(assemblyFolder, "xunit.execution.*.dll").Any())
-#endif
                 return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 
             var xunitPath = Path.Combine(assemblyFolder, "xunit.dll");
@@ -148,7 +155,11 @@ namespace Xunit
 
         /// <inheritdoc/>
         public ITestCase Deserialize(string value)
-            => InnerController.Deserialize(value);
+        {
+            Guard.ArgumentNotNull(nameof(value), value);
+
+            return InnerController.Deserialize(value);
+        }
 
         /// <inheritdoc/>
         public void Dispose()
@@ -157,26 +168,22 @@ namespace Xunit
                 disposable.Dispose();
         }
 
-        void EnsureInitialized()
-        {
-            if (innerController == null)
-            {
-                innerController = CreateInnerController();
-                descriptorProvider = (innerController as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(innerController);
-                bulkDeserializer = (innerController as ITestCaseBulkDeserializer) ?? new DefaultTestCaseBulkDeserializer(innerController);
-                toDispose.Push(innerController);
-            }
-        }
-
         /// <inheritdoc/>
         public virtual void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
+            Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
             InnerController.Find(includeSourceInformation, messageSink, discoveryOptions);
         }
 
         /// <inheritdoc/>
         public virtual void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
+            Guard.ArgumentNotNull(nameof(typeName), typeName);
+            Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
             InnerController.Find(typeName, includeSourceInformation, messageSink, discoveryOptions);
         }
 
@@ -187,17 +194,29 @@ namespace Xunit
         /// <inheritdoc/>
         public virtual void RunAll(IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)
         {
+            Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+            Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
             InnerController.RunAll(messageSink, discoveryOptions, executionOptions);
         }
 
         /// <inheritdoc/>
         public virtual void RunTests(IEnumerable<ITestCase> testMethods, IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
         {
+            Guard.ArgumentNotNull(nameof(testMethods), testMethods);
+            Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+            Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
             InnerController.RunTests(testMethods, messageSink, executionOptions);
         }
 
         /// <inheritdoc/>
         public string Serialize(ITestCase testCase)
-            => InnerController.Serialize(testCase);
+        {
+            Guard.ArgumentNotNull(nameof(testCase), testCase);
+
+            return InnerController.Serialize(testCase);
+        }
     }
 }

@@ -10,10 +10,10 @@ namespace Xunit.Runners
         /// <summary/>
         public TestOutputInfo(string typeName,
                               string methodName,
-                              Dictionary<string, List<string>> traits,
+                              Dictionary<string, List<string>>? traits,
                               string testDisplayName,
                               string testCollectionDisplayName,
-                              string output)
+                              string? output)
             : base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
         {
             Output = output;
@@ -22,6 +22,6 @@ namespace Xunit.Runners
         /// <summary>
         /// The output from the test.
         /// </summary>
-        public string Output { get; }
+        public string? Output { get; }
     }
 }

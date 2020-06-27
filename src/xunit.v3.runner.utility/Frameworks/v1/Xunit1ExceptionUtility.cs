@@ -13,20 +13,20 @@ namespace Xunit
         static readonly Regex NestedMessagesRegex = new Regex(@"-*\s*((?<type>.*?) :\s*)?(?<message>.+?)((\r?\n-)|\z)", RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Singleline);
         static readonly Regex NestedStackTracesRegex = new Regex(@"\r?\n----- Inner Stack Trace -----\r?\n", RegexOptions.Compiled);
 
-        public static IFailureInformation ConvertToFailureInformation(Exception exception)
+        public static IFailureInformation ConvertToFailureInformation(Exception? exception)
         {
-            var exceptionTypes = new List<string>();
+            var exceptionTypes = new List<string?>();
             var messages = new List<string>();
-            var stackTraces = new List<string>();
+            var stackTraces = new List<string?>();
             var indices = new List<int>();
             var parentIndex = -1;
 
-            do
+            while (exception != null)
             {
                 var stackTrace = exception.StackTrace;
-                var rethrowIndex = stackTrace.IndexOf("$$RethrowMarker$$", StringComparison.Ordinal);
+                var rethrowIndex = stackTrace == null ? -1 : stackTrace.IndexOf("$$RethrowMarker$$", StringComparison.Ordinal);
                 if (rethrowIndex > -1)
-                    stackTrace = stackTrace.Substring(0, rethrowIndex);
+                    stackTrace = stackTrace!.Substring(0, rethrowIndex);
 
                 exceptionTypes.Add(exception.GetType().FullName);
                 messages.Add(exception.Message);
@@ -35,19 +35,20 @@ namespace Xunit
 
                 parentIndex++;
                 exception = exception.InnerException;
-            } while (exception != null);
+            }
 
-            return new FailureInformation
-            {
-                ExceptionParentIndices = indices.ToArray(),
-                ExceptionTypes = exceptionTypes.ToArray(),
-                Messages = messages.ToArray(),
-                StackTraces = stackTraces.ToArray(),
-            };
+            return new FailureInformation(
+                exceptionTypes.ToArray(),
+                messages.ToArray(),
+                stackTraces.ToArray(),
+                indices.ToArray()
+            );
         }
 
         public static IFailureInformation ConvertToFailureInformation(XmlNode failureNode)
         {
+            Guard.ArgumentNotNull(nameof(failureNode), failureNode);
+
             var exceptionTypeAttribute = failureNode.Attributes["exception-type"];
             var exceptionType = exceptionTypeAttribute != null ? exceptionTypeAttribute.Value : string.Empty;
             var message = failureNode.SelectSingleNode("message").InnerText;
@@ -59,13 +60,11 @@ namespace Xunit
 
         static IFailureInformation ConvertToFailureInformation(string outermostExceptionType, string nestedExceptionMessages, string nestedStackTraces)
         {
-            var failureInformation = new FailureInformation();
-
-            var exceptionTypes = new List<string>();
+            var exceptionTypes = new List<string?>();
             var messages = new List<string>();
 
             var match = NestedMessagesRegex.Match(nestedExceptionMessages);
-            for (int i = 0; match.Success; i++, match = match.NextMatch())
+            for (var i = 0; match.Success; i++, match = match.NextMatch())
             {
                 exceptionTypes.Add(match.Groups["type"].Value);
                 messages.Add(match.Groups["message"].Value);
@@ -74,22 +73,36 @@ namespace Xunit
             if (exceptionTypes.Count > 0 && exceptionTypes[0] == "")
                 exceptionTypes[0] = outermostExceptionType;
 
-            failureInformation.ExceptionTypes = exceptionTypes.ToArray();
-            failureInformation.Messages = messages.ToArray();
-            failureInformation.StackTraces = NestedStackTracesRegex.Split(nestedStackTraces);
+            var stackTraces = NestedStackTracesRegex.Split(nestedStackTraces);
+            var exceptionParentIndices = new int[stackTraces.Length];
+            for (int i = 0; i < exceptionParentIndices.Length; i++)
+                exceptionParentIndices[i] = i - 1;
 
-            failureInformation.ExceptionParentIndices = new int[failureInformation.StackTraces.Length];
-            for (int i = 0; i < failureInformation.ExceptionParentIndices.Length; i++)
-                failureInformation.ExceptionParentIndices[i] = i - 1;
-
-            return failureInformation;
+            return new FailureInformation(
+                exceptionTypes.ToArray(),
+                messages.ToArray(),
+                stackTraces,
+                exceptionParentIndices
+            );
         }
 
         class FailureInformation : IFailureInformation
         {
-            public string[] ExceptionTypes { get; set; }
+            public FailureInformation(
+                string?[] exceptionTypes,
+                string[] messages,
+                string?[] stackTraces,
+                int[] exceptionParentIndices)
+            {
+                ExceptionTypes = exceptionTypes;
+                Messages = messages;
+                StackTraces = stackTraces;
+                ExceptionParentIndices = exceptionParentIndices;
+            }
+
+            public string?[] ExceptionTypes { get; set; }
             public string[] Messages { get; set; }
-            public string[] StackTraces { get; set; }
+            public string?[] StackTraces { get; set; }
             public int[] ExceptionParentIndices { get; set; }
         }
     }

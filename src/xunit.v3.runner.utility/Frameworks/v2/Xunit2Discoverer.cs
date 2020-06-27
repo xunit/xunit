@@ -20,12 +20,12 @@ namespace Xunit
 #if NETFRAMEWORK
         static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
         static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
-        readonly AssemblyHelper assemblyHelper;
+        readonly AssemblyHelper? assemblyHelper;
 #else
         static readonly string[] SupportedPlatforms = { "dotnet" };
 #endif
 
-        ITestCaseDescriptorProvider defaultTestCaseDescriptorProvider;
+        ITestCaseDescriptorProvider? defaultTestCaseDescriptorProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Xunit2Discoverer"/> class.
@@ -42,9 +42,9 @@ namespace Xunit
         public Xunit2Discoverer(AppDomainSupport appDomainSupport,
                                 ISourceInformationProvider sourceInformationProvider,
                                 IAssemblyInfo assemblyInfo,
-                                string xunitExecutionAssemblyPath = null,
-                                string shadowCopyFolder = null,
-                                IMessageSink diagnosticMessageSink = null,
+                                string? xunitExecutionAssemblyPath = null,
+                                string? shadowCopyFolder = null,
+                                IMessageSink? diagnosticMessageSink = null,
                                 bool verifyAssembliesOnDisk = true)
             : this(appDomainSupport, sourceInformationProvider, assemblyInfo, null, xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo), null, true, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
         { }
@@ -53,26 +53,26 @@ namespace Xunit
         internal Xunit2Discoverer(AppDomainSupport appDomainSupport,
                                   ISourceInformationProvider sourceInformationProvider,
                                   string assemblyFileName,
-                                  string configFileName,
+                                  string? configFileName,
                                   bool shadowCopy,
-                                  string shadowCopyFolder = null,
-                                  IMessageSink diagnosticMessageSink = null,
+                                  string? shadowCopyFolder = null,
+                                  IMessageSink? diagnosticMessageSink = null,
                                   bool verifyAssembliesOnDisk = true)
             : this(appDomainSupport, sourceInformationProvider, null, assemblyFileName, GetXunitExecutionAssemblyPath(appDomainSupport, assemblyFileName, verifyAssembliesOnDisk), configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyAssembliesOnDisk)
         { }
 
         Xunit2Discoverer(AppDomainSupport appDomainSupport,
                          ISourceInformationProvider sourceInformationProvider,
-                         IAssemblyInfo assemblyInfo,
-                         string assemblyFileName,
+                         IAssemblyInfo? assemblyInfo,
+                         string? assemblyFileName,
                          string xunitExecutionAssemblyPath,
-                         string configFileName,
+                         string? configFileName,
                          bool shadowCopy,
-                         string shadowCopyFolder,
-                         IMessageSink diagnosticMessageSink,
+                         string? shadowCopyFolder,
+                         IMessageSink? diagnosticMessageSink,
                          bool verifyAssembliesOnDisk)
         {
-            Guard.ArgumentNotNull("assemblyInfo", (object)assemblyInfo ?? assemblyFileName);
+            Guard.ArgumentNotNull("assemblyInfo", (object?)assemblyInfo ?? assemblyFileName);
 
 #if NETFRAMEWORK
             // Only safe to assume the execution reference is copied in a desktop project
@@ -91,7 +91,7 @@ namespace Xunit
 
 #if NETFRAMEWORK
             var runnerUtilityAssemblyLocation = Path.GetDirectoryName(typeof(AssemblyHelper).Assembly.GetLocalCodeBase());
-            assemblyHelper = AppDomain.CreateObjectFrom<AssemblyHelper>(typeof(AssemblyHelper).Assembly.Location, typeof(AssemblyHelper).FullName, runnerUtilityAssemblyLocation);
+            assemblyHelper = AppDomain.CreateObjectFrom<AssemblyHelper>(typeof(AssemblyHelper).Assembly.Location, typeof(AssemblyHelper).FullName!, runnerUtilityAssemblyLocation);
 #endif
 
             TestFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
@@ -100,9 +100,8 @@ namespace Xunit
             if (assemblyInfo == null)
                 assemblyInfo = AppDomain.CreateObject<IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName);
 
-            Framework = AppDomain.CreateObject<ITestFramework>(TestFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider, DiagnosticMessageSink);
-
-            RemoteDiscoverer = Framework.GetDiscoverer(assemblyInfo);
+            Framework = Guard.NotNull("Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test", AppDomain.CreateObject<ITestFramework>(TestFrameworkAssemblyName, "Xunit.Sdk.TestFrameworkProxy", assemblyInfo, sourceInformationProvider, DiagnosticMessageSink));
+            RemoteDiscoverer = Guard.NotNull("Could not get discoverer from test framework for v2 unit test", Framework.GetDiscoverer(assemblyInfo));
         }
 
         internal IAppDomainManager AppDomain { get; }
@@ -139,16 +138,19 @@ namespace Xunit
         /// <param name="sink">The local message sink to receive the messages.</param>
         protected IMessageSink CreateOptimizedRemoteMessageSink(IMessageSink sink)
         {
+            Guard.ArgumentNotNull(nameof(sink), sink);
+
             try
             {
                 var sinkWithTypes = MessageSinkWithTypesAdapter.Wrap(sink);
                 var asssemblyName = typeof(OptimizedRemoteMessageSink).GetAssembly().GetName();
-                return AppDomain.CreateObject<IMessageSink>(asssemblyName, typeof(OptimizedRemoteMessageSink).FullName, sinkWithTypes);
+                var optimizedSink = AppDomain.CreateObject<IMessageSink>(asssemblyName, typeof(OptimizedRemoteMessageSink).FullName!, sinkWithTypes);
+                if (optimizedSink != null)
+                    return optimizedSink;
             }
-            catch    // This really shouldn't happen, but falling back makes sense in catastrophic cases
-            {
-                return sink;
-            }
+            catch { }    // This really shouldn't happen, but falling back makes sense in catastrophic cases
+
+            return sink;
         }
 
         /// <inheritdoc/>
@@ -170,6 +172,9 @@ namespace Xunit
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         public void Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
+            Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
             RemoteDiscoverer.Find(includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
         }
 
@@ -182,12 +187,17 @@ namespace Xunit
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         public void Find(string typeName, bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
         {
+            Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
             RemoteDiscoverer.Find(typeName, includeSourceInformation, CreateOptimizedRemoteMessageSink(messageSink), discoveryOptions);
         }
 
         /// <inheritdoc/>
         public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization)
         {
+            Guard.ArgumentNotNull(nameof(testCases), testCases);
+
             var callbackContainer = new DescriptorCallback();
             Action<List<string>> callback = callbackContainer.Callback;
 
@@ -259,7 +269,7 @@ namespace Xunit
             if (verifyTestAssemblyExists)
                 Guard.FileExists("assemblyFileName", assemblyFileName);
 
-            return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyFileName));
+            return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyFileName)!);
         }
 
         static string GetXunitExecutionAssemblyPath(AppDomainSupport appDomainSupport, IAssemblyInfo assemblyInfo)
@@ -267,19 +277,19 @@ namespace Xunit
             Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
             Guard.ArgumentNotNullOrEmpty("assemblyInfo.AssemblyPath", assemblyInfo.AssemblyPath);
 
-            return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyInfo.AssemblyPath));
+            return GetExecutionAssemblyFileName(appDomainSupport, Path.GetDirectoryName(assemblyInfo.AssemblyPath)!);
         }
 
-        static bool IsDotNet(string executionAssemblyFileName)
-            => executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
+        static bool IsDotNet(string executionAssemblyFileName) =>
+            executionAssemblyFileName.EndsWith(".dotnet.dll", StringComparison.Ordinal);
 
         /// <inheritdoc/>
-        public string Serialize(ITestCase testCase)
-            => RemoteDiscoverer.Serialize(testCase);
+        public string Serialize(ITestCase testCase) =>
+            RemoteDiscoverer.Serialize(testCase);
 
         class DescriptorCallback : LongLivedMarshalByRefObject
         {
-            public List<string> Results;
+            public List<string>? Results;
 
             public void Callback(List<string> results) => Results = results;
         }

@@ -14,12 +14,16 @@ namespace Xunit
         /// <summary/>
         public DefaultTestCaseDescriptorProvider(ITestFrameworkDiscoverer discoverer)
         {
+            Guard.ArgumentNotNull(nameof(discoverer), discoverer);
+
             this.discoverer = discoverer;
         }
 
         /// <inheritdoc/>
         public List<TestCaseDescriptor> GetTestCaseDescriptors(List<ITestCase> testCases, bool includeSerialization)
         {
+            Guard.ArgumentNotNull(nameof(testCases), testCases);
+
             var results = new List<TestCaseDescriptor>(testCases.Count);
 
             foreach (var testCase in testCases)
@@ -39,7 +43,7 @@ namespace Xunit
                         SkipReason = testCase.SkipReason,
                         SourceFileName = sourceInformation?.FileName,
                         SourceLineNumber = sourceInformation?.LineNumber,
-                        Traits = testCase.Traits ?? new Dictionary<string, List<string>>(),
+                        Traits = testCase.Traits ?? new Dictionary<string, List<string?>>(),
                         UniqueID = testCase.UniqueID
                     });
                 }

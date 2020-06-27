@@ -10,10 +10,15 @@ namespace Xunit.Runners
         /// <summary/>
         public TestInfo(string typeName,
                         string methodName,
-                        Dictionary<string, List<string>> traits,
+                        Dictionary<string, List<string>>? traits,
                         string testDisplayName,
                         string testCollectionDisplayName)
         {
+            Guard.ArgumentNotNull(nameof(typeName), typeName);
+            Guard.ArgumentNotNull(nameof(methodName), methodName);
+            Guard.ArgumentNotNull(nameof(testDisplayName), testDisplayName);
+            Guard.ArgumentNotNull(nameof(testCollectionDisplayName), testCollectionDisplayName);
+
             TypeName = typeName;
             MethodName = methodName;
             Traits = traits ?? new Dictionary<string, List<string>>();

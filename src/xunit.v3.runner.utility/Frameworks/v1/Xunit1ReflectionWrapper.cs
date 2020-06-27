@@ -20,7 +20,7 @@ namespace Xunit
         /// <param name="assemblyFileName">The assembly under test.</param>
         /// <param name="typeName">The type under test.</param>
         /// <param name="methodName">The method under test.</param>
-        public Xunit1ReflectionWrapper(string assemblyFileName, string typeName, string methodName)
+        public Xunit1ReflectionWrapper(string assemblyFileName, string typeName, string? methodName)
         {
             AssemblyFileName = assemblyFileName;
             TypeName = typeName;
@@ -36,7 +36,7 @@ namespace Xunit
         /// <summary>
         /// Gets the name of the method under test.
         /// </summary>
-        public string MethodName { get; private set; }
+        public string? MethodName { get; private set; }
 
         /// <summary>
         /// Gets the name of the type under test.
@@ -50,22 +50,14 @@ namespace Xunit
 
         // IAssemblyInfo
 
-        string IAssemblyInfo.AssemblyPath
-        {
-            get { return AssemblyFileName; }
-        }
+        string IAssemblyInfo.AssemblyPath => AssemblyFileName;
 
-        string IAssemblyInfo.Name
-        {
-            get { return Path.GetFileNameWithoutExtension(AssemblyFileName); }
-        }
+        string IAssemblyInfo.Name => Path.GetFileNameWithoutExtension(AssemblyFileName);
 
-        IEnumerable<IAttributeInfo> IAssemblyInfo.GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
-        {
-            return Enumerable.Empty<IAttributeInfo>();
-        }
+        IEnumerable<IAttributeInfo> IAssemblyInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) =>
+            Enumerable.Empty<IAttributeInfo>();
 
-        ITypeInfo IAssemblyInfo.GetType(string typeName)
+        ITypeInfo? IAssemblyInfo.GetType(string? typeName)
         {
             if (typeName == TypeName)
                 return this;
@@ -80,122 +72,59 @@ namespace Xunit
 
         // IMethodInfo
 
-        bool IMethodInfo.IsAbstract
-        {
-            get { return false; }
-        }
+        bool IMethodInfo.IsAbstract => false;
 
-        bool IMethodInfo.IsGenericMethodDefinition
-        {
-            get { return false; }
-        }
+        bool IMethodInfo.IsGenericMethodDefinition => false;
 
-        bool IMethodInfo.IsPublic
-        {
-            get { return true; }
-        }
+        bool IMethodInfo.IsPublic => true;
 
-        bool IMethodInfo.IsStatic
-        {
-            get { return false; }
-        }
+        bool IMethodInfo.IsStatic => false;
 
-        string IMethodInfo.Name
-        {
-            get { return MethodName; }
-        }
+        string? IMethodInfo.Name => MethodName;
 
-        ITypeInfo IMethodInfo.ReturnType
-        {
-            get { return VoidType; }
-        }
+        ITypeInfo IMethodInfo.ReturnType => VoidType;
 
-        ITypeInfo IMethodInfo.Type
-        {
-            get { return this; }
-        }
+        ITypeInfo IMethodInfo.Type => this;
 
-        IEnumerable<IAttributeInfo> IMethodInfo.GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
-        {
-            return Enumerable.Empty<IAttributeInfo>();
-        }
+        IEnumerable<IAttributeInfo> IMethodInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) =>
+            Enumerable.Empty<IAttributeInfo>();
 
-        IEnumerable<ITypeInfo> IMethodInfo.GetGenericArguments()
-        {
-            return Enumerable.Empty<ITypeInfo>();
-        }
+        IEnumerable<ITypeInfo> IMethodInfo.GetGenericArguments() =>
+            Enumerable.Empty<ITypeInfo>();
 
-        IEnumerable<IParameterInfo> IMethodInfo.GetParameters()
-        {
-            return Enumerable.Empty<IParameterInfo>();
-        }
+        IEnumerable<IParameterInfo> IMethodInfo.GetParameters() =>
+            Enumerable.Empty<IParameterInfo>();
 
-        IMethodInfo IMethodInfo.MakeGenericMethod(params ITypeInfo[] typeArguments)
-        {
+        IMethodInfo IMethodInfo.MakeGenericMethod(params ITypeInfo[] typeArguments) =>
             throw new NotImplementedException();
-        }
 
         // ITypeInfo
 
-        IAssemblyInfo ITypeInfo.Assembly
-        {
-            get { return this; }
-        }
+        IAssemblyInfo ITypeInfo.Assembly => this;
 
-        ITypeInfo ITypeInfo.BaseType
-        {
-            get { return null; }
-        }
+        ITypeInfo? ITypeInfo.BaseType => null;
 
-        IEnumerable<ITypeInfo> ITypeInfo.Interfaces
-        {
-            get { return Enumerable.Empty<ITypeInfo>(); }
-        }
+        IEnumerable<ITypeInfo> ITypeInfo.Interfaces => Enumerable.Empty<ITypeInfo>();
 
-        bool ITypeInfo.IsAbstract
-        {
-            get { return false; }
-        }
+        bool ITypeInfo.IsAbstract => false;
 
-        bool ITypeInfo.IsGenericParameter
-        {
-            get { return false; }
-        }
+        bool ITypeInfo.IsGenericParameter => false;
 
-        bool ITypeInfo.IsGenericType
-        {
-            get { return false; }
-        }
+        bool ITypeInfo.IsGenericType => false;
 
-        bool ITypeInfo.IsSealed
-        {
-            get { return false; }
-        }
+        bool ITypeInfo.IsSealed => false;
 
-        bool ITypeInfo.IsValueType
-        {
-            get { return false; }
-        }
+        bool ITypeInfo.IsValueType => false;
 
-        string ITypeInfo.Name
-        {
-            get { return TypeName; }
-        }
+        string ITypeInfo.Name => TypeName;
 
-        IEnumerable<IAttributeInfo> ITypeInfo.GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
-        {
-            return Enumerable.Empty<IAttributeInfo>();
-        }
+        IEnumerable<IAttributeInfo> ITypeInfo.GetCustomAttributes(string? assemblyQualifiedAttributeTypeName) =>
+            Enumerable.Empty<IAttributeInfo>();
 
-        IEnumerable<ITypeInfo> ITypeInfo.GetGenericArguments()
-        {
-            return Enumerable.Empty<ITypeInfo>();
-        }
+        IEnumerable<ITypeInfo> ITypeInfo.GetGenericArguments() =>
+            Enumerable.Empty<ITypeInfo>();
 
-        IMethodInfo ITypeInfo.GetMethod(string methodName, bool includePrivateMethods)
-        {
-            return this;
-        }
+        IMethodInfo ITypeInfo.GetMethod(string? methodName, bool includePrivateMethods) => this;
 
         IEnumerable<IMethodInfo> ITypeInfo.GetMethods(bool includePrivateMethods)
         {

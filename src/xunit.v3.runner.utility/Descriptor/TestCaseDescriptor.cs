@@ -18,7 +18,9 @@ namespace Xunit
         /// <summary/>
         public TestCaseDescriptor(string descriptorText)
         {
-            Traits = new Dictionary<string, List<string>>();
+            Guard.ArgumentNotNull(nameof(descriptorText), descriptorText);
+
+            Traits = new Dictionary<string, List<string?>>();
 
             var lines = descriptorText.Split(SeparatorChar);
 
@@ -73,33 +75,33 @@ namespace Xunit
         }
 
         /// <summary/>
-        public string ClassName { get; set; }
+        public string? ClassName { get; set; }
 
         /// <summary/>
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
 
         /// <summary/>
-        public string MethodName { get; set; }
+        public string? MethodName { get; set; }
 
         /// <summary/>
-        public string Serialization { get; set; }
+        public string? Serialization { get; set; }
 
         /// <summary/>
-        public string SkipReason { get; set; }
+        public string? SkipReason { get; set; }
 
         /// <summary/>
-        public string SourceFileName { get; set; }
+        public string? SourceFileName { get; set; }
 
         /// <summary/>
         public int? SourceLineNumber { get; set; }
 
         /// <summary/>
-        public Dictionary<string, List<string>> Traits;
+        public Dictionary<string, List<string?>>? Traits;
 
         /// <summary/>
-        public string UniqueID { get; set; }
+        public string? UniqueID { get; set; }
 
-        static string Decode(string value)
+        static string? Decode(string value)
             => string.IsNullOrEmpty(value) ? null : value.Replace(SeparatorEscape, Separator);
     }
 }

@@ -30,7 +30,6 @@
         <Company>.NET Foundation</Company>
         <Copyright>Copyright (C) .NET Foundation</Copyright>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <GenerateNullableAttributes>false</GenerateNullableAttributes>
         <!-- <Nullable>enable</Nullable> -->
         <PackageIcon>content/logo-128-transparent.png</PackageIcon>
         <PackageId>$(MSBuildProjectName)</PackageId>
@@ -48,6 +47,9 @@
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
         <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.27-beta" PrivateAssets="all" />
         <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.154" PrivateAssets="all" />
+      </ItemGroup>
+
+      <ItemGroup>
         <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[3.1.0]" />
       </ItemGroup>
     </When>

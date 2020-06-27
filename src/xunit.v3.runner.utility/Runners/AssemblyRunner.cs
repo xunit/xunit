@@ -50,9 +50,9 @@ namespace Xunit.Runners
 
         AssemblyRunner(AppDomainSupport appDomainSupport,
                        string assemblyFileName,
-                       string configFileName = null,
+                       string? configFileName = null,
                        bool shadowCopy = true,
-                       string shadowCopyFolder = null)
+                       string? shadowCopyFolder = null)
         {
             controller = new XunitFrontController(appDomainSupport, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink: MessageSinkAdapter.Wrap(this));
             configuration = ConfigReader.Load(assemblyFileName, configFileName);
@@ -61,54 +61,54 @@ namespace Xunit.Runners
         /// <summary>
         /// Set to get notification of diagnostic messages.
         /// </summary>
-        public Action<DiagnosticMessageInfo> OnDiagnosticMessage { get; set; }
+        public Action<DiagnosticMessageInfo>? OnDiagnosticMessage { get; set; }
 
         /// <summary>
         /// Set to get notification of when test discovery is complete.
         /// </summary>
-        public Action<DiscoveryCompleteInfo> OnDiscoveryComplete { get; set; }
+        public Action<DiscoveryCompleteInfo>? OnDiscoveryComplete { get; set; }
 
         /// <summary>
         /// Set to get notification of error messages (unhandled exceptions outside of tests).
         /// </summary>
-        public Action<ErrorMessageInfo> OnErrorMessage { get; set; }
+        public Action<ErrorMessageInfo>? OnErrorMessage { get; set; }
 
         /// <summary>
         /// Set to get notification of when test execution is complete.
         /// </summary>
-        public Action<ExecutionCompleteInfo> OnExecutionComplete { get; set; }
+        public Action<ExecutionCompleteInfo>? OnExecutionComplete { get; set; }
 
         /// <summary>
         /// Set to get notification of failed tests.
         /// </summary>
-        public Action<TestFailedInfo> OnTestFailed { get; set; }
+        public Action<TestFailedInfo>? OnTestFailed { get; set; }
 
         /// <summary>
         /// Set to get notification of finished tests (regardless of outcome).
         /// </summary>
-        public Action<TestFinishedInfo> OnTestFinished { get; set; }
+        public Action<TestFinishedInfo>? OnTestFinished { get; set; }
 
         /// <summary>
         /// Set to get real-time notification of test output (for xUnit.net v2 tests only).
         /// Note that output is captured and reported back to all the test completion Info>s
         /// in addition to being sent to this Info>.
         /// </summary>
-        public Action<TestOutputInfo> OnTestOutput { get; set; }
+        public Action<TestOutputInfo>? OnTestOutput { get; set; }
 
         /// <summary>
         /// Set to get notification of passing tests.
         /// </summary>
-        public Action<TestPassedInfo> OnTestPassed { get; set; }
+        public Action<TestPassedInfo>? OnTestPassed { get; set; }
 
         /// <summary>
         /// Set to get notification of skipped tests.
         /// </summary>
-        public Action<TestSkippedInfo> OnTestSkipped { get; set; }
+        public Action<TestSkippedInfo>? OnTestSkipped { get; set; }
 
         /// <summary>
         /// Set to get notification of when tests start running.
         /// </summary>
-        public Action<TestStartingInfo> OnTestStarting { get; set; }
+        public Action<TestStartingInfo>? OnTestStarting { get; set; }
 
         /// <summary>
         /// Gets the current status of the assembly runner
@@ -130,9 +130,9 @@ namespace Xunit.Runners
         /// Set to be able to filter the test cases to decide which ones to run. If this is not set,
         /// then all test cases will be run.
         /// </summary>
-        public Func<ITestCase, bool> TestCaseFilter { get; set; }
+        public Func<ITestCase, bool>? TestCaseFilter { get; set; }
 
-        static void AddMessageTypeName<T>() => MessageTypeNames.Add(typeof(T), typeof(T).FullName);
+        static void AddMessageTypeName<T>() => MessageTypeNames.Add(typeof(T), typeof(T).FullName!);
 
         /// <summary>
         /// Call to request that the current run be cancelled. Note that cancellation may not be
@@ -163,7 +163,12 @@ namespace Xunit.Runners
             executionCompleteEvent?.Dispose();
         }
 
-        ITestFrameworkDiscoveryOptions GetDiscoveryOptions(bool? diagnosticMessages, TestMethodDisplay? methodDisplay, TestMethodDisplayOptions? methodDisplayOptions, bool? preEnumerateTheories, bool? internalDiagnosticMessages)
+        ITestFrameworkDiscoveryOptions GetDiscoveryOptions(
+            bool? diagnosticMessages,
+            TestMethodDisplay? methodDisplay,
+            TestMethodDisplayOptions? methodDisplayOptions,
+            bool? preEnumerateTheories,
+            bool? internalDiagnosticMessages)
         {
             var discoveryOptions = TestFrameworkOptions.ForDiscovery(configuration);
             discoveryOptions.SetSynchronousMessageReporting(true);
@@ -182,7 +187,11 @@ namespace Xunit.Runners
             return discoveryOptions;
         }
 
-        ITestFrameworkExecutionOptions GetExecutionOptions(bool? diagnosticMessages, bool? parallel, int? maxParallelThreads, bool? internalDiagnosticMessages)
+        ITestFrameworkExecutionOptions GetExecutionOptions(
+            bool? diagnosticMessages,
+            bool? parallel,
+            int? maxParallelThreads,
+            bool? internalDiagnosticMessages)
         {
             var executionOptions = TestFrameworkOptions.ForExecution(configuration);
             executionOptions.SetSynchronousMessageReporting(true);
@@ -220,14 +229,15 @@ namespace Xunit.Runners
         /// of threads. By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
         /// <param name="internalDiagnosticMessages">Set to <c>true</c> to enable internal diagnostic messages; set to <c>false</c> to disable them.
         /// By default, uses the value from the assembly configuration file.</param>
-        public void Start(string typeName = null,
-                          bool? diagnosticMessages = null,
-                          TestMethodDisplay? methodDisplay = null,
-                          TestMethodDisplayOptions? methodDisplayOptions = null,
-                          bool? preEnumerateTheories = null,
-                          bool? parallel = null,
-                          int? maxParallelThreads = null,
-                          bool? internalDiagnosticMessages = null)
+        public void Start(
+            string? typeName = null,
+            bool? diagnosticMessages = null,
+            TestMethodDisplay? methodDisplay = null,
+            TestMethodDisplayOptions? methodDisplayOptions = null,
+            bool? preEnumerateTheories = null,
+            bool? parallel = null,
+            int? maxParallelThreads = null,
+            bool? internalDiagnosticMessages = null)
         {
             lock (statusLock)
             {
@@ -253,8 +263,7 @@ namespace Xunit.Runners
                 if (cancelled)
                 {
                     // Synthesize the execution complete message, since we're not going to run at all
-                    if (OnExecutionComplete != null)
-                        OnExecutionComplete(ExecutionCompleteInfo.Empty);
+                    OnExecutionComplete?.Invoke(ExecutionCompleteInfo.Empty);
                     return;
                 }
 
@@ -274,11 +283,13 @@ namespace Xunit.Runners
         /// tests to be discovered and run without locking assembly files on disk.</param>
         /// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
         /// will be automatically (randomly) generated</param>
-        public static AssemblyRunner WithAppDomain(string assemblyFileName,
-                                                   string configFileName = null,
-                                                   bool shadowCopy = true,
-                                                   string shadowCopyFolder = null)
+        public static AssemblyRunner WithAppDomain(
+            string assemblyFileName,
+            string? configFileName = null,
+            bool shadowCopy = true,
+            string? shadowCopyFolder = null)
         {
+            Guard.FileExists(nameof(assemblyFileName), assemblyFileName);
             Guard.ArgumentValid(nameof(shadowCopyFolder), "Cannot set shadowCopyFolder if shadowCopy is false", shadowCopy == true || shadowCopyFolder == null);
 
             return new AssemblyRunner(AppDomainSupport.Required, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
@@ -291,10 +302,12 @@ namespace Xunit.Runners
         /// <param name="assemblyFileName">The test assembly.</param>
         public static AssemblyRunner WithoutAppDomain(string assemblyFileName)
         {
+            Guard.FileExists(nameof(assemblyFileName), assemblyFileName);
+
             return new AssemblyRunner(AppDomainSupport.Denied, assemblyFileName);
         }
 
-        bool DispatchMessage<TMessage>(IMessageSinkMessage message, HashSet<string> messageTypes, Action<TMessage> handler)
+        bool DispatchMessage<TMessage>(IMessageSinkMessage message, HashSet<string>? messageTypes, Action<TMessage> handler)
             where TMessage : class
         {
             if (messageTypes == null || !MessageTypeNames.TryGetValue(typeof(TMessage), out var typeName) || !messageTypes.Contains(typeName))
@@ -304,7 +317,7 @@ namespace Xunit.Runners
             return true;
         }
 
-        bool IMessageSinkWithTypes.OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
+        bool IMessageSinkWithTypes.OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
         {
             if (DispatchMessage<ITestCaseDiscoveryMessage>(message, messageTypes, testDiscovered =>
             {

@@ -1,3 +1,7 @@
+// TODO: Should all the DIA code just move to the VSTest adapter?
+
+#nullable disable
+
 #if NETFRAMEWORK
 
 using System;

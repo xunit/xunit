@@ -31,34 +31,34 @@ namespace Xunit
         /// will be automatically (randomly) generated</param>
         public Xunit1Executor(bool useAppDomain,
                               string testAssemblyFileName,
-                              string configFileName = null,
+                              string? configFileName = null,
                               bool shadowCopy = true,
-                              string shadowCopyFolder = null)
+                              string? shadowCopyFolder = null)
         {
+            Guard.ArgumentNotNull(nameof(testAssemblyFileName), testAssemblyFileName);
+
             appDomain = AppDomainManagerFactory.Create(useAppDomain, testAssemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
             xunitAssemblyPath = GetXunitAssemblyPath(testAssemblyFileName);
             xunitAssemblyName = AssemblyName.GetAssemblyName(xunitAssemblyPath);
-            executor = CreateObject("Xunit.Sdk.Executor", testAssemblyFileName);
+            executor = Guard.NotNull("Could not create Xunit.Sdk.Executor object for v1 test assembly", CreateObject("Xunit.Sdk.Executor", testAssemblyFileName));
             TestFrameworkDisplayName = string.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", AssemblyName.GetAssemblyName(xunitAssemblyPath).Version);
         }
 
         /// <inheritdoc/>
         public string TestFrameworkDisplayName { get; private set; }
 
-        object CreateObject(string typeName, params object[] args)
-        {
-            return appDomain.CreateObject<object>(xunitAssemblyName, typeName, args);
-        }
+        object? CreateObject(string typeName, params object[] args) =>
+            appDomain.CreateObject<object>(xunitAssemblyName, typeName, args);
 
         /// <inheritdoc/>
-        public void Dispose()
-        {
+        public void Dispose() =>
             appDomain?.Dispose();
-        }
 
         /// <inheritdoc/>
         public void EnumerateTests(ICallbackEventHandler handler)
         {
+            Guard.ArgumentNotNull(nameof(handler), handler);
+
             CreateObject("Xunit.Sdk.Executor+EnumerateTests", executor, handler);
         }
 
@@ -66,7 +66,7 @@ namespace Xunit
         {
             Guard.FileExists("testAssemblyFileName", testAssemblyFileName);
 
-            var xunitPath = Path.Combine(Path.GetDirectoryName(testAssemblyFileName), "xunit.dll");
+            var xunitPath = Path.Combine(Path.GetDirectoryName(testAssemblyFileName)!, "xunit.dll");
             Guard.FileExists("testAssemblyFileName", xunitPath);
 
             return xunitPath;
@@ -75,6 +75,10 @@ namespace Xunit
         /// <inheritdoc/>
         public void RunTests(string type, List<string> methods, ICallbackEventHandler handler)
         {
+            Guard.ArgumentNotNullOrEmpty(nameof(type), type);
+            Guard.ArgumentNotNull(nameof(methods), methods);
+            Guard.ArgumentNotNull(nameof(handler), handler);
+
             CreateObject("Xunit.Sdk.Executor+RunTests", executor, type, methods, handler);
         }
     }

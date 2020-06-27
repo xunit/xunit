@@ -1,4 +1,8 @@
-﻿using System;
+﻿// TODO: Should all the DIA code just move to the VSTest adapter?
+
+#nullable disable
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 

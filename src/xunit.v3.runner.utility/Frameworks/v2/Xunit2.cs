@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+
+#if NETSTANDARD
+using System.IO;
+#endif
 
 namespace Xunit
 {
@@ -15,7 +17,7 @@ namespace Xunit
     /// </summary>
     public class Xunit2 : Xunit2Discoverer, IFrontController, ITestCaseBulkDeserializer
     {
-        ITestCaseBulkDeserializer defaultTestCaseBulkDeserializer;
+        ITestCaseBulkDeserializer? defaultTestCaseBulkDeserializer;
         readonly ITestFrameworkExecutor remoteExecutor;
 
         /// <summary>
@@ -34,10 +36,10 @@ namespace Xunit
         public Xunit2(AppDomainSupport appDomainSupport,
                       ISourceInformationProvider sourceInformationProvider,
                       string assemblyFileName,
-                      string configFileName = null,
+                      string? configFileName = null,
                       bool shadowCopy = true,
-                      string shadowCopyFolder = null,
-                      IMessageSink diagnosticMessageSink = null,
+                      string? shadowCopyFolder = null,
+                      IMessageSink? diagnosticMessageSink = null,
                       bool verifyTestAssemblyExists = true)
             : base(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink, verifyTestAssemblyExists)
         {
@@ -113,7 +115,7 @@ namespace Xunit
 
         class DeserializeCallback : LongLivedMarshalByRefObject
         {
-            public List<KeyValuePair<string, ITestCase>> Results;
+            public List<KeyValuePair<string, ITestCase>>? Results;
 
             public void Callback(List<KeyValuePair<string, ITestCase>> results) => Results = results;
         }

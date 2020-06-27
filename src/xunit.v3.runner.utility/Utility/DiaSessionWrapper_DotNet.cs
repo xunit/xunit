@@ -1,4 +1,8 @@
-﻿#if NETSTANDARD
+﻿// TODO: Should all the DIA code just move to the VSTest adapter?
+
+#nullable disable
+
+#if NETSTANDARD
 
 using System;
 

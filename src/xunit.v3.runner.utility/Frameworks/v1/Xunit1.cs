@@ -20,10 +20,10 @@ namespace Xunit
     {
         readonly AppDomainSupport appDomainSupport;
         readonly string assemblyFileName;
-        readonly string configFileName;
-        IXunit1Executor executor;
+        readonly string? configFileName;
+        IXunit1Executor? executor;
         readonly bool shadowCopy;
-        readonly string shadowCopyFolder;
+        readonly string? shadowCopyFolder;
         readonly ISourceInformationProvider sourceInformationProvider;
         readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
 
@@ -41,10 +41,13 @@ namespace Xunit
         public Xunit1(AppDomainSupport appDomainSupport,
                       ISourceInformationProvider sourceInformationProvider,
                       string assemblyFileName,
-                      string configFileName = null,
+                      string? configFileName = null,
                       bool shadowCopy = true,
-                      string shadowCopyFolder = null)
+                      string? shadowCopyFolder = null)
         {
+            Guard.ArgumentNotNull(nameof(sourceInformationProvider), sourceInformationProvider);
+            Guard.ArgumentNotNullOrEmpty(nameof(assemblyFileName), assemblyFileName);
+
             this.appDomainSupport = appDomainSupport;
             this.sourceInformationProvider = sourceInformationProvider;
             this.assemblyFileName = assemblyFileName;
@@ -54,39 +57,37 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public bool CanUseAppDomains
-            => true;
+        public bool CanUseAppDomains => true;
 
-        /// <inheritdoc/>
-        public string TargetFramework
-        {
-            // This is not supported with v1, since there is no code in the remote AppDomain
-            // that would give us this information.
-            get { return string.Empty; }
-        }
-
-        /// <inheritdoc/>
-        public string TestFrameworkDisplayName
+        IXunit1Executor Executor
         {
             get
             {
-                EnsureInitialized();
-                return executor.TestFrameworkDisplayName;
+                if (executor == null)
+                    executor = CreateExecutor();
+
+                return executor;
             }
         }
+
+        /// <inheritdoc/>
+        // This is not supported with v1, since there is no code in the remote AppDomain
+        // that would give us this information.
+        public string TargetFramework => string.Empty;
+
+        /// <inheritdoc/>
+        public string TestFrameworkDisplayName => Executor.TestFrameworkDisplayName;
 
         /// <summary>
         /// Creates a wrapper to call the Executor call from xUnit.net v1.
         /// </summary>
         /// <returns>The executor wrapper.</returns>
-        protected virtual IXunit1Executor CreateExecutor()
-            => new Xunit1Executor(appDomainSupport != AppDomainSupport.Denied, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
+        protected virtual IXunit1Executor CreateExecutor() =>
+            new Xunit1Executor(appDomainSupport != AppDomainSupport.Denied, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
         /// <inheritdoc/>
-        public ITestCase Deserialize(string value)
-        {
-            return SerializationHelper.Deserialize<ITestCase>(value);
-        }
+        public ITestCase Deserialize(string? value) =>
+            SerializationHelper.Deserialize<ITestCase>(value);
 
         /// <inheritdoc/>
         public void Dispose()
@@ -97,13 +98,6 @@ namespace Xunit
             executor?.Dispose();
         }
 
-        void EnsureInitialized()
-        {
-            lock (toDispose)
-                if (executor == null)
-                    executor = CreateExecutor();
-        }
-
         /// <summary>
         /// Starts the process of finding all xUnit.net v1 tests in an assembly.
         /// </summary>
@@ -111,12 +105,16 @@ namespace Xunit
         /// <param name="messageSink">The message sink to report results back to.</param>
         public void Find(bool includeSourceInformation, IMessageSink messageSink)
         {
+            Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+
             Find(msg => true, includeSourceInformation, messageSink);
         }
 
         /// <inheritdoc/>
-        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink messageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
+        void ITestFrameworkDiscoverer.Find(bool includeSourceInformation, IMessageSink? messageSink, ITestFrameworkDiscoveryOptions? discoveryOptions)
         {
+            Guard.ArgumentNotNull(nameof(messageSink), messageSink);
+
             Find(msg => true, includeSourceInformation, messageSink);
         }
 
@@ -139,26 +137,27 @@ namespace Xunit
 
         void Find(Predicate<ITestCaseDiscoveryMessage> filter, bool includeSourceInformation, IMessageSink messageSink)
         {
-            EnsureInitialized();
-
             try
             {
-                XmlNode assemblyXml = null;
+                XmlNode? assemblyXml = null;
 
                 var handler = new XmlNodeCallbackHandler(xml => { assemblyXml = xml; return true; });
-                executor.EnumerateTests(handler);
+                Executor.EnumerateTests(handler);
 
-                foreach (XmlNode method in assemblyXml.SelectNodes("//method"))
+                if (assemblyXml != null)
                 {
-                    var testCase = method.ToTestCase(assemblyFileName, configFileName);
-                    if (testCase != null)
+                    foreach (var method in assemblyXml.SelectNodes("//method").Cast<XmlNode>())
                     {
-                        if (includeSourceInformation)
-                            testCase.SourceInformation = sourceInformationProvider.GetSourceInformation(testCase);
+                        var testCase = method.ToTestCase(assemblyFileName, configFileName);
+                        if (testCase != null)
+                        {
+                            if (includeSourceInformation)
+                                testCase.SourceInformation = sourceInformationProvider.GetSourceInformation(testCase);
 
-                        var message = new TestCaseDiscoveryMessage(testCase);
-                        if (filter(message))
-                            messageSink.OnMessage(message);
+                            var message = new TestCaseDiscoveryMessage(testCase);
+                            if (filter(message))
+                                messageSink.OnMessage(message);
+                        }
                     }
                 }
             }
@@ -195,8 +194,6 @@ namespace Xunit
         /// <param name="messageSink">The message sink to report results back to.</param>
         public void Run(IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
-            EnsureInitialized();
-
             var results = new Xunit1RunSummary();
             var environment = $"{IntPtr.Size * 8}-bit .NET {Environment.Version}";
             var firstTestCase = testCases.FirstOrDefault();
@@ -231,8 +228,10 @@ namespace Xunit
 
         Xunit1RunSummary RunTestCollection(ITestCollection testCollection, IEnumerable<ITestCase> testCases, IMessageSink messageSink)
         {
-            var results = new Xunit1RunSummary();
-            results.Continue = messageSink.OnMessage(new TestCollectionStarting(testCases, testCollection));
+            var results = new Xunit1RunSummary
+            {
+                Continue = messageSink.OnMessage(new TestCollectionStarting(testCases, testCollection))
+            };
 
             try
             {
@@ -264,7 +263,7 @@ namespace Xunit
                 if (results.Continue)
                 {
                     var methodNames = testCases.Select(tc => tc.TestMethod.Method.Name).ToList();
-                    executor.RunTests(testClass.Class.Name, methodNames, handler);
+                    Executor.RunTests(testClass.Class.Name, methodNames, handler);
                     handler.LastNodeArrived.WaitOne();
                 }
             }
@@ -284,8 +283,8 @@ namespace Xunit
         {
             public static readonly Comparer Instance = new Comparer();
 
-            public bool Equals(ITestClass x, ITestClass y)
-                => x.Class.Name == y.Class.Name;
+            public bool Equals(ITestClass? x, ITestClass? y)
+                => x?.Class.Name == y?.Class.Name;
 
             public int GetHashCode(ITestClass obj)
                 => obj.Class.Name.GetHashCode();

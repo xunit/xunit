@@ -1,3 +1,5 @@
+#nullable disable
+
 #if NETSTANDARD
 
 using System;
