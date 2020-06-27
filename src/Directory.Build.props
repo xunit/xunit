@@ -30,6 +30,7 @@
         <Company>.NET Foundation</Company>
         <Copyright>Copyright (C) .NET Foundation</Copyright>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <GenerateNullableAttributes>false</GenerateNullableAttributes>
         <!-- <Nullable>enable</Nullable> -->
         <PackageIcon>content/logo-128-transparent.png</PackageIcon>
         <PackageId>$(MSBuildProjectName)</PackageId>

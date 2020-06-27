@@ -15,14 +15,14 @@ namespace Xunit.Runner.InProc.SystemConsole
     public class ConsoleRunner
     {
         volatile bool cancel;
-        CommandLine commandLine;
+        CommandLine? commandLine;
         readonly object consoleLock;
-        ExecutionSummary executionSummary;
+        ExecutionSummary executionSummary = new ExecutionSummary();
         bool failed;
-        IRunnerLogger logger;
-        IMessageSinkWithTypes reporterMessageHandler;
+        IRunnerLogger? logger;
+        IMessageSinkWithTypes? reporterMessageHandler;
 
-        public ConsoleRunner(object consoleLock = null)
+        public ConsoleRunner(object? consoleLock = null)
         {
             this.consoleLock = consoleLock ?? new object();
         }
@@ -130,11 +130,11 @@ namespace Xunit.Runner.InProc.SystemConsole
         {
             var result = new List<IRunnerReporter>();
 
-            var runnerPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            var runnerPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
 
-            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
+            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath!, f)))
             {
-                var types = new Type[0];
+                Type[]? types;
 
                 try
                 {
@@ -154,7 +154,7 @@ namespace Xunit.Runner.InProc.SystemConsole
                     continue;
                 }
 
-                foreach (var type in types)
+                foreach (var type in types ?? new Type[0])
                 {
                     if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
                         continue;
@@ -277,7 +277,7 @@ namespace Xunit.Runner.InProc.SystemConsole
                        bool stopOnFail,
                        bool internalDiagnosticMessages)
         {
-            XElement assembliesElement = null;
+            XElement? assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
             var xmlTransformers = TransformFactory.GetXmlTransformers(project);
             var needsXml = xmlTransformers.Count > 0;
@@ -290,7 +290,7 @@ namespace Xunit.Runner.InProc.SystemConsole
             var assembly = project.Assemblies.Single();
             var assemblyElement = ExecuteAssembly(consoleLock, assembly, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages);
             if (assemblyElement != null)
-                assembliesElement.Add(assemblyElement);
+                assembliesElement?.Add(assemblyElement);
 
             clockTime.Stop();
 
@@ -309,17 +309,17 @@ namespace Xunit.Runner.InProc.SystemConsole
             return failed ? 1 : executionSummary.Failed;
         }
 
-        XElement ExecuteAssembly(object consoleLock,
-                                 XunitProjectAssembly assembly,
-                                 bool needsXml,
-                                 bool? parallelizeTestCollections,
-                                 int? maxThreadCount,
-                                 bool diagnosticMessages,
-                                 bool noColor,
-                                 bool failSkips,
-                                 bool stopOnFail,
-                                 XunitFilters filters,
-                                 bool internalDiagnosticMessages)
+        XElement? ExecuteAssembly(object consoleLock,
+                                  XunitProjectAssembly assembly,
+                                  bool needsXml,
+                                  bool? parallelizeTestCollections,
+                                  int? maxThreadCount,
+                                  bool diagnosticMessages,
+                                  bool noColor,
+                                  bool failSkips,
+                                  bool stopOnFail,
+                                  XunitFilters filters,
+                                  bool internalDiagnosticMessages)
         {
             if (cancel)
                 return null;
@@ -351,7 +351,7 @@ namespace Xunit.Runner.InProc.SystemConsole
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
                 using var testFramework = new XunitTestFramework(diagnosticMessageSink, assembly.ConfigFilename);
-                var entryAssembly = Assembly.GetEntryAssembly();
+                var entryAssembly = Assembly.GetEntryAssembly()!;
                 var assemblyInfo = new ReflectionAssemblyInfo(entryAssembly);
                 var discoverySink = new TestDiscoverySink(() => cancel);
 
@@ -371,9 +371,7 @@ namespace Xunit.Runner.InProc.SystemConsole
                 reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
 
                 // Run the filtered tests
-                if (testCasesToRun == 0)
-                    executionSummary = new ExecutionSummary();
-                else
+                if (testCasesToRun != 0)
                 {
                     reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
 

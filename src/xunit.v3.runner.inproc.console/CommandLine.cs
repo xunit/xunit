@@ -14,7 +14,7 @@ namespace Xunit.Runner.InProc.SystemConsole
 
         protected CommandLine(string assemblyFileName,
                               string[] args,
-                              Predicate<string> fileExists = null)
+                              Predicate<string>? fileExists = null)
         {
             this.assemblyFileName = assemblyFileName;
 
@@ -78,7 +78,7 @@ namespace Xunit.Runner.InProc.SystemConsole
             return Path.GetFullPath(fileName);
         }
 
-        XunitProject GetProjectFile(string assemblyFileName, string configFileName)
+        XunitProject GetProjectFile(string assemblyFileName, string? configFileName)
             => new XunitProject
             {
                 new XunitProjectAssembly
@@ -88,7 +88,7 @@ namespace Xunit.Runner.InProc.SystemConsole
                 }
             };
 
-        static void GuardNoOptionValue(KeyValuePair<string, string> option)
+        static void GuardNoOptionValue(KeyValuePair<string, string?> option)
         {
             if (option.Value != null)
                 throw new ArgumentException($"error: unknown command line option: {option.Value}");
@@ -305,15 +305,15 @@ namespace Xunit.Runner.InProc.SystemConsole
             return project;
         }
 
-        static KeyValuePair<string, string> PopOption(Stack<string> arguments)
+        static KeyValuePair<string, string?> PopOption(Stack<string> arguments)
         {
             var option = arguments.Pop();
-            string value = null;
+            string? value = null;
 
             if (arguments.Count > 0 && !arguments.Peek().StartsWith("-", StringComparison.Ordinal))
                 value = arguments.Pop();
 
-            return new KeyValuePair<string, string>(option, value);
+            return new KeyValuePair<string, string?>(option, value);
         }
 
         static void EnsurePathExists(string path)
