@@ -9,7 +9,7 @@
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>XUNIT_NULLABLE</DefineConstants>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
     <!-- <Nullable>enable</Nullable> -->
     <RootNamespace>Xunit</RootNamespace>
