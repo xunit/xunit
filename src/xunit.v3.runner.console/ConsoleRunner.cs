@@ -16,12 +16,12 @@ namespace Xunit.Runner.SystemConsole
     class ConsoleRunner
     {
         volatile bool cancel;
-        CommandLine commandLine;
+        CommandLine? commandLine;
         readonly object consoleLock;
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
         bool failed;
-        IRunnerLogger logger;
-        IMessageSinkWithTypes reporterMessageHandler;
+        IRunnerLogger? logger;
+        IMessageSinkWithTypes? reporterMessageHandler;
 
         public ConsoleRunner(object consoleLock)
         {
@@ -128,9 +128,9 @@ namespace Xunit.Runner.SystemConsole
 
             var runnerPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
 
-            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath, f)))
+            foreach (var dllFile in Directory.GetFiles(runnerPath, "*.dll").Select(f => Path.Combine(runnerPath!, f)))
             {
-                var types = new Type[0];
+                Type[]? types;
 
                 try
                 {
@@ -146,7 +146,7 @@ namespace Xunit.Runner.SystemConsole
                     continue;
                 }
 
-                foreach (var type in types)
+                foreach (var type in types ?? new Type[0])
                 {
                     if (type == null || type.GetTypeInfo().IsAbstract || type == typeof(DefaultRunnerReporterWithTypes) || !type.GetInterfaces().Any(t => t == typeof(IRunnerReporter)))
                         continue;
@@ -293,7 +293,7 @@ namespace Xunit.Runner.SystemConsole
                        bool stopOnFail,
                        bool internalDiagnosticMessages)
         {
-            XElement assembliesElement = null;
+            XElement? assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
             var xmlTransformers = TransformFactory.GetXmlTransformers(project);
             var needsXml = xmlTransformers.Count > 0;
@@ -311,7 +311,7 @@ namespace Xunit.Runner.SystemConsole
                 var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages)));
                 var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                 foreach (var assemblyElement in results.Where(result => result != null))
-                    assembliesElement.Add(assemblyElement);
+                    assembliesElement?.Add(assemblyElement);
             }
             else
             {
@@ -319,7 +319,7 @@ namespace Xunit.Runner.SystemConsole
                 {
                     var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages);
                     if (assemblyElement != null)
-                        assembliesElement.Add(assemblyElement);
+                        assembliesElement?.Add(assemblyElement);
                 }
             }
 
@@ -338,19 +338,19 @@ namespace Xunit.Runner.SystemConsole
             return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
         }
 
-        XElement ExecuteAssembly(object consoleLock,
-                                 XunitProjectAssembly assembly,
-                                 bool serialize,
-                                 bool needsXml,
-                                 bool? parallelizeTestCollections,
-                                 int? maxThreadCount,
-                                 bool diagnosticMessages,
-                                 bool noColor,
-                                 AppDomainSupport? appDomains,
-                                 bool failSkips,
-                                 bool stopOnFail,
-                                 XunitFilters filters,
-                                 bool internalDiagnosticMessages)
+        XElement? ExecuteAssembly(object consoleLock,
+                                  XunitProjectAssembly assembly,
+                                  bool serialize,
+                                  bool needsXml,
+                                  bool? parallelizeTestCollections,
+                                  int? maxThreadCount,
+                                  bool diagnosticMessages,
+                                  bool noColor,
+                                  AppDomainSupport? appDomains,
+                                  bool failSkips,
+                                  bool stopOnFail,
+                                  XunitFilters filters,
+                                  bool internalDiagnosticMessages)
         {
             if (cancel)
                 return null;

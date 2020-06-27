@@ -11,7 +11,6 @@
     <DefineConstants>XUNIT_NULLABLE</DefineConstants>
     <LangVersion>8.0</LangVersion>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
-    <!-- <Nullable>enable</Nullable> -->
     <RootNamespace>Xunit</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -31,6 +30,7 @@
         <Company>.NET Foundation</Company>
         <Copyright>Copyright (C) .NET Foundation</Copyright>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <!-- <Nullable>enable</Nullable> -->
         <PackageIcon>content/logo-128-transparent.png</PackageIcon>
         <PackageId>$(MSBuildProjectName)</PackageId>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -44,8 +44,10 @@
       </ItemGroup>
 
       <ItemGroup>
-        <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.27-beta" PrivateAssets="all" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
+        <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.27-beta" PrivateAssets="all" />
+        <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.154" PrivateAssets="all" />
+        <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[3.1.0]" />
       </ItemGroup>
     </When>
   </Choose>

@@ -11,7 +11,7 @@ namespace Xunit.Runner.SystemConsole
         readonly Stack<string> arguments = new Stack<string>();
         readonly List<string> unknownOptions = new List<string>();
 
-        protected CommandLine(string[] args, Predicate<string> fileExists = null)
+        protected CommandLine(string[] args, Predicate<string>? fileExists = null)
         {
             if (fileExists == null)
                 fileExists = File.Exists;
@@ -79,7 +79,7 @@ namespace Xunit.Runner.SystemConsole
             return Path.GetFullPath(fileName);
         }
 
-        XunitProject GetProjectFile(List<Tuple<string, string>> assemblies)
+        XunitProject GetProjectFile(List<Tuple<string, string?>> assemblies)
         {
             var result = new XunitProject();
 
@@ -93,7 +93,7 @@ namespace Xunit.Runner.SystemConsole
             return result;
         }
 
-        static void GuardNoOptionValue(KeyValuePair<string, string> option)
+        static void GuardNoOptionValue(KeyValuePair<string, string?> option)
         {
             if (option.Value != null)
                 throw new ArgumentException($"error: unknown command line option: {option.Value}");
@@ -110,7 +110,7 @@ namespace Xunit.Runner.SystemConsole
 
         protected XunitProject Parse(Predicate<string> fileExists)
         {
-            var assemblies = new List<Tuple<string, string>>();
+            var assemblies = new List<Tuple<string, string?>>();
 
             while (arguments.Count > 0)
             {
@@ -123,7 +123,7 @@ namespace Xunit.Runner.SystemConsole
                 if (!fileExists(assemblyFile))
                     throw new ArgumentException($"file not found: {assemblyFile}");
 
-                string configFile = null;
+                string? configFile = null;
                 if (arguments.Count > 0)
                 {
                     var value = arguments.Peek();
@@ -376,15 +376,15 @@ namespace Xunit.Runner.SystemConsole
             return project;
         }
 
-        static KeyValuePair<string, string> PopOption(Stack<string> arguments)
+        static KeyValuePair<string, string?> PopOption(Stack<string> arguments)
         {
             var option = arguments.Pop();
-            string value = null;
+            string? value = null;
 
             if (arguments.Count > 0 && !arguments.Peek().StartsWith("-", StringComparison.Ordinal))
                 value = arguments.Pop();
 
-            return new KeyValuePair<string, string>(option, value);
+            return new KeyValuePair<string, string?>(option, value);
         }
 
         static void EnsurePathExists(string path)

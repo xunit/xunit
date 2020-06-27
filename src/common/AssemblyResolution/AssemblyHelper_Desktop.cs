@@ -1,4 +1,6 @@
-﻿#if NETFRAMEWORK
+﻿#nullable disable
+
+#if NETFRAMEWORK
 
 using System;
 using System.Collections.Generic;
