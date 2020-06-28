@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Generic;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -21,11 +23,9 @@ namespace Xunit
         public void Dispose() { }
 
         /// <inheritdoc/>
-        public bool OnMessage(IMessageSinkMessage message)
-            => true;
+        public bool OnMessage(IMessageSinkMessage message) => true;
 
         /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
-            => true;
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes) => true;
     }
 }

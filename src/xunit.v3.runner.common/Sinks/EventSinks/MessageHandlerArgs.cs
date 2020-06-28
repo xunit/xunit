@@ -15,10 +15,7 @@ namespace Xunit.Runner.Common
         /// <summary>
         /// Call to indicate that execution should stop.
         /// </summary>
-        public void Stop()
-        {
-            IsStopped = true;
-        }
+        public void Stop() => IsStopped = true;
     }
 
     /// <summary>
@@ -34,6 +31,8 @@ namespace Xunit.Runner.Common
         /// <param name="message">The message to be handled.</param>
         public MessageHandlerArgs(TMessage message)
         {
+            Guard.ArgumentNotNull(nameof(message), message);
+
             Message = message;
         }
 

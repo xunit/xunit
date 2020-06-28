@@ -23,7 +23,7 @@ namespace Xunit.Runner.Common
         /// <param name="stackFrame">The stack frame to transform</param>
         /// <param name="defaultDirectory">The default directory used for computing relative paths</param>
         /// <returns>The transformed stack frame</returns>
-        public static string TransformFrame(string stackFrame, string defaultDirectory)
+        public static string? TransformFrame(string? stackFrame, string? defaultDirectory)
         {
             if (stackFrame == null)
                 return null;
@@ -48,7 +48,7 @@ namespace Xunit.Runner.Common
         /// <param name="stack">The stack to transform</param>
         /// <param name="defaultDirectory">The default directory used for computing relative paths</param>
         /// <returns>The transformed stack</returns>
-        public static string TransformStack(string stack, string defaultDirectory)
+        public static string? TransformStack(string? stack, string? defaultDirectory)
         {
             if (stack == null)
                 return null;

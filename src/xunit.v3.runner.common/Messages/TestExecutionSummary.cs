@@ -9,7 +9,7 @@ namespace Xunit.Runner.Common
     /// </summary>
     public class TestExecutionSummary : ITestExecutionSummary, IMessageSinkMessageWithTypes
     {
-        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestExecutionSummary).GetInterfaces().Select(x => x.FullName));
+        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestExecutionSummary).GetInterfaces().Select(x => x.FullName!));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCollectionStarting"/> class.
@@ -21,12 +21,12 @@ namespace Xunit.Runner.Common
         }
 
         /// <inheritdoc/>
-        public TimeSpan ElapsedClockTime { get; private set; }
+        public TimeSpan ElapsedClockTime { get; }
 
         /// <inheritdoc/>
         public HashSet<string> InterfaceTypes => interfaceTypes;
 
         /// <inheritdoc/>
-        public List<KeyValuePair<string, ExecutionSummary>> Summaries { get; private set; }
+        public List<KeyValuePair<string, ExecutionSummary>> Summaries { get; }
     }
 }

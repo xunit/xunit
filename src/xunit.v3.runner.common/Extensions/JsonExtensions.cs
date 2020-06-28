@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Common
@@ -13,8 +12,10 @@ namespace Xunit.Runner.Common
     public static class JsonExtensions
     {
         /// <summary />
-        public static string ToJson(this IDictionary<string, object> data)
+        public static string ToJson(this IDictionary<string, object?> data)
         {
+            Guard.ArgumentNotNull(nameof(data), data);
+
             var sb = new StringBuilder();
 
             foreach (var kvp in data)
@@ -23,7 +24,7 @@ namespace Xunit.Runner.Common
             return "{" + sb.ToString() + "}";
         }
 
-        static void AddValue(StringBuilder sb, string name, object value)
+        static void AddValue(StringBuilder sb, string name, object? value)
         {
             if (value == null)
                 return;
@@ -34,13 +35,13 @@ namespace Xunit.Runner.Common
             if (value is int || value is long || value is float || value is double || value is decimal)
                 sb.AppendFormat(@"""{0}"":{1}", name, Convert.ToString(value, CultureInfo.InvariantCulture));
             else if (value is bool)
-                sb.AppendFormat(@"""{0}"":{1}", name, value.ToString().ToLower());
+                sb.AppendFormat(@"""{0}"":{1}", name, value.ToString()!.ToLower());
             else if (value is DateTime dt)
                 sb.AppendFormat(@"""{0}"":""{1}""", name, dt.ToString("o", CultureInfo.InvariantCulture));
-            else if (value is IDictionary<string, object> dict)
+            else if (value is IDictionary<string, object?> dict)
                 sb.AppendFormat(@"""{0}"":{1}", name, dict.ToJson()); // sub-object
             else
-                sb.AppendFormat(@"""{0}"":""{1}""", name, JsonEscape(value.ToString()));
+                sb.AppendFormat(@"""{0}"":""{1}""", name, JsonEscape(value.ToString()!));
         }
 
         static string JsonEscape(string value)
@@ -68,7 +69,7 @@ namespace Xunit.Runner.Common
 
         // Field Adders
 
-        delegate void AddFields(object obj, Dictionary<string, object> dict);
+        delegate void AddFields(object obj, Dictionary<string, object?> dict);
 
         static readonly AddFields AddFieldsForITestCollectionMessage = (obj, dict) =>
         {
@@ -134,11 +135,11 @@ namespace Xunit.Runner.Common
             { typeof(ITestCaseCleanupFailure), new List<AddFields> { AddFieldsForIFailureInformation } }
         };
 
-        static Dictionary<string, object> InitObject(string messageName, object message, Type messageType, string flowId = null)
+        static Dictionary<string, object?> InitObject(string messageName, object message, Type messageType, string? flowId = null)
         {
             TypeToFieldAdders[typeof(ITestCollectionStarting)].Add(AddFieldsForITestCollectionMessage);
 
-            var dict = new Dictionary<string, object> { { "message", messageName } };
+            var dict = new Dictionary<string, object?> { { "message", messageName } };
             if (flowId != null)
                 dict["flowId"] = flowId;
 
@@ -153,6 +154,9 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestCollectionStarting testCollectionStarting, string flowId)
         {
+            Guard.ArgumentNotNull(nameof(testCollectionStarting), testCollectionStarting);
+            Guard.ArgumentNotNull(nameof(flowId), flowId);
+
             var json = InitObject("testCollectionStarting", testCollectionStarting, typeof(ITestCollectionStarting), flowId);
 
             return ToJson(json);
@@ -161,6 +165,9 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestCollectionFinished testCollectionFinished, string flowId)
         {
+            Guard.ArgumentNotNull(nameof(testCollectionFinished), testCollectionFinished);
+            Guard.ArgumentNotNull(nameof(flowId), flowId);
+
             var json = InitObject("testCollectionFinished", testCollectionFinished, typeof(ITestCollectionFinished), flowId);
 
             return ToJson(json);
@@ -169,6 +176,9 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestFailed testFailed, string flowId)
         {
+            Guard.ArgumentNotNull(nameof(testFailed), testFailed);
+            Guard.ArgumentNotNull(nameof(flowId), flowId);
+
             var json = InitObject("testFailed", testFailed, typeof(ITestFailed), flowId);
 
             return ToJson(json);
@@ -177,6 +187,9 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestSkipped testSkipped, string flowId)
         {
+            Guard.ArgumentNotNull(nameof(testSkipped), testSkipped);
+            Guard.ArgumentNotNull(nameof(flowId), flowId);
+
             var json = InitObject("testSkipped", testSkipped, typeof(ITestSkipped), flowId);
             json["reason"] = testSkipped.Reason;
             return ToJson(json);
@@ -185,6 +198,9 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestStarting testStarting, string flowId)
         {
+            Guard.ArgumentNotNull(nameof(testStarting), testStarting);
+            Guard.ArgumentNotNull(nameof(flowId), flowId);
+
             var json = InitObject("testStarting", testStarting, typeof(ITestStarting), flowId);
 
             return ToJson(json);
@@ -193,6 +209,8 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this IErrorMessage errorMessage)
         {
+            Guard.ArgumentNotNull(nameof(errorMessage), errorMessage);
+
             var json = InitObject("fatalError", errorMessage, typeof(IErrorMessage));
 
             return ToJson(json);
@@ -201,15 +219,20 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestPassed testPassed, string flowId)
         {
+            Guard.ArgumentNotNull(nameof(testPassed), testPassed);
+            Guard.ArgumentNotNull(nameof(flowId), flowId);
+
             var json = InitObject("testPassed", testPassed, typeof(ITestPassed), flowId);
 
             return ToJson(json);
         }
 
         /// <summary />
-        public static string ToJson(this ITestMethodCleanupFailure ITestMethodCleanupFailure)
+        public static string ToJson(this ITestMethodCleanupFailure testMethodCleanupFailure)
         {
-            var json = InitObject("testMethodCleanupFailure", ITestMethodCleanupFailure, typeof(ITestMethodCleanupFailure));
+            Guard.ArgumentNotNull(nameof(testMethodCleanupFailure), testMethodCleanupFailure);
+
+            var json = InitObject("testMethodCleanupFailure", testMethodCleanupFailure, typeof(ITestMethodCleanupFailure));
 
             return ToJson(json);
         }
@@ -217,6 +240,8 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestCleanupFailure testCleanupFailure)
         {
+            Guard.ArgumentNotNull(nameof(testCleanupFailure), testCleanupFailure);
+
             var json = InitObject("testCleanupFailure", testCleanupFailure, typeof(ITestCleanupFailure));
 
             return ToJson(json);
@@ -225,6 +250,8 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestCollectionCleanupFailure testCollectionCleanupFailure)
         {
+            Guard.ArgumentNotNull(nameof(testCollectionCleanupFailure), testCollectionCleanupFailure);
+
             var json = InitObject("testCollectionCleanupFailure", testCollectionCleanupFailure, typeof(ITestCollectionCleanupFailure));
 
             return ToJson(json);
@@ -233,6 +260,8 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestClassCleanupFailure testClassCleanupFailure)
         {
+            Guard.ArgumentNotNull(nameof(testClassCleanupFailure), testClassCleanupFailure);
+
             var json = InitObject("testClassCleanupFailure", testClassCleanupFailure, typeof(ITestClassCleanupFailure));
 
             return ToJson(json);
@@ -241,6 +270,8 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestAssemblyCleanupFailure testAssemblyCleanupFailure)
         {
+            Guard.ArgumentNotNull(nameof(testAssemblyCleanupFailure), testAssemblyCleanupFailure);
+
             var json = InitObject("testAssemblyCleanupFailure", testAssemblyCleanupFailure, typeof(ITestAssemblyCleanupFailure));
 
             return ToJson(json);
@@ -249,6 +280,8 @@ namespace Xunit.Runner.Common
         /// <summary />
         public static string ToJson(this ITestCaseCleanupFailure testAssemblyCleanupFailure)
         {
+            Guard.ArgumentNotNull(nameof(testAssemblyCleanupFailure), testAssemblyCleanupFailure);
+
             var json = InitObject("testAssemblyCleanupFailure", testAssemblyCleanupFailure, typeof(ITestCaseCleanupFailure));
 
             return ToJson(json);

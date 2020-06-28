@@ -17,8 +17,10 @@ namespace Xunit.Runner.Common
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <returns>The test assembly configuration.</returns>
-        public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null)
+        public static TestAssemblyConfiguration? Load(string assemblyFileName, string? configFileName = null)
         {
+            Guard.ArgumentNotNull(nameof(assemblyFileName), assemblyFileName);
+
             if (configFileName == null)
                 configFileName = assemblyFileName + ".config";
 
@@ -57,22 +59,22 @@ namespace Xunit.Runner.Common
 
         static bool? GetBoolean(KeyValueConfigurationCollection settings, string key)
         {
-            return GetValue<bool?>(settings, key,
+            return GetValue<bool>(settings, key,
                 value =>
                 {
-                    switch (value.ToLowerInvariant())
+                    return (value.ToLowerInvariant()) switch
                     {
-                        case "true": return true;
-                        case "false": return false;
-                        default: return null;
-                    }
+                        "true" => true,
+                        "false" => false,
+                        _ => null,
+                    };
                 });
         }
 
         static TValue? GetEnum<TValue>(KeyValueConfigurationCollection settings, string key)
             where TValue : struct
         {
-            return GetValue<TValue?>(settings, key,
+            return GetValue<TValue>(settings, key,
                 value =>
                 {
                     try { return (TValue)Enum.Parse(typeof(TValue), value, true); }
@@ -82,21 +84,21 @@ namespace Xunit.Runner.Common
 
         static int? GetInt(KeyValueConfigurationCollection settings, string key)
         {
-            return GetValue<int?>(settings, key,
+            return GetValue<int>(settings, key,
                 ValueType =>
                 {
-                    int result;
-                    if (int.TryParse(ValueType, out result))
+                    if (int.TryParse(ValueType, out var result))
                         return result;
                     return null;
                 });
         }
 
-        static T GetValue<T>(KeyValueConfigurationCollection settings, string key, Func<string, T> converter)
+        static T? GetValue<T>(KeyValueConfigurationCollection settings, string key, Func<string, T?> converter)
+            where T : struct
         {
             var settingsKey = settings.AllKeys.FirstOrDefault(k => k.Equals(key, StringComparison.OrdinalIgnoreCase));
             if (settingsKey == null)
-                return default(T);
+                return default;
 
             return converter(settings[settingsKey].Value);
         }

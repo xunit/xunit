@@ -5,6 +5,7 @@
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard2.0' ">xunit.v3.runner.common.netstandard20</AssemblyName>
     <Description>Includes common runner code (xunit.v3.runner.common.*.dll). Supports .NET 4.7.2 or later and .NET Standard 2.0 or later.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
     <RootNamespace>Xunit.Runner.Common</RootNamespace>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <Title>xUnit.net [Runner Common Libraries]</Title>

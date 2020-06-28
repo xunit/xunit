@@ -1,4 +1,6 @@
-﻿using Xunit.Abstractions;
+﻿#nullable enable
+
+using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
@@ -14,7 +16,7 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestPassed"/> class.
         /// </summary>
-        public TestPassed(ITest test, decimal executionTime, string output)
+        public TestPassed(ITest test, decimal executionTime, string? output)
             : base(test, executionTime, output) { }
     }
 }

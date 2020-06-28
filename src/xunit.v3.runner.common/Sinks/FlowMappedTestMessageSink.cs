@@ -18,7 +18,7 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="flowIdMapper">Optional code which maps a test collection name to a flow ID
         /// (the default behavior generates a new GUID for each test collection)</param>
-        public FlowMappedTestMessageSink(Func<string, string> flowIdMapper = null)
+        public FlowMappedTestMessageSink(Func<string, string>? flowIdMapper = null)
         {
             this.flowIdMapper = flowIdMapper ?? (_ => Guid.NewGuid().ToString("N"));
         }
@@ -30,13 +30,13 @@ namespace Xunit.Runner.Common
         /// <returns>The flow ID for the given test collection name</returns>
         protected string ToFlowId(string testCollectionName)
         {
-            string result;
+            Guard.ArgumentNotNull(nameof(testCollectionName), testCollectionName);
 
             flowMappingsLock.EnterReadLock();
 
             try
             {
-                if (flowMappings.TryGetValue(testCollectionName, out result))
+                if (flowMappings.TryGetValue(testCollectionName, out var result))
                     return result;
             }
             finally
@@ -48,12 +48,11 @@ namespace Xunit.Runner.Common
 
             try
             {
-                if (!flowMappings.TryGetValue(testCollectionName, out result))
-                {
-                    result = flowIdMapper(testCollectionName);
-                    flowMappings[testCollectionName] = result;
-                }
+                if (flowMappings.TryGetValue(testCollectionName, out var result))
+                    return result;
 
+                result = flowIdMapper(testCollectionName);
+                flowMappings[testCollectionName] = result;
                 return result;
             }
             finally

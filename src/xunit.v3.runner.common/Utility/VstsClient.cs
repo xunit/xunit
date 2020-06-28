@@ -9,17 +9,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.Runner.Common;
 
 namespace Xunit.Runner.Common
 {
-    class VstsClient : IDisposable
+    class VstsClient
     {
         static readonly MediaTypeWithQualityHeaderValue JsonMediaType = new MediaTypeWithQualityHeaderValue("application/json");
         static readonly HttpMethod PatchHttpMethod = new HttpMethod("PATCH");
         const string UNIQUEIDKEY = "UNIQUEIDKEY";
 
-        ConcurrentQueue<IDictionary<string, object>> addQueue = new ConcurrentQueue<IDictionary<string, object>>();
+        ConcurrentQueue<IDictionary<string, object?>> addQueue = new ConcurrentQueue<IDictionary<string, object?>>();
         readonly string baseUri;
         readonly int buildId;
         readonly HttpClient client;
@@ -28,12 +27,15 @@ namespace Xunit.Runner.Common
         volatile bool previousErrors;
         volatile bool shouldExit;
         readonly ConcurrentDictionary<ITest, int> testToTestIdMap = new ConcurrentDictionary<ITest, int>();
-        ConcurrentQueue<IDictionary<string, object>> updateQueue = new ConcurrentQueue<IDictionary<string, object>>();
+        ConcurrentQueue<IDictionary<string, object?>> updateQueue = new ConcurrentQueue<IDictionary<string, object?>>();
         readonly AutoResetEvent workEvent = new AutoResetEvent(false);
-        readonly Task workTask;
 
         public VstsClient(IRunnerLogger logger, string baseUri, string accessToken, int buildId)
         {
+            Guard.ArgumentNotNull(nameof(logger), logger);
+            Guard.ArgumentNotNullOrEmpty(nameof(baseUri), baseUri);
+            Guard.ArgumentNotNullOrEmpty(nameof(accessToken), accessToken);
+
             this.logger = logger;
             this.baseUri = baseUri;
             this.buildId = buildId;
@@ -41,10 +43,10 @@ namespace Xunit.Runner.Common
             client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-            workTask = Task.Run(RunLoop);
+            Task.Run(RunLoop);
         }
 
-        public void WaitOne(CancellationToken cancellationToken)
+        public void Dispose(CancellationToken cancellationToken)
         {
             // Free up to process any remaining work
             shouldExit = true;
@@ -66,8 +68,8 @@ namespace Xunit.Runner.Common
                     workEvent.WaitOne(); // Wait for work
 
                     // Get local copies of the queues
-                    var aq = Interlocked.Exchange(ref addQueue, new ConcurrentQueue<IDictionary<string, object>>());
-                    var uq = Interlocked.Exchange(ref updateQueue, new ConcurrentQueue<IDictionary<string, object>>());
+                    var aq = Interlocked.Exchange(ref addQueue, new ConcurrentQueue<IDictionary<string, object?>>());
+                    var uq = Interlocked.Exchange(ref updateQueue, new ConcurrentQueue<IDictionary<string, object?>>());
 
                     if (previousErrors)
                         break;
@@ -99,32 +101,32 @@ namespace Xunit.Runner.Common
             }
         }
 
-        public void AddTest(IDictionary<string, object> request, ITest uniqueId)
+        public void AddTest(IDictionary<string, object?> request, ITest uniqueId)
         {
             request.Add(UNIQUEIDKEY, uniqueId);
             addQueue.Enqueue(request);
             workEvent.Set();
         }
 
-        public void UpdateTest(IDictionary<string, object> request, ITest uniqueId)
+        public void UpdateTest(IDictionary<string, object?> request, ITest uniqueId)
         {
             request.Add(UNIQUEIDKEY, uniqueId);
             updateQueue.Enqueue(request);
             workEvent.Set();
         }
 
-        async Task<int> CreateTestRun()
+        async Task<int?> CreateTestRun()
         {
-            var requestMessage = new Dictionary<string, object>
+            var requestMessage = new Dictionary<string, object?>
             {
                 { "name", $"xUnit Runner Test Run on {DateTime.UtcNow:o}"},
-                { "build", new Dictionary<string, object> { { "id", buildId } } },
+                { "build", new Dictionary<string, object?> { { "id", buildId } } },
                 { "isAutomated", true }
             };
 
             var bodyString = requestMessage.ToJson();
             var url = $"{baseUri}?api-version=1.0";
-            var respString = default(string);
+            var responseString = default(string);
             try
             {
                 var bodyBytes = Encoding.UTF8.GetBytes(bodyString);
@@ -144,22 +146,22 @@ namespace Xunit.Runner.Common
                     previousErrors = true;
                 }
 
-                respString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                using var sr = new StringReader(respString);
-                var resp = JsonDeserializer.Deserialize(sr) as JsonObject;
-                var id = resp.ValueAsInt("id");
+                responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                using var sr = new StringReader(responseString);
+                var responseJson = JsonDeserializer.Deserialize(sr) as JsonObject;
+                var id = responseJson?.ValueAsInt("id");
                 return id;
             }
             catch (Exception ex)
             {
-                logger.LogError($"When sending 'POST {url}' with body '{bodyString}'\nexception was thrown: {ex.Message}\nresponse string:\n{respString}");
+                logger.LogError($"When sending 'POST {url}' with body '{bodyString}'\nexception was thrown: {ex.Message}\nresponse string:\n{responseString}");
                 throw;
             }
         }
 
         async Task FinishTestRun(int testRunId)
         {
-            var requestMessage = new Dictionary<string, object>
+            var requestMessage = new Dictionary<string, object?>
             {
                 { "completedDate", DateTime.UtcNow },
                 { "state", "Completed" }
@@ -193,14 +195,14 @@ namespace Xunit.Runner.Common
             }
         }
 
-        async Task SendTestResults(bool isAdd, int runId, ICollection<IDictionary<string, object>> body)
+        async Task SendTestResults(bool isAdd, int runId, ICollection<IDictionary<string, object?>> body)
         {
             if (body.Count == 0)
                 return;
 
             // For adds, we need to remove the unique IDs and correlate to the responses
             // For update we need to look up the responses
-            List<ITest> added = null;
+            List<ITest>? added = null;
             if (isAdd)
             {
                 added = new List<ITest>(body.Count);
@@ -208,10 +210,11 @@ namespace Xunit.Runner.Common
                 // Add them to the list so we can ref by ordinal on the response
                 foreach (var item in body)
                 {
-                    var uniqueId = (ITest)item[UNIQUEIDKEY];
-                    item.Remove(UNIQUEIDKEY);
+                    var test = (ITest?)item[UNIQUEIDKEY];
+                    Guard.NotNull("Pulled null ITest item from work queue", test);
 
-                    added.Add(uniqueId);
+                    item.Remove(UNIQUEIDKEY);
+                    added.Add(test);
                 }
             }
             else
@@ -219,7 +222,9 @@ namespace Xunit.Runner.Common
                 // The values should be in the map
                 foreach (var item in body)
                 {
-                    var test = (ITest)item[UNIQUEIDKEY];
+                    var test = (ITest?)item[UNIQUEIDKEY];
+                    Guard.NotNull("Pulled null ITest item from work queue", test);
+
                     item.Remove(UNIQUEIDKEY);
 
                     // lookup and add
@@ -257,16 +262,22 @@ namespace Xunit.Runner.Common
                     var respString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
                     using var sr = new StringReader(respString);
-                    var resp = JsonDeserializer.Deserialize(sr) as JsonObject;
+                    var responseValue = JsonDeserializer.Deserialize(sr);
+                    var responseJson = responseValue as JsonObject;
+                    Guard.NotNull($"JSON response was not in the proper format (expected JsonObject, got {responseValue.GetType().Name}", responseJson);
 
-                    var testCases = resp.Value("value") as JsonArray;
+                    var testCases = responseJson.Value("value") as JsonArray;
+                    Guard.NotNull("JSON response was missing top-level 'value' array", testCases);
+
                     for (var i = 0; i < testCases.Length; ++i)
                     {
                         var testCase = testCases[i] as JsonObject;
+                        Guard.NotNull($"JSON response value element {i} was not in the proper format (expected JsonObject, got {testCases[i].GetType().Name}", testCase);
+
                         var id = testCase.ValueAsInt("id");
 
                         // Match the test by ordinal
-                        var test = added[i];
+                        var test = added![i];
                         testToTestIdMap[test] = id;
                     }
                 }
@@ -278,28 +289,10 @@ namespace Xunit.Runner.Common
             }
         }
 
-        static string ToJson(IEnumerable<IDictionary<string, object>> data)
+        static string ToJson(IEnumerable<IDictionary<string, object?>> data)
         {
             var results = string.Join(",", data.Select(x => x.ToJson()));
             return $"[{results}]";
-        }
-
-        bool disposedValue = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                    workEvent.Dispose();
-
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
@@ -19,18 +21,23 @@ namespace Xunit
         public TestAssemblyStarting(IEnumerable<ITestCase> testCases, ITestAssembly testAssembly, DateTime startTime, string testEnvironment, string testFrameworkDisplayName)
             : base(testCases, testAssembly)
         {
+            Guard.ArgumentNotNull(nameof(testCases), testCases);
+            Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
+            Guard.ArgumentNotNull(nameof(testEnvironment), testEnvironment);
+            Guard.ArgumentNotNull(nameof(testFrameworkDisplayName), testFrameworkDisplayName);
+
             StartTime = startTime;
             TestEnvironment = testEnvironment;
             TestFrameworkDisplayName = testFrameworkDisplayName;
         }
 
         /// <inheritdoc/>
-        public DateTime StartTime { get; set; }
+        public DateTime StartTime { get; }
 
         /// <inheritdoc/>
-        public string TestEnvironment { get; set; }
+        public string TestEnvironment { get; }
 
         /// <inheritdoc/>
-        public string TestFrameworkDisplayName { get; set; }
+        public string TestFrameworkDisplayName { get; }
     }
 }

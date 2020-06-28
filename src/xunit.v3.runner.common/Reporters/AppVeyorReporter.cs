@@ -1,3 +1,4 @@
+using System;
 using Xunit.Abstractions;
 
 namespace Xunit.Runner.Common
@@ -10,21 +11,19 @@ namespace Xunit.Runner.Common
     public class AppVeyorReporter : IRunnerReporter
     {
         /// <inheritdoc />
-        public string Description
-            => "AppVeyor CI support";
+        public string Description => "AppVeyor CI support";
 
         /// <inheritdoc />
-        public bool IsEnvironmentallyEnabled
-            => !string.IsNullOrWhiteSpace(EnvironmentHelper.GetEnvironmentVariable("APPVEYOR_API_URL"));
+        public bool IsEnvironmentallyEnabled =>
+            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("APPVEYOR_API_URL"));
 
         /// <inheritdoc />
-        public string RunnerSwitch
-            => null;
+        public string? RunnerSwitch => null;
 
         /// <inheritdoc />
         public IMessageSink CreateMessageHandler(IRunnerLogger logger)
         {
-            var baseUri = EnvironmentHelper.GetEnvironmentVariable("APPVEYOR_API_URL");
+            var baseUri = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
             return baseUri == null
                 ? new DefaultRunnerReporterWithTypesMessageHandler(logger)
                 : new AppVeyorReporterMessageHandler(logger, baseUri);

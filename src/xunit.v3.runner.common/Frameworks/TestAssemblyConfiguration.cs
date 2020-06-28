@@ -17,7 +17,7 @@ namespace Xunit.Runner.Common
         /// Gets or sets a flag indicating whether an app domain should be used to discover and run tests.
         /// If the flag is not set, returns the default value (<see cref="AppDomainSupport.IfAvailable"/>).
         /// </summary>
-        public AppDomainSupport AppDomainOrDefault { get { return AppDomain ?? AppDomainSupport.IfAvailable; } }
+        public AppDomainSupport AppDomainOrDefault => AppDomain ?? AppDomainSupport.IfAvailable;
 
         /// <summary>
         /// Gets or sets a flag indicating that the end user wants diagnostic messages
@@ -30,7 +30,7 @@ namespace Xunit.Runner.Common
         /// from the test framework. If the flag is not set, returns the default
         /// value (<c>false</c>).
         /// </summary>
-        public bool DiagnosticMessagesOrDefault { get { return DiagnosticMessages ?? false; } }
+        public bool DiagnosticMessagesOrDefault => DiagnosticMessages ?? false;
 
         /// <summary>
         /// Gets or sets a flag indicating that the end user wants internal diagnostic messages
@@ -43,7 +43,7 @@ namespace Xunit.Runner.Common
         /// from the test framework. If the flag is not set, returns the default
         /// value (<c>false</c>).
         /// </summary>
-        public bool InternalDiagnosticMessagesOrDefault { get { return InternalDiagnosticMessages ?? false; } }
+        public bool InternalDiagnosticMessagesOrDefault => InternalDiagnosticMessages ?? false;
 
         /// <summary>
         /// Gets the number of seconds that a test can run before being considered "long running". Set to a positive
@@ -55,7 +55,7 @@ namespace Xunit.Runner.Common
         /// Gets the number of seconds that a test can run before being considered "long running". If the value is not
         /// set, returns the default value (-1).
         /// </summary>
-        public int LongRunningTestSecondsOrDefault { get { return LongRunningTestSeconds ?? -1; } }
+        public int LongRunningTestSecondsOrDefault => LongRunningTestSeconds ?? -1;
 
         /// <summary>
         /// Gets or sets the maximum number of thread to use when parallelizing this assembly.
@@ -66,7 +66,7 @@ namespace Xunit.Runner.Common
         /// Gets the maximum number of thread to use when parallelizing this assembly.
         /// If the value is not set, returns the default value (<see cref="Environment.ProcessorCount"/>).
         /// </summary>
-        public int MaxParallelThreadsOrDefault { get { return MaxParallelThreads ?? Environment.ProcessorCount; } }
+        public int MaxParallelThreadsOrDefault => MaxParallelThreads ?? Environment.ProcessorCount;
 
         /// <summary>
         /// Gets or sets the default display name for test methods.
@@ -77,7 +77,7 @@ namespace Xunit.Runner.Common
         /// Gets the default display name for test methods. If the value is not set, returns
         /// the default value (<see cref="TestMethodDisplay.ClassAndMethod"/>).
         /// </summary>
-        public TestMethodDisplay MethodDisplayOrDefault { get { return MethodDisplay ?? TestMethodDisplay.ClassAndMethod; } }
+        public TestMethodDisplay MethodDisplayOrDefault => MethodDisplay ?? TestMethodDisplay.ClassAndMethod;
 
         /// <summary>
         /// Gets or sets the default display options for test methods.
@@ -88,7 +88,7 @@ namespace Xunit.Runner.Common
         /// Gets the default display options for test methods. If the value is not set, returns
         /// the default value (<see cref="TestMethodDisplayOptions.None"/>).
         /// </summary>
-        public TestMethodDisplayOptions MethodDisplayOptionsOrDefault { get { return MethodDisplayOptions ?? TestMethodDisplayOptions.None; } }
+        public TestMethodDisplayOptions MethodDisplayOptionsOrDefault => MethodDisplayOptions ?? TestMethodDisplayOptions.None;
 
         /// <summary>
         /// Gets or sets a flag indicating that this assembly is safe to parallelize against
@@ -100,7 +100,7 @@ namespace Xunit.Runner.Common
         /// Gets a flag indicating that this assembly is safe to parallelize against
         /// other assemblies. If the flag is not set, returns the default value (<c>false</c>).
         /// </summary>
-        public bool ParallelizeAssemblyOrDefault { get { return ParallelizeAssembly ?? false; } }
+        public bool ParallelizeAssemblyOrDefault => ParallelizeAssembly ?? false;
 
         /// <summary>
         /// Gets or sets a flag indicating that this test assembly wants to run test collections
@@ -113,7 +113,7 @@ namespace Xunit.Runner.Common
         /// in parallel against one another. If the flag is not set, returns the default
         /// value (<c>true</c>).
         /// </summary>
-        public bool ParallelizeTestCollectionsOrDefault { get { return ParallelizeTestCollections ?? true; } }
+        public bool ParallelizeTestCollectionsOrDefault => ParallelizeTestCollections ?? true;
 
         /// <summary>
         /// Gets or sets a flag indicating whether theory data should be pre-enumerated during
@@ -125,7 +125,7 @@ namespace Xunit.Runner.Common
         /// Gets a flag indicating whether theory data should be pre-enumerated during
         /// test discovery. If the flag is not set, returns the default value (<c>true</c>).
         /// </summary>
-        public bool PreEnumerateTheoriesOrDefault { get { return PreEnumerateTheories ?? true; } }
+        public bool PreEnumerateTheoriesOrDefault => PreEnumerateTheories ?? true;
 
         /// <summary>
         /// Gets or sets a flag indicating whether shadow copies should be used.
@@ -136,7 +136,7 @@ namespace Xunit.Runner.Common
         /// Gets a flag indicating whether shadow copies should be used. If the flag is not set,
         /// returns the default value (<c>true</c>).
         /// </summary>
-        public bool ShadowCopyOrDefault { get { return ShadowCopy ?? true; } }
+        public bool ShadowCopyOrDefault => ShadowCopy ?? true;
 
         /// <summary>
         /// Gets or sets a flag indicating whether testing should stop on a failure.
@@ -147,6 +147,6 @@ namespace Xunit.Runner.Common
         /// Gets a flag indicating whether testing should stop on a test failure. If the flag is not set,
         /// returns the default value (<c>false</c>).
         /// </summary>
-        public bool StopOnFailOrDefault { get { return StopOnFail ?? false; } }
+        public bool StopOnFailOrDefault => StopOnFail ?? false;
     }
 }

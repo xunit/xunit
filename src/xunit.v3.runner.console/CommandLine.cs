@@ -79,15 +79,15 @@ namespace Xunit.Runner.SystemConsole
             return Path.GetFullPath(fileName);
         }
 
-        XunitProject GetProjectFile(List<Tuple<string, string?>> assemblies)
+        XunitProject GetProjectFile(List<(string assemblyFileName, string? configFileName)> assemblies)
         {
             var result = new XunitProject();
 
             foreach (var assembly in assemblies)
                 result.Add(new XunitProjectAssembly
                 {
-                    AssemblyFilename = GetFullPath(assembly.Item1),
-                    ConfigFilename = assembly.Item2 != null ? GetFullPath(assembly.Item2) : null,
+                    AssemblyFilename = GetFullPath(assembly.assemblyFileName),
+                    ConfigFilename = assembly.Item2 != null ? GetFullPath(assembly.configFileName) : null,
                 });
 
             return result;
@@ -110,7 +110,7 @@ namespace Xunit.Runner.SystemConsole
 
         protected XunitProject Parse(Predicate<string> fileExists)
         {
-            var assemblies = new List<Tuple<string, string?>>();
+            var assemblies = new List<(string assemblyFileName, string? configFileName)>();
 
             while (arguments.Count > 0)
             {
@@ -135,7 +135,7 @@ namespace Xunit.Runner.SystemConsole
                     }
                 }
 
-                assemblies.Add(Tuple.Create(assemblyFile, configFile));
+                assemblies.Add((assemblyFile, configFile));
             }
 
             var project = GetProjectFile(assemblies);

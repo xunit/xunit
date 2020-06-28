@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -31,6 +33,6 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public ITestClass TestClass { get; set; }
+        public ITestClass TestClass { get; }
     }
 }

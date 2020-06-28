@@ -8,10 +8,10 @@ namespace Xunit.Runner.Common
     /// </summary>
     public class TestMessageSink : AggregateMessageSink, IMessageSink
     {
-        DiagnosticEventSink diagnostics;
-        DiscoveryEventSink discovery;
-        ExecutionEventSink execution;
-        RunnerEventSink runner;
+        DiagnosticEventSink? diagnostics;
+        DiscoveryEventSink? discovery;
+        ExecutionEventSink? execution;
+        RunnerEventSink? runner;
 
         /// <summary>
         /// Gets a list of diagnostics events that can be subscribed to.
@@ -35,6 +35,10 @@ namespace Xunit.Runner.Common
 
         /// <inheritdoc/>
         public bool OnMessage(IMessageSinkMessage message)
-            => OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
+        {
+            Guard.ArgumentNotNull(nameof(message), message);
+
+            return OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
+        }
     }
 }

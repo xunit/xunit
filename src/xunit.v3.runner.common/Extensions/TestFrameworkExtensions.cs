@@ -19,6 +19,10 @@ public static class TestFrameworkExtensions
                             IMessageSinkWithTypes discoveryMessageSink,
                             ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoverer), discoverer);
+        Guard.ArgumentNotNull(nameof(discoveryMessageSink), discoveryMessageSink);
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         discoverer.Find(includeSourceInformation, MessageSinkAdapter.Wrap(discoveryMessageSink), discoveryOptions);
     }
 
@@ -36,6 +40,11 @@ public static class TestFrameworkExtensions
                             IMessageSinkWithTypes discoveryMessageSink,
                             ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoverer), discoverer);
+        Guard.ArgumentNotNull(nameof(typeName), typeName);
+        Guard.ArgumentNotNull(nameof(discoveryMessageSink), discoveryMessageSink);
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         discoverer.Find(typeName, includeSourceInformation, MessageSinkAdapter.Wrap(discoveryMessageSink), discoveryOptions);
     }
 
@@ -51,6 +60,11 @@ public static class TestFrameworkExtensions
                               ITestFrameworkDiscoveryOptions discoveryOptions,
                               ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executor), executor);
+        Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         executor.RunAll(MessageSinkAdapter.Wrap(executionMessageSink), discoveryOptions, executionOptions);
     }
 
@@ -66,6 +80,11 @@ public static class TestFrameworkExtensions
                                 IMessageSinkWithTypes executionMessageSink,
                                 ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executor), executor);
+        Guard.ArgumentNotNull(nameof(testCases), testCases);
+        Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         executor.RunTests(testCases, MessageSinkAdapter.Wrap(executionMessageSink), executionOptions);
     }
 }

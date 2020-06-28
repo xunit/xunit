@@ -19,13 +19,10 @@ namespace Xunit.Runner.Common
         }
 
         /// <summary/>
-        public ICollection<XunitProjectAssembly> Assemblies
-        {
-            get { return assemblies; }
-        }
+        public ICollection<XunitProjectAssembly> Assemblies => assemblies;
 
         /// <summary/>
-        public XunitFilters Filters { get; private set; }
+        public XunitFilters Filters { get; }
 
         /// <summary/>
         public Dictionary<string, string> Output { get; set; }
@@ -39,14 +36,10 @@ namespace Xunit.Runner.Common
         }
 
         /// <summary/>
-        public IEnumerator<XunitProjectAssembly> GetEnumerator()
-        {
-            return assemblies.GetEnumerator();
-        }
+        public IEnumerator<XunitProjectAssembly> GetEnumerator() =>
+            assemblies.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() =>
+            GetEnumerator();
     }
 }

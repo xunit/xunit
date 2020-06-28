@@ -21,36 +21,31 @@ namespace Xunit.Runner.Common
         TransformFactory()
         {
             availableTransforms = new List<Transform> {
-                new Transform
-                {
-                    ID = "xml",
-                    Description = "output results to xUnit.net v2+ XML file",
-                    OutputHandler = Handler_DirectWrite
-                },
-                new Transform
-                {
-                    ID = "xmlv1",
-                    Description = "output results to xUnit.net v1 XML file",
-                    OutputHandler = (xml, outputFileName) => Handler_XslTransform("xUnit1.xslt", xml, outputFileName)
-                },
-                new Transform
-                {
-                    ID = "html",
-                    Description = "output results to HTML file",
-                    OutputHandler = (xml, outputFileName) => Handler_XslTransform("HTML.xslt", xml, outputFileName)
-                },
-                new Transform
-                {
-                    ID = "nunit",
-                    Description = "output results to NUnit v2.5 XML file",
-                    OutputHandler = (xml, outputFileName) => Handler_XslTransform("NUnitXml.xslt", xml, outputFileName)
-                },
-                new Transform
-                {
-                    ID = "junit",
-                    Description = "output results to JUnit XML file",
-                    OutputHandler = (xml, outputFileName) => Handler_XslTransform("JUnitXml.xslt", xml, outputFileName)
-                }
+                new Transform(
+                    "xml",
+                    "output results to xUnit.net v2+ XML file",
+                    Handler_DirectWrite
+                ),
+                new Transform(
+                    "xmlv1",
+                    "output results to xUnit.net v1 XML file",
+                    (xml, outputFileName) => Handler_XslTransform("xUnit1.xslt", xml, outputFileName)
+                ),
+                new Transform(
+                    "html",
+                    "output results to HTML file",
+                    (xml, outputFileName) => Handler_XslTransform("HTML.xslt", xml, outputFileName)
+                ),
+                new Transform(
+                    "nunit",
+                    "output results to NUnit v2.5 XML file",
+                    (xml, outputFileName) => Handler_XslTransform("NUnitXml.xslt", xml, outputFileName)
+                ),
+                new Transform(
+                    "junit",
+                    "output results to JUnit XML file",
+                    (xml, outputFileName) => Handler_XslTransform("JUnitXml.xslt", xml, outputFileName)
+                ),
             };
         }
 
@@ -65,19 +60,30 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="project">The project to get transforms for.</param>
         /// <returns>The list of transform functions.</returns>
-        public static List<Action<XElement>> GetXmlTransformers(XunitProject project) =>
-            project.Output
-                .Select(output => new Action<XElement>(xml => instance.availableTransforms.Single(t => t.ID == output.Key).OutputHandler(xml, output.Value)))
-                .ToList();
+        public static List<Action<XElement>> GetXmlTransformers(XunitProject project)
+        {
+            Guard.ArgumentNotNull(nameof(project), project);
+
+            return
+                project.Output
+                    .Select(output => new Action<XElement>(xml => instance.availableTransforms.Single(t => t.ID == output.Key).OutputHandler(xml, output.Value)))
+                    .ToList();
+        }
 
         static void Handler_DirectWrite(XElement xml, string outputFileName)
         {
+            Guard.ArgumentNotNull(nameof(xml), xml);
+            Guard.ArgumentNotNull(nameof(outputFileName), outputFileName);
+
             using var stream = File.Create(outputFileName);
             xml.Save(stream);
         }
 
         static void Handler_XslTransform(string resourceName, XElement xml, string outputFileName)
         {
+            Guard.ArgumentNotNull(nameof(xml), xml);
+            Guard.ArgumentNotNull(nameof(outputFileName), outputFileName);
+
             var xmlTransform = new XslCompiledTransform();
 
             using var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true });

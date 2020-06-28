@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using Xunit.Abstractions;
 
 namespace Xunit.Runner.Common
 {
@@ -9,19 +10,17 @@ namespace Xunit.Runner.Common
     public class TeamCityReporter : IRunnerReporter
     {
         /// <inheritdoc />
-        public string Description
-            => "TeamCity CI support [normally auto-enabled]";
+        public string Description => "TeamCity CI support [normally auto-enabled]";
 
         /// <inheritdoc />
-        public bool IsEnvironmentallyEnabled
-            => !string.IsNullOrWhiteSpace(EnvironmentHelper.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME"));
+        public bool IsEnvironmentallyEnabled =>
+            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME"));
 
         /// <inheritdoc />
-        public string RunnerSwitch
-            => "teamcity";
+        public string RunnerSwitch => "teamcity";
 
         /// <inheritdoc />
-        public IMessageSink CreateMessageHandler(IRunnerLogger logger)
-            => new TeamCityReporterMessageHandler(logger);
+        public IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
+            new TeamCityReporterMessageHandler(logger);
     }
 }

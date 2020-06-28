@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using Xunit.Abstractions;
@@ -16,9 +18,14 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestClassCleanupFailure"/> class.
         /// </summary>
-        public TestMethodCleanupFailure(IEnumerable<ITestCase> testCases, ITestMethod testMethod, string[] exceptionTypes, string[] messages, string[] stackTraces, int[] exceptionParentIndices)
+        public TestMethodCleanupFailure(IEnumerable<ITestCase> testCases, ITestMethod testMethod, string?[] exceptionTypes, string[] messages, string?[] stackTraces, int[] exceptionParentIndices)
             : base(testCases, testMethod)
         {
+            Guard.ArgumentNotNull(nameof(exceptionTypes), exceptionTypes);
+            Guard.ArgumentNotNull(nameof(messages), messages);
+            Guard.ArgumentNotNull(nameof(stackTraces), stackTraces);
+            Guard.ArgumentNotNull(nameof(exceptionParentIndices), exceptionParentIndices);
+
             StackTraces = stackTraces;
             Messages = messages;
             ExceptionTypes = exceptionTypes;
@@ -31,6 +38,8 @@ namespace Xunit
         public TestMethodCleanupFailure(IEnumerable<ITestCase> testCases, ITestMethod testMethod, Exception ex)
             : base(testCases, testMethod)
         {
+            Guard.ArgumentNotNull(nameof(ex), ex);
+
             var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
             ExceptionTypes = failureInfo.ExceptionTypes;
             Messages = failureInfo.Messages;
@@ -39,15 +48,15 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public string[] ExceptionTypes { get; private set; }
+        public string?[] ExceptionTypes { get; }
 
         /// <inheritdoc/>
-        public string[] Messages { get; private set; }
+        public string[] Messages { get; }
 
         /// <inheritdoc/>
-        public string[] StackTraces { get; private set; }
+        public string?[] StackTraces { get; }
 
         /// <inheritdoc/>
-        public int[] ExceptionParentIndices { get; private set; }
+        public int[] ExceptionParentIndices { get; }
     }
 }

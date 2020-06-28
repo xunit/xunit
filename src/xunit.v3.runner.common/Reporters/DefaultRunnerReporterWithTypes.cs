@@ -10,19 +10,16 @@ namespace Xunit.Runner.Common
     public class DefaultRunnerReporterWithTypes : IRunnerReporter
     {
         /// <inheritdoc/>
-        public virtual string Description
-            => null;
+        public virtual string Description => "Default runner report (high performance)";
 
         /// <inheritdoc/>
-        public virtual bool IsEnvironmentallyEnabled
-            => false;
+        public virtual bool IsEnvironmentallyEnabled => false;
 
         /// <inheritdoc/>
-        public virtual string RunnerSwitch
-            => null;
+        public virtual string? RunnerSwitch => null;
 
         /// <inheritdoc/>
-        public virtual IMessageSink CreateMessageHandler(IRunnerLogger logger)
-            => new DefaultRunnerReporterWithTypesMessageHandler(logger);
+        public virtual IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
+            new DefaultRunnerReporterWithTypesMessageHandler(logger);
     }
 }

@@ -13,7 +13,7 @@ namespace Xunit.Runner.Common
     /// </summary>
     public class DefaultRunnerReporterWithTypesMessageHandler : TestMessageSink
     {
-        readonly string defaultDirectory = null;
+        readonly string? defaultDirectory = null;
         readonly ITestFrameworkExecutionOptions defaultExecutionOptions = TestFrameworkOptions.ForExecution();
         readonly Dictionary<string, ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
 
@@ -23,6 +23,8 @@ namespace Xunit.Runner.Common
         /// <param name="logger">The logger used to report messages</param>
         public DefaultRunnerReporterWithTypesMessageHandler(IRunnerLogger logger)
         {
+            Guard.ArgumentNotNull(nameof(logger), logger);
+
 #if NETFRAMEWORK
             defaultDirectory = Directory.GetCurrentDirectory();
 #endif
@@ -51,10 +53,12 @@ namespace Xunit.Runner.Common
         /// <summary>
         /// Get the logger used to report messages.
         /// </summary>
-        protected IRunnerLogger Logger { get; private set; }
+        protected IRunnerLogger Logger { get; }
 
-        void AddExecutionOptions(string assemblyFilename, ITestFrameworkExecutionOptions executionOptions)
+        void AddExecutionOptions(string? assemblyFilename, ITestFrameworkExecutionOptions executionOptions)
         {
+            Guard.NotNull("Attempted to log messages for an XunitProjectAssembly without first setting AssemblyFilename", assemblyFilename);
+
             using (ReaderWriterLockWrapper.WriteLock())
                 executionOptionsByAssembly[assemblyFilename] = executionOptions;
         }
@@ -64,7 +68,7 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="text">The text to be escaped</param>
         /// <returns>The escaped text</returns>
-        protected virtual string Escape(string text)
+        protected virtual string Escape(string? text)
         {
             if (text == null)
                 return string.Empty;
@@ -78,7 +82,11 @@ namespace Xunit.Runner.Common
         /// <param name="assemblyMessage">The test assembly message</param>
         /// <returns>The assembly display name</returns>
         protected virtual string GetAssemblyDisplayName(ITestAssemblyMessage assemblyMessage)
-            => Path.GetFileNameWithoutExtension(assemblyMessage.TestAssembly.Assembly.AssemblyPath);
+        {
+            Guard.ArgumentNotNull(nameof(assemblyMessage), assemblyMessage);
+
+            return Path.GetFileNameWithoutExtension(assemblyMessage.TestAssembly.Assembly.AssemblyPath);
+        }
 
         /// <summary>
         /// Gets the display name of a test assembly from a test assembly message.
@@ -86,23 +94,27 @@ namespace Xunit.Runner.Common
         /// <param name="assembly">The test assembly</param>
         /// <returns>The assembly display name</returns>
         protected virtual string GetAssemblyDisplayName(XunitProjectAssembly assembly)
-            => Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
+        {
+            Guard.ArgumentNotNull(nameof(assembly), assembly);
+            Guard.NotNull("Attempted to get assembly display name for XunitProjectAssembly without first setting AssemblyFilename", assembly.AssemblyFilename);
+
+            return Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
+        }
 
         /// <summary>
         /// Get the test framework options for the given assembly. If it cannot find them, then it
         /// returns a default set of options.
         /// </summary>
         /// <param name="assemblyFilename">The test assembly filename</param>
-        /// <returns></returns>
         protected ITestFrameworkExecutionOptions GetExecutionOptions(string assemblyFilename)
         {
-            ITestFrameworkExecutionOptions result;
+            Guard.ArgumentNotNull(nameof(assemblyFilename), assemblyFilename);
 
             using (ReaderWriterLockWrapper.ReadLock())
-                if (!executionOptionsByAssembly.TryGetValue(assemblyFilename, out result))
-                    result = defaultExecutionOptions;
+                if (executionOptionsByAssembly.TryGetValue(assemblyFilename, out var result))
+                    return result;
 
-            return result;
+            return defaultExecutionOptions;
         }
 
         /// <summary>
@@ -112,6 +124,9 @@ namespace Xunit.Runner.Common
         /// <param name="failureInfo">The failure information</param>
         protected void LogError(string failureType, IFailureInformation failureInfo)
         {
+            Guard.ArgumentNotNull(nameof(failureType), failureType);
+            Guard.ArgumentNotNull(nameof(failureInfo), failureInfo);
+
             var frameInfo = StackFrameInfo.FromFailure(failureInfo);
 
             lock (Logger.LockObject)
@@ -128,7 +143,7 @@ namespace Xunit.Runner.Common
         /// <summary>
         /// Logs a stack trace to the logger.
         /// </summary>
-        protected virtual void LogStackTrace(StackFrameInfo frameInfo, string stackTrace)
+        protected virtual void LogStackTrace(StackFrameInfo frameInfo, string? stackTrace)
         {
             if (string.IsNullOrEmpty(stackTrace))
                 return;
@@ -142,7 +157,7 @@ namespace Xunit.Runner.Common
         /// <summary>
         /// Lots test output to the logger.
         /// </summary>
-        protected virtual void LogOutput(StackFrameInfo frameInfo, string output)
+        protected virtual void LogOutput(StackFrameInfo frameInfo, string? output)
         {
             if (string.IsNullOrEmpty(output))
                 return;
@@ -158,8 +173,10 @@ namespace Xunit.Runner.Common
                 Logger.LogImportantMessage(frameInfo, $"        {line}");
         }
 
-        void RemoveExecutionOptions(string assemblyFilename)
+        void RemoveExecutionOptions(string? assemblyFilename)
         {
+            Guard.NotNull("Attempted to log messages for an XunitProjectAssembly without first setting AssemblyFilename", assemblyFilename);
+
             using (ReaderWriterLockWrapper.WriteLock())
                 executionOptionsByAssembly.Remove(assemblyFilename);
         }
@@ -169,7 +186,11 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
-            => LogError("FATAL ERROR", args.Message);
+        {
+            Guard.ArgumentNotNull(nameof(args), args);
+
+            LogError("FATAL ERROR", args.Message);
+        }
 
         /// <summary>
         /// Called when <see cref="ITestAssemblyDiscoveryFinished"/> is raised.
@@ -177,6 +198,8 @@ namespace Xunit.Runner.Common
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyDiscoveryFinished(MessageHandlerArgs<ITestAssemblyDiscoveryFinished> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var discoveryFinished = args.Message;
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryFinished.Assembly);
 
@@ -199,6 +222,8 @@ namespace Xunit.Runner.Common
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyDiscoveryStarting(MessageHandlerArgs<ITestAssemblyDiscoveryStarting> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var discoveryStarting = args.Message;
             var assemblyDisplayName = GetAssemblyDisplayName(discoveryStarting.Assembly);
 
@@ -220,6 +245,8 @@ namespace Xunit.Runner.Common
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyExecutionFinished(MessageHandlerArgs<ITestAssemblyExecutionFinished> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var executionFinished = args.Message;
             Logger.LogImportantMessage($"  Finished:    {GetAssemblyDisplayName(executionFinished.Assembly)}");
 
@@ -232,6 +259,8 @@ namespace Xunit.Runner.Common
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyExecutionStarting(MessageHandlerArgs<ITestAssemblyExecutionStarting> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var executionStarting = args.Message;
             AddExecutionOptions(executionStarting.Assembly.AssemblyFilename, executionStarting.ExecutionOptions);
 
@@ -252,42 +281,66 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
-            => LogError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
+        {
+            Guard.ArgumentNotNull(nameof(args), args);
+
+            LogError($"Test Assembly Cleanup Failure ({args.Message.TestAssembly.Assembly.AssemblyPath})", args.Message);
+        }
 
         /// <summary>
         /// Called when <see cref="ITestCaseCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
-            => LogError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
+        {
+            Guard.ArgumentNotNull(nameof(args), args);
+
+            LogError($"Test Case Cleanup Failure ({args.Message.TestCase.DisplayName})", args.Message);
+        }
 
         /// <summary>
         /// Called when <see cref="ITestClassCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
-            => LogError($"Test Class Cleanup Failure ({args.Message.TestClass.Class.Name})", args.Message);
+        {
+            Guard.ArgumentNotNull(nameof(args), args);
+
+            LogError($"Test Class Cleanup Failure ({args.Message.TestClass.Class.Name})", args.Message);
+        }
 
         /// <summary>
         /// Called when <see cref="ITestCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
-            => LogError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
+        {
+            Guard.ArgumentNotNull(nameof(args), args);
+
+            LogError($"Test Cleanup Failure ({args.Message.Test.DisplayName})", args.Message);
+        }
 
         /// <summary>
         /// Called when <see cref="ITestCollectionCleanupFailure"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
-            => LogError($"Test Collection Cleanup Failure ({args.Message.TestCollection.DisplayName})", args.Message);
+        {
+            Guard.ArgumentNotNull(nameof(args), args);
+
+            LogError($"Test Collection Cleanup Failure ({args.Message.TestCollection.DisplayName})", args.Message);
+        }
 
         /// <summary>
         /// Called when <see cref="ITestExecutionSummary"/> is raised.
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestExecutionSummary(MessageHandlerArgs<ITestExecutionSummary> args)
-            => WriteDefaultSummary(Logger, args.Message);
+        {
+            Guard.ArgumentNotNull(nameof(args), args);
+
+            WriteDefaultSummary(Logger, args.Message);
+        }
 
         /// <summary>
         /// Called when <see cref="ITestFailed"/> is raised.
@@ -295,6 +348,8 @@ namespace Xunit.Runner.Common
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var testFailed = args.Message;
             var frameInfo = StackFrameInfo.FromFailure(testFailed);
 
@@ -315,7 +370,11 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
-            => LogError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
+        {
+            Guard.ArgumentNotNull(nameof(args), args);
+
+            LogError($"Test Method Cleanup Failure ({args.Message.TestMethod.Method.Name})", args.Message);
+        }
 
         /// <summary>
         /// Called when <see cref="ITestPassed"/> is raised.
@@ -323,6 +382,8 @@ namespace Xunit.Runner.Common
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var testPassed = args.Message;
             if (!string.IsNullOrEmpty(testPassed.Output) &&
                 GetExecutionOptions(testPassed.TestAssembly.Assembly.AssemblyPath).GetDiagnosticMessagesOrDefault())
@@ -341,6 +402,8 @@ namespace Xunit.Runner.Common
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             lock (Logger.LockObject)
             {
                 var testSkipped = args.Message;
@@ -357,6 +420,9 @@ namespace Xunit.Runner.Common
         /// <param name="executionSummary">The execution summary to display.</param>
         public static void WriteDefaultSummary(IRunnerLogger logger, ITestExecutionSummary executionSummary)
         {
+            Guard.ArgumentNotNull(nameof(logger), logger);
+            Guard.ArgumentNotNull(nameof(executionSummary), executionSummary);
+
             logger.LogImportantMessage("=== TEST EXECUTION SUMMARY ===");
 
             var totalTestsRun = executionSummary.Summaries.Sum(summary => summary.Value.Total);

@@ -1,6 +1,4 @@
-﻿#if !NET35
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -13,8 +11,7 @@ namespace Xunit.Runner.Common
 {
     /// <summary>
     /// A delegating implementation of <see cref="IExecutionSink"/> which is responsible for
-    /// creating the xUnit.net v2 XML output from the execution test results. This class is
-    /// not available in .NET 3.5 because it relies upon XML LINQ.
+    /// creating the xUnit.net v2 XML output from the execution test results.
     /// </summary>
     public class DelegatingXmlCreationSink : LongLivedMarshalByRefObject, IExecutionSink
     {
@@ -28,8 +25,7 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="innerSink"></param>
         /// <param name="assemblyElement"></param>
-        public DelegatingXmlCreationSink(IExecutionSink innerSink,
-                                         XElement assemblyElement)
+        public DelegatingXmlCreationSink(IExecutionSink innerSink, XElement assemblyElement)
         {
             Guard.ArgumentNotNull(nameof(innerSink), innerSink);
             Guard.ArgumentNotNull(nameof(assemblyElement), assemblyElement);
@@ -48,8 +44,10 @@ namespace Xunit.Runner.Common
         public ManualResetEvent Finished => innerSink.Finished;
 
         /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
         {
+            Guard.ArgumentNotNull(nameof(message), message);
+
             // Call the inner sink first, because we want to be able to depend on ExecutionSummary
             // being correctly filled out.
             var result = innerSink.OnMessageWithTypes(message, messageTypes);
@@ -70,7 +68,7 @@ namespace Xunit.Runner.Common
                 && result;
         }
 
-        void AddError(string type, string name, IFailureInformation failureInfo)
+        void AddError(string type, string? name, IFailureInformation failureInfo)
         {
             var errorElement = new XElement("error", new XAttribute("type", type), CreateFailureElement(failureInfo));
             if (name != null)
@@ -79,19 +77,19 @@ namespace Xunit.Runner.Common
             errorsElement.Add(errorElement);
         }
 
-        static XElement CreateFailureElement(IFailureInformation failureInfo)
-            => new XElement("failure",
-                   new XAttribute("exception-type", failureInfo.ExceptionTypes[0]),
-                   new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(failureInfo)))),
-                   new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? string.Empty))
-               );
+        static XElement CreateFailureElement(IFailureInformation failureInfo) =>
+            new XElement("failure",
+                new XAttribute("exception-type", failureInfo.ExceptionTypes[0]),
+                new XElement("message", new XCData(XmlEscape(ExceptionUtility.CombineMessages(failureInfo)))),
+                new XElement("stack-trace", new XCData(ExceptionUtility.CombineStackTraces(failureInfo) ?? string.Empty))
+            );
 
         XElement CreateTestResultElement(ITestResultMessage testResult, string resultText)
         {
-            ITest test = testResult.Test;
-            ITestCase testCase = testResult.TestCase;
-            ITestMethod testMethod = testCase.TestMethod;
-            ITestClass testClass = testMethod.TestClass;
+            var test = testResult.Test;
+            var testCase = testResult.TestCase;
+            var testMethod = testCase.TestMethod;
+            var testClass = testMethod.TestClass;
 
             var collectionElement = GetTestCollectionElement(testClass.TestCollection);
             var testResultElement =
@@ -107,7 +105,7 @@ namespace Xunit.Runner.Common
             if (!string.IsNullOrWhiteSpace(testOutput))
                 testResultElement.Add(new XElement("output", new XCData(testOutput)));
 
-            ISourceInformation sourceInformation = testCase.SourceInformation;
+            var sourceInformation = testCase.SourceInformation;
             if (sourceInformation != null)
             {
                 var fileName = sourceInformation.FileName;
@@ -142,8 +140,7 @@ namespace Xunit.Runner.Common
         }
 
         /// <inheritdoc/>
-        public void Dispose()
-            => innerSink.Dispose();
+        public void Dispose() => innerSink.Dispose();
 
         XElement GetTestCollectionElement(ITestCollection testCollection)
         {
@@ -238,8 +235,7 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="value">The value to be escaped.</param>
         /// <returns>The escaped value.</returns>
-        // TODO: Can this be made private?
-        protected static string XmlEscape(string value)
+        static string XmlEscape(string? value)
         {
             if (value == null)
                 return string.Empty;
@@ -277,5 +273,3 @@ namespace Xunit.Runner.Common
         }
     }
 }
-
-#endif

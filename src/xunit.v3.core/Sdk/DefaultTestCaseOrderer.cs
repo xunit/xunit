@@ -60,8 +60,8 @@ namespace Xunit.Sdk
         int Compare<TTestCase>(TTestCase x, TTestCase y)
             where TTestCase : ITestCase
         {
-            Guard.ArgumentNotNull(nameof(x), x);
-            Guard.ArgumentNotNull(nameof(y), y);
+            Guard.ArgumentNotNull(nameof(x), (object)x);
+            Guard.ArgumentNotNull(nameof(y), (object)y);
             Guard.ArgumentValid(nameof(x), $"Could not compare test case {x.DisplayName} because it has a null UniqueID", x.UniqueID != null);
             Guard.ArgumentValid(nameof(y), $"Could not compare test case {y.DisplayName} because it has a null UniqueID", y.UniqueID != null);
 

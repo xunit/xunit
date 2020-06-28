@@ -20,7 +20,6 @@ namespace Xunit.Runner.InProc.SystemConsole
         ExecutionSummary executionSummary = new ExecutionSummary();
         bool failed;
         IRunnerLogger? logger;
-        IMessageSinkWithTypes? reporterMessageHandler;
 
         public ConsoleRunner(object? consoleLock = null)
         {
@@ -78,7 +77,7 @@ namespace Xunit.Runner.InProc.SystemConsole
                     Debugger.Launch();
 
                 logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-                reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
+                var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
                 if (!commandLine.NoLogo)
                     PrintHeader();
@@ -87,7 +86,7 @@ namespace Xunit.Runner.InProc.SystemConsole
                 var failCount = RunProject(commandLine.Project,
                                            commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
                                            commandLine.DiagnosticMessages, commandLine.NoColor,
-                                           commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages);
+                                           commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages, reporterMessageHandler);
 
                 if (cancel)
                     return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -252,7 +251,7 @@ namespace Xunit.Runner.InProc.SystemConsole
                 var longestSwitch = reporters.Max(r => r.RunnerSwitch?.Length ?? 0);
 
                 foreach (var switchableReporter in reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
-                    Console.WriteLine($"  -{switchableReporter.RunnerSwitch.ToLowerInvariant().PadRight(longestSwitch)} : {switchableReporter.Description}");
+                    Console.WriteLine($"  -{switchableReporter.RunnerSwitch!.ToLowerInvariant().PadRight(longestSwitch)} : {switchableReporter.Description}");
 
                 foreach (var environmentalReporter in reporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
                     Console.WriteLine($"   {"".PadRight(longestSwitch)} : {environmentalReporter.Description} [auto-enabled only]");
@@ -275,7 +274,8 @@ namespace Xunit.Runner.InProc.SystemConsole
                        bool noColor,
                        bool failSkips,
                        bool stopOnFail,
-                       bool internalDiagnosticMessages)
+                       bool internalDiagnosticMessages,
+                       IMessageSinkWithTypes reporterMessageHandler)
         {
             XElement? assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
@@ -288,7 +288,7 @@ namespace Xunit.Runner.InProc.SystemConsole
             var originalWorkingFolder = Directory.GetCurrentDirectory();
 
             var assembly = project.Assemblies.Single();
-            var assemblyElement = ExecuteAssembly(consoleLock, assembly, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages);
+            var assemblyElement = ExecuteAssembly(consoleLock, assembly, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, reporterMessageHandler);
             if (assemblyElement != null)
                 assembliesElement?.Add(assemblyElement);
 
@@ -297,14 +297,16 @@ namespace Xunit.Runner.InProc.SystemConsole
             if (assembliesElement != null)
                 assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
 
-            var summary = new KeyValuePair<string, ExecutionSummary>(Path.GetFileNameWithoutExtension(assembly.AssemblyFilename), executionSummary);
+            var assemblyFilename = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFilename);
+            var summary = new KeyValuePair<string, ExecutionSummary>(Path.GetFileNameWithoutExtension(assemblyFilename), executionSummary);
             var summaries = new List<KeyValuePair<string, ExecutionSummary>> { summary };
 
             reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, summaries));
 
             Directory.SetCurrentDirectory(originalWorkingFolder);
 
-            xmlTransformers.ForEach(transformer => transformer(assembliesElement));
+            if (assembliesElement != null)
+                xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
             return failed ? 1 : executionSummary.Failed;
         }
@@ -319,7 +321,8 @@ namespace Xunit.Runner.InProc.SystemConsole
                                   bool failSkips,
                                   bool stopOnFail,
                                   XunitFilters filters,
-                                  bool internalDiagnosticMessages)
+                                  bool internalDiagnosticMessages,
+                                  IMessageSinkWithTypes reporterMessageHandler)
         {
             if (cancel)
                 return null;
@@ -345,7 +348,8 @@ namespace Xunit.Runner.InProc.SystemConsole
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
-                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
+                var assemblyFileName = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFilename);
+                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
                 var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
                 var internalDiagnosticsMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, internalDiagnosticMessages, noColor);
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
@@ -416,7 +420,7 @@ namespace Xunit.Runner.InProc.SystemConsole
             return assemblyElement;
         }
 
-        bool ValidateFileExists(object consoleLock, string fileName)
+        bool ValidateFileExists(object consoleLock, string? fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
                 return true;

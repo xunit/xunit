@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -19,6 +21,9 @@ namespace Xunit
         /// </summary>
         public TestAssemblyMessage(IEnumerable<ITestCase> testCases, ITestAssembly testAssembly)
         {
+            Guard.ArgumentNotNull(nameof(testCases), testCases);
+            Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
+
             TestAssembly = testAssembly;
             TestCases = testCases.ToList();
         }
@@ -28,6 +33,9 @@ namespace Xunit
         /// </summary>
         internal TestAssemblyMessage(ITestCase testCase, ITestAssembly testAssembly)
         {
+            Guard.ArgumentNotNull(nameof(testCase), testCase);
+            Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
+
             TestAssembly = testAssembly;
             TestCases = new ITestCase[] { testCase };
         }
@@ -36,7 +44,7 @@ namespace Xunit
         public ITestAssembly TestAssembly { get; set; }
 
         /// <inheritdoc/>
-        public IEnumerable<ITestCase> TestCases { get; private set; }
+        public IEnumerable<ITestCase> TestCases { get; }
 
     }
 }

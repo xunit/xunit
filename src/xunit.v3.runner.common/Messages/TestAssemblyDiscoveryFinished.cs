@@ -9,7 +9,7 @@ namespace Xunit.Runner.Common
     /// </summary>
     public class TestAssemblyDiscoveryFinished : ITestAssemblyDiscoveryFinished, IMessageSinkMessageWithTypes
     {
-        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestAssemblyDiscoveryFinished).GetInterfaces().Select(x => x.FullName));
+        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestAssemblyDiscoveryFinished).GetInterfaces().Select(x => x.FullName!));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyDiscoveryFinished"/> class.
@@ -23,6 +23,9 @@ namespace Xunit.Runner.Common
                                              int testCasesDiscovered,
                                              int testCasesToRun)
         {
+            Guard.ArgumentNotNull(nameof(assembly), assembly);
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
             Assembly = assembly;
             DiscoveryOptions = discoveryOptions;
             TestCasesDiscovered = testCasesDiscovered;
@@ -30,18 +33,18 @@ namespace Xunit.Runner.Common
         }
 
         /// <inheritdoc/>
-        public XunitProjectAssembly Assembly { get; private set; }
+        public XunitProjectAssembly Assembly { get; }
 
         /// <inheritdoc/>
-        public ITestFrameworkDiscoveryOptions DiscoveryOptions { get; private set; }
+        public ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
 
         /// <inheritdoc/>
         public HashSet<string> InterfaceTypes => interfaceTypes;
 
         /// <inheritdoc/>
-        public int TestCasesDiscovered { get; private set; }
+        public int TestCasesDiscovered { get; }
 
         /// <inheritdoc/>
-        public int TestCasesToRun { get; private set; }
+        public int TestCasesToRun { get; }
     }
 }

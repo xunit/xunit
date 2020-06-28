@@ -15,9 +15,13 @@ public static class MessageSinkMessageExtensions
     /// <param name="message">The message to test and cast.</param>
     /// <param name="typeNames">The implemented interfaces, if known.</param>
     /// <returns>The message as <typeparamref name="TMessage"/>, or <c>null</c>.</returns>
-    public static TMessage Cast<TMessage>(this IMessageSinkMessage message, HashSet<string> typeNames)
-            where TMessage : class, IMessageSinkMessage
-        => typeNames == null || typeNames.Contains(typeof(TMessage).FullName) ? message as TMessage : null;
+    public static TMessage? Cast<TMessage>(this IMessageSinkMessage message, HashSet<string>? typeNames)
+        where TMessage : class, IMessageSinkMessage
+    {
+        Guard.ArgumentNotNull(nameof(message), message);
+
+        return typeNames == null || typeNames.Contains(typeof(TMessage).FullName!) ? message as TMessage : null;
+    }
 
     /// <summary>
     /// Handles a message of a specific type by testing it for the type, as well as verifying that there
@@ -27,9 +31,11 @@ public static class MessageSinkMessageExtensions
     /// <param name="messageTypes">The implemented interfaces, if known.</param>
     /// <param name="callback">The callback to dispatch the message to.</param>
     /// <returns>Returns <c>true</c> if processing should continue; <c>false</c> otherwise.</returns>
-    public static bool Dispatch<TMessage>(this IMessageSinkMessage message, HashSet<string> messageTypes, MessageHandler<TMessage> callback)
+    public static bool Dispatch<TMessage>(this IMessageSinkMessage message, HashSet<string>? messageTypes, MessageHandler<TMessage>? callback)
         where TMessage : class, IMessageSinkMessage
     {
+        Guard.ArgumentNotNull(nameof(message), message);
+
         if (callback != null)
         {
             var castMessage = Cast<TMessage>(message, messageTypes);

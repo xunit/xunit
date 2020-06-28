@@ -1,4 +1,6 @@
-﻿using Xunit.Abstractions;
+﻿#nullable enable
+
+using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
@@ -17,10 +19,12 @@ namespace Xunit
         public AfterTestFinished(ITest test, string attributeName)
             : base(test)
         {
+            Guard.ArgumentNotNull(nameof(attributeName), attributeName);
+
             AttributeName = attributeName;
         }
 
         /// <inheritdoc/>
-        public string AttributeName { get; private set; }
+        public string AttributeName { get; }
     }
 }

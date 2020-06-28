@@ -16,6 +16,8 @@ namespace Xunit.Runner.Common
 
         ConsoleDiagnosticMessageSink(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor, ConsoleColor displayColor)
         {
+            Guard.ArgumentNotNull(nameof(consoleLock), consoleLock);
+
             this.consoleLock = consoleLock;
             this.assemblyDisplayName = assemblyDisplayName;
             this.noColor = noColor;
@@ -30,13 +32,8 @@ namespace Xunit.Runner.Common
         /// <param name="assemblyDisplayName">The display name for the test assembly</param>
         /// <param name="showDiagnostics">A flag to indicate whether to show public diagnostics</param>
         /// <param name="noColor">A flag to indicate whether to disable color output</param>
-        public static ConsoleDiagnosticMessageSink ForDiagnostics(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor)
-            => new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.Yellow);
-
-        /// <summary />
-        [Obsolete]
-        public static ConsoleDiagnosticMessageSink ForInternalDiagnostics(object consoleLock, bool showDiagnostics, bool noColor)
-            => new ConsoleDiagnosticMessageSink(consoleLock, null, showDiagnostics, noColor, ConsoleColor.DarkGray);
+        public static ConsoleDiagnosticMessageSink ForDiagnostics(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor) =>
+            new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.Yellow);
 
         /// <summary>
         /// Creates a message sink for internal diagnostics.
@@ -45,12 +42,14 @@ namespace Xunit.Runner.Common
         /// <param name="assemblyDisplayName">The display name for the test assembly</param>
         /// <param name="showDiagnostics">A flag to indicate whether to show internal diagnostics</param>
         /// <param name="noColor">A flag to indicate whether to disable color output</param>
-        public static ConsoleDiagnosticMessageSink ForInternalDiagnostics(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor)
-            => new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
+        public static ConsoleDiagnosticMessageSink ForInternalDiagnostics(object consoleLock, string assemblyDisplayName, bool showDiagnostics, bool noColor) =>
+            new ConsoleDiagnosticMessageSink(consoleLock, assemblyDisplayName, showDiagnostics, noColor, ConsoleColor.DarkGray);
 
         /// <inheritdoc />
         public bool OnMessage(IMessageSinkMessage message)
         {
+            Guard.ArgumentNotNull(nameof(message), message);
+
             if (showDiagnostics && message is IDiagnosticMessage diagnosticMessage)
             {
                 lock (consoleLock)
@@ -58,10 +57,7 @@ namespace Xunit.Runner.Common
                     if (!noColor)
                         ConsoleHelper.SetForegroundColor(displayColor);
 
-                    if (assemblyDisplayName != null)
-                        Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
-                    else
-                        Console.WriteLine($"   {diagnosticMessage.Message}");
+                    Console.WriteLine($"   {assemblyDisplayName}: {diagnosticMessage.Message}");
 
                     if (!noColor)
                         ConsoleHelper.ResetColor();
@@ -72,12 +68,14 @@ namespace Xunit.Runner.Common
         }
 
 #if NETFRAMEWORK
+#nullable disable
         /// <inheritdoc />
         [System.Security.SecurityCritical]
         public override sealed object InitializeLifetimeService()
         {
             return null;
         }
+#nullable restore
 #endif
     }
 }

@@ -1,4 +1,6 @@
-﻿using Xunit.Abstractions;
+﻿#nullable enable
+
+using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
@@ -24,15 +26,15 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public decimal ExecutionTime { get; private set; }
+        public decimal ExecutionTime { get; }
 
         /// <inheritdoc/>
-        public int TestsFailed { get; private set; }
+        public int TestsFailed { get; }
 
         /// <inheritdoc/>
-        public int TestsRun { get; private set; }
+        public int TestsRun { get; }
 
         /// <inheritdoc/>
-        public int TestsSkipped { get; private set; }
+        public int TestsSkipped { get; }
     }
 }

@@ -11,35 +11,29 @@ namespace Xunit.Runner.Common
     public class VstsReporter : IRunnerReporter
     {
         /// <inheritdoc />
-        public string Description
-            => "Azure DevOps/VSTS CI support";
+        public string Description => "Azure DevOps/VSTS CI support";
 
         /// <inheritdoc />
-        public bool IsEnvironmentallyEnabled
-            => !string.IsNullOrWhiteSpace(EnvironmentHelper.GetEnvironmentVariable("VSTS_ACCESS_TOKEN")) &&
-               !string.IsNullOrWhiteSpace(EnvironmentHelper.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI")) &&
-               !string.IsNullOrWhiteSpace(EnvironmentHelper.GetEnvironmentVariable("SYSTEM_TEAMPROJECT")) &&
-               !string.IsNullOrWhiteSpace(EnvironmentHelper.GetEnvironmentVariable("BUILD_BUILDID"));
+        public bool IsEnvironmentallyEnabled =>
+            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("VSTS_ACCESS_TOKEN")) &&
+            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI")) &&
+            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("SYSTEM_TEAMPROJECT")) &&
+            !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("BUILD_BUILDID"));
 
         /// <inheritdoc />
-        public string RunnerSwitch
-            => null;
+        public string? RunnerSwitch => null;
 
         /// <inheritdoc />
         public IMessageSink CreateMessageHandler(IRunnerLogger logger)
         {
-            var accessToken = EnvironmentHelper.GetEnvironmentVariable("VSTS_ACCESS_TOKEN");
-            var collectionUri = EnvironmentHelper.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI");
-            var teamProject = EnvironmentHelper.GetEnvironmentVariable("SYSTEM_TEAMPROJECT");
-
-            // Build ID is the ID associated with the build number, which we will use to associate the test run with
-            var buildId = Convert.ToInt32(EnvironmentHelper.GetEnvironmentVariable("BUILD_BUILDID"));
+            var collectionUri = Guard.NotNull("Environment variable SYSTEM_TEAMFOUNDATIONCOLLECTIONURI is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI"));
+            var teamProject = Guard.NotNull("Environment variable SYSTEM_TEAMPROJECT is not set", Environment.GetEnvironmentVariable("SYSTEM_TEAMPROJECT"));
+            var accessToken = Guard.NotNull("Environment variable VSTS_ACCESS_TOKEN is not set", Environment.GetEnvironmentVariable("VSTS_ACCESS_TOKEN"));
+            var buildId = Convert.ToInt32(Guard.NotNull("Environment variable BUILD_BUILDID is not set", Environment.GetEnvironmentVariable("BUILD_BUILDID")));
 
             var baseUri = $"{collectionUri}{teamProject}/_apis/test/runs";
 
-            return accessToken == null || collectionUri == null || teamProject == null
-                ? new DefaultRunnerReporterWithTypesMessageHandler(logger)
-                : new VstsReporterMessageHandler(logger, baseUri, accessToken, buildId);
+            return new VstsReporterMessageHandler(logger, baseUri, accessToken, buildId);
         }
     }
 }

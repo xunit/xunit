@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -18,12 +20,17 @@ namespace Xunit
         public TestFailed(ITest test,
                           decimal executionTime,
                           string output,
-                          string[] exceptionTypes,
+                          string?[] exceptionTypes,
                           string[] messages,
-                          string[] stackTraces,
+                          string?[] stackTraces,
                           int[] exceptionParentIndices)
             : base(test, executionTime, output)
         {
+            Guard.ArgumentNotNull(nameof(exceptionTypes), exceptionTypes);
+            Guard.ArgumentNotNull(nameof(messages), messages);
+            Guard.ArgumentNotNull(nameof(stackTraces), stackTraces);
+            Guard.ArgumentNotNull(nameof(exceptionParentIndices), exceptionParentIndices);
+
             StackTraces = stackTraces;
             Messages = messages;
             ExceptionTypes = exceptionTypes;
@@ -35,10 +42,12 @@ namespace Xunit
         /// </summary>
         public TestFailed(ITest test,
                           decimal executionTime,
-                          string output,
+                          string? output,
                           Exception ex)
             : base(test, executionTime, output)
         {
+            Guard.ArgumentNotNull(nameof(ex), ex);
+
             var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
             ExceptionTypes = failureInfo.ExceptionTypes;
             Messages = failureInfo.Messages;
@@ -47,15 +56,15 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public string[] ExceptionTypes { get; private set; }
+        public string?[] ExceptionTypes { get; }
 
         /// <inheritdoc/>
-        public string[] Messages { get; private set; }
+        public string[] Messages { get; }
 
         /// <inheritdoc/>
-        public string[] StackTraces { get; private set; }
+        public string?[] StackTraces { get; }
 
         /// <inheritdoc/>
-        public int[] ExceptionParentIndices { get; private set; }
+        public int[] ExceptionParentIndices { get; }
     }
 }

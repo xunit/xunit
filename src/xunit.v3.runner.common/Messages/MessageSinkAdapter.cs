@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -27,8 +29,10 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="message">The message interfaces to retrieve.</param>
         /// <returns>The hash set of interfaces, if known; <c>null</c>, otherwise.</returns>
-        public static HashSet<string> GetImplementedInterfaces(IMessageSinkMessage message)
+        public static HashSet<string>? GetImplementedInterfaces(IMessageSinkMessage message)
         {
+            Guard.ArgumentNotNull(nameof(message), message);
+
             if (message is IMessageSinkMessageWithTypes messageWithTypes)
                 return messageWithTypes.InterfaceTypes;
 
@@ -38,16 +42,25 @@ namespace Xunit.Runner.Common
                 return null;
 #endif
 
-            return new HashSet<string>(message.GetType().GetInterfaces().Select(i => i.FullName), StringComparer.OrdinalIgnoreCase);
+            return new HashSet<string>(message.GetType().GetInterfaces().Select(i => i.FullName!), StringComparer.OrdinalIgnoreCase);
         }
 
         /// <inheritdoc/>
         public bool OnMessage(IMessageSinkMessage message)
-            => OnMessageWithTypes(message, GetImplementedInterfaces(message));
+        {
+            Guard.ArgumentNotNull(nameof(message), message);
+
+            return OnMessageWithTypes(message, GetImplementedInterfaces(message));
+        }
 
         /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
-            => inner.OnMessageWithTypes(message, messageTypes);
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+        {
+            Guard.ArgumentNotNull(nameof(message), message);
+            Guard.ArgumentNotNull(nameof(messageTypes), messageTypes);
+
+            return inner.OnMessageWithTypes(message, messageTypes);
+        }
 
         /// <summary>
         /// Determines whether the given sink is already an implementation of <see cref="IMessageSink"/>,
@@ -55,6 +68,18 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="sink">The sink to test, and potentially adapt.</param>
         public static IMessageSink Wrap(IMessageSinkWithTypes sink)
-            => sink == null ? null : (sink as IMessageSink ?? new MessageSinkAdapter(sink));
+        {
+            Guard.ArgumentNotNull(nameof(sink), sink);
+
+            return sink as IMessageSink ?? new MessageSinkAdapter(sink);
+        }
+
+        /// <summary>
+        /// Determines whether the given sink is already an implementation of <see cref="IMessageSink"/>,
+        /// and if not, creates a wrapper to adapt it.
+        /// </summary>
+        /// <param name="sink">The sink to test, and potentially adapt.</param>
+        public static IMessageSink? WrapMaybeNull(IMessageSinkWithTypes? sink) =>
+            sink == null ? null : (sink as IMessageSink ?? new MessageSinkAdapter(sink));
     }
 }

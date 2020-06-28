@@ -1,4 +1,6 @@
-﻿#if NETFRAMEWORK
+﻿#nullable enable
+
+#if NETFRAMEWORK
 using System;
 using System.Security;
 
@@ -49,12 +51,14 @@ namespace Xunit.Sdk
         public static void DisconnectAll() { }
 #endif
 
+#nullable disable
         /// <inheritdoc/>
         [SecurityCritical]
         public override sealed object InitializeLifetimeService()
         {
             return null;
         }
+#nullable restore
     }
 #else
     /// <summary>

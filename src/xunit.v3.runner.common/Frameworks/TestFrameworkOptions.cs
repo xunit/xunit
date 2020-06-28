@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -24,8 +23,7 @@ namespace Xunit.Runner.Common
         /// Creates an instance of <see cref="TestFrameworkOptions"/>
         /// </summary>
         /// <param name="configuration">The optional configuration to copy values from.</param>
-        [SuppressMessage("Language Usage Opportunities", "RECS0091:Use 'var' keyword when possible", Justification = "Using var here causes ambiguity with the SetDiagnosticMessages extension method")]
-        public static ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration configuration = null)
+        public static ITestFrameworkDiscoveryOptions ForDiscovery(TestAssemblyConfiguration? configuration = null)
         {
             ITestFrameworkDiscoveryOptions result = new TestFrameworkOptions();
 
@@ -45,8 +43,7 @@ namespace Xunit.Runner.Common
         /// Creates an instance of <see cref="TestFrameworkOptions"/>
         /// </summary>
         /// <param name="configuration">The optional configuration to copy values from.</param>
-        [SuppressMessage("Language Usage Opportunities", "RECS0091:Use 'var' keyword when possible", Justification = "Using var here causes ambiguity with the SetDiagnosticMessages extension method")]
-        public static ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration configuration = null)
+        public static ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration? configuration = null)
         {
             ITestFrameworkExecutionOptions result = new TestFrameworkOptions();
 
@@ -67,14 +64,31 @@ namespace Xunit.Runner.Common
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="name">The name of the value.</param>
         /// <returns>Returns the value.</returns>
-        public TValue GetValue<TValue>(string name)
+        public TValue? GetValue<TValue>(string name)
+            where TValue : class
         {
-            object result;
-            if (properties.TryGetValue(name, out result))
+            Guard.ArgumentNotNullOrEmpty(nameof(name), name);
+
+            if (properties.TryGetValue(name, out var result))
                 return (TValue)result;
 
-            return default(TValue);
+            return default;
         }
+
+#nullable disable
+        // This can't be implemented with safe nullability because the definition of ITestFrameworkOptions
+        // isn't compatible with nullable reference types, so we're forced to re-implement it with nullability
+        // turned off.
+        TValue ITestFrameworkOptions.GetValue<TValue>(string name)
+        {
+            Guard.ArgumentNotNullOrEmpty(nameof(name), name);
+
+            if (properties.TryGetValue(name, out var result))
+                return (TValue)result;
+
+            return default;
+        }
+#nullable restore
 
         /// <summary>
         /// Sets a value into the options collection.
@@ -101,7 +115,7 @@ namespace Xunit.Runner.Common
             if (value is string stringValue)
                 return $"\"{stringValue}\"";
 
-            return value.ToString();
+            return value.ToString()!;
         }
     }
 }

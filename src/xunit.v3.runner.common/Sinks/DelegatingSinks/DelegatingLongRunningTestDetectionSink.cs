@@ -13,15 +13,13 @@ namespace Xunit.Runner.Common
     /// </summary>
     public class DelegatingLongRunningTestDetectionSink : LongLivedMarshalByRefObject, IExecutionSink
     {
-        static readonly string[] DiagnosticMessageTypes = { typeof(IDiagnosticMessage).FullName };
-
         readonly Action<LongRunningTestsSummary> callback;
         readonly Dictionary<ITestCase, DateTime> executingTestCases = new Dictionary<ITestCase, DateTime>();
         readonly ExecutionEventSink executionSink = new ExecutionEventSink();
         readonly IExecutionSink innerSink;
         DateTime lastTestActivity;
         readonly TimeSpan longRunningTestTime;
-        ManualResetEvent stopEvent;
+        ManualResetEvent? stopEvent;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DelegatingLongRunningTestDetectionSink"/> class, with
@@ -31,10 +29,11 @@ namespace Xunit.Runner.Common
         /// <param name="innerSink">The inner sink to delegate to.</param>
         /// <param name="longRunningTestTime">The minimum amount of time a test runs to be considered long running.</param>
         /// <param name="diagnosticMessageSink">The message sink to send messages to.</param>
-        public DelegatingLongRunningTestDetectionSink(IExecutionSink innerSink,
-                                                      TimeSpan longRunningTestTime,
-                                                      IMessageSinkWithTypes diagnosticMessageSink)
-            : this(innerSink, longRunningTestTime, summary => DispatchLongRunningTestsSummaryAsDiagnosticMessage(summary, diagnosticMessageSink))
+        public DelegatingLongRunningTestDetectionSink(
+            IExecutionSink innerSink,
+            TimeSpan longRunningTestTime,
+            IMessageSinkWithTypes diagnosticMessageSink)
+                : this(innerSink, longRunningTestTime, summary => DispatchLongRunningTestsSummaryAsDiagnosticMessage(summary, diagnosticMessageSink))
         {
             Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
         }
@@ -47,9 +46,10 @@ namespace Xunit.Runner.Common
         /// <param name="innerSink">The inner sink to delegate to.</param>
         /// <param name="longRunningTestTime">The minimum amount of time a test runs to be considered long running.</param>
         /// <param name="callback">The callback to dispatch messages to.</param>
-        public DelegatingLongRunningTestDetectionSink(IExecutionSink innerSink,
-                                                      TimeSpan longRunningTestTime,
-                                                      Action<LongRunningTestsSummary> callback)
+        public DelegatingLongRunningTestDetectionSink(
+            IExecutionSink innerSink,
+            TimeSpan longRunningTestTime,
+            Action<LongRunningTestsSummary> callback)
         {
             Guard.ArgumentNotNull(nameof(innerSink), innerSink);
             Guard.ArgumentValid(nameof(longRunningTestTime), "Long running test time must be at least 1 second", longRunningTestTime >= TimeSpan.FromSeconds(1));
@@ -87,13 +87,13 @@ namespace Xunit.Runner.Common
         /// <inheritdoc/>
         public virtual void Dispose()
         {
-            ((IDisposable)stopEvent)?.Dispose();
+            ((IDisposable?)stopEvent)?.Dispose();
             innerSink.Dispose();
         }
 
         void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
         {
-            stopEvent.Set();
+            stopEvent?.Set();
         }
 
         void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
@@ -119,8 +119,10 @@ namespace Xunit.Runner.Common
         }
 
         /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
         {
+            Guard.ArgumentNotNull(nameof(message), message);
+
             var result = executionSink.OnMessageWithTypes(message, messageTypes);
             result = innerSink.OnMessageWithTypes(message, messageTypes) && result;
             return result;
@@ -165,8 +167,7 @@ namespace Xunit.Runner.Common
         /// <summary>
         /// Performs a Task-safe delay. Overrideable for testing purposes.
         /// </summary>
-        protected virtual bool WaitForStopEvent(int millionsecondsDelay)
-            => stopEvent.WaitOne(millionsecondsDelay);
-
+        protected virtual bool WaitForStopEvent(int millionsecondsDelay) =>
+            stopEvent?.WaitOne(millionsecondsDelay) ?? false;
     }
 }

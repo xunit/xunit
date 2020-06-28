@@ -23,11 +23,19 @@ namespace Xunit.Runner.Common
 
         /// <inheritdoc/>
         public bool OnMessage(IMessageSinkMessage message)
-            => inner.OnMessage(message);
+        {
+            Guard.ArgumentNotNull(nameof(message), message);
+
+            return inner.OnMessage(message);
+        }
 
         /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
-            => OnMessage(message);
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+        {
+            Guard.ArgumentNotNull(nameof(message), message);
+
+            return OnMessage(message);
+        }
 
         /// <summary>
         /// Determines whether the given sink is already an implementation of <see cref="IMessageSinkWithTypes"/>,
@@ -35,6 +43,18 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="sink">The sink to test, and potentially adapt.</param>
         public static IMessageSinkWithTypes Wrap(IMessageSink sink)
+        {
+            Guard.ArgumentNotNull(nameof(sink), sink);
+
+            return sink as IMessageSinkWithTypes ?? new MessageSinkWithTypesAdapter(sink);
+        }
+
+        /// <summary>
+        /// Determines whether the given sink is already an implementation of <see cref="IMessageSinkWithTypes"/>,
+        /// and if not, creates a wrapper to adapt it.
+        /// </summary>
+        /// <param name="sink">The sink to test, and potentially adapt.</param>
+        public static IMessageSinkWithTypes? WrapMaybeNull(IMessageSink? sink)
             => sink == null ? null : (sink as IMessageSinkWithTypes ?? new MessageSinkWithTypesAdapter(sink));
     }
 }

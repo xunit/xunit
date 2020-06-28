@@ -13,7 +13,7 @@ namespace Xunit.Runner.Common
         /// <param name="assemblyFileName">The test assembly.</param>
         /// <param name="configFileName">The test assembly configuration file.</param>
         /// <returns>The test assembly configuration.</returns>
-        public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null)
+        public static TestAssemblyConfiguration Load(string assemblyFileName, string? configFileName = null)
         {
             return ConfigReader_Json.Load(assemblyFileName, configFileName)
 #if NETFRAMEWORK
@@ -27,8 +27,10 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="configStream">Stream containing config for an assembly</param>
         /// <returns>The test assembly configuration.</returns>
-        public static TestAssemblyConfiguration Load(Stream configStream)
+        public static TestAssemblyConfiguration? Load(Stream configStream)
         {
+            Guard.ArgumentNotNull(nameof(configStream), configStream);
+
             return ConfigReader_Json.Load(configStream);
         }
     }

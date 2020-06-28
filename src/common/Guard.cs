@@ -18,12 +18,25 @@ static class Guard
     }
 
     /// <summary/>
-    public static void ArgumentNotNullOrEmpty(string argName, [NotNull] IEnumerable? argValue)
+    public static T ArgumentNotNull<T>(string argName, [NotNull] T? argValue)
+        where T : class
+    {
+        if (argValue == null)
+            throw new ArgumentNullException(argName);
+
+        return argValue;
+    }
+
+    /// <summary/>
+    public static T ArgumentNotNullOrEmpty<T>(string argName, [NotNull] T? argValue)
+        where T : class, IEnumerable
     {
         ArgumentNotNull(argName, argValue);
 
         if (!argValue.GetEnumerator().MoveNext())
             throw new ArgumentException("Argument was empty", argName);
+
+        return argValue;
     }
 
     /// <summary/>

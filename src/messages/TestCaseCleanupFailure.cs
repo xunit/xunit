@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using Xunit.Abstractions;
 
@@ -15,9 +17,14 @@ namespace Xunit
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCaseCleanupFailure"/> class.
         /// </summary>
-        public TestCaseCleanupFailure(ITestCase testCase, string[] exceptionTypes, string[] messages, string[] stackTraces, int[] exceptionParentIndices)
+        public TestCaseCleanupFailure(ITestCase testCase, string?[] exceptionTypes, string[] messages, string?[] stackTraces, int[] exceptionParentIndices)
             : base(testCase)
         {
+            Guard.ArgumentNotNull(nameof(exceptionTypes), exceptionTypes);
+            Guard.ArgumentNotNull(nameof(messages), messages);
+            Guard.ArgumentNotNull(nameof(stackTraces), stackTraces);
+            Guard.ArgumentNotNull(nameof(exceptionParentIndices), exceptionParentIndices);
+
             StackTraces = stackTraces;
             Messages = messages;
             ExceptionTypes = exceptionTypes;
@@ -30,6 +37,8 @@ namespace Xunit
         public TestCaseCleanupFailure(ITestCase testCase, Exception ex)
             : base(testCase)
         {
+            Guard.ArgumentNotNull(nameof(ex), ex);
+
             var failureInfo = ExceptionUtility.ConvertExceptionToFailureInformation(ex);
             ExceptionTypes = failureInfo.ExceptionTypes;
             Messages = failureInfo.Messages;
@@ -38,15 +47,15 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public string[] ExceptionTypes { get; private set; }
+        public string?[] ExceptionTypes { get; }
 
         /// <inheritdoc/>
-        public string[] Messages { get; private set; }
+        public string[] Messages { get; }
 
         /// <inheritdoc/>
-        public string[] StackTraces { get; private set; }
+        public string?[] StackTraces { get; }
 
         /// <inheritdoc/>
-        public int[] ExceptionParentIndices { get; private set; }
+        public int[] ExceptionParentIndices { get; }
     }
 }

@@ -1,3 +1,5 @@
+#nullable disable
+
 using Xunit.Abstractions;
 using Xunit.Sdk;
 

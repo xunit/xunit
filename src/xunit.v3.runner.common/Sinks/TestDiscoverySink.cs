@@ -19,11 +19,17 @@ namespace Xunit.Runner.Common
         /// Initializes a new instance of the <see cref="TestDiscoverySink"/> class.
         /// </summary>
         /// <param name="cancelThunk">An optional thunk which can be used to control cancellation.</param>
-        public TestDiscoverySink(Func<bool> cancelThunk = null)
+        public TestDiscoverySink(Func<bool>? cancelThunk = null)
         {
             this.cancelThunk = cancelThunk ?? (() => false);
 
-            discoverySink.TestCaseDiscoveryMessageEvent += args => TestCases.Add(args.Message.TestCase);
+            discoverySink.TestCaseDiscoveryMessageEvent += args =>
+            {
+                Guard.ArgumentNotNull(nameof(args), args);
+
+                TestCases.Add(args.Message.TestCase);
+            };
+
             discoverySink.DiscoveryCompleteMessageEvent += args => Finished.Set();
         }
 
@@ -38,15 +44,22 @@ namespace Xunit.Runner.Common
         public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
 
         /// <inheritdoc/>
-        public void Dispose()
-            => ((IDisposable)Finished).Dispose();
+        public void Dispose() => Finished.Dispose();
 
         bool IMessageSink.OnMessage(IMessageSinkMessage message)
-            => OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
+        {
+            Guard.ArgumentNotNull(nameof(message), message);
+
+            return OnMessageWithTypes(message, MessageSinkAdapter.GetImplementedInterfaces(message));
+        }
 
         /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
-            => discoverySink.OnMessageWithTypes(message, messageTypes)
-            && !cancelThunk();
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
+        {
+            Guard.ArgumentNotNull(nameof(message), message);
+
+            return discoverySink.OnMessageWithTypes(message, messageTypes)
+                && !cancelThunk();
+        }
     }
 }

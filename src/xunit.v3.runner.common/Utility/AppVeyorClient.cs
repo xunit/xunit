@@ -7,13 +7,12 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Runner.Common;
 
 namespace Xunit.Runner.Common
 {
     class AppVeyorClient
     {
-        ConcurrentQueue<IDictionary<string, object>> addQueue = new ConcurrentQueue<IDictionary<string, object>>();
+        ConcurrentQueue<IDictionary<string, object?>> addQueue = new ConcurrentQueue<IDictionary<string, object?>>();
         readonly string baseUri;
         readonly HttpClient client = new HttpClient();
         readonly ManualResetEventSlim finished = new ManualResetEventSlim(false);
@@ -21,19 +20,18 @@ namespace Xunit.Runner.Common
         readonly IRunnerLogger logger;
         volatile bool previousErrors;
         volatile bool shouldExit;
-        ConcurrentQueue<IDictionary<string, object>> updateQueue = new ConcurrentQueue<IDictionary<string, object>>();
+        ConcurrentQueue<IDictionary<string, object?>> updateQueue = new ConcurrentQueue<IDictionary<string, object?>>();
         readonly ManualResetEventSlim workEvent = new ManualResetEventSlim(false);
-        readonly Task workTask;
 
         public AppVeyorClient(IRunnerLogger logger, string baseUri)
         {
             this.logger = logger;
             this.baseUri = $"{baseUri}/api/tests/batch";
 
-            workTask = Task.Run(RunLoop);
+            Task.Run(RunLoop);
         }
 
-        public void WaitOne(CancellationToken cancellationToken)
+        public void Dispose(CancellationToken cancellationToken)
         {
             // Free up to process any remaining work
             shouldExit = true;
@@ -53,8 +51,8 @@ namespace Xunit.Runner.Common
                     workEvent.Reset();  // Reset first to ensure any subsequent modification sets
 
                     // Get local copies of the queues
-                    var aq = Interlocked.Exchange(ref addQueue, new ConcurrentQueue<IDictionary<string, object>>());
-                    var uq = Interlocked.Exchange(ref updateQueue, new ConcurrentQueue<IDictionary<string, object>>());
+                    var aq = Interlocked.Exchange(ref addQueue, new ConcurrentQueue<IDictionary<string, object?>>());
+                    var uq = Interlocked.Exchange(ref updateQueue, new ConcurrentQueue<IDictionary<string, object?>>());
 
                     if (previousErrors)
                         break;
@@ -73,19 +71,19 @@ namespace Xunit.Runner.Common
         }
 
 
-        public void AddTest(IDictionary<string, object> request)
+        public void AddTest(IDictionary<string, object?> request)
         {
             addQueue.Enqueue(request);
             workEvent.Set();
         }
 
-        public void UpdateTest(IDictionary<string, object> request)
+        public void UpdateTest(IDictionary<string, object?> request)
         {
             updateQueue.Enqueue(request);
             workEvent.Set();
         }
 
-        async Task SendRequest(HttpMethod method, ICollection<IDictionary<string, object>> body)
+        async Task SendRequest(HttpMethod method, ICollection<IDictionary<string, object?>> body)
         {
             if (body.Count == 0)
                 return;
@@ -121,7 +119,7 @@ namespace Xunit.Runner.Common
         }
 
 
-        static string ToJson(IEnumerable<IDictionary<string, object>> data)
+        static string ToJson(IEnumerable<IDictionary<string, object?>> data)
         {
             var results = string.Join(",", data.Select(x => x.ToJson()));
             return $"[{results}]";

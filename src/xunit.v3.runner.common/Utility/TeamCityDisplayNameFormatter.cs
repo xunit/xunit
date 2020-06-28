@@ -20,6 +20,8 @@ namespace Xunit.Runner.Common
         /// <returns>The unique display name for the test collection</returns>
         public virtual string DisplayName(ITestCollection testCollection)
         {
+            Guard.ArgumentNotNull(nameof(testCollection), testCollection);
+
             int id;
 
             lock (assemblyMappings)
@@ -40,6 +42,10 @@ namespace Xunit.Runner.Common
         /// <param name="test">The test to get the display name for.</param>
         /// <returns>The display name of the test.</returns>
         public virtual string DisplayName(ITest test)
-            => test.DisplayName;
+        {
+            Guard.ArgumentNotNull(nameof(test), test);
+
+            return test.DisplayName;
+        }
     }
 }

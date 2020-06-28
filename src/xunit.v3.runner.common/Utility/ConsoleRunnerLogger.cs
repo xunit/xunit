@@ -8,7 +8,6 @@ namespace Xunit.Runner.Common
     /// </summary>
     public class ConsoleRunnerLogger : IRunnerLogger
     {
-        readonly object lockObject;
         readonly bool useColors;
 
         /// <summary>
@@ -16,7 +15,9 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="useColors">A flag to indicate whether colors should be used when
         /// logging messages.</param>
-        public ConsoleRunnerLogger(bool useColors) : this(useColors, new object()) { }
+        public ConsoleRunnerLogger(bool useColors)
+            : this(useColors, new object())
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
@@ -26,12 +27,14 @@ namespace Xunit.Runner.Common
         /// <param name="lockObject">The lock object used to prevent console clashes.</param>
         public ConsoleRunnerLogger(bool useColors, object lockObject)
         {
+            Guard.ArgumentNotNull(nameof(lockObject), lockObject);
+
             this.useColors = useColors;
-            this.lockObject = lockObject;
+            LockObject = lockObject;
         }
 
         /// <inheritdoc/>
-        public object LockObject => lockObject;
+        public object LockObject { get; }
 
         /// <inheritdoc/>
         public void LogError(StackFrameInfo stackFrame, string message)
@@ -65,16 +68,13 @@ namespace Xunit.Runner.Common
                     Console.WriteLine(message);
         }
 
-        IDisposable SetColor(ConsoleColor color)
-            => useColors ? new ColorRestorer(color) : null;
+        IDisposable? SetColor(ConsoleColor color) => useColors ? new ColorRestorer(color) : null;
 
         class ColorRestorer : IDisposable
         {
-            public ColorRestorer(ConsoleColor color)
-                => ConsoleHelper.SetForegroundColor(color);
+            public ColorRestorer(ConsoleColor color) => ConsoleHelper.SetForegroundColor(color);
 
-            public void Dispose()
-                => ConsoleHelper.ResetColor();
+            public void Dispose() => ConsoleHelper.ResetColor();
         }
     }
 }

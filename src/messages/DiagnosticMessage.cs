@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -17,7 +19,8 @@ namespace Xunit
         , Xunit.Runner.Common.IMessageSinkMessageWithTypes
 #endif
     {
-        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(DiagnosticMessage).GetInterfaces().Select(x => x.FullName));
+        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(DiagnosticMessage).GetInterfaces().Select(x => x.FullName!));
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticMessage"/> class.
         /// </summary>
@@ -29,6 +32,8 @@ namespace Xunit
         /// <param name="message">The message to send</param>
         public DiagnosticMessage(string message)
         {
+            Guard.ArgumentNotNull(nameof(message), message);
+
             Message = message;
         }
 
@@ -37,8 +42,10 @@ namespace Xunit
         /// </summary>
         /// <param name="format">The format of the message to send</param>
         /// <param name="args">The arguments used to format the message</param>
-        public DiagnosticMessage(string format, params object[] args)
+        public DiagnosticMessage(string format, params object?[] args)
         {
+            Guard.ArgumentNotNull(nameof(format), format);
+
             Message = string.Format(format, args);
         }
 
@@ -46,6 +53,6 @@ namespace Xunit
         public HashSet<string> InterfaceTypes => interfaceTypes;
 
         /// <inheritdoc/>
-        public string Message { get; set; }
+        public string? Message { get; }
     }
 }

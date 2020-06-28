@@ -1,3 +1,5 @@
+#nullable enable
+
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -21,6 +23,6 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public string Output { get; private set; }
+        public string Output { get; }
     }
 }

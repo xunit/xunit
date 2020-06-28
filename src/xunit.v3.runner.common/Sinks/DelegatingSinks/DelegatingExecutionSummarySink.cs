@@ -14,7 +14,7 @@ namespace Xunit.Runner.Common
     public class DelegatingExecutionSummarySink : LongLivedMarshalByRefObject, IExecutionSink
     {
         readonly Func<bool> cancelThunk;
-        readonly Action<string, ExecutionSummary> completionCallback;
+        readonly Action<string, ExecutionSummary>? completionCallback;
         volatile int errors;
         readonly IMessageSinkWithTypes innerSink;
 
@@ -24,9 +24,10 @@ namespace Xunit.Runner.Common
         /// <param name="innerSink">The inner sink to pass messages to.</param>
         /// <param name="cancelThunk"></param>
         /// <param name="completionCallback"></param>
-        public DelegatingExecutionSummarySink(IMessageSinkWithTypes innerSink,
-                                              Func<bool> cancelThunk = null,
-                                              Action<string, ExecutionSummary> completionCallback = null)
+        public DelegatingExecutionSummarySink(
+            IMessageSinkWithTypes innerSink,
+            Func<bool>? cancelThunk = null,
+            Action<string, ExecutionSummary>? completionCallback = null)
         {
             Guard.ArgumentNotNull(nameof(innerSink), innerSink);
 
@@ -42,8 +43,7 @@ namespace Xunit.Runner.Common
         public ManualResetEvent Finished { get; } = new ManualResetEvent(initialState: false);
 
         /// <inheritdoc/>
-        public void Dispose()
-            => ((IDisposable)Finished).Dispose();
+        public void Dispose() => Finished.Dispose();
 
         void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
         {
@@ -59,8 +59,10 @@ namespace Xunit.Runner.Common
         }
 
         /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> messageTypes)
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? messageTypes)
         {
+            Guard.ArgumentNotNull(nameof(message), message);
+
             var result = innerSink.OnMessageWithTypes(message, messageTypes);
 
             return message.Dispatch<IErrorMessage>(messageTypes, args => Interlocked.Increment(ref errors))

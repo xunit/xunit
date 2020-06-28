@@ -9,7 +9,7 @@ namespace Xunit.Runner.Common
     /// </summary>
     public class TestAssemblyExecutionFinished : ITestAssemblyExecutionFinished, IMessageSinkMessageWithTypes
     {
-        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestAssemblyExecutionFinished).GetInterfaces().Select(x => x.FullName));
+        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestAssemblyExecutionFinished).GetInterfaces().Select(x => x.FullName!));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyExecutionFinished"/> class.
@@ -21,19 +21,23 @@ namespace Xunit.Runner.Common
                                              ITestFrameworkExecutionOptions executionOptions,
                                              ExecutionSummary executionSummary)
         {
+            Guard.ArgumentNotNull(nameof(assembly), assembly);
+            Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+            Guard.ArgumentNotNull(nameof(executionSummary), executionSummary);
+
             Assembly = assembly;
             ExecutionOptions = executionOptions;
             ExecutionSummary = executionSummary;
         }
 
         /// <inheritdoc/>
-        public XunitProjectAssembly Assembly { get; private set; }
+        public XunitProjectAssembly Assembly { get; }
 
         /// <inheritdoc/>
-        public ITestFrameworkExecutionOptions ExecutionOptions { get; private set; }
+        public ITestFrameworkExecutionOptions ExecutionOptions { get; }
 
         /// <inheritdoc/>
-        public ExecutionSummary ExecutionSummary { get; private set; }
+        public ExecutionSummary ExecutionSummary { get; }
 
         /// <inheritdoc/>
         public HashSet<string> InterfaceTypes => interfaceTypes;

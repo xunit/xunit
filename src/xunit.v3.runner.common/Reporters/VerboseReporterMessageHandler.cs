@@ -15,8 +15,19 @@ namespace Xunit.Runner.Common
         public VerboseReporterMessageHandler(IRunnerLogger logger)
             : base(logger)
         {
-            Execution.TestStartingEvent += args => Logger.LogMessage($"    {Escape(args.Message.Test.DisplayName)} [STARTING]");
-            Execution.TestFinishedEvent += args => Logger.LogMessage($"    {Escape(args.Message.Test.DisplayName)} [FINISHED] Time: {args.Message.ExecutionTime}s");
+            Execution.TestStartingEvent += args =>
+            {
+                Guard.ArgumentNotNull(nameof(args), args);
+
+                Logger.LogMessage($"    {Escape(args.Message.Test.DisplayName)} [STARTING]");
+            };
+
+            Execution.TestFinishedEvent += args =>
+            {
+                Guard.ArgumentNotNull(nameof(args), args);
+
+                Logger.LogMessage($"    {Escape(args.Message.Test.DisplayName)} [FINISHED] Time: {args.Message.ExecutionTime}s");
+            };
         }
     }
 }

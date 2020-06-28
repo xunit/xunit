@@ -17,7 +17,7 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="lineNumber"></param>
-        public StackFrameInfo(string fileName, int lineNumber)
+        public StackFrameInfo(string? fileName, int lineNumber)
         {
             FileName = fileName;
             LineNumber = lineNumber;
@@ -26,17 +26,17 @@ namespace Xunit.Runner.Common
         /// <summary>
         /// Gets the filename of the stack frame. May be <c>null</c> if the stack frame is not known.
         /// </summary>
-        public string FileName { get; private set; }
+        public string? FileName { get; }
 
         /// <summary>
         /// Returns <c>true</c> if this is an empty stack frame (e.g., <see cref="None"/>).
         /// </summary>
-        public bool IsEmpty { get { return string.IsNullOrEmpty(FileName) && LineNumber == 0; } }
+        public bool IsEmpty => string.IsNullOrEmpty(FileName) && LineNumber == 0;
 
         /// <summary>
         /// Gets the line number of the stack frame. May be 0 if the stack frame is not known.
         /// </summary>
-        public int LineNumber { get; private set; }
+        public int LineNumber { get; }
 
         /// <summary>
         /// Get a default (unknown) stack frame info.
@@ -48,7 +48,7 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="failureInfo">The failure information to inspect</param>
         /// <returns>The stack frame info</returns>
-        public static StackFrameInfo FromFailure(IFailureInformation failureInfo)
+        public static StackFrameInfo FromFailure(IFailureInformation? failureInfo)
         {
             if (failureInfo == null)
                 return None;
@@ -73,7 +73,7 @@ namespace Xunit.Runner.Common
         /// </summary>
         /// <param name="sourceInfo">The source information to inspect</param>
         /// <returns>The stack frame info</returns>
-        public static StackFrameInfo FromSourceInformation(ISourceInformation sourceInfo)
+        public static StackFrameInfo FromSourceInformation(ISourceInformation? sourceInfo)
         {
             if (sourceInfo == null)
                 return None;
@@ -93,8 +93,8 @@ namespace Xunit.Runner.Common
             var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
             if (getResourceStringMethod != null)
             {
-                wordAt = (string)getResourceStringMethod.Invoke(null, new object[] { "Word_At" });
-                wordsInLine = (string)getResourceStringMethod.Invoke(null, new object[] { "StackTrace_InFileLineNumber" });
+                wordAt = (string?)getResourceStringMethod.Invoke(null, new object[] { "Word_At" });
+                wordsInLine = (string?)getResourceStringMethod.Invoke(null, new object[] { "StackTrace_InFileLineNumber" });
             }
 #endif
 

@@ -1,4 +1,6 @@
-﻿using Xunit.Abstractions;
+﻿#nullable enable
+
+using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk

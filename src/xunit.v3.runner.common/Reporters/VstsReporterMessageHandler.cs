@@ -21,7 +21,7 @@ namespace Xunit.Runner.Common
         readonly ConcurrentDictionary<string, string> assemblyNames = new ConcurrentDictionary<string, string>();
         readonly string baseUri;
         readonly int buildId;
-        VstsClient client;
+        VstsClient? client;
         readonly object clientLock = new object();
 
         /// <summary>
@@ -43,6 +43,20 @@ namespace Xunit.Runner.Common
             Execution.TestAssemblyFinishedEvent += HandleTestAssemblyFinished;
         }
 
+        VstsClient Client
+        {
+            get
+            {
+                lock (clientLock)
+                {
+                    if (client == null)
+                        client = new VstsClient(Logger, baseUri, accessToken, buildId);
+                }
+
+                return client;
+            }
+        }
+
         void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
         {
             lock (clientLock)
@@ -52,8 +66,7 @@ namespace Xunit.Runner.Common
                 if (assembliesInFlight == 0)
                 {
                     // Drain the queue
-                    client.WaitOne(CancellationToken.None);
-                    client.Dispose();
+                    client?.Dispose(CancellationToken.None);
                     client = null;
                 }
             }
@@ -72,20 +85,15 @@ namespace Xunit.Runner.Common
                     assemblyFileName = $"{assemblyFileName} ({arg})";
 
                 assemblyNames[args.Message.TestAssembly.Assembly.Name] = assemblyFileName;
-
-                if (client == null)
-                    client = new VstsClient(Logger, baseUri, accessToken, buildId);
             }
         }
 
         void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
             var assemblyName = assemblyNames[args.Message.TestAssembly.Assembly.Name];
+            var testName = $"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}";
 
-            VstsAddTest($"{args.Message.TestClass.Class.Name}.{args.Message.TestMethod.Method.Name}",
-                        args.Message.Test.DisplayName,
-                        assemblyName,
-                        args.Message.Test);
+            VstsAddTest(testName, args.Message.Test.DisplayName, assemblyName, args.Message.Test);
         }
 
         /// <inheritdoc />
@@ -93,8 +101,7 @@ namespace Xunit.Runner.Common
         {
             var testPassed = args.Message;
 
-            VstsUpdateTest(args.Message.Test, "Passed",
-                           Convert.ToInt64(testPassed.ExecutionTime * 1000), null, null, testPassed.Output);
+            VstsUpdateTest(args.Message.Test, "Passed", Convert.ToInt64(testPassed.ExecutionTime * 1000), stdOut: testPassed.Output);
 
             base.HandleTestPassed(args);
         }
@@ -104,8 +111,7 @@ namespace Xunit.Runner.Common
         {
             var testSkipped = args.Message;
 
-            VstsUpdateTest(args.Message.Test, "NotExecuted",
-                           Convert.ToInt64(testSkipped.ExecutionTime * 1000), null, null, null);
+            VstsUpdateTest(args.Message.Test, "NotExecuted", Convert.ToInt64(testSkipped.ExecutionTime * 1000));
 
             base.HandleTestSkipped(args);
         }
@@ -115,16 +121,21 @@ namespace Xunit.Runner.Common
         {
             var testFailed = args.Message;
 
-            VstsUpdateTest(args.Message.Test, "Failed",
-                           Convert.ToInt64(testFailed.ExecutionTime * 1000), ExceptionUtility.CombineMessages(testFailed),
-                           ExceptionUtility.CombineStackTraces(testFailed), testFailed.Output);
+            VstsUpdateTest(
+                args.Message.Test,
+                "Failed",
+                Convert.ToInt64(testFailed.ExecutionTime * 1000),
+                ExceptionUtility.CombineMessages(testFailed),
+                ExceptionUtility.CombineStackTraces(testFailed),
+                testFailed.Output
+            );
 
             base.HandleTestFailed(args);
         }
 
         void VstsAddTest(string testName, string displayName, string fileName, ITest uniqueId)
         {
-            var body = new Dictionary<string, object>
+            var body = new Dictionary<string, object?>
             {
                 { "testCaseTitle", displayName },
                 { "automatedTestName", testName },
@@ -136,12 +147,18 @@ namespace Xunit.Runner.Common
                 { "startedDate", DateTime.UtcNow }
             };
 
-            client.AddTest(body, uniqueId);
+            Client.AddTest(body, uniqueId);
         }
 
-        void VstsUpdateTest(ITest uniqueId, string outcome, long? durationMilliseconds, string errorMessage, string errorStackTrace, string stdOut)
+        void VstsUpdateTest(
+            ITest uniqueId,
+            string outcome,
+            long? durationMilliseconds = null,
+            string? errorMessage = null,
+            string? errorStackTrace = null,
+            string? stdOut = null)
         {
-            var body = new Dictionary<string, object>
+            var body = new Dictionary<string, object?>
             {
                 { "outcome", outcome },
                 { "durationInMs", durationMilliseconds },
@@ -152,10 +169,10 @@ namespace Xunit.Runner.Common
             if (!string.IsNullOrWhiteSpace(msg))
                 body.Add("errorMessage", msg);
 
-            client.UpdateTest(body, uniqueId);
+            Client.UpdateTest(body, uniqueId);
         }
 
-        static string TrimStdOut(string str)
-            => str?.Length > MaxLength ? str.Substring(0, MaxLength) : str;
+        static string? TrimStdOut(string? str) =>
+            str?.Length > MaxLength ? str.Substring(0, MaxLength) : str;
     }
 }

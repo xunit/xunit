@@ -17,15 +17,14 @@ namespace Xunit.Runner.SystemConsole
     {
         volatile bool cancel;
         CommandLine? commandLine;
-        readonly object consoleLock;
+        readonly object consoleLock = new object();
         readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new ConcurrentDictionary<string, ExecutionSummary>();
         bool failed;
         IRunnerLogger? logger;
-        IMessageSinkWithTypes? reporterMessageHandler;
 
-        public ConsoleRunner(object consoleLock)
+        public ConsoleRunner(object? consoleLock = null)
         {
-            this.consoleLock = consoleLock;
+            this.consoleLock = consoleLock ?? new object();
         }
 
         public int EntryPoint(string[] args)
@@ -75,7 +74,7 @@ namespace Xunit.Runner.SystemConsole
                     Debugger.Launch();
 
                 logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-                reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
+                var reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
                 if (!commandLine.NoLogo)
                     PrintHeader();
@@ -83,7 +82,7 @@ namespace Xunit.Runner.SystemConsole
                 var failCount = RunProject(commandLine.Project, commandLine.Serialize, commandLine.ParallelizeAssemblies,
                                            commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
                                            commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.AppDomains,
-                                           commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages);
+                                           commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages, reporterMessageHandler);
 
                 if (cancel)
                     return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -265,7 +264,7 @@ namespace Xunit.Runner.SystemConsole
                 var longestSwitch = reporters.Max(r => r.RunnerSwitch?.Length ?? 0);
 
                 foreach (var switchableReporter in reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
-                    Console.WriteLine($"  -{switchableReporter.RunnerSwitch.ToLowerInvariant().PadRight(longestSwitch)} : {switchableReporter.Description}");
+                    Console.WriteLine($"  -{switchableReporter.RunnerSwitch!.ToLowerInvariant().PadRight(longestSwitch)} : {switchableReporter.Description}");
 
                 foreach (var environmentalReporter in reporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
                     Console.WriteLine($"   {"".PadRight(longestSwitch)} : {environmentalReporter.Description} [auto-enabled only]");
@@ -291,7 +290,8 @@ namespace Xunit.Runner.SystemConsole
                        AppDomainSupport? appDomains,
                        bool failSkips,
                        bool stopOnFail,
-                       bool internalDiagnosticMessages)
+                       bool internalDiagnosticMessages,
+                       IMessageSinkWithTypes reporterMessageHandler)
         {
             XElement? assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
@@ -308,7 +308,7 @@ namespace Xunit.Runner.SystemConsole
 
             if (parallelizeAssemblies.GetValueOrDefault())
             {
-                var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages)));
+                var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, reporterMessageHandler)));
                 var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                 foreach (var assemblyElement in results.Where(result => result != null))
                     assembliesElement?.Add(assemblyElement);
@@ -317,7 +317,7 @@ namespace Xunit.Runner.SystemConsole
             {
                 foreach (var assembly in project.Assemblies)
                 {
-                    var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages);
+                    var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, reporterMessageHandler);
                     if (assemblyElement != null)
                         assembliesElement?.Add(assemblyElement);
                 }
@@ -333,7 +333,8 @@ namespace Xunit.Runner.SystemConsole
 
             Directory.SetCurrentDirectory(originalWorkingFolder);
 
-            xmlTransformers.ForEach(transformer => transformer(assembliesElement));
+            if (assembliesElement != null)
+                xmlTransformers.ForEach(transformer => transformer(assembliesElement));
 
             return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed);
         }
@@ -350,7 +351,8 @@ namespace Xunit.Runner.SystemConsole
                                   bool failSkips,
                                   bool stopOnFail,
                                   XunitFilters filters,
-                                  bool internalDiagnosticMessages)
+                                  bool internalDiagnosticMessages,
+                                  IMessageSinkWithTypes reporterMessageHandler)
         {
             if (cancel)
                 return null;
@@ -359,7 +361,8 @@ namespace Xunit.Runner.SystemConsole
 
             try
             {
-                if (!ValidateFileExists(consoleLock, assembly.AssemblyFilename) || !ValidateFileExists(consoleLock, assembly.ConfigFilename))
+                var assemblyFileName = Guard.ArgumentNotNull("assembly.AssemblyFilename", assembly.AssemblyFilename);
+                if (!ValidateFileExists(consoleLock, assemblyFileName) || !ValidateFileExists(consoleLock, assembly.ConfigFilename))
                     return null;
 
                 // Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
@@ -379,15 +382,15 @@ namespace Xunit.Runner.SystemConsole
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
-                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
+                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
                 var diagnosticMessageSink = ConsoleDiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.DiagnosticMessagesOrDefault, noColor);
                 var internalDiagnosticsMessageSink = ConsoleDiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, assembly.Configuration.InternalDiagnosticMessagesOrDefault, noColor);
                 var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
                 var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
                 var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-                using (AssemblyHelper.SubscribeResolveForAssembly(assembly.AssemblyFilename, internalDiagnosticsMessageSink))
-                using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
+                using (AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, internalDiagnosticsMessageSink))
+                using (var controller = new XunitFrontController(appDomainSupport, assemblyFileName, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
                 using (var discoverySink = new TestDiscoverySink(() => cancel))
                 {
                     // Discover & filter the tests
@@ -404,7 +407,7 @@ namespace Xunit.Runner.SystemConsole
 
                     // Run the filtered tests
                     if (testCasesToRun == 0)
-                        completionMessages.TryAdd(Path.GetFileName(assembly.AssemblyFilename), new ExecutionSummary());
+                        completionMessages.TryAdd(Path.GetFileName(assemblyFileName), new ExecutionSummary());
                     else
                     {
                         if (serialize)
@@ -451,7 +454,7 @@ namespace Xunit.Runner.SystemConsole
             return assemblyElement;
         }
 
-        bool ValidateFileExists(object consoleLock, string fileName)
+        bool ValidateFileExists(object consoleLock, string? fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName) || File.Exists(fileName))
                 return true;

@@ -9,7 +9,7 @@ namespace Xunit.Runner.Common
     /// </summary>
     public class TestAssemblyDiscoveryStarting : ITestAssemblyDiscoveryStarting, IMessageSinkMessageWithTypes
     {
-        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestAssemblyDiscoveryStarting).GetInterfaces().Select(x => x.FullName));
+        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(TestAssemblyDiscoveryStarting).GetInterfaces().Select(x => x.FullName!));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyDiscoveryStarting"/> class.
@@ -23,6 +23,9 @@ namespace Xunit.Runner.Common
                                              bool shadowCopy,
                                              ITestFrameworkDiscoveryOptions discoveryOptions)
         {
+            Guard.ArgumentNotNull(nameof(assembly), assembly);
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
             Assembly = assembly;
             AppDomain = appDomain;
             DiscoveryOptions = discoveryOptions;
@@ -30,18 +33,18 @@ namespace Xunit.Runner.Common
         }
 
         /// <inheritdoc/>
-        public bool AppDomain { get; private set; }
+        public bool AppDomain { get; }
 
         /// <inheritdoc/>
-        public XunitProjectAssembly Assembly { get; private set; }
+        public XunitProjectAssembly Assembly { get; }
 
         /// <inheritdoc/>
-        public ITestFrameworkDiscoveryOptions DiscoveryOptions { get; private set; }
+        public ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
 
         /// <inheritdoc/>
         public HashSet<string> InterfaceTypes => interfaceTypes;
 
         /// <inheritdoc/>
-        public bool ShadowCopy { get; private set; }
+        public bool ShadowCopy { get; }
     }
 }

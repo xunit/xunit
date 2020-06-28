@@ -29,7 +29,7 @@ namespace Xunit.Runner.Common
         /// This value is used either as a command line switch (with the console or
         /// .NET CLI runner) or as a runner configuration value (with the MSBuild runner).
         /// </summary>
-        string RunnerSwitch { get; }
+        string? RunnerSwitch { get; }
 
         /// <summary>
         /// Creates a message handler that will report messages for the given

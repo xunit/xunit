@@ -12,19 +12,23 @@ namespace Xunit.Runner.Common
         /// <summary>
         /// Occurs when a <see cref="IDiscoveryCompleteMessage"/> message is received.
         /// </summary>
-        public event MessageHandler<IDiscoveryCompleteMessage> DiscoveryCompleteMessageEvent;
+        public event MessageHandler<IDiscoveryCompleteMessage>? DiscoveryCompleteMessageEvent;
 
         /// <summary>
         /// Occurs when a <see cref="ITestCaseDiscoveryMessage"/> message is received.
         /// </summary>
-        public event MessageHandler<ITestCaseDiscoveryMessage> TestCaseDiscoveryMessageEvent;
+        public event MessageHandler<ITestCaseDiscoveryMessage>? TestCaseDiscoveryMessageEvent;
 
         /// <inheritdoc/>
         public void Dispose() { }
 
         /// <inheritdoc/>
-        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string> typeNames)
-            => message.Dispatch(typeNames, TestCaseDiscoveryMessageEvent)
-            && message.Dispatch(typeNames, DiscoveryCompleteMessageEvent);
+        public bool OnMessageWithTypes(IMessageSinkMessage message, HashSet<string>? typeNames)
+        {
+            Guard.ArgumentNotNull(nameof(message), message);
+
+            return message.Dispatch(typeNames, TestCaseDiscoveryMessageEvent)
+                && message.Dispatch(typeNames, DiscoveryCompleteMessageEvent);
+        }
     }
 }

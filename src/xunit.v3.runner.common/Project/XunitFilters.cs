@@ -13,14 +13,14 @@ namespace Xunit.Runner.Common
     public class XunitFilters
     {
         DateTimeOffset includeCacheDataDate;
-        ChangeTrackingHashSet<string> includedMethods;
-        List<Regex> includeMethodRegexFilters;
-        HashSet<string> includeMethodStandardFilters;
+        readonly ChangeTrackingHashSet<string> includedMethods;
+        List<Regex>? includeMethodRegexFilters;
+        HashSet<string>? includeMethodStandardFilters;
 
         DateTimeOffset excludeCacheDataDate;
-        ChangeTrackingHashSet<string> excludedMethods;
-        List<Regex> excludeMethodRegexFilters;
-        HashSet<string> excludeMethodStandardFilters;
+        readonly ChangeTrackingHashSet<string> excludedMethods;
+        List<Regex>? excludeMethodRegexFilters;
+        HashSet<string>? excludeMethodStandardFilters;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitFilters"/> class.
@@ -84,6 +84,8 @@ namespace Xunit.Runner.Common
         /// <returns>Returns <c>true</c> if the test case passed the filter; returns <c>false</c> otherwise.</returns>
         public bool Filter(ITestCase testCase)
         {
+            Guard.ArgumentNotNull(nameof(testCase), testCase);
+
             SplitMethodFilters();
 
             if (!FilterIncludedMethodsAndClasses(testCase))
@@ -127,7 +129,7 @@ namespace Xunit.Runner.Common
         bool FilterExcludedMethodsAndClasses(ITestCase testCase)
         {
             // No methods or classes in the filter == everything is okay
-            if (excludeMethodStandardFilters.Count == 0 && excludeMethodRegexFilters.Count == 0 && ExcludedClasses.Count == 0)
+            if (excludeMethodStandardFilters?.Count == 0 && excludeMethodRegexFilters?.Count == 0 && ExcludedClasses.Count == 0)
                 return true;
 
             if (ExcludedClasses.Count != 0 && ExcludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
@@ -135,10 +137,10 @@ namespace Xunit.Runner.Common
 
             var methodName = $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}";
 
-            if (excludeMethodStandardFilters.Count != 0 && excludeMethodStandardFilters.Contains(methodName))
+            if (excludeMethodStandardFilters?.Count != 0 && excludeMethodStandardFilters?.Contains(methodName) == true)
                 return false;
 
-            if (excludeMethodRegexFilters.Count != 0)
+            if (excludeMethodRegexFilters != null && excludeMethodRegexFilters.Count != 0)
                 foreach (var regex in excludeMethodRegexFilters)
                     if (regex.IsMatch(methodName))
                         return false;
@@ -149,7 +151,7 @@ namespace Xunit.Runner.Common
         bool FilterIncludedMethodsAndClasses(ITestCase testCase)
         {
             // No methods or classes in the filter == everything is okay
-            if (includeMethodStandardFilters.Count == 0 && includeMethodRegexFilters.Count == 0 && IncludedClasses.Count == 0)
+            if (includeMethodStandardFilters?.Count == 0 && includeMethodRegexFilters?.Count == 0 && IncludedClasses.Count == 0)
                 return true;
 
             if (IncludedClasses.Count != 0 && IncludedClasses.Contains(testCase.TestMethod.TestClass.Class.Name))
@@ -157,10 +159,10 @@ namespace Xunit.Runner.Common
 
             var methodName = $"{testCase.TestMethod.TestClass.Class.Name}.{testCase.TestMethod.Method.Name}";
 
-            if (includeMethodStandardFilters.Count != 0 && includeMethodStandardFilters.Contains(methodName))
+            if (includeMethodStandardFilters?.Count != 0 && includeMethodStandardFilters?.Contains(methodName) == true)
                 return true;
 
-            if (includeMethodRegexFilters.Count != 0)
+            if (includeMethodRegexFilters != null && includeMethodRegexFilters.Count != 0)
                 foreach (var regex in includeMethodRegexFilters)
                     if (regex.IsMatch(methodName))
                         return true;
@@ -206,8 +208,8 @@ namespace Xunit.Runner.Common
 
         void SplitMethodFilters()
         {
-            this.SplitIncludeMethodFilters();
-            this.SplitExcludeMethodFilters();
+            SplitIncludeMethodFilters();
+            SplitExcludeMethodFilters();
         }
 
         void SplitIncludeMethodFilters()
@@ -268,7 +270,7 @@ namespace Xunit.Runner.Common
         // the data into caches).
         class ChangeTrackingHashSet<T> : ICollection<T>
         {
-            HashSet<T> innerCollection;
+            readonly HashSet<T> innerCollection;
 
             public ChangeTrackingHashSet(IEqualityComparer<T> comparer)
             {
@@ -276,13 +278,14 @@ namespace Xunit.Runner.Common
             }
 
             public int Count => innerCollection.Count;
+
             public bool IsReadOnly => false;
 
             public DateTimeOffset LastMutation { get; private set; } = DateTimeOffset.UtcNow;
 
             public void Add(T item)
             {
-                lock (this)
+                lock (innerCollection)
                 {
                     LastMutation = DateTimeOffset.UtcNow;
                     innerCollection.Add(item);
@@ -291,7 +294,7 @@ namespace Xunit.Runner.Common
 
             public void Clear()
             {
-                lock (this)
+                lock (innerCollection)
                 {
                     LastMutation = DateTimeOffset.UtcNow;
                     innerCollection.Clear();
@@ -305,7 +308,7 @@ namespace Xunit.Runner.Common
 
             public bool Remove(T item)
             {
-                lock (this)
+                lock (innerCollection)
                 {
                     LastMutation = DateTimeOffset.UtcNow;
                     return innerCollection.Remove(item);

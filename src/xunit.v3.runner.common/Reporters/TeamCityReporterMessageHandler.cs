@@ -20,11 +20,14 @@ namespace Xunit.Runner.Common
         /// <param name="flowIdMapper">Optional code which maps a test collection name to a flow ID
         /// (the default behavior generates a new GUID for each test collection)</param>
         /// <param name="displayNameFormatter">Optional display name formatter</param>
-        public TeamCityReporterMessageHandler(IRunnerLogger logger,
-                                              Func<string, string> flowIdMapper = null,
-                                              TeamCityDisplayNameFormatter displayNameFormatter = null)
-            : base(flowIdMapper)
+        public TeamCityReporterMessageHandler(
+            IRunnerLogger logger,
+            Func<string, string>? flowIdMapper = null,
+            TeamCityDisplayNameFormatter? displayNameFormatter = null)
+                : base(flowIdMapper)
         {
+            Guard.ArgumentNotNull(nameof(logger), logger);
+
             this.logger = logger;
             this.displayNameFormatter = displayNameFormatter ?? new TeamCityDisplayNameFormatter();
 
@@ -49,6 +52,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var error = args.Message;
             LogError("FATAL ERROR", error);
         }
@@ -58,6 +63,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var cleanupFailure = args.Message;
             LogError($"Test Assembly Cleanup Failure ({cleanupFailure.TestAssembly.Assembly.AssemblyPath})", cleanupFailure);
         }
@@ -67,6 +74,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var cleanupFailure = args.Message;
             LogError($"Test Case Cleanup Failure ({cleanupFailure.TestCase.DisplayName})", cleanupFailure);
         }
@@ -76,6 +85,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var cleanupFailure = args.Message;
             LogError($"Test Class Cleanup Failure ({cleanupFailure.TestClass.Class.Name})", cleanupFailure);
         }
@@ -85,6 +96,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var cleanupFailure = args.Message;
             LogError($"Test Collection Cleanup Failure ({cleanupFailure.TestCollection.DisplayName})", cleanupFailure);
         }
@@ -94,6 +107,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var testCollectionFinished = args.Message;
             logger.LogImportantMessage($"##teamcity[testSuiteFinished name='{Escape(displayNameFormatter.DisplayName(testCollectionFinished.TestCollection))}' flowId='{ToFlowId(testCollectionFinished.TestCollection.DisplayName)}']");
         }
@@ -103,6 +118,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<ITestCollectionStarting> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var testCollectionStarting = args.Message;
             logger.LogImportantMessage($"##teamcity[testSuiteStarted name='{Escape(displayNameFormatter.DisplayName(testCollectionStarting.TestCollection))}' flowId='{ToFlowId(testCollectionStarting.TestCollection.DisplayName)}']");
         }
@@ -112,6 +129,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var cleanupFailure = args.Message;
             LogError($"Test Cleanup Failure ({cleanupFailure.Test.DisplayName})", cleanupFailure);
         }
@@ -121,6 +140,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var testFailed = args.Message;
             logger.LogImportantMessage($"##teamcity[testFailed name='{Escape(displayNameFormatter.DisplayName(testFailed.Test))}' details='{Escape(ExceptionUtility.CombineMessages(testFailed))}|r|n{Escape(ExceptionUtility.CombineStackTraces(testFailed))}' flowId='{ToFlowId(testFailed.TestCollection.DisplayName)}']");
             LogFinish(testFailed);
@@ -131,6 +152,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var cleanupFailure = args.Message;
             LogError($"Test Method Cleanup Failure ({cleanupFailure.TestMethod.Method.Name})", cleanupFailure);
         }
@@ -140,6 +163,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var testPassed = args.Message;
             LogFinish(testPassed);
         }
@@ -149,6 +174,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var testSkipped = args.Message;
             logger.LogImportantMessage($"##teamcity[testIgnored name='{Escape(displayNameFormatter.DisplayName(testSkipped.Test))}' message='{Escape(testSkipped.Reason)}' flowId='{ToFlowId(testSkipped.TestCollection.DisplayName)}']");
             LogFinish(testSkipped);
@@ -159,6 +186,8 @@ namespace Xunit.Runner.Common
         /// </summary>
         protected virtual void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
         {
+            Guard.ArgumentNotNull(nameof(args), args);
+
             var testStarting = args.Message;
             logger.LogImportantMessage($"##teamcity[testStarted name='{Escape(displayNameFormatter.DisplayName(testStarting.Test))}' flowId='{ToFlowId(testStarting.TestCollection.DisplayName)}']");
         }

@@ -9,19 +9,36 @@ namespace Xunit.Runner.Common
     public class Transform
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="Transform"/> class.
+        /// </summary>
+        /// <param name="id">The transform ID</param>
+        /// <param name="description">The transform description</param>
+        /// <param name="outputHandler">The handler which will write the v2 XML to the given file</param>
+        public Transform(string id, string description, Action<XElement, string> outputHandler)
+        {
+            Guard.ArgumentNotNull(nameof(id), id);
+            Guard.ArgumentNotNull(nameof(description), description);
+            Guard.ArgumentNotNull(nameof(outputHandler), outputHandler);
+
+            ID = id;
+            Description = description;
+            OutputHandler = outputHandler;
+        }
+
+        /// <summary>
         /// Gets the transform ID.
         /// </summary>
-        public string ID { get; internal set; }
+        public string ID { get; }
 
         /// <summary>
         /// Gets description of the transformation. Suitable for displaying to end users.
         /// </summary>
-        public string Description { get; internal set; }
+        public string Description { get; }
 
         /// <summary>
         /// Gets the output handler for the transformation. Converts XML to a file on the
         /// file system.
         /// </summary>
-        public Action<XElement, string> OutputHandler { get; internal set; }
+        public Action<XElement, string> OutputHandler { get; }
     }
 }

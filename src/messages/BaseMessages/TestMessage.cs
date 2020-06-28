@@ -1,4 +1,6 @@
-﻿using Xunit.Abstractions;
+﻿#nullable enable
+
+using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
@@ -21,6 +23,6 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public ITest Test { get; private set; }
+        public ITest Test { get; }
     }
 }

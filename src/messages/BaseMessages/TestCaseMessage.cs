@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿#nullable enable
+
+using System.Linq;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -19,6 +21,6 @@ namespace Xunit
             : base(testCase, testCase.TestMethod) { }
 
         /// <inheritdoc/>
-        public ITestCase TestCase { get { return TestCases.FirstOrDefault(); } }
+        public ITestCase TestCase => TestCases.FirstOrDefault();
     }
 }

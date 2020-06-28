@@ -8,19 +8,16 @@ namespace Xunit.Runner.Common
     public class QuietReporter : IRunnerReporter
     {
         /// <inheritdoc />
-        public string Description
-            => "do not show progress messages";
+        public string Description => "do not show progress messages";
 
         /// <inheritdoc />
-        public bool IsEnvironmentallyEnabled
-            => false;
+        public bool IsEnvironmentallyEnabled => false;
 
         /// <inheritdoc />
-        public string RunnerSwitch
-            => "quiet";
+        public string RunnerSwitch => "quiet";
 
         /// <inheritdoc />
-        public IMessageSink CreateMessageHandler(IRunnerLogger logger)
-            => new QuietReporterMessageHandler(logger);
+        public IMessageSink CreateMessageHandler(IRunnerLogger logger) =>
+            new QuietReporterMessageHandler(logger);
     }
 }

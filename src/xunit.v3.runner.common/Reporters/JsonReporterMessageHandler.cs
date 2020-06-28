@@ -1,6 +1,5 @@
 using System;
 using Xunit.Abstractions;
-using Xunit.Runner.Common;
 
 namespace Xunit.Runner.Common
 {
@@ -16,8 +15,7 @@ namespace Xunit.Runner.Common
         /// <param name="logger">The logger used to report messages</param>
         /// <param name="flowIdMapper">Optional code which maps a test collection name to a flow ID
         /// (the default behavior generates a new GUID for each test collection)</param>
-        public JsonReporterMessageHandler(IRunnerLogger logger,
-                                          Func<string, string> flowIdMapper = null)
+        public JsonReporterMessageHandler(IRunnerLogger logger, Func<string, string>? flowIdMapper = null)
             : base(flowIdMapper)
         {
             Diagnostics.ErrorMessageEvent += args => logger.LogImportantMessage(args.Message.ToJson());
