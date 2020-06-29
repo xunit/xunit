@@ -214,8 +214,11 @@ namespace Xunit.Runner.Common
 
         static bool IsAscii(char ch) => ch <= '\x007f';
 
-        static string Escape(string value)
+        static string? Escape(string? value)
         {
+            if (value == null)
+                return null;
+
             var sb = new StringBuilder(value.Length);
             for (var i = 0; i < value.Length; i++)
             {

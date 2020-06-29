@@ -36,7 +36,7 @@ namespace Xunit
             }
             catch (TargetInvocationException ex)
             {
-                ex.InnerException.RethrowWithNoStackTraceLoss();
+                ex.InnerException!.RethrowWithNoStackTraceLoss();
                 return default;
             }
         }
@@ -58,7 +58,7 @@ namespace Xunit
             }
             catch (TargetInvocationException ex)
             {
-                ex.InnerException.RethrowWithNoStackTraceLoss();
+                ex.InnerException!.RethrowWithNoStackTraceLoss();
                 return default;
             }
         }

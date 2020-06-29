@@ -1,6 +1,4 @@
-﻿// TODO: Should all the Dia code just move to the VSTest adapter?
-
-#nullable disable
+﻿#nullable disable  // TODO: This code is moving to the VSTest adapter
 
 #if NETFRAMEWORK
 

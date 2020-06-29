@@ -1,4 +1,4 @@
-#nullable disable
+#nullable enable
 
 using System;
 using System.IO;
@@ -6,12 +6,10 @@ using System.Reflection;
 
 static class AssemblyExtensions
 {
-    public static string GetLocalCodeBase(this Assembly assembly)
-    {
-        return GetLocalCodeBase(assembly?.CodeBase, Path.DirectorySeparatorChar);
-    }
+    public static string? GetLocalCodeBase(this Assembly? assembly) =>
+        GetLocalCodeBase(assembly?.CodeBase, Path.DirectorySeparatorChar);
 
-    public static string GetLocalCodeBase(string codeBase, char directorySeparator)
+    public static string? GetLocalCodeBase(string? codeBase, char directorySeparator)
     {
         if (codeBase == null)
             return null;

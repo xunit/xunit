@@ -31,8 +31,8 @@ namespace Xunit.Runner.InProc.SystemConsole
 
         public int EntryPoint(string[] args)
         {
-            var assemblyUnderTest = Assembly.GetEntryAssembly();
-            commandLine = CommandLine.Parse(assemblyUnderTest.GetLocalCodeBase(), args);
+            var assemblyUnderTest = Guard.NotNull("Could not get Assembly.EntryAssembly", Assembly.GetEntryAssembly());
+            commandLine = CommandLine.Parse(assemblyUnderTest.GetLocalCodeBase()!, args);
 
             try
             {

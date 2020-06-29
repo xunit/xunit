@@ -1,4 +1,4 @@
-﻿#nullable disable
+﻿#nullable disable  // This is copied code, enabling nullable is not in scope
 
 using System;
 using System.Collections.Generic;

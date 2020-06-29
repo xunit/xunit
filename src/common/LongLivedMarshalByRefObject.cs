@@ -51,14 +51,14 @@ namespace Xunit.Sdk
         public static void DisconnectAll() { }
 #endif
 
-#nullable disable
+#nullable disable  // The original signature is not compatibility with nullable reference type support
         /// <inheritdoc/>
         [SecurityCritical]
         public override sealed object InitializeLifetimeService()
         {
             return null;
         }
-#nullable restore
+#nullable enable
     }
 #else
     /// <summary>

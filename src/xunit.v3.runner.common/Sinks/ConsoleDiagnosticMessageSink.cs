@@ -68,14 +68,14 @@ namespace Xunit.Runner.Common
         }
 
 #if NETFRAMEWORK
-#nullable disable
+#nullable disable  // The original signature is not compatibility with nullable reference type support
         /// <inheritdoc />
         [System.Security.SecurityCritical]
         public override sealed object InitializeLifetimeService()
         {
             return null;
         }
-#nullable restore
+#nullable enable
 #endif
     }
 }

@@ -1,4 +1,4 @@
-﻿#nullable disable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -21,33 +21,41 @@ namespace Xunit.Serialization
         /// Initializes a new instance of the <see cref="XunitSerializationInfo"/> class.
         /// </summary>
         /// <param name="object">The data to copy into the serialization info</param>
-        public XunitSerializationInfo(IXunitSerializable @object = null)
+        public XunitSerializationInfo(IXunitSerializable? @object = null)
         {
             if (@object != null)
                 @object.Serialize(this);
         }
 
         /// <inheritdoc/>
-        public void AddValue(string key, object value, Type type = null)
+        public void AddValue(string key, object? value, Type? type = null)
         {
+            Guard.ArgumentNotNull(nameof(key), key);
+
             if (type == null)
                 type = value == null ? typeof(object) : value.GetType();
 
             data[key] = new XunitSerializationTriple(key, value, type);
         }
 
+#nullable disable  // The original signature is not compatibility with nullable reference type support
         /// <inheritdoc/>
         public T GetValue<T>(string key)
         {
+            Guard.ArgumentNotNull(nameof(key), key);
+
             return (T)GetValue(key, typeof(T));
         }
+#nullable enable
 
         /// <inheritdoc/>
-        public object GetValue(string key, Type type)
+        public object? GetValue(string key, Type type)
         {
-            XunitSerializationTriple val;
+            Guard.ArgumentNotNull(nameof(key), key);
+            Guard.ArgumentNotNull(nameof(type), type);
 
-            if (data.TryGetValue(key, out val))
+
+            if (data.TryGetValue(key, out var val))
                 return val.Value;
 
             if (type.IsValueType())
@@ -59,10 +67,8 @@ namespace Xunit.Serialization
         /// <summary>
         /// Returns BASE64 encoded string that represents the entirety of the data.
         /// </summary>
-        public string ToSerializedString()
-        {
-            return ToBase64(string.Join("\n", data.Select(kvp => SerializeTriple(kvp.Value)).ToArray()));
-        }
+        public string ToSerializedString() =>
+            ToBase64(string.Join("\n", data.Select(kvp => SerializeTriple(kvp.Value)).ToArray()));
 
         /// <summary>
         /// Returns a triple for a key/value pair of data in a complex object
@@ -92,6 +98,9 @@ namespace Xunit.Serialization
                 throw new ArgumentException("Data does not appear to be a valid serialized triple: " + value);
 
             var pieceType = SerializationHelper.GetType(pieces[1]);
+            if (pieceType == null)
+                throw new ArgumentException("Data does not appear to be a valid serialized triple: " + value);
+
             var deserializedValue = pieces.Length == 3 ? Deserialize(pieceType, pieces[2]) : null;
 
             return new XunitSerializationTriple(pieces[0], deserializedValue, pieceType);
@@ -103,7 +112,7 @@ namespace Xunit.Serialization
         /// <param name="type">The type of the object to de-serialize into</param>
         /// <param name="serializedValue">The serialized value</param>
         /// <returns>The de-serialized object</returns>
-        public static object Deserialize(Type type, string serializedValue)
+        public static object? Deserialize(Type type, string serializedValue)
         {
             if (serializedValue == null)
                 return null;
@@ -144,14 +153,14 @@ namespace Xunit.Serialization
             if (type == typeof(float?) || type == typeof(float))
             {
                 var arrSer = (ArraySerializer)DeserializeSerializable(typeof(ArraySerializer), serializedValue);
-                byte[] bytes = (byte[])arrSer.ArrayData;
+                byte[] bytes = (byte[])arrSer.ArrayData!;
                 return BitConverter.ToSingle(bytes, 0);
             }
 
             if (type == typeof(double?) || type == typeof(double))
             {
                 var arrSer = (ArraySerializer)DeserializeSerializable(typeof(ArraySerializer), serializedValue);
-                byte[] bytes = (byte[])arrSer.ArrayData;
+                byte[] bytes = (byte[])arrSer.ArrayData!;
                 return BitConverter.ToDouble(bytes, 0);
             }
 
@@ -206,7 +215,9 @@ namespace Xunit.Serialization
 
             try
             {
-                var value = (IXunitSerializable)Activator.CreateInstance(type);
+                if (!(Activator.CreateInstance(type) is IXunitSerializable value))
+                    throw new ArgumentException($"Could not cast '{type.FullName}' to '{typeof(IXunitSerializable).FullName}' for deserialization");
+
                 value.Deserialize(serializationInfo);
                 return value;
             }
@@ -221,7 +232,7 @@ namespace Xunit.Serialization
         /// </summary>
         /// <param name="value">The value to be serialized</param>
         /// <returns>The serialized object</returns>
-        public static string Serialize(object value)
+        public static string? Serialize(object? value)
         {
             if (value == null)
                 return null;
@@ -349,7 +360,7 @@ namespace Xunit.Serialization
             typeof(DateTimeOffset), typeof(DateTimeOffset?),
         };
 
-        internal static bool CanSerializeObject(object value)
+        internal static bool CanSerializeObject(object? value)
         {
             if (value == null)
                 return true;
@@ -361,24 +372,24 @@ namespace Xunit.Serialization
                 if (value is object[] vector)
                 {
                     // Avoid enumerator allocation and bounds lookups that comes from enumerating a System.Array
-                    foreach (object obj in vector)
+                    foreach (var obj in vector)
                         if (!CanSerializeObject(obj))
                             return false;
                 }
                 else
                 {
-                    foreach (object obj in ((Array)value))
+                    foreach (var obj in (Array)value)
                         if (!CanSerializeObject(obj))
                             return false;
                 }
                 return true;
             }
 
-            foreach (Type supportedType in supportedSerializationTypes)
+            foreach (var supportedType in supportedSerializationTypes)
                 if (supportedType.IsAssignableFrom(valueType))
                     return true;
 
-            Type typeToCheck = valueType;
+            var typeToCheck = valueType;
             if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
                 return typeToCheck.IsFromLocalAssembly();
 
@@ -399,42 +410,41 @@ namespace Xunit.Serialization
 
         internal class ArraySerializer : IXunitSerializable
         {
-            Array array;
-            readonly Type elementType;
+            readonly Type? elementType;
 
-            public Array ArrayData { get { return array; } }
+            public Array? ArrayData { get; private set; }
 
             public ArraySerializer() { }
 
             public ArraySerializer(Array array)
             {
-                if (array == null)
-                    throw new ArgumentNullException(nameof(array));
+                Guard.ArgumentNotNull(nameof(array), array);
 
                 if (!CanSerializeObject(array))
                     throw new ArgumentException("There is at least one object in this array that cannot be serialized", nameof(array));
 
-                this.array = array;
+                this.ArrayData = array;
                 elementType = array.GetType().GetElementType();
             }
 
             public void Serialize(IXunitSerializationInfo info)
             {
+                Guard.ArgumentNotNull(nameof(info), info);
+                Guard.NotNull("Cannot serialize an array with no element type", elementType);
+                Guard.NotNull("Cannot serialize a null array", ArrayData);
+
                 info.AddValue("ElementType", SerializationHelper.GetTypeNameForSerialization(elementType));
-                info.AddValue("Rank", array.Rank);
-                info.AddValue("TotalLength", array.Length);
+                info.AddValue("Rank", ArrayData.Rank);
+                info.AddValue("TotalLength", ArrayData.Length);
 
-                for (int dimension = 0; dimension < array.Rank; dimension++)
-                {
-                    info.AddValue("Length" + dimension, array.GetLength(dimension));
-                }
-                for (int dimension = 0; dimension < array.Rank; dimension++)
-                {
-                    info.AddValue("LowerBound" + dimension, array.GetLowerBound(dimension));
-                }
+                for (var dimension = 0; dimension < ArrayData.Rank; dimension++)
+                    info.AddValue("Length" + dimension, ArrayData.GetLength(dimension));
 
-                int i = 0;
-                foreach (object obj in array)
+                for (var dimension = 0; dimension < ArrayData.Rank; dimension++)
+                    info.AddValue("LowerBound" + dimension, ArrayData.GetLowerBound(dimension));
+
+                var i = 0;
+                foreach (var obj in ArrayData)
                 {
                     info.AddValue("Item" + i, obj);
                     i++;
@@ -444,28 +454,31 @@ namespace Xunit.Serialization
             public void Deserialize(IXunitSerializationInfo info)
             {
                 var arrType = SerializationHelper.GetType(info.GetValue<string>("ElementType"));
+                if (arrType == null)
+                    throw new InvalidOperationException("Cannot deserialize array because array type is null");
+
                 var rank = info.GetValue<int>("Rank");
                 var totalLength = info.GetValue<int>("TotalLength");
 
-                int[] lengths = new int[rank];
-                int[] lowerBounds = new int[rank];
-                for (int i = 0; i < lengths.Length; i++)
+                var lengths = new int[rank];
+                var lowerBounds = new int[rank];
+                for (var i = 0; i < lengths.Length; i++)
                 {
                     lengths[i] = info.GetValue<int>("Length" + i);
                     lowerBounds[i] = info.GetValue<int>("LowerBound" + i);
                 }
 
-                array = Array.CreateInstance(arrType, lengths, lowerBounds);
+                ArrayData = Array.CreateInstance(arrType, lengths, lowerBounds);
 
-                int[] indices = new int[rank];
-                for (int i = 0; i < indices.Length; i++)
-                {
+                var indices = new int[rank];
+                for (var i = 0; i < indices.Length; i++)
                     indices[i] = lowerBounds[i];
-                }
-                for (int i = 0; i < totalLength; i++)
+
+                for (var i = 0; i < totalLength; i++)
                 {
-                    bool complete = false;
-                    for (int dim = rank - 1; dim >= 0; dim--)
+                    var complete = false;
+
+                    for (var dim = rank - 1; dim >= 0; dim--)
                     {
                         if (indices[dim] >= lowerBounds[dim] + lengths[dim])
                         {
@@ -474,17 +487,19 @@ namespace Xunit.Serialization
                                 complete = true;
                                 break;
                             }
-                            for (int j = dim; j < rank; j++)
+
+                            for (var j = dim; j < rank; j++)
                                 indices[j] = lowerBounds[dim];
+
                             indices[dim - 1]++;
                         }
                     }
+
                     if (complete)
-                    {
                         break;
-                    }
-                    object item = info.GetValue("Item" + i, arrType);
-                    array.SetValue(item, indices);
+
+                    var item = info.GetValue("Item" + i, arrType);
+                    ArrayData.SetValue(item, indices);
                     indices[rank - 1]++;
                 }
             }
@@ -505,7 +520,7 @@ namespace Xunit.Serialization
         /// <summary>
         /// Gets the triple's value
         /// </summary>
-        public readonly object Value;
+        public readonly object? Value;
 
         /// <summary>
         /// Gets the triple's value type
@@ -518,7 +533,7 @@ namespace Xunit.Serialization
         /// <param name="key">The triple's key</param>
         /// <param name="value">The triple's value</param>
         /// <param name="type">The triple's value type</param>
-        public XunitSerializationTriple(string key, object value, Type type)
+        public XunitSerializationTriple(string key, object? value, Type type)
         {
             Key = key;
             Value = value;

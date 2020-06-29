@@ -1,4 +1,4 @@
-﻿#nullable disable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -20,20 +20,16 @@ namespace Xunit
         /// </summary>
         /// <param name="failureInfo">The failure information from which to get the messages.</param>
         /// <returns>The combined string.</returns>
-        public static string CombineMessages(IFailureInformation failureInfo)
-        {
-            return GetMessage(failureInfo, 0, 0);
-        }
+        public static string CombineMessages(IFailureInformation failureInfo) =>
+            GetMessage(failureInfo, 0, 0);
 
         /// <summary>
         /// Combines multiple levels of stack traces into a single stack trace.
         /// </summary>
         /// <param name="failureInfo">The failure information from which to get the stack traces.</param>
         /// <returns>The combined string.</returns>
-        public static string CombineStackTraces(IFailureInformation failureInfo)
-        {
-            return GetStackTrace(failureInfo, 0);
-        }
+        public static string? CombineStackTraces(IFailureInformation failureInfo) =>
+            GetStackTrace(failureInfo, 0);
 
         static bool ExcludeStackFrame(string stackFrame)
         {
@@ -42,7 +38,7 @@ namespace Xunit
             return stackFrame.StartsWith("at Xunit.", StringComparison.Ordinal);
         }
 
-        static string FilterStackTrace(string stack)
+        static string? FilterStackTrace(string? stack)
         {
             if (stack == null)
                 return null;
@@ -77,6 +73,8 @@ namespace Xunit
 
         static string GetMessage(IFailureInformation failureInfo, int index, int level)
         {
+            Guard.ArgumentNotNull(nameof(failureInfo), failureInfo);
+
             var result = "";
 
             if (level > 0)
@@ -109,8 +107,10 @@ namespace Xunit
             return "";
         }
 
-        static string GetStackTrace(IFailureInformation failureInfo, int index)
+        static string? GetStackTrace(IFailureInformation failureInfo, int index)
         {
+            Guard.ArgumentNotNull(nameof(failureInfo), failureInfo);
+
             var result = FilterStackTrace(GetAt(failureInfo.StackTraces, index));
 
             var children = new List<int>();
@@ -152,23 +152,24 @@ namespace Xunit
         /// <returns>The failure information.</returns>
         public static IFailureInformation ConvertExceptionToFailureInformation(Exception ex)
         {
-            var exceptionTypes = new List<string>();
+            Guard.ArgumentNotNull(nameof(ex), ex);
+
+            var exceptionTypes = new List<string?>();
             var messages = new List<string>();
-            var stackTraces = new List<string>();
+            var stackTraces = new List<string?>();
             var indices = new List<int>();
 
             ConvertExceptionToFailureInformation(ex, -1, exceptionTypes, messages, stackTraces, indices);
 
-            return new FailureInformation
-            {
-                ExceptionParentIndices = indices.ToArray(),
-                ExceptionTypes = exceptionTypes.ToArray(),
-                Messages = messages.ToArray(),
-                StackTraces = stackTraces.ToArray(),
-            };
+            return new FailureInformation(
+                exceptionTypes.ToArray(),
+                messages.ToArray(),
+                stackTraces.ToArray(),
+                indices.ToArray()
+            );
         }
 
-        static void ConvertExceptionToFailureInformation(Exception ex, int parentIndex, List<string> exceptionTypes, List<string> messages, List<string> stackTraces, List<int> indices)
+        static void ConvertExceptionToFailureInformation(Exception ex, int parentIndex, List<string?> exceptionTypes, List<string> messages, List<string?> stackTraces, List<int> indices)
         {
             var myIndex = exceptionTypes.Count;
 
@@ -189,9 +190,21 @@ namespace Xunit
 
         class FailureInformation : IFailureInformation
         {
-            public string[] ExceptionTypes { get; set; }
+            public FailureInformation(
+                string?[] exceptionTypes,
+                string[] messages,
+                string?[] stackTraces,
+                int[] exceptionParentIndices)
+            {
+                ExceptionTypes = exceptionTypes;
+                Messages = messages;
+                StackTraces = stackTraces;
+                ExceptionParentIndices = exceptionParentIndices;
+            }
+
+            public string?[] ExceptionTypes { get; set; }
             public string[] Messages { get; set; }
-            public string[] StackTraces { get; set; }
+            public string?[] StackTraces { get; set; }
             public int[] ExceptionParentIndices { get; set; }
         }
 

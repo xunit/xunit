@@ -1,4 +1,4 @@
-#nullable disable
+#nullable enable
 
 using Xunit.Abstractions;
 
@@ -31,6 +31,6 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public string Message { get; set; }
+        public string? Message { get; set; }
     }
 }

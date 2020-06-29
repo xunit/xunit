@@ -1,4 +1,4 @@
-﻿#nullable disable
+﻿#nullable enable
 
 using System;
 using System.Collections.Concurrent;
@@ -23,10 +23,10 @@ namespace Xunit.Sdk
         /// <typeparam name="T">The type of the object</typeparam>
         /// <param name="serializedValue">The object's serialized value</param>
         /// <returns>The de-serialized object</returns>
-        public static T Deserialize<T>(string serializedValue)
+        public static T? Deserialize<T>(string serializedValue)
+            where T : class
         {
-            if (serializedValue == null)
-                throw new ArgumentNullException(nameof(serializedValue));
+            Guard.ArgumentNotNull(nameof(serializedValue), serializedValue);
 
             var pieces = serializedValue.Split(new[] { ':' }, 2);
             if (pieces.Length != 2)
@@ -43,7 +43,7 @@ namespace Xunit.Sdk
             if (obj is XunitSerializationInfo.ArraySerializer arraySerializer)
                 obj = arraySerializer.ArrayData;
 
-            return (T)obj;
+            return (T?)obj;
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="assemblyQualifiedTypeName">The assembly qualified type name.</param>
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
-        public static Type GetType(string assemblyQualifiedTypeName)
+        public static Type? GetType(string assemblyQualifiedTypeName)
         {
             var firstOpenSquare = assemblyQualifiedTypeName.IndexOf('[');
             if (firstOpenSquare > 0)
@@ -125,9 +125,11 @@ namespace Xunit.Sdk
                         {
                             arrayRanks.Push(genericDefinition.GetArrayRank());
                             genericDefinition = genericDefinition.GetElementType();
+                            if (genericDefinition == null)
+                                return null;
                         }
 
-                        var closedGenericType = genericDefinition.MakeGenericType(innerTypes);
+                        var closedGenericType = genericDefinition.MakeGenericType(innerTypes!);
                         while (arrayRanks.Count > 0)
                         {
                             var rank = arrayRanks.Pop();
@@ -152,7 +154,7 @@ namespace Xunit.Sdk
         /// <param name="assemblyName">The assembly name.</param>
         /// <param name="typeName">The type name.</param>
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
-        public static Type GetType(string assemblyName, string typeName)
+        public static Type? GetType(string assemblyName, string typeName)
         {
 #if XUNIT_FRAMEWORK    // This behavior is only for v2, and only done on the remote app domain side
             if (assemblyName.EndsWith(ExecutionHelper.SubstitutionToken, StringComparison.OrdinalIgnoreCase))
@@ -171,7 +173,7 @@ namespace Xunit.Sdk
                 catch { }
             }
 #else
-            Assembly assembly = null;
+            Assembly? assembly = null;
             try
             {
                 // Make sure we only use the short form
@@ -205,14 +207,15 @@ namespace Xunit.Sdk
                 if (!type.IsFromLocalAssembly())
                     throw new ArgumentException($"We cannot serialize type {type.FullName} because it lives in the GAC", nameof(type));
 
-                var typeName = typeToMap.FullName;
-                var assemblyName = typeToMap.GetAssembly().FullName.Split(',')[0];
+                var typeName = typeToMap.FullName!;
+                var assemblyName = typeToMap.GetAssembly().FullName!.Split(',')[0];
 
                 var arrayRanks = new Stack<int>();
                 while (typeToMap.IsArray)
                 {
+                    var elementType = typeToMap.GetElementType() ?? throw new InvalidOperationException("Attempted to get type name for array without base type");
                     arrayRanks.Push(typeToMap.GetArrayRank());
-                    typeToMap = typeToMap.GetElementType();
+                    typeToMap = elementType;
                 }
 
                 if (typeToMap.IsGenericType() && !typeToMap.IsGenericTypeDefinition())

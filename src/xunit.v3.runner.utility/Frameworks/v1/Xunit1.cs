@@ -86,8 +86,12 @@ namespace Xunit
             new Xunit1Executor(appDomainSupport != AppDomainSupport.Denied, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 
         /// <inheritdoc/>
-        public ITestCase Deserialize(string? value) =>
-            SerializationHelper.Deserialize<ITestCase>(value);
+        public ITestCase? Deserialize(string value)
+        {
+            Guard.ArgumentNotNull(nameof(value), value);
+
+            return SerializationHelper.Deserialize<ITestCase>(value);
+        }
 
         /// <inheritdoc/>
         public void Dispose()

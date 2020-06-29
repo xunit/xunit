@@ -75,10 +75,7 @@ namespace Xunit.Runner.Common
             return default;
         }
 
-#nullable disable
-        // This can't be implemented with safe nullability because the definition of ITestFrameworkOptions
-        // isn't compatible with nullable reference types, so we're forced to re-implement it with nullability
-        // turned off.
+#nullable disable  // The original signature is not compatibility with nullable reference type support
         TValue ITestFrameworkOptions.GetValue<TValue>(string name)
         {
             Guard.ArgumentNotNullOrEmpty(nameof(name), name);
@@ -88,7 +85,7 @@ namespace Xunit.Runner.Common
 
             return default;
         }
-#nullable restore
+#nullable enable
 
         /// <summary>
         /// Sets a value into the options collection.

@@ -1,4 +1,4 @@
-#nullable disable
+#nullable enable
 
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -15,7 +15,7 @@ namespace Xunit
     public class SourceInformation : LongLivedMarshalByRefObject, ISourceInformation
     {
         /// <inheritdoc/>
-        public string FileName { get; set; }
+        public string? FileName { get; set; }
 
         /// <inheritdoc/>
         public int? LineNumber { get; set; }

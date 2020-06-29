@@ -8,7 +8,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
-    <DefineConstants>XUNIT_NULLABLE</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE</DefineConstants>
     <LangVersion>8.0</LangVersion>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
     <RootNamespace>Xunit</RootNamespace>
@@ -16,7 +16,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.154" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[3.1.0]" />
   </ItemGroup>
 
   <!-- ======================================== -->
@@ -46,11 +51,6 @@
       <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
         <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.27-beta" PrivateAssets="all" />
-        <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.154" PrivateAssets="all" />
-      </ItemGroup>
-
-      <ItemGroup>
-        <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[3.1.0]" />
       </ItemGroup>
     </When>
   </Choose>
@@ -87,6 +87,7 @@
         <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
         <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />
         <Compile Include="..\common\ExecutionHelper.cs" LinkBase="Common" />
+        <Compile Include="..\common\Guard.cs" LinkBase="Common" />
         <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
         <Compile Include="..\common.tests\**\*.cs" LinkBase="Common.Tests" />
       </ItemGroup>
