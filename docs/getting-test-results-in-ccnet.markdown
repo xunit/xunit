@@ -45,7 +45,7 @@ If you're using CruiseControl.NET for continuous integration services, you can s
   </project>
 {% endhighlight %}
 
-* Download the [xUnitSummary.xsl](https://raw.githubusercontent.com/xunit/xunit/master/tools/xUnitSummary.xsl) file and save it to `C:\Program Files\CruiseControl.NET\webdashboard\xsl`
+* Download the [xUnitSummary.xsl](https://raw.githubusercontent.com/xunit/xunit/main/tools/xUnitSummary.xsl) file and save it to `C:\Program Files\CruiseControl.NET\webdashboard\xsl`
 * Edit `C:\Program Files\CruiseControl.NET\webdashboard\dashboard.config` and add a line for the summary, as shown below (highlighted in yellow):
 
 ![](../images/getting-test-results-in-ccnet/dashboard-config.png){: .border }
