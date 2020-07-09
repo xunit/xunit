@@ -40,7 +40,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
     public class NullDataClass
     {
-        public static IEnumerable<object[]> InitializedInConstructor;
+        public static IEnumerable<object[]>? InitializedInConstructor;
 
         public NullDataClass()
         {

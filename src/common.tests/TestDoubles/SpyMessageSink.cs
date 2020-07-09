@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Xunit;
@@ -8,7 +10,7 @@ public class SpyMessageSink<TFinalMessage> : LongLivedMarshalByRefObject, IMessa
 {
     readonly Func<IMessageSinkMessage, bool> cancellationThunk;
 
-    public SpyMessageSink(Func<IMessageSinkMessage, bool> cancellationThunk = null)
+    public SpyMessageSink(Func<IMessageSinkMessage, bool>? cancellationThunk = null)
     {
         this.cancellationThunk = cancellationThunk ?? (msg => true);
     }

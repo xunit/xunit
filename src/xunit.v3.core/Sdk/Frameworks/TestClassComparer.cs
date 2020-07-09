@@ -15,15 +15,18 @@ namespace Xunit.Sdk
         public static readonly TestClassComparer Instance = new TestClassComparer();
 
         /// <inheritdoc/>
-        public bool Equals(ITestClass x, ITestClass y)
+        public bool Equals(ITestClass? x, ITestClass? y)
         {
+            if (x == null && y == null)
+                return true;
+            if (x == null || y == null)
+                return false;
+
             return x.Class.Name == y.Class.Name;
         }
 
         /// <inheritdoc/>
-        public int GetHashCode(ITestClass obj)
-        {
-            return obj.Class.Name.GetHashCode();
-        }
+        public int GetHashCode(ITestClass obj) =>
+            obj.Class.Name.GetHashCode();
     }
 }

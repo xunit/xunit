@@ -5,14 +5,12 @@
     <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard2.0' ">xunit.v3.runner.utility.netstandard20</AssemblyName>
     <Description>Includes the version-independent runner for xUnit.net to run all of v1.9.2, v2.x, and v3.x tests (xunit.v3.runner.utility.*.dll). Supports .NET 4.7.2 or later and .NET Standard 2.0 or later.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Nullable>enable</Nullable>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <Title>xUnit.net [Runner Utility]</Title>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\CommonTasks.cs" LinkBase="Common" />
     <Compile Include="..\common\ConcurrentDictionary.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />

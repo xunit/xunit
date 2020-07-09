@@ -12,31 +12,38 @@ namespace Xunit.Sdk
     /// </summary>
     public abstract class TestFramework : LongLivedMarshalByRefObject, ITestFramework
     {
+        DisposalTracker disposalTracker = new DisposalTracker();
+        ISourceInformationProvider sourceInformationProvider = NullSourceInformationProvider.Instance;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFramework"/> class.
         /// </summary>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         protected TestFramework(IMessageSink diagnosticMessageSink)
         {
-            Guard.ArgumentNotNull("diagnosticMessageSink", diagnosticMessageSink);
-
-            DiagnosticMessageSink = diagnosticMessageSink;
-            DisposalTracker = new DisposalTracker();
-            SourceInformationProvider = NullSourceInformationProvider.Instance;
+            DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
         }
 
         /// <summary>
         /// Gets the message sink used to send diagnostic messages.
         /// </summary>
-        public IMessageSink DiagnosticMessageSink { get; private set; }
+        public IMessageSink DiagnosticMessageSink { get; }
 
         /// <summary>
         /// Gets the disposal tracker for the test framework.
         /// </summary>
-        protected DisposalTracker DisposalTracker { get; set; }
+        protected DisposalTracker DisposalTracker
+        {
+            get => disposalTracker;
+            set => disposalTracker = Guard.ArgumentNotNull(nameof(DisposalTracker), value);
+        }
 
         /// <inheritdoc/>
-        public ISourceInformationProvider SourceInformationProvider { get; set; }
+        public ISourceInformationProvider SourceInformationProvider
+        {
+            get => sourceInformationProvider;
+            set => sourceInformationProvider = Guard.ArgumentNotNull(nameof(SourceInformationProvider), value);
+        }
 
         /// <inheritdoc/>
         public async void Dispose()
@@ -48,7 +55,7 @@ namespace Xunit.Sdk
             ExtensibilityPointFactory.Dispose();
             DisposalTracker.Dispose();
 
-            LongLivedMarshalByRefObject.DisconnectAll();
+            DisconnectAll();
         }
 
         /// <summary>
@@ -68,6 +75,8 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITestFrameworkDiscoverer GetDiscoverer(IAssemblyInfo assemblyInfo)
         {
+            Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
+
             var discoverer = CreateDiscoverer(assemblyInfo);
             DisposalTracker.Add(discoverer);
             return discoverer;
@@ -76,6 +85,8 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public ITestFrameworkExecutor GetExecutor(AssemblyName assemblyName)
         {
+            Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
+
             var executor = CreateExecutor(assemblyName);
             DisposalTracker.Add(executor);
             return executor;
@@ -85,10 +96,8 @@ namespace Xunit.Sdk
         {
             public static readonly NullSourceInformationProvider Instance = new NullSourceInformationProvider();
 
-            public ISourceInformation GetSourceInformation(ITestCase testCase)
-            {
-                return new SourceInformation();
-            }
+            public ISourceInformation GetSourceInformation(ITestCase testCase) =>
+                new SourceInformation();
 
             public void Dispose() { }
         }

@@ -253,12 +253,12 @@ public class FixtureAcceptanceTests
             public Task InitializeAsync()
             {
                 ++SetupCalls;
-                return Task.FromResult(0);
+                return TaskHelpers.CompletedTask;
             }
 
             public Task DisposeAsync()
             {
-                return Task.FromResult(0);
+                return TaskHelpers.CompletedTask;
             }
 
             public int SetupCalls = 0;
@@ -290,7 +290,7 @@ public class FixtureAcceptanceTests
 
             public Task DisposeAsync()
             {
-                return Task.FromResult(0);
+                return TaskHelpers.CompletedTask;
             }
         }
 
@@ -315,7 +315,7 @@ public class FixtureAcceptanceTests
         {
             public Task InitializeAsync()
             {
-                return Task.FromResult(0);
+                return TaskHelpers.CompletedTask;
             }
 
             public Task DisposeAsync()
@@ -558,7 +558,7 @@ public class FixtureAcceptanceTests
 
             public Task DisposeAsync()
             {
-                return Task.FromResult(0);
+                return TaskHelpers.CompletedTask;
             }
         }
 
@@ -585,7 +585,7 @@ public class FixtureAcceptanceTests
         {
             public Task InitializeAsync()
             {
-                return Task.FromResult(0);
+                return TaskHelpers.CompletedTask;
             }
 
             public Task DisposeAsync()
@@ -643,12 +643,12 @@ public class FixtureAcceptanceTests
             public Task InitializeAsync()
             {
                 Count += 1;
-                return Task.FromResult(0);
+                return TaskHelpers.CompletedTask;
             }
 
             public Task DisposeAsync()
             {
-                return Task.FromResult(0);
+                return TaskHelpers.CompletedTask;
             }
         }
     }

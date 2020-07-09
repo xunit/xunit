@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -173,15 +172,26 @@ public class TestInvokerTests
         public readonly new ITestCase TestCase;
         public readonly CancellationTokenSource TokenSource;
 
-        TestableTestInvoker(ITest test, IMessageBus messageBus, Type testClass, object[] constructorArguments, MethodInfo testMethod, object[] testMethodArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource)
-            : base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, aggregator, cancellationTokenSource)
+        TestableTestInvoker(
+            ITest test,
+            IMessageBus messageBus,
+            Type testClass,
+            MethodInfo testMethod,
+            object?[]? testMethodArguments,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
+                : base(test, messageBus, testClass, new object[0], testMethod, testMethodArguments, aggregator, cancellationTokenSource)
         {
             TestCase = test.TestCase;
             Aggregator = aggregator;
             TokenSource = cancellationTokenSource;
         }
 
-        public static TestableTestInvoker Create<TClassUnderTest>(string methodName, IMessageBus messageBus, string displayName = null, object[] testMethodArguments = null)
+        public static TestableTestInvoker Create<TClassUnderTest>(
+            string methodName,
+            IMessageBus messageBus,
+            string displayName = "MockDisplayName",
+            object?[]? testMethodArguments = null)
         {
             var testCase = Mocks.TestCase<TClassUnderTest>(methodName);
             var test = Mocks.Test(testCase, displayName);
@@ -190,9 +200,8 @@ public class TestInvokerTests
                 test,
                 messageBus,
                 typeof(TClassUnderTest),
-                new object[0],
-                typeof(TClassUnderTest).GetMethod(methodName),
-                testMethodArguments ?? new object[0],
+                typeof(TClassUnderTest).GetMethod(methodName) ?? throw new ArgumentException($"Could not find method '{methodName}' in '{typeof(TClassUnderTest).FullName}'"),
+                testMethodArguments,
                 new ExceptionAggregator(),
                 new CancellationTokenSource()
             );
@@ -201,13 +210,13 @@ public class TestInvokerTests
         protected override Task AfterTestMethodInvokedAsync()
         {
             AfterTestMethodInvoked_Called = true;
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         protected override Task BeforeTestMethodInvokedAsync()
         {
             BeforeTestMethodInvoked_Called = true;
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }

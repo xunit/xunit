@@ -16,7 +16,7 @@ namespace Xunit.Sdk
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         public FactDiscoverer(IMessageSink diagnosticMessageSink)
         {
-            DiagnosticMessageSink = diagnosticMessageSink;
+            DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
         }
 
         /// <summary>
@@ -31,8 +31,22 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method.</param>
         /// <param name="factAttribute">The attribute that decorates the test method.</param>
         /// <returns></returns>
-        protected virtual IXunitTestCase CreateTestCase(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
-            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod);
+        protected virtual IXunitTestCase CreateTestCase(
+            ITestFrameworkDiscoveryOptions discoveryOptions,
+            ITestMethod testMethod,
+            IAttributeInfo factAttribute)
+        {
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+            Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+            Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
+
+            return new XunitTestCase(
+                DiagnosticMessageSink,
+                discoveryOptions.MethodDisplayOrDefault(),
+                discoveryOptions.MethodDisplayOptionsOrDefault(),
+                testMethod
+            );
+        }
 
         /// <summary>
         /// Discover test cases from a test method. By default, if the method is generic, or
@@ -43,18 +57,34 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method the test cases belong to.</param>
         /// <param name="factAttribute">The fact attribute attached to the test method.</param>
         /// <returns>Returns zero or more test cases represented by the test method.</returns>
-        public virtual IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
+        public virtual IEnumerable<IXunitTestCase> Discover(
+            ITestFrameworkDiscoveryOptions discoveryOptions,
+            ITestMethod testMethod,
+            IAttributeInfo factAttribute)
         {
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+            Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+            Guard.ArgumentNotNull(nameof(factAttribute), factAttribute);
+
             IXunitTestCase testCase;
 
             if (testMethod.Method.GetParameters().Any())
-                testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
+                testCase = ErrorTestCase(discoveryOptions, testMethod, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
             else if (testMethod.Method.IsGenericMethodDefinition)
-                testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, "[Fact] methods are not allowed to be generic.");
+                testCase = ErrorTestCase(discoveryOptions, testMethod, "[Fact] methods are not allowed to be generic.");
             else
                 testCase = CreateTestCase(discoveryOptions, testMethod, factAttribute);
 
             return new[] { testCase };
         }
+
+        ExecutionErrorTestCase ErrorTestCase(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, string message) =>
+            new ExecutionErrorTestCase(
+                DiagnosticMessageSink,
+                discoveryOptions.MethodDisplayOrDefault(),
+                discoveryOptions.MethodDisplayOptionsOrDefault(),
+                testMethod,
+                message
+            );
     }
 }

@@ -12,7 +12,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class DefaultTestCaseOrderer : ITestCaseOrderer
     {
-        IMessageSink diagnosticMessageSink;
+        readonly IMessageSink diagnosticMessageSink;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultTestCaseOrderer"/> class.
@@ -20,7 +20,7 @@ namespace Xunit.Sdk
         /// <param name="diagnosticMessageSink">Message sink to report diagnostic messages to</param>
         public DefaultTestCaseOrderer(IMessageSink diagnosticMessageSink)
         {
-            this.diagnosticMessageSink = diagnosticMessageSink;
+            this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
         }
 
         /// <inheritdoc/>
@@ -60,8 +60,8 @@ namespace Xunit.Sdk
         int Compare<TTestCase>(TTestCase x, TTestCase y)
             where TTestCase : ITestCase
         {
-            Guard.ArgumentNotNull(nameof(x), (object)x);
-            Guard.ArgumentNotNull(nameof(y), (object)y);
+            Guard.ArgumentNotNull(nameof(x), x);
+            Guard.ArgumentNotNull(nameof(y), y);
             Guard.ArgumentValid(nameof(x), $"Could not compare test case {x.DisplayName} because it has a null UniqueID", x.UniqueID != null);
             Guard.ArgumentValid(nameof(y), $"Could not compare test case {y.DisplayName} because it has a null UniqueID", y.UniqueID != null);
 

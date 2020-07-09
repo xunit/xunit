@@ -1,30 +1,31 @@
-#nullable enable
-
-using System.Collections.Generic;
-using System.Linq;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
 #else
+using System.Collections.Generic;
+using System.Linq;
+using Xunit.Runner.Common;
+using Xunit.Sdk;
+
 namespace Xunit
 #endif
 {
     /// <summary>
     /// Default implementation of <see cref="IDiagnosticMessage"/>.
     /// </summary>
+#if XUNIT_FRAMEWORK
     public class DiagnosticMessage : LongLivedMarshalByRefObject, IDiagnosticMessage
-#if !XUNIT_FRAMEWORK
-        , Xunit.Runner.Common.IMessageSinkMessageWithTypes
+#else
+    public class DiagnosticMessage : LongLivedMarshalByRefObject, IDiagnosticMessage, IMessageSinkMessageWithTypes
 #endif
     {
-        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(DiagnosticMessage).GetInterfaces().Select(x => x.FullName!));
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticMessage"/> class.
         /// </summary>
-        public DiagnosticMessage() { }
+        public DiagnosticMessage()
+            : this(string.Empty)
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DiagnosticMessage"/> class.
@@ -49,10 +50,14 @@ namespace Xunit
             Message = string.Format(format, args);
         }
 
-        /// <inheritdoc/>
-        public HashSet<string> InterfaceTypes => interfaceTypes;
+#if !XUNIT_FRAMEWORK
+        static readonly HashSet<string> interfaceTypes = new HashSet<string>(typeof(DiagnosticMessage).GetInterfaces().Select(x => x.FullName!));
 
         /// <inheritdoc/>
-        public string? Message { get; }
+        public HashSet<string> InterfaceTypes => interfaceTypes;
+#endif
+
+        /// <inheritdoc/>
+        public string Message { get; }
     }
 }

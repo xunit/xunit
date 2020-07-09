@@ -52,21 +52,21 @@ public class Xunit2TheoryAcceptanceTests
 
             [Theory]
             [InlineData]
-            public void OneOptional_OneNullParameter_NonePassed(string s = null)
+            public void OneOptional_OneNullParameter_NonePassed(string? s = null)
             {
                 Assert.Null(s);
             }
 
             [Theory]
             [InlineData("abc")]
-            public void OneOptional_OneNullParameter_OneNonNullPassed(string s = null)
+            public void OneOptional_OneNullParameter_OneNonNullPassed(string? s = null)
             {
                 Assert.Equal("abc", s);
             }
 
             [Theory]
-            [InlineData(null)]
-            public void OneOptional_OneNullParameter_OneNullPassed(string s = null)
+            [InlineData(null!)]
+            public void OneOptional_OneNullParameter_OneNullPassed(string? s = null)
             {
                 Assert.Null(s);
             }
@@ -148,49 +148,49 @@ public class Xunit2TheoryAcceptanceTests
         {
             [Theory]
             [InlineData]
-            public void OneParameter_NonePassed(params object[] array)
+            public void OneParameter_NonePassed(params object?[] array)
             {
                 Assert.Empty(array);
             }
 
             [Theory]
-            [InlineData(null)]
-            public void OneParameter_OnePassed_Null(params object[] array)
+            [InlineData(null!)]
+            public void OneParameter_OnePassed_Null(params object?[] array)
             {
                 Assert.Null(array);
             }
 
             [Theory]
             [InlineData(1)]
-            public void OneParameter_OnePassed_NonArray(params object[] array)
+            public void OneParameter_OnePassed_NonArray(params object?[] array)
             {
-                Assert.Equal(new object[] { 1 }, array);
+                Assert.Equal(new object?[] { 1 }, array);
             }
 
             [Theory]
-            [InlineData(new object[] { new object[] { 1 } })]
-            public void OneParameter_OnePassed_MatchingArray(params object[] array)
+            [InlineData(new object?[] { new object?[] { 1 } })]
+            public void OneParameter_OnePassed_MatchingArray(params object?[] array)
             {
-                Assert.Equal(new object[] { 1 }, array);
+                Assert.Equal(new object?[] { 1 }, array);
             }
 
             [Theory]
             [InlineData(new int[] { 1 })]
-            public void OneParameter_OnePassed_NonMatchingArray(params object[] array)
+            public void OneParameter_OnePassed_NonMatchingArray(params object?[] array)
             {
-                Assert.Equal(new object[] { new int[] { 1 } }, array);
+                Assert.Equal(new object?[] { new int[] { 1 } }, array);
             }
 
             [Theory]
             [InlineData(1, 2, 3, 4, 5, 6)]
-            public void OneParameter_ManyPassed(params object[] array)
+            public void OneParameter_ManyPassed(params object?[] array)
             {
-                Assert.Equal(new object[] { 1, 2, 3, 4, 5, 6 }, array);
+                Assert.Equal(new object?[] { 1, 2, 3, 4, 5, 6 }, array);
             }
 
             [Theory]
             [InlineData(1)]
-            public void TwoParameters_OnePassed(int i, params object[] array)
+            public void TwoParameters_OnePassed(int i, params object?[] array)
             {
                 Assert.Equal(1, i);
                 Assert.Empty(array);
@@ -198,7 +198,7 @@ public class Xunit2TheoryAcceptanceTests
 
             [Theory]
             [InlineData(1, null)]
-            public void TwoParameters_NullPassed(int i, params object[] array)
+            public void TwoParameters_NullPassed(int i, params object?[] array)
             {
                 Assert.Equal(1, i);
                 Assert.Null(array);
@@ -206,39 +206,39 @@ public class Xunit2TheoryAcceptanceTests
 
             [Theory]
             [InlineData(1, 2)]
-            public void TwoParameters_OnePassed_NonArray(int i, params object[] array)
+            public void TwoParameters_OnePassed_NonArray(int i, params object?[] array)
             {
                 Assert.Equal(1, i);
-                Assert.Equal(new object[] { 2 }, array);
+                Assert.Equal(new object?[] { 2 }, array);
             }
 
             [Theory]
-            [InlineData(1, new object[] { 2 })]
-            public void TwoParameters_OnePassed_MatchingArray(int i, params object[] array)
+            [InlineData(1, new object?[] { 2 })]
+            public void TwoParameters_OnePassed_MatchingArray(int i, params object?[] array)
             {
                 Assert.Equal(1, i);
-                Assert.Equal(new object[] { 2 }, array);
+                Assert.Equal(new object?[] { 2 }, array);
             }
 
             [Theory]
             [InlineData(1, new int[] { 2 })]
-            public void TwoParameters_OnePassed_NonMatchingArray(int i, params object[] array)
+            public void TwoParameters_OnePassed_NonMatchingArray(int i, params object?[] array)
             {
                 Assert.Equal(1, i);
-                Assert.Equal(new object[] { new int[] { 2 } }, array);
+                Assert.Equal(new object?[] { new int[] { 2 } }, array);
             }
 
             [Theory]
             [InlineData(1, 2, 3, 4, 5, 6)]
-            public void TwoParameters_ManyPassed(int i, params object[] array)
+            public void TwoParameters_ManyPassed(int i, params object?[] array)
             {
                 Assert.Equal(i, 1);
-                Assert.Equal(new object[] { 2, 3, 4, 5, 6 }, array);
+                Assert.Equal(new object?[] { 2, 3, 4, 5, 6 }, array);
             }
 
             [Theory]
             [InlineData]
-            public void OptionalParameters_NonePassed(string s = "abc", int i = 1, params object[] array)
+            public void OptionalParameters_NonePassed(string s = "abc", int i = 1, params object?[] array)
             {
                 Assert.Equal("abc", s);
                 Assert.Equal(1, i);
@@ -247,11 +247,11 @@ public class Xunit2TheoryAcceptanceTests
 
             [Theory]
             [InlineData("def", 2, 3, 4, 5)]
-            public void OptionalParameters_ManyPassed(string s = "abc", int i = 1, params object[] array)
+            public void OptionalParameters_ManyPassed(string s = "abc", int i = 1, params object?[] array)
             {
                 Assert.Equal("def", s);
                 Assert.Equal(2, i);
-                Assert.Equal(new object[] { 3, 4, 5 }, array);
+                Assert.Equal(new object?[] { 3, 4, 5 }, array);
             }
         }
 
@@ -288,7 +288,7 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.Equal("abc", i.Value);
             }
 
-            public static IEnumerable<object[]> ExplicitArgument =
+            public static IEnumerable<object?[]> ExplicitArgument =
                 new[] { new[] { new Explicit { Value = "abc" } } };
 
             // Explicit conversion defined on the argument's type
@@ -299,7 +299,7 @@ public class Xunit2TheoryAcceptanceTests
                 Assert.Equal("abc", value);
             }
 
-            public static IEnumerable<object[]> ImplicitArgument =
+            public static IEnumerable<object?[]> ImplicitArgument =
                 new[] { new[] { new Implicit { Value = "abc" } } };
 
             // Implicit conversion defined on the argument's type
@@ -326,14 +326,14 @@ public class Xunit2TheoryAcceptanceTests
 
             public class Explicit
             {
-                public string Value { get; set; }
+                public string? Value { get; set; }
 
                 public static explicit operator Explicit(string value)
                 {
                     return new Explicit() { Value = value };
                 }
 
-                public static explicit operator string(Explicit e)
+                public static explicit operator string?(Explicit e)
                 {
                     return e.Value;
                 }
@@ -341,14 +341,14 @@ public class Xunit2TheoryAcceptanceTests
 
             public class Implicit
             {
-                public string Value { get; set; }
+                public string? Value { get; set; }
 
                 public static implicit operator Implicit(string value)
                 {
                     return new Implicit() { Value = value };
                 }
 
-                public static implicit operator string(Implicit i)
+                public static implicit operator string?(Implicit i)
                 {
                     return i.Value;
                 }
@@ -375,17 +375,17 @@ public class Xunit2TheoryAcceptanceTests
 
         internal class ClassWithFuncMethod
         {
-            public static IEnumerable<object[]> TestData()
+            public static IEnumerable<object?[]> TestData()
             {
-                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, float>(i => i + 0.5f) };
-                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, double>(i => i + 0.5d) };
-                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
-                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i * 2) };
-                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i + 1) };
-                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
-                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
-                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
-                yield return new object[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+                yield return new object?[] { new[] { 4, 5, 6, 7 }, new Func<int, float>(i => i + 0.5f) };
+                yield return new object?[] { new[] { 4, 5, 6, 7 }, new Func<int, double>(i => i + 0.5d) };
+                yield return new object?[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+                yield return new object?[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i * 2) };
+                yield return new object?[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i + 1) };
+                yield return new object?[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+                yield return new object?[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+                yield return new object?[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
+                yield return new object?[] { new[] { 4, 5, 6, 7 }, new Func<int, int>(i => i) };
             }
 
             [Theory]
@@ -430,13 +430,13 @@ public class Xunit2TheoryAcceptanceTests
 
         public class GenericWithSerializableData
         {
-            public static IEnumerable<object[]> GenericData
+            public static IEnumerable<object?[]> GenericData
             {
                 get
                 {
-                    yield return new object[] { 42, null };
-                    yield return new object[] { "Hello, world!", 21.12 };
-                    yield return new object[] { new int[] { 1, 2, 3 }, new List<string> { "a", "b", "c" } };
+                    yield return new object?[] { 42, null };
+                    yield return new object?[] { "Hello, world!", 21.12 };
+                    yield return new object?[] { new int[] { 1, 2, 3 }, new List<string> { "a", "b", "c" } };
                 }
             }
 
@@ -456,11 +456,11 @@ public class Xunit2TheoryAcceptanceTests
 
         public class GenericWithNonSerializableData
         {
-            public static IEnumerable<object[]> GenericData
+            public static IEnumerable<object?[]> GenericData
             {
                 get
                 {
-                    yield return new object[] { new GenericWithNonSerializableData() };
+                    yield return new object?[] { new GenericWithNonSerializableData() };
                 }
             }
 
@@ -506,7 +506,7 @@ public class Xunit2TheoryAcceptanceTests
         class ClassUnderTestForNullValues
         {
             [Theory]
-            [InlineData(null)]
+            [InlineData(null!)]
             public void TestMethod(string value) { }
         }
 
@@ -596,12 +596,12 @@ public class Xunit2TheoryAcceptanceTests
             }
         }
 
-        class ClassDataSource : IEnumerable<object[]>
+        class ClassDataSource : IEnumerable<object?[]>
         {
-            public IEnumerator<object[]> GetEnumerator()
+            public IEnumerator<object?[]> GetEnumerator()
             {
-                yield return new object[] { 42, 21.12, "Hello, world!" };
-                yield return new object[] { 0, 0.0, null };
+                yield return new object?[] { 42, 21.12, "Hello, world!" };
+                yield return new object?[] { 0, 0.0, null };
             }
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -615,7 +615,7 @@ public class Xunit2TheoryAcceptanceTests
             var failed = Assert.Single(testMessages.Cast<ITestFailed>());
             Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable.TestMethod", failed.Test.DisplayName);
             Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable must implement IEnumerable<object[]> to be used as ClassData for the test method named 'TestMethod' on Xunit2TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable", failed.Messages.Single());
+            Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable must implement IEnumerable<object?[]> to be used as ClassData for the test method named 'TestMethod' on Xunit2TheoryAcceptanceTests+ClassDataTests+ClassNotImplementingIEnumerable", failed.Messages.Single());
         }
 
         class ClassNotImplementingIEnumerable
@@ -701,84 +701,84 @@ public class Xunit2TheoryAcceptanceTests
                 return TypeCode.Int32;
             }
 
-            public int ToInt32(IFormatProvider provider)
+            public int ToInt32(IFormatProvider? provider)
             {
                 return 42;
             }
 
             #region Noise
 
-            public bool ToBoolean(IFormatProvider provider)
+            public bool ToBoolean(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public byte ToByte(IFormatProvider provider)
+            public byte ToByte(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public char ToChar(IFormatProvider provider)
+            public char ToChar(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public DateTime ToDateTime(IFormatProvider provider)
+            public DateTime ToDateTime(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public decimal ToDecimal(IFormatProvider provider)
+            public decimal ToDecimal(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public double ToDouble(IFormatProvider provider)
+            public double ToDouble(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public short ToInt16(IFormatProvider provider)
+            public short ToInt16(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public long ToInt64(IFormatProvider provider)
+            public long ToInt64(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public sbyte ToSByte(IFormatProvider provider)
+            public sbyte ToSByte(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public float ToSingle(IFormatProvider provider)
+            public float ToSingle(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public string ToString(IFormatProvider provider)
+            public string ToString(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public object ToType(Type conversionType, IFormatProvider provider)
+            public object ToType(Type conversionType, IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public ushort ToUInt16(IFormatProvider provider)
+            public ushort ToUInt16(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public uint ToUInt32(IFormatProvider provider)
+            public uint ToUInt32(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
 
-            public ulong ToUInt64(IFormatProvider provider)
+            public ulong ToUInt64(IFormatProvider? provider)
             {
                 throw new InvalidCastException();
             }
@@ -788,7 +788,7 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithIConvertibleData
         {
-            public static IEnumerable<object[]> Data = new TheoryData<MyConvertible> { new MyConvertible() };
+            public static IEnumerable<object?[]> Data = new TheoryData<MyConvertible> { new MyConvertible() };
 
             [Theory]
             [MemberData("Data")]
@@ -812,9 +812,9 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithSelfFieldData
         {
-            public static IEnumerable<object[]> DataSource = new[] {
-                new object[] { 42, 21.12, "Hello, world!" },
-                new object[] { 0, 0.0, null }
+            public static IEnumerable<object?[]> DataSource = new[] {
+                new object?[] { 42, 21.12, "Hello, world!" },
+                new object?[] { 0, 0.0, null }
             };
 
             [Theory]
@@ -858,7 +858,7 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithNonStaticFieldData
         {
-            public IEnumerable<object[]> DataSource = null;
+            public IEnumerable<object?[]>? DataSource = null;
 
             [Theory]
             [MemberData("DataSource")]
@@ -876,7 +876,7 @@ public class Xunit2TheoryAcceptanceTests
 
         class BaseClass
         {
-            public static IEnumerable<object[]> DataSource = new[] { new object[] { 42 } };
+            public static IEnumerable<object?[]> DataSource = new[] { new object?[] { 42 } };
         }
 
         class ClassWithBaseClassData : BaseClass
@@ -903,11 +903,11 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithSelfMethodData
         {
-            public static IEnumerable<object[]> DataSource()
+            public static IEnumerable<object?[]> DataSource()
             {
                 return new[] {
-                    new object[] { 42, 21.12, "Hello, world!" },
-                    new object[] { 0, 0.0, null }
+                    new object?[] { 42, 21.12, "Hello, world!" },
+                    new object?[] { 0, 0.0, null }
                 };
             }
 
@@ -952,7 +952,7 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithNonStaticMethodData
         {
-            public IEnumerable<object[]> DataSource() => null;
+            public IEnumerable<object?[]>? DataSource() => null;
 
             [Theory]
             [MemberData("DataSource")]
@@ -972,7 +972,7 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithMismatchedMethodData
         {
-            public static IEnumerable<object[]> DataSource(int x) => null;
+            public static IEnumerable<object?[]>? DataSource(int x) => null;
 
             [Theory]
             [MemberData("DataSource", 21.12)]
@@ -989,7 +989,7 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithDowncastedMethodData
         {
-            public static IEnumerable<object[]> DataSource(object x, string y) { yield return new object[] { 42, 21.12, "Hello world" }; }
+            public static IEnumerable<object?[]> DataSource(object x, string y) { yield return new object?[] { 42, 21.12, "Hello world" }; }
 
             [Theory]
             [MemberData("DataSource", 42, "Hello world")]
@@ -1008,9 +1008,9 @@ public class Xunit2TheoryAcceptanceTests
 
         class BaseClass
         {
-            public static IEnumerable<object[]> DataSource()
+            public static IEnumerable<object?[]> DataSource()
             {
-                return new[] { new object[] { 42 } };
+                return new[] { new object?[] { 42 } };
             }
         }
 
@@ -1042,9 +1042,9 @@ public class Xunit2TheoryAcceptanceTests
 
         public class SubClassWithTestData : BaseClassWithTestWithoutData
         {
-            public static IEnumerable<object[]> TestData()
+            public static IEnumerable<object?[]> TestData()
             {
-                yield return new object[] { 42 };
+                yield return new object?[] { 42 };
             }
         }
 
@@ -1059,9 +1059,9 @@ public class Xunit2TheoryAcceptanceTests
 
         public abstract class BaseClassWithTestAndData
         {
-            public static IEnumerable<object[]> TestData()
+            public static IEnumerable<object?[]> TestData()
             {
-                yield return new object[] { 42 };
+                yield return new object?[] { 42 };
             }
 
             [Theory]
@@ -1088,11 +1088,11 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithParameterizedMethodData
         {
-            public static IEnumerable<object[]> DataSource(int x)
+            public static IEnumerable<object?[]> DataSource(int x)
             {
                 return new[] {
-                    new object[] { x / 2, 21.12, "Hello, world!" },
-                    new object[] { 0, 0.0, null }
+                    new object?[] { x / 2, 21.12, "Hello, world!" },
+                    new object?[] { 0, 0.0, null }
                 };
             }
 
@@ -1121,12 +1121,12 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithSelfPropertyData
         {
-            public static IEnumerable<object[]> DataSource
+            public static IEnumerable<object?[]> DataSource
             {
                 get
                 {
-                    yield return new object[] { 42, 21.12, "Hello, world!" };
-                    yield return new object[] { 0, 0.0, null };
+                    yield return new object?[] { 42, 21.12, "Hello, world!" };
+                    yield return new object?[] { 0, 0.0, null };
                 }
             }
 
@@ -1171,7 +1171,7 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassWithNonStaticPropertyData
         {
-            public IEnumerable<object[]> DataSource { get { return null; } }
+            public IEnumerable<object?[]>? DataSource => null;
 
             [Theory]
             [MemberData("DataSource")]
@@ -1189,7 +1189,7 @@ public class Xunit2TheoryAcceptanceTests
 
         class BaseClass
         {
-            public static IEnumerable<object[]> DataSource { get { yield return new object[] { 42 }; } }
+            public static IEnumerable<object?[]> DataSource { get { yield return new object?[] { 42 }; } }
         }
 
         class ClassWithBaseClassData : BaseClass
@@ -1222,8 +1222,8 @@ public class Xunit2TheoryAcceptanceTests
         {
             internal MyCustomData() { }
 
-            public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-                => new[] { new object[] { 42 }, new object[] { 2112 } };
+            public override IEnumerable<object?[]> GetData(MethodInfo testMethod)
+                => new[] { new object?[] { 42 }, new object?[] { 2112 } };
         }
 
         class ClassWithCustomDataWithInternalDataCtor
@@ -1248,11 +1248,11 @@ public class Xunit2TheoryAcceptanceTests
 
         private class SingleMemberDataAttribute : MemberDataAttributeBase
         {
-            public SingleMemberDataAttribute(string memberName, params object[] parameters) : base(memberName, parameters) { }
+            public SingleMemberDataAttribute(string memberName, params object?[] parameters) : base(memberName, parameters) { }
 
-            protected override object[] ConvertDataItem(MethodInfo testMethod, object item)
+            protected override object?[] ConvertDataItem(MethodInfo testMethod, object? item)
             {
-                return new object[] { item };
+                return new object?[] { item };
             }
         }
 
@@ -1303,12 +1303,12 @@ public class Xunit2TheoryAcceptanceTests
 
         class ClassUnderTest
         {
-            public static IEnumerable<object[]> Data
+            public static IEnumerable<object?[]> Data
             {
                 get
                 {
-                    yield return new object[] { 42, 21.12, new ClassUnderTest() };
-                    yield return new object[] { 0, 0.0, null };
+                    yield return new object?[] { 42, 21.12, new ClassUnderTest() };
+                    yield return new object?[] { 0, 0.0, null };
                 }
             }
 

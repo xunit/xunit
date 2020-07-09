@@ -12,9 +12,11 @@ namespace Xunit.Sdk
     public class DefaultTestCollectionOrderer : ITestCollectionOrderer
     {
         /// <inheritdoc/>
-        public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> TestCollections)
+        public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections)
         {
-            var result = TestCollections.ToList();
+            Guard.ArgumentNotNull(nameof(testCollections), testCollections);
+
+            var result = testCollections.ToList();
             result.Sort(Compare);
             return result;
         }

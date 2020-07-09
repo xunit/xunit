@@ -9,16 +9,16 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// The test assembly runner for xUnit.net v2 tests.
+    /// The test assembly runner for xUnit.net v3 tests.
     /// </summary>
     public class XunitTestAssemblyRunner : TestAssemblyRunner<IXunitTestCase>
     {
-        IAttributeInfo collectionBehaviorAttribute;
+        IAttributeInfo? collectionBehaviorAttribute;
         bool disableParallelization;
         bool initialized;
         int maxParallelThreads;
-        SynchronizationContext originalSyncContext;
-        MaxConcurrencySyncContext syncContext;
+        SynchronizationContext? originalSyncContext;
+        MaxConcurrencySyncContext? syncContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestAssemblyRunner"/> class.
@@ -28,12 +28,13 @@ namespace Xunit.Sdk
         /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
         /// <param name="executionMessageSink">The message sink to report run status to.</param>
         /// <param name="executionOptions">The user's requested execution options.</param>
-        public XunitTestAssemblyRunner(ITestAssembly testAssembly,
-                                       IEnumerable<IXunitTestCase> testCases,
-                                       IMessageSink diagnosticMessageSink,
-                                       IMessageSink executionMessageSink,
-                                       ITestFrameworkExecutionOptions executionOptions)
-            : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
+        public XunitTestAssemblyRunner(
+            ITestAssembly testAssembly,
+            IEnumerable<IXunitTestCase> testCases,
+            IMessageSink diagnosticMessageSink,
+            IMessageSink executionMessageSink,
+            ITestFrameworkExecutionOptions executionOptions)
+                : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
         { }
 
         /// <inheritdoc/>
@@ -44,18 +45,21 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override string GetTestFrameworkDisplayName()
-            => XunitTestFrameworkDiscoverer.DisplayName;
+        protected override string GetTestFrameworkDisplayName() =>
+            XunitTestFrameworkDiscoverer.DisplayName;
 
         /// <inheritdoc/>
         protected override string GetTestFrameworkEnvironment()
         {
             Initialize();
 
-            var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly);
+            var testCollectionFactory =
+                ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly)
+                ?? new CollectionPerClassTestCollectionFactory(TestAssembly, DiagnosticMessageSink);
+
             var threadCountText = maxParallelThreads < 0 ? "unlimited" : maxParallelThreads.ToString();
 
-            return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : $"parallel ({threadCountText} threads)")}]";
+            return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory?.DisplayName}, {(disableParallelization ? "non-parallel" : $"parallel ({threadCountText} threads)")}]";
         }
 
         /// <summary>
@@ -145,14 +149,14 @@ namespace Xunit.Sdk
         protected override Task AfterTestAssemblyStartingAsync()
         {
             Initialize();
-            return CommonTasks.Completed;
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
         protected override Task BeforeTestAssemblyFinishedAsync()
         {
             SetSynchronizationContext(originalSyncContext);
-            return CommonTasks.Completed;
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
@@ -174,25 +178,19 @@ namespace Xunit.Sdk
             else
                 taskRunner = code => Task.Run(code, cancellationTokenSource.Token);
 
-            List<Task<RunSummary>> parallel = null;
-            List<Func<Task<RunSummary>>> nonParallel = null;
+            List<Task<RunSummary>>? parallel = null;
+            List<Func<Task<RunSummary>>>? nonParallel = null;
             var summaries = new List<RunSummary>();
 
             foreach (var collection in OrderTestCollections())
             {
-                Func<Task<RunSummary>> task = () => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource);
+                Task<RunSummary> task() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource);
 
-                // attr is null here from our new unit test, but I'm not sure if that's expected or there's a cheaper approach here
-                // Current approach is trying to avoid any changes to the abstractions at all
                 var attr = collection.Item1.CollectionDefinition?.GetCustomAttributes(typeof(CollectionDefinitionAttribute)).SingleOrDefault();
                 if (attr?.GetNamedArgument<bool>(nameof(CollectionDefinitionAttribute.DisableParallelization)) == true)
-                {
-                    (nonParallel ?? (nonParallel = new List<Func<Task<RunSummary>>>())).Add(task);
-                }
+                    (nonParallel ??= new List<Func<Task<RunSummary>>>()).Add(task);
                 else
-                {
-                    (parallel ?? (parallel = new List<Task<RunSummary>>())).Add(taskRunner(task));
-                }
+                    (parallel ??= new List<Task<RunSummary>>()).Add(taskRunner(task));
             }
 
             if (parallel?.Count > 0)
@@ -230,11 +228,15 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
-            => new XunitTestCollectionRunner(testCollection, testCases, DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
+        protected override Task<RunSummary> RunTestCollectionAsync(
+            IMessageBus messageBus,
+            ITestCollection testCollection,
+            IEnumerable<IXunitTestCase> testCases,
+            CancellationTokenSource cancellationTokenSource) =>
+                new XunitTestCollectionRunner(testCollection, testCases, DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
 
         [SecuritySafeCritical]
-        static void SetSynchronizationContext(SynchronizationContext context)
-            => SynchronizationContext.SetSynchronizationContext(context);
+        static void SetSynchronizationContext(SynchronizationContext? context) =>
+            SynchronizationContext.SetSynchronizationContext(context);
     }
 }

@@ -37,7 +37,7 @@ namespace Xunit.Sdk
                 throw new ArgumentException($"Could not load type '{pieces[0]}' from serialization value '{serializedValue}'", nameof(serializedValue));
 
             if (!typeof(IXunitSerializable).IsAssignableFrom(deserializedType))
-                throw new ArgumentException("Cannot de-serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(serializedValue));
+                throw new ArgumentException($"Cannot de-serialize an object that does not implement {typeof(IXunitSerializable).FullName}", nameof(serializedValue));
 
             var obj = XunitSerializationInfo.Deserialize(deserializedType, pieces[1]);
             if (obj is XunitSerializationInfo.ArraySerializer arraySerializer)
@@ -53,14 +53,13 @@ namespace Xunit.Sdk
         /// <returns>The serialized value</returns>
         public static string Serialize(object value)
         {
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
+            Guard.NotNull(nameof(value), value);
 
             if (value is object[] array)
                 value = new XunitSerializationInfo.ArraySerializer(array);
 
             if (!(value is IXunitSerializable serializable))
-                throw new ArgumentException("Cannot serialize an object that does not implement " + typeof(IXunitSerializable).FullName, nameof(value));
+                throw new ArgumentException($"Cannot serialize an object that does not implement {typeof(IXunitSerializable).FullName}", nameof(value));
 
             var serializationInfo = new XunitSerializationInfo(serializable);
             return $"{GetTypeNameForSerialization(value.GetType())}:{serializationInfo.ToSerializedString()}";
@@ -69,10 +68,8 @@ namespace Xunit.Sdk
         /// <summary>Gets whether the specified <paramref name="value"/> is serializable with <see cref="Serialize"/>.</summary>
         /// <param name="value">The object to test for serializability.</param>
         /// <returns>true if the object can be serialized; otherwise, false.</returns>
-        public static bool IsSerializable(object value)
-        {
-            return XunitSerializationInfo.CanSerializeObject(value);
-        }
+        public static bool IsSerializable(object? value) =>
+            XunitSerializationInfo.CanSerializeObject(value);
 
         /// <summary>
         /// Converts an assembly qualified type name into a <see cref="Type"/> object.
@@ -141,7 +138,7 @@ namespace Xunit.Sdk
                 }
             }
 
-            IList<string> parts = SplitAtOuterCommas(assemblyQualifiedTypeName, true);
+            var parts = SplitAtOuterCommas(assemblyQualifiedTypeName, true);
             return
                 parts.Count == 0 ? null :
                 parts.Count == 1 ? Type.GetType(parts[0]) :
@@ -156,11 +153,6 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type? GetType(string assemblyName, string typeName)
         {
-#if XUNIT_FRAMEWORK    // This behavior is only for v2, and only done on the remote app domain side
-            if (assemblyName.EndsWith(ExecutionHelper.SubstitutionToken, StringComparison.OrdinalIgnoreCase))
-                assemblyName = assemblyName.Substring(0, assemblyName.Length - ExecutionHelper.SubstitutionToken.Length + 1) + ExecutionHelper.PlatformSuffix;
-#endif
-
 #if NETFRAMEWORK
             // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);
@@ -238,12 +230,6 @@ namespace Xunit.Sdk
                 if (string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(assemblyName, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase))
                     return typeName;
-
-#if XUNIT_FRAMEWORK // This behavior is only for v2, and only done on the remote app domain side
-                // If this is a platform specific assembly, strip off the trailing . and name and replace it with the token
-                if (typeToMap.GetAssembly().GetCustomAttributes().FirstOrDefault(a => a != null && a.GetType().FullName == "Xunit.Sdk.PlatformSpecificAssemblyAttribute") != null)
-                    assemblyName = assemblyName.Substring(0, assemblyName.LastIndexOf('.')) + ExecutionHelper.SubstitutionToken;
-#endif
 
                 return $"{typeName}, {assemblyName}";
             }

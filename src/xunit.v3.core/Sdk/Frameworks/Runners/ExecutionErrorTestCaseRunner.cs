@@ -16,11 +16,13 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public ExecutionErrorTestCaseRunner(ExecutionErrorTestCase testCase,
-                                            IMessageBus messageBus,
-                                            ExceptionAggregator aggregator,
-                                            CancellationTokenSource cancellationTokenSource)
-            : base(testCase, messageBus, aggregator, cancellationTokenSource) { }
+        public ExecutionErrorTestCaseRunner(
+            ExecutionErrorTestCase testCase,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
+                : base(testCase, messageBus, aggregator, cancellationTokenSource)
+        { }
 
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestAsync()

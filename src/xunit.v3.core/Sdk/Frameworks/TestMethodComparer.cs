@@ -15,15 +15,18 @@ namespace Xunit.Sdk
         public static readonly TestMethodComparer Instance = new TestMethodComparer();
 
         /// <inheritdoc/>
-        public bool Equals(ITestMethod x, ITestMethod y)
+        public bool Equals(ITestMethod? x, ITestMethod? y)
         {
+            if (x == null && y == null)
+                return true;
+            if (x == null || y == null)
+                return false;
+
             return x.Method.Name == y.Method.Name;
         }
 
         /// <inheritdoc/>
-        public int GetHashCode(ITestMethod obj)
-        {
-            return obj.Method.Name.GetHashCode();
-        }
+        public int GetHashCode(ITestMethod obj) =>
+            obj.Method.Name.GetHashCode();
     }
 }

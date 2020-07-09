@@ -260,14 +260,24 @@ public class XunitTestInvokerTests
 
     class TestableXunitTestInvoker : XunitTestInvoker
     {
-        readonly Action lambda;
+        readonly Action? lambda;
 
         public readonly new ExceptionAggregator Aggregator;
         public readonly new IXunitTestCase TestCase;
         public readonly CancellationTokenSource TokenSource;
 
-        TestableXunitTestInvoker(ITest test, IMessageBus messageBus, Type testClass, object[] constructorArguments, MethodInfo testMethod, object[] testMethodArguments, IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource, Action lambda)
-            : base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, cancellationTokenSource)
+        TestableXunitTestInvoker(
+            ITest test,
+            IMessageBus messageBus,
+            Type testClass,
+            object?[] constructorArguments,
+            MethodInfo testMethod,
+            object?[]? testMethodArguments,
+            IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource,
+            Action? lambda)
+                : base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, beforeAfterAttributes, aggregator, cancellationTokenSource)
         {
             this.lambda = lambda;
 
@@ -276,7 +286,11 @@ public class XunitTestInvokerTests
             TokenSource = cancellationTokenSource;
         }
 
-        public static TestableXunitTestInvoker Create(IMessageBus messageBus = null, string displayName = null, IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes = null, Action lambda = null)
+        public static TestableXunitTestInvoker Create(
+            IMessageBus? messageBus = null,
+            string displayName = "MockDisplayName",
+            IReadOnlyList<BeforeAfterTestAttribute>? beforeAfterAttributes = null,
+            Action? lambda = null)
         {
             var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing");
             var test = Mocks.Test(testCase, displayName);
@@ -286,7 +300,7 @@ public class XunitTestInvokerTests
                 messageBus ?? new SpyMessageBus(),
                 typeof(ClassUnderTest),
                 new object[0],
-                typeof(ClassUnderTest).GetMethod("Passing"),
+                typeof(ClassUnderTest).GetMethod(nameof(ClassUnderTest.Passing))!,
                 new object[0],
                 beforeAfterAttributes ?? new List<BeforeAfterTestAttribute>(),
                 new ExceptionAggregator(),
@@ -295,7 +309,7 @@ public class XunitTestInvokerTests
             );
         }
 
-        protected override Task<decimal> InvokeTestMethodAsync(object testClassInstance)
+        protected override Task<decimal> InvokeTestMethodAsync(object? testClassInstance)
         {
             if (lambda == null)
                 return base.InvokeTestMethodAsync(testClassInstance);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -172,7 +173,7 @@ public class ReflectorTests
             [Fact]
             public void Parent_ReturnsOnlyParent()
             {
-                var results = Reflector.Wrap(typeof(Parent).GetMethod("TheMethod"))
+                var results = Reflector.Wrap(typeof(Parent).GetMethod(nameof(Parent.TheMethod))!)
                                       .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 var result = Assert.Single(results);
@@ -189,7 +190,7 @@ public class ReflectorTests
             [Fact]
             public void Child_ReturnsOnlyParent()
             {
-                var results = Reflector.Wrap(typeof(Child).GetMethod("TheMethod"))
+                var results = Reflector.Wrap(typeof(Child).GetMethod(nameof(Child.TheMethod))!)
                                       .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 var result = Assert.Single(results);
@@ -206,7 +207,7 @@ public class ReflectorTests
             [Fact]
             public void Undecorated_ReturnsNothing()
             {
-                var results = Reflector.Wrap(typeof(Undecorated).GetMethod("TheMethod"))
+                var results = Reflector.Wrap(typeof(Undecorated).GetMethod(nameof(Undecorated.TheMethod))!)
                                       .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 Assert.Empty(results);
@@ -353,7 +354,7 @@ public class ReflectorTests
             [Fact]
             public void Parent_ReturnsOnlyParent()
             {
-                var results = Reflector.Wrap(typeof(Parent).GetMethod("TheMethod"))
+                var results = Reflector.Wrap(typeof(Parent).GetMethod(nameof(Parent.TheMethod))!)
                                       .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 var result = Assert.Single(results);
@@ -370,7 +371,7 @@ public class ReflectorTests
             [Fact]
             public void Child_ReturnsOnlyParent()
             {
-                var results = Reflector.Wrap(typeof(Child).GetMethod("TheMethod"))
+                var results = Reflector.Wrap(typeof(Child).GetMethod(nameof(Child.TheMethod))!)
                                       .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 var result = Assert.Single(results);
@@ -387,7 +388,7 @@ public class ReflectorTests
             [Fact]
             public void Undecorated_ReturnsNothing()
             {
-                var results = Reflector.Wrap(typeof(Undecorated).GetMethod("TheMethod"))
+                var results = Reflector.Wrap(typeof(Undecorated).GetMethod(nameof(Undecorated.TheMethod))!)
                                       .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 Assert.Empty(results);
@@ -552,13 +553,15 @@ public class ReflectorTests
             [Fact]
             public void Parent_ReturnsParentAndGrandparent()
             {
-                var results = Reflector.Wrap(typeof(Parent).GetMethod("TheMethod"))
-                                      .GetCustomAttributes(typeof(AttributeUnderTest))
-                                      .Cast<IReflectionAttributeInfo>()
-                                      .Select(attr => attr.Attribute)
-                                      .Cast<AttributeUnderTest>()
-                                      .Select(attr => attr.Level)
-                                      .OrderBy(level => level);
+                var results =
+                    Reflector
+                        .Wrap(typeof(Parent).GetMethod(nameof(Parent.TheMethod))!)
+                        .GetCustomAttributes(typeof(AttributeUnderTest))
+                        .Cast<IReflectionAttributeInfo>()
+                        .Select(attr => attr.Attribute)
+                        .Cast<AttributeUnderTest>()
+                        .Select(attr => attr.Level)
+                        .OrderBy(level => level);
 
                 Assert.Collection(results,
                     level => Assert.Equal("Grandparent1", level),
@@ -576,13 +579,15 @@ public class ReflectorTests
             [Fact]
             public void Child_ReturnsParentAndGrandparent()
             {
-                var results = Reflector.Wrap(typeof(Child).GetMethod("TheMethod"))
-                                      .GetCustomAttributes(typeof(AttributeUnderTest))
-                                      .Cast<IReflectionAttributeInfo>()
-                                      .Select(attr => attr.Attribute)
-                                      .Cast<AttributeUnderTest>()
-                                      .Select(attr => attr.Level)
-                                      .OrderBy(level => level);
+                var results =
+                    Reflector
+                        .Wrap(typeof(Child).GetMethod(nameof(Child.TheMethod))!)
+                        .GetCustomAttributes(typeof(AttributeUnderTest))
+                        .Cast<IReflectionAttributeInfo>()
+                        .Select(attr => attr.Attribute)
+                        .Cast<AttributeUnderTest>()
+                        .Select(attr => attr.Level)
+                        .OrderBy(level => level);
 
                 Assert.Collection(results,
                     level => Assert.Equal("Grandparent1", level),
@@ -756,7 +761,7 @@ public class ReflectorTests
             [Fact]
             public void Parent_ReturnsOnlyParent()
             {
-                var results = Reflector.Wrap(typeof(Parent).GetMethod("TheMethod"))
+                var results = Reflector.Wrap(typeof(Parent).GetMethod(nameof(Parent.TheMethod))!)
                                       .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 var result = Assert.Single(results);
@@ -773,7 +778,7 @@ public class ReflectorTests
             [Fact]
             public void Child_ReturnsNothing()
             {
-                var results = Reflector.Wrap(typeof(Child).GetMethod("TheMethod"))
+                var results = Reflector.Wrap(typeof(Child).GetMethod(nameof(Child.TheMethod))!)
                                       .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 Assert.Empty(results);
@@ -787,7 +792,7 @@ public class ReflectorTests
             [Fact]
             public void Undecorated_ReturnsNothing()
             {
-                var results = Reflector.Wrap(typeof(Undecorated).GetMethod("TheMethod"))
+                var results = Reflector.Wrap(typeof(Undecorated).GetMethod(nameof(Undecorated.TheMethod))!)
                                       .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 Assert.Empty(results);
@@ -937,13 +942,15 @@ public class ReflectorTests
             [Fact]
             public void Parent_ReturnsOnlyParent()
             {
-                var results = Reflector.Wrap(typeof(Parent).GetMethod("TheMethod"))
-                                      .GetCustomAttributes(typeof(AttributeUnderTest))
-                                      .Cast<IReflectionAttributeInfo>()
-                                      .Select(attr => attr.Attribute)
-                                      .Cast<AttributeUnderTest>()
-                                      .Select(attr => attr.Level)
-                                      .OrderBy(level => level);
+                var results =
+                    Reflector
+                        .Wrap(typeof(Parent).GetMethod(nameof(Parent.TheMethod))!)
+                        .GetCustomAttributes(typeof(AttributeUnderTest))
+                        .Cast<IReflectionAttributeInfo>()
+                        .Select(attr => attr.Attribute)
+                        .Cast<AttributeUnderTest>()
+                        .Select(attr => attr.Level)
+                        .OrderBy(level => level);
 
                 Assert.Collection(results,
                     level => Assert.Equal("Parent1", level),
@@ -959,8 +966,10 @@ public class ReflectorTests
             [Fact]
             public void Child_ReturnsNothing()
             {
-                var results = Reflector.Wrap(typeof(Child).GetMethod("TheMethod"))
-                                      .GetCustomAttributes(typeof(AttributeUnderTest));
+                var results =
+                    Reflector
+                        .Wrap(typeof(Child).GetMethod(nameof(Child.TheMethod))!)
+                        .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 Assert.Empty(results);
             }
@@ -973,8 +982,10 @@ public class ReflectorTests
             [Fact]
             public void Undecorated_ReturnsNothing()
             {
-                var results = Reflector.Wrap(typeof(Undecorated).GetMethod("TheMethod"))
-                                      .GetCustomAttributes(typeof(AttributeUnderTest));
+                var results =
+                    Reflector
+                        .Wrap(typeof(Undecorated).GetMethod(nameof(Undecorated.TheMethod))!)
+                        .GetCustomAttributes(typeof(AttributeUnderTest));
 
                 Assert.Empty(results);
             }
@@ -1114,10 +1125,10 @@ public class ReflectorTests
 
         class SuperFact : Attribute
         {
-            public int[] Numbers { get; set; }
-            public Type[] Types { get; set; }
-            public FactState[] States { get; set; }
-            public System.Collections.Generic.List<Type> ListTypes { get; set; }
+            public int[]? Numbers { get; set; }
+            public Type[]? Types { get; set; }
+            public FactState[]? States { get; set; }
+            public List<Type>? ListTypes { get; set; }
         }
 
         [Fact]
@@ -1130,7 +1141,7 @@ public class ReflectorTests
                 .Select(Reflector.Wrap)
                 .Single();
 
-            Assert.True(expected.SequenceEqual((result.Attribute as SuperFact).Numbers));
+            Assert.True(expected.SequenceEqual((result.Attribute as SuperFact)!.Numbers));
             Assert.True(expected.SequenceEqual(result.GetNamedArgument<int[]>("Numbers")));
         }
 
@@ -1144,7 +1155,7 @@ public class ReflectorTests
                 .Select(Reflector.Wrap)
                 .Single();
 
-            Assert.True(expected.SequenceEqual((result.Attribute as SuperFact).Types));
+            Assert.True(expected.SequenceEqual((result.Attribute as SuperFact)!.Types));
             Assert.True(expected.SequenceEqual(result.GetNamedArgument<Type[]>("Types")));
         }
 
@@ -1158,7 +1169,7 @@ public class ReflectorTests
                 .Select(Reflector.Wrap)
                 .Single();
 
-            Assert.True(expected.SequenceEqual((result.Attribute as SuperFact).States));
+            Assert.True(expected.SequenceEqual((result.Attribute as SuperFact)!.States));
             Assert.True(expected.SequenceEqual(result.GetNamedArgument<FactState[]>("States")));
         }
     }

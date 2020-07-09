@@ -54,7 +54,6 @@ namespace Xunit.Serialization
             Guard.ArgumentNotNull(nameof(key), key);
             Guard.ArgumentNotNull(nameof(type), type);
 
-
             if (data.TryGetValue(key, out var val))
                 return val.Value;
 
@@ -77,6 +76,8 @@ namespace Xunit.Serialization
         /// <returns>The serialized version of the triple</returns>
         public static string SerializeTriple(XunitSerializationTriple triple)
         {
+            Guard.ArgumentNotNull(nameof(triple), triple);
+
             var serializedType = SerializationHelper.GetTypeNameForSerialization(triple.Type);
             var serializedValue = Serialize(triple.Value);
             // Leaving off the colon is how we indicate null-ness
@@ -93,6 +94,8 @@ namespace Xunit.Serialization
         /// <returns>The de-serialized triple</returns>
         public static XunitSerializationTriple DeserializeTriple(string value)
         {
+            Guard.ArgumentNotNull(nameof(value), value);
+
             var pieces = value.Split(new[] { ':' }, 3);
             if (pieces.Length < 2)
                 throw new ArgumentException("Data does not appear to be a valid serialized triple: " + value);
@@ -112,7 +115,7 @@ namespace Xunit.Serialization
         /// <param name="type">The type of the object to de-serialize into</param>
         /// <param name="serializedValue">The serialized value</param>
         /// <returns>The de-serialized object</returns>
-        public static object? Deserialize(Type type, string serializedValue)
+        public static object? Deserialize(Type type, string? serializedValue)
         {
             if (serializedValue == null)
                 return null;

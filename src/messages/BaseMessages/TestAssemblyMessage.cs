@@ -1,13 +1,12 @@
-﻿#nullable enable
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 #if XUNIT_FRAMEWORK
 namespace Xunit.Sdk
 #else
+using Xunit.Sdk;
+
 namespace Xunit
 #endif
 {

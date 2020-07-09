@@ -10,11 +10,9 @@
 
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\CommonTasks.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\ExceptionUtility.cs" LinkBase="Common" />
-    <Compile Include="..\common\ExecutionHelper.cs" LinkBase="Common" />
     <Compile Include="..\common\Guard.cs" LinkBase="Common" />
     <Compile Include="..\common\LongLivedMarshalByRefObject.cs" LinkBase="Common" />
     <Compile Include="..\common\NewReflectionExtensions.cs" LinkBase="Common" />

@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.Reflection;
 using Xunit.Sdk;
 
@@ -22,17 +21,19 @@ namespace Xunit
         /// </summary>
         /// <param name="memberName">The name of the public static member on the test class that will provide the test data</param>
         /// <param name="parameters">The parameters for the member (only supported for methods; ignored for everything else)</param>
-        public MemberDataAttribute(string memberName, params object[] parameters)
+        public MemberDataAttribute(string memberName, params object?[] parameters)
             : base(memberName, parameters) { }
 
         /// <inheritdoc/>
-        protected override object[] ConvertDataItem(MethodInfo testMethod, object item)
+        protected override object?[] ConvertDataItem(MethodInfo testMethod, object? item)
         {
-            if (item == null)
-                return null;
+            Guard.ArgumentNotNull(nameof(testMethod), testMethod);
 
-            if (!(item is object[] array))
-                throw new ArgumentException($"Property {MemberName} on {MemberType ?? testMethod.DeclaringType} yielded an item that is not an object[]");
+            if (item == null)
+                return new object[0];
+
+            if (!(item is object?[] array))
+                throw new ArgumentException($"Property {MemberName} on {MemberType ?? testMethod.DeclaringType} yielded an item that is not an object?[]");
 
             return array;
         }

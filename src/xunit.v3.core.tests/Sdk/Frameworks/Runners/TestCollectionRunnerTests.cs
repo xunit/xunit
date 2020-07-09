@@ -48,7 +48,7 @@ public class TestCollectionRunnerTests
     {
         var messages = new List<IMessageSinkMessage>();
         var messageBus = Substitute.For<IMessageBus>();
-        messageBus.QueueMessage(null)
+        messageBus.QueueMessage(null!)
                   .ReturnsForAnyArgs(callInfo =>
                   {
                       var msg = callInfo.Arg<IMessageSinkMessage>();
@@ -217,18 +217,19 @@ public class TestCollectionRunnerTests
         public bool AfterTestCollectionStarting_Called;
         public Action<ExceptionAggregator> BeforeTestCollectionFinished_Callback = _ => { };
         public bool BeforeTestCollectionFinished_Called;
-        public Exception RunTestClassAsync_AggregatorResult;
+        public Exception? RunTestClassAsync_AggregatorResult;
         public readonly CancellationTokenSource TokenSource;
 
-        TestableTestCollectionRunner(ITestCollection testCollection,
-                                     IEnumerable<ITestCase> testCases,
-                                     IMessageBus messageBus,
-                                     ITestCaseOrderer testCaseOrderer,
-                                     ExceptionAggregator aggregator,
-                                     CancellationTokenSource cancellationTokenSource,
-                                     RunSummary result,
-                                     bool cancelInRunTestClassAsync)
-            : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+        TestableTestCollectionRunner(
+            ITestCollection testCollection,
+            IEnumerable<ITestCase> testCases,
+            IMessageBus messageBus,
+            ITestCaseOrderer testCaseOrderer,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource,
+            RunSummary result,
+            bool cancelInRunTestClassAsync)
+                : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
             TokenSource = cancellationTokenSource;
 
@@ -236,11 +237,12 @@ public class TestCollectionRunnerTests
             this.cancelInRunTestClassAsync = cancelInRunTestClassAsync;
         }
 
-        public static TestableTestCollectionRunner Create(IMessageBus messageBus = null,
-                                                          ITestCase[] testCases = null,
-                                                          RunSummary result = null,
-                                                          Exception aggregatorSeedException = null,
-                                                          bool cancelInRunTestClassAsync = false)
+        public static TestableTestCollectionRunner Create(
+            IMessageBus? messageBus = null,
+            ITestCase[]? testCases = null,
+            RunSummary? result = null,
+            Exception? aggregatorSeedException = null,
+            bool cancelInRunTestClassAsync = false)
         {
             if (testCases == null)
                 testCases = new[] { Mocks.TestCase<ClassUnderTest>("Passing") };
@@ -265,14 +267,14 @@ public class TestCollectionRunnerTests
         {
             AfterTestCollectionStarting_Called = true;
             AfterTestCollectionStarting_Callback(Aggregator);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         protected override Task BeforeTestCollectionFinishedAsync()
         {
             BeforeTestCollectionFinished_Called = true;
             BeforeTestCollectionFinished_Callback(Aggregator);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<ITestCase> testCases)

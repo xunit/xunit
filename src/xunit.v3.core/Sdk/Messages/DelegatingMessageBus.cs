@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class DelegatingMessageBus : IMessageBus
     {
-        readonly Action<IMessageSinkMessage> callback;
+        readonly Action<IMessageSinkMessage>? callback;
         readonly IMessageBus innerMessageBus;
 
         /// <summary>
@@ -18,17 +18,18 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="innerMessageBus">The message bus to delegate to.</param>
         /// <param name="callback">The callback to send messages to.</param>
-        public DelegatingMessageBus(IMessageBus innerMessageBus, Action<IMessageSinkMessage> callback = null)
+        public DelegatingMessageBus(
+            IMessageBus innerMessageBus,
+            Action<IMessageSinkMessage>? callback = null)
         {
-            this.innerMessageBus = innerMessageBus;
+            this.innerMessageBus = Guard.ArgumentNotNull(nameof(innerMessageBus), innerMessageBus);
             this.callback = callback;
         }
 
         /// <inheritdoc/>
         public virtual bool QueueMessage(IMessageSinkMessage message)
         {
-            if (callback != null)
-                callback(message);
+            callback?.Invoke(message);
 
             return innerMessageBus.QueueMessage(message);
         }
@@ -47,13 +48,17 @@ namespace Xunit.Sdk
     public class DelegatingMessageBus<TFinalMessage> : DelegatingMessageBus
         where TFinalMessage : class, IMessageSinkMessage
     {
+        TFinalMessage? finalMessage;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DelegatingMessageSink{TFinalMessage}" /> class.
         /// </summary>
         /// <param name="innerMessageBus">The message bus to delegate to.</param>
         /// <param name="callback">The callback to send messages to.</param>
-        public DelegatingMessageBus(IMessageBus innerMessageBus, Action<IMessageSinkMessage> callback = null)
-            : base(innerMessageBus, callback)
+        public DelegatingMessageBus(
+            IMessageBus innerMessageBus,
+            Action<IMessageSinkMessage>? callback = null)
+                : base(innerMessageBus, callback)
         {
             Finished = new ManualResetEvent(false);
         }
@@ -61,12 +66,13 @@ namespace Xunit.Sdk
         /// <summary>
         /// The final message that was seen that caused <see cref="Finished"/> to be triggered.
         /// </summary>
-        public TFinalMessage FinalMessage { get; private set; }
+        public TFinalMessage FinalMessage =>
+            finalMessage ?? throw new InvalidOperationException("Attempted to retrieve FinalMessage before the final message has been seen.");
 
         /// <summary>
         /// An event that is triggered when a message of type <typeparamref name="TFinalMessage" /> is seen.
         /// </summary>
-        public ManualResetEvent Finished { get; private set; }
+        public ManualResetEvent Finished { get; }
 
         /// <inheritdoc/>
         public override bool QueueMessage(IMessageSinkMessage message)
@@ -75,7 +81,7 @@ namespace Xunit.Sdk
 
             if (message is TFinalMessage finalMessage)
             {
-                FinalMessage = finalMessage;
+                this.finalMessage = finalMessage;
                 Finished.Set();
             }
 

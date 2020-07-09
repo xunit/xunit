@@ -19,6 +19,8 @@ namespace Xunit.Sdk
         /// <returns>Name string of type.</returns>
         public static string ConvertToSimpleTypeName(ITypeInfo type)
         {
+            Guard.ArgumentNotNull(nameof(type), type);
+
             var baseTypeName = type.Name;
 
             var backTickIdx = baseTypeName.IndexOf('`');
@@ -48,10 +50,12 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method to resolve.</param>
         /// <param name="arguments">The user-supplied method arguments.</param>
         /// <returns>The argument values</returns>
-        public static object[] ResolveMethodArguments(this MethodBase testMethod, object[] arguments)
+        public static object?[] ResolveMethodArguments(this MethodBase testMethod, object?[] arguments)
         {
+            Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+
             var parameters = testMethod.GetParameters();
-            bool hasParamsParameter = false;
+            var hasParamsParameter = false;
 
             // Params can only be added at the end of the parameter list
             if (parameters.Length > 0)
@@ -69,12 +73,14 @@ namespace Xunit.Sdk
             if (!hasParamsParameter && arguments.Length > parameters.Length)
                 return arguments;
 
-            var newArguments = new object[parameters.Length];
+            var newArguments = new object?[parameters.Length];
             var resolvedArgumentsCount = 0;
             if (hasParamsParameter)
             {
                 var paramsParameter = parameters[parameters.Length - 1];
                 var paramsElementType = paramsParameter.ParameterType.GetElementType();
+                if (paramsElementType == null)
+                    throw new InvalidOperationException("Cannot determine params element type");
 
                 if (arguments.Length < parameters.Length)
                 {
@@ -84,8 +90,8 @@ namespace Xunit.Sdk
                 }
                 else if (arguments.Length == parameters.Length &&
                     (arguments[arguments.Length - 1] == null ||
-                    (arguments[arguments.Length - 1].GetType().IsArray &&
-                    arguments[arguments.Length - 1].GetType().GetElementType() == paramsElementType)))
+                    (arguments[arguments.Length - 1]!.GetType().IsArray &&
+                    arguments[arguments.Length - 1]!.GetType().GetElementType() == paramsElementType)))
                 {
                     // Passing null or the same type array as the params parameter
                     newArguments[newArguments.Length - 1] = arguments[arguments.Length - 1];
@@ -115,7 +121,7 @@ namespace Xunit.Sdk
                 newArguments[i] = TryConvertObject(arguments[i], parameters[i].ParameterType);
 
             // If the argument has not been provided, pass the default value
-            int unresolvedParametersCount = hasParamsParameter ? parameters.Length - 1 : parameters.Length;
+            var unresolvedParametersCount = hasParamsParameter ? parameters.Length - 1 : parameters.Length;
             for (var i = arguments.Length; i < unresolvedParametersCount; i++)
             {
                 var parameter = parameters[i];
@@ -128,9 +134,12 @@ namespace Xunit.Sdk
             return newArguments;
         }
 
-        private static object TryConvertObject(object argumentValue, Type parameterType)
+        static object? TryConvertObject(object? argumentValue, Type parameterType)
         {
-            var argumentValueType = argumentValue?.GetType();
+            if (argumentValue == null)
+                return null;
+
+            var argumentValueType = argumentValue.GetType();
 
             // We don't need to check if we're passing null to a value type here, as MethodInfo.Invoke does this
             if (argumentValueType == null)
@@ -147,8 +156,7 @@ namespace Xunit.Sdk
                 ?? argumentValue;
         }
 
-        private static object PerformDefinedConversions(object argumentValue,
-                                                        Type conversionDeclaringType)
+        static object? PerformDefinedConversions(object argumentValue, Type conversionDeclaringType)
         {
             // argumentValue is known to not be null when we're called from TryConvertObject
             var argumentValueType = argumentValue.GetType();
@@ -169,9 +177,9 @@ namespace Xunit.Sdk
             return null;
         }
 
-        private static bool IsByRefLikeType(Type type)
+        static bool IsByRefLikeType(Type type)
         {
-            object val = type.GetType().GetRuntimeProperty("IsByRefLike")?.GetValue(type);
+            var val = type.GetType().GetRuntimeProperty("IsByRefLike")?.GetValue(type);
             if (val is bool isByRefLike)
                 return isByRefLike;
 
@@ -189,8 +197,11 @@ namespace Xunit.Sdk
         /// <param name="arguments">The test method arguments</param>
         /// <param name="genericTypes">The test method's generic types</param>
         /// <returns>The full display name for the test method</returns>
-        public static string GetDisplayNameWithArguments(this IMethodInfo method, string baseDisplayName, object[] arguments, ITypeInfo[] genericTypes)
+        public static string GetDisplayNameWithArguments(this IMethodInfo method, string baseDisplayName, object?[]? arguments, ITypeInfo[]? genericTypes)
         {
+            Guard.ArgumentNotNull(nameof(method), method);
+            Guard.ArgumentNotNull(nameof(baseDisplayName), baseDisplayName);
+
             baseDisplayName += ResolveGenericDisplay(genericTypes);
 
             if (arguments == null)
@@ -224,10 +235,10 @@ namespace Xunit.Sdk
             return parameters[index].Name;
         }
 
-        static string ParameterToDisplayValue(string parameterName, object parameterValue)
+        static string ParameterToDisplayValue(string parameterName, object? parameterValue)
             => $"{parameterName}: {ArgumentFormatter.Format(parameterValue)}";
 
-        static string ResolveGenericDisplay(ITypeInfo[] genericTypes)
+        static string ResolveGenericDisplay(ITypeInfo[]? genericTypes)
         {
             if (genericTypes == null || genericTypes.Length == 0)
                 return string.Empty;
@@ -247,7 +258,7 @@ namespace Xunit.Sdk
         /// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
         /// <param name="resultType">The resolved type, e.g. the parameters (T, T, string, typeof(object)) -> (T, T, string, typeof(string)).</param>
         /// <returns>True if resolving was successful, else false.</returns>
-        private static bool ResolveGenericParameter(this ITypeInfo genericType, ITypeInfo methodParameterType, Type passedParameterType, ref Type resultType)
+        static bool ResolveGenericParameter(this ITypeInfo genericType, ITypeInfo methodParameterType, Type? passedParameterType, ref Type? resultType)
         {
             // We can never infer the type parameter from a null type
             if (passedParameterType == null)
@@ -316,8 +327,8 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="type">The type to get the ElementType of.</param>
         /// <returns>If type is an array, the ElementType of the type, else the original type.</returns>
-        private static Type GetArrayElementTypeOrThis(Type type)
-            => type.IsArray ? type.GetElementType() : type;
+        static Type GetArrayElementTypeOrThis(Type type) =>
+            type.IsArray ? type.GetElementType()! : type;
 
         /// <summary>
         /// Gets the underlying ElementType of a type, if the ITypeInfo supports reflection.
@@ -325,13 +336,13 @@ namespace Xunit.Sdk
         /// <param name="type">The type to get the ElementType of.</param>
         /// <param name="isArray">A flag indicating whether the type is an array.</param>
         /// <returns>If type has an element type, underlying ElementType of a type, else the original type.</returns>
-        private static ITypeInfo StripElementType(ITypeInfo type, ref bool isArray)
+        static ITypeInfo StripElementType(ITypeInfo type, ref bool isArray)
         {
             if (type is IReflectionTypeInfo parameterReflectionType && parameterReflectionType.Type.HasElementType)
             {
                 // We have a T[] or T&
                 isArray = parameterReflectionType.Type.IsArray;
-                return Reflector.Wrap(parameterReflectionType.Type.GetElementType());
+                return Reflector.Wrap(parameterReflectionType.Type.GetElementType()!);
             }
 
             return type;
@@ -345,7 +356,7 @@ namespace Xunit.Sdk
         /// <param name="methodGenericTypeArguments">The generic arguments of the open generic type to match with the passed parameter.</param>
         /// <param name="resultType">The resolved type.</param>
         /// <returns>True if resolving was successful, else false.</returns>
-        private static bool ResolveMismatchedGenericArguments(this ITypeInfo genericType, Type passedParameterType, ITypeInfo[] methodGenericTypeArguments, ref Type resultType)
+        static bool ResolveMismatchedGenericArguments(this ITypeInfo genericType, Type passedParameterType, ITypeInfo[] methodGenericTypeArguments, ref Type? resultType)
         {
             // Do we have Class : BaseClass<T>, Class: BaseClass<T, U> etc.
             var baseType = passedParameterType.GetTypeInfo().BaseType;
@@ -353,7 +364,7 @@ namespace Xunit.Sdk
             {
                 var baseGenericTypeArguments = baseType.GetGenericArguments();
 
-                for (int i = 0; i < baseGenericTypeArguments.Length; i++)
+                for (var i = 0; i < baseGenericTypeArguments.Length; i++)
                 {
                     var methodGenericTypeArgument = methodGenericTypeArguments[i];
                     var baseGenericTypeArgument = baseGenericTypeArguments[i];
@@ -367,7 +378,7 @@ namespace Xunit.Sdk
             foreach (var interfaceType in passedParameterType.GetInterfaces().Where(i => i.IsGenericType()))
             {
                 var interfaceGenericArguments = interfaceType.GetGenericArguments();
-                for (int i = 0; i < interfaceGenericArguments.Length; i++)
+                for (var i = 0; i < interfaceGenericArguments.Length; i++)
                 {
                     var methodGenericTypeArgument = methodGenericTypeArguments[i];
                     var baseGenericTypeArgument = interfaceGenericArguments[i];
@@ -389,15 +400,17 @@ namespace Xunit.Sdk
         /// <param name="parameters">The parameter values being passed to the test method</param>
         /// <param name="parameterInfos">The parameter infos for the test method</param>
         /// <returns>The best matching generic type</returns>
-        public static ITypeInfo ResolveGenericType(this ITypeInfo genericType, object[] parameters, IParameterInfo[] parameterInfos)
+        public static ITypeInfo ResolveGenericType(this ITypeInfo genericType, object?[] parameters, IParameterInfo[] parameterInfos)
         {
+            Guard.ArgumentNotNull(nameof(genericType), genericType);
+
             for (var idx = 0; idx < parameterInfos.Length; ++idx)
             {
                 var methodParameterType = parameterInfos[idx].ParameterType;
                 var passedParameterType = parameters[idx]?.GetType();
-                Type matchedType = null;
+                Type? matchedType = null;
 
-                if (ResolveGenericParameter(genericType, methodParameterType, passedParameterType, ref matchedType))
+                if (ResolveGenericParameter(genericType, methodParameterType, passedParameterType, ref matchedType) && matchedType != null)
                     return Reflector.Wrap(matchedType);
             }
 
@@ -412,8 +425,11 @@ namespace Xunit.Sdk
         /// <param name="method">The test method</param>
         /// <param name="parameters">The parameter values being passed to the test method</param>
         /// <returns>The best matching generic types</returns>
-        public static ITypeInfo[] ResolveGenericTypes(this IMethodInfo method, object[] parameters)
+        public static ITypeInfo[] ResolveGenericTypes(this IMethodInfo method, object?[] parameters)
         {
+            Guard.ArgumentNotNull(nameof(method), method);
+            Guard.ArgumentNotNull(nameof(parameters), parameters);
+
             var genericTypes = method.GetGenericArguments().ToArray();
             var resolvedTypes = new ITypeInfo[genericTypes.Length];
             var parameterInfos = method.GetParameters().CastOrToArray();
@@ -424,7 +440,7 @@ namespace Xunit.Sdk
             return resolvedTypes;
         }
 
-        internal static object GetDefaultValue(this TypeInfo typeInfo)
+        internal static object? GetDefaultValue(this TypeInfo typeInfo)
         {
             if (typeInfo.IsValueType)
                 return Activator.CreateInstance(typeInfo.AsType());

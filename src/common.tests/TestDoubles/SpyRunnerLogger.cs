@@ -44,7 +44,7 @@ public class SpyRunnerLogger : IRunnerLogger
         if (!stackFrame.IsEmpty)
         {
             var fileName = stackFrame.FileName;
-            if (fileName.StartsWith(currentDirectory))
+            if (fileName?.StartsWith(currentDirectory) == true)
                 fileName = fileName.Substring(currentDirectory.Length + 1);
 
             result.Append($" @ {fileName}:{stackFrame.LineNumber}");

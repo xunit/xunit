@@ -46,7 +46,7 @@ public class TestCaseRunnerTests
     {
         var messages = new List<IMessageSinkMessage>();
         var messageBus = Substitute.For<IMessageBus>();
-        messageBus.QueueMessage(null)
+        messageBus.QueueMessage(null!)
                   .ReturnsForAnyArgs(callInfo =>
                   {
                       var msg = callInfo.Arg<IMessageSinkMessage>();
@@ -169,13 +169,18 @@ public class TestCaseRunnerTests
         public bool AfterTestCaseStarting_Called;
         public Action<ExceptionAggregator> BeforeTestCaseFinished_Callback = _ => { };
         public bool BeforeTestCaseFinished_Called;
-        public Exception RunTestAsync_AggregatorResult;
+        public Exception? RunTestAsync_AggregatorResult;
         public bool RunTestAsync_Called;
         public readonly new ITestCase TestCase;
         public CancellationTokenSource TokenSource;
 
-        TestableTestCaseRunner(ITestCase testCase, IMessageBus messageBus, ExceptionAggregator aggregator, CancellationTokenSource tokenSource, RunSummary result)
-            : base(testCase, messageBus, aggregator, tokenSource)
+        TestableTestCaseRunner(
+            ITestCase testCase,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource tokenSource,
+            RunSummary result)
+                : base(testCase, messageBus, aggregator, tokenSource)
         {
             this.result = result;
 
@@ -183,7 +188,11 @@ public class TestCaseRunnerTests
             TokenSource = tokenSource;
         }
 
-        public static TestableTestCaseRunner Create(IMessageBus messageBus, ITestCase testCase = null, RunSummary result = null, Exception aggregatorSeedException = null)
+        public static TestableTestCaseRunner Create(
+            IMessageBus messageBus,
+            ITestCase? testCase = null,
+            RunSummary? result = null,
+            Exception? aggregatorSeedException = null)
         {
             var aggregator = new ExceptionAggregator();
             if (aggregatorSeedException != null)
@@ -202,14 +211,14 @@ public class TestCaseRunnerTests
         {
             AfterTestCaseStarting_Called = true;
             AfterTestCaseStarting_Callback(Aggregator);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         protected override Task BeforeTestCaseFinishedAsync()
         {
             BeforeTestCaseFinished_Called = true;
             BeforeTestCaseFinished_Callback(Aggregator);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         protected override Task<RunSummary> RunTestAsync()

@@ -11,6 +11,9 @@ namespace Xunit.Sdk
     [DebuggerDisplay(@"\{ class = {TestClass.Class.Name}, method = {Method.Name} \}")]
     public class TestMethod : LongLivedMarshalByRefObject, ITestMethod
     {
+        private IMethodInfo? method;
+        private ITestClass? testClass;
+
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
@@ -19,26 +22,33 @@ namespace Xunit.Sdk
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethod"/> class.
         /// </summary>
-        /// <param name="class">The test class</param>
+        /// <param name="testClass">The test class</param>
         /// <param name="method">The test method</param>
-        public TestMethod(ITestClass @class, IMethodInfo method)
+        public TestMethod(ITestClass testClass, IMethodInfo method)
         {
-            Guard.ArgumentNotNull("class", @class);
-            Guard.ArgumentNotNull("method", method);
-
-            Method = method;
-            TestClass = @class;
+            this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
+            this.method = Guard.ArgumentNotNull(nameof(method), method);
         }
 
         /// <inheritdoc/>
-        public IMethodInfo Method { get; set; }
+        public IMethodInfo Method
+        {
+            get => method ?? throw new InvalidOperationException($"Attempted to get Method on an uninitialized '{GetType().FullName}' object");
+            set => method = Guard.ArgumentNotNull(nameof(Method), value);
+        }
 
         /// <inheritdoc/>
-        public ITestClass TestClass { get; set; }
+        public ITestClass TestClass
+        {
+            get => testClass ?? throw new InvalidOperationException($"Attempted to get TestClass on an uninitialized '{GetType().FullName}' object");
+            set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
+        }
 
         /// <inheritdoc/>
         public void Serialize(IXunitSerializationInfo info)
         {
+            Guard.ArgumentNotNull(nameof(info), info);
+
             info.AddValue("MethodName", Method.Name);
             info.AddValue("TestClass", TestClass);
         }
@@ -46,11 +56,13 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public void Deserialize(IXunitSerializationInfo info)
         {
-            TestClass = info.GetValue<ITestClass>("TestClass");
+            Guard.ArgumentNotNull(nameof(info), info);
+
+            testClass = info.GetValue<ITestClass>("TestClass");
 
             var methodName = info.GetValue<string>("MethodName");
 
-            Method = TestClass.Class.GetMethod(methodName, true);
+            method = TestClass.Class.GetMethod(methodName, true);
         }
     }
 }

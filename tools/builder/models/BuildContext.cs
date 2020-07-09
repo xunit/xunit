@@ -44,7 +44,7 @@ public class BuildContext
     [Option("-s|--skip-dependencies", Description = "Do not run targets' dependencies")]
     public bool SkipDependencies { get; }
 
-    [Argument(0, "targets", Description = "The target(s) to run (default: 'PR'; values: 'Build', 'CI', 'Packages', 'PR', 'Restore', 'Test', 'TestCore', 'TestFx')")]
+    [Argument(0, "targets", Description = "The target(s) to run (default: 'PR'; common values: 'Build', 'CI', 'Packages', 'PR', 'Restore', 'Test', 'TestV3')")]
     public BuildTarget[] Targets { get; } = new[] { BuildTarget.PR };
 
     [Option("-v|--verbosity", Description = "Set verbosity level (default: 'minimal'; values: 'q[uiet]', 'm[inimal]', 'n[ormal]', 'd[etailed]', and 'diag[nostic]'")]

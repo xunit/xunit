@@ -201,13 +201,13 @@ public class TestInvokerTests
         protected override Task AfterTestMethodInvokedAsync()
         {
             AfterTestMethodInvoked_Called = true;
-            return Task.FromResult(0);
+            return TaskHelpers.CompletedTask;
         }
 
         protected override Task BeforeTestMethodInvokedAsync()
         {
             BeforeTestMethodInvoked_Called = true;
-            return Task.FromResult(0);
+            return TaskHelpers.CompletedTask;
         }
     }
 }

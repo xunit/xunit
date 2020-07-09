@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -20,6 +18,15 @@ namespace Xunit.Sdk
     public abstract class TestAssemblyRunner<TTestCase> : IDisposable
         where TTestCase : ITestCase
     {
+        ExceptionAggregator aggregator = new ExceptionAggregator();
+        IMessageSink diagnosticMessageSink;
+        IMessageSink executionMessageSink;
+        ITestFrameworkExecutionOptions executionOptions;
+        ITestAssembly testAssembly;
+        ITestCaseOrderer testCaseOrderer;
+        IEnumerable<TTestCase> testCases;
+        ITestCollectionOrderer testCollectionOrderer = new DefaultTestCollectionOrderer();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestAssemblyRunner{TTestCase}"/> class.
         /// </summary>
@@ -28,59 +35,93 @@ namespace Xunit.Sdk
         /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
         /// <param name="executionMessageSink">The message sink to report run status to.</param>
         /// <param name="executionOptions">The user's requested execution options.</param>
-        protected TestAssemblyRunner(ITestAssembly testAssembly,
-                                     IEnumerable<TTestCase> testCases,
-                                     IMessageSink diagnosticMessageSink,
-                                     IMessageSink executionMessageSink,
-                                     ITestFrameworkExecutionOptions executionOptions)
+        protected TestAssemblyRunner(
+            ITestAssembly testAssembly,
+            IEnumerable<TTestCase> testCases,
+            IMessageSink diagnosticMessageSink,
+            IMessageSink executionMessageSink,
+            ITestFrameworkExecutionOptions executionOptions)
         {
-            TestAssembly = testAssembly;
-            TestCases = testCases;
-            DiagnosticMessageSink = diagnosticMessageSink;
-            ExecutionMessageSink = executionMessageSink;
-            ExecutionOptions = executionOptions;
-            TestCaseOrderer = new DefaultTestCaseOrderer(diagnosticMessageSink);
+            this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
+            this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
+            this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+            this.executionMessageSink = Guard.ArgumentNotNull(nameof(executionMessageSink), executionMessageSink);
+            this.executionOptions = Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
+            testCaseOrderer = new DefaultTestCaseOrderer(DiagnosticMessageSink);
         }
 
         /// <summary>
         /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
-        protected ExceptionAggregator Aggregator { get; set; } = new ExceptionAggregator();
+        protected ExceptionAggregator Aggregator
+        {
+            get => aggregator;
+            set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+        }
 
         /// <summary>
         /// Gets or sets the user's requested execution options.
         /// </summary>
-        protected ITestFrameworkExecutionOptions ExecutionOptions { get; set; }
+        protected ITestFrameworkExecutionOptions ExecutionOptions
+        {
+            get => executionOptions;
+            set => executionOptions = Guard.ArgumentNotNull(nameof(ExecutionOptions), value);
+        }
 
         /// <summary>
         /// Gets or sets the message sink to report diagnostic messages to.
         /// </summary>
-        protected IMessageSink DiagnosticMessageSink { get; set; }
+        protected IMessageSink DiagnosticMessageSink
+        {
+            get => diagnosticMessageSink;
+            set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
+        }
 
         /// <summary>
         /// Gets or sets the message sink to report run status to.
         /// </summary>
-        protected IMessageSink ExecutionMessageSink { get; set; }
+        protected IMessageSink ExecutionMessageSink
+        {
+            get => executionMessageSink;
+            set => executionMessageSink = Guard.ArgumentNotNull(nameof(ExecutionMessageSink), value);
+        }
 
         /// <summary>
         /// Gets or sets the assembly that contains the tests to be run.
         /// </summary>
-        protected ITestAssembly TestAssembly { get; set; }
+        protected ITestAssembly TestAssembly
+        {
+            get => testAssembly;
+            set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
+        }
 
         /// <summary>
         /// Gets or sets the test case orderer that will be used to decide how to order the tests.
         /// </summary>
-        protected ITestCaseOrderer TestCaseOrderer { get; set; }
+        protected ITestCaseOrderer TestCaseOrderer
+        {
+            get => testCaseOrderer;
+            set => testCaseOrderer = Guard.ArgumentNotNull(nameof(TestCaseOrderer), value);
+        }
 
         /// <summary>
         /// Gets or sets the test collection orderer that will be used to decide how to order the test collections.
         /// </summary>
-        protected ITestCollectionOrderer TestCollectionOrderer { get; set; } = new DefaultTestCollectionOrderer();
+        protected ITestCollectionOrderer TestCollectionOrderer
+        {
+            get => testCollectionOrderer;
+            set => testCollectionOrderer = Guard.ArgumentNotNull(nameof(TestCollectionOrderer), value);
+        }
 
         /// <summary>
         /// Gets or sets the test cases to be run.
         /// </summary>
-        protected IEnumerable<TTestCase> TestCases { get; set; }
+        protected IEnumerable<TTestCase> TestCases
+        {
+            get => testCases;
+            set => testCases = Guard.ArgumentNotNull(nameof(TestCases), value);
+        }
 
         /// <inheritdoc/>
         public virtual void Dispose() { }
@@ -95,22 +136,19 @@ namespace Xunit.Sdk
         /// Override this to provide the environment information (f.e., "32-bit .NET 4.0"). This value is
         /// placed into <see cref="ITestAssemblyStarting.TestEnvironment"/>.
         /// </summary>
-        protected virtual string GetTestFrameworkEnvironment()
-            => $"{IntPtr.Size * 8}-bit .NET Standard";
+        protected virtual string GetTestFrameworkEnvironment() => $"{IntPtr.Size * 8}-bit .NET Standard";
 
         /// <summary>
         /// This method is called just after <see cref="ITestAssemblyStarting"/> is sent, but before any test collections are run.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual Task AfterTestAssemblyStartingAsync()
-            => CommonTasks.Completed;
+        protected virtual Task AfterTestAssemblyStartingAsync() => Task.CompletedTask;
 
         /// <summary>
         /// This method is called just before <see cref="ITestAssemblyFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual Task BeforeTestAssemblyFinishedAsync()
-            => CommonTasks.Completed;
+        protected virtual Task BeforeTestAssemblyFinishedAsync() => Task.CompletedTask;
 
         /// <summary>
         /// Creates the message bus to be used for test execution. By default, it inspects
@@ -189,7 +227,7 @@ namespace Xunit.Sdk
                         await BeforeTestAssemblyFinishedAsync();
 
                         if (Aggregator.HasExceptions)
-                            messageBus.QueueMessage(new TestAssemblyCleanupFailure(TestCases.Cast<ITestCase>(), TestAssembly, Aggregator.ToException()));
+                            messageBus.QueueMessage(new TestAssemblyCleanupFailure(TestCases.Cast<ITestCase>(), TestAssembly, Aggregator.ToException()!));
                     }
                     finally
                     {

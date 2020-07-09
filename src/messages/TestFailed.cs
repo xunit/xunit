@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK
@@ -19,7 +17,7 @@ namespace Xunit
         /// </summary>
         public TestFailed(ITest test,
                           decimal executionTime,
-                          string output,
+                          string? output,
                           string?[] exceptionTypes,
                           string[] messages,
                           string?[] stackTraces,

@@ -32,6 +32,7 @@ public class TestCaseSerializerTests
 
             var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
 
+            Assert.NotNull(result);
             Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath, result.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath);
             Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName, result.TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName);
             Assert.Null(result.TestMethod.TestClass.TestCollection.CollectionDefinition);
@@ -65,6 +66,8 @@ public class TestCaseSerializerTests
 
             var result = SerializationHelper.Deserialize<XunitTestCase>(serialized);
 
+            Assert.NotNull(result);
+            Assert.NotNull(result.TestMethodArguments);
             Assert.Collection(result.TestMethodArguments,
                 arg => Assert.Equal(42, arg),
                 arg => Assert.Equal(21.12, arg),
@@ -101,6 +104,7 @@ public class TestCaseSerializerTests
 
             var result = SerializationHelper.Deserialize<XunitTheoryTestCase>(serialized);
 
+            Assert.NotNull(result);
             Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath, result.TestMethod.TestClass.TestCollection.TestAssembly.Assembly.AssemblyPath);
             Assert.Equal(testCase.TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName, result.TestMethod.TestClass.TestCollection.TestAssembly.ConfigFileName);
             Assert.Null(result.TestMethod.TestClass.TestCollection.CollectionDefinition);

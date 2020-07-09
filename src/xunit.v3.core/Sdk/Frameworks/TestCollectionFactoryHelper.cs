@@ -20,12 +20,15 @@ namespace Xunit.Sdk
         public static Dictionary<string, ITypeInfo> GetTestCollectionDefinitions(IAssemblyInfo assemblyInfo, IMessageSink diagnosticMessageSink)
         {
             var attributeTypesByName =
-                assemblyInfo.GetTypes(false)
-                            .Select(type => new { Type = type, Attribute = type.GetCustomAttributes(typeof(CollectionDefinitionAttribute).AssemblyQualifiedName).FirstOrDefault() })
-                            .Where(list => list.Attribute != null)
-                            .GroupBy(list => (string)list.Attribute.GetConstructorArguments().Single(),
-                                     list => list.Type,
-                                     StringComparer.OrdinalIgnoreCase);
+                assemblyInfo
+                    .GetTypes(false)
+                    .Select(type => new { Type = type, Attribute = type.GetCustomAttributes(typeof(CollectionDefinitionAttribute).AssemblyQualifiedName!).FirstOrDefault() })
+                    .Where(list => list.Attribute != null)
+                    .GroupBy(
+                        list => list.Attribute.GetConstructorArguments().Cast<string>().Single(),
+                        list => list.Type,
+                        StringComparer.OrdinalIgnoreCase
+                    );
 
             var result = new Dictionary<string, ITypeInfo>();
 

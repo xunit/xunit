@@ -15,14 +15,16 @@ namespace Xunit.Sdk
     /// </summary>
     public abstract class TestMethodTestCase : LongLivedMarshalByRefObject, ITestCase, IDisposable
     {
-        string displayName;
+        string? displayName;
         DisplayNameFormatter formatter;
         bool initialized;
-        IMethodInfo method;
-        ITypeInfo[] methodGenericTypes;
-        string skipReason;
-        Dictionary<string, List<string>> traits;
-        volatile string uniqueID;
+        IMethodInfo? method;
+        ITypeInfo[]? methodGenericTypes;
+        string? skipReason;
+        ISourceInformation? sourceInformation;
+        ITestMethod? testMethod;
+        Dictionary<string, List<string>>? traits;
+        volatile string? uniqueID;
 
         /// <summary>
         /// Used for de-serialization.
@@ -36,31 +38,24 @@ namespace Xunit.Sdk
         /// Initializes a new instance of the <see cref="TestMethodTestCase"/> class.
         /// </summary>
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
-        /// <param name="testMethod">The test method this test case belongs to.</param>
-        /// <param name="testMethodArguments">The arguments for the test method.</param>
-        [Obsolete("Please call the constructor which takes TestMethodDisplayOptions")]
-        protected TestMethodTestCase(TestMethodDisplay defaultMethodDisplay,
-                                     ITestMethod testMethod,
-                                     object[] testMethodArguments = null)
-            : this(defaultMethodDisplay, TestMethodDisplayOptions.None, testMethod, testMethodArguments) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TestMethodTestCase"/> class.
-        /// </summary>
-        /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
         /// <param name="testMethod">The test method this test case belongs to.</param>
         /// <param name="testMethodArguments">The arguments for the test method.</param>
-        protected TestMethodTestCase(TestMethodDisplay defaultMethodDisplay,
-                                     TestMethodDisplayOptions defaultMethodDisplayOptions,
-                                     ITestMethod testMethod,
-                                     object[] testMethodArguments = null)
+        /// <param name="skipReason">The reason for skipping the test.</param>
+        protected TestMethodTestCase(
+            TestMethodDisplay defaultMethodDisplay,
+            TestMethodDisplayOptions defaultMethodDisplayOptions,
+            ITestMethod testMethod,
+            object?[]? testMethodArguments = null,
+            string? skipReason = null)
         {
             DefaultMethodDisplay = defaultMethodDisplay;
             DefaultMethodDisplayOptions = defaultMethodDisplayOptions;
-            formatter = new DisplayNameFormatter(defaultMethodDisplay, defaultMethodDisplayOptions);
-            TestMethod = testMethod;
+            this.testMethod = Guard.ArgumentNotNull(nameof(testMethod), testMethod);
             TestMethodArguments = testMethodArguments;
+            this.skipReason = skipReason;
+
+            formatter = new DisplayNameFormatter(defaultMethodDisplay, defaultMethodDisplayOptions);
         }
 
         /// <summary>
@@ -93,12 +88,12 @@ namespace Xunit.Sdk
             get
             {
                 EnsureInitialized();
-                return displayName;
+                return displayName ?? throw new InvalidOperationException($"Attempted to get DisplayName on an uninitialized '{GetType().FullName}' object");
             }
             protected set
             {
                 EnsureInitialized();
-                displayName = value;
+                displayName = Guard.ArgumentNotNull(nameof(DisplayName), value);
             }
         }
 
@@ -106,7 +101,7 @@ namespace Xunit.Sdk
         /// Gets or sets the exception that happened during initialization. When this is set, then
         /// the test execution should fail with this exception.
         /// </summary>
-        public Exception InitializationException { get; protected set; }
+        public Exception? InitializationException { get; protected set; }
 
         /// <inheritdoc/>
         public IMethodInfo Method
@@ -114,12 +109,12 @@ namespace Xunit.Sdk
             get
             {
                 EnsureInitialized();
-                return method;
+                return method ?? throw new InvalidOperationException($"Attempted to get Method on an uninitialized '{GetType().FullName}' object");
             }
             protected set
             {
                 EnsureInitialized();
-                method = value;
+                method = Guard.ArgumentNotNull(nameof(Method), value);
             }
         }
 
@@ -127,7 +122,7 @@ namespace Xunit.Sdk
         /// Gets the generic types that were used to close the generic test method, if
         /// applicable; <c>null</c>, if the test method was not an open generic.
         /// </summary>
-        protected ITypeInfo[] MethodGenericTypes
+        protected ITypeInfo[]? MethodGenericTypes
         {
             get
             {
@@ -137,7 +132,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public string SkipReason
+        public string? SkipReason
         {
             get
             {
@@ -152,13 +147,21 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public ISourceInformation SourceInformation { get; set; }
+        public ISourceInformation SourceInformation
+        {
+            get => sourceInformation ?? new SourceInformation();
+            set => sourceInformation = Guard.ArgumentNotNull(nameof(SourceInformation), value);
+        }
 
         /// <inheritdoc/>
-        public ITestMethod TestMethod { get; protected set; }
+        public ITestMethod TestMethod
+        {
+            get => testMethod ?? throw new InvalidOperationException($"Attempted to get TestMethod on an uninitialized '{GetType().FullName}' object");
+            protected set => testMethod = Guard.ArgumentNotNull(nameof(TestMethod), value);
+        }
 
         /// <inheritdoc/>
-        public object[] TestMethodArguments { get; protected set; }
+        public object?[]? TestMethodArguments { get; protected set; }
 
         /// <inheritdoc/>
         public Dictionary<string, List<string>> Traits
@@ -166,12 +169,12 @@ namespace Xunit.Sdk
             get
             {
                 EnsureInitialized();
-                return traits;
+                return traits ?? throw new InvalidOperationException($"Attempted to get Traits on an uninitialized '{GetType().FullName}' object");
             }
             protected set
             {
                 EnsureInitialized();
-                traits = value;
+                traits = Guard.ArgumentNotNull(nameof(Traits), value);
             }
         }
 
@@ -217,9 +220,9 @@ namespace Xunit.Sdk
             {
                 var assemblyName = TestMethod.TestClass.TestCollection.TestAssembly.Assembly.Name;
 
-                //Get just the assembly name (without version info) when obtained by reflection
+                // Get just the assembly name (without version info) when obtained by reflection
                 if (TestMethod.TestClass.TestCollection.TestAssembly.Assembly is IReflectionAssemblyInfo assembly)
-                    assemblyName = assembly.Assembly.GetName().Name;
+                    assemblyName = assembly.Assembly.GetName().Name ?? assemblyName;
 
                 Write(stream, assemblyName);
                 Write(stream, TestMethod.TestClass.Class.Name);
@@ -251,9 +254,9 @@ namespace Xunit.Sdk
         /// <returns>A string containing the hexadecimal representation of the provided bytes.</returns>
         static string BytesToHexString(byte[] bytes)
         {
-            char[] chars = new char[bytes.Length * 2];
-            int i = 0;
-            foreach (byte b in bytes)
+            var chars = new char[bytes.Length * 2];
+            var i = 0;
+            foreach (var b in bytes)
             {
                 chars[i++] = NibbleToHexChar(b >> 4);
                 chars[i++] = NibbleToHexChar(b & 0xF);
@@ -296,7 +299,7 @@ namespace Xunit.Sdk
                 }
             }
 
-            if (TestMethodArguments != null && method.IsGenericMethodDefinition)
+            if (TestMethodArguments != null && Method.IsGenericMethodDefinition)
             {
                 methodGenericTypes = Method.ResolveGenericTypes(TestMethodArguments);
                 Method = Method.MakeGenericMethod(MethodGenericTypes);
@@ -314,21 +317,25 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public virtual void Serialize(IXunitSerializationInfo data)
+        public virtual void Serialize(IXunitSerializationInfo info)
         {
-            data.AddValue("TestMethod", TestMethod);
-            data.AddValue("TestMethodArguments", TestMethodArguments);
-            data.AddValue("DefaultMethodDisplay", DefaultMethodDisplay.ToString());
-            data.AddValue("DefaultMethodDisplayOptions", DefaultMethodDisplayOptions.ToString());
+            Guard.ArgumentNotNull(nameof(info), info);
+
+            info.AddValue("TestMethod", TestMethod);
+            info.AddValue("TestMethodArguments", TestMethodArguments);
+            info.AddValue("DefaultMethodDisplay", DefaultMethodDisplay.ToString());
+            info.AddValue("DefaultMethodDisplayOptions", DefaultMethodDisplayOptions.ToString());
         }
 
         /// <inheritdoc/>
-        public virtual void Deserialize(IXunitSerializationInfo data)
+        public virtual void Deserialize(IXunitSerializationInfo info)
         {
-            TestMethod = data.GetValue<ITestMethod>("TestMethod");
-            TestMethodArguments = data.GetValue<object[]>("TestMethodArguments");
-            DefaultMethodDisplay = (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), data.GetValue<string>("DefaultMethodDisplay"));
-            DefaultMethodDisplayOptions = (TestMethodDisplayOptions)Enum.Parse(typeof(TestMethodDisplayOptions), data.GetValue<string>("DefaultMethodDisplayOptions"));
+            Guard.ArgumentNotNull(nameof(info), info);
+
+            TestMethod = info.GetValue<ITestMethod>("TestMethod");
+            TestMethodArguments = info.GetValue<object[]>("TestMethodArguments");
+            DefaultMethodDisplay = (TestMethodDisplay)Enum.Parse(typeof(TestMethodDisplay), info.GetValue<string>("DefaultMethodDisplay"));
+            DefaultMethodDisplayOptions = (TestMethodDisplayOptions)Enum.Parse(typeof(TestMethodDisplayOptions), info.GetValue<string>("DefaultMethodDisplayOptions"));
             formatter = new DisplayNameFormatter(DefaultMethodDisplay, DefaultMethodDisplayOptions);
         }
     }

@@ -328,16 +328,17 @@ public class TestAssemblyRunnerTests
         public Action<ExceptionAggregator> BeforeTestAssemblyFinished_Callback = _ => { };
         public bool BeforeTestAssemblyFinished_Called;
         public List<IMessageSinkMessage> DiagnosticMessages;
-        public Exception RunTestCollectionAsync_AggregatorResult;
+        public Exception? RunTestCollectionAsync_AggregatorResult;
 
-        TestableTestAssemblyRunner(ITestAssembly testAssembly,
-                                   IEnumerable<ITestCase> testCases,
-                                   List<IMessageSinkMessage> diagnosticMessages,
-                                   IMessageSink executionMessageSink,
-                                   ITestFrameworkExecutionOptions executionOptions,
-                                   RunSummary result,
-                                   bool cancelInRunTestCollectionAsync)
-            : base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
+        TestableTestAssemblyRunner(
+            ITestAssembly testAssembly,
+            IEnumerable<ITestCase> testCases,
+            List<IMessageSinkMessage> diagnosticMessages,
+            IMessageSink executionMessageSink,
+            ITestFrameworkExecutionOptions executionOptions,
+            RunSummary result,
+            bool cancelInRunTestCollectionAsync)
+                : base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
         {
             DiagnosticMessages = diagnosticMessages;
 
@@ -345,11 +346,12 @@ public class TestAssemblyRunnerTests
             this.cancelInRunTestCollectionAsync = cancelInRunTestCollectionAsync;
         }
 
-        public static TestableTestAssemblyRunner Create(IMessageSink executionMessageSink = null,
-                                                        RunSummary result = null,
-                                                        ITestCase[] testCases = null,
-                                                        ITestFrameworkExecutionOptions executionOptions = null,
-                                                        bool cancelInRunTestCollectionAsync = false)
+        public static TestableTestAssemblyRunner Create(
+            IMessageSink? executionMessageSink = null,
+            RunSummary? result = null,
+            ITestCase[]? testCases = null,
+            ITestFrameworkExecutionOptions? executionOptions = null,
+            bool cancelInRunTestCollectionAsync = false)
         {
             return new TestableTestAssemblyRunner(
                 Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
@@ -398,14 +400,14 @@ public class TestAssemblyRunnerTests
         {
             AfterTestAssemblyStarting_Called = true;
             AfterTestAssemblyStarting_Callback(Aggregator);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         protected override Task BeforeTestAssemblyFinishedAsync()
         {
             BeforeTestAssemblyFinished_Called = true;
             BeforeTestAssemblyFinished_Callback(Aggregator);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<ITestCase> testCases, CancellationTokenSource cancellationTokenSource)

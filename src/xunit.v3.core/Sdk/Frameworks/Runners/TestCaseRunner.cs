@@ -10,8 +10,13 @@ namespace Xunit.Sdk
     /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
     /// derive from <see cref="ITestCase"/>.</typeparam>
     public abstract class TestCaseRunner<TTestCase>
-        where TTestCase : ITestCase
+        where TTestCase : class, ITestCase
     {
+        ExceptionAggregator aggregator;
+        CancellationTokenSource cancellationTokenSource;
+        IMessageBus messageBus;
+        TTestCase testCase;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCaseRunner{TTestCase}"/> class.
         /// </summary>
@@ -19,50 +24,65 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        protected TestCaseRunner(TTestCase testCase,
-                                 IMessageBus messageBus,
-                                 ExceptionAggregator aggregator,
-                                 CancellationTokenSource cancellationTokenSource)
+        protected TestCaseRunner(
+            TTestCase testCase,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
         {
-            TestCase = testCase;
-            MessageBus = messageBus;
-            Aggregator = aggregator;
-            CancellationTokenSource = cancellationTokenSource;
+            this.testCase = Guard.ArgumentNotNull(nameof(testCase), testCase);
+            this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+            this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
+            this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
         }
 
         /// <summary>
         /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
-        protected ExceptionAggregator Aggregator { get; set; }
+        protected ExceptionAggregator Aggregator
+        {
+            get => aggregator;
+            set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+        }
 
         /// <summary>
         /// Gets or sets the task cancellation token source, used to cancel the test run.
         /// </summary>
-        protected CancellationTokenSource CancellationTokenSource { get; set; }
+        protected CancellationTokenSource CancellationTokenSource
+        {
+            get => cancellationTokenSource;
+            set => cancellationTokenSource = Guard.ArgumentNotNull(nameof(CancellationTokenSource), value);
+        }
 
         /// <summary>
         /// Gets or sets the message bus to report run status to.
         /// </summary>
-        protected IMessageBus MessageBus { get; set; }
+        protected IMessageBus MessageBus
+        {
+            get => messageBus;
+            set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
+        }
 
         /// <summary>
         /// Gets or sets the test case to be run.
         /// </summary>
-        protected TTestCase TestCase { get; set; }
+        protected TTestCase TestCase
+        {
+            get => testCase;
+            set => testCase = Guard.ArgumentNotNull(nameof(TestCase), value);
+        }
 
         /// <summary>
         /// This method is called just after <see cref="ITestCaseStarting"/> is sent, but before any test collections are run.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual Task AfterTestCaseStartingAsync()
-            => CommonTasks.Completed;
+        protected virtual Task AfterTestCaseStartingAsync() => Task.CompletedTask;
 
         /// <summary>
         /// This method is called just before <see cref="ITestCaseFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual Task BeforeTestCaseFinishedAsync()
-            => CommonTasks.Completed;
+        protected virtual Task BeforeTestCaseFinishedAsync() => Task.CompletedTask;
 
         /// <summary>
         /// Runs the tests in the test case.
@@ -85,7 +105,7 @@ namespace Xunit.Sdk
                     await BeforeTestCaseFinishedAsync();
 
                     if (Aggregator.HasExceptions)
-                        if (!MessageBus.QueueMessage(new TestCaseCleanupFailure(TestCase, Aggregator.ToException())))
+                        if (!MessageBus.QueueMessage(new TestCaseCleanupFailure(TestCase, Aggregator.ToException()!)))
                             CancellationTokenSource.Cancel();
                 }
                 finally

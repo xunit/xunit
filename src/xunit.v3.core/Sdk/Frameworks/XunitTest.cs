@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// An implementation of <see cref="ITest"/> for xUnit v2.
+    /// An implementation of <see cref="ITest"/> for xUnit v3.
     /// </summary>
     public class XunitTest : LongLivedMarshalByRefObject, ITest
     {
@@ -14,19 +14,19 @@ namespace Xunit.Sdk
         /// <param name="displayName">The display name for this test.</param>
         public XunitTest(IXunitTestCase testCase, string displayName)
         {
-            TestCase = testCase;
-            DisplayName = displayName;
+            TestCase = Guard.ArgumentNotNull(nameof(testCase), testCase);
+            DisplayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
         }
 
         /// <inheritdoc/>
-        public string DisplayName { get; private set; }
+        public string DisplayName { get; }
 
         /// <summary>
-        /// Gets the xUnit v2 test case.
+        /// Gets the xUnit v3 test case.
         /// </summary>
-        public IXunitTestCase TestCase { get; private set; }
+        public IXunitTestCase TestCase { get; }
 
         /// <inheritdoc/>
-        ITestCase ITest.TestCase { get { return TestCase; } }
+        ITestCase ITest.TestCase => TestCase;
     }
 }

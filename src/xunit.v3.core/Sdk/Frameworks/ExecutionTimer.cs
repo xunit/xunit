@@ -14,10 +14,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Returns the total time aggregated across all the actions.
         /// </summary>
-        public decimal Total
-        {
-            get { return (decimal)total.TotalSeconds; }
-        }
+        public decimal Total => (decimal)total.TotalSeconds;
 
         /// <summary>
         /// Executes an action and aggregates its run time into the total.
@@ -25,6 +22,8 @@ namespace Xunit.Sdk
         /// <param name="action">The action to measure.</param>
         public void Aggregate(Action action)
         {
+            Guard.ArgumentNotNull(nameof(action), action);
+
             var stopwatch = Stopwatch.StartNew();
             try
             {
@@ -42,6 +41,8 @@ namespace Xunit.Sdk
         /// <param name="asyncAction">The action to measure.</param>
         public async Task AggregateAsync(Func<Task> asyncAction)
         {
+            Guard.ArgumentNotNull(nameof(asyncAction), asyncAction);
+
             var stopwatch = Stopwatch.StartNew();
             try
             {

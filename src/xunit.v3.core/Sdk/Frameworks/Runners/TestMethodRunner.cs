@@ -14,6 +14,14 @@ namespace Xunit.Sdk
     public abstract class TestMethodRunner<TTestCase>
         where TTestCase : ITestCase
     {
+        ExceptionAggregator aggregator;
+        CancellationTokenSource cancellationTokenSource;
+        IReflectionTypeInfo @class;
+        IMessageBus messageBus;
+        IReflectionMethodInfo method;
+        IEnumerable<TTestCase> testCases;
+        ITestMethod testMethod;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestMethodRunner{TTestCase}"/> class.
         /// </summary>
@@ -24,57 +32,86 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        protected TestMethodRunner(ITestMethod testMethod,
-                                   IReflectionTypeInfo @class,
-                                   IReflectionMethodInfo method,
-                                   IEnumerable<TTestCase> testCases,
-                                   IMessageBus messageBus,
-                                   ExceptionAggregator aggregator,
-                                   CancellationTokenSource cancellationTokenSource)
+        protected TestMethodRunner(
+            ITestMethod testMethod,
+            IReflectionTypeInfo @class,
+            IReflectionMethodInfo method,
+            IEnumerable<TTestCase> testCases,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
         {
-            TestMethod = testMethod;
-            Class = @class;
-            Method = method;
-            TestCases = testCases;
-            MessageBus = messageBus;
-            Aggregator = aggregator;
-            CancellationTokenSource = cancellationTokenSource;
+            this.testMethod = Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+            this.@class = Guard.ArgumentNotNull(nameof(@class), @class);
+            this.method = Guard.ArgumentNotNull(nameof(method), method);
+            this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
+            this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+            this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
+            this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
         }
 
         /// <summary>
         /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
-        protected ExceptionAggregator Aggregator { get; set; }
+        protected ExceptionAggregator Aggregator
+        {
+            get => aggregator;
+            set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+        }
 
         /// <summary>
         /// Gets or sets the task cancellation token source, used to cancel the test run.
         /// </summary>
-        protected CancellationTokenSource CancellationTokenSource { get; set; }
+        protected CancellationTokenSource CancellationTokenSource
+        {
+            get => cancellationTokenSource;
+            set => cancellationTokenSource = Guard.ArgumentNotNull(nameof(CancellationTokenSource), value);
+        }
 
         /// <summary>
         /// Gets or sets the CLR class that contains the test method.
         /// </summary>
-        protected IReflectionTypeInfo Class { get; set; }
+        protected IReflectionTypeInfo Class
+        {
+            get => @class;
+            set => @class = Guard.ArgumentNotNull(nameof(Class), value);
+        }
 
         /// <summary>
         /// Gets or sets the message bus to report run status to.
         /// </summary>
-        protected IMessageBus MessageBus { get; set; }
+        protected IMessageBus MessageBus
+        {
+            get => messageBus;
+            set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
+        }
 
         /// <summary>
         /// Gets or sets the CLR method that contains the tests to be run.
         /// </summary>
-        protected IReflectionMethodInfo Method { get; set; }
+        protected IReflectionMethodInfo Method
+        {
+            get => method;
+            set => method = Guard.ArgumentNotNull(nameof(Method), value);
+        }
 
         /// <summary>
         /// Gets or sets the test cases to be run.
         /// </summary>
-        protected IEnumerable<TTestCase> TestCases { get; set; }
+        protected IEnumerable<TTestCase> TestCases
+        {
+            get => testCases;
+            set => testCases = Guard.ArgumentNotNull(nameof(TestCases), value);
+        }
 
         /// <summary>
         /// Gets or sets the test method that contains the test cases.
         /// </summary>
-        protected ITestMethod TestMethod { get; set; }
+        protected ITestMethod TestMethod
+        {
+            get => testMethod;
+            set => testMethod = Guard.ArgumentNotNull(nameof(TestMethod), value);
+        }
 
         /// <summary>
         /// This method is called just after <see cref="ITestMethodStarting"/> is sent, but before any test cases are run.
@@ -109,7 +146,7 @@ namespace Xunit.Sdk
                     BeforeTestMethodFinished();
 
                     if (Aggregator.HasExceptions)
-                        if (!MessageBus.QueueMessage(new TestMethodCleanupFailure(TestCases.Cast<ITestCase>(), TestMethod, Aggregator.ToException())))
+                        if (!MessageBus.QueueMessage(new TestMethodCleanupFailure(TestCases.Cast<ITestCase>(), TestMethod, Aggregator.ToException()!)))
                             CancellationTokenSource.Cancel();
                 }
                 finally

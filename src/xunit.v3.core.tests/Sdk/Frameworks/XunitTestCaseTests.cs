@@ -4,7 +4,6 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using IAttributeInfo = Xunit.Abstractions.IAttributeInfo;
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 using TestMethodDisplayOptions = Xunit.Sdk.TestMethodDisplayOptions;
 
@@ -127,7 +126,7 @@ public class XunitTestCaseTests
             public IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
             {
                 var ctorArgs = traitAttribute.GetConstructorArguments().ToList();
-                yield return new KeyValuePair<string, string>("Bug", ctorArgs[0].ToString());
+                yield return new KeyValuePair<string, string>("Bug", ctorArgs[0].ToString()!);
             }
         }
 

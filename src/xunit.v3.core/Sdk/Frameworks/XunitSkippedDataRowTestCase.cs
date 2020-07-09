@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// <remarks>This class is only ever used if the discoverer is pre-enumerating theories and the data row is serializable.</remarks>
     public class XunitSkippedDataRowTestCase : XunitTestCase
     {
-        string skipReason;
+        string? skipReason;
 
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -22,57 +22,40 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
-        /// <param name="testMethod">The test method this test case belongs to.</param>
-        /// <param name="skipReason">The reason that this test case will be skipped</param>
-        /// <param name="testMethodArguments">The arguments for the test method.</param>
-        [Obsolete("Please call the constructor which takes TestMethodDisplayOptions")]
-        public XunitSkippedDataRowTestCase(IMessageSink diagnosticMessageSink,
-                                           TestMethodDisplay defaultMethodDisplay,
-                                           ITestMethod testMethod,
-                                           string skipReason,
-                                           object[] testMethodArguments = null)
-            : this(diagnosticMessageSink, defaultMethodDisplay, TestMethodDisplayOptions.None, testMethod, skipReason, testMethodArguments) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="XunitSkippedDataRowTestCase"/> class.
-        /// </summary>
-        /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
-        /// <param name="defaultMethodDisplay">Default method display to use (when not customized).</param>
         /// <param name="defaultMethodDisplayOptions">Default method display options to use (when not customized).</param>
         /// <param name="testMethod">The test method this test case belongs to.</param>
         /// <param name="skipReason">The reason that this test case will be skipped</param>
         /// <param name="testMethodArguments">The arguments for the test method.</param>
-        public XunitSkippedDataRowTestCase(IMessageSink diagnosticMessageSink,
-                                           TestMethodDisplay defaultMethodDisplay,
-                                           TestMethodDisplayOptions defaultMethodDisplayOptions,
-                                           ITestMethod testMethod,
-                                           string skipReason,
-                                           object[] testMethodArguments = null)
-            : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
+        public XunitSkippedDataRowTestCase(
+            IMessageSink diagnosticMessageSink,
+            TestMethodDisplay defaultMethodDisplay,
+            TestMethodDisplayOptions defaultMethodDisplayOptions,
+            ITestMethod testMethod,
+            string skipReason,
+            object?[] testMethodArguments)
+                : base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments)
         {
-            this.skipReason = skipReason;
+            this.skipReason = Guard.ArgumentNotNull(nameof(skipReason), skipReason);
         }
 
         /// <inheritdoc/>
-        public override void Deserialize(IXunitSerializationInfo data)
+        public override void Deserialize(IXunitSerializationInfo info)
         {
-            base.Deserialize(data);
+            base.Deserialize(info);
 
-            this.skipReason = data.GetValue<string>("SkipReason");
+            skipReason = info.GetValue<string>("SkipReason");
         }
 
         /// <inheritdoc/>
-        protected override string GetSkipReason(IAttributeInfo factAttribute)
-        {
-            return skipReason;
-        }
+        protected override string GetSkipReason(IAttributeInfo factAttribute) =>
+            skipReason ?? throw new InvalidOperationException($"Attempted to call GetSkipReason on an uninitialized '{GetType().FullName}' object");
 
         /// <inheritdoc/>
-        public override void Serialize(IXunitSerializationInfo data)
+        public override void Serialize(IXunitSerializationInfo info)
         {
-            base.Serialize(data);
+            base.Serialize(info);
 
-            data.AddValue("SkipReason", skipReason);
+            info.AddValue("SkipReason", skipReason);
         }
     }
 }

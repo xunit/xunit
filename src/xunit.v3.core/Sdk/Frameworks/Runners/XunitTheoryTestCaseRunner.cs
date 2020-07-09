@@ -8,15 +8,15 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// The test case runner for xUnit.net v2 theories (which could not be pre-enumerated;
+    /// The test case runner for xUnit.net v3 theories (which could not be pre-enumerated;
     /// pre-enumerated test cases use <see cref="XunitTestCaseRunner"/>).
     /// </summary>
     public class XunitTheoryTestCaseRunner : XunitTestCaseRunner
     {
-        static readonly object[] NoArguments = new object[0];
+        static readonly object?[] NoArguments = new object[0];
 
         readonly ExceptionAggregator cleanupAggregator = new ExceptionAggregator();
-        Exception dataDiscoveryException;
+        Exception? dataDiscoveryException;
         readonly List<XunitTestRunner> testRunners = new List<XunitTestRunner>();
         readonly List<IDisposable> toDispose = new List<IDisposable>();
 
@@ -31,17 +31,18 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public XunitTheoryTestCaseRunner(IXunitTestCase testCase,
-                                         string displayName,
-                                         string skipReason,
-                                         object[] constructorArguments,
-                                         IMessageSink diagnosticMessageSink,
-                                         IMessageBus messageBus,
-                                         ExceptionAggregator aggregator,
-                                         CancellationTokenSource cancellationTokenSource)
-            : base(testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
+        public XunitTheoryTestCaseRunner(
+            IXunitTestCase testCase,
+            string displayName,
+            string? skipReason,
+            object?[] constructorArguments,
+            IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
+                : base(testCase, displayName, skipReason, constructorArguments, NoArguments, messageBus, aggregator, cancellationTokenSource)
         {
-            DiagnosticMessageSink = diagnosticMessageSink;
+            DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace Xunit.Sdk
                         continue;
                     }
 
-                    IDataDiscoverer discoverer;
+                    IDataDiscoverer? discoverer;
                     try
                     {
                         discoverer = ExtensibilityPointFactory.GetDataDiscoverer(DiagnosticMessageSink, discovererType);
@@ -88,6 +89,12 @@ namespace Xunit.Sdk
                         continue;
                     }
 
+                    if (discoverer == null)
+                    {
+                        Aggregator.Add(new InvalidOperationException($"Data discoverer type '{discovererType.FullName}' could not be constructed"));
+                        continue;
+                    }
+
                     var data = discoverer.GetData(dataAttribute, TestCase.TestMethod.Method);
                     if (data == null)
                     {
@@ -99,7 +106,7 @@ namespace Xunit.Sdk
                     {
                         toDispose.AddRange(dataRow.OfType<IDisposable>());
 
-                        ITypeInfo[] resolvedTypes = null;
+                        ITypeInfo[]? resolvedTypes = null;
                         var methodToRun = TestMethod;
                         var convertedDataRow = methodToRun.ResolveMethodArguments(dataRow);
 
@@ -161,7 +168,7 @@ namespace Xunit.Sdk
 
             if (!MessageBus.QueueMessage(new TestStarting(test)))
                 CancellationTokenSource.Cancel();
-            else if (!MessageBus.QueueMessage(new TestFailed(test, 0, null, dataDiscoveryException.Unwrap())))
+            else if (!MessageBus.QueueMessage(new TestFailed(test, 0, null, dataDiscoveryException!.Unwrap())))
                 CancellationTokenSource.Cancel();
             if (!MessageBus.QueueMessage(new TestFinished(test, 0, null)))
                 CancellationTokenSource.Cancel();

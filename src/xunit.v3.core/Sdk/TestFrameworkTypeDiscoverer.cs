@@ -11,9 +11,12 @@ namespace Xunit.Sdk
     public class TestFrameworkTypeDiscoverer : ITestFrameworkTypeDiscoverer
     {
         /// <inheritdoc/>
-        public Type GetTestFrameworkType(IAttributeInfo attribute)
+        public Type? GetTestFrameworkType(IAttributeInfo attribute)
         {
+            Guard.ArgumentNotNull(nameof(attribute), attribute);
+
             var args = attribute.GetConstructorArguments().Cast<string>().ToArray();
+
             return SerializationHelper.GetType(args[1], args[0]);
         }
     }

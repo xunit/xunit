@@ -12,6 +12,10 @@ namespace Xunit.Sdk
     /// </summary>
     public abstract class TestFrameworkDiscoverer : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer
     {
+        IAssemblyInfo assemblyInfo;
+        IMessageSink diagnosticMessageSink;
+        DisposalTracker disposalTracker = new DisposalTracker();
+        ISourceInformationProvider sourceProvider;
         readonly Lazy<string> targetFramework;
 
         /// <summary>
@@ -20,22 +24,18 @@ namespace Xunit.Sdk
         /// <param name="assemblyInfo">The test assembly.</param>
         /// <param name="sourceProvider">The source information provider.</param>
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
-        protected TestFrameworkDiscoverer(IAssemblyInfo assemblyInfo,
-                                          ISourceInformationProvider sourceProvider,
-                                          IMessageSink diagnosticMessageSink)
+        protected TestFrameworkDiscoverer(
+            IAssemblyInfo assemblyInfo,
+            ISourceInformationProvider sourceProvider,
+            IMessageSink diagnosticMessageSink)
         {
-            Guard.ArgumentNotNull("assemblyInfo", assemblyInfo);
-            Guard.ArgumentNotNull("sourceProvider", sourceProvider);
-            Guard.ArgumentNotNull("diagnosticMessageSink", diagnosticMessageSink);
-
-            AssemblyInfo = assemblyInfo;
-            DiagnosticMessageSink = diagnosticMessageSink;
-            DisposalTracker = new DisposalTracker();
-            SourceProvider = sourceProvider;
+            this.assemblyInfo = Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
+            this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+            this.sourceProvider = Guard.ArgumentNotNull(nameof(sourceProvider), sourceProvider);
 
             targetFramework = new Lazy<string>(() =>
             {
-                string result = null;
+                string? result = null;
 
                 var attrib = AssemblyInfo.GetCustomAttributes(typeof(TargetFrameworkAttribute)).FirstOrDefault();
                 if (attrib != null)
@@ -48,28 +48,44 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets the assembly that's being discovered.
         /// </summary>
-        protected internal IAssemblyInfo AssemblyInfo { get; set; }
+        protected internal IAssemblyInfo AssemblyInfo
+        {
+            get => assemblyInfo;
+            set => assemblyInfo = Guard.ArgumentNotNull(nameof(AssemblyInfo), value);
+        }
 
         /// <summary>
         /// Gets the message sink used to report diagnostic messages.
         /// </summary>
-        protected IMessageSink DiagnosticMessageSink { get; set; }
+        protected IMessageSink DiagnosticMessageSink
+        {
+            get => diagnosticMessageSink;
+            set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
+        }
 
         /// <summary>
         /// Gets the disposal tracker for the test framework discoverer.
         /// </summary>
-        protected DisposalTracker DisposalTracker { get; set; }
+        protected DisposalTracker DisposalTracker
+        {
+            get => disposalTracker;
+            set => disposalTracker = Guard.ArgumentNotNull(nameof(DisposalTracker), value);
+        }
 
         /// <summary>
         /// Get the source code information provider used during discovery.
         /// </summary>
-        protected ISourceInformationProvider SourceProvider { get; set; }
+        protected ISourceInformationProvider SourceProvider
+        {
+            get => sourceProvider;
+            set => sourceProvider = Guard.ArgumentNotNull(nameof(SourceProvider), value);
+        }
 
         /// <inheritdoc/>
-        public string TargetFramework { get { return targetFramework.Value; } }
+        public string TargetFramework => targetFramework.Value;
 
         /// <inheritdoc/>
-        public string TestFrameworkDisplayName { get; protected set; }
+        public abstract string TestFrameworkDisplayName { get; }
 
         /// <summary>
         /// Implement this method to create a test class for the given CLR type.
@@ -79,10 +95,8 @@ namespace Xunit.Sdk
         protected internal abstract ITestClass CreateTestClass(ITypeInfo @class);
 
         /// <inheritdoc/>
-        public void Dispose()
-        {
+        public void Dispose() =>
             DisposalTracker.Dispose();
-        }
 
         /// <inheritdoc/>
         public void Find(bool includeSourceInformation, IMessageSink discoveryMessageSink, ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -147,9 +161,18 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message sink to send discovery messages to.</param>
         /// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
         /// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
-        protected abstract bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions);
+        protected abstract bool FindTestsForType(
+            ITestClass testClass,
+            bool includeSourceInformation,
+            IMessageBus messageBus,
+            ITestFrameworkDiscoveryOptions discoveryOptions
+        );
 
-        bool FindTestsForTypeAndWrapExceptions(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
+        bool FindTestsForTypeAndWrapExceptions(
+            ITestClass testClass,
+            bool includeSourceInformation,
+            IMessageBus messageBus,
+            ITestFrameworkDiscoveryOptions discoveryOptions)
         {
             try
             {
@@ -170,6 +193,8 @@ namespace Xunit.Sdk
         /// <returns>Returns <c>true</c> if the type can contain tests; <c>false</c>, otherwise.</returns>
         protected virtual bool IsValidTestClass(ITypeInfo type)
         {
+            Guard.ArgumentNotNull(nameof(type), type);
+
             return !type.IsAbstract || type.IsSealed;
         }
 
@@ -183,6 +208,9 @@ namespace Xunit.Sdk
         /// <returns></returns>
         protected bool ReportDiscoveredTestCase(ITestCase testCase, bool includeSourceInformation, IMessageBus messageBus)
         {
+            Guard.ArgumentNotNull(nameof(testCase), testCase);
+            Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+
             if (includeSourceInformation && SourceProvider != null)
                 testCase.SourceInformation = SourceProvider.GetSourceInformation(testCase);
 
@@ -192,6 +220,8 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public virtual string Serialize(ITestCase testCase)
         {
+            Guard.ArgumentNotNull(nameof(testCase), testCase);
+
             return SerializationHelper.Serialize(testCase);
         }
 

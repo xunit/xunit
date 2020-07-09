@@ -18,7 +18,16 @@ namespace Xunit.Sdk
     public abstract class TestInvoker<TTestCase>
         where TTestCase : ITestCase
     {
-        static MethodInfo startAsTaskOpenGenericMethod;
+        static MethodInfo? startAsTaskOpenGenericMethod;
+
+        ExceptionAggregator aggregator;
+        CancellationTokenSource cancellationTokenSource;
+        object?[] constructorArguments;
+        IMessageBus messageBus;
+        ITest test;
+        Type testClass;
+        MethodInfo testMethod;
+        ExecutionTimer timer = new ExecutionTimer();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestInvoker{TTestCase}"/> class.
@@ -31,82 +40,115 @@ namespace Xunit.Sdk
         /// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        protected TestInvoker(ITest test,
-                              IMessageBus messageBus,
-                              Type testClass,
-                              object[] constructorArguments,
-                              MethodInfo testMethod,
-                              object[] testMethodArguments,
-                              ExceptionAggregator aggregator,
-                              CancellationTokenSource cancellationTokenSource)
+        protected TestInvoker(
+            ITest test,
+            IMessageBus messageBus,
+            Type testClass,
+            object?[] constructorArguments,
+            MethodInfo testMethod,
+            object?[]? testMethodArguments,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
         {
-            Guard.ArgumentNotNull("test", test);
-            Guard.ArgumentValid("test", "test.TestCase must implement " + typeof(TTestCase).FullName, test.TestCase is TTestCase);
+            this.test = Guard.ArgumentNotNull(nameof(test), test);
+            this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+            this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
+            this.constructorArguments = Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
+            this.testMethod = Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+            this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
+            this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
 
-            Test = test;
-            MessageBus = messageBus;
-            TestClass = testClass;
-            ConstructorArguments = constructorArguments;
-            TestMethod = testMethod;
             TestMethodArguments = testMethodArguments;
-            Aggregator = aggregator;
-            CancellationTokenSource = cancellationTokenSource;
+
+            Guard.ArgumentValid("test", $"test.TestCase must implement {typeof(TTestCase).FullName}", test.TestCase is TTestCase);
         }
 
         /// <summary>
         /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
-        protected ExceptionAggregator Aggregator { get; set; }
+        protected ExceptionAggregator Aggregator
+        {
+            get => aggregator;
+            set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+        }
 
         /// <summary>
         /// Gets or sets the task cancellation token source, used to cancel the test run.
         /// </summary>
-        protected CancellationTokenSource CancellationTokenSource { get; set; }
+        protected CancellationTokenSource CancellationTokenSource
+        {
+            get => cancellationTokenSource;
+            set => cancellationTokenSource = Guard.ArgumentNotNull(nameof(CancellationTokenSource), value);
+        }
 
         /// <summary>
         /// Gets or sets the constructor arguments used to construct the test class.
         /// </summary>
-        protected object[] ConstructorArguments { get; set; }
+        protected object?[] ConstructorArguments
+        {
+            get => constructorArguments;
+            set => constructorArguments = Guard.ArgumentNotNull(nameof(ConstructorArguments), value);
+        }
 
         /// <summary>
         /// Gets the display name of the invoked test.
         /// </summary>
-        protected string DisplayName { get { return Test.DisplayName; } }
+        protected string DisplayName => Test.DisplayName;
 
         /// <summary>
         /// Gets or sets the message bus to report run status to.
         /// </summary>
-        protected IMessageBus MessageBus { get; set; }
+        protected IMessageBus MessageBus
+        {
+            get => messageBus;
+            set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
+        }
 
         /// <summary>
         /// Gets or sets the test to be run.
         /// </summary>
-        protected ITest Test { get; set; }
+        protected ITest Test
+        {
+            get => test;
+            set => test = Guard.ArgumentNotNull(nameof(Test), value);
+        }
 
         /// <summary>
         /// Gets the test case to be run.
         /// </summary>
-        protected TTestCase TestCase { get { return (TTestCase)Test.TestCase; } }
+        protected TTestCase TestCase => (TTestCase)Test.TestCase;
 
         /// <summary>
         /// Gets or sets the runtime type of the class that contains the test method.
         /// </summary>
-        protected Type TestClass { get; set; }
+        protected Type TestClass
+        {
+            get => testClass;
+            set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
+        }
 
         /// <summary>
         /// Gets or sets the runtime method of the method that contains the test.
         /// </summary>
-        protected MethodInfo TestMethod { get; set; }
+        protected MethodInfo TestMethod
+        {
+            get => testMethod;
+            set => testMethod = Guard.ArgumentNotNull(nameof(TestMethod), value);
+        }
 
         /// <summary>
         /// Gets or sets the arguments to pass to the test method when it's being invoked.
         /// </summary>
-        protected object[] TestMethodArguments { get; set; }
+        protected object?[]? TestMethodArguments { get; set; }
 
         /// <summary>
         /// Gets or sets the object which measures execution time.
         /// </summary>
-        protected ExecutionTimer Timer { get; set; } = new ExecutionTimer();
+        protected ExecutionTimer Timer
+        {
+            get => timer;
+            set => timer = Guard.ArgumentNotNull(nameof(Timer), value);
+        }
 
         /// <summary>
         /// Creates the test class, unless the test method is static or there have already been errors. Note that
@@ -116,9 +158,9 @@ namespace Xunit.Sdk
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
         /// <returns>The class instance, if appropriate; <c>null</c>, otherwise</returns>
-        protected virtual object CreateTestClass()
+        protected virtual object? CreateTestClass()
         {
-            object testClass = null;
+            object? testClass = null;
 
             if (!TestMethod.IsStatic && !Aggregator.HasExceptions)
                 testClass = Test.CreateTestClass(TestClass, ConstructorArguments, MessageBus, Timer, CancellationTokenSource);
@@ -130,15 +172,13 @@ namespace Xunit.Sdk
         /// This method is called just after the test method has finished executing.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual Task AfterTestMethodInvokedAsync()
-            => CommonTasks.Completed;
+        protected virtual Task AfterTestMethodInvokedAsync() => Task.CompletedTask;
 
         /// <summary>
         /// This method is called just before the test method is invoked.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual Task BeforeTestMethodInvokedAsync()
-            => CommonTasks.Completed;
+        protected virtual Task BeforeTestMethodInvokedAsync() => Task.CompletedTask;
 
         /// <summary>
         /// This method calls the test method via reflection. This is an available override point
@@ -146,8 +186,8 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testClassInstance">The instance of the test class</param>
         /// <returns>The return value from the test method invocation</returns>
-        protected virtual object CallTestMethod(object testClassInstance)
-            => TestMethod.Invoke(testClassInstance, TestMethodArguments);
+        protected virtual object? CallTestMethod(object? testClassInstance) =>
+            TestMethod.Invoke(testClassInstance, TestMethodArguments);
 
         /// <summary>
         /// Given an object, will determine if it is an instance of <see cref="Task"/> (in which case, it is
@@ -155,7 +195,7 @@ namespace Xunit.Sdk
         /// (in which case it is converted), or neither (in which case <c>null</c> is returned).
         /// </summary>
         /// <param name="obj">The object to convert</param>
-        public static Task GetTaskFromResult(object obj)
+        public static Task? GetTaskFromResult(object? obj)
         {
             if (obj == null)
                 return null;
@@ -167,12 +207,20 @@ namespace Xunit.Sdk
             if (type.IsGenericType() && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
             {
                 if (startAsTaskOpenGenericMethod == null)
-                    startAsTaskOpenGenericMethod = type.GetAssembly().GetType("Microsoft.FSharp.Control.FSharpAsync")
-                                                                     .GetRuntimeMethods()
-                                                                     .FirstOrDefault(m => m.Name == "StartAsTask");
+                {
+                    startAsTaskOpenGenericMethod = type
+                        .GetAssembly()
+                        .GetType("Microsoft.FSharp.Control.FSharpAsync")?
+                        .GetRuntimeMethods()
+                        .FirstOrDefault(m => m.Name == "StartAsTask");
 
-                return startAsTaskOpenGenericMethod.MakeGenericMethod(type.GetGenericArguments()[0])
-                                                   .Invoke(null, new[] { obj, null, null }) as Task;
+                    if (startAsTaskOpenGenericMethod == null)
+                        throw new InvalidOperationException("Test returned an F# async result, but could not find 'Microsoft.FSharp.Control.FSharpAsync.StartAsTask'");
+                }
+
+                return startAsTaskOpenGenericMethod
+                    .MakeGenericMethod(type.GetGenericArguments()[0])
+                    .Invoke(null, new[] { obj, null, null }) as Task;
             }
 
             return null;
@@ -228,7 +276,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="testClassInstance">The test class instance</param>
         /// <returns>Returns the time taken to invoke the test method</returns>
-        protected virtual async Task<decimal> InvokeTestMethodAsync(object testClassInstance)
+        protected virtual async Task<decimal> InvokeTestMethodAsync(object? testClassInstance)
         {
             var oldSyncContext = SynchronizationContext.Current;
 
@@ -282,7 +330,7 @@ namespace Xunit.Sdk
         }
 
         [SecuritySafeCritical]
-        static void SetSynchronizationContext(SynchronizationContext context)
-            => SynchronizationContext.SetSynchronizationContext(context);
+        static void SetSynchronizationContext(SynchronizationContext? context) =>
+            SynchronizationContext.SetSynchronizationContext(context);
     }
 }

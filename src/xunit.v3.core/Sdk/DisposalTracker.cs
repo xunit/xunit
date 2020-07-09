@@ -9,13 +9,13 @@ namespace Xunit.Sdk
     /// </summary>
     public class DisposalTracker : IDisposable
     {
-        readonly Stack<IDisposable> toDispose = new Stack<IDisposable>();
+        readonly Stack<IDisposable?> toDispose = new Stack<IDisposable?>();
 
         /// <summary>
         /// Add an object to be disposed.
         /// </summary>
         /// <param name="disposable">The object to be disposed.</param>
-        public void Add(IDisposable disposable)
+        public void Add(IDisposable? disposable)
         {
             toDispose.Push(disposable);
         }
@@ -24,7 +24,7 @@ namespace Xunit.Sdk
         public void Dispose()
         {
             foreach (var disposable in toDispose)
-                disposable.Dispose();
+                disposable?.Dispose();
 
             toDispose.Clear();
         }

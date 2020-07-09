@@ -25,33 +25,33 @@ namespace Xunit.Sdk
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         public CollectionPerAssemblyTestCollectionFactory(ITestAssembly testAssembly, IMessageSink diagnosticMessageSink)
         {
-            this.testAssembly = testAssembly;
+            Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+
+            this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
 
             defaultCollection = new TestCollection(testAssembly, null, "Test collection for " + Path.GetFileName(testAssembly.Assembly.AssemblyPath));
             collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, diagnosticMessageSink);
         }
 
         /// <inheritdoc/>
-        public string DisplayName
-        {
-            get { return "collection-per-assembly"; }
-        }
+        public string DisplayName => "collection-per-assembly";
 
         ITestCollection CreateTestCollection(string name)
         {
-            ITypeInfo definitionType;
-            collectionDefinitions.TryGetValue(name, out definitionType);
+            collectionDefinitions.TryGetValue(name, out var definitionType);
             return new TestCollection(testAssembly, definitionType, name);
         }
 
         /// <inheritdoc/>
         public ITestCollection Get(ITypeInfo testClass)
         {
+            Guard.ArgumentNotNull(nameof(testClass), testClass);
+
             var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
             if (collectionAttribute == null)
                 return defaultCollection;
 
-            var collectionName = (string)collectionAttribute.GetConstructorArguments().First();
+            var collectionName = collectionAttribute.GetConstructorArguments().Cast<string>().Single();
             return testCollections.GetOrAdd(collectionName, CreateTestCollection);
         }
     }

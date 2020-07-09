@@ -8,11 +8,11 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// Wrapper to implement types from xunit.abstractions.dll using reflection.
+    /// Wrapper to return IReflection*Info implementations for System.Reflection types.
     /// </summary>
     public static class Reflector
     {
-        internal readonly static object[] EmptyArgs = new object[0];
+        internal readonly static object?[] EmptyArgs = new object?[0];
         internal readonly static Type[] EmptyTypes = new Type[0];
 
         readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "Cast");
@@ -25,7 +25,7 @@ namespace Xunit.Sdk
         /// <param name="args">The arguments to be converted.</param>
         /// <param name="types">The target types for the conversion.</param>
         /// <returns>The converted arguments.</returns>
-        public static object[] ConvertArguments(object[] args, Type[] types)
+        public static object?[] ConvertArguments(object?[]? args, Type[]? types)
         {
             if (args == null)
                 args = EmptyArgs;
@@ -33,17 +33,13 @@ namespace Xunit.Sdk
                 types = EmptyTypes;
 
             if (args.Length == types.Length)
-            {
                 for (var idx = 0; idx < args.Length; idx++)
-                {
                     args[idx] = ConvertArgument(args[idx], types[idx]);
-                }
-            }
 
             return args;
         }
 
-        internal static object ConvertArgument(object arg, Type type)
+        internal static object? ConvertArgument(object? arg, Type type)
         {
             if (arg != null && !type.IsAssignableFrom(arg.GetType()))
             {
@@ -52,33 +48,31 @@ namespace Xunit.Sdk
                     if (type.IsArray)
                     {
                         var elementType = type.GetElementType();
+                        if (elementType == null)
+                            throw new ArgumentException("Could not determine array element type", nameof(type));
+
                         var enumerable = (IEnumerable<object>)arg;
                         var castMethod = EnumerableCast.MakeGenericMethod(elementType);
                         var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
-                        return toArrayMethod.Invoke(null, new object[] { castMethod.Invoke(null, new object[] { enumerable }) });
+                        return toArrayMethod.Invoke(null, new object?[] { castMethod.Invoke(null, new object[] { enumerable }) });
                     }
                     else
                     {
                         if (type == typeof(Guid))
-                        {
-                            return Guid.Parse(arg.ToString());
-                        }
+                            return Guid.Parse(arg.ToString()!);
 
                         if (type == typeof(DateTime))
-                        {
-                            return DateTime.Parse(arg.ToString(), CultureInfo.InvariantCulture);
-                        }
+                            return DateTime.Parse(arg.ToString()!, CultureInfo.InvariantCulture);
 
                         if (type == typeof(DateTimeOffset))
-                        {
-                            return DateTimeOffset.Parse(arg.ToString(), CultureInfo.InvariantCulture);
-                        }
+                            return DateTimeOffset.Parse(arg.ToString()!, CultureInfo.InvariantCulture);
 
                         return Convert.ChangeType(arg, type);
                     }
                 }
                 catch { } // Eat conversion-related exceptions; they'll get re-surfaced during execution
             }
+
             return arg;
         }
 
@@ -89,6 +83,8 @@ namespace Xunit.Sdk
         /// <returns>The wrapper</returns>
         public static IReflectionAssemblyInfo Wrap(Assembly assembly)
         {
+            Guard.ArgumentNotNull(nameof(assembly), assembly);
+
             return new ReflectionAssemblyInfo(assembly);
         }
 
@@ -99,6 +95,8 @@ namespace Xunit.Sdk
         /// <returns>The wrapper</returns>
         public static IReflectionAttributeInfo Wrap(CustomAttributeData attribute)
         {
+            Guard.ArgumentNotNull(nameof(attribute), attribute);
+
             return new ReflectionAttributeInfo(attribute);
         }
 
@@ -109,6 +107,8 @@ namespace Xunit.Sdk
         /// <returns>The wrapper</returns>
         public static IReflectionMethodInfo Wrap(MethodInfo method)
         {
+            Guard.ArgumentNotNull(nameof(method), method);
+
             return new ReflectionMethodInfo(method);
         }
 
@@ -119,6 +119,8 @@ namespace Xunit.Sdk
         /// <returns>The wrapper</returns>
         public static IReflectionParameterInfo Wrap(ParameterInfo parameter)
         {
+            Guard.ArgumentNotNull(nameof(parameter), parameter);
+
             return new ReflectionParameterInfo(parameter);
         }
 
@@ -129,6 +131,8 @@ namespace Xunit.Sdk
         /// <returns>The wrapper</returns>
         public static IReflectionTypeInfo Wrap(Type type)
         {
+            Guard.ArgumentNotNull(nameof(type), type);
+
             return new ReflectionTypeInfo(type);
         }
     }

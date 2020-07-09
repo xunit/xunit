@@ -11,15 +11,15 @@ namespace Xunit.Sdk
     public class AsyncTestSyncContext : SynchronizationContext
     {
         readonly AsyncManualResetEvent @event = new AsyncManualResetEvent(true);
-        Exception exception;
-        readonly SynchronizationContext innerContext;
+        Exception? exception;
+        readonly SynchronizationContext? innerContext;
         int operationCount;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncTestSyncContext"/> class.
         /// </summary>
         /// <param name="innerContext">The existing synchronization context (may be <c>null</c>).</param>
-        public AsyncTestSyncContext(SynchronizationContext innerContext)
+        public AsyncTestSyncContext(SynchronizationContext? innerContext)
         {
             this.innerContext = innerContext;
         }
@@ -40,7 +40,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public override void Post(SendOrPostCallback d, object state)
+        public override void Post(SendOrPostCallback d, object? state)
         {
             // The call to Post() may be the state machine signaling that an exception is
             // about to be thrown, so we make sure the operation count gets incremented
@@ -88,7 +88,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public override void Send(SendOrPostCallback d, object state)
+        public override void Send(SendOrPostCallback d, object? state)
         {
             try
             {
@@ -106,7 +106,7 @@ namespace Xunit.Sdk
         /// <summary>
         /// Returns a task which is signaled when all outstanding operations are complete.
         /// </summary>
-        public async Task<Exception> WaitForCompletionAsync()
+        public async Task<Exception?> WaitForCompletionAsync()
         {
             await @event.WaitAsync();
 

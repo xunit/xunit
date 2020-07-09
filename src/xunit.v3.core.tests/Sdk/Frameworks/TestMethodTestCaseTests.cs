@@ -145,9 +145,9 @@ public class TestMethodTestCaseTests
         [Fact]
         public static void UniqueID_Arguments()
         {
-            var value42 = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object[] { 42 }).UniqueID;
-            var valueHelloWorld = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object[] { "Hello, world!" }).UniqueID;
-            var valueNull = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object[] { (string)null }).UniqueID;
+            var value42 = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { 42 }).UniqueID;
+            var valueHelloWorld = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { "Hello, world!" }).UniqueID;
+            var valueNull = TestableTestMethodTestCase.Create<ClassUnderTest>("TestMethod", new object?[] { (string?)null }).UniqueID;
 
             Assert.NotEmpty(value42);
             Assert.NotEqual(value42, valueHelloWorld);
@@ -165,13 +165,16 @@ public class TestMethodTestCaseTests
     {
         public TestableTestMethodTestCase() { }
 
-        public TestableTestMethodTestCase(ITestMethod testMethod,
-                                          object[] testMethodArguments = null,
-                                          TestMethodDisplay defaultMethodDisplay = TestMethodDisplay.ClassAndMethod,
-                                          TestMethodDisplayOptions defaultMethodDisplayOptions = TestMethodDisplayOptions.None)
-            : base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments) { }
+        public TestableTestMethodTestCase(
+            ITestMethod testMethod,
+            object?[]? testMethodArguments = null,
+            TestMethodDisplay defaultMethodDisplay = TestMethodDisplay.ClassAndMethod,
+            TestMethodDisplayOptions defaultMethodDisplayOptions = TestMethodDisplayOptions.None)
+                : base(defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments) { }
 
-        public static TestableTestMethodTestCase Create<TClass>(string methodName, object[] testMethodArguments = null)
+        public static TestableTestMethodTestCase Create<TClass>(
+            string methodName,
+            object?[]? testMethodArguments = null)
         {
             var testMethod = Mocks.TestMethod(typeof(TClass), methodName);
             return new TestableTestMethodTestCase(testMethod, testMethodArguments);

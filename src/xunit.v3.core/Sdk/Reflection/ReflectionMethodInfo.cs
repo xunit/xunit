@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -14,7 +13,8 @@ namespace Xunit.Sdk
     public class ReflectionMethodInfo : LongLivedMarshalByRefObject, IReflectionMethodInfo
     {
         static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
-        static readonly IEqualityComparer<IEnumerable<Type>> TypeListComparer = new AssertEqualityComparer<IEnumerable<Type>>(innerComparer: TypeComparer);
+
+        IEnumerable<IParameterInfo>? cachedParameters = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflectionMethodInfo"/> class.
@@ -22,71 +22,58 @@ namespace Xunit.Sdk
         /// <param name="method">The method to be wrapped.</param>
         public ReflectionMethodInfo(MethodInfo method)
         {
-            MethodInfo = method;
+            MethodInfo = Guard.ArgumentNotNull(nameof(method), method);
         }
 
         /// <inheritdoc/>
-        public bool IsAbstract
-        {
-            get { return MethodInfo.IsAbstract; }
-        }
+        public bool IsAbstract => MethodInfo.IsAbstract;
 
         /// <inheritdoc/>
-        public bool IsGenericMethodDefinition
-        {
-            get { return MethodInfo.IsGenericMethodDefinition; }
-        }
+        public bool IsGenericMethodDefinition => MethodInfo.IsGenericMethodDefinition;
 
         /// <inheritdoc/>
-        public bool IsPublic
-        {
-            get { return MethodInfo.IsPublic; }
-        }
+        public bool IsPublic => MethodInfo.IsPublic;
 
         /// <inheritdoc/>
-        public bool IsStatic
-        {
-            get { return MethodInfo.IsStatic; }
-        }
+        public bool IsStatic => MethodInfo.IsStatic;
 
         /// <inheritdoc/>
-        public MethodInfo MethodInfo { get; private set; }
+        public MethodInfo MethodInfo { get; }
 
         /// <inheritdoc/>
-        public string Name
-        {
-            get { return MethodInfo.Name; }
-        }
+        public string Name => MethodInfo.Name;
 
         /// <inheritdoc/>
-        public ITypeInfo ReturnType
-        {
-            get { return Reflector.Wrap(MethodInfo.ReturnType); }
-        }
+        public ITypeInfo ReturnType => Reflector.Wrap(MethodInfo.ReturnType);
 
         /// <inheritdoc/>
-        public ITypeInfo Type
-        {
-            get { return Reflector.Wrap(MethodInfo.ReflectedType); }
-        }
+        public ITypeInfo Type => Reflector.Wrap(MethodInfo.ReflectedType!);
 
         /// <inheritdoc/>
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
+            Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
+
             return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).CastOrToList();
         }
 
         static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, string assemblyQualifiedAttributeTypeName)
         {
+            Guard.ArgumentNotNull(nameof(method), method);
+            Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
+
             var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
+
+            Guard.ArgumentValidNotNull(nameof(assemblyQualifiedAttributeTypeName), $"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType);
 
             return GetCustomAttributes(method, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
         }
 
         static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType, AttributeUsageAttribute attributeUsage)
         {
-            List<ReflectionAttributeInfo> list = null;
-            foreach (CustomAttributeData attr in method.CustomAttributes)
+            List<ReflectionAttributeInfo>? list = null;
+
+            foreach (var attr in method.CustomAttributes)
             {
                 if (attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
                 {
@@ -100,7 +87,7 @@ namespace Xunit.Sdk
             if (list != null)
                 list.Sort((left, right) => string.Compare(left.AttributeData.AttributeType.Name, right.AttributeData.AttributeType.Name, StringComparison.Ordinal));
 
-            IEnumerable<IAttributeInfo> results = list ?? Enumerable.Empty<IAttributeInfo>();
+            var results = list ?? Enumerable.Empty<IAttributeInfo>();
 
             if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
             {
@@ -114,12 +101,10 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public IEnumerable<ITypeInfo> GetGenericArguments()
-        {
-            return MethodInfo.GetGenericArguments().Select(t => Reflector.Wrap(t)).ToArray();
-        }
+        public IEnumerable<ITypeInfo> GetGenericArguments() =>
+            MethodInfo.GetGenericArguments().Select(t => Reflector.Wrap(t)).ToArray();
 
-        static MethodInfo GetParent(MethodInfo method)
+        static MethodInfo? GetParent(MethodInfo method)
         {
             if (!method.IsVirtual)
                 return null;
@@ -129,13 +114,13 @@ namespace Xunit.Sdk
 
             var currentType = method.DeclaringType;
 
-            while (currentType != typeof(object))
+            while (currentType != typeof(object) && currentType != null)
             {
                 currentType = currentType.GetTypeInfo().BaseType;
                 if (currentType == null)
                     return null;
 
-                foreach (MethodInfo m in currentType.GetMatchingMethods(method))
+                foreach (var m in currentType.GetMatchingMethods(method))
                 {
                     if (m.Name == method.Name &&
                         m.GetGenericArguments().Length == methodGenericArgCount &&
@@ -152,11 +137,9 @@ namespace Xunit.Sdk
             if (left.Length != right.Length)
                 return false;
 
-            for (int i = 0; i < left.Length; i++)
-            {
+            for (var i = 0; i < left.Length; i++)
                 if (!TypeComparer.Equals(left[i].ParameterType, right[i].ParameterType))
                     return false;
-            }
 
             return true;
         }
@@ -164,39 +147,42 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public IMethodInfo MakeGenericMethod(params ITypeInfo[] typeArguments)
         {
+            Guard.ArgumentNotNull(nameof(typeArguments), typeArguments);
+
             var unwrapedTypeArguments = typeArguments.Select(t => ((IReflectionTypeInfo)t).Type).ToArray();
+
             return Reflector.Wrap(MethodInfo.MakeGenericMethod(unwrapedTypeArguments));
         }
 
         /// <inheritdoc/>
-        public override string ToString()
-        {
-            return MethodInfo.ToString();
-        }
-
-        private IEnumerable<IParameterInfo> _cachedParameters = null;
+        public override string? ToString() => MethodInfo.ToString();
 
         /// <inheritdoc/>
         public IEnumerable<IParameterInfo> GetParameters()
         {
-            if (_cachedParameters == null)
+            if (cachedParameters == null)
             {
-                ParameterInfo[] parameters = MethodInfo.GetParameters();
+                var parameters = MethodInfo.GetParameters();
+                var parameterInfos = new IParameterInfo[parameters.Length];
 
-                IParameterInfo[] iParameters = new IParameterInfo[parameters.Length];
-                for (int i = 0; i < iParameters.Length; i++)
-                {
-                    iParameters[i] = Reflector.Wrap(parameters[i]);
-                }
-                _cachedParameters = iParameters;
+                for (var i = 0; i < parameterInfos.Length; i++)
+                    parameterInfos[i] = Reflector.Wrap(parameters[i]);
+
+                cachedParameters = parameterInfos;
             }
-            return _cachedParameters;
+
+            return cachedParameters;
         }
 
         class GenericTypeComparer : IEqualityComparer
         {
-            bool IEqualityComparer.Equals(object x, object y)
+            bool IEqualityComparer.Equals(object? x, object? y)
             {
+                if (x == null && y == null)
+                    return true;
+                if (x == null || y == null)
+                    return false;
+
                 var typeX = (Type)x;
                 var typeY = (Type)y;
 
@@ -206,7 +192,6 @@ namespace Xunit.Sdk
                 return typeX == typeY;
             }
 
-            [SuppressMessage("Code Notifications", "RECS0083:Shows NotImplementedException throws in the quick task bar", Justification = "This class is not intended to be used in a hashed container")]
             int IEqualityComparer.GetHashCode(object obj)
             {
                 throw new NotImplementedException();

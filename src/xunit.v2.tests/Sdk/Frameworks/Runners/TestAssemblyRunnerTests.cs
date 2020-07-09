@@ -397,14 +397,14 @@ public class TestAssemblyRunnerTests
         {
             AfterTestAssemblyStarting_Called = true;
             AfterTestAssemblyStarting_Callback(Aggregator);
-            return Task.FromResult(0);
+            return TaskHelpers.CompletedTask;
         }
 
         protected override Task BeforeTestAssemblyFinishedAsync()
         {
             BeforeTestAssemblyFinished_Called = true;
             BeforeTestAssemblyFinished_Callback(Aggregator);
-            return Task.FromResult(0);
+            return TaskHelpers.CompletedTask;
         }
 
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<ITestCase> testCases, CancellationTokenSource cancellationTokenSource)

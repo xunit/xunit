@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System.Linq;
+﻿using System.Linq;
 using Xunit.Abstractions;
 
 #if XUNIT_FRAMEWORK

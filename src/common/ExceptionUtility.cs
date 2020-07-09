@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
@@ -35,7 +33,11 @@ namespace Xunit
         {
             Guard.ArgumentNotNull("stackFrame", stackFrame);
 
+#if DEBUG
+            return false;
+#else
             return stackFrame.StartsWith("at Xunit.", StringComparison.Ordinal);
+#endif
         }
 
         static string? FilterStackTrace(string? stack)
@@ -55,7 +57,7 @@ namespace Xunit
             return string.Join(Environment.NewLine, results.ToArray());
         }
 
-        static string GetAt(string[] values, int index)
+        static string GetAt(string?[]? values, int index)
         {
             if (values == null || index < 0 || values.Length <= index)
                 return string.Empty;
@@ -63,7 +65,7 @@ namespace Xunit
             return values[index] ?? string.Empty;
         }
 
-        static int GetAt(int[] values, int index)
+        static int GetAt(int[]? values, int index)
         {
             if (values == null || values.Length <= index)
                 return -1;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -9,11 +10,14 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// The test class runner for xUnit.net v2 tests.
+    /// The test class runner for xUnit.net v3 tests.
     /// </summary>
     public class XunitTestClassRunner : TestClassRunner<IXunitTestCase>
     {
         readonly IDictionary<Type, object> collectionFixtureMappings;
+
+        Dictionary<Type, object> classFixtureMappings = new Dictionary<Type, object>();
+        HashSet<IAsyncLifetime> initializedAsyncFixtures = new HashSet<IAsyncLifetime>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
@@ -27,29 +31,38 @@ namespace Xunit.Sdk
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         /// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
-        public XunitTestClassRunner(ITestClass testClass,
-                                    IReflectionTypeInfo @class,
-                                    IEnumerable<IXunitTestCase> testCases,
-                                    IMessageSink diagnosticMessageSink,
-                                    IMessageBus messageBus,
-                                    ITestCaseOrderer testCaseOrderer,
-                                    ExceptionAggregator aggregator,
-                                    CancellationTokenSource cancellationTokenSource,
-                                    IDictionary<Type, object> collectionFixtureMappings)
-            : base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+        public XunitTestClassRunner(
+            ITestClass testClass,
+            IReflectionTypeInfo @class,
+            IEnumerable<IXunitTestCase> testCases,
+            IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus,
+            ITestCaseOrderer testCaseOrderer,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource,
+            IDictionary<Type, object> collectionFixtureMappings)
+                : base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
-            this.collectionFixtureMappings = collectionFixtureMappings;
+            this.collectionFixtureMappings = Guard.ArgumentNotNull(nameof(collectionFixtureMappings), collectionFixtureMappings);
         }
 
         /// <summary>
         /// Gets the fixture mappings that were created during <see cref="AfterTestClassStartingAsync"/>.
         /// </summary>
-        protected Dictionary<Type, object> ClassFixtureMappings { get; set; } = new Dictionary<Type, object>();
+        protected Dictionary<Type, object> ClassFixtureMappings
+        {
+            get => classFixtureMappings;
+            set => classFixtureMappings = Guard.ArgumentNotNull(nameof(ClassFixtureMappings), value);
+        }
 
         /// <summary>
         /// Gets the already initialized async fixtures <see cref="CreateClassFixtureAsync"/>.
         /// </summary>
-        protected HashSet<IAsyncLifetime> InitializedAsyncFixtures { get; set; } = new HashSet<IAsyncLifetime>();
+        protected HashSet<IAsyncLifetime> InitializedAsyncFixtures
+        {
+            get => initializedAsyncFixtures;
+            set => initializedAsyncFixtures = Guard.ArgumentNotNull(nameof(InitializedAsyncFixtures), value);
+        }
 
         /// <summary>
         /// Creates the instance of a class fixture type to be used by the test class. If the fixture can be created,
@@ -59,10 +72,11 @@ namespace Xunit.Sdk
         /// <param name="fixtureType">The type of the fixture to be created</param>
         protected virtual void CreateClassFixture(Type fixtureType)
         {
-            var ctors = fixtureType.GetTypeInfo()
-                                   .DeclaredConstructors
-                                   .Where(ci => !ci.IsStatic && ci.IsPublic)
-                                   .ToList();
+            var ctors = fixtureType
+                .GetTypeInfo()
+                .DeclaredConstructors
+                .Where(ci => !ci.IsStatic && ci.IsPublic)
+                .ToList();
 
             if (ctors.Count != 1)
             {
@@ -74,7 +88,7 @@ namespace Xunit.Sdk
             var missingParameters = new List<ParameterInfo>();
             var ctorArgs = ctor.GetParameters().Select(p =>
             {
-                object arg;
+                object? arg;
                 if (p.ParameterType == typeof(IMessageSink))
                     arg = DiagnosticMessageSink;
                 else
@@ -106,8 +120,8 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
-            => $"The following constructor parameters did not have matching fixture data: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
+        protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments) =>
+            $"The following constructor parameters did not have matching fixture data: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
 
         /// <inheritdoc/>
         protected override async Task AfterTestClassStartingAsync()
@@ -164,11 +178,11 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
-            => new XunitTestMethodRunner(testMethod, Class, method, testCases, DiagnosticMessageSink, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
+        protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object?[] constructorArguments) =>
+            new XunitTestMethodRunner(testMethod, Class, method, testCases, DiagnosticMessageSink, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
 
         /// <inheritdoc/>
-        protected override ConstructorInfo SelectTestClassConstructor()
+        protected override ConstructorInfo? SelectTestClassConstructor()
         {
             var ctors = Class.Type.GetTypeInfo()
                                   .DeclaredConstructors
@@ -183,7 +197,7 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, out object argumentValue)
+        protected override bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, [MaybeNullWhen(false)] out object argumentValue)
         {
             if (parameter.ParameterType == typeof(ITestOutputHelper))
             {

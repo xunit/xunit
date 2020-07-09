@@ -14,22 +14,16 @@ namespace Xunit.Sdk
         /// <param name="parameterInfo">The parameter to be wrapped.</param>
         public ReflectionParameterInfo(ParameterInfo parameterInfo)
         {
-            ParameterInfo = parameterInfo;
+            ParameterInfo = Guard.ArgumentNotNull(nameof(parameterInfo), parameterInfo);
         }
 
         /// <inheritdoc/>
-        public string Name
-        {
-            get { return ParameterInfo.Name; }
-        }
+        public string Name => ParameterInfo.Name!;
 
         /// <inheritdoc/>
-        public ParameterInfo ParameterInfo { get; private set; }
+        public ParameterInfo ParameterInfo { get; }
 
         /// <inheritdoc/>
-        public ITypeInfo ParameterType
-        {
-            get { return Reflector.Wrap(ParameterInfo.ParameterType); }
-        }
+        public ITypeInfo ParameterType => Reflector.Wrap(ParameterInfo.ParameterType);
     }
 }

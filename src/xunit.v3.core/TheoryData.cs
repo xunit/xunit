@@ -6,30 +6,26 @@ namespace Xunit
     /// <summary>
     /// Provides data for theories based on collection initialization syntax.
     /// </summary>
-    public abstract class TheoryData : IEnumerable<object[]>
+    public abstract class TheoryData : IEnumerable<object?[]>
     {
-        readonly List<object[]> data = new List<object[]>();
+        readonly List<object?[]> data = new List<object?[]>();
 
         /// <summary>
         /// Adds a row to the theory.
         /// </summary>
         /// <param name="values">The values to be added.</param>
-        protected void AddRow(params object[] values)
+        protected void AddRow(params object?[] values)
         {
+            Guard.ArgumentNotNull(nameof(values), values);
+
             data.Add(values);
         }
 
         /// <inheritdoc/>
-        public IEnumerator<object[]> GetEnumerator()
-        {
-            return data.GetEnumerator();
-        }
+        public IEnumerator<object?[]> GetEnumerator() => data.GetEnumerator();
 
         /// <inheritdoc/>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     /// <summary>
@@ -43,10 +39,8 @@ namespace Xunit
         /// Adds data to the theory data set.
         /// </summary>
         /// <param name="p">The data value.</param>
-        public void Add(T p)
-        {
+        public void Add(T p) =>
             AddRow(p);
-        }
     }
 
     /// <summary>
@@ -62,10 +56,8 @@ namespace Xunit
         /// </summary>
         /// <param name="p1">The first data value.</param>
         /// <param name="p2">The second data value.</param>
-        public void Add(T1 p1, T2 p2)
-        {
+        public void Add(T1 p1, T2 p2) =>
             AddRow(p1, p2);
-        }
     }
 
     /// <summary>
@@ -83,10 +75,8 @@ namespace Xunit
         /// <param name="p1">The first data value.</param>
         /// <param name="p2">The second data value.</param>
         /// <param name="p3">The third data value.</param>
-        public void Add(T1 p1, T2 p2, T3 p3)
-        {
+        public void Add(T1 p1, T2 p2, T3 p3) =>
             AddRow(p1, p2, p3);
-        }
     }
 
     /// <summary>
@@ -106,10 +96,8 @@ namespace Xunit
         /// <param name="p2">The second data value.</param>
         /// <param name="p3">The third data value.</param>
         /// <param name="p4">The fourth data value.</param>
-        public void Add(T1 p1, T2 p2, T3 p3, T4 p4)
-        {
+        public void Add(T1 p1, T2 p2, T3 p3, T4 p4) =>
             AddRow(p1, p2, p3, p4);
-        }
     }
 
     /// <summary>
@@ -131,10 +119,8 @@ namespace Xunit
         /// <param name="p3">The third data value.</param>
         /// <param name="p4">The fourth data value.</param>
         /// <param name="p5">The fifth data value.</param>
-        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5)
-        {
+        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5) =>
             AddRow(p1, p2, p3, p4, p5);
-        }
     }
 
     /// <summary>
@@ -158,10 +144,8 @@ namespace Xunit
         /// <param name="p4">The fourth data value.</param>
         /// <param name="p5">The fifth data value.</param>
         /// <param name="p6">The sixth data value.</param>
-        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6)
-        {
+        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6) =>
             AddRow(p1, p2, p3, p4, p5, p6);
-        }
     }
 
     /// <summary>
@@ -187,10 +171,8 @@ namespace Xunit
         /// <param name="p5">The fifth data value.</param>
         /// <param name="p6">The sixth data value.</param>
         /// <param name="p7">The seventh data value.</param>
-        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7)
-        {
+        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7) =>
             AddRow(p1, p2, p3, p4, p5, p6, p7);
-        }
     }
 
     /// <summary>
@@ -218,10 +200,8 @@ namespace Xunit
         /// <param name="p6">The sixth data value.</param>
         /// <param name="p7">The seventh data value.</param>
         /// <param name="p8">The eigth data value.</param>
-        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8)
-        {
+        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8) =>
             AddRow(p1, p2, p3, p4, p5, p6, p7, p8);
-        }
     }
 
     /// <summary>
@@ -251,10 +231,8 @@ namespace Xunit
         /// <param name="p7">The seventh data value.</param>
         /// <param name="p8">The eigth data value.</param>
         /// <param name="p9">The nineth data value.</param>
-        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9)
-        {
+        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9) =>
             AddRow(p1, p2, p3, p4, p5, p6, p7, p8, p9);
-        }
     }
 
     /// <summary>
@@ -286,9 +264,7 @@ namespace Xunit
         /// <param name="p8">The eigth data value.</param>
         /// <param name="p9">The nineth data value.</param>
         /// <param name="p10">The tenth data value.</param>
-        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10)
-        {
+        public void Add(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10) =>
             AddRow(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
-        }
     }
 }

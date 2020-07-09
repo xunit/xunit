@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -52,7 +53,7 @@ public class TestClassRunnerTests
     {
         var messages = new List<IMessageSinkMessage>();
         var messageBus = Substitute.For<IMessageBus>();
-        messageBus.QueueMessage(null)
+        messageBus.QueueMessage(null!)
                   .ReturnsForAnyArgs(callInfo =>
                   {
                       var msg = callInfo.Arg<IMessageSinkMessage>();
@@ -343,31 +344,32 @@ public class TestClassRunnerTests
     {
         readonly object[] availableArguments;
         readonly bool cancelInRunTestMethodAsync;
-        readonly ConstructorInfo constructor;
+        readonly ConstructorInfo? constructor;
         readonly RunSummary result;
 
-        public List<Tuple<IReflectionMethodInfo, IEnumerable<ITestCase>, object[]>> MethodsRun = new List<Tuple<IReflectionMethodInfo, IEnumerable<ITestCase>, object[]>>();
+        public List<Tuple<IReflectionMethodInfo, IEnumerable<ITestCase>, object?[]>> MethodsRun = new List<Tuple<IReflectionMethodInfo, IEnumerable<ITestCase>, object?[]>>();
         public Action<ExceptionAggregator> AfterTestClassStarting_Callback = _ => { };
         public bool AfterTestClassStarting_Called;
         public Action<ExceptionAggregator> BeforeTestClassFinished_Callback = _ => { };
         public bool BeforeTestClassFinished_Called;
         public List<IMessageSinkMessage> DiagnosticMessages;
-        public Exception RunTestMethodAsync_AggregatorResult;
+        public Exception? RunTestMethodAsync_AggregatorResult;
         public readonly CancellationTokenSource TokenSource;
 
-        TestableTestClassRunner(ITestClass testClass,
-                                IReflectionTypeInfo @class,
-                                IEnumerable<ITestCase> testCases,
-                                List<IMessageSinkMessage> diagnosticMessages,
-                                IMessageBus messageBus,
-                                ITestCaseOrderer testCaseOrderer,
-                                ExceptionAggregator aggregator,
-                                CancellationTokenSource cancellationTokenSource,
-                                ConstructorInfo constructor,
-                                object[] availableArguments,
-                                RunSummary result,
-                                bool cancelInRunTestMethodAsync)
-            : base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+        TestableTestClassRunner(
+            ITestClass testClass,
+            IReflectionTypeInfo @class,
+            IEnumerable<ITestCase> testCases,
+            List<IMessageSinkMessage> diagnosticMessages,
+            IMessageBus messageBus,
+            ITestCaseOrderer testCaseOrderer,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource,
+            ConstructorInfo? constructor,
+            object[] availableArguments,
+            RunSummary result,
+            bool cancelInRunTestMethodAsync)
+                : base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
             DiagnosticMessages = diagnosticMessages;
             TokenSource = cancellationTokenSource;
@@ -378,14 +380,15 @@ public class TestClassRunnerTests
             this.cancelInRunTestMethodAsync = cancelInRunTestMethodAsync;
         }
 
-        public static TestableTestClassRunner Create(IMessageBus messageBus = null,
-                                                     ITestCase[] testCases = null,
-                                                     ITestCaseOrderer orderer = null,
-                                                     ConstructorInfo constructor = null,
-                                                     object[] availableArguments = null,
-                                                     RunSummary result = null,
-                                                     Exception aggregatorSeedException = null,
-                                                     bool cancelInRunTestMethodAsync = false)
+        public static TestableTestClassRunner Create(
+            IMessageBus? messageBus = null,
+            ITestCase[]? testCases = null,
+            ITestCaseOrderer? orderer = null,
+            ConstructorInfo? constructor = null,
+            object[]? availableArguments = null,
+            RunSummary? result = null,
+            Exception? aggregatorSeedException = null,
+            bool cancelInRunTestMethodAsync = false)
         {
             if (testCases == null)
                 testCases = new[] { Mocks.TestCase<ClassUnderTest>("Passing") };
@@ -418,17 +421,21 @@ public class TestClassRunnerTests
         {
             AfterTestClassStarting_Called = true;
             AfterTestClassStarting_Callback(Aggregator);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         protected override Task BeforeTestClassFinishedAsync()
         {
             BeforeTestClassFinished_Called = true;
             BeforeTestClassFinished_Callback(Aggregator);
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
-        protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<ITestCase> testCases, object[] constructorArguments)
+        protected override Task<RunSummary> RunTestMethodAsync(
+            ITestMethod testMethod,
+            IReflectionMethodInfo method,
+            IEnumerable<ITestCase> testCases,
+            object?[] constructorArguments)
         {
             if (cancelInRunTestMethodAsync)
                 CancellationTokenSource.Cancel();
@@ -438,12 +445,12 @@ public class TestClassRunnerTests
             return Task.FromResult(result);
         }
 
-        protected override ConstructorInfo SelectTestClassConstructor()
+        protected override ConstructorInfo? SelectTestClassConstructor()
         {
             return constructor ?? base.SelectTestClassConstructor();
         }
 
-        protected override bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, out object argumentValue)
+        protected override bool TryGetConstructorArgument(ConstructorInfo constructor, int index, ParameterInfo parameter, [MaybeNullWhen(false)] out object argumentValue)
         {
             argumentValue = availableArguments.FirstOrDefault(arg => parameter.ParameterType.IsAssignableFrom(arg.GetType()));
             if (argumentValue != null)

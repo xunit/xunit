@@ -52,7 +52,7 @@ public class TestMethodRunnerTests
     {
         var messages = new List<IMessageSinkMessage>();
         var messageBus = Substitute.For<IMessageBus>();
-        messageBus.QueueMessage(null)
+        messageBus.QueueMessage(null!)
                   .ReturnsForAnyArgs(callInfo =>
                   {
                       var msg = callInfo.Arg<IMessageSinkMessage>();
@@ -187,21 +187,22 @@ public class TestMethodRunnerTests
         public Action<ExceptionAggregator> AfterTestMethodStarting_Callback = _ => { };
         public bool BeforeTestMethodFinished_Called;
         public Action<ExceptionAggregator> BeforeTestMethodFinished_Callback = _ => { };
-        public Exception RunTestCaseAsync_AggregatorResult;
+        public Exception? RunTestCaseAsync_AggregatorResult;
         public readonly CancellationTokenSource TokenSource;
 
         public List<ITestCase> TestCasesRun = new List<ITestCase>();
 
-        TestableTestMethodRunner(ITestMethod testMethod,
-                                 IReflectionTypeInfo @class,
-                                 IReflectionMethodInfo method,
-                                 IEnumerable<ITestCase> testCases,
-                                 IMessageBus messageBus,
-                                 ExceptionAggregator aggregator,
-                                 CancellationTokenSource cancellationTokenSource,
-                                 RunSummary result,
-                                 bool cancelInRunTestCaseAsync)
-            : base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
+        TestableTestMethodRunner(
+            ITestMethod testMethod,
+            IReflectionTypeInfo @class,
+            IReflectionMethodInfo method,
+            IEnumerable<ITestCase> testCases,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource,
+            RunSummary result,
+            bool cancelInRunTestCaseAsync)
+                : base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
         {
             TokenSource = cancellationTokenSource;
 
@@ -209,11 +210,12 @@ public class TestMethodRunnerTests
             this.cancelInRunTestCaseAsync = cancelInRunTestCaseAsync;
         }
 
-        public static TestableTestMethodRunner Create(IMessageBus messageBus = null,
-                                                      ITestCase[] testCases = null,
-                                                      RunSummary result = null,
-                                                      Exception aggregatorSeedException = null,
-                                                      bool cancelInRunTestCaseAsync = false)
+        public static TestableTestMethodRunner Create(
+            IMessageBus? messageBus = null,
+            ITestCase[]? testCases = null,
+            RunSummary? result = null,
+            Exception? aggregatorSeedException = null,
+            bool cancelInRunTestCaseAsync = false)
         {
             if (testCases == null)
                 testCases = new[] { Mocks.TestCase<ClassUnderTest>("Passing") };

@@ -15,15 +15,18 @@ namespace Xunit.Sdk
         public static readonly TestCollectionComparer Instance = new TestCollectionComparer();
 
         /// <inheritdoc/>
-        public bool Equals(ITestCollection x, ITestCollection y)
+        public bool Equals(ITestCollection? x, ITestCollection? y)
         {
+            if (x == null && y == null)
+                return true;
+            if (x == null || y == null)
+                return false;
+
             return x.UniqueID == y.UniqueID;
         }
 
         /// <inheritdoc/>
-        public int GetHashCode(ITestCollection obj)
-        {
-            return obj.UniqueID.GetHashCode();
-        }
+        public int GetHashCode(ITestCollection obj) =>
+            obj.UniqueID.GetHashCode();
     }
 }

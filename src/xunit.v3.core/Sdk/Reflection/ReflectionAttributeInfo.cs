@@ -21,17 +21,17 @@ namespace Xunit.Sdk
         /// <param name="attribute">The attribute to be wrapped.</param>
         public ReflectionAttributeInfo(CustomAttributeData attribute)
         {
-            AttributeData = attribute;
+            AttributeData = Guard.ArgumentNotNull(nameof(attribute), attribute);
             Attribute = Instantiate(AttributeData);
         }
 
         /// <inheritdoc/>
-        public Attribute Attribute { get; private set; }
+        public Attribute Attribute { get; }
 
         /// <inheritdoc/>
-        public CustomAttributeData AttributeData { get; private set; }
+        public CustomAttributeData AttributeData { get; }
 
-        static IEnumerable<object> Convert(IEnumerable<CustomAttributeTypedArgument> arguments)
+        static IEnumerable<object?> Convert(IEnumerable<CustomAttributeTypedArgument> arguments)
         {
             foreach (var argument in arguments)
             {
@@ -42,7 +42,7 @@ namespace Xunit.Sdk
                 if (value is IEnumerable<CustomAttributeTypedArgument> valueAsEnumerable)
                     value = Convert(valueAsEnumerable).ToArray();
                 else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsEnum)
-                    value = Enum.Parse(argument.ArgumentType, value.ToString());
+                    value = Enum.Parse(argument.ArgumentType, value.ToString()!);
 
                 if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsArray)
                     value = Reflector.ConvertArgument(value, argument.ArgumentType);
@@ -53,38 +53,47 @@ namespace Xunit.Sdk
 
         internal static AttributeUsageAttribute GetAttributeUsage(Type attributeType)
         {
-            return attributeUsageCache.GetOrAdd(attributeType,
+            return attributeUsageCache.GetOrAdd(
+                attributeType,
                 at => (AttributeUsageAttribute)at.GetTypeInfo().GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault()
-                      ?? DefaultAttributeUsageAttribute);
+                      ?? DefaultAttributeUsageAttribute
+            );
         }
 
         /// <inheritdoc/>
-        public IEnumerable<object> GetConstructorArguments()
-        {
-            return Convert(AttributeData.ConstructorArguments).ToList();
-        }
+        public IEnumerable<object?> GetConstructorArguments() =>
+            Convert(AttributeData.ConstructorArguments).ToList();
 
         /// <inheritdoc/>
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
+            Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
+
             return GetCustomAttributes(Attribute.GetType(), assemblyQualifiedAttributeTypeName).ToList();
         }
 
-        internal static IEnumerable<IAttributeInfo> GetCustomAttributes(Type type, string assemblyQualifiedAttributeTypeName)
+        internal static IEnumerable<IAttributeInfo> GetCustomAttributes(
+            Type type,
+            string assemblyQualifiedAttributeTypeName)
         {
-            Type attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
+            var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
+
+            Guard.ArgumentValidNotNull(nameof(assemblyQualifiedAttributeTypeName), $"Could not load type: '{assemblyQualifiedAttributeTypeName}'", attributeType);
 
             return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
         }
 
-        internal static IEnumerable<IAttributeInfo> GetCustomAttributes(Type type, Type attributeType, AttributeUsageAttribute attributeUsage)
+        internal static IEnumerable<IAttributeInfo> GetCustomAttributes(
+            Type? type,
+            Type attributeType,
+            AttributeUsageAttribute attributeUsage)
         {
-            IEnumerable<IAttributeInfo> results = Enumerable.Empty<IAttributeInfo>();
+            var results = Enumerable.Empty<IAttributeInfo>();
 
             if (type != null)
             {
-                List<ReflectionAttributeInfo> list = null;
-                foreach (CustomAttributeData attr in type.GetTypeInfo().CustomAttributes)
+                List<ReflectionAttributeInfo>? list = null;
+                foreach (var attr in type.GetTypeInfo().CustomAttributes)
                 {
                     if (attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
                     {
@@ -112,11 +121,11 @@ namespace Xunit.Sdk
         {
             foreach (var propInfo in Attribute.GetType().GetRuntimeProperties())
                 if (propInfo.Name == argumentName)
-                    return (TValue)propInfo.GetValue(Attribute);
+                    return (TValue)propInfo.GetValue(Attribute)!;
 
             foreach (var fieldInfo in Attribute.GetType().GetRuntimeFields())
                 if (fieldInfo.Name == argumentName)
-                    return (TValue)fieldInfo.GetValue(Attribute);
+                    return (TValue)fieldInfo.GetValue(Attribute)!;
 
             throw new ArgumentException($"Could not find property or field named '{argumentName}' on instance of '{Attribute.GetType().FullName}'", nameof(argumentName));
         }
@@ -124,30 +133,32 @@ namespace Xunit.Sdk
         Attribute Instantiate(CustomAttributeData attributeData)
         {
             var ctorArgs = GetConstructorArguments().ToArray();
-            Type[] ctorArgTypes = Reflector.EmptyTypes;
+            var ctorArgTypes = Reflector.EmptyTypes;
             if (ctorArgs.Length > 0)
             {
                 ctorArgTypes = new Type[attributeData.ConstructorArguments.Count];
-                for (int i = 0; i < ctorArgTypes.Length; i++)
+                for (var i = 0; i < ctorArgTypes.Length; i++)
                     ctorArgTypes[i] = attributeData.ConstructorArguments[i].ArgumentType;
             }
 
-            var attribute = (Attribute)Activator.CreateInstance(attributeData.AttributeType, Reflector.ConvertArguments(ctorArgs, ctorArgTypes));
+            var attribute = (Attribute?)Activator.CreateInstance(attributeData.AttributeType, Reflector.ConvertArguments(ctorArgs, ctorArgTypes));
+            if (attribute == null)
+                throw new ArgumentException($"Unable to create attribute of type '{attributeData.AttributeType.FullName}'", nameof(attributeData));
 
-            var ati = attribute.GetType();
+            var attributeType = attribute.GetType();
 
-            for (int i = 0; i < attributeData.NamedArguments.Count; i++)
+            for (var i = 0; i < attributeData.NamedArguments.Count; i++)
             {
                 var namedArg = attributeData.NamedArguments[i];
                 var typedValue = GetTypedValue(namedArg.TypedValue);
                 var memberName = namedArg.MemberName;
 
-                var propInfo = ati.GetRuntimeProperty(memberName);
+                var propInfo = attributeType.GetRuntimeProperty(memberName);
                 if (propInfo != null)
                     propInfo.SetValue(attribute, typedValue);
                 else
                 {
-                    var fieldInfo = ati.GetRuntimeField(memberName);
+                    var fieldInfo = attributeType.GetRuntimeField(memberName);
                     if (fieldInfo != null)
                         fieldInfo.SetValue(attribute, typedValue);
                     else
@@ -158,16 +169,19 @@ namespace Xunit.Sdk
             return attribute;
         }
 
-        object GetTypedValue(CustomAttributeTypedArgument arg)
+        object? GetTypedValue(CustomAttributeTypedArgument arg)
         {
             if (!(arg.Value is IReadOnlyCollection<CustomAttributeTypedArgument> collect))
                 return arg.Value;
 
             var argType = arg.ArgumentType.GetElementType();
-            Array destinationArray = Array.CreateInstance(argType, collect.Count);
+            if (argType == null)
+                throw new ArgumentException("Could not determine array element type", nameof(arg));
+
+            var destinationArray = Array.CreateInstance(argType, collect.Count);
 
             if (argType.IsEnum())
-                Array.Copy(collect.Select(x => Enum.ToObject(argType, x.Value)).ToArray(), destinationArray, collect.Count);
+                Array.Copy(collect.Select(x => Enum.ToObject(argType, x.Value!)).ToArray(), destinationArray, collect.Count);
             else
                 Array.Copy(collect.Select(x => x.Value).ToArray(), destinationArray, collect.Count);
 
@@ -175,9 +189,6 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        public override string ToString()
-        {
-            return Attribute.ToString();
-        }
+        public override string? ToString() => Attribute.ToString();
     }
 }

@@ -3,7 +3,10 @@
 using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+
+#if !NETSTANDARD
 using System.IO;
+#endif
 
 /// <summary>
 /// Guard class, used for guard clauses and argument validation
@@ -44,6 +47,15 @@ static class Guard
     {
         if (!test)
             throw new ArgumentException(message, argName);
+    }
+
+    public static T ArgumentValidNotNull<T>(string argName, string message, [NotNull] T? testValue)
+        where T : class
+    {
+        if (testValue == null)
+            throw new ArgumentException(message, argName);
+
+        return testValue;
     }
 
 #if !XUNIT_FRAMEWORK

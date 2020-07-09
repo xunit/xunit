@@ -14,6 +14,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool? DiagnosticMessages(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.DiagnosticMessages);
     }
 
@@ -23,6 +25,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool DiagnosticMessagesOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         return discoveryOptions.DiagnosticMessages() ?? false;
     }
 
@@ -31,6 +35,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static TestMethodDisplay? MethodDisplay(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         var methodDisplayString = discoveryOptions.GetValue<string>(TestOptionsNames.Discovery.MethodDisplay);
         return methodDisplayString != null ? (TestMethodDisplay?)Enum.Parse(typeof(TestMethodDisplay), methodDisplayString) : null;
     }
@@ -40,6 +46,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static TestMethodDisplayOptions? MethodDisplayOptions(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         var methodDisplayOptionsString = discoveryOptions.GetValue<string>(TestOptionsNames.Discovery.MethodDisplayOptions);
         return methodDisplayOptionsString != null ? (TestMethodDisplayOptions?)Enum.Parse(typeof(TestMethodDisplayOptions), methodDisplayOptionsString) : null;
     }
@@ -50,6 +58,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static TestMethodDisplay MethodDisplayOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         return discoveryOptions.MethodDisplay() ?? TestMethodDisplay.ClassAndMethod;
     }
 
@@ -59,6 +69,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static TestMethodDisplayOptions MethodDisplayOptionsOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         return discoveryOptions.MethodDisplayOptions() ?? TestMethodDisplayOptions.None;
     }
 
@@ -69,6 +81,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool? PreEnumerateTheories(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         return discoveryOptions.GetValue<bool?>(TestOptionsNames.Discovery.PreEnumerateTheories);
     }
 
@@ -80,6 +94,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool PreEnumerateTheoriesOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         return discoveryOptions.PreEnumerateTheories() ?? true;
     }
 
@@ -88,6 +104,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool? SynchronousMessageReporting(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         return discoveryOptions.GetValue<bool?>(TestOptionsNames.Execution.SynchronousMessageReporting);
     }
 
@@ -97,6 +115,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool SynchronousMessageReportingOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions)
     {
+        Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+
         return discoveryOptions.SynchronousMessageReporting() ?? false;
     }
 
@@ -107,6 +127,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool? DiagnosticMessages(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.DiagnosticMessages);
     }
 
@@ -116,6 +138,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool DiagnosticMessagesOrDefault(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         return executionOptions.DiagnosticMessages() ?? false;
     }
 
@@ -124,6 +148,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool? DisableParallelization(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.DisableParallelization);
     }
 
@@ -133,6 +159,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool DisableParallelizationOrDefault(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         return executionOptions.DisableParallelization() ?? false;
     }
 
@@ -141,6 +169,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static int? MaxParallelThreads(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         return executionOptions.GetValue<int?>(TestOptionsNames.Execution.MaxParallelThreads);
     }
 
@@ -151,6 +181,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static int MaxParallelThreadsOrDefault(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         var result = executionOptions.MaxParallelThreads();
         if (result == null || result == 0)
             return Environment.ProcessorCount;
@@ -163,6 +195,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool? StopOnTestFail(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.StopOnFail);
     }
 
@@ -172,6 +206,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool StopOnTestFailOrDefault(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         return executionOptions.StopOnTestFail() ?? false;
     }
 
@@ -180,6 +216,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool? SynchronousMessageReporting(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.SynchronousMessageReporting);
     }
 
@@ -189,6 +227,8 @@ public static class TestFrameworkOptionsReadExtensions
     /// </summary>
     public static bool SynchronousMessageReportingOrDefault(this ITestFrameworkExecutionOptions executionOptions)
     {
+        Guard.ArgumentNotNull(nameof(executionOptions), executionOptions);
+
         return executionOptions.SynchronousMessageReporting() ?? false;
     }
 }

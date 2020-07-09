@@ -202,27 +202,24 @@ public class XunitTheoryTestCaseRunnerTests
 
     class TestableXunitTheoryTestCaseRunner : XunitTheoryTestCaseRunner
     {
-        TestableXunitTheoryTestCaseRunner(IXunitTestCase testCase,
-                                          string displayName,
-                                          string skipReason,
-                                          object[] constructorArguments,
-                                          IMessageSink diagnosticMessageSink,
-                                          IMessageBus messageBus,
-                                          ExceptionAggregator aggregator,
-                                          CancellationTokenSource cancellationTokenSource)
-            : base(testCase, displayName, skipReason, constructorArguments, diagnosticMessageSink, messageBus, aggregator, cancellationTokenSource) { }
+        TestableXunitTheoryTestCaseRunner(
+            IXunitTestCase testCase,
+            string displayName,
+            IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus)
+                : base(testCase, displayName, null, new object[0], diagnosticMessageSink, messageBus, new ExceptionAggregator(), new CancellationTokenSource())
+        { }
 
-        public static TestableXunitTheoryTestCaseRunner Create<TClassUnderTest>(string methodName, IMessageBus messageBus, string displayName = null)
+        public static TestableXunitTheoryTestCaseRunner Create<TClassUnderTest>(
+            string methodName,
+            IMessageBus messageBus,
+            string displayName = "MockDisplayName")
         {
             return new TestableXunitTheoryTestCaseRunner(
                 Mocks.XunitTestCase<TClassUnderTest>(methodName),
                 displayName,
-                null,
-                new object[0],
                 SpyMessageSink.Create(),
-                messageBus,
-                new ExceptionAggregator(),
-                new CancellationTokenSource()
+                messageBus
             );
         }
     }

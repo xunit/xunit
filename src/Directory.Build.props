@@ -35,7 +35,7 @@
         <Company>.NET Foundation</Company>
         <Copyright>Copyright (C) .NET Foundation</Copyright>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <!-- <Nullable>enable</Nullable> -->
+        <Nullable>enable</Nullable>
         <PackageIcon>content/logo-128-transparent.png</PackageIcon>
         <PackageId>$(MSBuildProjectName)</PackageId>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -71,7 +71,6 @@
   <Choose>
     <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
       <PropertyGroup>
-        <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
         <OutputType>Exe</OutputType>
       </PropertyGroup>
 
@@ -86,18 +85,17 @@
         <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
         <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
         <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />
-        <Compile Include="..\common\ExecutionHelper.cs" LinkBase="Common" />
         <Compile Include="..\common\Guard.cs" LinkBase="Common" />
         <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
         <Compile Include="..\common.tests\**\*.cs" LinkBase="Common.Tests" />
       </ItemGroup>
 
       <ItemGroup>
-        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
-        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Visible="false" />
+        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Visible="false" />
 
-        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
-        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
+        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.optdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " Visible="false" />
+        <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\netstandard2.0\FSharp.Core.sigdata" CopyToOutputDirectory="PreserveNewest" Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " Visible="false" />
 
         <Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
       </ItemGroup>

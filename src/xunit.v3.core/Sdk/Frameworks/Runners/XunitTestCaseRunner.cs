@@ -9,11 +9,15 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// The test case runner for xUnit.net v2 tests.
+    /// The test case runner for xUnit.net v3 tests.
     /// </summary>
     public class XunitTestCaseRunner : TestCaseRunner<IXunitTestCase>
     {
-        List<BeforeAfterTestAttribute> beforeAfterAttributes;
+        List<BeforeAfterTestAttribute>? beforeAfterAttributes;
+        object?[] constructorArguments;
+        string displayName;
+        Type testClass;
+        MethodInfo testMethod;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCaseRunner"/> class.
@@ -26,26 +30,28 @@ namespace Xunit.Sdk
         /// <param name="messageBus">The message bus to report run status to.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public XunitTestCaseRunner(IXunitTestCase testCase,
-                                   string displayName,
-                                   string skipReason,
-                                   object[] constructorArguments,
-                                   object[] testMethodArguments,
-                                   IMessageBus messageBus,
-                                   ExceptionAggregator aggregator,
-                                   CancellationTokenSource cancellationTokenSource)
-            : base(testCase, messageBus, aggregator, cancellationTokenSource)
+        public XunitTestCaseRunner(
+            IXunitTestCase testCase,
+            string displayName,
+            string? skipReason,
+            object?[] constructorArguments,
+            object?[]? testMethodArguments,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
+                : base(testCase, messageBus, aggregator, cancellationTokenSource)
         {
-            DisplayName = displayName;
-            SkipReason = skipReason;
-            ConstructorArguments = constructorArguments;
+            this.displayName = Guard.ArgumentNotNull(nameof(displayName), displayName);
+            this.constructorArguments = Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
 
-            TestClass = TestCase.TestMethod.TestClass.Class.ToRuntimeType();
-            TestMethod = TestCase.Method.ToRuntimeMethod();
+            SkipReason = skipReason;
+
+            testClass = TestCase.TestMethod.TestClass.Class.ToRuntimeType() ?? throw new ArgumentException("testCase.TestMethod.TestClass.Class does not map to a Type object", nameof(testCase));
+            testMethod = TestCase.Method.ToRuntimeMethod() ?? throw new ArgumentException("testCase.TestMethod does not map to a MethodInfo object", nameof(testCase));
 
             var parameters = TestMethod.GetParameters();
             var parameterTypes = new Type[parameters.Length];
-            for (int i = 0; i < parameters.Length; i++)
+            for (var i = 0; i < parameters.Length; i++)
                 parameterTypes[i] = parameters[i].ParameterType;
 
             TestMethodArguments = Reflector.ConvertArguments(testMethodArguments, parameterTypes);
@@ -68,54 +74,82 @@ namespace Xunit.Sdk
         /// <summary>
         /// Gets or sets the arguments passed to the test class constructor
         /// </summary>
-        protected object[] ConstructorArguments { get; set; }
+        protected object?[] ConstructorArguments
+        {
+            get => constructorArguments;
+            set => constructorArguments = Guard.ArgumentNotNull(nameof(ConstructorArguments), value);
+        }
 
         /// <summary>
         /// Gets or sets the display name of the test case
         /// </summary>
-        protected string DisplayName { get; set; }
+        protected string DisplayName
+        {
+            get => displayName;
+            set => displayName = Guard.ArgumentNotNull(nameof(DisplayName), value);
+        }
 
         /// <summary>
         /// Gets or sets the skip reason for the test, if set.
         /// </summary>
-        protected string SkipReason { get; set; }
+        protected string? SkipReason { get; set; }
 
         /// <summary>
         /// Gets or sets the runtime type for the test class that the test method belongs to.
         /// </summary>
-        protected Type TestClass { get; set; }
+        protected Type TestClass
+        {
+            get => testClass;
+            set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
+        }
 
         /// <summary>
         /// Gets of sets the runtime method for the test method that the test case belongs to.
         /// </summary>
-        protected MethodInfo TestMethod { get; set; }
+        protected MethodInfo TestMethod
+        {
+            get => testMethod;
+            set => testMethod = Guard.ArgumentNotNull(nameof(TestMethod), value);
+        }
 
         /// <summary>
         /// Gets or sets the arguments to pass to the test method when it's being invoked.
+        /// Maybe be <c>null</c> to indicate there are no arguments.
         /// </summary>
-        protected object[] TestMethodArguments { get; set; }
+        protected object?[]? TestMethodArguments { get; set; }
 
         /// <summary>
         /// Creates the <see cref="ITest"/> instance for the given test case.
         /// </summary>
-        protected virtual ITest CreateTest(IXunitTestCase testCase, string displayName)
-            => new XunitTest(testCase, displayName);
+        protected virtual ITest CreateTest(IXunitTestCase testCase, string displayName) =>
+            new XunitTest(testCase, displayName);
 
         /// <summary>
         /// Creates the test runner used to run the given test.
         /// </summary>
-        protected virtual XunitTestRunner CreateTestRunner(ITest test,
-                                                           IMessageBus messageBus,
-                                                           Type testClass,
-                                                           object[] constructorArguments,
-                                                           MethodInfo testMethod,
-                                                           object[] testMethodArguments,
-                                                           string skipReason,
-                                                           IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
-                                                           ExceptionAggregator aggregator,
-                                                           CancellationTokenSource cancellationTokenSource)
-            => new XunitTestRunner(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments,
-                                   skipReason, beforeAfterAttributes, new ExceptionAggregator(aggregator), cancellationTokenSource);
+        protected virtual XunitTestRunner CreateTestRunner(
+            ITest test,
+            IMessageBus messageBus,
+            Type testClass,
+            object?[] constructorArguments,
+            MethodInfo testMethod,
+            object?[]? testMethodArguments,
+            string? skipReason,
+            IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource) =>
+                new XunitTestRunner(
+                    test,
+                    messageBus,
+                    testClass,
+                    constructorArguments,
+                    testMethod,
+                    testMethodArguments,
+                    skipReason,
+                    beforeAfterAttributes,
+                    new ExceptionAggregator(aggregator),
+                    cancellationTokenSource
+                );
 
         /// <summary>
         /// Gets the list of <see cref="BeforeAfterTestAttribute"/> attributes that apply to this test case.
@@ -123,20 +157,32 @@ namespace Xunit.Sdk
         protected virtual List<BeforeAfterTestAttribute> GetBeforeAfterTestAttributes()
         {
             IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
+
             if (TestCase.TestMethod.TestClass.TestCollection.CollectionDefinition is IReflectionTypeInfo collectionDefinition)
                 beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute));
             else
                 beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();
 
-            return beforeAfterTestCollectionAttributes.Concat(TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-                                                      .Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
-                                                      .Cast<BeforeAfterTestAttribute>()
-                                                      .ToList();
+            return beforeAfterTestCollectionAttributes
+                .Concat(TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+                .Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
+                .Cast<BeforeAfterTestAttribute>()
+                .ToList();
         }
 
         /// <inheritdoc/>
-        protected override Task<RunSummary> RunTestAsync()
-            => CreateTestRunner(CreateTest(TestCase, DisplayName), MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments,
-                                SkipReason, BeforeAfterAttributes, Aggregator, CancellationTokenSource).RunAsync();
+        protected override Task<RunSummary> RunTestAsync() =>
+            CreateTestRunner(
+                CreateTest(TestCase, DisplayName),
+                MessageBus,
+                TestClass,
+                ConstructorArguments,
+                TestMethod,
+                TestMethodArguments,
+                SkipReason,
+                BeforeAfterAttributes,
+                Aggregator,
+                CancellationTokenSource
+            ).RunAsync();
     }
 }

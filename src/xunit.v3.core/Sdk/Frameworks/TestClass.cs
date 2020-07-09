@@ -11,6 +11,9 @@ namespace Xunit.Sdk
     [DebuggerDisplay(@"\{ class = {Class.Name} \}")]
     public class TestClass : LongLivedMarshalByRefObject, ITestClass
     {
+        ITypeInfo? @class;
+        ITestCollection? testCollection;
+
         /// <summary/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
@@ -23,22 +26,29 @@ namespace Xunit.Sdk
         /// <param name="class">The test class</param>
         public TestClass(ITestCollection testCollection, ITypeInfo @class)
         {
-            Guard.ArgumentNotNull("testCollection", testCollection);
-            Guard.ArgumentNotNull("class", @class);
-
-            Class = @class;
-            TestCollection = testCollection;
+            this.@class = Guard.ArgumentNotNull(nameof(@class), @class);
+            this.testCollection = Guard.ArgumentNotNull(nameof(testCollection), testCollection);
         }
 
         /// <inheritdoc/>
-        public ITypeInfo Class { get; set; }
+        public ITypeInfo Class
+        {
+            get => @class ?? throw new InvalidOperationException($"Attempted to get Class on an uninitialized '{GetType().FullName}' object");
+            set => @class = Guard.ArgumentNotNull(nameof(Class), value);
+        }
 
         /// <inheritdoc/>
-        public ITestCollection TestCollection { get; set; }
+        public ITestCollection TestCollection
+        {
+            get => testCollection ?? throw new InvalidOperationException($"Attempted to get TestCollection on an uninitialized '{GetType().FullName}' object");
+            set => testCollection = Guard.ArgumentNotNull(nameof(TestCollection), value);
+        }
 
         /// <inheritdoc/>
         public void Serialize(IXunitSerializationInfo info)
         {
+            Guard.ArgumentNotNull(nameof(info), info);
+
             info.AddValue("TestCollection", TestCollection);
             info.AddValue("ClassAssemblyName", Class.Assembly.Name);
             info.AddValue("ClassTypeName", Class.Name);
@@ -47,12 +57,18 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public void Deserialize(IXunitSerializationInfo info)
         {
+            Guard.ArgumentNotNull(nameof(info), info);
+
             TestCollection = info.GetValue<ITestCollection>("TestCollection");
 
             var assemblyName = info.GetValue<string>("ClassAssemblyName");
             var typeName = info.GetValue<string>("ClassTypeName");
 
-            Class = Reflector.Wrap(SerializationHelper.GetType(assemblyName, typeName));
+            var type = SerializationHelper.GetType(assemblyName, typeName);
+            if (type == null)
+                throw new InvalidOperationException($"Failed to deserialize type '{typeName}' in assembly '{assemblyName}'");
+
+            Class = Reflector.Wrap(type);
         }
     }
 }

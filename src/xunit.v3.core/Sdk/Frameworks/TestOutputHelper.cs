@@ -9,11 +9,8 @@ namespace Xunit.Sdk
     /// </summary>
     public class TestOutputHelper : ITestOutputHelper
     {
-        StringBuilder buffer;
-        IMessageBus messageBus;
-        ITest test;
-
         readonly object lockObject = new object();
+        TestState? state;
 
         /// <summary>
         /// Gets the output provided by the test.
@@ -24,9 +21,9 @@ namespace Xunit.Sdk
             {
                 lock (lockObject)
                 {
-                    GuardInitialized();
+                    Guard.NotNull("There is no currently active test.", state);
 
-                    return buffer.ToString();
+                    return state.Buffer.ToString();
                 }
             }
         }
@@ -36,19 +33,10 @@ namespace Xunit.Sdk
         /// </summary>
         public void Initialize(IMessageBus messageBus, ITest test)
         {
-            Guard.ArgumentNotNull("messageBus", messageBus);
-            Guard.ArgumentNotNull("test", test);
+            if (state != null)
+                throw new InvalidOperationException("Attempted to initialize a TestOutputHelper that has already been initialized");
 
-            this.messageBus = messageBus;
-            this.test = test;
-
-            buffer = new StringBuilder();
-        }
-
-        void GuardInitialized()
-        {
-            if (buffer == null)
-                throw new InvalidOperationException("There is no currently active test.");
+            state = new TestState(messageBus, test);
         }
 
         void QueueTestOutput(string output)
@@ -57,20 +45,21 @@ namespace Xunit.Sdk
 
             lock (lockObject)
             {
-                GuardInitialized();
+                Guard.NotNull("There is no currently active test.", state);
 
-                buffer.Append(output);
+                state.Buffer.Append(output);
             }
 
-            messageBus.QueueMessage(new TestOutput(test, output));
+            state.MessageBus.QueueMessage(new TestOutput(state.Test, output));
         }
 
         private static string EscapeInvalidHexChars(string s)
         {
             var builder = new StringBuilder(s.Length);
-            for (int i = 0; i < s.Length; i++)
+
+            for (var i = 0; i < s.Length; i++)
             {
-                char ch = s[i];
+                var ch = s[i];
                 if (ch == '\0')
                     builder.Append("\\0");
                 else if (ch < 32 && !char.IsWhiteSpace(ch)) // C0 control char
@@ -89,18 +78,14 @@ namespace Xunit.Sdk
                 else
                     builder.Append(ch); // Append the char like normal
             }
+
             return builder.ToString();
         }
 
         /// <summary>
         /// Resets the test output helper to its uninitialized state.
         /// </summary>
-        public void Uninitialize()
-        {
-            buffer = null;
-            messageBus = null;
-            test = null;
-        }
+        public void Uninitialize() => state = null;
 
         /// <inheritdoc/>
         public void WriteLine(string message)
@@ -117,6 +102,22 @@ namespace Xunit.Sdk
             Guard.ArgumentNotNull("args", args);
 
             QueueTestOutput(string.Format(format, args) + Environment.NewLine);
+        }
+
+        class TestState
+        {
+            public TestState(IMessageBus messageBus, ITest test)
+            {
+                Buffer = new StringBuilder();
+                MessageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+                Test = Guard.ArgumentNotNull(nameof(test), test);
+            }
+
+            public StringBuilder Buffer { get; }
+
+            public IMessageBus MessageBus { get; }
+
+            public ITest Test { get; }
         }
     }
 }

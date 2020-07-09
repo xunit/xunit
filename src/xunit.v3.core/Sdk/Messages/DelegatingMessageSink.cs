@@ -10,7 +10,7 @@ namespace Xunit.Sdk
     /// </summary>
     public class DelegatingMessageSink : LongLivedMarshalByRefObject, IMessageSink
     {
-        readonly Action<IMessageSinkMessage> callback;
+        readonly Action<IMessageSinkMessage>? callback;
         readonly IMessageSink innerSink;
 
         /// <summary>
@@ -18,9 +18,11 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="innerSink">The inner message sink.</param>
         /// <param name="callback">The callback.</param>
-        public DelegatingMessageSink(IMessageSink innerSink, Action<IMessageSinkMessage> callback = null)
+        public DelegatingMessageSink(
+            IMessageSink innerSink,
+            Action<IMessageSinkMessage>? callback = null)
         {
-            this.innerSink = innerSink;
+            this.innerSink = Guard.ArgumentNotNull(nameof(innerSink), innerSink);
             this.callback = callback;
         }
 
@@ -30,8 +32,7 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public virtual bool OnMessage(IMessageSinkMessage message)
         {
-            if (callback != null)
-                callback(message);
+            callback?.Invoke(message);
 
             return innerSink.OnMessage(message);
         }
@@ -47,13 +48,17 @@ namespace Xunit.Sdk
     public class DelegatingMessageSink<TFinalMessage> : DelegatingMessageSink
         where TFinalMessage : class, IMessageSinkMessage
     {
+        TFinalMessage? finalMessage;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DelegatingMessageSink" /> class.
         /// </summary>
         /// <param name="innerSink">The inner message sink.</param>
         /// <param name="callback">The callback.</param>
-        public DelegatingMessageSink(IMessageSink innerSink, Action<IMessageSinkMessage> callback = null)
-            : base(innerSink, callback)
+        public DelegatingMessageSink(
+            IMessageSink innerSink,
+            Action<IMessageSinkMessage>? callback = null)
+                : base(innerSink, callback)
         {
             Finished = new ManualResetEvent(false);
         }
@@ -61,12 +66,13 @@ namespace Xunit.Sdk
         /// <summary>
         /// The final message that was seen that caused <see cref="Finished"/> to be triggered.
         /// </summary>
-        public TFinalMessage FinalMessage { get; private set; }
+        public TFinalMessage FinalMessage =>
+            finalMessage ?? throw new InvalidOperationException("Attempted to retrieve FinalMessage before the final message has been seen.");
 
         /// <summary>
         /// An event that is triggered when a message of type <typeparamref name="TFinalMessage" /> is seen.
         /// </summary>
-        public ManualResetEvent Finished { get; private set; }
+        public ManualResetEvent Finished { get; }
 
         /// <inheritdoc/>
         public override bool OnMessage(IMessageSinkMessage message)
@@ -75,7 +81,7 @@ namespace Xunit.Sdk
 
             if (message is TFinalMessage finalMessage)
             {
-                FinalMessage = finalMessage;
+                this.finalMessage = finalMessage;
                 Finished.Set();
             }
 

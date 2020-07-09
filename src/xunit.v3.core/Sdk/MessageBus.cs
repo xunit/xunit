@@ -30,8 +30,7 @@ namespace Xunit.Sdk
 
         void DispatchMessages()
         {
-            IMessageSinkMessage message;
-            while (reporterQueue.TryDequeue(out message))
+            while (reporterQueue.TryDequeue(out var message))
                 try
                 {
                     continueRunning &= messageSink.OnMessage(message);
@@ -62,6 +61,8 @@ namespace Xunit.Sdk
         /// <summary/>
         public bool QueueMessage(IMessageSinkMessage message)
         {
+            Guard.ArgumentNotNull(nameof(message), message);
+
             if (shutdownRequested)
                 throw new ObjectDisposedException("MessageBus");
 

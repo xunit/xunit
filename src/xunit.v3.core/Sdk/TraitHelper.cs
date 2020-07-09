@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -17,6 +16,8 @@ namespace Xunit.Sdk
         /// <returns>A list of traits that are defined on the method.</returns>
         public static IReadOnlyList<KeyValuePair<string, string>> GetTraits(MemberInfo member)
         {
+            Guard.ArgumentNotNull(nameof(member), member);
+
             var messageSink = new NullMessageSink();
             var result = new List<KeyValuePair<string, string>>();
 
@@ -42,17 +43,19 @@ namespace Xunit.Sdk
             return result;
         }
 
-        static CustomAttributeData FindDiscovererAttributeType(TypeInfo traitAttribute)
+        static CustomAttributeData? FindDiscovererAttributeType(TypeInfo traitAttribute)
         {
-            var traitDiscovererType = typeof(TraitDiscovererAttribute);
-            Func<CustomAttributeData, bool> isTraitDiscovererAttribute = t => t.AttributeType == typeof(TraitDiscovererAttribute);
+            static bool IsTraitDiscovererAttribute(CustomAttributeData t) =>
+                t.AttributeType == typeof(TraitDiscovererAttribute);
 
+            var traitDiscovererType = typeof(TraitDiscovererAttribute);
             var typeChecking = traitAttribute;
             CustomAttributeData result;
+
             do
             {
-                result = typeChecking.CustomAttributes.FirstOrDefault(isTraitDiscovererAttribute);
-                typeChecking = traitAttribute.BaseType.GetTypeInfo();
+                result = typeChecking.CustomAttributes.FirstOrDefault(IsTraitDiscovererAttribute);
+                typeChecking = traitAttribute.BaseType?.GetTypeInfo();
             } while (result == null && typeChecking != null);
 
             return result;

@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE</DefineConstants>
     <Description>Includes the assertion library from xUnit.net (xunit.v3.assert.dll). Supports .NET Standard 2.0.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFramework>netstandard2.0</TargetFramework>

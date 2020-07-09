@@ -1,5 +1,3 @@
-#nullable enable
-
 using Xunit.Abstractions;
 
 namespace Xunit

@@ -5,7 +5,7 @@ namespace Xunit.Sdk
 {
     /// <summary>
     /// This interface is implemented by discoverers that provide trait values to
-    /// xUnit.net v2 tests.
+    /// xUnit.net v3 tests.
     /// </summary>
     public interface ITraitDiscoverer
     {

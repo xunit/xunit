@@ -15,7 +15,7 @@ public class TraitHelperTests
     {
         var method = typeof(ClassUnderTest).GetMethod("NoTraits");
 
-        var traits = TraitHelper.GetTraits(method);
+        var traits = TraitHelper.GetTraits(method!);
 
         Assert.Empty(traits);
     }
@@ -25,7 +25,7 @@ public class TraitHelperTests
     {
         var method = typeof(ClassUnderTest).GetMethod("Trait");
 
-        var traits = TraitHelper.GetTraits(method);
+        var traits = TraitHelper.GetTraits(method!);
 
         Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
             value => Assert.Equal("foo = bar", value)
@@ -37,7 +37,7 @@ public class TraitHelperTests
     {
         var method = typeof(ClassUnderTest).GetMethod("CustomTrait");
 
-        var traits = TraitHelper.GetTraits(method);
+        var traits = TraitHelper.GetTraits(method!);
 
         Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
             value => Assert.Equal("Baz = 2112", value),
@@ -50,7 +50,7 @@ public class TraitHelperTests
     {
         var method = typeof(ClassUnderTest).GetMethod("MultipleTraits");
 
-        var traits = TraitHelper.GetTraits(method);
+        var traits = TraitHelper.GetTraits(method!);
 
         Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
             value => Assert.Equal("Baz = 2112", value),
@@ -65,7 +65,7 @@ public class TraitHelperTests
     {
         var method = typeof(ClassUnderTest).GetMethod("InheritedTrait");
 
-        var traits = TraitHelper.GetTraits(method);
+        var traits = TraitHelper.GetTraits(method!);
 
         Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
             value => Assert.Equal("Baz = 2112", value),
@@ -78,7 +78,7 @@ public class TraitHelperTests
     {
         var method = typeof(ClassUnderTest).GetMethod("InheritedMultipleTraits");
 
-        var traits = TraitHelper.GetTraits(method);
+        var traits = TraitHelper.GetTraits(method!);
 
         Assert.Collection(traits.Select(kvp => $"{kvp.Key} = {kvp.Value}").OrderBy(_ => _, StringComparer.OrdinalIgnoreCase),
             value => Assert.Equal("Baz = 2112", value),

@@ -12,6 +12,7 @@ namespace Xunit.Sdk
         /// </summary>
         /// <param name="timeout">The timeout that was exceeded, in milliseconds</param>
         public TestTimeoutException(int timeout)
-            : base($"Test execution timed out after {timeout} milliseconds") { }
+            : base($"Test execution timed out after {timeout} milliseconds")
+        { }
     }
 }

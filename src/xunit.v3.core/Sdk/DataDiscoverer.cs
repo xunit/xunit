@@ -12,12 +12,16 @@ namespace Xunit.Sdk
     public class DataDiscoverer : IDataDiscoverer
     {
         /// <inheritdoc/>
-        public virtual IEnumerable<object[]> GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod)
+        public virtual IEnumerable<object?[]>? GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod)
         {
+            Guard.ArgumentNotNull(nameof(dataAttribute), dataAttribute);
+            Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+
             if (dataAttribute is IReflectionAttributeInfo reflectionDataAttribute &&
                 testMethod is IReflectionMethodInfo reflectionTestMethod)
             {
                 var attribute = (DataAttribute)reflectionDataAttribute.Attribute;
+
                 try
                 {
                     return attribute.GetData(reflectionTestMethod.MethodInfo);
@@ -26,12 +30,10 @@ namespace Xunit.Sdk
                 {
                     // If we couldn't find the data on the base type, check if it is in current type.
                     // This allows base classes to specify data that exists on a sub type, but not on the base type.
-                    var memberDataAttribute = attribute as MemberDataAttribute;
                     var reflectionTestMethodType = (IReflectionTypeInfo)reflectionTestMethod.Type;
-                    if (memberDataAttribute != null && memberDataAttribute.MemberType == null)
-                    {
+                    if (attribute is MemberDataAttribute memberDataAttribute && memberDataAttribute.MemberType == null)
                         memberDataAttribute.MemberType = reflectionTestMethodType.Type;
-                    }
+
                     return attribute.GetData(reflectionTestMethod.MethodInfo);
                 }
             }
@@ -42,6 +44,9 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public virtual bool SupportsDiscoveryEnumeration(IAttributeInfo dataAttribute, IMethodInfo testMethod)
         {
+            Guard.ArgumentNotNull(nameof(dataAttribute), dataAttribute);
+            Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+
             return true;
         }
     }

@@ -17,85 +17,63 @@ namespace Xunit.Sdk
         /// <param name="type">The type to wrap.</param>
         public ReflectionTypeInfo(Type type)
         {
-            Type = type;
+            Type = Guard.ArgumentNotNull(nameof(type), type);
         }
 
         /// <inheritdoc/>
-        public IAssemblyInfo Assembly
-        {
-            get { return Reflector.Wrap(Type.GetTypeInfo().Assembly); }
-        }
+        public IAssemblyInfo Assembly => Reflector.Wrap(Type.GetTypeInfo().Assembly);
 
         /// <inheritdoc/>
-        public ITypeInfo BaseType
-        {
-            get { return Reflector.Wrap(Type.GetTypeInfo().BaseType); }
-        }
+        public ITypeInfo? BaseType => Type.GetTypeInfo().BaseType == null ? null : Reflector.Wrap(Type.GetTypeInfo().BaseType!);
 
         /// <inheritdoc/>
-        public IEnumerable<ITypeInfo> Interfaces
-        {
-            get { return Type.GetTypeInfo().ImplementedInterfaces.Select(i => Reflector.Wrap(i)).ToList(); }
-        }
+        public IEnumerable<ITypeInfo> Interfaces => Type.GetTypeInfo().ImplementedInterfaces.Select(i => Reflector.Wrap(i)).ToList();
 
         /// <inheritdoc/>
-        public bool IsAbstract
-        {
-            get { return Type.GetTypeInfo().IsAbstract; }
-        }
+        public bool IsAbstract => Type.GetTypeInfo().IsAbstract;
 
         /// <inheritdoc/>
-        public bool IsGenericParameter
-        {
-            get { return Type.IsGenericParameter; }
-        }
+        public bool IsGenericParameter => Type.IsGenericParameter;
 
         /// <inheritdoc/>
-        public bool IsGenericType
-        {
-            get { return Type.GetTypeInfo().IsGenericType; }
-        }
+        public bool IsGenericType => Type.GetTypeInfo().IsGenericType;
 
         /// <inheritdoc/>
-        public bool IsSealed
-        {
-            get { return Type.GetTypeInfo().IsSealed; }
-        }
+        public bool IsSealed => Type.GetTypeInfo().IsSealed;
 
         /// <inheritdoc/>
-        public bool IsValueType
-        {
-            get { return Type.GetTypeInfo().IsValueType; }
-        }
+        public bool IsValueType => Type.GetTypeInfo().IsValueType;
 
         /// <inheritdoc/>
-        public string Name
-        {
-            get { return Type.FullName ?? Type.Name; }
-        }
+        public string Name => Type.FullName ?? Type.Name;
 
         /// <inheritdoc/>
-        public Type Type { get; private set; }
+        public Type Type { get; }
 
         /// <inheritdoc/>
         public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
         {
+            Guard.ArgumentNotNull(nameof(assemblyQualifiedAttributeTypeName), assemblyQualifiedAttributeTypeName);
+
             return ReflectionAttributeInfo.GetCustomAttributes(Type, assemblyQualifiedAttributeTypeName).CastOrToList();
         }
 
         /// <inheritdoc/>
-        public IEnumerable<ITypeInfo> GetGenericArguments()
-        {
-            return Type.GetTypeInfo().GenericTypeArguments
-                       .Select(t => Reflector.Wrap(t))
-                       .ToList();
-        }
+        public IEnumerable<ITypeInfo> GetGenericArguments() =>
+            Type
+                .GetTypeInfo().GenericTypeArguments
+                .Select(t => Reflector.Wrap(t))
+                .ToList();
 
         /// <inheritdoc/>
-        public IMethodInfo GetMethod(string methodName, bool includePrivateMethod)
+        public IMethodInfo? GetMethod(string methodName, bool includePrivateMethod)
         {
-            var method = Type.GetRuntimeMethods()
-                             .FirstOrDefault(m => (includePrivateMethod || m.IsPublic && m.DeclaringType != typeof(object)) && m.Name == methodName);
+            Guard.ArgumentNotNull(nameof(methodName), methodName);
+
+            var method = Type
+                .GetRuntimeMethods()
+                .FirstOrDefault(m => (includePrivateMethod || m.IsPublic && m.DeclaringType != typeof(object)) && m.Name == methodName);
+
             if (method == null)
                 return null;
 
@@ -106,17 +84,14 @@ namespace Xunit.Sdk
         public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
         {
             var methodInfos = Type.GetRuntimeMethods();
+
             if (!includePrivateMethods)
-            {
                 methodInfos = methodInfos.Where(m => m.IsPublic);
-            }
+
             return methodInfos.Select(m => Reflector.Wrap(m)).ToList();
         }
 
         /// <inheritdoc/>
-        public override string ToString()
-        {
-            return Type.ToString();
-        }
+        public override string? ToString() => Type.ToString();
     }
 }

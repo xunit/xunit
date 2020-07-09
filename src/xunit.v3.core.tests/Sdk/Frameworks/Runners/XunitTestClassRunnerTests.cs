@@ -92,7 +92,7 @@ public class XunitTestClassRunnerTests
     [Fact]
     public static async void CreatesFixturesFromClassAndCollection()
     {
-        var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), null);
+        var collection = new TestCollection(Mocks.TestAssembly(), Reflector.Wrap(typeof(CollectionUnderTest)), "Mock Test Collection");
         var testCase = Mocks.XunitTestCase<ClassUnderTest>("Passing", collection);
         var runner = TestableXunitTestClassRunner.Create(testCase);
 
@@ -393,20 +393,21 @@ public class XunitTestClassRunnerTests
 
     class TestableXunitTestClassRunner : XunitTestClassRunner
     {
-        public List<object[]> ConstructorArguments = new List<object[]>();
+        public List<object?[]> ConstructorArguments = new List<object?[]>();
         public List<IMessageSinkMessage> DiagnosticMessages;
-        public Exception RunTestMethodAsync_AggregatorResult;
+        public Exception? RunTestMethodAsync_AggregatorResult;
 
-        TestableXunitTestClassRunner(ITestClass testClass,
-                                     IReflectionTypeInfo @class,
-                                     IEnumerable<IXunitTestCase> testCases,
-                                     List<IMessageSinkMessage> diagnosticMessages,
-                                     IMessageBus messageBus,
-                                     ITestCaseOrderer testCaseOrderer,
-                                     ExceptionAggregator aggregator,
-                                     CancellationTokenSource cancellationTokenSource,
-                                     IDictionary<Type, object> collectionFixtureMappings)
-            : base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings)
+        TestableXunitTestClassRunner(
+            ITestClass testClass,
+            IReflectionTypeInfo @class,
+            IEnumerable<IXunitTestCase> testCases,
+            List<IMessageSinkMessage> diagnosticMessages,
+            IMessageBus messageBus,
+            ITestCaseOrderer testCaseOrderer,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource,
+            IDictionary<Type, object> collectionFixtureMappings)
+                : base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings)
         {
             DiagnosticMessages = diagnosticMessages;
         }
@@ -433,7 +434,11 @@ public class XunitTestClassRunnerTests
                 collectionFixtures.ToDictionary(fixture => fixture.GetType())
             );
 
-        protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
+        protected override Task<RunSummary> RunTestMethodAsync(
+            ITestMethod testMethod,
+            IReflectionMethodInfo method,
+            IEnumerable<IXunitTestCase> testCases,
+            object?[] constructorArguments)
         {
             ConstructorArguments.Add(constructorArguments);
             RunTestMethodAsync_AggregatorResult = Aggregator.ToException();

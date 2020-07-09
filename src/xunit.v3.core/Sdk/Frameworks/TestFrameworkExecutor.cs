@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -14,44 +15,67 @@ namespace Xunit.Sdk
     public abstract class TestFrameworkExecutor<TTestCase> : LongLivedMarshalByRefObject, ITestFrameworkExecutor
         where TTestCase : ITestCase
     {
+        DisposalTracker disposalTracker = new DisposalTracker();
+        IAssemblyInfo assemblyInfo;
+        IMessageSink diagnosticMessageSink;
+        ISourceInformationProvider sourceInformationProvider;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFrameworkExecutor{TTestCase}"/> class.
         /// </summary>
         /// <param name="assemblyName">Name of the test assembly.</param>
         /// <param name="sourceInformationProvider">The source line number information provider.</param>
         /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
-        protected TestFrameworkExecutor(AssemblyName assemblyName,
-                                        ISourceInformationProvider sourceInformationProvider,
-                                        IMessageSink diagnosticMessageSink)
+        protected TestFrameworkExecutor(
+            AssemblyName assemblyName,
+            ISourceInformationProvider sourceInformationProvider,
+            IMessageSink diagnosticMessageSink)
         {
-            DisposalTracker = new DisposalTracker();
-            SourceInformationProvider = sourceInformationProvider;
-            DiagnosticMessageSink = diagnosticMessageSink;
+            Guard.ArgumentNotNull(nameof(assemblyName), assemblyName);
+
+            this.sourceInformationProvider = Guard.ArgumentNotNull(nameof(sourceInformationProvider), sourceInformationProvider);
+            this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
 
             var assembly = Assembly.Load(assemblyName);
 
-            AssemblyInfo = Reflector.Wrap(assembly);
+            assemblyInfo = Reflector.Wrap(assembly);
         }
 
         /// <summary>
         /// Gets the assembly information of the assembly under test.
         /// </summary>
-        protected IAssemblyInfo AssemblyInfo { get; set; }
+        protected IAssemblyInfo AssemblyInfo
+        {
+            get => assemblyInfo;
+            set => assemblyInfo = Guard.ArgumentNotNull(nameof(AssemblyInfo), value);
+        }
 
         /// <summary>
         /// Gets the message sink to send diagnostic messages to.
         /// </summary>
-        protected IMessageSink DiagnosticMessageSink { get; set; }
+        protected IMessageSink DiagnosticMessageSink
+        {
+            get => diagnosticMessageSink;
+            set => diagnosticMessageSink = Guard.ArgumentNotNull(nameof(DiagnosticMessageSink), value);
+        }
 
         /// <summary>
         /// Gets the disposal tracker for the test framework discoverer.
         /// </summary>
-        protected DisposalTracker DisposalTracker { get; set; }
+        protected DisposalTracker DisposalTracker
+        {
+            get => disposalTracker;
+            set => disposalTracker = Guard.ArgumentNotNull(nameof(DisposalTracker), value);
+        }
 
         /// <summary>
         /// Gets the source information provider.
         /// </summary>
-        protected ISourceInformationProvider SourceInformationProvider { get; set; }
+        protected ISourceInformationProvider SourceInformationProvider
+        {
+            get => sourceInformationProvider;
+            set => sourceInformationProvider = Guard.ArgumentNotNull(nameof(SourceInformationProvider), value);
+        }
 
         /// <summary>
         /// Override to create a test framework discoverer that can be used to discover
@@ -63,14 +87,14 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public virtual ITestCase Deserialize(string value)
         {
-            return SerializationHelper.Deserialize<ITestCase>(value);
+            Guard.ArgumentNotNull(nameof(value), value);
+
+            return SerializationHelper.Deserialize<ITestCase>(value) ?? throw new ArgumentException($"Could not deserialize test case: {value}", nameof(value));
         }
 
         /// <inheritdoc/>
-        public void Dispose()
-        {
+        public void Dispose() =>
             DisposalTracker.Dispose();
-        }
 
         /// <inheritdoc/>
         public virtual void RunAll(IMessageSink executionMessageSink, ITestFrameworkDiscoveryOptions discoveryOptions, ITestFrameworkExecutionOptions executionOptions)

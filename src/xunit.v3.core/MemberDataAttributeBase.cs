@@ -20,10 +20,10 @@ namespace Xunit
         /// </summary>
         /// <param name="memberName">The name of the public static member on the test class that will provide the test data</param>
         /// <param name="parameters">The parameters for the member (only supported for methods; ignored for everything else)</param>
-        protected MemberDataAttributeBase(string memberName, object[] parameters)
+        protected MemberDataAttributeBase(string memberName, object?[] parameters)
         {
-            MemberName = memberName;
-            Parameters = parameters;
+            MemberName = Guard.ArgumentNotNull(nameof(memberName), memberName);
+            Parameters = Guard.ArgumentNotNull(nameof(parameters), parameters);
         }
 
         /// <summary>
@@ -36,25 +36,28 @@ namespace Xunit
         /// <summary>
         /// Gets the member name.
         /// </summary>
-        public string MemberName { get; private set; }
+        public string MemberName { get; }
 
         /// <summary>
         /// Gets or sets the type to retrieve the member from. If not set, then the property will be
         /// retrieved from the unit test class.
         /// </summary>
-        public Type MemberType { get; set; }
+        public Type? MemberType { get; set; }
 
         /// <summary>
         /// Gets or sets the parameters passed to the member. Only supported for static methods.
         /// </summary>
-        public object[] Parameters { get; private set; }
+        public object?[] Parameters { get; }
 
         /// <inheritdoc/>
-        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+        public override IEnumerable<object?[]>? GetData(MethodInfo testMethod)
         {
             Guard.ArgumentNotNull("testMethod", testMethod);
 
             var type = MemberType ?? testMethod.DeclaringType;
+            if (type == null)
+                return null;
+
             var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
             if (accessor == null)
             {
@@ -69,7 +72,7 @@ namespace Xunit
             if (!(obj is IEnumerable dataItems))
                 throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable");
 
-            return dataItems.Cast<object>().Select(item => ConvertDataItem(testMethod, item));
+            return dataItems.Cast<object?>().Select(item => ConvertDataItem(testMethod, item));
         }
 
         /// <summary>
@@ -78,11 +81,11 @@ namespace Xunit
         /// <param name="testMethod">The method that is being tested.</param>
         /// <param name="item">An item yielded from the data member.</param>
         /// <returns>An <see cref="T:object[]"/> suitable for return from <see cref="GetData"/>.</returns>
-        protected abstract object[] ConvertDataItem(MethodInfo testMethod, object item);
+        protected abstract object?[] ConvertDataItem(MethodInfo testMethod, object? item);
 
-        Func<object> GetFieldAccessor(Type type)
+        Func<object?>? GetFieldAccessor(Type? type)
         {
-            FieldInfo fieldInfo = null;
+            FieldInfo? fieldInfo = null;
             for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
             {
                 fieldInfo = reflectionType.GetRuntimeField(MemberName);
@@ -96,14 +99,17 @@ namespace Xunit
             return () => fieldInfo.GetValue(null);
         }
 
-        Func<object> GetMethodAccessor(Type type)
+        Func<object?>? GetMethodAccessor(Type? type)
         {
-            MethodInfo methodInfo = null;
+            MethodInfo? methodInfo = null;
             var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(p => p?.GetType()).ToArray();
             for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
             {
-                methodInfo = reflectionType.GetRuntimeMethods()
-                                           .FirstOrDefault(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), parameterTypes));
+                methodInfo =
+                    reflectionType
+                        .GetRuntimeMethods()
+                        .FirstOrDefault(m => m.Name == MemberName && ParameterTypesCompatible(m.GetParameters(), parameterTypes));
+
                 if (methodInfo != null)
                     break;
             }
@@ -114,9 +120,9 @@ namespace Xunit
             return () => methodInfo.Invoke(null, Parameters);
         }
 
-        Func<object> GetPropertyAccessor(Type type)
+        Func<object?>? GetPropertyAccessor(Type? type)
         {
-            PropertyInfo propInfo = null;
+            PropertyInfo? propInfo = null;
             for (var reflectionType = type; reflectionType != null; reflectionType = reflectionType.GetTypeInfo().BaseType)
             {
                 propInfo = reflectionType.GetRuntimeProperty(MemberName);
@@ -130,13 +136,13 @@ namespace Xunit
             return () => propInfo.GetValue(null, null);
         }
 
-        static bool ParameterTypesCompatible(ParameterInfo[] parameters, Type[] parameterTypes)
+        static bool ParameterTypesCompatible(ParameterInfo[]? parameters, Type?[] parameterTypes)
         {
             if (parameters?.Length != parameterTypes.Length)
                 return false;
 
-            for (int idx = 0; idx < parameters.Length; ++idx)
-                if (parameterTypes[idx] != null && !parameters[idx].ParameterType.GetTypeInfo().IsAssignableFrom(parameterTypes[idx].GetTypeInfo()))
+            for (var idx = 0; idx < parameters.Length; ++idx)
+                if (parameterTypes[idx] != null && !parameters[idx].ParameterType.GetTypeInfo().IsAssignableFrom(parameterTypes[idx]!.GetTypeInfo()))
                     return false;
 
             return true;

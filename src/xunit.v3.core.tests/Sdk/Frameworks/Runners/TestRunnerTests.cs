@@ -127,7 +127,7 @@ public class TestRunnerTests
     {
         var messages = new List<IMessageSinkMessage>();
         var messageBus = Substitute.For<IMessageBus>();
-        messageBus.QueueMessage(null)
+        messageBus.QueueMessage(null!)
                   .ReturnsForAnyArgs(callInfo =>
                   {
                       var msg = callInfo.Arg<IMessageSinkMessage>();
@@ -213,7 +213,10 @@ public class TestRunnerTests
     [InlineData(typeof(ITestFailed), false, null)]
     [InlineData(typeof(ITestSkipped), false, "Please skip me")]
     [InlineData(typeof(ITestFinished), true, null)]
-    public static async void Cancellation_AllOthers_CallsExtensibilityMethods(Type messageTypeToCancelOn, bool shouldTestPass, string skipReason = null)
+    public static async void Cancellation_AllOthers_CallsExtensibilityMethods(
+        Type messageTypeToCancelOn,
+        bool shouldTestPass,
+        string? skipReason = null)
     {
         var messageBus = new SpyMessageBus(msg => !(messageTypeToCancelOn.IsAssignableFrom(msg.GetType())));
         var runner = TestableTestRunner.Create(messageBus, skipReason: skipReason, lambda: () => Assert.True(shouldTestPass));
@@ -239,7 +242,7 @@ public class TestRunnerTests
 
     class TestableTestRunner : TestRunner<ITestCase>
     {
-        readonly Action lambda;
+        readonly Action? lambda;
         readonly string output;
         readonly decimal runTime;
 
@@ -251,19 +254,20 @@ public class TestRunnerTests
         public readonly new ITestCase TestCase;
         public CancellationTokenSource TokenSource;
 
-        TestableTestRunner(ITest test,
-                           IMessageBus messageBus,
-                           Type testClass,
-                           object[] constructorArguments,
-                           MethodInfo testMethod,
-                           object[] testMethodArguments,
-                           string skipReason,
-                           ExceptionAggregator aggregator,
-                           CancellationTokenSource cancellationTokenSource,
-                           decimal runTime,
-                           string output,
-                           Action lambda)
-            : base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
+        TestableTestRunner(
+            ITest test,
+            IMessageBus messageBus,
+            Type testClass,
+            object?[] constructorArguments,
+            MethodInfo testMethod,
+            object?[]? testMethodArguments,
+            string? skipReason,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource,
+            decimal runTime,
+            string output,
+            Action? lambda)
+                : base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
         {
             TestCase = test.TestCase;
             TokenSource = cancellationTokenSource;
@@ -273,14 +277,15 @@ public class TestRunnerTests
             this.lambda = lambda;
         }
 
-        public static TestableTestRunner Create(IMessageBus messageBus,
-                                                ITestCase testCase = null,
-                                                string displayName = null,
-                                                string skipReason = null,
-                                                decimal runTime = 0m,
-                                                string output = "",
-                                                Exception aggregatorSeedException = null,
-                                                Action lambda = null)
+        public static TestableTestRunner Create(
+            IMessageBus messageBus,
+            ITestCase? testCase = null,
+            string displayName = "MockDisplayName",
+            string? skipReason = null,
+            decimal runTime = 0m,
+            string output = "",
+            Exception? aggregatorSeedException = null,
+            Action? lambda = null)
         {
             var aggregator = new ExceptionAggregator();
             if (aggregatorSeedException != null)
@@ -294,14 +299,15 @@ public class TestRunnerTests
                 messageBus,
                 typeof(object),
                 new object[0],
-                typeof(object).GetMethod("ToString"),
+                typeof(object).GetMethod("ToString")!,
                 new object[0],
                 skipReason,
                 aggregator,
                 new CancellationTokenSource(),
                 runTime,
                 output,
-                lambda);
+                lambda
+            );
         }
 
         protected override void AfterTestStarting()
@@ -316,14 +322,14 @@ public class TestRunnerTests
             BeforeTestFinished_Callback(Aggregator);
         }
 
-        protected override Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator)
+        protected override Task<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator)
         {
             if (lambda != null)
                 aggregator.Run(lambda);
 
             InvokeTestAsync_Called = true;
 
-            return Task.FromResult(Tuple.Create(runTime, output));
+            return Task.FromResult<Tuple<decimal, string>?>(Tuple.Create(runTime, output));
         }
     }
 }

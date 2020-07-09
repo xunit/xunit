@@ -30,7 +30,7 @@ public class ExtensibilityPointFactoryTests
         {
             var assembly = Mocks.TestAssembly();
 
-            var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, (IAttributeInfo)null, assembly);
+            var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, (IAttributeInfo?)null, assembly);
 
             Assert.IsType<CollectionPerClassTestCollectionFactory>(result);
         }
@@ -52,7 +52,7 @@ public class ExtensibilityPointFactoryTests
         public void UserCanChooseCustomCollectionFactory()
         {
             var factoryType = typeof(MyTestCollectionFactory);
-            var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName, factoryType.Assembly.FullName);
+            var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName!, factoryType.Assembly.FullName!);
             var assembly = Mocks.TestAssembly();
 
             var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
@@ -92,7 +92,6 @@ public class ExtensibilityPointFactoryTests
 
             var result = ExtensibilityPointFactory.GetXunitTestCollectionFactory(spy, attr, assembly);
 
-            Assert.IsType<CollectionPerClassTestCollectionFactory>(result);
             Assert.Collection(DiagnosticMessages,
                 msg => Assert.Equal(expectedMessage, msg)
             );

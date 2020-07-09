@@ -251,12 +251,12 @@ public class FixtureAcceptanceTests
             public Task InitializeAsync()
             {
                 ++SetupCalls;
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             public Task DisposeAsync()
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             public int SetupCalls = 0;
@@ -288,7 +288,7 @@ public class FixtureAcceptanceTests
 
             public Task DisposeAsync()
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
         }
 
@@ -313,7 +313,7 @@ public class FixtureAcceptanceTests
         {
             public Task InitializeAsync()
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             public Task DisposeAsync()
@@ -454,7 +454,7 @@ public class FixtureAcceptanceTests
 
         class FixtureSaver1
         {
-            public static EmptyFixtureData Fixture;
+            public static EmptyFixtureData? Fixture;
 
             public FixtureSaver1(EmptyFixtureData data)
             {
@@ -467,7 +467,7 @@ public class FixtureAcceptanceTests
 
         class FixtureSaver2
         {
-            public static EmptyFixtureData Fixture;
+            public static EmptyFixtureData? Fixture;
 
             public FixtureSaver2(EmptyFixtureData data)
             {
@@ -556,7 +556,7 @@ public class FixtureAcceptanceTests
 
             public Task DisposeAsync()
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
         }
 
@@ -583,7 +583,7 @@ public class FixtureAcceptanceTests
         {
             public Task InitializeAsync()
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             public Task DisposeAsync()
@@ -641,12 +641,12 @@ public class FixtureAcceptanceTests
             public Task InitializeAsync()
             {
                 Count += 1;
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             public Task DisposeAsync()
             {
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
         }
     }

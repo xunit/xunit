@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <DefineConstants>$(DefineConstants);XUNIT_FRAMEWORK</DefineConstants>
+    <Nullable>enable</Nullable>
     <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
 
@@ -8,10 +10,6 @@
     <Compile Include="..\common\NewReflectionExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\xunit.v3.runner.common\xunit.v3.runner.common.csproj" />
   </ItemGroup>
 
 </Project>

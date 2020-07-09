@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Xunit.Abstractions;
 
@@ -18,19 +17,13 @@ namespace Xunit.Sdk
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         public TheoryDiscoverer(IMessageSink diagnosticMessageSink)
         {
-            DiagnosticMessageSink = diagnosticMessageSink;
+            DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
         }
 
         /// <summary>
         /// Gets the message sink to be used to send diagnostic messages.
         /// </summary>
         protected IMessageSink DiagnosticMessageSink { get; }
-
-        /// <summary/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Please override CreateTestCasesForDataRow instead")]
-        protected virtual IXunitTestCase CreateTestCaseForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow)
-            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, dataRow);
 
         /// <summary>
         /// Creates test cases for a single row of data. By default, returns a single instance of <see cref="XunitTestCase"/>
@@ -41,16 +34,22 @@ namespace Xunit.Sdk
         /// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
         /// <param name="dataRow">The row of data for this test case.</param>
         /// <returns>The test cases</returns>
-#pragma warning disable CS0618
-        protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow)
-            => new[] { CreateTestCaseForDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow) };
-#pragma warning restore CS0618
+        protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
+            ITestFrameworkDiscoveryOptions discoveryOptions,
+            ITestMethod testMethod,
+            IAttributeInfo theoryAttribute,
+            object?[] dataRow)
+        {
+            var testCase = new XunitTestCase(
+                DiagnosticMessageSink,
+                discoveryOptions.MethodDisplayOrDefault(),
+                discoveryOptions.MethodDisplayOptionsOrDefault(),
+                testMethod,
+                dataRow
+            );
 
-        /// <summary/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Please override CreateTestCasesForSkip instead")]
-        protected virtual IXunitTestCase CreateTestCaseForSkip(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, string skipReason)
-            => new XunitTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod);
+            return new[] { testCase };
+        }
 
         /// <summary>
         /// Creates test cases for a skipped theory. By default, returns a single instance of <see cref="XunitTestCase"/>
@@ -61,16 +60,22 @@ namespace Xunit.Sdk
         /// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
         /// <param name="skipReason">The skip reason that decorates <paramref name="theoryAttribute"/>.</param>
         /// <returns>The test cases</returns>
-#pragma warning disable CS0618
-        protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkip(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, string skipReason)
-            => new[] { CreateTestCaseForSkip(discoveryOptions, testMethod, theoryAttribute, skipReason) };
-#pragma warning restore CS0618
+        protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkip(
+            ITestFrameworkDiscoveryOptions discoveryOptions,
+            ITestMethod testMethod,
+            IAttributeInfo theoryAttribute,
+            string skipReason)
+        {
+            // TODO: Skip reason should be passed down into the test case
+            var testCase = new XunitTestCase(
+                DiagnosticMessageSink,
+                discoveryOptions.MethodDisplayOrDefault(),
+                discoveryOptions.MethodDisplayOptionsOrDefault(),
+                testMethod
+            );
 
-        /// <summary/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Please override CreateTestCasesForTheory instead")]
-        protected virtual IXunitTestCase CreateTestCaseForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
-            => new XunitTheoryTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod);
+            return new[] { testCase };
+        }
 
         /// <summary>
         /// Creates test cases for the entire theory. This is used when one or more of the theory data items
@@ -82,16 +87,20 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The test method the test cases belong to.</param>
         /// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
         /// <returns>The test case</returns>
-#pragma warning disable CS0618
-        protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
-            => new[] { CreateTestCaseForTheory(discoveryOptions, testMethod, theoryAttribute) };
-#pragma warning restore CS0618
+        protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
+            ITestFrameworkDiscoveryOptions discoveryOptions,
+            ITestMethod testMethod,
+            IAttributeInfo theoryAttribute)
+        {
+            var testCase = new XunitTheoryTestCase(
+                DiagnosticMessageSink,
+                discoveryOptions.MethodDisplayOrDefault(),
+                discoveryOptions.MethodDisplayOptionsOrDefault(),
+                testMethod
+            );
 
-        /// <summary/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Please override CreateTestCasesForSkippedDataRow instead")]
-        protected virtual IXunitTestCase CreateTestCaseForSkippedDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow, string skipReason)
-            => new XunitSkippedDataRowTestCase(DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod, skipReason, dataRow);
+            return new[] { testCase };
+        }
 
         /// <summary>
         /// Creates test cases for a single row of skipped data. By default, returns a single instance of <see cref="XunitSkippedDataRowTestCase"/>
@@ -105,27 +114,48 @@ namespace Xunit.Sdk
         /// <param name="dataRow">The row of data for this test case.</param>
         /// <param name="skipReason">The reason this test case is to be skipped</param>
         /// <returns>The test cases</returns>
-#pragma warning disable CS0618
-        protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkippedDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow, string skipReason)
-            => new[] { CreateTestCaseForSkippedDataRow(discoveryOptions, testMethod, theoryAttribute, dataRow, skipReason) };
-#pragma warning restore CS0618
+        protected virtual IEnumerable<IXunitTestCase> CreateTestCasesForSkippedDataRow(
+            ITestFrameworkDiscoveryOptions discoveryOptions,
+            ITestMethod testMethod,
+            IAttributeInfo theoryAttribute,
+            object?[] dataRow,
+            string skipReason)
+        {
+            var testCase = new XunitSkippedDataRowTestCase(
+                DiagnosticMessageSink,
+                discoveryOptions.MethodDisplayOrDefault(),
+                discoveryOptions.MethodDisplayOptionsOrDefault(),
+                testMethod,
+                skipReason,
+                dataRow
+            );
+
+            return new[] { testCase };
+        }
 
         /// <summary>
         /// Discover test cases from a test method.
         /// </summary>
         /// <remarks>
         /// This method performs the following steps:
-        /// - If the theory attribute is marked with Skip, returns the single test case from <see cref="CreateTestCaseForSkip"/>;
-        /// - If pre-enumeration is off, or any of the test data is non serializable, returns the single test case from <see cref="CreateTestCaseForTheory"/>;
+        /// - If the theory attribute is marked with Skip, returns the single test case from <see cref="CreateTestCasesForSkip"/>;
+        /// - If pre-enumeration is off, or any of the test data is non serializable, returns the single test case from <see cref="CreateTestCasesForTheory"/>;
         /// - If there is no theory data, returns a single test case of <see cref="ExecutionErrorTestCase"/> with the error in it;
-        /// - Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCaseForDataRow"/> or <see cref="CreateTestCaseForSkippedDataRow"/> if the data attribute has a skip reason.
+        /// - Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCasesForDataRow"/> or <see cref="CreateTestCasesForSkippedDataRow"/> if the data attribute has a skip reason.
         /// </remarks>
         /// <param name="discoveryOptions">The discovery options to be used.</param>
         /// <param name="testMethod">The test method the test cases belong to.</param>
         /// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
         /// <returns>Returns zero or more test cases represented by the test method.</returns>
-        public virtual IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
+        public virtual IEnumerable<IXunitTestCase> Discover(
+            ITestFrameworkDiscoveryOptions discoveryOptions,
+            ITestMethod testMethod,
+            IAttributeInfo theoryAttribute)
         {
+            Guard.ArgumentNotNull(nameof(discoveryOptions), discoveryOptions);
+            Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+            Guard.ArgumentNotNull(nameof(theoryAttribute), theoryAttribute);
+
             // Special case Skip, because we want a single Skip (not one per data item); plus, a skipped test may
             // not actually have any data (which is quasi-legal, since it's skipped).
             var skipReason = theoryAttribute.GetNamedArgument<string>("Skip");
@@ -142,7 +172,7 @@ namespace Xunit.Sdk
                     foreach (var dataAttribute in dataAttributes)
                     {
                         var discovererAttribute = dataAttribute.GetCustomAttributes(typeof(DataDiscovererAttribute)).First();
-                        IDataDiscoverer discoverer;
+                        IDataDiscoverer? discoverer;
                         try
                         {
                             discoverer = ExtensibilityPointFactory.GetDataDiscoverer(DiagnosticMessageSink, discovererAttribute);
@@ -241,11 +271,15 @@ namespace Xunit.Sdk
                     }
 
                     if (results.Count == 0)
-                        results.Add(new ExecutionErrorTestCase(DiagnosticMessageSink,
-                                                               discoveryOptions.MethodDisplayOrDefault(),
-                                                               discoveryOptions.MethodDisplayOptionsOrDefault(),
-                                                               testMethod,
-                                                               $"No data found for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}"));
+                        results.Add(
+                            new ExecutionErrorTestCase(
+                                DiagnosticMessageSink,
+                                discoveryOptions.MethodDisplayOrDefault(),
+                                discoveryOptions.MethodDisplayOptionsOrDefault(),
+                                testMethod,
+                                $"No data found for {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}"
+                            )
+                        );
 
                     return results;
                 }

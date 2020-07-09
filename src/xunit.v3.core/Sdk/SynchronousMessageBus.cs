@@ -3,7 +3,7 @@
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// This is an internal class, and is not intended to be called from end-user code.
+    /// INTERNAL CLASS. DO NOT USE.
     /// </summary>
     public class SynchronousMessageBus : IMessageBus
     {
@@ -12,7 +12,7 @@ namespace Xunit.Sdk
         /// <summary/>
         public SynchronousMessageBus(IMessageSink messageSink)
         {
-            this.messageSink = messageSink;
+            this.messageSink = Guard.ArgumentNotNull(nameof(messageSink), messageSink);
         }
 
         /// <summary/>
@@ -21,6 +21,8 @@ namespace Xunit.Sdk
         /// <summary/>
         public bool QueueMessage(IMessageSinkMessage message)
         {
+            Guard.ArgumentNotNull(nameof(message), message);
+
             return messageSink.OnMessage(message);
         }
     }

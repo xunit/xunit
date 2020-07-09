@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net472;net48</TargetFrameworks>
   </PropertyGroup>

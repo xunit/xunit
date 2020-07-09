@@ -27,13 +27,15 @@ namespace Xunit.Sdk
         /// <param name="parent">The parent aggregator to copy exceptions from.</param>
         public ExceptionAggregator(ExceptionAggregator parent)
         {
+            Guard.ArgumentNotNull(nameof(parent), parent);
+
             exceptions = new List<Exception>(parent.exceptions);
         }
 
         /// <summary>
         /// Returns <c>true</c> if the aggregator has at least one exception inside it.
         /// </summary>
-        public bool HasExceptions { get { return exceptions.Count > 0; } }
+        public bool HasExceptions => exceptions.Count > 0;
 
         /// <summary>
         /// Adds an exception to the aggregator.
@@ -41,6 +43,8 @@ namespace Xunit.Sdk
         /// <param name="ex">The exception to be added.</param>
         public void Add(Exception ex)
         {
+            Guard.ArgumentNotNull(nameof(ex), ex);
+
             exceptions.Add(ex);
         }
 
@@ -50,6 +54,8 @@ namespace Xunit.Sdk
         /// <param name="aggregator">The aggregator whose exceptions should be copied.</param>
         public void Aggregate(ExceptionAggregator aggregator)
         {
+            Guard.ArgumentNotNull(nameof(aggregator), aggregator);
+
             exceptions.AddRange(aggregator.exceptions);
         }
 
@@ -68,6 +74,8 @@ namespace Xunit.Sdk
         /// <param name="code">The code to be run.</param>
         public void Run(Action code)
         {
+            Guard.ArgumentNotNull(nameof(code), code);
+
             try
             {
                 code();
@@ -85,6 +93,8 @@ namespace Xunit.Sdk
         /// <param name="code">The code to be run.</param>
         public async Task RunAsync(Func<Task> code)
         {
+            Guard.ArgumentNotNull(nameof(code), code);
+
             try
             {
                 await code();
@@ -100,8 +110,11 @@ namespace Xunit.Sdk
         /// the aggregate.
         /// </summary>
         /// <param name="code">The code to be run.</param>
-        public async Task<T> RunAsync<T>(Func<Task<T>> code)
+        /// <param name="defaultValue">The default value to return if the lambda throws an exception</param>
+        public async Task<T> RunAsync<T>(Func<Task<T>> code, T defaultValue = default)
         {
+            Guard.ArgumentNotNull(nameof(code), code);
+
             try
             {
                 return await code();
@@ -109,7 +122,7 @@ namespace Xunit.Sdk
             catch (Exception ex)
             {
                 exceptions.Add(ex.Unwrap());
-                return default(T);
+                return defaultValue;
             }
         }
 
@@ -120,7 +133,7 @@ namespace Xunit.Sdk
         /// <returns>Returns <c>null</c> if no exceptions were thrown; returns the
         /// exact exception if a single exception was thrown; returns <see cref="AggregateException"/>
         /// if more than one exception was thrown.</returns>
-        public Exception ToException()
+        public Exception? ToException()
         {
             if (exceptions.Count == 0)
                 return null;

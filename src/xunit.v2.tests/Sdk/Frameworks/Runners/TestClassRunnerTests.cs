@@ -418,14 +418,14 @@ public class TestClassRunnerTests
         {
             AfterTestClassStarting_Called = true;
             AfterTestClassStarting_Callback(Aggregator);
-            return Task.FromResult(0);
+            return TaskHelpers.CompletedTask;
         }
 
         protected override Task BeforeTestClassFinishedAsync()
         {
             BeforeTestClassFinished_Called = true;
             BeforeTestClassFinished_Callback(Aggregator);
-            return Task.FromResult(0);
+            return TaskHelpers.CompletedTask;
         }
 
         protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<ITestCase> testCases, object[] constructorArguments)

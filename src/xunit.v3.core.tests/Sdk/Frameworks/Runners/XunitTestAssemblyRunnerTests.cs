@@ -91,7 +91,7 @@ public class XunitTestAssemblyRunnerTests
         public static void Attribute_CustomCollectionFactory()
         {
             var factoryType = typeof(MyTestCollectionFactory);
-            var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName, factoryType.Assembly.FullName, disableTestParallelization: true);
+            var attr = Mocks.CollectionBehaviorAttribute(factoryType.FullName!, factoryType.Assembly.FullName!, disableTestParallelization: true);
             var assembly = Mocks.TestAssembly(new[] { attr });
             var runner = TestableXunitTestAssemblyRunner.Create(assembly: assembly);
 
@@ -344,19 +344,21 @@ public class XunitTestAssemblyRunnerTests
 
         public ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>> TestCasesRun = new ConcurrentBag<Tuple<int, IEnumerable<IXunitTestCase>>>();
 
-        TestableXunitTestAssemblyRunner(ITestAssembly testAssembly,
-                                        IEnumerable<IXunitTestCase> testCases,
-                                        List<IMessageSinkMessage> diagnosticMessages,
-                                        IMessageSink executionMessageSink,
-                                        ITestFrameworkExecutionOptions executionOptions)
-            : base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
+        TestableXunitTestAssemblyRunner(
+            ITestAssembly testAssembly,
+            IEnumerable<IXunitTestCase> testCases,
+            List<IMessageSinkMessage> diagnosticMessages,
+            IMessageSink executionMessageSink,
+            ITestFrameworkExecutionOptions executionOptions)
+                : base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
         {
             DiagnosticMessages = diagnosticMessages;
         }
 
-        public static TestableXunitTestAssemblyRunner Create(ITestAssembly assembly = null,
-                                                             IXunitTestCase[] testCases = null,
-                                                             ITestFrameworkExecutionOptions executionOptions = null)
+        public static TestableXunitTestAssemblyRunner Create(
+            ITestAssembly? assembly = null,
+            IXunitTestCase[]? testCases = null,
+            ITestFrameworkExecutionOptions? executionOptions = null)
         {
             if (testCases == null)
                 testCases = new[] { Mocks.XunitTestCase<ClassUnderTest>("Passing") };

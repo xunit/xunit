@@ -23,14 +23,22 @@ public static class ReflectionAbstractionExtensions
     /// <param name="timer">The timer used to measure the time taken for construction</param>
     /// <param name="cancellationTokenSource">The cancellation token source</param>
     /// <returns></returns>
-    public static object CreateTestClass(this ITest test,
-                                         Type testClassType,
-                                         object[] constructorArguments,
-                                         IMessageBus messageBus,
-                                         ExecutionTimer timer,
-                                         CancellationTokenSource cancellationTokenSource)
+    public static object? CreateTestClass(
+        this ITest test,
+        Type testClassType,
+        object?[] constructorArguments,
+        IMessageBus messageBus,
+        ExecutionTimer timer,
+        CancellationTokenSource cancellationTokenSource)
     {
-        object testClass = null;
+        Guard.ArgumentNotNull(nameof(test), test);
+        Guard.ArgumentNotNull(nameof(testClassType), testClassType);
+        Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
+        Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+        Guard.ArgumentNotNull(nameof(timer), timer);
+        Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
+
+        object? testClass = null;
 
         if (!messageBus.QueueMessage(new TestClassConstructionStarting(test)))
             cancellationTokenSource.Cancel();
@@ -60,12 +68,18 @@ public static class ReflectionAbstractionExtensions
     /// <param name="messageBus">The message bus used to send the test messages</param>
     /// <param name="timer">The timer used to measure the time taken for construction</param>
     /// <param name="cancellationTokenSource">The cancellation token source</param>
-    public static void DisposeTestClass(this ITest test,
-                                        object testClass,
-                                        IMessageBus messageBus,
-                                        ExecutionTimer timer,
-                                        CancellationTokenSource cancellationTokenSource)
+    public static void DisposeTestClass(
+        this ITest test,
+        object? testClass,
+        IMessageBus messageBus,
+        ExecutionTimer timer,
+        CancellationTokenSource cancellationTokenSource)
     {
+        Guard.ArgumentNotNull(nameof(test), test);
+        Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+        Guard.ArgumentNotNull(nameof(timer), timer);
+        Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
+
         if (!(testClass is IDisposable disposable))
             return;
 
@@ -85,7 +99,7 @@ public static class ReflectionAbstractionExtensions
         }
     }
 
-    static MethodInfo GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
+    static MethodInfo? GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
     {
         // The old logic only flattened hierarchy for static methods
         var methods = from method in methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetTypeInfo().DeclaredMethods
@@ -105,6 +119,9 @@ public static class ReflectionAbstractionExtensions
     /// <returns>The methods that have the same visibility as the supplied method.</returns>
     public static IEnumerable<MethodInfo> GetMatchingMethods(this Type type, MethodInfo methodInfo)
     {
+        Guard.ArgumentNotNull(nameof(type), type);
+        Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
+
         var methods = from method in methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetTypeInfo().DeclaredMethods
                       where method.IsPublic == methodInfo.IsPublic &&
                             method.IsStatic == methodInfo.IsStatic
@@ -121,6 +138,10 @@ public static class ReflectionAbstractionExtensions
     /// <returns>The matching attributes that decorate the assembly</returns>
     public static IEnumerable<IAttributeInfo> GetCustomAttributes(this IAssemblyInfo assemblyInfo, Type attributeType)
     {
+        Guard.ArgumentNotNull(nameof(assemblyInfo), assemblyInfo);
+        Guard.ArgumentNotNull(nameof(attributeType), attributeType);
+        Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
+
         return assemblyInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
     }
 
@@ -132,6 +153,10 @@ public static class ReflectionAbstractionExtensions
     /// <returns>The matching attributes that decorate the attribute</returns>
     public static IEnumerable<IAttributeInfo> GetCustomAttributes(this IAttributeInfo attributeInfo, Type attributeType)
     {
+        Guard.ArgumentNotNull(nameof(attributeInfo), attributeInfo);
+        Guard.ArgumentNotNull(nameof(attributeType), attributeType);
+        Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
+
         return attributeInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
     }
 
@@ -143,6 +168,10 @@ public static class ReflectionAbstractionExtensions
     /// <returns>The matching attributes that decorate the method</returns>
     public static IEnumerable<IAttributeInfo> GetCustomAttributes(this IMethodInfo methodInfo, Type attributeType)
     {
+        Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
+        Guard.ArgumentNotNull(nameof(attributeType), attributeType);
+        Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
+
         return methodInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
     }
 
@@ -154,6 +183,10 @@ public static class ReflectionAbstractionExtensions
     /// <returns>The matching attributes that decorate the type</returns>
     public static IEnumerable<IAttributeInfo> GetCustomAttributes(this ITypeInfo typeInfo, Type attributeType)
     {
+        Guard.ArgumentNotNull(nameof(typeInfo), typeInfo);
+        Guard.ArgumentNotNull(nameof(attributeType), attributeType);
+        Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
+
         return typeInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
     }
 
@@ -163,12 +196,14 @@ public static class ReflectionAbstractionExtensions
     /// </summary>
     /// <param name="methodInfo">The method to convert</param>
     /// <returns>The runtime method, if available; <c>null</c>, otherwise</returns>
-    public static MethodInfo ToRuntimeMethod(this IMethodInfo methodInfo)
+    public static MethodInfo? ToRuntimeMethod(this IMethodInfo methodInfo)
     {
+        Guard.ArgumentNotNull(nameof(methodInfo), methodInfo);
+
         if (methodInfo is IReflectionMethodInfo reflectionMethodInfo)
             return reflectionMethodInfo.MethodInfo;
 
-        return methodInfo.Type.ToRuntimeType().GetMethodInfoFromIMethodInfo(methodInfo);
+        return methodInfo.Type.ToRuntimeType()?.GetMethodInfoFromIMethodInfo(methodInfo);
     }
 
     /// <summary>
@@ -177,7 +212,7 @@ public static class ReflectionAbstractionExtensions
     /// </summary>
     /// <param name="typeInfo">The type to convert</param>
     /// <returns>The runtime type, if available, <c>null</c>, otherwise</returns>
-    public static Type ToRuntimeType(this ITypeInfo typeInfo)
+    public static Type? ToRuntimeType(this ITypeInfo typeInfo)
     {
         if (typeInfo is IReflectionTypeInfo reflectionTypeInfo)
             return reflectionTypeInfo.Type;

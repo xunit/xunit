@@ -1,13 +1,14 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
-using Xunit;
 using Xunit.Abstractions;
 
 public class SpyMessageBus : Xunit.LongLivedMarshalByRefObject, Xunit.Sdk.IMessageBus
 {
     readonly Func<IMessageSinkMessage, bool> cancellationThunk;
 
-    public SpyMessageBus(Func<IMessageSinkMessage, bool> cancellationThunk = null)
+    public SpyMessageBus(Func<IMessageSinkMessage, bool>? cancellationThunk = null)
     {
         this.cancellationThunk = cancellationThunk ?? (msg => true);
     }

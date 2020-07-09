@@ -97,7 +97,7 @@ namespace Xunit.Sdk
         {
             public virtual void Evaluate(FormatContext context, char character) => context.Buffer.Append(character);
 
-            public CharacterRule Next { get; set; }
+            public CharacterRule? Next { get; set; }
         }
 
         sealed class ReplaceOperatorMonikerRule : CharacterRule
@@ -138,7 +138,7 @@ namespace Xunit.Sdk
 
             bool TryConsumeMoniker(FormatContext context, string token)
             {
-                if (!tokenMonikers.TryGetValue(token, out string @operator))
+                if (!tokenMonikers.TryGetValue(token, out var @operator))
                     return false;
 
                 context.Buffer.Clear();

@@ -1,5 +1,3 @@
-#nullable enable
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -38,7 +36,7 @@ namespace Xunit
         /// </summary>
         /// <param name="testCode">The code which may throw an exception.</param>
         /// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
-        public static Exception? Exception(Func<object> testCode)
+        public static Exception? Exception(Func<object?> testCode)
         {
             Guard.ArgumentNotNull(nameof(testCode), testCode);
             Task? task;

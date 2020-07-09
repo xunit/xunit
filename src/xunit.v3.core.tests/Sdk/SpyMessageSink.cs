@@ -7,12 +7,16 @@ namespace Xunit.Sdk
 {
     public static class SpyMessageSink
     {
-        public static IMessageSink Create(bool returnResult = true, List<IMessageSinkMessage> messages = null)
+        public static IMessageSink Create(
+            bool returnResult = true,
+            List<IMessageSinkMessage>? messages = null)
         {
             return Create(_ => returnResult, messages);
         }
 
-        public static IMessageSink Create(Func<IMessageSinkMessage, bool> lambda, List<IMessageSinkMessage> messages = null)
+        public static IMessageSink Create(
+            Func<IMessageSinkMessage, bool> lambda,
+            List<IMessageSinkMessage>? messages = null)
         {
             var result = Substitute.For<IMessageSink>();
 

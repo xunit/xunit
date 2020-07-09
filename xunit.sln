@@ -1,45 +1,44 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DD6C7641-EDB5-445C-8563-15068910979E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v1.tests", "src\xunit.v1.tests\xunit.v1.tests.csproj", "{2836B5D6-28DC-4617-B4D5-A0F2B38A4686}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v1.tests", "src\xunit.v1.tests\xunit.v1.tests.csproj", "{2836B5D6-28DC-4617-B4D5-A0F2B38A4686}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v2.tests", "src\xunit.v2.tests\xunit.v2.tests.csproj", "{C378E546-9E5C-4FCE-B79E-EB396D43FB62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v2.tests", "src\xunit.v2.tests\xunit.v2.tests.csproj", "{C378E546-9E5C-4FCE-B79E-EB396D43FB62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.abstractions", "src\xunit.v3.abstractions\xunit.v3.abstractions.csproj", "{0755DC0E-DBCD-45A9-BC85-C6418B6012AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.abstractions", "src\xunit.v3.abstractions\xunit.v3.abstractions.csproj", "{0755DC0E-DBCD-45A9-BC85-C6418B6012AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.assert", "src\xunit.v3.assert\xunit.v3.assert.csproj", "{151947F7-DB4A-408B-A42A-F66A7D7F5DFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert", "src\xunit.v3.assert\xunit.v3.assert.csproj", "{151947F7-DB4A-408B-A42A-F66A7D7F5DFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.assert.tests", "src\xunit.v3.assert.tests\xunit.v3.assert.tests.csproj", "{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.NonNullable", "src\xunit.v3.assert.NonNullable\xunit.v3.assert.NonNullable.csproj", "{916DC5CE-D60E-44BE-B71D-E6A667BE838F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.core", "src\xunit.v3.core\xunit.v3.core.csproj", "{D4055B13-469D-4529-861C-2D8D5383D7E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.tests", "src\xunit.v3.assert.tests\xunit.v3.assert.tests.csproj", "{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.core.tests", "src\xunit.v3.core.tests\xunit.v3.core.tests.csproj", "{D5E1DFF3-9C98-4764-80F1-4FDD1F6081D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.core", "src\xunit.v3.core\xunit.v3.core.csproj", "{D4055B13-469D-4529-861C-2D8D5383D7E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.common", "src\xunit.v3.runner.common\xunit.v3.runner.common.csproj", "{A8A0E1D4-C64D-4795-92D6-4F4423493428}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.core.tests", "src\xunit.v3.core.tests\xunit.v3.core.tests.csproj", "{D5E1DFF3-9C98-4764-80F1-4FDD1F6081D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.common.tests", "src\xunit.v3.runner.common.tests\xunit.v3.runner.common.tests.csproj", "{094739EF-5393-475C-A1E5-1A169D8E834E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.common", "src\xunit.v3.runner.common\xunit.v3.runner.common.csproj", "{A8A0E1D4-C64D-4795-92D6-4F4423493428}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.console", "src\xunit.v3.runner.console\xunit.v3.runner.console.csproj", "{E2AD20C9-BC5D-4EC4-B5F5-9E650A56D9EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.common.tests", "src\xunit.v3.runner.common.tests\xunit.v3.runner.common.tests.csproj", "{094739EF-5393-475C-A1E5-1A169D8E834E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.console.tests", "src\xunit.v3.runner.console.tests\xunit.v3.runner.console.tests.csproj", "{1F24BA4B-9C6D-460A-8663-F5E5B597081B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.console", "src\xunit.v3.runner.console\xunit.v3.runner.console.csproj", "{E2AD20C9-BC5D-4EC4-B5F5-9E650A56D9EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.inproc.console", "src\xunit.v3.runner.inproc.console\xunit.v3.runner.inproc.console.csproj", "{B760593A-6B4F-46A3-B7A1-0B791ED37AFF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.console.tests", "src\xunit.v3.runner.console.tests\xunit.v3.runner.console.tests.csproj", "{1F24BA4B-9C6D-460A-8663-F5E5B597081B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.utility", "src\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj", "{83174840-DD7B-4F11-A1AC-08EBD2F50354}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.inproc.console", "src\xunit.v3.runner.inproc.console\xunit.v3.runner.inproc.console.csproj", "{B760593A-6B4F-46A3-B7A1-0B791ED37AFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.v3.runner.utility.tests", "src\xunit.v3.runner.utility.tests\xunit.v3.runner.utility.tests.csproj", "{42626F10-47E8-472C-9927-733D3EF9042E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.utility", "src\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj", "{83174840-DD7B-4F11-A1AC-08EBD2F50354}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.utility.tests", "src\xunit.v3.runner.utility.tests\xunit.v3.runner.utility.tests.csproj", "{42626F10-47E8-472C-9927-733D3EF9042E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2836B5D6-28DC-4617-B4D5-A0F2B38A4686}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -58,6 +57,10 @@ Global
 		{151947F7-DB4A-408B-A42A-F66A7D7F5DFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{151947F7-DB4A-408B-A42A-F66A7D7F5DFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{151947F7-DB4A-408B-A42A-F66A7D7F5DFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{916DC5CE-D60E-44BE-B71D-E6A667BE838F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{916DC5CE-D60E-44BE-B71D-E6A667BE838F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{916DC5CE-D60E-44BE-B71D-E6A667BE838F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{916DC5CE-D60E-44BE-B71D-E6A667BE838F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -99,11 +102,15 @@ Global
 		{42626F10-47E8-472C-9927-733D3EF9042E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42626F10-47E8-472C-9927-733D3EF9042E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2836B5D6-28DC-4617-B4D5-A0F2B38A4686} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{C378E546-9E5C-4FCE-B79E-EB396D43FB62} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{0755DC0E-DBCD-45A9-BC85-C6418B6012AD} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{151947F7-DB4A-408B-A42A-F66A7D7F5DFB} = {DD6C7641-EDB5-445C-8563-15068910979E}
+		{916DC5CE-D60E-44BE-B71D-E6A667BE838F} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{D4055B13-469D-4529-861C-2D8D5383D7E9} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{D5E1DFF3-9C98-4764-80F1-4FDD1F6081D6} = {DD6C7641-EDB5-445C-8563-15068910979E}
@@ -114,5 +121,8 @@ Global
 		{B760593A-6B4F-46A3-B7A1-0B791ED37AFF} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{42626F10-47E8-472C-9927-733D3EF9042E} = {DD6C7641-EDB5-445C-8563-15068910979E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {473062FC-54C1-4B4F-9266-98F43AC17F94}
 	EndGlobalSection
 EndGlobal

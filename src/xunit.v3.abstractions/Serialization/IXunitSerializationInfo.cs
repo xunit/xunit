@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
+
 namespace Xunit.Abstractions
 {
     /// <summary>
@@ -15,7 +17,7 @@ namespace Xunit.Abstractions
         /// <param name="key">The key</param>
         /// <param name="value">The value</param>
         /// <param name="type">The optional type of the value</param>
-        void AddValue(string key, object value, Type type = null);
+        void AddValue(string key, object? value, Type? type = null);
 
         /// <summary>
         /// Gets a value from the serialization.
@@ -23,13 +25,13 @@ namespace Xunit.Abstractions
         /// <param name="key">The key</param>
         /// <param name="type">The type of the value</param>
         /// <returns>The value, if present; <c>null</c>, otherwise</returns>
-        object GetValue(string key, Type type);
+        object? GetValue(string key, Type type);
 
         /// <summary>
         /// Gets a value from the serialization.
         /// </summary>
         /// <param name="key">The key</param>
         /// <returns>The value, if present; default(T), otherwise</returns>
-        T GetValue<T>(string key);
+        [return: MaybeNull] T GetValue<T>(string key);
     }
 }

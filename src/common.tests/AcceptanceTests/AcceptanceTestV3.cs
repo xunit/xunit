@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +13,7 @@ using NullMessageSink = Xunit.Sdk.NullMessageSink;
 
 public class AcceptanceTestV3 : IDisposable
 {
-    protected XunitTestFramework TestFramework { get; private set; }
+    protected XunitTestFramework? TestFramework { get; private set; }
 
     public void Dispose()
         => TestFramework?.Dispose();
@@ -31,7 +33,7 @@ public class AcceptanceTestV3 : IDisposable
                 TestFramework = new XunitTestFramework(diagnosticMessageSink, configFileName: null);
 
                 var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
-                var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly());
+                var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!);
                 using var discoverer = TestFramework.GetDiscoverer(assemblyInfo);
                 foreach (var type in types)
                 {
@@ -43,7 +45,7 @@ public class AcceptanceTestV3 : IDisposable
                 var testCases = discoverySink.Messages.OfType<ITestCaseDiscoveryMessage>().Select(msg => msg.TestCase).ToArray();
 
                 var runSink = new SpyMessageSink<ITestAssemblyFinished>();
-                using var executor = TestFramework.GetExecutor(Assembly.GetEntryAssembly().GetName());
+                using var executor = TestFramework.GetExecutor(Assembly.GetEntryAssembly()!.GetName());
                 executor.RunTests(testCases, runSink, TestFrameworkOptions.ForExecution());
                 runSink.Finished.WaitOne();
 

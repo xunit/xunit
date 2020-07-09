@@ -30,7 +30,7 @@ namespace Xunit.Sdk
         /// <param name="testMethod">The method that is being tested/discovered</param>
         /// <returns>The theory data (or null during discovery, if not enough
         /// information is available to enumerate the data)</returns>
-        IEnumerable<object[]> GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod);
+        IEnumerable<object?[]>? GetData(IAttributeInfo dataAttribute, IMethodInfo testMethod);
 
         /// <summary>
         /// Returns <c>true</c> if the data attribute supports enumeration during

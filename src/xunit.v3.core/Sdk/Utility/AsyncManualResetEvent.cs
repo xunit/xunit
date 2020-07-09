@@ -12,25 +12,16 @@ namespace Xunit.Sdk
                 taskCompletionSource.TrySetResult(true);
         }
 
-        public bool IsSet
-        {
-            get { return taskCompletionSource.Task.IsCompleted; }
-        }
-
-        public Task WaitAsync()
-        {
-            return taskCompletionSource.Task;
-        }
-
-        public void Set()
-        {
-            taskCompletionSource.TrySetResult(true);
-        }
+        public bool IsSet => taskCompletionSource.Task.IsCompleted;
 
         public void Reset()
         {
             if (IsSet)
                 taskCompletionSource = new TaskCompletionSource<bool>();
         }
+
+        public void Set() => taskCompletionSource.TrySetResult(true);
+
+        public Task WaitAsync() => taskCompletionSource.Task;
     }
 }

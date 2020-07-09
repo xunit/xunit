@@ -10,6 +10,9 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public override bool SupportsDiscoveryEnumeration(IAttributeInfo dataAttribute, IMethodInfo testMethod)
         {
+            Guard.ArgumentNotNull(nameof(dataAttribute), dataAttribute);
+            Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+
             return !dataAttribute.GetNamedArgument<bool>("DisableDiscoveryEnumeration");
         }
     }

@@ -12,6 +12,7 @@ namespace Xunit.Sdk
     public class XunitTestFrameworkExecutor : TestFrameworkExecutor<IXunitTestCase>
     {
         readonly Lazy<XunitTestFrameworkDiscoverer> discoverer;
+        TestAssembly testAssembly;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestFrameworkExecutor"/> class.
@@ -20,24 +21,28 @@ namespace Xunit.Sdk
         /// <param name="configFileName">The test configuration file.</param>
         /// <param name="sourceInformationProvider">The source line number information provider.</param>
         /// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
-        public XunitTestFrameworkExecutor(AssemblyName assemblyName,
-                                          string configFileName,
-                                          ISourceInformationProvider sourceInformationProvider,
-                                          IMessageSink diagnosticMessageSink)
-            : base(assemblyName, sourceInformationProvider, diagnosticMessageSink)
+        public XunitTestFrameworkExecutor(
+            AssemblyName assemblyName,
+            string? configFileName,
+            ISourceInformationProvider sourceInformationProvider,
+            IMessageSink diagnosticMessageSink)
+                : base(assemblyName, sourceInformationProvider, diagnosticMessageSink)
         {
-            TestAssembly = new TestAssembly(AssemblyInfo, configFileName, assemblyName.Version);
+            testAssembly = new TestAssembly(AssemblyInfo, configFileName, assemblyName.Version);
             discoverer = new Lazy<XunitTestFrameworkDiscoverer>(() => new XunitTestFrameworkDiscoverer(AssemblyInfo, configFileName, SourceInformationProvider, DiagnosticMessageSink));
         }
 
         /// <summary>
         /// Gets the test assembly that contains the test.
         /// </summary>
-        protected TestAssembly TestAssembly { get; set; }
+        protected TestAssembly TestAssembly
+        {
+            get => testAssembly;
+            set => testAssembly = Guard.ArgumentNotNull(nameof(TestAssembly), value);
+        }
 
         /// <inheritdoc/>
-        protected override ITestFrameworkDiscoverer CreateDiscoverer()
-            => discoverer.Value;
+        protected override ITestFrameworkDiscoverer CreateDiscoverer() => discoverer.Value;
 
         /// <inheritdoc/>
         public override ITestCase Deserialize(string value)
@@ -73,13 +78,21 @@ namespace Xunit.Sdk
                 if (parts.Count > 4)
                 {
                     var typeInfo = discoverer.Value.AssemblyInfo.GetType(parts[0]);
-                    var testCollectionUniqueId = Guid.Parse(parts[4]);
-                    var testClass = discoverer.Value.CreateTestClass(typeInfo, testCollectionUniqueId);
-                    var methodInfo = testClass.Class.GetMethod(parts[1], true);
-                    var testMethod = new TestMethod(testClass, methodInfo);
-                    var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[2]);
-                    var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[3]);
-                    return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
+                    if (typeInfo == null)
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type {parts[0]} during test case deserialization"));
+                    else
+                    {
+                        var testCollectionUniqueId = Guid.Parse(parts[4]);
+                        var testClass = discoverer.Value.CreateTestClass(typeInfo, testCollectionUniqueId);
+                        var methodInfo = testClass.Class.GetMethod(parts[1], true);
+                        if (methodInfo != null)
+                        {
+                            var testMethod = new TestMethod(testClass, methodInfo);
+                            var defaultMethodDisplay = (TestMethodDisplay)int.Parse(parts[2]);
+                            var defaultMethodDisplayOptions = (TestMethodDisplayOptions)int.Parse(parts[3]);
+                            return new XunitTestCase(DiagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod);
+                        }
+                    }
                 }
             }
 

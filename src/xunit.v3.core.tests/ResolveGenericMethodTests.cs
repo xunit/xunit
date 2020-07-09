@@ -7,10 +7,10 @@ using Xunit.Sdk;
 
 public class ResolveGenericMethodTests
 {
-    public static IEnumerable<object[]> ResolveGenericType_TestData()
+    public static IEnumerable<object?[]> ResolveGenericType_TestData()
     {
         // Method()
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(NoGenericParameters_NoParameters),
             new object[0],
@@ -18,15 +18,15 @@ public class ResolveGenericMethodTests
         };
 
         // Method(int)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(NoGenericParameters_OneParameter),
-            new object[] { 1 },
+            new object?[] { 1 },
             new Type[0]
         };
 
         // Method<T>()
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_NotUsed_NoParameters),
             new object[0],
@@ -34,71 +34,71 @@ public class ResolveGenericMethodTests
         };
 
         // Method<T>(T) non-null
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_Used_OneParameter),
-            new object[] { 1 },
+            new object?[] { 1 },
             new Type[] { typeof(int) }
         };
 
         // Method<T>(T) null
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_Used_OneParameter),
-            new object[] { null },
+            new object?[] { null },
             new Type[] { typeof(object) }
         };
 
         // Method<T>(T) array
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_Used_OneParameter),
-            new object[] { new int[5] },
+            new object?[] { new int[5] },
             new Type[] { typeof(int[]) }
         };
 
         // Method<T>(T, T) matching
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_UsedTwice_TwoParameters),
-            new object[] { 1, 2 },
+            new object?[] { 1, 2 },
             new Type[] { typeof(int) }
         };
 
         // Method<T>(T, T) non matching
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_UsedTwice_TwoParameters),
-            new object[] { 1, "2" },
+            new object?[] { 1, "2" },
             new Type[] { typeof(int) }
         };
 
         // Method<T>(T, int)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_UsedOnceFirst_TwoParameters),
-            new object[] { "1", 2 },
+            new object?[] { "1", 2 },
             new Type[] { typeof(string) }
         };
 
         // Method<T>(int, T)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_UsedOnceSecond_TwoParameters),
-            new object[] { 1, "2" },
+            new object?[] { 1, "2" },
             new Type[] { typeof(string) }
         };
 
         // Method<T>(int)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_NotUsed_OneParameter),
-            new object[] { 1 },
+            new object?[] { 1 },
             new Type[] { typeof(object) }
         };
 
         // Method<T, U>()
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_NoneUsed_NoParameters),
             new object[0],
@@ -106,355 +106,355 @@ public class ResolveGenericMethodTests
         };
 
         // Method<T, U>(int)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_NoneUsed_OneParameter),
-            new object[] { 1 },
+            new object?[] { 1 },
             new Type[] { typeof(object), typeof(object) }
         };
 
         // Method<T, U>(int, long)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_NoneUsed_TwoParameters),
-            new object[] { 1, 2L },
+            new object?[] { 1, 2L },
             new Type[] { typeof(object), typeof(object) }
         };
 
         // Method<T, U>(T)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_OnlyFirstUsed_OneParameter),
-            new object[] { 1 },
+            new object?[] { 1 },
             new Type[] { typeof(int), typeof(object) }
         };
 
         // Method<T, U>(U)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_OnlySecondUsed_OneParameter),
-            new object[] { 1 },
+            new object?[] { 1 },
             new Type[] { typeof(object), typeof(int) }
         };
 
         // Method<T, U>(T, T) matching
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_OnlyFirstUsed_TwoParameters),
-            new object[] { 1, 2 },
+            new object?[] { 1, 2 },
             new Type[] { typeof(int), typeof(object) }
         };
 
         // Method<T, U>(T, T) unmatching
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_OnlyFirstUsed_TwoParameters),
-            new object[] { 1, "2" },
+            new object?[] { 1, "2" },
             new Type[] { typeof(int), typeof(object) }
         };
 
         // Method<T, U>(U, U) matching
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_OnlySecondUsed_TwoParameters),
-            new object[] { 1, 2 },
+            new object?[] { 1, 2 },
             new Type[] { typeof(object), typeof(int) }
         };
 
         // Method<T, U>(U, U) unmatching
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_OnlySecondUsed_TwoParameters),
-            new object[] { 1, "2" },
+            new object?[] { 1, "2" },
             new Type[] { typeof(object), typeof(int) }
         };
 
         // Method<T, U>(T, U) with normal inputs
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_TwoUsed_TwoParameters),
-            new object[] { 5, null },
+            new object?[] { 5, null },
             new Type[] { typeof(int), typeof(object) }
         };
 
         // Method<T, U>(T, U) with array inputs
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_TwoUsed_TwoParameters),
-            new object[] { new int[1], new string[1] },
+            new object?[] { new int[1], new string[1] },
             new Type[] { typeof(int[]), typeof(string[]) }
         };
 
         // Method<T, U>(T, int)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_FirstUsedFirst_TwoParameters),
-            new object[] { "5", 5 },
+            new object?[] { "5", 5 },
             new Type[] { typeof(string), typeof(object) }
         };
 
         // Method<T, U>(U, int)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_SecondUsedFirst_TwoParameters),
-            new object[] { "5", 5 },
+            new object?[] { "5", 5 },
             new Type[] { typeof(object), typeof(string) }
         };
 
         // Method<T, U>(int, U)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_FirstUsedSecond_TwoParameters),
-            new object[] { 5, "5" },
+            new object?[] { 5, "5" },
             new Type[] { typeof(string), typeof(object) }
         };
 
         // Method<T, U>(int, U)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_SecondUsedSecond_TwoParameters),
-            new object[] { 5, "5" },
+            new object?[] { 5, "5" },
             new Type[] { typeof(object), typeof(string) }
         };
 
         // Method<T>(T[]>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(GenericArrayTest),
-            new object[] { new int[5] },
+            new object?[] { new int[5] },
             new Type[] { typeof(int) }
         };
 
         // Method<T>(ref T>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(GenericRefTest),
-            new object[] { "abc" },
+            new object?[] { "abc" },
             new Type[] { typeof(string) }
         };
 
         // Method<T>(Generic<T>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric1_OneGenericParameter_Used),
-            new object[] { new GenericClass<string>() },
+            new object?[] { new GenericClass<string>() },
             new Type[] { typeof(string) }
         };
 
         // Method<T>(Generic<string>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric1_OneGenericParameter_Unused),
-            new object[] { new GenericClass<string>() },
+            new object?[] { new GenericClass<string>() },
             new Type[] { typeof(object) }
         };
 
         // Method(Generic<string>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric1_NoGenericParameters),
-            new object[] { new GenericClass<string>() },
+            new object?[] { new GenericClass<string>() },
             new Type[0]
         };
 
         // Method<T>(Generic<T[]>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric1_OneGenericParameter_Array),
-            new object[] { new GenericClass<string[]>() },
+            new object?[] { new GenericClass<string[]>() },
             new Type[] { typeof(string) }
         };
 
         // Method<T>(Generic<T?>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric1_OneGenericParameter_Nullable),
-            new object[] { new GenericClass<int?>() },
+            new object?[] { new GenericClass<int?>() },
             new Type[] { typeof(int) }
         };
 
         // Method<T>(Generic<T>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric1_OneGenericParameter_Used),
-            new object[] { new GenericClass<GenericClass<string>>() },
+            new object?[] { new GenericClass<GenericClass<string>>() },
             new Type[] { typeof(GenericClass<string>) }
         };
 
         // Method<T>(Generic<Generic<T>>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric1_OneGenericParameter_Recursive),
-            new object[] { new GenericClass<GenericClass<string>>() },
+            new object?[] { new GenericClass<GenericClass<string>>() },
             new Type[] { typeof(string) }
         };
 
         // Method<T>(Generic<T>[])
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(GenericArrayOfEmbeddedGeneric1_OneGenericParameter),
-            new object[] { new GenericClass<int>[1] },
+            new object?[] { new GenericClass<int>[1] },
             new Type[] { typeof(int) }
         };
 
         // Method<T>(T?[])
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(GenericArrayOfGenericNullable1_OneGenericParameter),
-            new object[] { new int?[1] },
+            new object?[] { new int?[1] },
             new Type[] { typeof(int) }
         };
 
         // Method<T, U>(Generic2<T, U>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric2_TwoGenericParameters_SameType),
-            new object[] { new GenericClass2<string, int>() },
+            new object?[] { new GenericClass2<string, int>() },
             new Type[] { typeof(string), typeof(int) }
         };
 
         // Method<T>(Generic2<T, int>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGenericGeneric2_OneGenericParameter_First),
-            new object[] { new GenericClass2<string, int>() },
+            new object?[] { new GenericClass2<string, int>() },
             new Type[] { typeof(string) }
         };
 
         // Method<T>(Generic2<string, T>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGenericGeneric2_OneGenericParameter_Second),
-            new object[] { new GenericClass2<string, int>() },
+            new object?[] { new GenericClass2<string, int>() },
             new Type[] { typeof(int) }
         };
 
         // Method<T>(Generic2<string, int>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric2_OneGeneric_Unused),
-            new object[] { new GenericClass2<string, int>() },
+            new object?[] { new GenericClass2<string, int>() },
             new Type[] { typeof(object) }
         };
 
         // Method(Generic2<string, int>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric2_NotGeneric),
-            new object[] { new GenericClass2<string, int>() },
+            new object?[] { new GenericClass2<string, int>() },
             new Type[0]
         };
 
         // Method<T, U>(Generic2<T, int>, Generic2<ulong, T>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric2_TwoGenericParameters_DifferentTypeTest1),
-            new object[] { new GenericClass2<string, int>(), new GenericClass2<ulong, long>() },
+            new object?[] { new GenericClass2<string, int>(), new GenericClass2<ulong, long>() },
             new Type[] { typeof(string), typeof(long) }
         };
 
         // Method<T, U>(Generic2<T, int>, Generic2<T, long>)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric2_TwoGenericParameters_DifferentTypeTest2),
-            new object[] { new GenericClass2<string, int>(), new GenericClass2<ulong, long>() },
+            new object?[] { new GenericClass2<string, int>(), new GenericClass2<ulong, long>() },
             new Type[] { typeof(string), typeof(ulong) }
         };
 
         // Method<T, U>(Generic2<string, T>, Generic2<T, long)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric2_TwoGenericParameters_DifferentTypeTest3),
-            new object[] { new GenericClass2<string, int>(), new GenericClass2<ulong, long>() },
+            new object?[] { new GenericClass2<string, int>(), new GenericClass2<ulong, long>() },
             new Type[] { typeof(int), typeof(ulong) }
         };
 
         // Method<T, U>(Generic2<string, T>, Generic2<ulong, T)
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(EmbeddedGeneric2_TwoGenericParameters_DifferentTypeTest4),
-            new object[] { new GenericClass2<string, int>(), new GenericClass2<ulong, long>() },
+            new object?[] { new GenericClass2<string, int>(), new GenericClass2<ulong, long>() },
             new Type[] { typeof(int), typeof(long) }
         };
 
         // Stress test
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(CrazyGenericMethod),
-            new object[] { new GenericClass3<GenericClass<bool>, GenericClass2<GenericClass3<ulong, long, int>, string>, uint>() },
+            new object?[] { new GenericClass3<GenericClass<bool>, GenericClass2<GenericClass3<ulong, long, int>, string>, uint>() },
             new Type[] { typeof(bool), typeof(ulong), typeof(long), typeof(object), typeof(uint) }
         };
 
         // Func test
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(FuncTestMethod),
-            new object[] { new int[] { 4, 5, 6, 7 }, 0, 0, new Func<int, float>(i => i + 0.5f) },
+            new object?[] { new int[] { 4, 5, 6, 7 }, 0, 0, new Func<int, float>(i => i + 0.5f) },
             new Type[] { typeof(float) }
         };
 
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(FuncTestMethod),
-            new object[] { new int[] { 4, 5, 6, 7 }, 0, 1, new Func<int, double>(i => i + 0.5d) },
+            new object?[] { new int[] { 4, 5, 6, 7 }, 0, 1, new Func<int, double>(i => i + 0.5d) },
             new Type[] { typeof(double) }
         };
 
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(FuncTestMethod),
-            new object[] { new int[] { 4, 5, 6, 7 }, 0, 2, new Func<int, int>(i => i) },
+            new object?[] { new int[] { 4, 5, 6, 7 }, 0, 2, new Func<int, int>(i => i) },
             new Type[] { typeof(int) }
         };
     }
 
-    public static IEnumerable<object[]> ResolveGenericType_MismatchedGenericTypeArguments_TestData()
+    public static IEnumerable<object?[]> ResolveGenericType_MismatchedGenericTypeArguments_TestData()
     {
         // SubClass: GenericBaseClass<int> -> GenericBaseClass<T>
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_GenericBaseClass),
-            new object[] { new ImplementsGeneric1BaseClass() },
+            new object?[] { new ImplementsGeneric1BaseClass() },
             new Type[] { typeof(int) }
         };
 
         // SubClass: BaseClass<int, string> -> BaseClass<T, U>
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_GenericBaseClass),
-            new object[] { new ImplementsGeneric2BaseClass() },
+            new object?[] { new ImplementsGeneric2BaseClass() },
             new Type[] { typeof(int), typeof(uint) }
         };
 
         // SubClass<T>: BaseClass<T, string> -> BaseClass<T, U>
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_GenericBaseClass),
-            new object[] { new GenericImplements2BaseClass<int>() },
+            new object?[] { new GenericImplements2BaseClass<int>() },
             new Type[] { typeof(int), typeof(string) }
         };
 
         // Class: Interface<int> -> Interface<T>
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(OneGenericParameter_GenericInterface),
-            new object[] { new ImplementsGeneric1Interface() },
+            new object?[] { new ImplementsGeneric1Interface() },
             new Type[] { typeof(int) }
         };
 
         // Class: Interface<int, string> -> Interface<T, U>
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_GenericInterface),
-            new object[] { new ImplementsGeneric2Interface() },
+            new object?[] { new ImplementsGeneric2Interface() },
             new Type[] { typeof(int), typeof(uint) }
         };
 
         // Class<T>: Interface<T, string> -> Interface<T, U>
-        yield return new object[]
+        yield return new object?[]
         {
             nameof(TwoGenericParameters_GenericInterface),
-            new object[] { new GenericImplements2Interface<int>() },
+            new object?[] { new GenericImplements2Interface<int>() },
             new Type[] { typeof(int), typeof(string) }
         };
     }
@@ -462,9 +462,12 @@ public class ResolveGenericMethodTests
     [Theory]
     [MemberData(nameof(ResolveGenericType_TestData))]
     [MemberData(nameof(ResolveGenericType_MismatchedGenericTypeArguments_TestData))]
-    public static void ResolveGenericType(string methodName, object[] parameters, Type[] expected)
+    public static void ResolveGenericType(string methodName, object?[] parameters, Type[] expected)
     {
-        IMethodInfo method = Reflector.Wrap(typeof(ResolveGenericMethodTests).GetMethod(methodName));
+        var methodInfo = typeof(ResolveGenericMethodTests).GetMethod(methodName);
+        Assert.NotNull(methodInfo);
+
+        IMethodInfo method = Reflector.Wrap(methodInfo);
         Type[] actual = method.ResolveGenericTypes(parameters).Select(t => ((ReflectionTypeInfo)t).Type).ToArray();
         Assert.Equal(expected, actual);
     }

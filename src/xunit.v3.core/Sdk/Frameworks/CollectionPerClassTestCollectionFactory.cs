@@ -22,34 +22,34 @@ namespace Xunit.Sdk
         /// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
         public CollectionPerClassTestCollectionFactory(ITestAssembly testAssembly, IMessageSink diagnosticMessageSink)
         {
-            this.testAssembly = testAssembly;
+            Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
+
+            this.testAssembly = Guard.ArgumentNotNull(nameof(testAssembly), testAssembly);
 
             collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly, diagnosticMessageSink);
         }
 
         /// <inheritdoc/>
-        public string DisplayName
-        {
-            get { return "collection-per-class"; }
-        }
+        public string DisplayName => "collection-per-class";
 
         ITestCollection CreateCollection(string name)
         {
-            ITypeInfo definitionType;
-            collectionDefinitions.TryGetValue(name, out definitionType);
+            collectionDefinitions.TryGetValue(name, out var definitionType);
             return new TestCollection(testAssembly, definitionType, name);
         }
 
         /// <inheritdoc/>
         public ITestCollection Get(ITypeInfo testClass)
         {
+            Guard.ArgumentNotNull(nameof(testClass), testClass);
+
             string collectionName;
             var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
 
             if (collectionAttribute == null)
                 collectionName = "Test collection for " + testClass.Name;
             else
-                collectionName = (string)collectionAttribute.GetConstructorArguments().First();
+                collectionName = collectionAttribute.GetConstructorArguments().Cast<string>().Single();
 
             return testCollections.GetOrAdd(collectionName, CreateCollection);
         }

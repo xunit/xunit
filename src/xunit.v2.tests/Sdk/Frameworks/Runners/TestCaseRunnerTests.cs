@@ -202,14 +202,14 @@ public class TestCaseRunnerTests
         {
             AfterTestCaseStarting_Called = true;
             AfterTestCaseStarting_Callback(Aggregator);
-            return Task.FromResult(0);
+            return TaskHelpers.CompletedTask;
         }
 
         protected override Task BeforeTestCaseFinishedAsync()
         {
             BeforeTestCaseFinished_Called = true;
             BeforeTestCaseFinished_Callback(Aggregator);
-            return Task.FromResult(0);
+            return TaskHelpers.CompletedTask;
         }
 
         protected override Task<RunSummary> RunTestAsync()

@@ -13,7 +13,10 @@ namespace Xunit.Sdk
         /// <inheritdoc/>
         public virtual IEnumerable<KeyValuePair<string, string>> GetTraits(IAttributeInfo traitAttribute)
         {
+            Guard.ArgumentNotNull(nameof(traitAttribute), traitAttribute);
+
             var ctorArgs = traitAttribute.GetConstructorArguments().Cast<string>().ToList();
+
             yield return new KeyValuePair<string, string>(ctorArgs[0], ctorArgs[1]);
         }
     }

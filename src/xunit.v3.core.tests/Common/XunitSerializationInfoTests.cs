@@ -3,84 +3,85 @@ using System.Collections.Generic;
 using System.Xml;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Runner.Common;
 using Xunit.Serialization;
 
 public class XunitSerializationInfoTests
 {
-    public static IEnumerable<object[]> SupportedIntrinsics
+    public static IEnumerable<object?[]> SupportedIntrinsics
     {
         get
         {
-            yield return new object[] { typeof(char), char.MaxValue };
-            yield return new object[] { typeof(char?), char.MinValue };
-            yield return new object[] { typeof(char?), null };
-            yield return new object[] { typeof(string), "Hello, world!" };
-            yield return new object[] { typeof(string), "" };
-            yield return new object[] { typeof(string), null };
-            yield return new object[] { typeof(byte), byte.MaxValue };
-            yield return new object[] { typeof(byte?), byte.MinValue };
-            yield return new object[] { typeof(byte?), null };
-            yield return new object[] { typeof(sbyte), sbyte.MaxValue };
-            yield return new object[] { typeof(sbyte?), sbyte.MinValue };
-            yield return new object[] { typeof(sbyte?), null };
-            yield return new object[] { typeof(short), short.MaxValue };
-            yield return new object[] { typeof(short?), short.MinValue };
-            yield return new object[] { typeof(short?), null };
-            yield return new object[] { typeof(ushort), ushort.MaxValue };
-            yield return new object[] { typeof(ushort?), ushort.MinValue };
-            yield return new object[] { typeof(ushort?), null };
-            yield return new object[] { typeof(int), int.MaxValue };
-            yield return new object[] { typeof(int?), int.MinValue };
-            yield return new object[] { typeof(int?), null };
-            yield return new object[] { typeof(uint), uint.MaxValue };
-            yield return new object[] { typeof(uint?), uint.MinValue };
-            yield return new object[] { typeof(uint?), null };
-            yield return new object[] { typeof(long), long.MaxValue };
-            yield return new object[] { typeof(long?), long.MinValue };
-            yield return new object[] { typeof(long?), null };
-            yield return new object[] { typeof(ulong), ulong.MaxValue };
-            yield return new object[] { typeof(ulong?), ulong.MinValue };
-            yield return new object[] { typeof(ulong?), null };
-            yield return new object[] { typeof(float), float.MaxValue };
-            yield return new object[] { typeof(float?), float.MinValue };
-            yield return new object[] { typeof(float?), null };
-            yield return new object[] { typeof(double), double.MaxValue };
-            yield return new object[] { typeof(double), double.PositiveInfinity };
-            yield return new object[] { typeof(double), double.NegativeInfinity };
-            yield return new object[] { typeof(double), 0.0 };
-            yield return new object[] { typeof(double), -0.0 };
-            yield return new object[] { typeof(double), double.NaN };
-            yield return new object[] { typeof(double?), double.MinValue };
-            yield return new object[] { typeof(double?), null };
-            yield return new object[] { typeof(decimal), decimal.MaxValue };
-            yield return new object[] { typeof(decimal?), decimal.MinValue };
-            yield return new object[] { typeof(decimal?), null };
-            yield return new object[] { typeof(bool), true };
-            yield return new object[] { typeof(bool?), false };
-            yield return new object[] { typeof(bool?), null };
-            yield return new object[] { typeof(MyEnum), MyEnum.SomeValue };
-            yield return new object[] { typeof(MyEnum?), MyEnum.SomeValue };
-            yield return new object[] { typeof(MyEnum?), null };
-            yield return new object[] { typeof(DateTime), DateTime.Now };
-            yield return new object[] { typeof(DateTime?), DateTime.UtcNow };
-            yield return new object[] { typeof(DateTime?), null };
-            yield return new object[] { typeof(DateTimeOffset), DateTimeOffset.Now };
-            yield return new object[] { typeof(DateTimeOffset?), DateTimeOffset.UtcNow };
-            yield return new object[] { typeof(DateTimeOffset?), null };
-            yield return new object[] { typeof(Type), typeof(object) };
-            yield return new object[] { typeof(Type), null };
-            yield return new object[] { typeof(MyEnum[]), new MyEnum[] { MyEnum.SomeValue, MyEnum.OtherValue } };
-            yield return new object[] { typeof(object[]), new object[] { char.MaxValue, byte.MaxValue, short.MinValue, ushort.MaxValue, int.MinValue, uint.MaxValue, long.MinValue, ulong.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, MyEnum.SomeValue, DateTime.Now, DateTimeOffset.UtcNow, typeof(decimal) } };
-            yield return new object[] { typeof(int[,]), new int[,] { { 1, 2 }, { 3, 4 } } };
-            yield return new object[] { typeof(int[,]), new int[,] { { 1, 2, 3 }, { 4, 5, 6 } } };
-            yield return new object[] { typeof(int[,,]), new int[,,] { { { 1, 2 }, { 3, 4 } }, { { 4, 5 }, { 6, 7 } } } };
-
             var nonZeroLowerBoundSingleDimensionArray = Array.CreateInstance(typeof(int), new int[] { 1 }, new int[] { 2 });
-            yield return new object[] { nonZeroLowerBoundSingleDimensionArray.GetType(), nonZeroLowerBoundSingleDimensionArray };
-
             var nonZeroLowerBoundMultiDimensionArray = Array.CreateInstance(typeof(int), new int[] { 1, 2 }, new int[] { 3, 4 });
-            yield return new object[] { nonZeroLowerBoundMultiDimensionArray.GetType(), nonZeroLowerBoundMultiDimensionArray };
+
+            return new TheoryData<Type, object?>
+            {
+                { typeof(char), char.MaxValue },
+                { typeof(char?), char.MinValue },
+                { typeof(char?), null },
+                { typeof(string), "Hello, world!" },
+                { typeof(string), "" },
+                { typeof(string), null },
+                { typeof(byte), byte.MaxValue },
+                { typeof(byte?), byte.MinValue },
+                { typeof(byte?), null },
+                { typeof(sbyte), sbyte.MaxValue },
+                { typeof(sbyte?), sbyte.MinValue },
+                { typeof(sbyte?), null },
+                { typeof(short), short.MaxValue },
+                { typeof(short?), short.MinValue },
+                { typeof(short?), null },
+                { typeof(ushort), ushort.MaxValue },
+                { typeof(ushort?), ushort.MinValue },
+                { typeof(ushort?), null },
+                { typeof(int), int.MaxValue },
+                { typeof(int?), int.MinValue },
+                { typeof(int?), null },
+                { typeof(uint), uint.MaxValue },
+                { typeof(uint?), uint.MinValue },
+                { typeof(uint?), null },
+                { typeof(long), long.MaxValue },
+                { typeof(long?), long.MinValue },
+                { typeof(long?), null },
+                { typeof(ulong), ulong.MaxValue },
+                { typeof(ulong?), ulong.MinValue },
+                { typeof(ulong?), null },
+                { typeof(float), float.MaxValue },
+                { typeof(float?), float.MinValue },
+                { typeof(float?), null },
+                { typeof(double), double.MaxValue },
+                { typeof(double), double.PositiveInfinity },
+                { typeof(double), double.NegativeInfinity },
+                { typeof(double), 0.0 },
+                { typeof(double), -0.0 },
+                { typeof(double), double.NaN },
+                { typeof(double?), double.MinValue },
+                { typeof(double?), null },
+                { typeof(decimal), decimal.MaxValue },
+                { typeof(decimal?), decimal.MinValue },
+                { typeof(decimal?), null },
+                { typeof(bool), true },
+                { typeof(bool?), false },
+                { typeof(bool?), null },
+                { typeof(MyEnum), MyEnum.SomeValue },
+                { typeof(MyEnum?), MyEnum.SomeValue },
+                { typeof(MyEnum?), null },
+                { typeof(DateTime), DateTime.Now },
+                { typeof(DateTime?), DateTime.UtcNow },
+                { typeof(DateTime?), null },
+                { typeof(DateTimeOffset), DateTimeOffset.Now },
+                { typeof(DateTimeOffset?), DateTimeOffset.UtcNow },
+                { typeof(DateTimeOffset?), null },
+                { typeof(Type), typeof(object) },
+                { typeof(Type), null },
+                { typeof(MyEnum[]), new MyEnum[] { MyEnum.SomeValue, MyEnum.OtherValue } },
+                { typeof(object?[]), new object?[] { char.MaxValue, byte.MaxValue, short.MinValue, ushort.MaxValue, int.MinValue, uint.MaxValue, long.MinValue, ulong.MaxValue, null, "", 1.1f, -2.2, decimal.MaxValue, true, MyEnum.SomeValue, DateTime.Now, DateTimeOffset.UtcNow, typeof(decimal) } },
+                { typeof(int[,]), new int[,] { { 1, 2 }, { 3, 4 } } },
+                { typeof(int[,]), new int[,] { { 1, 2, 3 }, { 4, 5, 6 } } },
+                { typeof(int[,,]), new int[,,] { { { 1, 2 }, { 3, 4 } }, { { 4, 5 }, { 6, 7 } } } },
+                { nonZeroLowerBoundSingleDimensionArray.GetType(), nonZeroLowerBoundSingleDimensionArray },
+                { nonZeroLowerBoundMultiDimensionArray.GetType(), nonZeroLowerBoundMultiDimensionArray },
+            };
         }
     }
 
@@ -90,7 +91,7 @@ public class XunitSerializationInfoTests
     {
         [Theory]
         [MemberData("SupportedIntrinsics", MemberType = typeof(XunitSerializationInfoTests))]
-        public static void CanRoundTripIntrinsics(Type dataType, object data)
+        public static void CanRoundTripIntrinsics(Type dataType, object? data)
         {
             Assert.Equal(data, XunitSerializationInfo.Deserialize(dataType, XunitSerializationInfo.Serialize(data)));
         }
@@ -124,8 +125,9 @@ public class XunitSerializationInfoTests
         {
             var data = new MySerializable { IntValue = 42, StringValue = "Hello\r\nworld!" };
 
-            var deserialized = (MySerializable)XunitSerializationInfo.Deserialize(typeof(MySerializable), XunitSerializationInfo.Serialize(data));
+            var deserialized = (MySerializable?)XunitSerializationInfo.Deserialize(typeof(MySerializable), XunitSerializationInfo.Serialize(data));
 
+            Assert.NotNull(deserialized);
             Assert.Equal(42, deserialized.IntValue);
             Assert.Equal("Hello\r\nworld!", deserialized.StringValue);
         }
@@ -136,7 +138,7 @@ public class XunitSerializationInfoTests
             var data = new MySerializableWithNoData();
 
             var serialized = XunitSerializationInfo.Serialize(data);
-            var deserialized = (MySerializableWithNoData)XunitSerializationInfo.Deserialize(typeof(MySerializableWithNoData), serialized);
+            var deserialized = (MySerializableWithNoData?)XunitSerializationInfo.Deserialize(typeof(MySerializableWithNoData), serialized);
 
             Assert.NotNull(deserialized);
         }
@@ -147,7 +149,7 @@ public class XunitSerializationInfoTests
             var data = new MySerializableWithEmbeddedEmptySerializable { NoData = new MySerializableWithNoData() };
 
             var serialized = XunitSerializationInfo.Serialize(data);
-            var deserialized = (MySerializableWithEmbeddedEmptySerializable)XunitSerializationInfo.Deserialize(typeof(MySerializableWithEmbeddedEmptySerializable), serialized);
+            var deserialized = (MySerializableWithEmbeddedEmptySerializable?)XunitSerializationInfo.Deserialize(typeof(MySerializableWithEmbeddedEmptySerializable), serialized);
 
             Assert.NotNull(deserialized);
             Assert.NotNull(deserialized.NoData);
@@ -267,11 +269,13 @@ public class XunitSerializationInfoTests
             var data = new MySerializable { IntValue = 42, StringValue = "Hello\r\nworld!" };
             var triple = new XunitSerializationTriple(Guid.NewGuid().ToString(), data, data.GetType());
             var serialized = XunitSerializationInfo.SerializeTriple(triple);
-            var deserialized = XunitSerializationInfo.DeserializeTriple(serialized);
 
+            var deserialized = XunitSerializationInfo.DeserializeTriple(serialized);
             Assert.Equal(triple.Key, deserialized.Key);
             Assert.Equal(triple.Type, deserialized.Type);
-            var deserializedInner = (MySerializable)deserialized.Value;
+
+            var deserializedInner = (MySerializable?)deserialized.Value;
+            Assert.NotNull(deserializedInner);
             Assert.Equal(42, deserializedInner.IntValue);
             Assert.Equal("Hello\r\nworld!", deserializedInner.StringValue);
         }
@@ -292,7 +296,7 @@ public class XunitSerializationInfoTests
     class MySerializable : IXunitSerializable
     {
         public int IntValue;
-        public string StringValue;
+        public string? StringValue;
 
         public void Deserialize(IXunitSerializationInfo info)
         {
@@ -316,7 +320,7 @@ public class XunitSerializationInfoTests
 
     class MySerializableWithEmbeddedEmptySerializable : IXunitSerializable
     {
-        public MySerializableWithNoData NoData { get; set; }
+        public MySerializableWithNoData? NoData { get; set; }
 
         public void Deserialize(IXunitSerializationInfo info)
         {

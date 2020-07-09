@@ -13,8 +13,15 @@ namespace Xunit.Sdk
     /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
     /// derive from <see cref="ITestCase"/>.</typeparam>
     public abstract class TestCollectionRunner<TTestCase>
-        where TTestCase : ITestCase
+        where TTestCase : class, ITestCase
     {
+        ExceptionAggregator aggregator;
+        CancellationTokenSource cancellationTokenSource;
+        IMessageBus messageBus;
+        ITestCaseOrderer testCaseOrderer;
+        IEnumerable<TTestCase> testCases;
+        ITestCollection testCollection;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestCollectionRunner{TTestCase}"/> class.
         /// </summary>
@@ -24,64 +31,87 @@ namespace Xunit.Sdk
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        protected TestCollectionRunner(ITestCollection testCollection,
-                                       IEnumerable<TTestCase> testCases,
-                                       IMessageBus messageBus,
-                                       ITestCaseOrderer testCaseOrderer,
-                                       ExceptionAggregator aggregator,
-                                       CancellationTokenSource cancellationTokenSource)
+        protected TestCollectionRunner(
+            ITestCollection testCollection,
+            IEnumerable<TTestCase> testCases,
+            IMessageBus messageBus,
+            ITestCaseOrderer testCaseOrderer,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
         {
-            TestCollection = testCollection;
-            TestCases = testCases;
-            MessageBus = messageBus;
-            TestCaseOrderer = testCaseOrderer;
-            CancellationTokenSource = cancellationTokenSource;
-            Aggregator = aggregator;
+            this.testCollection = Guard.ArgumentNotNull(nameof(testCollection), testCollection);
+            this.testCases = Guard.ArgumentNotNull(nameof(testCases), testCases);
+            this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+            this.testCaseOrderer = Guard.ArgumentNotNull(nameof(testCaseOrderer), testCaseOrderer);
+            this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
+            this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
         }
 
         /// <summary>
         /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
-        protected ExceptionAggregator Aggregator { get; set; }
+        protected ExceptionAggregator Aggregator
+        {
+            get => aggregator;
+            set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+        }
 
         /// <summary>
         /// Gets or sets the task cancellation token source, used to cancel the test run.
         /// </summary>
-        protected CancellationTokenSource CancellationTokenSource { get; set; }
+        protected CancellationTokenSource CancellationTokenSource
+        {
+            get => cancellationTokenSource;
+            set => cancellationTokenSource = Guard.ArgumentNotNull(nameof(CancellationTokenSource), value);
+        }
 
         /// <summary>
         /// Gets or sets the message bus to report run status to.
         /// </summary>
-        protected IMessageBus MessageBus { get; set; }
+        protected IMessageBus MessageBus
+        {
+            get => messageBus;
+            set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
+        }
 
         /// <summary>
         /// Gets or sets the test case orderer that will be used to decide how to order the test.
         /// </summary>
-        protected ITestCaseOrderer TestCaseOrderer { get; set; }
+        protected ITestCaseOrderer TestCaseOrderer
+        {
+            get => testCaseOrderer;
+            set => testCaseOrderer = Guard.ArgumentNotNull(nameof(TestCaseOrderer), value);
+        }
 
         /// <summary>
         /// Gets or sets the test cases to be run.
         /// </summary>
-        protected IEnumerable<TTestCase> TestCases { get; set; }
+        protected IEnumerable<TTestCase> TestCases
+        {
+            get => testCases;
+            set => testCases = Guard.ArgumentNotNull(nameof(TestCases), value);
+        }
 
         /// <summary>
         /// Gets or sets the test collection that contains the tests to be run.
         /// </summary>
-        protected ITestCollection TestCollection { get; set; }
+        protected ITestCollection TestCollection
+        {
+            get => testCollection;
+            set => testCollection = Guard.ArgumentNotNull(nameof(TestCollection), value);
+        }
 
         /// <summary>
         /// This method is called just after <see cref="ITestCollectionStarting"/> is sent, but before any test classes are run.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual Task AfterTestCollectionStartingAsync()
-            => CommonTasks.Completed;
+        protected virtual Task AfterTestCollectionStartingAsync() => Task.CompletedTask;
 
         /// <summary>
         /// This method is called just before <see cref="ITestCollectionFinished"/> is sent.
         /// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
         /// </summary>
-        protected virtual Task BeforeTestCollectionFinishedAsync()
-            => CommonTasks.Completed;
+        protected virtual Task BeforeTestCollectionFinishedAsync() => Task.CompletedTask;
 
         /// <summary>
         /// Runs the tests in the test collection.
@@ -104,7 +134,7 @@ namespace Xunit.Sdk
                     await BeforeTestCollectionFinishedAsync();
 
                     if (Aggregator.HasExceptions)
-                        if (!MessageBus.QueueMessage(new TestCollectionCleanupFailure(TestCases.Cast<ITestCase>(), TestCollection, Aggregator.ToException())))
+                        if (!MessageBus.QueueMessage(new TestCollectionCleanupFailure(TestCases.Cast<ITestCase>(), TestCollection, Aggregator.ToException()!)))
                             CancellationTokenSource.Cancel();
                 }
                 finally

@@ -15,6 +15,14 @@ namespace Xunit.Sdk
     public abstract class TestRunner<TTestCase>
         where TTestCase : ITestCase
     {
+        ExceptionAggregator aggregator;
+        CancellationTokenSource cancellationTokenSource;
+        object?[] constructorArguments;
+        IMessageBus messageBus;
+        ITest test;
+        Type testClass;
+        MethodInfo testMethod;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestRunner{TTestCase}"/> class.
         /// </summary>
@@ -27,84 +35,114 @@ namespace Xunit.Sdk
         /// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        protected TestRunner(ITest test,
-                             IMessageBus messageBus,
-                             Type testClass,
-                             object[] constructorArguments,
-                             MethodInfo testMethod,
-                             object[] testMethodArguments,
-                             string skipReason,
-                             ExceptionAggregator aggregator,
-                             CancellationTokenSource cancellationTokenSource)
+        protected TestRunner(
+            ITest test,
+            IMessageBus messageBus,
+            Type testClass,
+            object?[] constructorArguments,
+            MethodInfo testMethod,
+            object?[]? testMethodArguments,
+            string? skipReason,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
         {
-            Guard.ArgumentNotNull("test", test);
-            Guard.ArgumentValid("test", "test.TestCase must implement " + typeof(TTestCase).FullName, test.TestCase is TTestCase);
+            this.test = Guard.ArgumentNotNull(nameof(test), test);
+            this.messageBus = Guard.ArgumentNotNull(nameof(messageBus), messageBus);
+            this.testClass = Guard.ArgumentNotNull(nameof(testClass), testClass);
+            this.constructorArguments = Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
+            this.testMethod = Guard.ArgumentNotNull(nameof(testMethod), testMethod);
+            this.aggregator = Guard.ArgumentNotNull(nameof(aggregator), aggregator);
+            this.cancellationTokenSource = Guard.ArgumentNotNull(nameof(cancellationTokenSource), cancellationTokenSource);
 
-            Test = test;
-            MessageBus = messageBus;
-            TestClass = testClass;
-            ConstructorArguments = constructorArguments;
-            TestMethod = testMethod;
-            TestMethodArguments = testMethodArguments;
             SkipReason = skipReason;
-            Aggregator = aggregator;
-            CancellationTokenSource = cancellationTokenSource;
+            TestMethodArguments = testMethodArguments;
+
+            Guard.ArgumentValid(nameof(test), $"test.TestCase must implement {typeof(TTestCase).FullName}", test.TestCase is TTestCase);
         }
 
         /// <summary>
         /// Gets or sets the exception aggregator used to run code and collect exceptions.
         /// </summary>
-        protected ExceptionAggregator Aggregator { get; set; }
+        protected ExceptionAggregator Aggregator
+        {
+            get => aggregator;
+            set => aggregator = Guard.ArgumentNotNull(nameof(Aggregator), value);
+        }
 
         /// <summary>
         /// Gets or sets the task cancellation token source, used to cancel the test run.
         /// </summary>
-        protected CancellationTokenSource CancellationTokenSource { get; set; }
+        protected CancellationTokenSource CancellationTokenSource
+        {
+            get => cancellationTokenSource;
+            set => cancellationTokenSource = Guard.ArgumentNotNull(nameof(CancellationTokenSource), value);
+        }
 
         /// <summary>
         /// Gets or sets the constructor arguments used to construct the test class.
         /// </summary>
-        protected object[] ConstructorArguments { get; set; }
+        protected object?[] ConstructorArguments
+        {
+            get => constructorArguments;
+            set => constructorArguments = Guard.ArgumentNotNull(nameof(ConstructorArguments), value);
+        }
 
         /// <summary>
         /// Gets or sets the display name of the invoked test.
         /// </summary>
-        protected string DisplayName { get { return Test.DisplayName; } }
+        protected string DisplayName => Test.DisplayName;
 
         /// <summary>
         /// Gets or sets the message bus to report run status to.
         /// </summary>
-        protected IMessageBus MessageBus { get; set; }
+        protected IMessageBus MessageBus
+        {
+            get => messageBus;
+            set => messageBus = Guard.ArgumentNotNull(nameof(MessageBus), value);
+        }
 
         /// <summary>
         /// Gets or sets the skip reason for the test, if set.
         /// </summary>
-        protected string SkipReason { get; set; }
+        protected string? SkipReason { get; set; }
 
         /// <summary>
         /// Gets or sets the test to be run.
         /// </summary>
-        protected ITest Test { get; set; }
+        protected ITest Test
+        {
+            get => test;
+            set => test = Guard.ArgumentNotNull(nameof(Test), value);
+        }
 
         /// <summary>
         /// Gets the test case to be run.
         /// </summary>
-        protected TTestCase TestCase { get { return (TTestCase)Test.TestCase; } }
+        protected TTestCase TestCase => (TTestCase)Test.TestCase;
 
         /// <summary>
         /// Gets or sets the runtime type of the class that contains the test method.
         /// </summary>
-        protected Type TestClass { get; set; }
+        protected Type TestClass
+        {
+            get => testClass;
+            set => testClass = Guard.ArgumentNotNull(nameof(TestClass), value);
+        }
 
         /// <summary>
         /// Gets or sets the runtime method of the method that contains the test.
         /// </summary>
-        protected MethodInfo TestMethod { get; set; }
+        protected MethodInfo TestMethod
+        {
+            get => testMethod;
+            set => testMethod = Guard.ArgumentNotNull(nameof(TestMethod), value);
+        }
 
         /// <summary>
         /// Gets or sets the arguments to pass to the test method when it's being invoked.
+        /// Maybe be <c>null</c> to indicate there are no arguments.
         /// </summary>
-        protected object[] TestMethodArguments { get; set; }
+        protected object?[]? TestMethodArguments { get; set; }
 
         /// <summary>
         /// This method is called just after <see cref="ITestStarting"/> is sent, but before the test class is created.
@@ -174,7 +212,7 @@ namespace Xunit.Sdk
                 BeforeTestFinished();
 
                 if (Aggregator.HasExceptions)
-                    if (!MessageBus.QueueMessage(new TestCleanupFailure(Test, Aggregator.ToException())))
+                    if (!MessageBus.QueueMessage(new TestCleanupFailure(Test, Aggregator.ToException()!)))
                         CancellationTokenSource.Cancel();
 
                 if (!MessageBus.QueueMessage(new TestFinished(Test, runSummary.Time, output)))
@@ -190,6 +228,6 @@ namespace Xunit.Sdk
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <returns>Returns a tuple which includes the execution time (in seconds) spent running the
         /// test method, and any output that was returned by the test.</returns>
-        protected abstract Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator);
+        protected abstract Task<Tuple<decimal, string>?> InvokeTestAsync(ExceptionAggregator aggregator);
     }
 }

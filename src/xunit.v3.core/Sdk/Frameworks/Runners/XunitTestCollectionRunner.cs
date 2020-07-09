@@ -9,10 +9,12 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// The test collection runner for xUnit.net v2 tests.
+    /// The test collection runner for xUnit.net v3 tests.
     /// </summary>
     public class XunitTestCollectionRunner : TestCollectionRunner<IXunitTestCase>
     {
+        Dictionary<Type, object> collectionFixtureMappings = new Dictionary<Type, object>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitTestCollectionRunner"/> class.
         /// </summary>
@@ -23,27 +25,32 @@ namespace Xunit.Sdk
         /// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-        public XunitTestCollectionRunner(ITestCollection testCollection,
-                                         IEnumerable<IXunitTestCase> testCases,
-                                         IMessageSink diagnosticMessageSink,
-                                         IMessageBus messageBus,
-                                         ITestCaseOrderer testCaseOrderer,
-                                         ExceptionAggregator aggregator,
-                                         CancellationTokenSource cancellationTokenSource)
-            : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+        public XunitTestCollectionRunner(
+            ITestCollection testCollection,
+            IEnumerable<IXunitTestCase> testCases,
+            IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus,
+            ITestCaseOrderer testCaseOrderer,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource)
+                : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
-            this.DiagnosticMessageSink = diagnosticMessageSink;
+            DiagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
         }
 
         /// <summary>
         /// Gets the fixture mappings that were created during <see cref="AfterTestCollectionStartingAsync"/>.
         /// </summary>
-        protected Dictionary<Type, object> CollectionFixtureMappings { get; set; } = new Dictionary<Type, object>();
+        protected Dictionary<Type, object> CollectionFixtureMappings
+        {
+            get => collectionFixtureMappings;
+            set => collectionFixtureMappings = Guard.ArgumentNotNull(nameof(CollectionFixtureMappings), value);
+        }
 
         /// <summary>
         /// Gets the message sink used to send diagnostic messages.
         /// </summary>
-        protected IMessageSink DiagnosticMessageSink { get; private set; }
+        protected IMessageSink DiagnosticMessageSink { get; }
 
         /// <inheritdoc/>
         protected override async Task AfterTestCollectionStartingAsync()
@@ -86,7 +93,7 @@ namespace Xunit.Sdk
             var missingParameters = new List<ParameterInfo>();
             var ctorArgs = ctor.GetParameters().Select(p =>
             {
-                object arg = null;
+                object? arg = null;
                 if (p.ParameterType == typeof(IMessageSink))
                     arg = DiagnosticMessageSink;
                 else
@@ -99,17 +106,13 @@ namespace Xunit.Sdk
                     $"Collection fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
                 ));
             else
-            {
                 Aggregator.Run(() => CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
-            }
         }
 
         Task CreateCollectionFixturesAsync()
         {
             if (TestCollection.CollectionDefinition == null)
-            {
-                return Task.FromResult(0);
-            }
+                return Task.CompletedTask;
 
             var declarationType = ((IReflectionTypeInfo)TestCollection.CollectionDefinition).Type;
             foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
@@ -127,7 +130,7 @@ namespace Xunit.Sdk
         /// orderer from the collection definition. If this function returns <c>null</c>, the
         /// test case orderer passed into the constructor will be used.
         /// </summary>
-        protected virtual ITestCaseOrderer GetTestCaseOrderer()
+        protected virtual ITestCaseOrderer? GetTestCaseOrderer()
         {
             if (TestCollection.CollectionDefinition != null)
             {
@@ -156,7 +159,17 @@ namespace Xunit.Sdk
         }
 
         /// <inheritdoc/>
-        protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
-            => new XunitTestClassRunner(testClass, @class, testCases, DiagnosticMessageSink, MessageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), CancellationTokenSource, CollectionFixtureMappings).RunAsync();
+        protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases) =>
+            new XunitTestClassRunner(
+                testClass,
+                @class,
+                testCases,
+                DiagnosticMessageSink,
+                MessageBus,
+                TestCaseOrderer,
+                new ExceptionAggregator(Aggregator),
+                CancellationTokenSource,
+                CollectionFixtureMappings
+            ).RunAsync();
     }
 }

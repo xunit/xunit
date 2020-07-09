@@ -610,7 +610,7 @@ public class Xunit2AcceptanceTests
             public virtual Task InitializeAsync()
             {
                 output.WriteLine("InitializeAsync");
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             public virtual void Dispose()
@@ -621,7 +621,7 @@ public class Xunit2AcceptanceTests
             public virtual Task DisposeAsync()
             {
                 output.WriteLine("DisposeAsync");
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             }
 
             [Fact]

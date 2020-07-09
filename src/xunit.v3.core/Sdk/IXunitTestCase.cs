@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// Represents a single test case from xUnit.net v2.
+    /// Represents a single test case from xUnit.net v3.
     /// </summary>
     public interface IXunitTestCase : ITestCase
     {
@@ -14,7 +14,7 @@ namespace Xunit.Sdk
         /// Gets the exception that happened during initialization. When this is set, then
         /// the test execution should fail with this exception.
         /// </summary>
-        Exception InitializationException { get; }
+        Exception? InitializationException { get; }
 
         /// <summary>
         /// Gets the method to be run. Differs from <see cref="ITestCase"/>.<see cref="ITestMethod.Method"/> in that
@@ -36,6 +36,12 @@ namespace Xunit.Sdk
         /// <param name="aggregator">The error aggregator to use for catching exception.</param>
         /// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
         /// <returns>Returns the summary of the test case run.</returns>
-        Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink, IMessageBus messageBus, object[] constructorArguments, ExceptionAggregator aggregator, CancellationTokenSource cancellationTokenSource);
+        Task<RunSummary> RunAsync(
+            IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus,
+            object?[] constructorArguments,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource
+        );
     }
 }

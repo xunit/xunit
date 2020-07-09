@@ -6,11 +6,11 @@ using Xunit.Abstractions;
 namespace Xunit.Sdk
 {
     /// <summary>
-    /// The test method runner for xUnit.net v2 tests.
+    /// The test method runner for xUnit.net v3 tests.
     /// </summary>
     public class XunitTestMethodRunner : TestMethodRunner<IXunitTestCase>
     {
-        readonly object[] constructorArguments;
+        readonly object?[] constructorArguments;
         readonly IMessageSink diagnosticMessageSink;
 
         /// <summary>
@@ -25,23 +25,24 @@ namespace Xunit.Sdk
         /// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
         /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
         /// <param name="constructorArguments">The constructor arguments for the test class.</param>
-        public XunitTestMethodRunner(ITestMethod testMethod,
-                                     IReflectionTypeInfo @class,
-                                     IReflectionMethodInfo method,
-                                     IEnumerable<IXunitTestCase> testCases,
-                                     IMessageSink diagnosticMessageSink,
-                                     IMessageBus messageBus,
-                                     ExceptionAggregator aggregator,
-                                     CancellationTokenSource cancellationTokenSource,
-                                     object[] constructorArguments)
-            : base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
+        public XunitTestMethodRunner(
+            ITestMethod testMethod,
+            IReflectionTypeInfo @class,
+            IReflectionMethodInfo method,
+            IEnumerable<IXunitTestCase> testCases,
+            IMessageSink diagnosticMessageSink,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource,
+            object?[] constructorArguments)
+                : base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
         {
-            this.constructorArguments = constructorArguments;
-            this.diagnosticMessageSink = diagnosticMessageSink;
+            this.constructorArguments = Guard.ArgumentNotNull(nameof(constructorArguments), constructorArguments);
+            this.diagnosticMessageSink = Guard.ArgumentNotNull(nameof(diagnosticMessageSink), diagnosticMessageSink);
         }
 
         /// <inheritdoc/>
-        protected override Task<RunSummary> RunTestCaseAsync(IXunitTestCase testCase)
-            => testCase.RunAsync(diagnosticMessageSink, MessageBus, constructorArguments, new ExceptionAggregator(Aggregator), CancellationTokenSource);
+        protected override Task<RunSummary> RunTestCaseAsync(IXunitTestCase testCase) =>
+            testCase.RunAsync(diagnosticMessageSink, MessageBus, constructorArguments, new ExceptionAggregator(Aggregator), CancellationTokenSource);
     }
 }
