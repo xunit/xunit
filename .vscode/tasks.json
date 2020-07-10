@@ -25,7 +25,7 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "Unit Tests",
+      "label": "Unit Tests (v3)",
       "type": "process",
       "command": "dotnet",
       "args": [
@@ -36,7 +36,7 @@
         "--",
         "--configuration",
         "Debug",
-        "Test"
+        "TestV3"
       ],
       "options": {
         "cwd": "${workspaceRoot}"
@@ -48,7 +48,7 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "Unit Tests (.NET Core)",
+      "label": "Unit Tests (v3, .NET Core)",
       "type": "process",
       "command": "dotnet",
       "args": [
@@ -59,7 +59,7 @@
         "--",
         "--configuration",
         "Debug",
-        "TestCore"
+        "TestCoreV3"
       ],
       "options": {
         "cwd": "${workspaceRoot}"
@@ -71,7 +71,7 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "Unit Tests (.NET Framework)",
+      "label": "Unit Tests (v3, .NET Framework)",
       "type": "process",
       "command": "dotnet",
       "args": [
@@ -82,7 +82,28 @@
         "--",
         "--configuration",
         "Debug",
-        "TestFx"
+        "TestFxV3"
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": "build",
+      "presentation": {
+        "focus": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Pre-PR Build",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "tools/builder",
+        "--no-launch-profile",
+        "--",
+        "PR"
       ],
       "options": {
         "cwd": "${workspaceRoot}"
