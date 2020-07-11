@@ -13,21 +13,21 @@ public class ExceptionUtilityTests
     class FailureInformation : IFailureInformation, IEnumerable
     {
         readonly List<int> exceptionParentIndices = new List<int>();
-        readonly List<string> exceptionTypes = new List<string>();
-        readonly List<string> messages = new List<string>();
-        readonly List<string> stackTraces = new List<string>();
+        readonly List<string?> exceptionTypes = new List<string?>();
+        readonly List<string?> messages = new List<string?>();
+        readonly List<string?> stackTraces = new List<string?>();
 
-        public string[] ExceptionTypes
+        public string?[] ExceptionTypes
         {
             get { return exceptionTypes.ToArray(); }
         }
 
-        public string[] Messages
+        public string?[] Messages
         {
             get { return messages.ToArray(); }
         }
 
-        public string[] StackTraces
+        public string?[] StackTraces
         {
             get { return stackTraces.ToArray(); }
         }
@@ -42,7 +42,7 @@ public class ExceptionUtilityTests
             Add(ex.GetType(), ex.Message, ex.StackTrace, index);
         }
 
-        public void Add(Type exceptionType, string message = null, string stackTrace = null, int index = -1)
+        public void Add(Type exceptionType, string? message = null, string? stackTrace = null, int index = -1)
         {
             exceptionTypes.Add(exceptionType.FullName);
             messages.Add(message);
@@ -163,13 +163,13 @@ public class ExceptionUtilityTests
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Action testCode = () => { throw new XunitException(); };
-            var ex = Record.Exception(testCode);
+            var ex = Record.Exception(testCode)!;
             var failureInfo = new FailureInformation { ex };
 
             var result = ExceptionUtility.CombineStackTraces(failureInfo);
 
-            Assert.DoesNotContain(typeof(Record).FullName, result);
-            Assert.DoesNotContain(typeof(XunitException).FullName, result);
+            Assert.DoesNotContain(typeof(Record).FullName!, result);
+            Assert.DoesNotContain(typeof(XunitException).FullName!, result);
             Assert.Contains("XunitException", result);
         }
 
@@ -179,13 +179,13 @@ public class ExceptionUtilityTests
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Action testCode = () => { throw new Exception(); };
-            var ex = Record.Exception(testCode);
+            var ex = Record.Exception(testCode)!;
             var failureInfo = new FailureInformation { ex };
 
             var result = ExceptionUtility.CombineStackTraces(failureInfo);
 
-            Assert.DoesNotContain(typeof(Record).FullName, result);
-            Assert.DoesNotContain(typeof(XunitException).FullName, result);
+            Assert.DoesNotContain(typeof(Record).FullName!, result);
+            Assert.DoesNotContain(typeof(XunitException).FullName!, result);
             Assert.Contains("NonXunitException", result);
         }
 
@@ -195,13 +195,14 @@ public class ExceptionUtilityTests
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Action innerTestCode = () => { throw new DivideByZeroException(); };
-            var inner = Record.Exception(innerTestCode);
+            var inner = Record.Exception(innerTestCode)!;
             Action outerTestCode = () => { throw new Exception("message", inner); };
-            var outer = Record.Exception(outerTestCode);
+            var outer = Record.Exception(outerTestCode)!;
             var failureInfo = new FailureInformation { { outer, -1 }, { inner, 0 } };
 
             var result = ExceptionUtility.CombineStackTraces(failureInfo);
 
+            Assert.NotNull(result);
             Assert.Collection(result.Split(new[] { Environment.NewLine }, StringSplitOptions.None),
                 line => Assert.Contains("NonXunitExceptionWithInnerExceptions", line),
                 line => Assert.Equal("----- Inner Stack Trace -----", line),
@@ -215,17 +216,18 @@ public class ExceptionUtilityTests
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Action inner1TestCode = () => { throw new DivideByZeroException(); };
-            var inner1 = Record.Exception(inner1TestCode);
+            var inner1 = Record.Exception(inner1TestCode)!;
             Action inner2TestCode = () => { throw new NotImplementedException("inner #2"); };
-            var inner2 = Record.Exception(inner2TestCode);
+            var inner2 = Record.Exception(inner2TestCode)!;
             Action inner3TestCode = () => { throw new XunitException("this is crazy"); };
-            var inner3 = Record.Exception(inner3TestCode);
+            var inner3 = Record.Exception(inner3TestCode)!;
             Action outerTestCode = () => { throw new AggregateException(inner1, inner2, inner3); };
-            var outer = Record.Exception(outerTestCode);
+            var outer = Record.Exception(outerTestCode)!;
             var failureInfo = new FailureInformation { { outer, -1 }, { inner1, 0 }, { inner2, 0 }, { inner3, 0 } };
 
             var result = ExceptionUtility.CombineStackTraces(failureInfo);
 
+            Assert.NotNull(result);
             Assert.Collection(result.Split(new[] { Environment.NewLine }, StringSplitOptions.None),
                 line => Assert.Contains("HandlesAggregateException", line),
                 line => Assert.Equal("----- Inner Stack Trace #1 (System.DivideByZeroException) -----", line),

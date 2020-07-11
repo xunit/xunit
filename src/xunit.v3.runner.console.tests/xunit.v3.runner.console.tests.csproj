@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Nullable>enable</Nullable>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 

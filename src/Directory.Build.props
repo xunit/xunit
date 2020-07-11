@@ -71,6 +71,7 @@
   <Choose>
     <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
       <PropertyGroup>
+        <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
       </PropertyGroup>
 

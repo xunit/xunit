@@ -32,6 +32,7 @@ public class DefaultTestCaseDescriptorProviderTests
         Assert.Equal("", result.SkipReason);
         Assert.Equal("", result.SourceFileName);
         Assert.Null(result.SourceLineNumber);
+        Assert.NotNull(result.Traits);
         Assert.Empty(result.Traits);
         Assert.Equal("", result.UniqueID);
     }
